@@ -1,0 +1,179 @@
+# -*- coding: utf8 -*-
+#***************************************************************************
+#*   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
+#*   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+#*                                                                         *
+#*   This program is free software; you can redistribute it and/or modify  *
+#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
+#*   as published by the Free Software Foundation; either version 2 of     *
+#*   the License, or (at your option) any later version.                   *
+#*   for detail see the LICENCE text file.                                 *
+#*                                                                         *
+#*   This program is distributed in the hope that it will be useful,       *
+#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+#*   GNU Library General Public License for more details.                  *
+#*                                                                         *
+#*   You should have received a copy of the GNU Library General Public     *
+#*   License along with this program; if not, write to the Free Software   *
+#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+#*   USA                                                                   *
+#*                                                                         *
+#***************************************************************************
+
+
+"""This module provides tools to create 2D profiles 
+"""
+
+__title__= "2d"
+__author__ = "Maarten & Jonathan"
+__url__ = "./geometry/2d.py"
+
+import math, os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) #path: PyBuildingSystems
+from packages import helper
+
+class curve:
+#Line2D, etc moet van class curve zijn. start end
+    pass
+    
+class Point2D:
+    def __init__(self, x, y, id=helper.generateID()) -> None:
+        self.x: float = 0.0
+        self.y: float = 0.0
+        self.x = x
+        self.y = y
+        self.id = id
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self.x},{self.y})"
+
+
+class Vector2D:
+    def __init__(self, x, y, id=helper.generateID()) -> None:
+        self.dx: float = 0.0
+        self.dy: float = 0.0
+        self.dx = x
+        self.dy = y
+        self.id = id
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self.x},{self.y})"
+
+
+class Line2D:
+    def __init__(self, pntxy1, pntxy2, id=helper.generateID()) -> None:
+        self.start: Point2D = pntxy1
+        self.end: Point2D = pntxy2
+        self.x = [self.start.x, self.end.x]
+        self.y = [self.start.y, self.end.y]
+        self.dx = self.start.x-self.end.x
+        self.dy = self.start.y-self.end.y
+        self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
+        self.id = id
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self.start},{self.end})"
+
+
+class Arc2D:
+    def __init__(self,pntxy1,pntxy2,pntxy3, id=helper.generateID()) -> None:
+        self.start:Point2D = pntxy1
+        self.middle: Point2D = pntxy2
+        self.end: Point2D = pntxy3
+        #self.radius
+        #self.length
+        #self.origin
+        self.id = id
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def points(self):
+        #returns point on the curve
+        return (self.start, self.middle, self.end)
+
+    def __str__(self):
+        return f"{__class__.__name__}({self.start},{self.middle},{self.end})"
+
+
+class PolyCurve2D:
+    def __init__(self, id=helper.generateID()) -> None:
+        self.curves = [] #collect in list
+        self.id = id
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def byJoinedCurves(self, curves):
+        for i in curves:
+            self.curves.append(i)
+        return self.curves
+
+    @staticmethod
+    def polygon(self):
+        points = []
+        for i in self.curves:
+            if i == Arc2D:
+                points.append(i.start,i.middle)
+            else:
+                points.append(i.start)
+        points.append(points[0])
+        return points
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self})"
+
+
+class Surface2D:
+    def __init__(self, id=helper.generateID()) -> None:
+        pass #PolyCurve2D
+        self.id = id
+    pass #opening(PolyCurve2D)
+        
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self})"
+
+
+class Profile2D:
+    def __init__(self, id=helper.generateID()) -> None:
+        pass #Surface2D, collect curves and add parameters
+        self.id = id
+    #voorzien van parameters
+    #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
+    pass
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self})"
+
+
+class ParametricProfile2D:
+    def __init__(self, id=helper.generateID()) -> None:
+        pass #iets van profile hier inladen
+        self.id = id
+    # Aluminium
+    # Generic
+    # Precast Concrete
+    # ParametricProfile2D
+    pass
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self})"
