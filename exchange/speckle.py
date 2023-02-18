@@ -38,10 +38,11 @@ from specklepy.api.credentials import get_default_account
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
-from specklepy.objects.geometry import Mesh
+from specklepy.objects.geometry import Mesh as SpeckleMesh
 from specklepy.objects.geometry import Polyline
 # from specklepy.objects.geometry import Surface
-
+from specklepy.transports.server import ServerTransport
+from specklepy.api import operations
 
 def PolylineByPoints(SpecklePoints):
     Polyline.from_points(SpecklePoints)
@@ -54,7 +55,7 @@ def PointToSpecklePoint(Point: Point):
 
 
 def LineToSpeckleLine(Line: Line):
-    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end))
+    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = "mm")
     return SpeckleLn
 
 
@@ -64,7 +65,12 @@ def Point2DToSpecklePoint(Point2D: Point2D):
 
 
 def SpeckleMeshByMesh(MeshPB):
-    spcklmesh = Mesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name)
+    color = -1762845660
+    colrs = []
+    for i in range(MeshPB.numberFaces*4):
+        colrs.append(color)
+    #colors = colrs
+    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, units = "mm")
     return spcklmesh
 
 
@@ -86,9 +92,6 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
 
     obj = SpeckleExport(objects=SpeckleObjects)
 
-    from specklepy.transports.server import ServerTransport
-    from specklepy.api import operations
-
     # next create a server transport - this is the vehicle through which you will send and receive
     transport = ServerTransport(client=client, stream_id=streamid)
 
@@ -97,9 +100,9 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
 
     # you can now create a commit on your stream with this object
     commid_id = client.commit.create(
-        stream_id=streamid,
-        object_id=hash,
-        message=messageCommit,
+        stream_id = streamid,
+        object_id = hash,
+        message = messageCommit,
     )
 
     return (commid_id)

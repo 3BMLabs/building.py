@@ -47,10 +47,11 @@ class Frame:
         self.start: Point
         self.end: Point
         self.curve: Line
-        self.length: double = 0
+        self.length: float = 0
         self.coordinatesystem: CoordinateSystem = CSGlobal
         self.verts = []
         self.faces = []
+        self.numberFaces = 0
 
     def byStartpointEndpointProfileName(self, start, end, profile_name, name):
         self.start = start
@@ -61,6 +62,7 @@ class Frame:
         self.length = Vector3.length(self.directionvector)
         self.name = name
         self.extrusion = Extrusion().byPolyCurveHeightVector(self.curve, self.length, CSGlobal, start, self.directionvector)
+        self.numberFaces = self.extrusion[2]
         self.verts = self.extrusion[0]
         self.faces = self.extrusion[1]
 
@@ -72,5 +74,6 @@ class Frame:
         self.length = Vector3.length(self.directionvector)
         self.name = name
         self.extrusion = Extrusion().byPolyCurveHeightVector(polycurve, self.length, CSGlobal, start, self.directionvector)
+        self.numberFaces = self.extrusion[2]
         self.verts = self.extrusion[0]
         self.faces = self.extrusion[1]

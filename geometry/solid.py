@@ -41,6 +41,7 @@ class Extrusion:
     def __init__(self):
         self.verts = []
         self.faces = []
+        self.numberFaces = 0
         self.name = "none"
 
     def byPolyCurveHeightVector(self, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
@@ -50,8 +51,8 @@ class Extrusion:
             endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
             endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
             startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
-            #Construct faces perpendicular on polycurve
 
+            #Construct faces perpendicular on polycurve
             self.faces.append(4)
             self.verts.append(startpointLow.x)
             self.verts.append(startpointLow.y)
@@ -73,15 +74,14 @@ class Extrusion:
             self.verts.append(startpointHigh.z)
             self.faces.append(count)
             count += 1
+            self.numberFaces = self.numberFaces + 1
             #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
             # list structure of verts is x y z x y z x y z
             #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
             # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
             # first number is number of vertices.
             # then
-        return self.verts, self.faces
-
-
+        return self.verts, self.faces, self.numberFaces
 
 class Sweep:
     def __init__(self, id=helper.generateID()) -> None:

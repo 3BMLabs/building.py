@@ -97,7 +97,7 @@ class CChannelParallelFlange:
 
 
 class CChannelSlopedFlange:
-    def __init__(self, name, b, h, tf, tw, r1, r2, tl, sa, ex):
+    def __init__(self, name, h, b, tf, tw, r1, r2, tl, sa, ex):
         self.Description = "C-channel with sloped flange"
         self.ID = "C_SF"
 
@@ -117,22 +117,22 @@ class CChannelSlopedFlange:
         self.ex = ex  # centroid horizontal
 
         # describe points
-        p1 = Point2D[-ex, -h / 2]  # left bottom
-        p2 = Point2D[b - ex, -h / 2]  # right bottom
-        p3 = Point2D[b - ex, -h / 2 + tf - math.tan(sa) * tl - r2]  # start arc
-        p4 = Point2D[b - ex - r2 + self.r21, -h / 2 + tf - math.tan(sa) * tl - r2 + self.r21]  # second point arc
-        p5 = Point2D[b - ex - r2 + math.sin(sa) * r2, -h / 2 + tf - math.tan(sa) * (tl - r2)]  # end arc
-        p6 = Point2D[-ex + tw + r1 - math.sin(sa) * r1, -h / 2 + tf + math.tan(sa) * (b - tl - tw - r1)]  # start arc
-        p7 = Point2D[-ex + tw + r1 - self.r11, -h / 2 + tf + math.tan(sa) * (b - tl - tw - r1) + r1 - self.r11]  # second point arc
-        p8 = Point2D[-ex + tw, -h / 2 + tf + math.tan(sa) * (b - tl - tw) + r1]  # end arc
-        p9 = Point2D[p8[0], -p8[1]]  # start arc
-        p10 = Point2D[p7[0], -p7[1]]  # second point arc
-        p11 = Point2D[p6[0], -p6[1]]  # end arc
-        p12 = Point2D[p5[0], -p5[1]]  # start arc
-        p13 = Point2D[p4[0], -p4[1]]  # second point arc
-        p14 = Point2D[p3[0], -p3[1]]  # end arc
-        p15 = Point2D[p2[0], -p2[1]]  # right top
-        p16 = Point2D[p1[0], -p1[1]]  # left top
+        p1 = Point2D(-ex, -h / 2)  # left bottom
+        p2 = Point2D(b - ex, -h / 2)  # right bottom
+        p3 = Point2D(b - ex, -h / 2 + tf - math.tan(sa) * tl - r2)  # start arc
+        p4 = Point2D(b - ex - r2 + self.r21, -h / 2 + tf - math.tan(sa) * tl - r2 + self.r21)  # second point arc
+        p5 = Point2D(b - ex - r2 + math.sin(sa) * r2, -h / 2 + tf - math.tan(sa) * (tl - r2))  # end arc
+        p6 = Point2D(-ex + tw + r1 - math.sin(sa) * r1, -h / 2 + tf + math.tan(sa) * (b - tl - tw - r1))  # start arc
+        p7 = Point2D(-ex + tw + r1 - self.r11, -h / 2 + tf + math.tan(sa) * (b - tl - tw - r1) + r1 - self.r11)  # second point arc
+        p8 = Point2D(-ex + tw, -h / 2 + tf + math.tan(sa) * (b - tl - tw) + r1)  # end arc
+        p9 = Point2D(p8.x, -p8.y)  # start arc
+        p10 = Point2D(p7.x, -p7.y)  # second point arc
+        p11 = Point2D(p6.x, -p6.y)  # end arc
+        p12 = Point2D(p5.x, -p5.y)  # start arc
+        p13 = Point2D(p4.x, -p4.y)  # second point arc
+        p14 = Point2D(p3.x, -p3.y)  # end arc
+        p15 = Point2D(p2.x, -p2.y)  # right top
+        p16 = Point2D(p1.x, -p1.y)  # left top
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -294,13 +294,13 @@ class LAngle:
         p1 = Point2D(-ex, -ey)  # left bottom
         p2 = Point2D(b - ex, -ey)  # right bottom
         p3 = Point2D(b - ex, -ey + tf - r2)  # start arc
-        p4 = Point2D(b - ex - r2 + r21, -ey + tf - r2 + r21)  # second point arc
+        p4 = Point2D(b - ex - r2 + self.r21, -ey + tf - r2 + self.r21)  # second point arc
         p5 = Point2D(b - ex - r2, -ey + tf)  # end arc
         p6 = Point2D(-ex + tf + r1, -ey + tf)  # start arc
-        p7 = Point2D(-ex + tf + r1 - r11, -ey + tf + r1 - r11)  # second point arc
+        p7 = Point2D(-ex + tf + r1 - self.r11, -ey + tf + r1 - self.r11)  # second point arc
         p8 = Point2D(-ex + tf, -ey + tf + r1)  # end arc
         p9 = Point2D(-ex + tf, h - ey - r2)  # start arc
-        p10 = Point2D(-ex + tf - r2 + r21, h - ey - r2 + r21)  # second point arc
+        p10 = Point2D(-ex + tf - r2 + self.r21, h - ey - r2 + self.r21)  # second point arc
         p11 = Point2D(-ex + tf - r2, h - ey)  # end arc
         p12 = Point2D(-ex, h - ey)  # left top
 
@@ -315,7 +315,38 @@ class LAngle:
         l8 = Line2D(p11, p12)
         l9 = Line2D(p12, p1)
 
-        self.curve = PolyCurve2D().curves([l1, l2, l3, l4, l5, l6, l7, l8, l9])
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+class RectangleHollowSection:  #NOT COMPLETE YET
+    def __init__(self, name, h, b, t, r1, r2):
+        self.Description = "Rectangle Hollow Section"
+        self.ID = "RHS"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.h = h  # height
+        self.b = b  # width
+        self.t = t # thickness
+        self.r1 = r1 # outer radius
+        self.r2 = r2 # inner radius
+
+        # describe points
+        p1 = Point2D(b / 2, -h / 2)  # right bottom
+        p2 = Point2D(b / 2, h / 2)  # right top
+        p3 = Point2D(-b / 2, h / 2) # left top
+        p4 = Point2D(-b / 2, -h / 2) # left bottom
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+        l2 = Line2D(p2, p3)
+        l3 = Line2D(p3, p4)
+        l4 = Line2D(p4, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"

@@ -44,6 +44,28 @@ from specklepy.objects.geometry import Polyline
 
 Line = SpeckLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(800, 1000, 1000))
 
+def mesh(box):
+    return Mesh(
+        vertices=[2, 1, 2, 4, 77.3, 5, 33, 4, 2],
+        faces=[1, 2, 3, 4, 5, 6, 7],
+        colors=[111, 222, 333, 444, 555, 666, 777],
+        bbox=box,
+        area=233,
+        volume=232.2,
+        units = "mm"
+    )
+
+def polyline(interval):
+    return Polyline(
+        value=[22, 44, 54.3, 99, 232, 21],
+        closed=True,
+        domain=interval,
+        units="m",
+        # These attributes are not handled in C#
+        # bbox=None,
+        # area=None,
+        # length=None,
+    )
 
 class Mesh(Base):
     #mesh class to export to speckle

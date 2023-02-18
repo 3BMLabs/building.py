@@ -20,20 +20,21 @@ from objects.frame import Frame
 from exchange.XFEM4U.xfem4unames import *
 
 def getGridDistances(Grids):
-    del Grids[0]
     GridsNew = []
     distance = 0.0
+    #GridsNew.append(distance)
     for i in Grids:
+        #del Grids[0]
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
             width = float(spl[1])
             for i in range(count):
-                GridsNew.append(distance)
                 distance = distance + width
+                GridsNew.append(distance)
         else:
-            GridsNew.append(distance)
             distance = distance + float(i)
+            GridsNew.append(distance)
     return GridsNew
 
 #List for SpeckleObjects
@@ -59,17 +60,19 @@ from geometry.curve import *
 
 grids = []
 for i in GridsX:
-    grids.append(Line(Point(i,-GridEx,0),Point(i,Ymax+GridEx,0)))
+    grids.append(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)))
 
 for i in GridsY:
-    grids.append(Line(Point(i,-GridEx,0),Point(i,Ymax+GridEx,0)))
+    grids.append(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)))
 
 for i in GridsZ:
-    grids.append(Line(Point(i,-GridEx,0),Point(i,Ymax+GridEx,0)))
+    grids.append(Line(Point(0, 0, i) , Point(0, Xmax, i)))
 
 for i in grids:
     line = LineToSpeckleLine(i) #Grid naar SpeckleLine
     obj.append(line)
+
+#sys.exit()
 
 #PUNTEN IMPORTEREN
 n = root.findall(".//Nodes/Number")
@@ -137,10 +140,10 @@ for i in PlatesNodes:
 
 #sys.exit()
 
-SpeckleHost = "speckle.xyz"
-StreamID = "a2ff034164"
+SpeckleHost = "speckle.xyz" # struct4u.xyz
+StreamID = "a2ff034164" #c4cc12fa6f
 SpeckleObjects = obj
-Message = "I send this to Speckle on 14-02-2023"
+Message = "Shiny commit 140"
 
 Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObjects, Message)
 

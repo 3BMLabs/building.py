@@ -22,46 +22,11 @@
 #***************************************************************************
 
 
-"""This module provides tools to get profiledata from the database. These are json files
+"""This module provides tools for colors
 """
 
-__title__= "profile"
+__title__= "color"
 __author__ = "Maarten & Jonathan"
-__url__ = "./objects/profile.py"
+__url__ = "./geometry/color.py"
 
-from packages import helper
-from objects.shape import *
-
-jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
-jsonFileStr = open(jsonFile, "r").read()
-
-
-def findProfile(name):
-    try:
-        data = helper.findjson(name, jsonFileStr)[0]
-        data.insert(0,name) #voeg profilename toe aan de lijst
-        d1 = data[:-1]
-        if data[-1] == "C-channel parallel flange":
-            prof = CChannelParallelFlange(d1)
-        elif data[-1] == "C-channel sloped flange":
-            prof = CChannelSlopedFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8],d1[9])
-        elif data[-1] == "I-shape parallel flange":
-            prof = IShapeParallelFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5]) #HELE GEKKE BUG, ITEMS WERKEN WEL LOS, MAAR TOTALE LIST NIET
-        elif data[-1] == "Rectangle":
-            prof = Rectangle(d1[0],d1[1],d1[2])
-        elif data[-1] == "Round":
-            prof = Round(d1)
-        elif data[-1] == "LAngle":
-            prof = LAngle(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
-        elif data[-1] == "Rectangle hollow section":
-            prof = RectangleHollowSection(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
-        else:
-            prof = "error, profile not created"
-    except:
-        prof = "profileshape not found"
-        data = "no profiledata found"
-    return(prof, data)
-
-
-#print(findProfile("IPE500"))
 
