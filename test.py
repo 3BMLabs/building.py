@@ -21,6 +21,8 @@ test = SpeckleMesh(
     units = "mm"
     )
 
+#test
+
 test2 = findProfile("UNP200")
 
 print(test2)
