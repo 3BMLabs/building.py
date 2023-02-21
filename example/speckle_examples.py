@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
-#*   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -42,7 +42,7 @@ from specklepy.objects.geometry import Polyline
 
 #Speckle Line
 
-Line = SpeckLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(800, 1000, 1000))
+Line = SpeckleLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(800, 1000, 1000))
 
 def mesh(box):
     return Mesh(

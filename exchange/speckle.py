@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
-# *   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
 # *   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -25,24 +25,34 @@
 """This module provides tools for exporting geometry to Speckle
 """
 
-__title__ = "speckle"
+__title__ = "specklev2"
 __author__ = "Maarten & Jonathan"
-__url__ = "./exchange/speckle.py"
+__url__ = "./exchange/specklev2.py"
+
+
+import sys
+from pathlib import Path
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
 
 from geometry.point import Point
 from geometry.curve import Line
 from geometry.flat import Point2D
 
-from specklepy.api.client import SpeckleClient
-from specklepy.api.credentials import get_default_account
+from packages.speckleEnv.specklepy.api.client import SpeckleClient
+from packages.speckleEnv.specklepy.api.credentials import get_default_account
+from packages.speckleEnv.specklepy.transports.server import ServerTransport
+from packages.speckleEnv.specklepy.api import operations
+
+#ERRORS
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
 from specklepy.objects.geometry import Mesh as SpeckleMesh
 from specklepy.objects.geometry import Polyline
-# from specklepy.objects.geometry import Surface
-from specklepy.transports.server import ServerTransport
-from specklepy.api import operations
+
+
 
 def PolylineByPoints(SpecklePoints):
     Polyline.from_points(SpecklePoints)
@@ -99,10 +109,10 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
     hash = operations.send(base=obj, transports=[transport])
 
     # you can now create a commit on your stream with this object
-    commid_id = client.commit.create(
+    commit_id = client.commit.create(
         stream_id = streamid,
         object_id = hash,
         message = messageCommit,
     )
-
-    return (commid_id)
+    print(f"Commit ID: {commit_id}")
+    return commit_id

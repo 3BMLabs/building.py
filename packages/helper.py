@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
-#*   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -30,8 +30,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./package/helper.py"
 
 
-import string, random
-import json
+import string, random, json
 
 def find_in_list_of_list(mylist, char):
     for sub_list in mylist:

@@ -1,3 +1,10 @@
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[2]
+sys.path.append(str(package_root_directory))
+
 import re
 from typing import Dict
 from warnings import warn
@@ -6,6 +13,7 @@ from deprecated import deprecated
 from gql import Client
 from gql.transport.requests import RequestsHTTPTransport
 from gql.transport.websockets import WebsocketsTransport
+
 
 from specklepy.api import resources
 from specklepy.api.credentials import Account, get_account_from_token

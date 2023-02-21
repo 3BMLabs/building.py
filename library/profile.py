@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
-#*   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -29,10 +29,18 @@ __title__= "profile"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/profile.py"
 
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 from packages import helper
 from objects.shape import *
 
-jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
+jsonFile = "library\\profile_database\\steelprofile.json"
+
 jsonFileStr = open(jsonFile, "r").read()
 
 
@@ -61,7 +69,3 @@ def findProfile(name):
         prof = "profileshape not found"
         data = "no profiledata found"
     return(prof, data)
-
-
-#print(findProfile("IPE500"))
-

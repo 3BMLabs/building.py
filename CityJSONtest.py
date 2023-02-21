@@ -1,9 +1,13 @@
+import sys, json
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[0]
+sys.path.append(str(package_root_directory))
+
 from exchange.speckle import *
 
-import json
-import sys
-
-jsonFile = "C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Maarten en Jonathan 3BM/CityJSON/Roffa.json"
+jsonFile = "temp/rotterdam.json"
 data = json.load(open(jsonFile))
 vert = data['vertices']
 cityobj = data['CityObjects']
@@ -46,8 +50,8 @@ obj = []
 
 obj.append(SpeckleMeshByMesh(vert_lst,faces_lst))
 
-SpeckleHost = "speckle.xyz" # struct4u.xyz
-StreamID = "2698c3d5d7" #c4cc12fa6f
+SpeckleHost = "3bm.exchange" # struct4u.xyz
+StreamID = "55758e05ae" #c4cc12fa6f
 SpeckleObjects = obj
 Message = "Shiny commit 140"
 

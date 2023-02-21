@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
-#*   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -30,8 +30,13 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/shape.py"
 
 
-import math, os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) #path: PyBuildingSystems
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 from geometry.flat import *
 
 sqrt2 = math.sqrt(2)
@@ -43,9 +48,6 @@ sqrt2 = math.sqrt(2)
   #shape is een parametrische vorm heeft als resultaat een 2D curve
   #section is een profiel met eigenschappen HEA200, 200,200,10,10,5 en eventuele rekenkundige eigenschappen.
   #beam is een object wat in 3D zit met materiaal enz.
-
-#To do Jonathan:
-#Overkoepelende class waarbij description en name vanuit de overkoepelende class komt.
 
 
 class CChannelParallelFlange:

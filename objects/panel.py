@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Jonathan Van der Gouwe & Maarten Vroegindeweij     *
-#*   jonathan@3bm.co.nl & maarten@3bm.co.nl                                *
+#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
 #*   it under the terms of the GNU Lesser General Public License (LGPL)    *
@@ -29,14 +29,20 @@ __title__= "panel"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/panel.py"
 
-import math, os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) #path: PyBuildingSystems
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 from abstract.vector import Vector3
 from abstract.coordinatesystem import CoordinateSystem
 from abstract.coordinatesystem import CSGlobal
 from geometry.point import Point
 from geometry.solid import Extrusion
 from library.profile import *
+from geometry.flat import PolyCurve2D
 
 class Panel:
     #Panel
@@ -50,11 +56,12 @@ class Panel:
         self.faces = []
         self.numberFaces = 0
 
-    def byPolyCurveThickness(self, polycurve2D, thickness, directionvector, name):
+    def byPolyCurveThickness(self, polycurve2D, thickness, start, directionvector, name):
         self.directionvector = directionvector
         self.name = name
         self.thickness = thickness
-        self.extrusion = Extrusion().byPolyCurveHeightVector(polycurve, self.thickness, CSGlobal, start, self.directionvector)
+        self.start = start
+        self.extrusion = Extrusion().byPolyCurveHeightVector(PolyCurve2D, self.thickness, CSGlobal, start, self.directionvector)
         self.numberFaces = self.extrusion[2]
         self.verts = self.extrusion[0]
         self.faces = self.extrusion[1]

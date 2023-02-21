@@ -1,23 +1,19 @@
-#from . import Struct4U
-#from geometry.point import Point
-#from geometry.curve import Line
+import sys
+from pathlib import Path
+file = Path(__file__).resolve()
+package_root_directory = file.parents[0]
+sys.path.append(str(package_root_directory))
 
 import xml.etree.ElementTree as ET
-import sys
-
-tree = ET.parse("C:/TEMP/test135.xml")
-# get data from xml
+tree = ET.parse("temp/test135.xml")
 root = tree.getroot()
 
-#SPECKLE PART
-
-from specklepy.objects.geometry import Point
-from specklepy.objects.geometry import Line
-from specklepy.objects.geometry import Polyline
 from exchange.speckle import *
+from geometry.curve import Line
 from geometry.point import Point
 from objects.frame import Frame
 from exchange.XFEM4U.xfem4unames import *
+
 
 def getGridDistances(Grids):
     GridsNew = []
@@ -69,12 +65,11 @@ for i in GridsZ:
     grids.append(Line(Point(0, 0, i) , Point(0, Xmax, i)))
 
 for i in grids:
-    line = LineToSpeckleLine(i) #Grid naar SpeckleLine
+    line = LineToSpeckleLine(i) #Grid to SpeckleLine
     obj.append(line)
 
-#sys.exit()
 
-#PUNTEN IMPORTEREN
+#POINTS
 n = root.findall(".//Nodes/Number")
 X = root.findall(".//Nodes/X")
 Y = root.findall(".//Nodes/Y")
@@ -82,7 +77,7 @@ Z = root.findall(".//Nodes/Z")
 
 XYZ = []
 
-#Punten in 3D in Speckle tekenen
+#Put points in 3D
 for h,i,j,k in zip(n,X,Y,Z):
     Pnt = Point(float(i.text), float(j.text), float(k.text))
     #Pnt.id = int(h.text)
@@ -136,15 +131,10 @@ print(XMLelements)
 for i in PlatesNodes:
     PlatePoints.append(XYZ[int(i.text)-1])
 
-#plyline = Polyline.from_points(PlatePoints)
 
-#sys.exit()
-
-SpeckleHost = "speckle.xyz" # struct4u.xyz
-StreamID = "a2ff034164" #c4cc12fa6f
+SpeckleHost = "3bm.exchange" # struct4u.xyz
+StreamID = "55758e05ae" #c4cc12fa6f
 SpeckleObjects = obj
-Message = "Shiny commit 140"
+Message = "Github 2023"
 
 Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObjects, Message)
-
-print(Commit)
