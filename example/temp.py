@@ -1,2 +1,2 @@
 def x():
-    print("1")
+    print(1)
