@@ -25,9 +25,9 @@
 """This module provides tools for exporting geometry to Speckle
 """
 
-__title__ = "specklev2"
+__title__ = "speckle"
 __author__ = "Maarten & Jonathan"
-__url__ = "./exchange/specklev2.py"
+__url__ = "./exchange/speckle.py"
 
 
 import sys
