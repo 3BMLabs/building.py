@@ -45,13 +45,11 @@ from packages.specklepy.api.credentials import get_default_account
 from packages.specklepy.transports.server import ServerTransport
 from packages.specklepy.api import operations
 
-#ERRORS
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
 from specklepy.objects.geometry import Mesh as SpeckleMesh
 from specklepy.objects.geometry import Polyline
-
 
 
 def PolylineByPoints(SpecklePoints):
