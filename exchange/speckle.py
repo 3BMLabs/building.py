@@ -40,10 +40,10 @@ from geometry.point import Point
 from geometry.curve import Line
 from geometry.flat import Point2D
 
-from packages.speckleEnv.specklepy.api.client import SpeckleClient
-from packages.speckleEnv.specklepy.api.credentials import get_default_account
-from packages.speckleEnv.specklepy.transports.server import ServerTransport
-from packages.speckleEnv.specklepy.api import operations
+from packages.specklepy.api.client import SpeckleClient
+from packages.specklepy.api.credentials import get_default_account
+from packages.specklepy.transports.server import ServerTransport
+from packages.specklepy.api import operations
 
 #ERRORS
 from specklepy.objects import Base
