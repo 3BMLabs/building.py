@@ -50,6 +50,7 @@ class Extrusion:
         self.name = "none"
 
     def byPolyCurveHeightVector(self, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
+        #2D PolyCurve @ Global zeropoint
         count = 0
         for i in polycurve:
             startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
@@ -87,6 +88,7 @@ class Extrusion:
             # first number is number of vertices.
             # then
         return self.verts, self.faces, self.numberFaces
+
 
 class Sweep:
     def __init__(self, id=helper.generateID()) -> None:

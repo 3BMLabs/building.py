@@ -67,6 +67,10 @@ P4 = SpecklePoint.from_coords(2000,1000,0)
 
 ply = Polyline.from_points([P1,P2,P3,P4])
 
+#Speckle Mesh
+Messie2 = SpeckleMesh(vertices = [1000,1000,0,1000,1000,1000,2000,2000,0], faces = [3,0,1,2], name = "Jonathan zijn mesh", colors = [-1762845660,-1762845660,-1762845660]) #, units = "mm"
+
+
 def mesh(box):
     return Mesh(
         vertices=[2, 1, 2, 4, 77.3, 5, 33, 4, 2],

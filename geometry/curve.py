@@ -65,14 +65,28 @@ class Line:
 
 
 class PolyCurve: #pass this object before using it.
-    def __init__(self, curves, id=helper.generateID()) -> None:
-        self.curves = curves#collect in list
+    def __init__(self, id=helper.generateID()) -> None:
+        self.curves = [] #collect in list
         self.id = id
 
     def byJoinedCurves(self, curvelst):
         for i in curvelst:
             self.curves.append(i)
         return self.curves
+
+    def byPoints(self, points):
+        #by points,
+        count = 0
+        for i in points:
+            count = count + 1
+            try:
+                self.curves.append(Line(start=i, end=points[count]))
+            except:
+                self.curves.append(Line(start=i, end=points[0]))
+
+    @staticmethod
+    def points(self):
+        return(self.curves.start)
 
     def __id__(self):
         return f"id:{self.id}"
@@ -84,9 +98,9 @@ class PolyCurve: #pass this object before using it.
         return PolyCurveName + ")"
 
 #2D PolyCurve to 3D PolyGon
-def polygon(curves):
+def polygon(flatCurves):
     points = []
-    for i in curves:
+    for i in flatCurves:
         points.append(i.start)
         try:
             points.append(i.middle)
@@ -103,18 +117,6 @@ class PolyGon:
         self.Lines = lines#collect in list
         self.id = id
         pass #Lines
-    pass
-
-    def __id__(self):
-        return f"id:{self.id}"
-
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"
-
-
-class PolyCurve:
-    def __init__(self, id=helper.generateID()) -> None:
-        pass #Curves
     pass
 
     def __id__(self):
@@ -175,14 +177,3 @@ class Ellipse:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
 
-
-class Spline:
-    def __init__(self, id=helper.generateID()) -> None:
-        pass #Curve
-    pass #ControlPoint
-
-    def __id__(self):
-        return f"id:{self.id}"
-        
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"

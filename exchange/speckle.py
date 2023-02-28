@@ -38,6 +38,7 @@ sys.path.append(str(package_root_directory))
 
 from geometry.point import Point
 from geometry.curve import Line
+from geometry.curve import PolyCurve
 from geometry.flat import Point2D
 
 #from packages.specklepy.api.client import SpeckleClient
@@ -54,21 +55,19 @@ from specklepy.objects import Base
 from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
 from specklepy.objects.geometry import Mesh as SpeckleMesh
-from specklepy.objects.geometry import Polyline
+from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
 
 
 def PolylineByPoints(SpecklePoints):
-    Polyline.from_points(SpecklePoints)
-    return Polyline
-
+    SpecklePolyLine.from_points(SpecklePoints)
+    return SpecklePolyLine
 
 def PointToSpecklePoint(Point: Point):
     SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
     return SpecklePnt
-
 
 def LineToSpeckleLine(Line: Line):
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = "mm")
