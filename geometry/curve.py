@@ -40,6 +40,7 @@ sys.path.append(str(package_root_directory))
 from geometry.point import *
 from packages import helper
 
+
 class Line:
     def __init__(self, start: Point, end: Point, id=helper.generateID()) -> None:
         self.start: Point = start

@@ -39,10 +39,33 @@ from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
 from specklepy.objects.geometry import Mesh as SpeckleMesh
 from specklepy.objects.geometry import Polyline
+from specklepy.objects.geometry import Vector as SpeckleVector
+from specklepy.objects.geometry import Plane as SpecklePlane
+from specklepy.objects.geometry import Arc as SpeckleArc
+
+#Speckle Point
+SpecklePoint.from_coords(0, 0, 0)
 
 #Speckle Line
-
 Line = SpeckleLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(800, 1000, 1000))
+
+#Speckle Vector
+V1 = SpeckleVector.from_coords(0, 0, 1000) # Vector
+
+#Speckle Plane
+V1 = SpeckleVector.from_coords(0, 0, 1000) # Vector
+X  = SpeckleVector.from_coords(1000, 0, 0)
+Y = SpeckleVector.from_coords(0, 1000, 0)
+Orig = SpecklePoint.from_coords(0, 0, 0)
+pln = SpecklePlane(origin=Orig, normal=V1, xdir=X, ydir=Y)
+
+#Speckle Polyline
+P1 = SpecklePoint.from_coords(0,0,0)
+P2 = SpecklePoint.from_coords(1000,0,0)
+P3 = SpecklePoint.from_coords(2000,0,0)
+P4 = SpecklePoint.from_coords(2000,1000,0)
+
+ply = Polyline.from_points([P1,P2,P3,P4])
 
 def mesh(box):
     return Mesh(

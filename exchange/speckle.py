@@ -50,6 +50,9 @@ from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
 from specklepy.objects.geometry import Mesh as SpeckleMesh
 from specklepy.objects.geometry import Polyline
+from specklepy.objects.geometry import Vector as SpeckleVector
+from specklepy.objects.geometry import Plane as SpecklePlane
+from specklepy.objects.geometry import Arc as SpeckleArc
 
 
 def PolylineByPoints(SpecklePoints):
@@ -80,7 +83,6 @@ def SpeckleMeshByMesh(MeshPB):
     #colors = colrs
     spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, units = "mm")
     return spcklmesh
-
 
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
     # initialise the client
