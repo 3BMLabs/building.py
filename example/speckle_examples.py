@@ -50,11 +50,11 @@ SpecklePoint.from_coords(0, 0, 0)
 Line = SpeckleLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(800, 1000, 1000))
 
 #Speckle Vector
-V1 = SpeckleVector.from_coords(0, 0, 1000) # Vector
+#V1 = SpeckleVector.from_coords(0, 0, 1000) # Vector
 
 #Speckle Plane
 V1 = SpeckleVector.from_coords(0, 0, 1000) # Vector
-X  = SpeckleVector.from_coords(1000, 0, 0)
+X = SpeckleVector.from_coords(1000, 0, 0)
 Y = SpeckleVector.from_coords(0, 1000, 0)
 Orig = SpecklePoint.from_coords(0, 0, 0)
 pln = SpecklePlane(origin=Orig, normal=V1, xdir=X, ydir=Y)

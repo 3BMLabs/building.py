@@ -30,7 +30,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/speckle.py"
 
 
-import sys
+import sys, random
 from pathlib import Path
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -40,10 +40,15 @@ from geometry.point import Point
 from geometry.curve import Line
 from geometry.flat import Point2D
 
-from packages.specklepy.api.client import SpeckleClient
-from packages.specklepy.api.credentials import get_default_account
-from packages.specklepy.transports.server import ServerTransport
-from packages.specklepy.api import operations
+#from packages.specklepy.api.client import SpeckleClient
+#from packages.specklepy.api.credentials import get_default_account
+#from packages.specklepy.transports.server import ServerTransport
+#from packages.specklepy.api import operations
+
+from specklepy.api.client import SpeckleClient
+from specklepy.api.credentials import get_default_account
+from specklepy.transports.server import ServerTransport
+from specklepy.api import operations
 
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point as SpecklePoint

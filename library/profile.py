@@ -43,7 +43,6 @@ jsonFile = "library\\profile_database\\steelprofile.json"
 
 jsonFileStr = open(jsonFile, "r").read()
 
-
 def findProfile(name):
     try:
         data = helper.findjson(name, jsonFileStr)[0]
