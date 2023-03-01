@@ -67,26 +67,30 @@ class Line:
 class PolyCurve: #pass this object before using it.
     def __init__(self, id=helper.generateID()) -> None:
         self.curves = [] #collect in list
+        self.points = []
         self.id = id
 
-    def byJoinedCurves(self, curvelst):
+    @classmethod
+    def byJoinedCurves(cls, curvelst):
+        p1 = PolyCurve()
         for i in curvelst:
-            self.curves.append(i)
-        return self.curves
+            p1.curves.append(i)
+            p1.points.append(i.start)
+        return p1
 
-    def byPoints(self, points):
+    @classmethod
+    def byPoints(cls, points):
         #by points,
+        p1 = PolyCurve()
         count = 0
+        p1.points = points
         for i in points:
             count = count + 1
             try:
-                self.curves.append(Line(start=i, end=points[count]))
+                p1.curves.append(Line(start=i, end=points[count]))
             except:
-                self.curves.append(Line(start=i, end=points[0]))
-
-    @staticmethod
-    def points(self):
-        return(self.curves.start)
+                p1.curves.append(Line(start=i, end=points[0]))
+        return p1
 
     def __id__(self):
         return f"id:{self.id}"

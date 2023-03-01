@@ -54,7 +54,7 @@ class Vector3:
             v1.Z + v2.Z
         )
 
-    @staticmethod
+    @staticmethod #Returns vector perpendicular on the two vectors
     def crossProduct(v1, v2):
         return Vector3(
             v1.Y*v2.Z - v1.Z*v2.Y,
@@ -67,7 +67,7 @@ class Vector3:
         return v1.X*v2.X+v1.Y*v2.Y+v1.Z*v2.Z
 
     @staticmethod
-    def product(n, v1):
+    def product(n, v1): #Same as scale
         return Vector3(
             v1.X*n,
             v1.Y*n,
@@ -116,8 +116,8 @@ class Vector3:
             v1.Z*scale
         )
 
-    @staticmethod
-    def byTwoPoints(p1, p2):
+    @classmethod
+    def byTwoPoints(cls, p1, p2):
         return Vector3(
             p2.x-p1.x,
             p2.y-p1.y,
@@ -126,6 +126,7 @@ class Vector3:
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.X},{self.Y},{self.Z})"
+
 
 XAxis = Vector3(1, 0, 0)
 

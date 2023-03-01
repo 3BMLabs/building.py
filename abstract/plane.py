@@ -22,42 +22,33 @@
 #***************************************************************************
 
 
-"""This module provides tools for the modelling of panel components. a panel can be a floor, wall, panel, ceiling
+"""This module provides tools for planes
 """
 
-__title__= "panel"
+__title__= "plane"
 __author__ = "Maarten & Jonathan"
-__url__ = "./objects/panel.py"
+__url__ = "./abstract/plane.py"
 
-import sys, os, math
-from pathlib import Path
+from abstract.vector import *
+from geometry.point import Point as pnt
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
-from abstract.vector import Vector3
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
-from geometry.point import Point
-from geometry.solid import Extrusion
-from library.profile import *
-from geometry.flat import PolyCurve2D
-from geometry.curve import *
-
-class Panel:
-    #Panel
+class Plane:
+    #Plane is an infinite element in space defined by a point and a normal
     def __init__(self):
-        self.extrusion = Extrusion()
-        self.thickness = 0
-        self.name = "none"
-        self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal
+        self.Origin = pnt(0, 0, 0)
+        self.Normal = Vector3(0, 0, 1)
+
     @classmethod
-    def byPolyCurveThickness(cls, polycurve, thickness, offset, name):
-        p1 = Panel()
-        p1.name = name
-        p1.thickness = thickness
-        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,offset)
+    def byTwoVectorsOrigin(cls, v1, v2, origin):
+        p1 = Plane()
+        p1.Normal = Vector3.normalise(Vector3.crossProduct(v1, v2))
+        p1.Origin = origin
         return p1
 
+    def __str__(self):
+        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Normal})"
+
+    #TODO
+    #byLineAndPoint
+    #byOriginNormal
+    #byThreePoints

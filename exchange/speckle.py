@@ -70,7 +70,7 @@ def PointToSpecklePoint(Point: Point):
     return SpecklePnt
 
 def LineToSpeckleLine(Line: Line):
-    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = "mm")
+    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end)) #, units = "mm"
     return SpeckleLn
 
 
@@ -85,7 +85,7 @@ def SpeckleMeshByMesh(MeshPB):
     for i in range(MeshPB.numberFaces*4):
         colrs.append(color)
     #colors = colrs
-    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, units = "mm")
+    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name) #, units = "mm"
     return spcklmesh
 
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
