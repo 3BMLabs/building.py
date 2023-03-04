@@ -49,38 +49,36 @@ from library.profile import *
 class Frame:
     #Frame
     def __init__(self):
-        self.extrusion = Extrusion()
+        self.extrusion = None
         self.name = "none"
         self.start: Point
         self.end: Point
         self.curve: Line
         self.length: float = 0
         self.coordinatesystem: CoordinateSystem = CSGlobal
-        self.verts = []
-        self.faces = []
-        self.numberFaces = 0
 
-    def byStartpointEndpointProfileName(self, start, end, profile_name, name):
-        self.start = start
-        self.end = end
+    @classmethod
+    def byStartpointEndpointProfileName(cls, start, end, profile_name, name):
+        f1 = Frame()
+        f1.start = start
+        f1.end = end
         #self.curve = Line(start, end)
-        self.curve = findProfile(profile_name)[0].curve
-        self.directionvector = Vector3.byTwoPoints(start, end)
-        self.length = Vector3.length(self.directionvector)
-        self.name = name
-        self.extrusion = Extrusion().byPolyCurveHeightVector(self.curve, self.length, CSGlobal, start, self.directionvector)
-        self.numberFaces = self.extrusion[2]
-        self.verts = self.extrusion[0]
-        self.faces = self.extrusion[1]
+        f1.curve = profiledataToShape(profile_name)[0].curve
+        f1.directionvector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionvector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, start, f1.directionvector)
+        return f1
 
-    def byStartpointEndpoint(self, start, end, polycurve, name):
-        self.start = start
-        self.end = end
+    @classmethod
+    def byStartpointEndpoint(cls, start, end, polycurve, name):
+        #2D polycurve
+        f1 = Frame()
+        f1.start = start
+        f1.end = end
         #self.curve = Line(start, end)
-        self.directionvector = Vector3.byTwoPoints(start, end)
-        self.length = Vector3.length(self.directionvector)
-        self.name = name
-        self.extrusion = Extrusion().byPolyCurveHeightVector(polycurve, self.length, CSGlobal, start, self.directionvector)
-        self.numberFaces = self.extrusion[2]
-        self.verts = self.extrusion[0]
-        self.faces = self.extrusion[1]
+        f1.directionvector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionvector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(polycurve, f1.length, CSGlobal, start, f1.directionvector)
+        return f1

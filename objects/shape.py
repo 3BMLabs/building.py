@@ -37,7 +37,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from geometry.flat import *
+from geometry.geometry2d import *
 
 sqrt2 = math.sqrt(2)
 
@@ -51,7 +51,7 @@ sqrt2 = math.sqrt(2)
 
 
 class CChannelParallelFlange:
-    def __init__(self, name, b, h, tf, tw, r1, r2, ex):
+    def __init__(self, name, h, b, tw, tf, r1, r2, ex):
         self.Description = "C-channel with parallel flange"
         self.ID = "C_PF"
 
@@ -114,7 +114,7 @@ class CChannelSlopedFlange:
         self.r11 = r1 / sqrt2
         self.r2 = r2  # flange fillet
         self.r21 = r2 / sqrt2
-        self.tl = tl  # flange thickness location from right
+        self.tl = b/2  # flange thickness location from right
         self.sa = sa  # the angle of sloped flange in degrees
         self.ex = ex  # centroid horizontal
 
@@ -274,7 +274,7 @@ class Round:
 
 
 class LAngle:
-    def __init__(self, name, b, h, tw, tf, r1, r2, ex, ey):
+    def __init__(self, name, h, b, tw, tf, r1, r2, ex, ey):
         self.Description = "L-angle"
         self.ID = "L"
 

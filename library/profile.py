@@ -31,6 +31,7 @@ __url__ = "./objects/profile.py"
 
 import sys, os, math
 from pathlib import Path
+import json
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -40,28 +41,48 @@ from packages import helper
 from objects.shape import *
 
 jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
-#jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
+#22667jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
 
 jsonFileStr = open(jsonFile, "r").read()
 
-def findProfile(name):
+with open(jsonFile) as f:
+    data = json.load(f)
+
+class searchProfile:
+    def __init__(self, name):
+        self.name = name
+        self.shape_coords = None
+        self.shape_name = None
+        self.synonyms = None
+        for item in data:
+            for i in item.values():
+                synonymList = i[0]["synonyms"]
+                if self.name in synonymList:
+                    self.shape_coords = i[0]["shape_coords"]
+                    self.shape_name = i[0]["shape_name"]
+                    self.synonyms = i[0]["synonyms"]
+
+def profiledataToShape(name):
     try:
-        data = helper.findjson(name, jsonFileStr)[0]
-        data.insert(0,name) #voeg profilename toe aan de lijst
-        d1 = data[:-1]
-        if data[-1] == "C-channel parallel flange":
-            prof = CChannelParallelFlange(d1)
-        elif data[-1] == "C-channel sloped flange":
+        profiledata = searchProfile(name)
+        shape_name = profiledata.shape_name
+        name = profiledata.name
+        d1 = profiledata.shape_coords
+        d1.insert(0,name)
+        data = d1
+        if shape_name == "C-channel parallel flange":
+            prof = CChannelParallelFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
+        elif shape_name == "C-channel sloped flange":
             prof = CChannelSlopedFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8],d1[9])
-        elif data[-1] == "I-shape parallel flange":
-            prof = IShapeParallelFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5]) #HELE GEKKE BUG, ITEMS WERKEN WEL LOS, MAAR TOTALE LIST NIET
-        elif data[-1] == "Rectangle":
+        elif shape_name == "I-shape parallel flange":
+            prof = IShapeParallelFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
+        elif shape_name == "Rectangle":
             prof = Rectangle(d1[0],d1[1],d1[2])
-        elif data[-1] == "Round":
+        elif shape_name == "Round":
             prof = Round(d1)
-        elif data[-1] == "LAngle":
+        elif shape_name == "LAngle":
             prof = LAngle(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
-        elif data[-1] == "Rectangle hollow section":
+        elif shape_name == "Rectangle hollow section":
             prof = RectangleHollowSection(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
         else:
             prof = "error, profile not created"

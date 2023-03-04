@@ -97,8 +97,8 @@ class PolyCurve: #pass this object before using it.
 
     def __str__(self):
         PolyCurveName = f"{__class__.__name__}("
-        for i in self.curves:
-            PolyCurveName = PolyCurveName + i
+ #       for i in self.curves:
+#            PolyCurveName = PolyCurveName + i
         return PolyCurveName + ")"
 
 #2D PolyCurve to 3D PolyGon

@@ -39,7 +39,7 @@ sys.path.append(str(package_root_directory))
 from geometry.point import Point
 from geometry.curve import Line
 from geometry.curve import PolyCurve
-from geometry.flat import Point2D
+from geometry.geometry2d import Point2D
 
 #from packages.specklepy.api.client import SpeckleClient
 #from packages.specklepy.api.credentials import get_default_account
@@ -133,13 +133,11 @@ def translateObjectsToSpeckleObjects(Obj):
             pnts = []
             for j in i.points:
                 pnts.append(PointToSpecklePoint(j))
-            SpecklePolylineBySpecklePoints(pnts)
+            SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
         elif nm == 'Line':
             SpeckleObj.append(LineToSpeckleLine(i))
         elif nm == 'Point':
             SpeckleObj.append(PointToSpecklePoint(i))
         elif nm == 'Point2D':
             SpeckleObj.append(Point2DToSpecklePoint(i))
-        else:
-            pass
     return SpeckleObj

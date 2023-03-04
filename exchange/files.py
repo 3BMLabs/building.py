@@ -1,6 +1,6 @@
 import os, sys, math
 from geometry.point import Point
-from geometry.flat import Point2D
+from geometry.geometry2d import Point2D
 
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point as SpecklePoint

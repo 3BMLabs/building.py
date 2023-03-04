@@ -25,9 +25,9 @@
 """This module provides tools to create 2D profiles 
 """
 
-__title__= "2d"
+__title__= "geometry2d"
 __author__ = "Maarten & Jonathan"
-__url__ = "./geometry/2d.py"
+__url__ = "./geometry/geometry2d.py"
 
 
 import sys, os, math
@@ -81,11 +81,15 @@ class Line2D:
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
-        self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
+        self.length = 0
         self.id = id
 
     def __id__(self):
         return f"id:{self.id}"
+
+    def length(self):
+        self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
+        return self.length
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.start},{self.end})"

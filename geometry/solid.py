@@ -52,7 +52,9 @@ class Extrusion:
         self.countVertsFaces = 0 # total number of verts per face (not the same as total verts)
         self.name = "none"
 
-    def byPolyCurveHeightVector(self, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    @classmethod
+    def byPolyCurveHeightVector(cls, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
+        Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
         for i in polycurve:
@@ -62,35 +64,53 @@ class Extrusion:
             startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
 
             #Construct faces perpendicular on polycurve
-            self.faces.append(4)
-            self.verts.append(startpointLow.x)
-            self.verts.append(startpointLow.y)
-            self.verts.append(startpointLow.z)
-            self.faces.append(count)
+            Extrus.faces.append(4)
+            Extrus.verts.append(startpointLow.x)
+            Extrus.verts.append(startpointLow.y)
+            Extrus.verts.append(startpointLow.z)
+            Extrus.faces.append(count)
             count += 1
-            self.verts.append(endpointLow.x)
-            self.verts.append(endpointLow.y)
-            self.verts.append(endpointLow.z)
-            self.faces.append(count)
+            Extrus.verts.append(endpointLow.x)
+            Extrus.verts.append(endpointLow.y)
+            Extrus.verts.append(endpointLow.z)
+            Extrus.faces.append(count)
             count += 1
-            self.verts.append(endpointHigh.x)
-            self.verts.append(endpointHigh.y)
-            self.verts.append(endpointHigh.z)
-            self.faces.append(count)
+            Extrus.verts.append(endpointHigh.x)
+            Extrus.verts.append(endpointHigh.y)
+            Extrus.verts.append(endpointHigh.z)
+            Extrus.faces.append(count)
             count += 1
-            self.verts.append(startpointHigh.x)
-            self.verts.append(startpointHigh.y)
-            self.verts.append(startpointHigh.z)
-            self.faces.append(count)
+            Extrus.verts.append(startpointHigh.x)
+            Extrus.verts.append(startpointHigh.y)
+            Extrus.verts.append(startpointHigh.z)
+            Extrus.faces.append(count)
             count += 1
-            self.numberFaces = self.numberFaces + 1
+            Extrus.numberFaces = Extrus.numberFaces + 1
             #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
             # list structure of verts is x y z x y z x y z
             #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
             # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
             # first number is number of vertices.
             # then
-        return self.verts, self.faces, self.numberFaces
+
+        #bottomface
+        Extrus.faces.append(len(polycurve))
+        count = 0
+        for i in polycurve:
+            Extrus.faces.append(count)
+            count = count + 4
+        #Extrus.faces.append(count)
+
+        # topface
+        Extrus.faces.append(len(polycurve))
+        count = 3
+        for i in polycurve:
+            Extrus.faces.append(count)
+            count = count + 4
+        #Extrus.faces.append(count)
+        Extrus.numberFaces = Extrus.numberFaces + 2
+
+        return Extrus
 
     @classmethod
     def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc):

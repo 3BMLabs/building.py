@@ -40,7 +40,7 @@ sys.path.append(str(package_root_directory))
 from abstract.vector import Vector3
 from abstract.vector import XAxis, YAxis, ZAxis
 
-from geometry.flat import Point2D
+from geometry.geometry2d import Point2D
 from packages import helper
 
 

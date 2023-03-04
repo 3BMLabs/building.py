@@ -42,20 +42,19 @@ from abstract.coordinatesystem import CSGlobal
 from geometry.point import Point
 from geometry.solid import Extrusion
 from library.profile import *
-from geometry.flat import PolyCurve2D
+from geometry.geometry2d import PolyCurve2D
 from geometry.curve import *
 
 class Panel:
     #Panel
     def __init__(self):
-        self.extrusion = Extrusion()
+        self.extrusion = None
         self.thickness = 0
         self.name = "none"
         self.perimeter: float = 0
         self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
         self.color = None
         self.colorlst = []
-        self.countVertsFaces = 0
         self.origincurve = None
 
     @classmethod
@@ -65,7 +64,6 @@ class Panel:
         p1.name = name
         p1.thickness = thickness
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,offset)
-        p1.countVertsFaces = p1.extrusion.countVertsFaces
         p1.origincurve = polycurve
         return p1
 
@@ -82,7 +80,5 @@ class Panel:
              Point.translate(baseline.start,Vector3(0,0,height)),
              baseline.start])
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,0)
-        p1.countVertsFaces = p1.extrusion.countVertsFaces
         p1.origincurve = polycurve
-
         return p1

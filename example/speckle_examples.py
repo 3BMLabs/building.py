@@ -30,7 +30,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./example/speckle_examples.py"
 
 
-from geometry.flat import Point2D
+from geometry.geometry2d import Point2D
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
