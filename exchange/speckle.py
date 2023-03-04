@@ -61,13 +61,14 @@ from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
 
 
-def PolylineByPoints(SpecklePoints):
+def SpecklePolylineBySpecklePoints(SpecklePoints):
     SpecklePolyLine.from_points(SpecklePoints)
     return SpecklePolyLine
 
 def PointToSpecklePoint(Point: Point):
     SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
     return SpecklePnt
+
 
 def LineToSpeckleLine(Line: Line):
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end)) #, units = "mm"
@@ -77,7 +78,6 @@ def LineToSpeckleLine(Line: Line):
 def Point2DToSpecklePoint(Point2D: Point2D):
     SpecklePnt = SpecklePoint.from_coords(Point2D.x, Point2D.y, 0)
     return SpecklePnt
-
 
 def SpeckleMeshByMesh(MeshPB):
     color = -1762845660
@@ -120,3 +120,26 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
     )
     print(f"Commit ID: {commit_id}")
     return commit_id
+
+def translateObjectsToSpeckleObjects(Obj):
+    SpeckleObj = []
+    for i in Obj:
+        nm = i.__class__.__name__
+        if nm == 'Panel':
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces))
+        elif nm == 'Frame':
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces))
+        elif nm == 'PolyCurve':
+            pnts = []
+            for j in i.points:
+                pnts.append(PointToSpecklePoint(j))
+            SpecklePolylineBySpecklePoints(pnts)
+        elif nm == 'Line':
+            SpeckleObj.append(LineToSpeckleLine(i))
+        elif nm == 'Point':
+            SpeckleObj.append(PointToSpecklePoint(i))
+        elif nm == 'Point2D':
+            SpeckleObj.append(Point2DToSpecklePoint(i))
+        else:
+            pass
+    return SpeckleObj

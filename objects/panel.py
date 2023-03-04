@@ -52,12 +52,37 @@ class Panel:
         self.thickness = 0
         self.name = "none"
         self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal
+        self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
+        self.color = None
+        self.colorlst = []
+        self.countVertsFaces = 0
+        self.origincurve = None
+
     @classmethod
     def byPolyCurveThickness(cls, polycurve, thickness, offset, name):
+        #Create panel by
         p1 = Panel()
         p1.name = name
         p1.thickness = thickness
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,offset)
+        p1.countVertsFaces = p1.extrusion.countVertsFaces
+        p1.origincurve = polycurve
         return p1
 
+    @classmethod
+    def byBaselineHeight(cls, baseline: Line, height, thickness, name):
+        #place panel vertical from baseline
+        p1 = Panel()
+        p1.name = name
+        p1.thickness = thickness
+        polycurve = PolyCurve.byPoints(
+            [baseline.start,
+             baseline.end,
+             Point.translate(baseline.end,Vector3(0,0,height)),
+             Point.translate(baseline.start,Vector3(0,0,height)),
+             baseline.start])
+        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,0)
+        p1.countVertsFaces = p1.extrusion.countVertsFaces
+        p1.origincurve = polycurve
+
+        return p1

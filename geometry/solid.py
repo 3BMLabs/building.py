@@ -49,10 +49,11 @@ class Extrusion:
         self.verts = []
         self.faces = []
         self.numberFaces = 0
+        self.countVertsFaces = 0 # total number of verts per face (not the same as total verts)
         self.name = "none"
 
     def byPolyCurveHeightVector(self, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
-        #2D PolyCurve @ Global zeropoint
+        #2D PolyCurve @ Global origin
         count = 0
         for i in polycurve:
             startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
@@ -93,7 +94,7 @@ class Extrusion:
 
     @classmethod
     def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc):
-        global len
+        #global len
         Extrus = Extrusion()
         Points = polycurve.points
         V1 = Vector3.byTwoPoints(Points[0], Points[1])  # Vector op basis van punt 0 en 1
@@ -159,13 +160,14 @@ class Extrusion:
             Extrus.faces.append(len(x)) #Number of verts in face
             for y in x:
                 Extrus.faces.append(y)
-
             #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
             # list structure of verts is x y z x y z x y z
             #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
             # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
             # first number is number of vertices.
             # then
+        cls.numberFaces = len(faces)
+        cls.countVertsFaces = (4 * len(faces))
         return Extrus
 
 
