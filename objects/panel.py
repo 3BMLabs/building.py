@@ -36,13 +36,9 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from abstract.vector import Vector3
 from abstract.coordinatesystem import CoordinateSystem
 from abstract.coordinatesystem import CSGlobal
-from geometry.point import Point
 from geometry.solid import Extrusion
-from library.profile import *
-from geometry.geometry2d import PolyCurve2D
 from geometry.curve import *
 
 class Panel:
@@ -58,17 +54,19 @@ class Panel:
         self.origincurve = None
 
     @classmethod
-    def byPolyCurveThickness(cls, polycurve, thickness, offset, name):
+    def byPolyCurveThickness(cls, polycurve, thickness, offset, name, color):
         #Create panel by
         p1 = Panel()
         p1.name = name
         p1.thickness = thickness
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,offset)
         p1.origincurve = polycurve
+        for j in range(int(len(p1.extrusion.verts) / 3)):
+            p1.colorlst.append(color)
         return p1
 
     @classmethod
-    def byBaselineHeight(cls, baseline: Line, height, thickness, name):
+    def byBaselineHeight(cls, baseline: Line, height, thickness, name, color):
         #place panel vertical from baseline
         p1 = Panel()
         p1.name = name
@@ -81,4 +79,6 @@ class Panel:
              baseline.start])
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
         p1.origincurve = polycurve
+        for j in range(int(len(p1.extrusion.verts) / 3)):
+            p1.colorlst.append(color)
         return p1

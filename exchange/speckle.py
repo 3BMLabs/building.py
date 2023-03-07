@@ -126,13 +126,8 @@ def translateObjectsToSpeckleObjects(Obj):
     for i in Obj:
         nm = i.__class__.__name__
         if nm == 'Panel':
-            color = -1762845660
-            colrs = []
-            cnt = int(len(i.extrusion.verts)/3)
-            for j in range(cnt):
-                colrs.append(color)
+            colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs))
-            #SpeckleObj.append(SpeckleMeshByMesh(i.extrusion))
         elif nm == 'Frame':
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces))
         elif nm == 'PolyCurve':

@@ -68,7 +68,7 @@ P4 = SpecklePoint.from_coords(2000,1000,0)
 ply = Polyline.from_points([P1,P2,P3,P4])
 
 #Speckle Mesh
-Messie2 = SpeckleMesh(vertices = [1000,1000,0,1000,1000,1000,2000,2000,0], faces = [3,0,1,2], name = "Jonathan zijn mesh", colors = [-1762845660,-1762845660,-1762845660]) #, units = "mm"
+Messie2 = SpeckleMesh(vertices = [1000,1000,0,1000,1000,1000,2000,2000,0], faces = [3,0,1,2], name = "Jonathan his mesh", colors = [-1762845660,-1762845660,-1762845660]) #, units = "mm"
 
 
 def mesh(box):
@@ -127,38 +127,3 @@ SpecklePoints = []
 for i in polygon3D:
     j = transformPoint(i, coordinatesystem.CSGlobal, Point(800,1000,1000),Vector3(1000,1000,1000))
     SpecklePoints.append(PointToSpecklePoint(j))
-
-
-class Beam:
-    #Beam
-    def __init__(self):
-        self.verts = []
-        self.faces = []
-        self.meshpb: MeshPB
-        self.Mesh: Mesh #SpeckleMesh
-        self.name = "none"
-        self.start: Point3D
-        self.end: Point3D
-        self.curve: Line3D
-        self.length: double = 0
-        self.rotxy: double = 0
-        self.rotxz: double = 0
-        self.rotyz: double = 0
-
-    def byStartpointEndpoint(self, start, end, profile):
-        self.start = start
-        self.end = end
-        self.curve = Line3D(start,end)
-        self.length = self.curve.length
-        self.name = profile[1][0]
-        self.meshpb = MeshPB()
-        self.rotxy = self.curve.Zrotxy
-        self.rotxz = self.curve.Yrotxz
-        self.rotyz = self.curve.Xrotyz
-        self.meshpb.byPolyCurveHeight(profile[0],self.length)
-        self.meshpb = rotateMeshYZ(self.meshpb, RotationXYZ(0, 0, 90))
-        self.meshpb = rotateMeshXY(self.meshpb, RotationXYZ(90+self.curve.Zrotxy, 0, 0))
-        self.meshpb = rotateMeshXZ(self.meshpb, RotationXYZ(0, -(90-self.curve.Yrotxz), 0))
-        self.meshpb = rotateMeshYZ(self.meshpb, RotationXYZ(0, 0, -(90+self.curve.Xrotyz)))   # gekke buggie
-        self.meshpb = translateMeshXYZ(self.meshpb,VectorXYZ(self.start.x, self.start.y, self.start.z))
-        self.Mesh = Mesh(vertices=self.meshpb.verts, faces=self.meshpb.faces, name = self.name)

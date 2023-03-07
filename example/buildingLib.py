@@ -11,6 +11,8 @@ for item in jsondata:
         lst.append(i[0]["synonyms"][0])
 
 ToSpeckle = []
+
+#3D Frames
 x = 0
 y = 0
 spacing = 1000
@@ -28,6 +30,9 @@ for i in lst:
     else:
         pass
 #sys.exit()
+
+#sys.exit()
+
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
 

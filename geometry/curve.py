@@ -92,6 +92,23 @@ class PolyCurve: #pass this object before using it.
                 p1.curves.append(Line(start=i, end=points[0]))
         return p1
 
+    @classmethod
+    def byPolyCurve2D(cls, PolyCurve2D):
+        #by points,
+        p1 = PolyCurve()
+        count = 0
+        points = []
+        for i in PolyCurve2D.curves:
+            points.append(Point(i.start.x, i.start.y, 0))
+        p1.points = points
+        for i in points:
+            count = count + 1
+            try:
+                p1.curves.append(Line(start=i, end=points[count]))
+            except:
+                p1.curves.append(Line(start=i, end=points[0]))
+        return p1
+
     def __id__(self):
         return f"id:{self.id}"
 

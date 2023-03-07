@@ -27,16 +27,20 @@
 
 __title__= "XFEM4U"
 __author__ = "Maarten & Jonathan"
-__url__ = "./exchange/Struct4U.py"
+__url__ = "./exchange/struct4U.py"
 
 import xml.etree.ElementTree as ET
 from geometry.curve import *
 from exchange.speckle import *
 from objects.panel import *
 
-#To do:
-#Line to Grid Object
-#Grid Object with building.py line --> convert to Speckle Line with pattern
+#TODO Line to Grid Object
+#TODO Grid Object with building.py line --> convert to Speckle Line with pattern
+
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+
+    return (255 << 24) | (r << 16) | (g << 8) | b
 
 def getXYZ(XMLtree, nodenumber):
     root = XMLtree.getroot()
@@ -142,8 +146,27 @@ def XMLImportPlates(XMLtree):
     for i in platesNumbersElem: platesNumbers.append(i.text)
     PlatesNodes = []
     for i in PlatesNodesElem: PlatesNodes.append(i.text)
+    platesMaterialQuality = []
+    for i in platesMaterialElem:
+        platesMaterialQuality.append(i.text)
     platesMaterial = []
-    for i in platesMaterialElem: platesMaterial.append(i.text)
+    lstConcrete = ["C20/25","C25/30","C30/37","C35/45","C40/50","C45/55","C50/60","C53/65"]
+    lstTimber = ["C14","C16","C18","C20","C22","C24","C27","C30","C35","C40","C50","D18","D24","D30","D35","D40","D50","D60","D70"]
+    lstSteel = ["S235,S275,S355"]
+    lstColor = []
+    for i in platesMaterialQuality:
+        if i in lstConcrete:
+            platesMaterial.append("Concrete")
+            lstColor.append(rgb_to_int([192,192,192]))
+        elif i in lstTimber:
+            platesMaterial.append("Timber")
+            lstColor.append(rgb_to_int([191,159,116]))
+        elif i in lstSteel:
+            platesMaterial.append("Steel")
+            lstColor.append(rgb_to_int([237,28,36]))
+        else:
+            platesMaterial.append("Other")
+            lstColor.append(rgb_to_int([150, 150, 150]))
     platesZ = []
     for i in platesZElem: platesZ.append(float(i.text))
     platesThickness = []
@@ -154,7 +177,7 @@ def XMLImportPlates(XMLtree):
 
     # for loop to get each element in an array
     plateOffsets = []
-    #Plate ligt standaard in het hart
+    #Plate ligt standaard in de hartlijn. In het onderstaande is dit aangepast.
     for i,j,k in zip(platesZ, platesThickness, platesTop_Center_Bottom):
         if k == "Top":
             offset = -0.5 * j
@@ -215,7 +238,7 @@ def XMLImportPlates(XMLtree):
     # Panels maken Building.py
     Panels = []
 
-    for i, j, k, l, m in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers):
-        Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m))
+    for i, j, k, l, m, n in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers,lstColor):
+        Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m, n))
 
     return Panels

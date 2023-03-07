@@ -99,7 +99,7 @@ class CChannelParallelFlange:
 
 
 class CChannelSlopedFlange:
-    def __init__(self, name, h, b, tf, tw, r1, r2, tl, sa, ex):
+    def __init__(self, name, h, b, tw, tf, r1, r2, tl, sa, ex):
         self.Description = "C-channel with sloped flange"
         self.ID = "C_SF"
 
@@ -114,7 +114,7 @@ class CChannelSlopedFlange:
         self.r11 = r1 / sqrt2
         self.r2 = r2  # flange fillet
         self.r21 = r2 / sqrt2
-        self.tl = b/2  # flange thickness location from right
+        self.tl = tl  # flange thickness location from right
         self.sa = sa  # the angle of sloped flange in degrees
         self.ex = ex  # centroid horizontal
 

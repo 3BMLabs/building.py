@@ -119,6 +119,7 @@ class Arc2D:
 class PolyCurve2D:
     def __init__(self, id=helper.generateID()) -> None:
         self.curves = [] #collect in list
+        self.points2D = []
         self.id = id
 
     def __id__(self):
