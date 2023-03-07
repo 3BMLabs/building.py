@@ -186,8 +186,8 @@ class Extrusion:
             # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
             # first number is number of vertices.
             # then
-        cls.numberFaces = len(faces)
-        cls.countVertsFaces = (4 * len(faces))
+        Extrus.numberFaces = len(faces)
+        Extrus.countVertsFaces = (4 * len(faces))
         return Extrus
 
 

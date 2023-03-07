@@ -3,17 +3,18 @@ from objects.frame import *
 from objects.shape import *
 from exchange.speckle import *
 
+
 pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 pan2 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 
+pan3 = Panel.byPolyCurveThickness(PolyCurve.byPoints([Point(0,0,0),Point(1000,0,0),Point(1000,1000,0),Point(0,1000,0),Point(0,0,0)]),300,100,"De plate of Rob from New Jersey")
 #sys.exit()
-frame2 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(0,1000,0), "HEA300", "test")
+#frame1 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(10000,0,0), "HEA300", "test")
+#frame2 = Frame.byStartpointEndpointProfileName(Point(0,5000,0), Point(10000,5000,0), "HEA300", "test")
+frame2 = Frame.byStartpointEndpointProfileName(Point(0,5000,0), Point(10000,5000,0), "IPE600", "test")
+frame3 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(10000,0,0), "IPE450", "test2")
 
-data = searchProfile("UNP80").shape_coords
-data2 = profiledataToShape("UNP80")
 
-#frame3 = Frame.byStartpointEndpointProfileName(Point(500,0,0), Point(500,1000,0), "UNP100", "test")
+SpeckleObj = translateObjectsToSpeckleObjects([frame2,frame3,pan3])
 
-SpeckleObj = translateObjectsToSpeckleObjects([frame2,pan1,pan2])
-
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
+Commit = TransportToSpeckle("struct4u.xyz", "498714a19b", SpeckleObj, "Shiny Commit of Rob from the Headquarters of Struct4U Europe")

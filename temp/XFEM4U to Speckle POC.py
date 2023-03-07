@@ -1,50 +1,72 @@
 from exchange.Struct4U import *
 from exchange.speckle import *
 from abstract.plane import *
+from objects.panel import *
 import xml.etree.ElementTree as ET
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[0]
 sys.path.append(str(package_root_directory))
 
-#tree = ET.parse("C:/TEMP/test134.xml")
 tree = ET.parse("C:/Users/mikev/Documents/GitHub/building.py/temp/testplates.xml")
 root = tree.getroot()
 
-#List for SpeckleObjects
-obj = []
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+
+    return (255 << 24) | (r << 16) | (g << 8) | b
+
 
 #TODO: Lines and Grids units
-#TODO: Plates dikte
-#TODO: Create Plate
+#TODO: Beams in node
+#TODO: Materialcolor
+#TODO: Concrete Profiles
 
 #LoadGrid and create in Speckle
 Grids = XMLImportGrids(tree,1000)
-
 XYZ = XMLImportNodes(tree)
-
 Plates = XMLImportPlates(tree)
 
+jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/material.json"
 
-obj.append(Plates)
-obj.append(Grids)
+jsonFileStr = open(jsonFile, "r").read()
 
-Points = Plates[1][3]
+with open(jsonFile) as f:
+    data = json.load(f)
 
-V1 =Vector3.byTwoPoints(Points[0],Points[1]) #Vector op basis van punt 0 en 1
-V2 =Vector3.byTwoPoints(Points[-2],Points[-1]) #Vector op basis van laatste punt en een na laatste punt
+print(data)
 
-p1 = Plane.byTwoVectorsOrigin(V1,V2,Points[0])
+class searchMaterial:
+    def __init__(self, name):
+        self.name = name
+        self.color = []
+        self.synonyms = None
+        for item in data:
+            for i in item.values():
+                synonymList = i[0]["synonyms"]
+                if self.name in synonymList:
+                    self.color = i[0]["color"]
 
-from geometry.solid import *
-from geometry.curve import *
+test = searchMaterial("Beton").color   #kleur van beton
 
-for i in Plates[1]:
-    E = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(i), 200, 0)
-    Especk = SpeckleMesh(vertices= E.verts, faces=E.faces)
-    obj.append(Especk)
+color_int = rgb_to_int(test)
+
+print(test)
+
+sys.exit()
+
+color = -1762845660
+colrs = []
+for j in range(int(len(Plates[0].extrusion.verts)/3)):
+    colrs.append(color)
 
 #sys.exit()
+obj = translateObjectsToSpeckleObjects(Plates)
+
+Commit = TransportToSpeckle("struct4u.xyz", "498714a19b", obj, "Test with Plates from XFEM4U")
+
+sys.exit()
+
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
 BeamsNumber = root.findall(".//Beams/Number")
@@ -54,7 +76,6 @@ BeamsName = root.findall(".//Beams/Profile_number")
 #PROFILES
 ProfileNumber = root.findall(".//Profiles/Number")
 ProfileName = root.findall(".//Profiles/Profile_name")
-
 
 # for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
 #     profile_name = ProfileName[int(k.text)-1].text
@@ -72,12 +93,3 @@ ProfileName = root.findall(".//Profiles/Profile_name")
 #         test = SpeckleMeshByMesh(frame)
 #         obj.append(test)
 
-
-
-
-SpeckleHost = "3bm.exchange" # struct4u.xyz
-StreamID = "f1cf8ffd65" #c4cc12fa6f
-SpeckleObjects = obj
-Message = "Shiny Commit"
-
-Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObjects, Message)

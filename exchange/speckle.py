@@ -82,10 +82,10 @@ def Point2DToSpecklePoint(Point2D: Point2D):
 def SpeckleMeshByMesh(MeshPB):
     color = -1762845660
     colrs = []
-    for i in range(MeshPB.numberFaces*4):
+    for i in range(MeshPB.countVertsFaces):
         colrs.append(color)
     #colors = colrs
-    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name) #, units = "mm"
+    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs) #, units = "mm"
     return spcklmesh
 
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
@@ -126,7 +126,13 @@ def translateObjectsToSpeckleObjects(Obj):
     for i in Obj:
         nm = i.__class__.__name__
         if nm == 'Panel':
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces))
+            color = -1762845660
+            colrs = []
+            cnt = int(len(i.extrusion.verts)/3)
+            for j in range(cnt):
+                colrs.append(color)
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs))
+            #SpeckleObj.append(SpeckleMeshByMesh(i.extrusion))
         elif nm == 'Frame':
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces))
         elif nm == 'PolyCurve':

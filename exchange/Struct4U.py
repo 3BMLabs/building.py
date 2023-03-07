@@ -32,6 +32,7 @@ __url__ = "./exchange/Struct4U.py"
 import xml.etree.ElementTree as ET
 from geometry.curve import *
 from exchange.speckle import *
+from objects.panel import *
 
 #To do:
 #Line to Grid Object
@@ -119,10 +120,10 @@ def XMLImportGrids(XMLtree,gridExtension):
     for i in GridsZ:
         grids.append(Line(Point(0, 0, i) , Point(0, Xmax, i)))
 
-    for i in grids:
-        line = LineToSpeckleLine(i) #Grid to SpeckleLine
-        gridlines.append(line)
-    return gridlines
+    #for i in grids:
+     #   line = LineToSpeckleLine(i) #Grid to SpeckleLine
+     #   gridlines.append(line)
+    return grids
 
 
 def XMLImportPlates(XMLtree):
@@ -130,10 +131,40 @@ def XMLImportPlates(XMLtree):
     root = XMLtree.getroot()
     #PLATES
 
-    PlatesNumber = root.findall(".//Plates/Number")
-    PlatesNodes = root.findall(".//Plates/Node")
+    platesNumbersElem = root.findall(".//Plates/Number")
+    PlatesNodesElem = root.findall(".//Plates/Node")
+    platesMaterialElem = root.findall(".//Plates/Material")
+    platesZElem = root.findall(".//Plates/Z")
+    platesThicknessElem = root.findall(".//Plates/h")
+    platesTop_Center_BottomElem = root.findall(".//Plates/Top_Center_Bottom")
+
+    platesNumbers = []
+    for i in platesNumbersElem: platesNumbers.append(i.text)
+    PlatesNodes = []
+    for i in PlatesNodesElem: PlatesNodes.append(i.text)
+    platesMaterial = []
+    for i in platesMaterialElem: platesMaterial.append(i.text)
+    platesZ = []
+    for i in platesZElem: platesZ.append(float(i.text))
+    platesThickness = []
+    for i in platesThicknessElem: platesThickness.append(float(i.text))
+    platesTop_Center_Bottom = []
+    for i in platesTop_Center_BottomElem: platesTop_Center_Bottom.append(i.text)
+
 
     # for loop to get each element in an array
+    plateOffsets = []
+    #Plate ligt standaard in het hart
+    for i,j,k in zip(platesZ, platesThickness, platesTop_Center_Bottom):
+        if k == "Top":
+            offset = -0.5 * j
+        elif k == "Center":
+            offset = 0
+        elif k == "Bottom":
+            offset = 0.5 * j
+        else: offset = 0
+        offset = offset + j
+        plateOffsets.append(offset)
 
     rootPlates = root.findall(".//Plates")
 
@@ -168,21 +199,23 @@ def XMLImportPlates(XMLtree):
             platesNodes.append(PlatesValues[x+1:-5])
 
     obj = []
-
     XYZ = XMLImportNodes(XMLtree)[1] #Knopen
 
-    platesPlatePoints = []
+    platesPolyCurves = []
     for i in platesNodes:
-        SpecklePlatePoints = []
         PlatePoints = []
         for j in i:
             Point = XYZ[getXYZ(XMLtree,j)]
             PlatePoints.append(Point)
-            SpecklePlatePoints.append(PointToSpecklePoint(Point))
-        SpecklePlatePoints.append(SpecklePlatePoints[0])
         PlatePoints.append(PlatePoints[0])
-        ply = SpecklePolyLine.from_points(SpecklePlatePoints)
-        obj.append(ply)
-        platesPlatePoints.append(PlatePoints)
-    return obj, platesPlatePoints
+        ply = PolyCurve.byPoints(PlatePoints)
+        #obj.append(ply)
+        platesPolyCurves.append(ply)
 
+    # Panels maken Building.py
+    Panels = []
+
+    for i, j, k, l, m in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers):
+        Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m))
+
+    return Panels
