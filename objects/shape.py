@@ -246,6 +246,168 @@ class Rectangle:
             return "Profile(" + f"{self.name})"
 
 
+class Tshape:
+    def __init__(self, name, h, b, h1, b1):
+        self.Description = "T-shape"
+        self.ID = "T"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.h = h  # height
+        self.b = b  # width
+        self.h1 = h1
+        self.b1 = b1
+
+        # describe points
+        p1 = Point2D(b1 / 2, -h / 2)  # right bottom
+        p2 = Point2D(b1 / 2, h / 2 - h1)  # right middle 1
+        p3 = Point2D(b / 2, h / 2 - h1) # right middle 2
+        p4 = Point2D(b / 2, h / 2) # right top
+        p5 = Point2D(-b / 2, h / 2)  # left top
+        p6 = Point2D(-b / 2, h / 2 - h1)  # left middle 2
+        p7 = Point2D(-b1 / 2, h / 2 - h1) # left middle 1
+        p8 = Point2D(-b1 / 2, -h / 2) # left bottom
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+        l2 = Line2D(p2, p3)
+        l3 = Line2D(p3, p4)
+        l4 = Line2D(p4, p5)
+        l5 = Line2D(p5, p6)
+        l6 = Line2D(p6, p7)
+        l7 = Line2D(p7, p8)
+        l8 = Line2D(p8, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+
+class Lshape:
+    def __init__(self, name, h, b, h1, b1):
+        self.Description = "L-shape"
+        self.ID = "L"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.h = h  # height
+        self.b = b  # width
+        self.h1 = h1
+        self.b1 = b1
+
+        # describe points
+        p1 = Point2D(b / 2, -h / 2)  # right bottom
+        p2 = Point2D(b / 2, -h / 2 + h1)  # right middle
+        p3 = Point2D(-b / 2 + b1, -h / 2 + h1) # middle
+        p4 = Point2D(-b / 2 + b1, h / 2) # middle top
+        p5 = Point2D(-b / 2, h / 2)  # left top
+        p6 = Point2D(-b / 2, -h / 2)  # left bottom
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+        l2 = Line2D(p2, p3)
+        l3 = Line2D(p3, p4)
+        l4 = Line2D(p4, p5)
+        l5 = Line2D(p5, p6)
+        l6 = Line2D(p6, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+
+class Eshape:
+    def __init__(self, name, h, b, h1):
+        self.Description = "E-shape"
+        self.ID = "E"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.h = h  # height
+        self.b = b  # width
+        self.h1 = h1
+
+        # describe points
+        p1 = Point2D(b / 2, -h / 2)  # right bottom
+        p2 = Point2D(b / 2, -h / 2 + h1)
+        p3 = Point2D(-b / 2 + h1, -h / 2 + h1)
+        p4 = Point2D(-b / 2 + h1, -h1 / 2)
+        p5 = Point2D(b / 2, -h1 / 2)
+        p6 = Point2D(b / 2, h1 / 2)
+        p7 = Point2D(-b / 2 + h1, h1 / 2)
+        p8 = Point2D(-b / 2 + h1, h / 2 - h1)
+        p9 = Point2D(b / 2, h / 2 - h1)
+        p10 = Point2D(b / 2, h / 2)
+        p11 = Point2D(-b / 2, h / 2)
+        p12 = Point2D(-b / 2, -h / 2)
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+        l2 = Line2D(p2, p3)
+        l3 = Line2D(p3, p4)
+        l4 = Line2D(p4, p5)
+        l5 = Line2D(p5, p6)
+        l6 = Line2D(p6, p7)
+        l7 = Line2D(p7, p8)
+        l8 = Line2D(p8, p9)
+        l9 = Line2D(p9, p10)
+        l10 = Line2D(p10, p11)
+        l11 = Line2D(p11, p12)
+        l12 = Line2D(p12, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+
+class Nshape:
+    def __init__(self, name, h, b, b1):
+        self.Description = "N-shape"
+        self.ID = "N"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.h = h  # height
+        self.b = b  # width
+        self.b1 = b1
+
+        # describe points
+        p1 = Point2D(b / 2, -h / 2)  # right bottom
+        p2 = Point2D(b / 2, h / 2)
+        p3 = Point2D(b / 2 - b1, h / 2)
+        p4 = Point2D(b / 2 - b1, -h / 2 + b1 * 2)
+        p5 = Point2D(-b / 2 + b1, h / 2)
+        p6 = Point2D(-b / 2, h / 2)
+        p7 = Point2D(-b / 2, -h / 2)
+        p8 = Point2D(-b / 2 + b1, -h / 2)
+        p9 = Point2D(-b / 2 + b1, h / 2 - b1 * 2)
+        p10 = Point2D(b / 2 - b1, -h / 2)
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+        l2 = Line2D(p2, p3)
+        l3 = Line2D(p3, p4)
+        l4 = Line2D(p4, p5)
+        l5 = Line2D(p5, p6)
+        l6 = Line2D(p6, p7)
+        l7 = Line2D(p7, p8)
+        l8 = Line2D(p8, p9)
+        l9 = Line2D(p9, p10)
+        l10 = Line2D(p10, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+
 class Round:
     def __init__(self, name, r):
         self.Description = "Round"
@@ -321,6 +483,7 @@ class LAngle:
 
         def __str__(self):
             return "Profile(" + f"{self.name})"
+
 
 class RectangleHollowSection:  #NOT COMPLETE YET
     def __init__(self, name, h, b, t, r1, r2):

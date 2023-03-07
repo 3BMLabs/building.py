@@ -76,9 +76,9 @@ class Panel:
         polycurve = PolyCurve.byPoints(
             [baseline.start,
              baseline.end,
-             Point.translate(baseline.end,Vector3(0,0,height)),
-             Point.translate(baseline.start,Vector3(0,0,height)),
+             Point.translate(baseline.end, Vector3(0, 0, height)),
+             Point.translate(baseline.start, Vector3(0, 0, height)),
              baseline.start])
-        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve,thickness,0)
+        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
         p1.origincurve = polycurve
         return p1

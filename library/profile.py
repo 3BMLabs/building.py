@@ -40,8 +40,9 @@ sys.path.append(str(package_root_directory))
 from packages import helper
 from objects.shape import *
 
-jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
+# jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
 #22667jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
+jsonFile = "C:/Users/JoasHollander/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
 
 jsonFileStr = open(jsonFile, "r").read()
 
