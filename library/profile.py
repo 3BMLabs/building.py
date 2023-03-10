@@ -32,6 +32,7 @@ __url__ = "./objects/profile.py"
 import sys, os, math
 from pathlib import Path
 import json
+import urllib.request
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -40,14 +41,9 @@ sys.path.append(str(package_root_directory))
 from packages import helper
 from objects.shape import *
 
-# jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
-jsonFile = "C:/Users/mikev/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
-#jsonFile = "C:/Users/JoasHollander/Documents/GitHub/building.py/library/profile_database/steelprofile.json"
-
-jsonFileStr = open(jsonFile, "r").read()
-
-with open(jsonFile) as f:
-    data = json.load(f)
+jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
+url = urllib.request.urlopen(jsonFile)
+data = json.loads(url.read())
 
 class searchProfile:
     def __init__(self, name):
