@@ -115,18 +115,18 @@ class CChannelSlopedFlange:
         self.r2 = r2  # flange fillet
         self.r21 = r2 / sqrt2
         self.tl = tl  # flange thickness location from right
-        self.sa = sa  # the angle of sloped flange in degrees
+        self.sa = math.radians(sa)  # the angle of sloped flange in degrees
         self.ex = ex  # centroid horizontal
 
         # describe points
         p1 = Point2D(-ex, -h / 2)  # left bottom
         p2 = Point2D(b - ex, -h / 2)  # right bottom
-        p3 = Point2D(b - ex, -h / 2 + tf - math.tan(sa) * tl - r2)  # start arc
-        p4 = Point2D(b - ex - r2 + self.r21, -h / 2 + tf - math.tan(sa) * tl - r2 + self.r21)  # second point arc
-        p5 = Point2D(b - ex - r2 + math.sin(sa) * r2, -h / 2 + tf - math.tan(sa) * (tl - r2))  # end arc
-        p6 = Point2D(-ex + tw + r1 - math.sin(sa) * r1, -h / 2 + tf + math.tan(sa) * (b - tl - tw - r1))  # start arc
-        p7 = Point2D(-ex + tw + r1 - self.r11, -h / 2 + tf + math.tan(sa) * (b - tl - tw - r1) + r1 - self.r11)  # second point arc
-        p8 = Point2D(-ex + tw, -h / 2 + tf + math.tan(sa) * (b - tl - tw) + r1)  # end arc
+        p3 = Point2D(b - ex, -h / 2 + tf - math.tan(self.sa) * tl - r2)  # start arc
+        p4 = Point2D(b - ex - r2 + self.r21, -h / 2 + tf - math.tan(self.sa) * tl - r2 + self.r21)  # second point arc
+        p5 = Point2D(b - ex - r2 + math.sin(self.sa) * r2, -h / 2 + tf - math.tan(self.sa) * (tl - r2))  # end arc
+        p6 = Point2D(-ex + tw + r1 - math.sin(self.sa) * r1, -h / 2 + tf + math.tan(self.sa) * (b - tl - tw - r1))  # start arc
+        p7 = Point2D(-ex + tw + r1 - self.r11, -h / 2 + tf + math.tan(self.sa) * (b - tl - tw - r1) + r1 - self.r11)  # second point arc
+        p8 = Point2D(-ex + tw, -h / 2 + tf + math.tan(self.sa) * (b - tl - tw) + r1)  # end arc
         p9 = Point2D(p8.x, -p8.y)  # start arc
         p10 = Point2D(p7.x, -p7.y)  # second point arc
         p11 = Point2D(p6.x, -p6.y)  # end arc

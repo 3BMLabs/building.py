@@ -18,7 +18,7 @@ y = 0
 spacing = 1000
 height = 3000
 count = 0
-row = 50
+row = 25
 for i in lst:
     ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i))
     x = x + spacing
@@ -36,4 +36,4 @@ for i in lst:
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
 
-Commit = TransportToSpeckle("3bm.exchange", "ceae170aaf", SpeckleObj, "Library of builing.py")
+Commit = TransportToSpeckle("3bm.exchange", "ceae170aaf", SpeckleObj, "Library of building.py")

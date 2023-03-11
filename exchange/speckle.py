@@ -74,6 +74,10 @@ def LineToSpeckleLine(Line: Line):
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end)) #, units = "mm"
     return SpeckleLn
 
+def Line2DToSpeckleLine3D(ln):
+    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Point(ln.start.x,ln.start.y,0)), end = PointToSpecklePoint(Point(ln.end.x,ln.end.y,0))) #, units = "mm"
+    return SpeckleLn
+
 def GridToLines(Grid):
     SpeckleLines = []
     for i in Grid.line:
@@ -142,6 +146,8 @@ def translateObjectsToSpeckleObjects(Obj):
             SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
         elif nm == 'Line':
             SpeckleObj.append(LineToSpeckleLine(i))
+        elif nm == 'Line2D':
+            SpeckleObj.append(Line2DToSpeckleLine3D(i))
         elif nm == 'Point':
             SpeckleObj.append(PointToSpecklePoint(i))
         elif nm == 'Point2D':

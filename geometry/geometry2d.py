@@ -130,6 +130,12 @@ class PolyCurve2D:
             self.curves.append(i)
         return self.curves
 
+    def points(self):
+        for i in self.curves:
+            self.points2D.append(i.start)
+            self.points2D.append(i.end)
+        return self.points2D
+
     @staticmethod
     def polygon(self):
         points = []
@@ -143,6 +149,7 @@ class PolyCurve2D:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
+
 
 
 class Surface2D:
