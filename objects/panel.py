@@ -55,7 +55,7 @@ class Panel:
 
     @classmethod
     def byPolyCurveThickness(cls, polycurve, thickness, offset, name, color):
-        #Create panel by
+        #Create panel by polycurve
         p1 = Panel()
         p1.name = name
         p1.thickness = thickness

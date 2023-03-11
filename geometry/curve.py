@@ -56,7 +56,6 @@ class Line:
     def __id__(self):
         return f"id:{self.id}"
 
-    @staticmethod
     def length(self):
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
 

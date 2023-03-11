@@ -93,8 +93,8 @@ def XMLImportgetGridDistances(Grids):
             GridsNew.append(distance)
     return GridsNew
 
-def XMLImportGrids(XMLtree,gridExtension):
-    #create lines in Speckle from the grids
+def XMLImportGrids(XMLtree, gridExtension):
+    #create building.py Grids from the grids of XFEM4U
     root = XMLtree.getroot()
     gridlines = []
 
@@ -128,6 +128,8 @@ def XMLImportGrids(XMLtree,gridExtension):
      #   line = LineToSpeckleLine(i) #Grid to SpeckleLine
      #   gridlines.append(line)
     return grids
+
+def findMaterial(material):
 
 
 def XMLImportPlates(XMLtree):
