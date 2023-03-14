@@ -33,6 +33,7 @@ BeamsName = root.findall(".//Beams/Profile_number")
 #print(BeamsFrom)
 #PROFILES
 ProfileNumber = root.findall(".//Profiles/Number")
+ProfileNumber = root.findall(".//Profiles/Material_type")
 ProfileName = root.findall(".//Profiles/Profile_name")
 
 #sys.exit()

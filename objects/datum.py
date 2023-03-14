@@ -95,4 +95,4 @@ def GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension):
         gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
         count = + 1
 
-    return gridsX,gridsY
+    return gridsX, gridsY
