@@ -74,7 +74,7 @@ class profiledataToShape:
         elif shape_name == "I-shape parallel flange":
             prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         elif shape_name == "Rectangle":
-            prof = Rectangle(name,d1[0],d1[1])
+            prof = Rectangle(name,d1[0], d1[1])
         elif shape_name == "Round":
             prof = Round(name)
         elif shape_name == "LAngle":

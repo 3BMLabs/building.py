@@ -55,6 +55,11 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
+profiledataToShape("S80X10")
+profiledataToShape("HFRHS250X250X10")
+profiledataToShape("L70X70X6")
+profiledataToShape("HFRHS80X80X5")
+
 sys.exit()
 
 Commit = TransportToSpeckle("struct4u.xyz", "61c1210d76", SpeckleObj, "Test with Plates from XFEM4U")
