@@ -32,6 +32,7 @@ __url__ = "./objects/shape.py"
 
 import sys, os, math
 from pathlib import Path
+from objects.frame import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -403,6 +404,44 @@ class Nshape:
         l10 = Line2D(p10, p1)
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+class Arrowshape:
+    def __init__(self, name, l, b, b1, l1):
+        self.Description = "Arrow-shape"
+        self.ID = "Arrowshape"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.l = l  # length
+        self.b = b  # width
+        self.b1 = b1
+        self.l1 = l1
+
+        # describe points
+        p1 = Point2D(0, l / 2)  # top middle
+        p2 = Point2D(b / 2, -l / 2 + l1)
+        # p3 = Point2D(b1 / 2, -l / 2 + l1)
+        p3 = Point2D(b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
+        p4 = Point2D(b1 / 2, -l / 2)
+        p5 = Point2D(-b1 / 2, -l / 2)
+        # p6 = Point2D(-b1 / 2, -l / 2 + l1)
+        p6 = Point2D(-b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
+        p7 = Point2D(-b / 2, -l / 2 + l1)
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+        l2 = Line2D(p2, p3)
+        l3 = Line2D(p3, p4)
+        l4 = Line2D(p4, p5)
+        l5 = Line2D(p5, p6)
+        l6 = Line2D(p6, p7)
+        l7 = Line2D(p7, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"

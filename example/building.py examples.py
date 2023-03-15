@@ -22,9 +22,13 @@ p1 = Point(0,100,0)
 p2 = Point2D(1000,0)
 
 #Lines
-Line1 = Line(start=Point(0,0,0),end=Point(1000,0,0))
-Line2 = Line(start=Point(1000,0,0),end=Point(2000,1000,0))
-Line3 = Line(start=Point(2000,1000,0),end=Point(2000,2000,0))
+Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
+Line2 = Line(start=Point(0, 500, 0), end=Point(-200, 500, 0))
+Line3 = Line(start=Point(-200, 500, 0), end=Point(100, 1000, 0))
+Line4 = Line(start=Point(100, 1000, 0), end=Point(400, 500, 0))
+Line5 = Line(start=Point(400, 500, 0), end=Point(200, 500, 0))
+Line6 = Line(start=Point(200, 500, 0), end=Point(200, 0, 0))
+Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
 
 #Pattern
 Lines4 = lineToPattern(Line(start=Point(0, 1200, 0),end=Point(11400, 1200, 0)), Centerline)
@@ -64,16 +68,17 @@ GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000,0,0),end=Point(10000,0,
 seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 ext = 1000
-spacX = "10x5400 2500"
-spacY = "4x5400 1000"
+spacX = "20x5400 2500"
+spacY = "10x5400 1000"
 
 grids = GridSystem(spacX,seqX,spacY,seqY,ext)
 
 obj0 = GridA.line
 obj1 = grids[0] + grids[1]
-obj2 = [Line1, Line2, Line3]
+obj2 = [Line1, Line2, Line3, Line4, Line5, Line6, Line7]
 obj3 = [pan, pan2, frame2, frame3]
 obj4 = Lines4
 
-SpeckleObj = translateObjectsToSpeckleObjects(obj1)
-Commit = TransportToSpeckle("3bm.exchange", "cbed26b295", SpeckleObj, "building.py examples.py")
+
+SpeckleObj = translateObjectsToSpeckleObjects(obj2)
+Commit = TransportToSpeckle("3bm.exchange", "8136460d9e", SpeckleObj, "building.py examples.py")

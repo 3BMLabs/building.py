@@ -8,25 +8,45 @@ from exchange.speckle import *
 
 test = searchProfile("HEA300")
 
-# e1shape = Frame.byStartpointEndpoint(Point(0, 0, 0), Point(0, 0, 50), \
-# Eshape("joas", 300, 200, 50).curve,"Joas zijn E1-frame")
-# tshape = Frame.byStartpointEndpoint(Point(400, 0, 0), Point(400, 0, 50), \
-# Tshape("joas", 300, 200, 60, 50).curve,"Joas zijn T-frame")
-# e2shape = Frame.byStartpointEndpoint(Point(800, 0, 0), Point(800, 0, 50), \
-# Eshape("joas", 300, 200, 50).curve,"Joas zijn E2-frame")
-# nshape = Frame.byStartpointEndpoint(Point(1200, 0, 0), Point(1200, 0, 50), \
-# Nshape("joas", 300, 200, 50).curve,"Joas zijn N-frame")
-
 
 lshape = Frame.byStartpointEndpoint(Point(0, 0, 0), Point(0, 0, 50), Lshape("joas", 300, 200, 50, 50).curve, "L-frame")
 e1shape = Frame.byStartpointEndpoint(Point(400, 0, 0), Point(400, 0, 50), Eshape("joas", 300, 200, 50).curve, "E1-frame")
 nshape = Frame.byStartpointEndpoint(Point(800, 0, 0), Point(800, 0, 50), Nshape("joas", 300, 200, 50).curve, "N-frame")
 tshape = Frame.byStartpointEndpoint(Point(1200, 0, 0), Point(1200, 0, 50), Tshape("joas", 300, 200, 60, 50).curve, "T-frame")
 e2shape = Frame.byStartpointEndpoint(Point(1600, 0, 0), Point(1600, 0, 50), Eshape("joas", 300, 200, 50).curve, "E2-frame")
+arrowshape = Frame.byStartpointEndpoint(Point(2000, 0, 0), Point(2000, 0, 50), Arrowshape("joas", 300, 200, 50, 100).curve, "Arrow-frame")
 
 
-# SpeckleObj = translateObjectsToSpeckleObjects([tshape, lshape, eshape, nshape])
-# SpeckleObj = translateObjectsToSpeckleObjects([e1shape, tshape, e2shape, nshape])
-SpeckleObj = translateObjectsToSpeckleObjects([lshape, e1shape, nshape, tshape, e2shape])
+
+class Arrow:
+    def __init__(self, x, y, z):
+
+        self.arrowlist = None
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def draw_arrow(self):
+        self.arrowlist = []
+        l1 = Line(start=Point(self.x, self.y, self.z), end=Point(self.x, self.y + 500, self.z))
+        l2 = Line(start=Point(self.x, self.y + 500, self.z), end=Point(self.x - 200, self.y + 500, self.z))
+        l3 = Line(start=Point(self.x - 200, self.y + 500, self.z), end=Point(self.x + 100, self.y + 1000, self.z))
+        l4 = Line(start=Point(self.x + 100, self.y + 1000, self.z), end=Point(self.x + 400, self.y + 500, self.z))
+        l5 = Line(start=Point(self.x + 400, self.y + 500, self.z), end=Point(self.x + 200, self.y + 500, self.z))
+        l6 = Line(start=Point(self.x + 200, self.y + 500, self.z), end=Point(self.x + 200, self.y, self.z))
+        l7 = Line(start=Point(self.x + 200, self.y, self.z), end=Point(self.x, self.y, self.z))
+
+        self.arrowlist.append([l1, l2, l3, l4, l5, l6, l7])
+
+        return self
+
+
+a = Arrow(0, 0, 0).draw_arrow()
+
+
+# print(a.arrowlist)
+
+SpeckleObj = translateObjectsToSpeckleObjects(a.arrowlist[0], lshape)
+
 
 Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
