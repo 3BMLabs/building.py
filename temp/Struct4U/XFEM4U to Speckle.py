@@ -24,7 +24,8 @@ Grids = XMLImportGrids(tree,1000)
 XYZ = XMLImportNodes(tree)
 obj = XMLImportPlates(tree)
 
-Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X6", "L70X70X6")
+#Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X6", "L70X70X6")
+Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X7", "L70X70X6")
 
 sys.exit()
 #BEAMS
