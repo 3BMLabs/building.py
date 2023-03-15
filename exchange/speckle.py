@@ -39,7 +39,9 @@ sys.path.append(str(package_root_directory))
 from geometry.point import Point
 from geometry.curve import Line
 from geometry.curve import PolyCurve
+from geometry.curve import Arc
 from geometry.geometry2d import Point2D
+from abstract.vector import Vector3
 
 #from packages.specklepy.api.client import SpeckleClient
 #from packages.specklepy.api.credentials import get_default_account
@@ -59,6 +61,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
+from specklepy.objects.primitive import Interval as SpeckleInterval
 
 
 def SpecklePolylineBySpecklePoints(SpecklePoints):
@@ -69,6 +72,9 @@ def PointToSpecklePoint(Point: Point):
     SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
     return SpecklePnt
 
+def VectorToSpeckleVector(Vector3: Vector3):
+    Vectr = SpeckleVector.from_coords(Vector3.x, Vector3.y, Vector3.z)
+    return Vectr
 
 def LineToSpeckleLine(Line: Line):
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end)) #, units = "mm"
@@ -96,6 +102,22 @@ def SpeckleMeshByMesh(MeshPB):
     #colors = colrs
     spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs) #, units = "mm"
     return spcklmesh
+
+def ArcToSpeckleArc(Arc: Arc):
+    return SpeckleArc(
+        startPoint=PointToSpecklePoint,
+        midPoint=PointToSpecklePoint,
+        endPoint=PointToSpecklePoint,
+        domain=SpeckleInterval(start=0, end=1),
+        plane=SpecklePlane(origin=PointToSpecklePoint, normal=VectorToSpeckleVector, xdir=VectorToSpeckleVector, ydir=VectorToSpeckleVector),
+        radius= Arc.radius,
+        startAngle= Arc.radius,
+        endAngle= Arc.radius,
+        angleRadians= Arc.radius,
+        area= Arc.radius,
+        length= Arc.radius,
+        units= Arc.radius
+    )
 
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
     # initialise the client

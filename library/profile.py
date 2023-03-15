@@ -59,31 +59,29 @@ class searchProfile:
                     self.shape_name = i[0]["shape_name"]
                     self.synonyms = i[0]["synonyms"]
 
-def profiledataToShape(name):
-    try:
-        profiledata = searchProfile(name)
-        shape_name = profiledata.shape_name
-        name = profiledata.name
-        d1 = profiledata.shape_coords
-        d1.insert(0,name)
-        data = d1
+class profiledataToShape:
+    def __init__(self, name1):
+        profile_data = searchProfile(name1)
+        shape_name = profile_data.shape_name
+        name = profile_data.name
+        self.d1 = profile_data.shape_coords
+        #self.d1.insert(0,name)
+        d1 = self.d1
         if shape_name == "C-channel parallel flange":
-            prof = CChannelParallelFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
+            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6])
         elif shape_name == "C-channel sloped flange":
-            prof = CChannelSlopedFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8],d1[9])
+            prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
         elif shape_name == "I-shape parallel flange":
-            prof = IShapeParallelFlange(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
+            prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         elif shape_name == "Rectangle":
-            prof = Rectangle(d1[0],d1[1],d1[2])
+            prof = Rectangle(name,d1[0],d1[1])
         elif shape_name == "Round":
-            prof = Round(d1)
+            prof = Round(name)
         elif shape_name == "LAngle":
-            prof = LAngle(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
+            prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
         elif shape_name == "Rectangle hollow section":
-            prof = RectangleHollowSection(d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
+            prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         else:
             prof = "error, profile not created"
-    except:
-        prof = "profileshape not found"
-        data = "no profiledata found"
-    return(prof, data)
+        self.prof = prof
+        self.data = d1
