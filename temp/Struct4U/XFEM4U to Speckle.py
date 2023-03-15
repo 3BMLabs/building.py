@@ -24,7 +24,21 @@ Grids = XMLImportGrids(tree,1000)
 XYZ = XMLImportNodes(tree)
 obj = XMLImportPlates(tree)
 
+#GridSystem()
+print(profiledataToShape("S80X10"))
+print(profiledataToShape("HFRHS250X250X10"))
+print(profiledataToShape("L70X70X6"))
+print(profiledataToShape("HFRHS80X80X5"))
 
+
+Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "S80X10", "S80X10")
+Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "HFRHS250X250X10", "HFRHS250X250X10")
+Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X6", "L70X70X6")
+Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "HFRHS80X80X5", "HFRHS80X80X5")
+
+
+print(Grids)
+sys.exit()
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
 BeamsNumber = root.findall(".//Beams/Number")
@@ -55,11 +69,11 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
-profiledataToShape("S80X10")
-profiledataToShape("HFRHS250X250X10")
-profiledataToShape("L70X70X6")
-profiledataToShape("HFRHS80X80X5")
+print(profiledataToShape("S80X10"))
+print(profiledataToShape("HFRHS250X250X10"))
+print(profiledataToShape("L70X70X6"))
+print(profiledataToShape("HFRHS80X80X5"))
 
-sys.exit()
+#sys.exit()
 
 Commit = TransportToSpeckle("struct4u.xyz", "61c1210d76", SpeckleObj, "Test with Plates from XFEM4U")
