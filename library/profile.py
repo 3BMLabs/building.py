@@ -79,7 +79,7 @@ class profiledataToShape:
             prof = Round(name)
         elif shape_name == "LAngle":
             prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
-        elif shape_name == "Rectangle hollow section":
+        elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         else:
             prof = "error, profile not created"
