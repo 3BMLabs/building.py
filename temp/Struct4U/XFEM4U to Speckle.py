@@ -9,7 +9,8 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[0]
 sys.path.append(str(package_root_directory))
 
-tree = ET.parse("C:/Users/mikev/Documents/GitHub/building.py/temp/testplates.xml")
+#tree = ET.parse("/temp/testplates.xml")
+tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 2/export.xml")
 root = tree.getroot()
 
 
@@ -54,4 +55,6 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
-Commit = TransportToSpeckle("struct4u.xyz", "498714a19b", SpeckleObj, "Test with Plates from XFEM4U")
+sys.exit()
+
+Commit = TransportToSpeckle("struct4u.xyz", "61c1210d76", SpeckleObj, "Test with Plates from XFEM4U")

@@ -129,7 +129,7 @@ def XMLImportGrids(XMLtree, gridExtension):
      #   gridlines.append(line)
     return grids
 
-def findMaterial(material):
+#def findMaterial(material):
 
 
 def XMLImportPlates(XMLtree):

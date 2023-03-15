@@ -41,7 +41,7 @@ from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
-from specklepy.objects.primitive import Interval as SpeckleInterval #temp
+#from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
 class Line:
