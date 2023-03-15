@@ -476,7 +476,7 @@ class Round:
 
 class LAngle:
     def __init__(self, name, h, b, tw, tf, r1, r2, ex, ey):
-        self.Description = "L-angle"
+        self.Description = "LAngle"
         self.ID = "L"
 
         # parameters
