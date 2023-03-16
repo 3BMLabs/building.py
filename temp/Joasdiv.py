@@ -17,7 +17,6 @@ e2shape = Frame.byStartpointEndpoint(Point(1600, 0, 0), Point(1600, 0, 50), Esha
 arrowshape = Frame.byStartpointEndpoint(Point(2000, 0, 0), Point(2000, 0, 50), Arrowshape("joas", 300, 200, 50, 100).curve, "Arrow-frame")
 
 
-
 class Arrow:
     def __init__(self, x, y, z):
 
@@ -29,24 +28,32 @@ class Arrow:
     def draw_arrow(self):
         self.arrowlist = []
         l1 = Line(start=Point(self.x, self.y, self.z), end=Point(self.x, self.y + 500, self.z))
+        self.arrowlist.append(l1)
         l2 = Line(start=Point(self.x, self.y + 500, self.z), end=Point(self.x - 200, self.y + 500, self.z))
+        self.arrowlist.append(l2)
         l3 = Line(start=Point(self.x - 200, self.y + 500, self.z), end=Point(self.x + 100, self.y + 1000, self.z))
+        self.arrowlist.append(l3)
         l4 = Line(start=Point(self.x + 100, self.y + 1000, self.z), end=Point(self.x + 400, self.y + 500, self.z))
+        self.arrowlist.append(l4)
         l5 = Line(start=Point(self.x + 400, self.y + 500, self.z), end=Point(self.x + 200, self.y + 500, self.z))
+        self.arrowlist.append(l5)
         l6 = Line(start=Point(self.x + 200, self.y + 500, self.z), end=Point(self.x + 200, self.y, self.z))
+        self.arrowlist.append(l6)
         l7 = Line(start=Point(self.x + 200, self.y, self.z), end=Point(self.x, self.y, self.z))
+        self.arrowlist.append(l7)
 
-        self.arrowlist.append([l1, l2, l3, l4, l5, l6, l7])
+        # self.arrowlist.append([l1, l2, l3, l4, l5, l6, l7])
 
         return self
 
 
-a = Arrow(0, 0, 0).draw_arrow()
+a = Arrow(2400, -200, 0).draw_arrow()
 
 
 # print(a.arrowlist)
 
-SpeckleObj = translateObjectsToSpeckleObjects(a.arrowlist[0], lshape)
+# SpeckleObj = translateObjectsToSpeckleObjects(a.arrowlist)
+SpeckleObj = translateObjectsToSpeckleObjects([lshape, e1shape, nshape, tshape, e2shape, arrowshape] + a.arrowlist)
 
 
 Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
