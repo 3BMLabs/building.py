@@ -58,7 +58,7 @@ class Color:
 		else:
 			try:
 				import json
-				JSONfile = "colorComponents.json"
+				JSONfile = "library/color/colorComponents.json"
 				with open(JSONfile,'r') as file:
 					components_dict = json.load(file)
 					checkExist = components_dict.get(str(colorInput))
@@ -78,8 +78,65 @@ class Color:
 		else:
 			#validate if value is correct/found
 			try:
+				colorInput = colorInput.split("#")[1]
+				rgb_color = list(int(colorInput[i:i+2], 16) for i in (1, 3, 5))
+				return [rgb_color[0], rgb_color[1], rgb_color[2], 255]
+
+				# colorInput = colorInput.lstrip('#')
+				# return list(int(colorInput[i:i+2], 16) for i in (0, 2, 4))
+			except:
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+
+	def rgba_to_hex(self, colorInput=None):
+		"""NAN"""
+		if colorInput is None:
+			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
+		else:
+			#validate if value is correct/found
+			try:
+				red_i = int(colorInput[0] * 255)
+				green_i = int(colorInput[1] * 255)
+				blue_i = int(colorInput[2] * 255)
+				alpha_i = int(colorInput[3] * 255)
+
+				red_hex = hex(red_i)[2:].zfill(2)
+				green_hex = hex(green_i)[2:].zfill(2)
+				blue_hex = hex(blue_i)[2:].zfill(2)
+				alpha_hex = hex(alpha_i)[2:].zfill(2)
+
+				colorInput = "#" + red_hex + green_hex + blue_hex + alpha_hex
+
+				return colorInput.upper()
+
+			except:
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+
+	def hex_to_rgba(self, colorInput=None):
+		"""NAN"""
+		if colorInput is None:
+			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
+		else:
+			#validate if value is correct/found
+			try:
 				colorInput = colorInput.lstrip('#')
-				return list(int(colorInput[i:i+2], 16) for i in (0, 2, 4))
+				red_int = int(colorInput[0:2], 16)
+				green_int = int(colorInput[2:4], 16)
+				blue_int = int(colorInput[4:6], 16)
+
+				if len(colorInput) == 8:
+					alpha_int = int(colorInput[6:8], 16)
+					alpha = round(alpha_int / 255, 2)
+				else:
+					alpha = 1.0
+
+				red = round(red_int / 255, 2)
+				green = round(green_int / 255, 2)
+				blue = round(blue_int / 255, 2)
+
+				return [red, green, blue, alpha]
+
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
@@ -203,13 +260,13 @@ class Color:
 			try:
 			#validate if value is correct/found
 				import json
-				JSONfile = "colorRAL.json"
+				JSONfile = "library/color/colorRAL.json"
 				with open(JSONfile,'r') as file:
 					ral_dict = json.load(file)
 					checkExist = ral_dict.get(str(colorInput))
 					if checkExist is not None:
 						r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
-						return [int(r), int(g), int(b)]
+						return [int(r), int(g), int(b), 100]
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
@@ -223,7 +280,7 @@ class Color:
 		else:
 			try:
 				import json
-				JSONfile = "colorPantone.json"
+				JSONfile = "library/color/colorPantone.json"
 				with open(JSONfile,'r') as file:
 					pantone_dict = json.load(file)
 					checkExist = pantone_dict.get(str(colorInput))
@@ -250,7 +307,7 @@ class Color:
 
 
 	def __str__(self, colorInput=None):
-		colorattributes = ["Components", "Hex", "CMYK", "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
+		colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK", "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
 		if colorInput is None:
 			header = "Available attributes: \n"
 			footer = "\nColor().red | Color().green | Color().blue"
@@ -278,6 +335,17 @@ c = Color()
 # print(c.Hex()) #no value
 # print(c.Hex('.')) #incorrect value
 # print(c.Hex('#ff2ba4')) #correct value
+
+# print(c.rgba_to_hex.__doc__) #documentation
+# print(c.rgba_to_hex()) #no value
+# print(c.rgba_to_hex('.')) #incorrect value
+# print(c.rgba_to_hex([0.5, 0.225, 0, 1])) #correct value
+
+# print(c.hex_to_rgba.__doc__) #documentation
+# print(c.hex_to_rgba()) #no value
+# print(c.hex_to_rgba('.')) #incorrect value
+# print(c.hex_to_rgba('#7F3900FF')) #correct value
+
 
 # print(c.CMYK.__doc__) #documentation
 # print(c.CMYK()) #no value
@@ -328,49 +396,49 @@ c = Color()
 #RGB / RBG / BRG / BGR / GRB / GBR
 
 
-class ValidateRGB:
-    def __init__(self, rgb, ig=0, ib=0):
-        self.rgb = rgb
-        self.ig = ig
-        self.ib = ib
+# class ValidateRGB:
+#     def __init__(self, rgb, ig=0, ib=0):
+#         self.rgb = rgb
+#         self.ig = ig
+#         self.ib = ib
 
-    def __str__(self):
-        if type(self.rgb) == list:
-            r,g,b = self.rgb
-            if r >= 0 and r <= 255 and g >= 0 and g <= 255 and b >= 0 and b <= 255:
-                return str([r,g,b])
-            else:
-                return f"Invalid RGB, values must be between 0 and 255."
-        else:
-            if type(self.rgb) == int and type(self.ig) == int and type(self.ib) == int:
-                if self.rgb >= 0 and self.rgb <= 255 and self.ig >= 0 and self.ig <= 255 and self.ib >= 0 and self.ib <= 255:
-                    return str([self.rgb, self.ig, self.ib])
-                else:
-                    return f"Invalid RGB, values must be between 0 and 255."
-            else:
-                return f"Validate RGB in list. Example: ValidateRGB([1, 2, 3]) or ValidateRGB(1, 2, 3)"
+#     def __str__(self):
+#         if type(self.rgb) == list:
+#             r,g,b = self.rgb
+#             if r >= 0 and r <= 255 and g >= 0 and g <= 255 and b >= 0 and b <= 255:
+#                 return str([r,g,b])
+#             else:
+#                 return f"Invalid RGB, values must be between 0 and 255."
+#         else:
+#             if type(self.rgb) == int and type(self.ig) == int and type(self.ib) == int:
+#                 if self.rgb >= 0 and self.rgb <= 255 and self.ig >= 0 and self.ig <= 255 and self.ib >= 0 and self.ib <= 255:
+#                     return str([self.rgb, self.ig, self.ib])
+#                 else:
+#                     return f"Invalid RGB, values must be between 0 and 255."
+#             else:
+#                 return f"Validate RGB in list. Example: ValidateRGB([1, 2, 3]) or ValidateRGB(1, 2, 3)"
 
 
-class ColorRandom:
-    """Generate random color list"""
+# class ColorRandom:
+#     """Generate random color list"""
     
-    def __init__(self, steps=None):
-        self.steps = steps
+#     def __init__(self, steps=None):
+#         self.steps = steps
 
 
-    def __str__(self) -> int:
-        if self.steps != None and self.steps > 0:
-            collectList = []
-            for x in range(self.steps):
-                r = random.randint(0,255)
-                g = random.randint(0,255)
-                b = random.randint(0,255)
+#     def __str__(self) -> int:
+#         if self.steps != None and self.steps > 0:
+#             collectList = []
+#             for x in range(self.steps):
+#                 r = random.randint(0,255)
+#                 g = random.randint(0,255)
+#                 b = random.randint(0,255)
 
-                rgb = [r,g,b]
-                collectList.append(rgb)
-            return str(collectList)
-        else:
-            return f"Invalid step value, int must be bigger than 0"
+#                 rgb = [r,g,b]
+#                 collectList.append(rgb)
+#             return str(collectList)
+#         else:
+#             return f"Invalid step value, int must be bigger than 0"
 
 # class ColorMultiply:
 #     """Multiply an input color with a number multiplier to produce a darker color. Input color must have an alpha less than 255."""
@@ -385,24 +453,24 @@ class ColorRandom:
 #     pass
 
 
-class ColorGradient:
-    """Generate color range between [RGB] and [RGB] with {x} steps"""
-    def __init__(self, rgb_start=None, rgb_end=None, steps=None):
-        self.rgb_start = rgb_start
-        self.rgb_end = rgb_end
-        self.steps = steps
+# class ColorGradient:
+#     """Generate color range between [RGB] and [RGB] with {x} steps"""
+#     def __init__(self, rgb_start=None, rgb_end=None, steps=None):
+#         self.rgb_start = rgb_start
+#         self.rgb_end = rgb_end
+#         self.steps = steps
 
-    def __str__(self):
-        if self.steps is None or self.steps < 2:
-            return f"Error: Example usage ColorGradient([255, 0, 1], [60, 255, 255], steps=(>1))"
-        else:
-            collectList = []
-            for i in range(self.steps):
-                r = int(self.rgb_start[0] + (i * (self.rgb_end[0] - self.rgb_start[0]) / (self.steps - 1)))
-                g = int(self.rgb_start[1] + (i * (self.rgb_end[1] - self.rgb_start[1]) / (self.steps - 1)))
-                b = int(self.rgb_start[2] + (i * (self.rgb_end[2] - self.rgb_start[2]) / (self.steps - 1)))
-                collectList.append([r,g,b])
-            return str(collectList)
+#     def __str__(self):
+#         if self.steps is None or self.steps < 2:
+#             return f"Error: Example usage ColorGradient([255, 0, 1], [60, 255, 255], steps=(>1))"
+#         else:
+#             collectList = []
+#             for i in range(self.steps):
+#                 r = int(self.rgb_start[0] + (i * (self.rgb_end[0] - self.rgb_start[0]) / (self.steps - 1)))
+#                 g = int(self.rgb_start[1] + (i * (self.rgb_end[1] - self.rgb_start[1]) / (self.steps - 1)))
+#                 b = int(self.rgb_start[2] + (i * (self.rgb_end[2] - self.rgb_start[2]) / (self.steps - 1)))
+#                 collectList.append([r,g,b])
+#             return str(collectList)
 
 # print(ColorGradient.__doc__) #documentation
 # print(ColorGradient()) #no value
@@ -428,4 +496,3 @@ class ColorGradient:
 # verloop tussen kleuren met x steps
 # random kleuren lijst creëeren
 # class colorrange / gradient
-
