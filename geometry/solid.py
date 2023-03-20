@@ -51,6 +51,8 @@ class Extrusion:
         self.numberFaces = 0
         self.countVertsFaces = 0 # total number of verts per face (not the same as total verts)
         self.name = "none"
+        self.color = (255,255,0)
+        self.colorlst = []
 
     @classmethod
     def byPolyCurveHeightVector(cls, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
@@ -99,7 +101,6 @@ class Extrusion:
         for i in polycurve:
             Extrus.faces.append(count)
             count = count + 4
-        #Extrus.faces.append(count)
 
         # topface
         Extrus.faces.append(len(polycurve))
@@ -107,8 +108,14 @@ class Extrusion:
         for i in polycurve:
             Extrus.faces.append(count)
             count = count + 4
-        #Extrus.faces.append(count)
+
+        Extrus.countVertsFaces = (4 * Extrus.numberFaces) #aantal zonder bovenzijde/onderzijde
+
+        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
+
+        for j in range(int(len(Extrus.verts) / 3)):
+            Extrus.colorlst.append(Extrus.color)
 
         return Extrus
 
@@ -189,29 +196,3 @@ class Extrusion:
         Extrus.numberFaces = len(faces)
         Extrus.countVertsFaces = (4 * len(faces))
         return Extrus
-
-
-class Sweep:
-    def __init__(self, id=helper.generateID()) -> None:
-        pass
-        self.id = id
-    pass
-
-    def __id__(self):
-        return f"id:{self.id}"
-
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"
-
-
-class SweptBlend:
-    def __init__(self, id=helper.generateID()) -> None:
-        pass
-        self.id = id
-    pass
-
-    def __id__(self):
-        return f"id:{self.id}"
-
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"

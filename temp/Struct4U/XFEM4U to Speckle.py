@@ -24,10 +24,6 @@ Grids = XMLImportGrids(tree,1000)
 XYZ = XMLImportNodes(tree)
 obj = XMLImportPlates(tree)
 
-#Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X6", "L70X70X6")
-Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X7", "L70X70X6")
-
-sys.exit()
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
 BeamsNumber = root.findall(".//Beams/Number")
@@ -57,7 +53,5 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
             print("could not translate " + profile_name)
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
-
-#sys.exit()
 
 Commit = TransportToSpeckle("struct4u.xyz", "61c1210d76", SpeckleObj, "Test with Plates from XFEM4U")

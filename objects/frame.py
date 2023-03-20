@@ -51,15 +51,18 @@ class Frame:
     def __init__(self):
         self.extrusion = None
         self.name = "none"
+        self.profileName = "none"
         self.start = None
         self.end = None
         self.curve = None
         self.length = 0
         self.coordinateSystem: CoordinateSystem = CSGlobal
-        self.YJustification = "Origin"
-        self.ZJustification = "Origin"
+        self.YJustification = "Origin"  #Top, Center, Origin, Bottom
+        self.ZJustification = "Origin" #Left, Center, Origin, Right
         self.YOffset = 0
         self.ZOffset = 0
+        self.rotation = 0
+        self.color = None
 
     @classmethod
     def byStartpointEndpointProfileName(cls, start, end, profile_name, name):
@@ -72,6 +75,8 @@ class Frame:
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = profile_name
         return f1
 
 
@@ -86,4 +91,6 @@ class Frame:
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
         f1.extrusion = Extrusion.byPolyCurveHeightVector(polycurve, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = "none"
         return f1

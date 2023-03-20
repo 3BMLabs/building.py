@@ -1,6 +1,6 @@
 from objects.panel import *
 from objects.frame import *
-from objects.shape import *
+from objects.steelshape import *
 from exchange.speckle import *
 from geometry.color import *
 from geometry.linestyle import *

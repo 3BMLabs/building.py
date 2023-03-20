@@ -1,6 +1,6 @@
 from objects.panel import *
 from objects.frame import *
-from objects.shape import *
+from objects.steelshape import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 
@@ -16,7 +16,7 @@ ToSpeckle = []
 x = 0
 y = 0
 spacing = 1000
-height = 3000
+height = 1000
 count = 0
 row = 25
 for i in lst:

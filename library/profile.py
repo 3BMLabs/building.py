@@ -39,7 +39,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from packages import helper
-from objects.shape import *
+from objects.steelshape import *
 
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)

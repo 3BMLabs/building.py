@@ -27,7 +27,7 @@
 
 __title__= "shape"
 __author__ = "Maarten & Jonathan"
-__url__ = "./objects/shape.py"
+__url__ = "./objects/steelshape.py"
 
 
 import sys, os, math
