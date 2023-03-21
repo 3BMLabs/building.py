@@ -23,7 +23,7 @@ from specklepy.objects.primitive import Interval as SpeckleInterval
 SpecklePoint.from_coords(0, 0, 0)
 
 #Speckle Line
-Line = SpeckleLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(800, 1000, 1000))
+Line = SpeckleLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(-800, -1000, 1000))
 
 #Speckle Vector
 #V1 = SpeckleVector.from_coords(0, 0, 1000) # Vector
@@ -147,23 +147,20 @@ from svg.path import parse_path
 import json
 from typing import List, Tuple
 
-class Text:
-    def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: list[float, float, float] = None):
-        #self.x_axis, self.y_axis, self.x = xyz
-        self.bounding_box = bounding_box
-        self.font_family = font_family
-        self.text = text
-        if xyz == None:
-            self.x: float = 0
-            self.y: float = 0
-            self.z: float = 0
-        else:
-            self.x, self.y, self.z = xyz
-        print(self.x)
 
-        self.path = self.load_path()
-        self.letter = self.write()
-        
+class Text:
+    def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: Tuple[float, float, float] = None, rotation: float = None):
+        self.text = text
+        self.font_family = font_family
+        self.bounding_box = bounding_box
+        self.originX, self.originY, self.originZ = xyz or (0, 0, 0)
+        self.x, self.y, self.z = xyz or (0, 0, 0)
+        self.rotation = rotation
+        self.character_offset = 150
+        self.spacie = 200
+        self.path_list = self.load_path()
+
+
     def load_path(self) -> List[str]:
         with open(f'C:/Users/jonat/Desktop/font_json/{self.font_family}.json', 'r') as f:
             glyph_data = json.load(f)
@@ -172,115 +169,182 @@ class Text:
                 for letter in self.text if letter in glyph_data
             ]
 
-    def write(self) -> List[List['Polyline']]:
+
+    def write(self) -> List[List[Polyline]]:
         word_list = []
-        if self.x is None:
-            self.x = 0
-        
-        for letter_path in self.path:
+        for index, letter_path in enumerate(self.path_list):
             path = parse_path(letter_path)
-            points = []
             output_list = []
-            subpath_started = False
+            points = []
+            allPoints = []
 
             for segment in path:
                 segment_type = segment.__class__.__name__
                 if segment_type == 'Move':
                     if len(points) > 0:
-                        output_list.append(self.convert_points_to_polyline(points))
                         points = []
+                        allPoints.append("M")
                     subpath_started = True
                 elif subpath_started:
                     if segment_type == 'Line':
                         points.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
+                        allPoints.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
                     elif segment_type == 'CubicBezier':
                         points.extend(segment.sample(10))
+                        allPoints.extend(segment.sample(10))
                     elif segment_type == 'QuadraticBezier':
                         for i in range(11):
                             t = i / 10.0
                             point = segment.point(t)
                             points.append((point.real, point.imag))
+                            allPoints.append((point.real, point.imag))
                     elif segment_type == 'Arc':
                         points.extend(segment.sample(10))
+                        allPoints.extend(segment.sample(10))
+            if points:
+                output_list.append(self.convert_points_to_polyline(allPoints))
+                if self.bounding_box == True and self.bounding_box != None:
+                    output_list.append(self.calculate_bounding_box(allPoints)[0])
+                width = self.calculate_bounding_box(allPoints)[1]
 
-            if len(points) > 0:
-                output_list.append(self.convert_points_to_polyline(points))
-                output_list.append(self.calculate_to_bounding_box(points))
+                self.x += width + self.character_offset
             word_list.append(output_list)
         return word_list
 
 
-    def bounding_box(self, output_list: List['Polyline'], points: List[Tuple[float, float]]) -> None:
-        output_list.append(self.calculate_to_bounding_box(points))
-
-
-    def calculate_to_bounding_box(self, points: List[Tuple[float, float]]) -> 'Polyline':
-        if self.x is None:
-            self.x = 0
-        if self.y is None:
-            self.y = 0
-
+    def calculate_bounding_box(self, points):
+        
+        points = [elem for elem in points if elem != 'M']
         x_values = [point[0] for point in points]
         y_values = [point[1] for point in points]
-        z_value = float(self.x)
 
         min_x = min(x_values)
         max_x = max(x_values)
         min_y = min(y_values)
         max_y = max(y_values)
 
-        left_top = SpecklePoint.from_coords(min_x + self.x, max_y + self.y, z_value)
-        left_bottom = SpecklePoint.from_coords(min_x + self.x, min_y + self.y, z_value)
-        right_top = SpecklePoint.from_coords(max_x + self.x, max_y + self.y, z_value)
-        right_bottom = SpecklePoint.from_coords(max_x + self.x, min_y + self.y, z_value)
+        ltX = self.x
+        ltY = self.y + max_y - min_y
 
-        boundingboxLine2d = Polyline.from_points([left_top, right_top, right_bottom, left_bottom, left_top])
+        lbX = self.x
+        lbY = self.y + min_y - min_y
 
-        if self.bounding_box and self.bounding_box == 1:
-            return boundingboxLine2d
+        rtX = self.x + max_x - min_x
+        rtY = self.y + max_y - min_y
 
+        rbX = self.x + max_x - min_x
+        rbY = self.y + min_y - min_y
+        
+        left_top = SpecklePoint.from_coords(ltX, ltY, self.z)
+        left_bottom = SpecklePoint.from_coords(lbX, lbY, self.z)
+        right_top = SpecklePoint.from_coords(rtX, rtY, self.z)
+        right_bottom = SpecklePoint.from_coords(rbX, rbY, self.z)
 
-    def convert_points_to_polyline(self, points: list[tuple[float, float]]) -> Polyline:
-        if self.x == None:
-            self.x = 0
-        if self.y == None:
-            self.y = 0
+        bounding_box_polyline = self.rotate_polyline([left_top, right_top, right_bottom, left_bottom, left_top])
 
-        output_list = [SpecklePoint.from_coords(point[0] + self.x, point[1] + self.y) for point in points]
-        output_list.append(output_list[0])
-
-        return Polyline.from_points(output_list)
-
-
-p = Text(text="1234", font_family="arial", bounding_box=0).write()
+        char_width = rtX - ltX
+        char_height = ltY - lbY
+        return bounding_box_polyline, char_width, char_height
 
 
-print(p)
+    def convert_points_to_polyline(self, points: list[tuple[float, float]]) -> Polyline: #move
+        if self.rotation == None:
+            self.rotation = 0
+
+        output_list = []
+        sub_lists = [[]]
+
+        tempPoints = [elem for elem in points if elem != 'M']
+        x_values = [point[0] for point in tempPoints]
+        y_values = [point[1] for point in tempPoints]
+
+        xmin = min(x_values)
+        ymin = min(y_values)
+
+        for item in points:
+
+            if item == 'M':
+                sub_lists.append([])
+            else:
+                x = item[0] + self.x - xmin
+                y = item[1] + self.y - ymin
+                z = self.z
+                eput = x, y, z
+                sub_lists[-1].append(eput)
+
+        output_list = []
+
+        for element in sub_lists:
+            tmp = []
+            for point in element:
+                x = point[0]# + self.x
+                y = point[1]# + self.y
+                z = self.z
+                tmp.append(SpecklePoint.from_coords(x,y,z))
+            output_list.append(tmp)
+
+        polyline_list = []
+        for pts in output_list:
+            print(pts)
+            #self.rotate_polyline(Polyline.from_points(x)) 
+            polyline_list.append(self.rotate_polyline(pts))
+        return polyline_list
+
+
+    def rotate_polyline(self, polylinePoints):
+
+        translated_points = [(coord.x - self.originX, coord.y - self.originY) for coord in polylinePoints]
+
+        # Rotate around the origin
+        radians = math.radians(self.rotation)
+        cos = math.cos(radians)
+        sin = math.sin(radians)
+        rotated_points = [
+            (
+                (x - self.originX) * cos - (y - self.originY) * sin + self.originZ,
+                (x - self.originX) * sin + (y - self.originY) * cos + self.originZ
+            ) for x, y in translated_points
+        ]
+
+        pts_list = []
+        for x, y in rotated_points:
+            pts_list.append(SpecklePoint.from_coords(x,y,self.z))
+
+        return Polyline.from_points(pts_list)
+
+
+
+
+p = Text(text="Jonathan", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=90).write()
+p1 = Text(text="Maarten", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=0).write()
+p2 = Text(text="Piet", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=-90).write()
+p3 = Text(text="Joas", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=180).write()
+
+p4 = Text(text="Speckle", font_family="arial", bounding_box=False, xyz=[-1800,-1800,0], rotation=0).write()
+p5 = Text(text="12345678910", font_family="arial", bounding_box=False, xyz=[-7200,-7200,0], rotation=0).write()
+p6 = Text(text="abcdefghijklmnopqrstuvwxyz", font_family="arial", bounding_box=False, xyz=[-8900,-8900,0], rotation=0).write()
+
+# p1 = Text(text="112", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=45).write()
+# p2 = Text(text="112", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=-90).write()
+
 
 obj = []
 obj.append(p)
+obj.append(p1)
+obj.append(p2)
+obj.append(p3)
+obj.append(p4)
+obj.append(p5)
+obj.append(p6)
 
-
-
-# Text.write("Arial", "Jonathan", )
-# Text("Arial", "Jonathan", ).write()
-# Text("Arial", "Jonathan", ).boundingbox()
-
-
-#obj.append(letterX.boundingbox())
-
-# obj.append(letterX.boundingbox())
-
-# obj.append(letterX.letter())
-
-
-# obj.append(dollarX.letter())
+#obj.append(Line)
 
 
 SpeckleHost = "3bm.exchange"  # struct4u.xyz
 StreamID = "fa4e56aed4"  # c4cc12fa6f
 SpeckleObjects = obj
 Message = "Shiny commit 170"
+
 
 Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObjects, Message)
 
