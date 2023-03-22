@@ -1,3 +1,11 @@
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
+
 from objects.panel import *
 from objects.frame import *
 from objects.steelshape import *
@@ -29,9 +37,6 @@ for i in lst:
         x = 0
     else:
         pass
-#sys.exit()
-
-#sys.exit()
 
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
