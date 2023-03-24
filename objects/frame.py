@@ -44,7 +44,7 @@ from geometry.point import Point
 from geometry.curve import Line 
 from geometry.solid import Extrusion
 from library.profile import *
-
+from geometry.geometry2d import *
 
 class Frame:
     #Frame
@@ -79,6 +79,23 @@ class Frame:
         f1.profileName = profile_name
         return f1
 
+    @classmethod
+    def byStartpointEndpointProfileNameOrientation(cls, start, end, profile_name, name, YJustification, ZJustification):
+        f1 = Frame()
+        f1.start = start
+        f1.end = end
+        f1.YJustification = YJustification
+        f1.ZJustification = ZJustification
+        #self.curve = Line(start, end)
+        curv = profiledataToShape(profile_name).prof.curve
+        f1.curve = translatePolyCurve2D(curv,YJustification,ZJustification)
+        f1.directionVector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = profile_name
+        return f1
 
     @classmethod
     def byStartpointEndpoint(cls, start, end, polycurve, name):

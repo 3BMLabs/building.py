@@ -150,7 +150,87 @@ class PolyCurve2D:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
 
+def translatePolyCurve2D(plycrv2D,justificationy,justificationx):
+    xval = []
+    yval = []
+    for i in plycrv2D:
+        xval.append(i.start.x)
+        yval.append(i.start.y)
 
+    #Boundingbox2D
+    xmin = min(xval)
+    xmax = max(xval)
+    ymin = min(yval)
+    ymax = max(yval)
+    b = xmax-xmin
+    h = ymax-ymin
+
+    dytop = -ymax
+    dybottom = -ymin
+    dycenter = dytop - 0.5 * h #CHECK
+    dyorigin = 0
+
+    dxleft = -xmax
+    dxright = -xmin
+    dxcenter = dxleft - 0.5 * b #CHECK
+    dxorigin = 0
+
+    if justificationy == "center":
+        dy = dycenter
+    elif justificationy == "top":
+        dy = dytop
+    elif justificationy == "bottom":
+        dy = dybottom
+    elif justificationy == "origin":
+        dy = 0
+    else:
+        dy = 0
+
+    if justificationx == "center":
+        dx = dxcenter
+    elif justificationx == "left":
+        dx = dxleft
+    elif justificationx == "right":
+        dx = dxright
+    elif justificationx == "origin":
+        dx = 0
+    else:
+        dx = 0
+
+    for i in plycrv2D:
+        sx = i.start.x
+        sy = i.start.y
+        try:
+            mx = i.middle.x
+            my = i.middle.y
+        except:
+            mx = 0
+            my = 0
+        ex = i.end.x
+        ey = i.end.y
+        if i.__class__.__name__ == "Arc2D":
+            i.start.x = sx
+            i.start.y = sy + dy
+            i.middle.x = mx
+            i.middle.y = i.middle.y + dy
+            i.end.x = ex
+            i.end.y = ey + dy
+
+        elif i.__class__.__name__ == "Line2D":
+            i.start.x = sx
+            i.start.y = sx + dy
+            i.end.x = ex
+            i.end.y = ex + dy
+
+        else:
+            print("Curvetype not found")
+        sx = 0
+        sy = 0
+        ex = 0
+        ey = 0
+        mx = 0
+        my = 0
+    return plycrv2D
 
 class Surface2D:
     def __init__(self, id=helper.generateID()) -> None:

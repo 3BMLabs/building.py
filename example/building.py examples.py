@@ -21,7 +21,20 @@ p1 = Point(0,100,0)
 #Point 2D
 p2 = Point2D(1000,0)
 
-#Lines
+#Line 2D
+l2D = Line2D(Point2D(0,0),Point2D(1000,0))
+
+#Arc2D
+A2D = Arc2D(Point2D(0,0),Point2D(50,50),Point2D(100,100))
+
+#PolyCurve2D
+PC2D = PolyCurve2D().byJoinedCurves([l2D, A2D])
+
+#Translate
+a = translatePolyCurve2D(PC2D,"top","origin")
+
+
+#Lines 3D
 Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
 Line2 = Line(start=Point(0, 500, 0), end=Point(-200, 500, 0))
 Line3 = Line(start=Point(-200, 500, 0), end=Point(100, 1000, 0))
@@ -59,6 +72,9 @@ data = searchProfile("HE120A").shape_coords
 #Frames
 frame2 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(0,1000,0), "HE100A", "test")
 frame3 = Frame.byStartpointEndpointProfileName(Point(500,0,0), Point(500,1000,0), "HE400B", "test2")
+
+frame4 = Frame.byStartpointEndpointProfileNameOrientation(Point(0, 500, 1500), Point(1000, 500, 1500), "HEA200","test","origin","origin")
+
 
 #Grid
 GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000,0,0),end=Point(10000,0,0)),"A")

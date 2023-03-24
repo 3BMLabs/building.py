@@ -5,11 +5,11 @@ from objects.datum import *
 # GridSystem
 seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
-ext = 2500 #offset stramien
+ext = 5000 #offset stramien
 
 #INPUT in mm
-spac = 5400 #stramien in langsrichting
-n = 8 # aantal stramienvakken
+spac = 7000 #stramien in langsrichting
+n = 10 # aantal stramienvakken
 
 spac_y = 5200 #stramien in dwarsrichting
 nw = 5 # n-stramienen dwarsrichting
@@ -17,8 +17,8 @@ nw = 5 # n-stramienen dwarsrichting
 z = 9000 #hoogte hal
 afschot = 0
 
-GEVELKOLOM = "HEA400"
-HOOFDLIGGER = "IPE600"
+GEVELKOLOM = "IPE330"
+HOOFDLIGGER = "HEA700"
 RANDLIGGER = "HEA160"
 KOPPELLIGGER = "K80/80/5"
 HOEKKOLOM = "HEA300"
@@ -33,6 +33,7 @@ wvb = [
     ["K2",2,1],
     ["L1",4,1],
     ["L1",8,1],
+    ["L2",2,1],
     ["L2",4,1]]
 
 
@@ -45,6 +46,7 @@ spacX = str(n+1) + "x" + str(spac)  #"13x5400"
 spacY = str(nw) + "x" + str(spac_y)  #"4x5400"
 grids = GridSystem(spacX,seqX,spacY,seqY,ext)
 obj1 = grids[0] + grids[1]
+
 #obj1 = []
 #SPANTEN
 for i in range(n):
