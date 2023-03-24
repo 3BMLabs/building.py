@@ -37,7 +37,6 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-import sys
 
 class Color:
 	"""Documentation: output returns [r, g, b]"""

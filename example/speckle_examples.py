@@ -29,6 +29,13 @@ __title__= "speckle_examples"
 __author__ = "Maarten & Jonathan"
 __url__ = "./example/speckle_examples.py"
 
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 
 from geometry.geometry2d import Point2D
 
@@ -42,6 +49,7 @@ from specklepy.objects.geometry import Polyline
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
+from specklepy.objects.primitive import Interval as SpeckleInterval
 
 #Speckle Point
 SpecklePoint.from_coords(0, 0, 0)
@@ -69,6 +77,26 @@ ply = Polyline.from_points([P1,P2,P3,P4])
 
 #Speckle Mesh
 Messie2 = SpeckleMesh(vertices = [1000,1000,0,1000,1000,1000,2000,2000,0], faces = [3,0,1,2], name = "Jonathan his mesh", colors = [-1762845660,-1762845660,-1762845660]) #, units = "mm"
+
+
+#Speckle Arc
+V1 = SpeckleVector.from_coords(0, 0, 1)
+X = SpeckleVector.from_coords(1, 0, 0)
+Y = SpeckleVector.from_coords(0, 1, 0)
+Orig = SpecklePoint.from_coords(20, 0, 0)
+
+pln = SpecklePlane(origin=Orig, normal=V1, xdir=X, ydir=Y)
+int = SpeckleInterval(start=0, end=5, totalChildrenCount=1)
+
+arcie = SpeckleArc(
+   startPoint=SpecklePoint.from_coords(0, 0, 0),
+   midPoint=SpecklePoint.from_coords(1000, 0, 0),
+   endPoint=SpecklePoint.from_coords(2000, 500, 0),
+   plane=pln,
+   radius=1, #must be at least > 1
+   interval=int,
+   units="mm"
+)
 
 
 def mesh(box):

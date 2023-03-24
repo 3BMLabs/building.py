@@ -5,6 +5,9 @@ from exchange.speckle import *
 from geometry.color import *
 from geometry.linestyle import *
 from objects.datum import *
+from geometry.text import *
+
+
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]
 
@@ -43,10 +46,19 @@ Line5 = Line(start=Point(400, 500, 0), end=Point(200, 500, 0))
 Line6 = Line(start=Point(200, 500, 0), end=Point(200, 0, 0))
 Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
 
+#Arc
+Point1 = SpecklePoint.from_coords(10, 0, 0)
+Point2 = SpecklePoint.from_coords(500, 20, 0)
+Point3 = SpecklePoint.from_coords(1000, 0, 0)
+Arc1 = Arc.ByThreePoints(startPoint=Point1,midPoint=Point2,endPoint=Point3)
+
 #Pattern
 Lines4 = lineToPattern(Line(start=Point(0, 1200, 0),end=Point(11400, 1200, 0)), Centerline)
 
-#sys.exit()
+#Text
+Text1 = Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=90).write() #all parms (with optional)
+Text2 = Text(text="PyBuildingSystem2", font_family="arial").write() # without optional parms
+
 #PolyCurves(not working)
 PC1 = PolyCurve.byJoinedCurves([Line1,Line2,Line3])
 PC2 = PolyCurve.byPoints(
