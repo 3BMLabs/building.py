@@ -40,6 +40,8 @@ def translatePolyCurve2Da(plycrv2D,justificationx,justificationy):
         dx = 0
     else:
         dx = 0
+    print("dx =")
+    print(dx)
 
     if justificationy == "center":
         dy = dycenter
@@ -51,46 +53,36 @@ def translatePolyCurve2Da(plycrv2D,justificationx,justificationy):
         dy = 0
     else:
         dy = 0
+    print("dy =")
+    print(dy)
 
     for i in plycrv2D:
-        sx = i.start.x
-        sy = i.start.y
-        try:
-            mx = i.middle.x
-            my = i.middle.y
-        except:
-            mx = 0
-            my = 0
-        ex = i.end.x
-        ey = i.end.y
         if i.__class__.__name__ == "Arc2D":
-            i.start.x = sx
-            i.start.y = sy + dy
-            i.middle.x = mx
-            i.middle.y = i.middle.y + dy
-            i.end.x = ex
-            i.end.y = ey + dy
-
+            x1 = i.start.x + dx
+            i.start.y =+ dy
+            i.middle.x =+ dx
+            i.middle.y =+ dy
+            i.end.x =+ dx
+            i.end.y =+ dy
+            c = Arc2D(point2D(x1,y1))
         elif i.__class__.__name__ == "Line2D":
-            i.start.x = sx
-            i.start.y = sx + dy
-            i.end.x = ex
-            i.end.y = ex + dy
+            print(i)
+            i.start.x =+ dx
+            i.start.y =+ dy
+            i.end.x =+ dx
+            i.end.y =+ dy
 
         else:
             print("Curvetype not found")
-        sx = 0
-        sy = 0
-        ex = 0
-        ey = 0
-        mx = 0
-        my = 0
     return plycrv2D
 
 a = profiledataToShape("HEA200").prof.curve
 
 b = deepcopy(a)
-b = translatePolyCurve2Da(b, "left", "top")
+b = translatePolyCurve2Da(b, "origin", "origin")
+
+#b = translatePolyCurve2Da(b, "left", "top")
+#b = translatePolyCurve2Da(b, "left", "top")
 
 for i in a:
     print(i.start)
@@ -98,7 +90,6 @@ for i in a:
 print("transformed curve")
 for i in b:
     print(i.start)
-
 
 sys.exit()
 obj1 = []
