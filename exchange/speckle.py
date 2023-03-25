@@ -61,7 +61,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
-from specklepy.objects.primitive import Interval as SpeckleInterval
+#from specklepy.objects.primitive import Interval as SpeckleInterval
 
 
 def SpecklePolylineBySpecklePoints(SpecklePoints):
@@ -160,7 +160,8 @@ def translateObjectsToSpeckleObjects(Obj):
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, units = "mm"))
         elif nm == 'Frame':
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, name = i.profileName, units = "mm"))
+            colrs = i.colorlst
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))
         elif nm == 'PolyCurve':
             pnts = []
             for j in i.points:

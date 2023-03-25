@@ -1,9 +1,5 @@
 from objects.panel import *
 from objects.frame import *
-from objects.steelshape import *
-from exchange.speckle import *
-from geometry.color import *
-from geometry.linestyle import *
 from objects.datum import *
 from geometry.text import *
 from geometry.geometry2d import *
@@ -99,8 +95,11 @@ data = searchProfile("HE120A").shape_coords
 frame2 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(0,1000,0), "HE100A", "test")
 frame3 = Frame.byStartpointEndpointProfileName(Point(500,0,0), Point(500,1000,0), "HE400B", "test2")
 
-frame4 = Frame.byStartpointEndpointProfileNameShapevector(Point(0, 500, 0), Point(1000, 500, 0), "HEA200","test",Vector2(-100,-100))) #
-frame5 = Frame.byStartpointEndpointProfileNameJustifiction(Point(0, 300, 0), Point(1000, 300, 0), "HEA200","test","left","top")) # dakligger deel 1
+frame4 = Frame.byStartpointEndpointProfileNameShapevector(Point(0, 500, 0), Point(1000, 500, 0), "HEA200","test",Vector2(-100,-100)))
+frame5 = Frame.byStartpointEndpointProfileNameJustifiction(Point(0, 300, 0), Point(1000, 300, 0), "HEA200","test","left","top"))
+
+frame6 = Frame.byStartpointEndpoint(Point(3000, 0, 0), Point(6000, 0, 0),Rectangle("400x500", 500, 400).curve.curves,"Betonbalk 400x500")
+
 
 #Grid
 GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000,0,0),end=Point(10000,0,0)),"A")
