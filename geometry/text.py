@@ -49,7 +49,7 @@ from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Polyline
 
 
-class Text:
+class Text: #todo: add space (width depends on font-family?) and solid (thickness). 
     def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: Tuple[float, float, float] = None, rotation: float = None):
         self.text = text
         self.font_family = font_family
@@ -207,42 +207,3 @@ class Text:
             pts_list.append(SpecklePoint.from_coords(x,y,self.z))
 
         return Polyline.from_points(pts_list)
-    
-#CONVERT TEXT .SVG TO .JSON FILE
-# import xml.etree.ElementTree as ET
-# import json, os, glob
-
-# def write_glyphs_to_json(svg_file, json_file):
-# 	try:
-# 	    tree = ET.parse(svg_file)
-# 	    root = tree.getroot()
-
-# 	    glyphs = {}
-
-# 	    for glyph in root.findall(".//{http://www.w3.org/2000/svg}glyph"):
-# 	        try:
-# 	            unicode_name = glyph.attrib['unicode']
-# 	            glyph_name = glyph.attrib['glyph-name']
-# 	            path_d = glyph.attrib['d']
-# 	            glyphs[unicode_name] = {
-# 	                'glyph-name': glyph_name,
-# 	                'glyph-path': path_d
-# 	            }
-# 	        except:
-# 	            pass
-
-# 	    with open(json_file, 'w') as f:
-# 	    	json.dump(glyphs, f, indent=4)
-# 	except:
-# 		pass
-
-
-#do this for whole folder (if nan exist)
-
-# folder_svgpath = "font_svg"
-# folder_jsonpath = "font_json"
-# file_paths = glob.glob(os.path.join(folder_svgpath, "*"))
-# for x in file_paths:
-# 	svg_file = f"{x}"
-# 	json_file = folder_jsonpath + "/" + x.split(f"{folder_svgpath}\\")[1].replace(".svg", "") + ".json"
-# 	write_glyphs_to_json(svg_file, json_file)
