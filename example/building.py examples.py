@@ -6,7 +6,7 @@ from geometry.color import *
 from geometry.linestyle import *
 from objects.datum import *
 from geometry.text import *
-
+from geometry.geometry2d import *
 
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]
@@ -15,14 +15,20 @@ def rgb_to_int(rgb):
 
 obj = []
 
-#Vector
+#Vector 3D
 v1 = Vector3(0,100,0)
+
+#Vector 2D
+v1 = Vector2(0,100)
+#vector bewerkingen nog toevoegen
 
 #Point 3D
 p1 = Point(0,100,0)
 
 #Point 2D
 p2 = Point2D(1000,0)
+p2.translate(v1) #translate the point with a 2D Vector v1
+p2.rotate(45) #rotate the point around 0,0 in degrees
 
 #Line 2D
 l2D = Line2D(Point2D(0,0),Point2D(1000,0))
@@ -31,11 +37,19 @@ l2D = Line2D(Point2D(0,0),Point2D(1000,0))
 A2D = Arc2D(Point2D(0,0),Point2D(50,50),Point2D(100,100))
 
 #PolyCurve2D
-PC2D = PolyCurve2D().byJoinedCurves([l2D, A2D])
+PC2D = PolyCurve2D.byJoinedCurves([l2D, A2D])
 
-#Translate
-a = translatePolyCurve2D(PC2D,"top","origin")
+#Translate PolyCurve2D and returns a new PolyCurve2D
+b = PC2D.translate(Vector2(100,100))
 
+#Rotate PolyCurve2D and returns a new PolyCurve2D
+c = PC2D.rotate(45)
+
+
+#Justification
+#Return 2D Vector for translation based on center/left/right/origin and center/top/bottom/origin
+
+d = justifictionToVector(b,"center", "top")
 
 #Lines 3D
 Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
@@ -85,12 +99,11 @@ data = searchProfile("HE120A").shape_coords
 frame2 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(0,1000,0), "HE100A", "test")
 frame3 = Frame.byStartpointEndpointProfileName(Point(500,0,0), Point(500,1000,0), "HE400B", "test2")
 
-frame4 = Frame.byStartpointEndpointProfileNameOrientation(Point(0, 500, 1500), Point(1000, 500, 1500), "HEA200","test","origin","origin")
-
+frame4 = Frame.byStartpointEndpointProfileNameShapevector(Point(0, 500, 0), Point(1000, 500, 0), "HEA200","test",Vector2(-100,-100))) #
+frame5 = Frame.byStartpointEndpointProfileNameJustifiction(Point(0, 300, 0), Point(1000, 300, 0), "HEA200","test","left","top")) # dakligger deel 1
 
 #Grid
 GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000,0,0),end=Point(10000,0,0)),"A")
-
 
 # GridSystem
 seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
