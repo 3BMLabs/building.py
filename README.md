@@ -19,6 +19,6 @@ Shape
 Material
 Color
 
-Attempt | #1 | #2 | #3 
+Group | Part | Implemented | ToSpeckle | ToFreeCAD 
 --- | --- | --- | --- 
-Seconds | 301 | 283 | 290 
+Abstract | Vector3 | :heavy_check_mark: 
