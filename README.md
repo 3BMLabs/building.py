@@ -22,3 +22,10 @@ Color
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
 --- | --- | --- | --- | --- 
 Abstract | Vector3 | :heavy_check_mark: |  |  
+--- | --- | --- | --- | --- 
+ | Vector2 | :heavy_check_mark: |  |  
+ --- | --- | --- | --- | --- 
+ | Point3D | :heavy_check_mark: | :heavy_check_mark:  |  
+  --- | --- | --- | --- | --- 
+ | Point2D | :heavy_check_mark: | :heavy_check_mark:  |  
+  --- | --- | --- | --- | --- 
