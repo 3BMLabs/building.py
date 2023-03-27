@@ -17,7 +17,7 @@ The goals of the building.py project are:
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
 --- | --- | --- | --- | --- 
 Abstract | Vector3 | :heavy_check_mark: |  |  
- | Vector2 | :heavy_check_mark: |  |  
+&nbsp; | Vector2 | :heavy_check_mark: |  |  
 -- | Plane | :heavy_check_mark: |  |  
 -- | CoordinateSystem | :heavy_check_mark: |  |  
 -- | Color | :heavy_check_mark: | :heavy_check_mark: |  
