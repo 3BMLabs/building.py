@@ -17,6 +17,7 @@ obj = []
 
 # Vector
 v1 = Vector3(0, 100, 0)
+v2 = Vector3(100,100,0)
 
 # Point 3D
 p1 = Point(0, 100, 0)
