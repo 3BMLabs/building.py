@@ -42,7 +42,21 @@ from packages import helper
 class curve:
 #Line2D, etc moet van class curve zijn. start end
     pass
-    
+
+class Vector2:
+    def __init__(self, x, y, id=helper.generateID()) -> None:
+        self.X: float = 0.0
+        self.Y: float = 0.0
+        self.X = x
+        self.Y = y
+        self.id = id
+
+    def __id__(self):
+        return f"id:{self.id}"
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}({self.X},{self.Y})"
+
 class Point2D:
     def __init__(self, x, y, id=helper.generateID()) -> None:
         self.x: float = 0.0
@@ -53,25 +67,25 @@ class Point2D:
 
     def __id__(self):
         return f"id:{self.id}"
+    def translate(self, vector: Vector2):
+        x = self.x + vector.X
+        y = self.y + vector.Y
+        p1 = Point2D(x, y)
+        return p1
+
+    def rotate(self, rotation):
+        x = self.x
+        y = self.y
+        r = math.sqrt(x * x + y * y)
+        rotationstart = math.degrees(math.atan2(y, x))
+        rotationtot = rotationstart + rotation
+        xn = round(math.cos(math.radians(rotationtot)) * r,3)
+        yn = round(math.sin(math.radians(rotationtot)) * r,3)
+        p1 = Point2D(xn, yn)
+        return p1
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y})"
-
-
-class Vector2D:
-    def __init__(self, x, y, id=helper.generateID()) -> None:
-        self.dx: float = 0.0
-        self.dy: float = 0.0
-        self.dx = x
-        self.dy = y
-        self.id = id
-
-    def __id__(self):
-        return f"id:{self.id}"
-
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self.x},{self.y})"
-
 
 class Line2D:
     def __init__(self, pntxy1, pntxy2, id=helper.generateID()) -> None:
@@ -125,16 +139,43 @@ class PolyCurve2D:
     def __id__(self):
         return f"id:{self.id}"
 
-    def byJoinedCurves(self, curves):
+    @classmethod
+    def byJoinedCurves(cls, curves):
+        pc = PolyCurve2D()
         for i in curves:
-            self.curves.append(i)
-        return self.curves
+            pc.curves.append(i)
+        return pc
 
     def points(self):
         for i in self.curves:
             self.points2D.append(i.start)
             self.points2D.append(i.end)
         return self.points2D
+
+    def translate(self, vector2d:Vector2):
+        crvs = []
+        v1 = vector2d
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc2D(i.start.translate(v1), i.middle.translate(v1), i.end.translate(v1)))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(Line2D(i.start.translate(v1), i.end.translate(v1)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve2D.byJoinedCurves(crvs)
+        return crv
+
+    def rotate(self, rotation):
+        crvs = []
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc2D(i.start.rotate(rotation), i.middle.rotate(rotation), i.end.rotate(rotation)))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(Line2D(i.start.rotate(rotation), i.end.rotate(rotation)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve2D.byJoinedCurves(crvs)
+        return crv
 
     @staticmethod
     def polygon(self):
@@ -147,9 +188,8 @@ class PolyCurve2D:
         points.append(points[0])
         return points
 
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"
-
+ #   def __str__(self) -> str:
+#        return f"{__class__.__name__}({self})"
 
 
 class Surface2D:

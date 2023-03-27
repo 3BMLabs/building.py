@@ -44,25 +44,39 @@ from geometry.point import Point
 from geometry.curve import Line 
 from geometry.solid import Extrusion
 from library.profile import *
+from geometry.geometry2d import *
+from library.material import *
+
+def colorlist(extrus,color):
+    colorlst = []
+    for j in range(int(len(extrus.verts) / 3)):
+        colorlst.append(color)
+    return(colorlst)
 
 
+#ToDo Na update van color moet ook de colorlist geupdate worden
 class Frame:
     #Frame
     def __init__(self):
         self.extrusion = None
         self.name = "none"
+        self.profileName = "none"
         self.start = None
         self.end = None
         self.curve = None
         self.length = 0
         self.coordinateSystem: CoordinateSystem = CSGlobal
-        self.YJustification = "Origin"
-        self.ZJustification = "Origin"
+        self.YJustification = "Origin"  #Top, Center, Origin, Bottom
+        self.ZJustification = "Origin" #Left, Center, Origin, Right
         self.YOffset = 0
         self.ZOffset = 0
+        self.rotation = 0
+        self.material = None
+        self.color = BaseOther.color
+        self.colorlst = []
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start, end, profile_name, name):
+    def byStartpointEndpointProfileName(cls, start, end, profile_name, name, material):
         f1 = Frame()
         f1.start = start
         f1.end = end
@@ -71,12 +85,64 @@ class Frame:
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        return f1
+
+    @classmethod
+    def byStartpointEndpointProfileNameShapevector(cls, start, end, profile_name, name, vector2d: Vector2,rotation, material):
+        f1 = Frame()
+        f1.start = start
+        f1.end = end
+        #self.curve = Line(start, end)
+        curv = profiledataToShape(profile_name).prof.curve
+        f1.rotation = rotation
+        curvrot = curv.rotate(rotation)  #rotation in degrees
+        f1.curve = curvrot.translate(vector2d)
+        f1.XOffset = vector2d.X
+        f1.YOffset = vector2d.Y
+        f1.directionVector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        return f1
+
+    @classmethod
+    def byStartpointEndpointProfileNameJustifiction(cls, start, end, profile_name, name, XJustifiction, YJustifiction, rotation, material):
+        f1 = Frame()
+        f1.start = start
+        f1.end = end
+        #self.curve = Line(start, end)
+        f1.rotation = rotation
+        curv = profiledataToShape(profile_name).prof.curve
+        curvrot = curv.rotate(rotation)  #rotation in degrees
+        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        f1.XOffset = v1.X
+        f1.YOffset = v1.Y
+        f1.curve = curv.translate(v1)
+        f1.directionVector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
         return f1
 
 
     @classmethod
-    def byStartpointEndpoint(cls, start, end, polycurve, name):
+    def byStartpointEndpoint(cls, start, end, polycurve, name, rotation, material):
         #2D polycurve
         f1 = Frame()
         f1.start = start
@@ -85,5 +151,13 @@ class Frame:
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(polycurve, f1.length, CSGlobal, start, f1.directionVector)
+        curvrot = polycurve.rotate(rotation)  # rotation in degrees
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = "none"
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
         return f1
+
+

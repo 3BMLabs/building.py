@@ -77,17 +77,17 @@ def VectorToSpeckleVector(Vector3: Vector3):
     return Vectr
 
 def LineToSpeckleLine(Line: Line):
-    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end)) #, units = "mm"
+    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = "mm")
     return SpeckleLn
 
 def Line2DToSpeckleLine3D(ln):
-    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Point(ln.start.x,ln.start.y,0)), end = PointToSpecklePoint(Point(ln.end.x,ln.end.y,0))) #, units = "mm"
+    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Point(ln.start.x,ln.start.y,0)), end = PointToSpecklePoint(Point(ln.end.x,ln.end.y,0)), units = "mm")
     return SpeckleLn
 
 def GridToLines(Grid):
     SpeckleLines = []
     for i in Grid.line:
-        SpeckleLines.append(SpeckleLine(start = PointToSpecklePoint(i.start), end = PointToSpecklePoint(i.end))) #, units = "mm"
+        SpeckleLines.append(SpeckleLine(start = PointToSpecklePoint(i.start), end = PointToSpecklePoint(i.end), units = "mm")) #, units = "mm"
     return SpeckleLines
 
 def Point2DToSpecklePoint(Point2D: Point2D):
@@ -100,7 +100,7 @@ def SpeckleMeshByMesh(MeshPB):
     for i in range(MeshPB.countVertsFaces):
         colrs.append(color)
     #colors = colrs
-    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs) #, units = "mm"
+    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs, units = "mm")
     return spcklmesh
 
 def ArcToSpeckleArc(Arc: Arc):
@@ -158,9 +158,10 @@ def translateObjectsToSpeckleObjects(Obj):
         nm = i.__class__.__name__
         if nm == 'Panel':
             colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs))
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, units = "mm"))
         elif nm == 'Frame':
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces))
+            colrs = i.colorlst
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))
         elif nm == 'PolyCurve':
             pnts = []
             for j in i.points:

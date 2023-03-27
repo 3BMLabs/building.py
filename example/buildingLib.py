@@ -1,6 +1,14 @@
+import sys, os, math
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
+
 from objects.panel import *
 from objects.frame import *
-from objects.shape import *
+from objects.steelshape import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 
@@ -16,7 +24,7 @@ ToSpeckle = []
 x = 0
 y = 0
 spacing = 1000
-height = 3000
+height = 1500
 count = 0
 row = 25
 for i in lst:
@@ -29,9 +37,6 @@ for i in lst:
         x = 0
     else:
         pass
-#sys.exit()
-
-#sys.exit()
 
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)

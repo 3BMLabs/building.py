@@ -10,7 +10,8 @@ package_root_directory = file.parents[0]
 sys.path.append(str(package_root_directory))
 
 #tree = ET.parse("/temp/testplates.xml")
-tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 2/export.xml")
+#tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 2/export.xml")
+tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 1/export.xml")
 root = tree.getroot()
 
 
@@ -24,10 +25,6 @@ Grids = XMLImportGrids(tree,1000)
 XYZ = XMLImportNodes(tree)
 obj = XMLImportPlates(tree)
 
-#Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X6", "L70X70X6")
-Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(1000,0,0), "L70X70X7", "L70X70X6")
-
-sys.exit()
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
 BeamsNumber = root.findall(".//Beams/Number")
@@ -58,6 +55,4 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
-#sys.exit()
-
-Commit = TransportToSpeckle("struct4u.xyz", "61c1210d76", SpeckleObj, "Test with Plates from XFEM4U")
+Commit = TransportToSpeckle("struct4u.xyz", "24c259ec43", SpeckleObj, "Export from XFEM4U")

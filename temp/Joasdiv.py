@@ -1,6 +1,6 @@
 from objects.panel import *
 from objects.frame import *
-from objects.shape import *
+from objects.steelshape import *
 from exchange.speckle import *
 
 # pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")

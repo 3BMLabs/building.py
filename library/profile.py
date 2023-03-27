@@ -39,7 +39,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from packages import helper
-from objects.shape import *
+from objects.steelshape import *
 
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
@@ -85,3 +85,54 @@ class profiledataToShape:
             prof = "error, profile not created"
         self.prof = prof
         self.data = d1
+
+def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
+    xval = []
+    yval = []
+    for i in plycrv2D.curves:
+        xval.append(i.start.x)
+        yval.append(i.start.y)
+
+    #Boundingbox2D
+    xmin = min(xval)
+    xmax = max(xval)
+    ymin = min(yval)
+    ymax = max(yval)
+    b = xmax-xmin
+    h = ymax-ymin
+
+    dxleft = -xmax
+    dxright = -xmin
+    dxcenter = dxleft - 0.5 * b #CHECK
+    dxorigin = 0
+
+    dytop = -ymax
+    dybottom = -ymin
+    dycenter = dytop - 0.5 * h #CHECK
+    dyorigin = 0
+
+    if XJustifiction == "center":
+        dx = 0 #TODO
+    elif XJustifiction == "left":
+        dx = dxleft
+    elif XJustifiction == "right":
+        dx = dxright
+    elif XJustifiction == "origin":
+        dx = 0 #TODO
+    else:
+        dx = 0
+
+    if Yjustification == "center":
+        dy = 0   #TODO
+    elif Yjustification == "top":
+        dy = dytop
+    elif Yjustification == "bottom":
+        dy = dybottom
+    elif Yjustification == "origin":
+        dy = 0 #TODO
+    else:
+        dy = 0
+
+    v1 = Vector2(dx, dy)
+
+    return v1

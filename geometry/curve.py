@@ -100,7 +100,7 @@ class PolyCurve: #pass this object before using it.
         p1 = PolyCurve()
         count = 0
         points = []
-        for i in PolyCurve2D.curves:
+        for i in PolyCurve2D:
             points.append(Point(i.start.x, i.start.y, 0))
         p1.points = points
         for i in points:
