@@ -20,5 +20,4 @@ Material
 Color
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
---- | --- | --- | --- | --- 
 Abstract | Vector3 | :heavy_check_mark: | --- | --- 
