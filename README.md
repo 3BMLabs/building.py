@@ -25,7 +25,6 @@ Abstract | Vector3 | :heavy_check_mark: |  |
  | CoordinateSystem | :heavy_check_mark: |  |  
  | Color | :heavy_check_mark: | :heavy_check_mark: |  
  | Material | :heavy_check_mark: | |  
-
 Geometry | Point3D | :heavy_check_mark: | :heavy_check_mark:  |  
  | Line | :heavy_check_mark: | :heavy_check_mark:  |  
  | Arc | :heavy_check_mark: | :heavy_check_mark:  |  
