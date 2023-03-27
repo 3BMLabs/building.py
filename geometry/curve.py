@@ -1,25 +1,25 @@
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools to create curves
@@ -41,7 +41,7 @@ from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
-#from specklepy.objects.primitive import Interval as SpeckleInterval #temp
+# from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
 class Line:
@@ -66,9 +66,9 @@ class Line:
         return f"{__class__.__name__}(" + f"{self.start},{self.end})"
 
 
-class PolyCurve: #pass this object before using it.
+class PolyCurve:  # pass this object before using it.
     def __init__(self, id=helper.generateID()) -> None:
-        self.curves = [] #collect in list
+        self.curves = []  # collect in list
         self.points = []
         self.id = id
 
@@ -82,7 +82,7 @@ class PolyCurve: #pass this object before using it.
 
     @classmethod
     def byPoints(cls, points):
-        #by points,
+        # by points,
         p1 = PolyCurve()
         count = 0
         p1.points = points
@@ -96,7 +96,7 @@ class PolyCurve: #pass this object before using it.
 
     @classmethod
     def byPolyCurve2D(cls, PolyCurve2D):
-        #by points,
+        # by points,
         p1 = PolyCurve()
         count = 0
         points = []
@@ -116,11 +116,13 @@ class PolyCurve: #pass this object before using it.
 
     def __str__(self):
         PolyCurveName = f"{__class__.__name__}("
- #       for i in self.curves:
+#       for i in self.curves:
 #            PolyCurveName = PolyCurveName + i
         return PolyCurveName + ")"
 
-#2D PolyCurve to 3D PolyGon
+# 2D PolyCurve to 3D PolyGon
+
+
 def polygon(flatCurves):
     points = []
     for i in flatCurves:

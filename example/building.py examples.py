@@ -1,8 +1,9 @@
 from objects.panel import *
 from objects.frame import *
-from objects.shape import *
+from geometry.curve import *
+from objects.steelshape import *
 from exchange.speckle import *
-from geometry.color import *
+from abstract.color import *
 from geometry.linestyle import *
 from objects.datum import *
 
@@ -15,17 +16,42 @@ def rgb_to_int(rgb):
 
 obj = []
 
-# Vector
-v1 = Vector3(0, 100, 0)
-v2 = Vector3(100,100,0)
-
 # Point 3D
 p1 = Point(0, 100, 0)
+p2 = Point(0, 300, 0)
+
+# Vector
+v1 = Vector3(0, 100, 0)
+v2 = Vector3(100, 100, 0)
+
+# Vector sum(v1, v2)
+test1 = Vector3.sum(v1, v2)
+# vector crossProduct(v1, v2)
+test2 = Vector3.crossProduct(v1, v2)
+# vector dotProduct(v1, v2)
+test3 = Vector3.dotProduct(v1, v2)
+# vector product(n, v1)
+test4 = Vector3.product(5, v1)
+# vector length(v1)
+test5 = Vector3.length(v1)
+# vector pitch(v1, angle)
+test6 = Vector3.pitch(v1, 45)
+# vector angleBetween(v1, v2)
+test7 = Vector3.angleBetween(v1, v2)
+# vector reverse(v1)
+test8 = Vector3.reverse(v1)
+# vector perpendicular(v1)
+test9 = Vector3.perpendicular(v1)
+# vector normalise(v1)
+test10 = Vector3.normalise(v1)
+# vector byTwoPoints(cls, p1, p2)
+test11 = Vector3.byTwoPoints(p1, p2)
+
 
 # Point 2D
 p2 = Point2D(1000, 0)
 
-# Lines
+# Curve.py
 Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
 Line2 = Line(start=Point(0, 500, 0), end=Point(-200, 500, 0))
 Line3 = Line(start=Point(-200, 500, 0), end=Point(100, 1000, 0))
@@ -33,6 +59,9 @@ Line4 = Line(start=Point(100, 1000, 0), end=Point(400, 500, 0))
 Line5 = Line(start=Point(400, 500, 0), end=Point(200, 500, 0))
 Line6 = Line(start=Point(200, 500, 0), end=Point(200, 0, 0))
 Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
+
+# Line length
+test12 = Line.length(Line1)
 
 # Pattern
 Lines4 = lineToPattern(Line(start=Point(0, 1200, 0),end=Point(11400, 1200, 0)), Centerline)
@@ -55,14 +84,40 @@ PC3 = PolyCurve.byPoints(
      Point(3000, 0, 0)
      ])
 
+PC4 = PolyCurve.byPolyCurve2D(
+    [Point(0, 0, 0),
+     Point(2000, 0, 0),
+     Point(0, 1000, 2000),
+     Point(0, 0, 0)
+     ])
+
+# Polygon(NOT WORKING!)
+flatcurves = [1, 2, 3, 4, 5]
+plygn1 = polygon(flatcurves)
+
+
+pnt1 = Point(0, 0, 0)
+pnt2 = Point(0, 10, 0)
+pnt3 = Point(0, 20, 0)
+
+arc1 = Arc(pnt1, pnt2, pnt3)
+# Arc distance
+Arc.distance(arc1, p1, p2)
+# Arc radius
+Arc.radius(arc1)
+# Arc length
+Arc.length(arc1)
+# Arc bythreepoints
+Arc.ByThreePoints(pnt1, pnt2, pnt3)
+
 # Panels
 pan = Panel.byPolyCurveThickness(PC3, 100, 0, "test1", rgb_to_int([192, 192, 192]))
 pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0), end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 data = searchProfile("HE120A").shape_coords
 
 # Frames
-frame2 = Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test")
-frame3 = Frame.byStartpointEndpointProfileName(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2")
+# frame2 = Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test")
+# frame3 = Frame.byStartpointEndpointProfileName(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2")
 
 # Grid
 GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")
@@ -80,9 +135,9 @@ grids = GridSystem(spacX,seqX,spacY,seqY,ext)
 obj0 = GridA.line
 obj1 = grids[0] + grids[1]
 obj2 = [Line1, Line2, Line3, Line4, Line5, Line6, Line7]
-obj3 = [pan, pan2, frame2, frame3]
+obj3 = [pan, pan2]#, frame2, frame3]
 obj4 = Lines4
 
 
-SpeckleObj = translateObjectsToSpeckleObjects(obj2)
-Commit = TransportToSpeckle("3bm.exchange", "8136460d9e", SpeckleObj, "building.py examples.py")
+# SpeckleObj = translateObjectsToSpeckleObjects(obj2)
+# Commit = TransportToSpeckle("3bm.exchange", "8136460d9e", SpeckleObj, "building.py examples.py")
