@@ -7,11 +7,10 @@ Almost everything in a building is a frame or a panel. Windows, Curtainwalls, Fl
 The goals of the building.py project are:
 * Create a Pythonlibrary for geometry without dependencies.
 * Exportoptions to:
-** Speckle
-** FreeCAD
-** Revit
-** XFEM4U
-* 
+  * Speckle
+  * FreeCAD
+  * Revit
+  * XFEM4U
 
 # Implemented
 
