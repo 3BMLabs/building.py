@@ -11,8 +11,12 @@ def rgb_to_int(rgb):
 
 obj = []
 
-#Vector 3D
+#Vector3
 v1 = Vector3(0,100,0)
+v2 = Vector3(100,100,100)
+
+#Vector3 SUM
+Vector3.sum(v1,v2)
 
 #Vector 2D
 v1 = Vector2(0,100)
@@ -21,6 +25,10 @@ v1 = Vector2(0,100)
 #Point 3D
 p1 = Point(0,100,0)
 
+Point.translate()
+Point.difference()
+Point.point2DTo3D()
+
 #Point 2D
 p2 = Point2D(1000,0)
 p2.translate(v1) #translate the point with a 2D Vector v1
@@ -28,6 +36,7 @@ p2.rotate(45) #rotate the point around 0,0 in degrees
 
 #Line 2D
 l2D = Line2D(Point2D(0,0),Point2D(1000,0))
+Line2D.length()
 
 #Arc2D
 A2D = Arc2D(Point2D(0,0),Point2D(50,50),Point2D(100,100))
