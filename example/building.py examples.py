@@ -1,4 +1,4 @@
-from objects.panel import *
+from objects.panel import *  # Done
 from objects.frame import *
 from geometry.curve import *
 from objects.steelshape import *
@@ -112,12 +112,15 @@ Arc.ByThreePoints(pnt1, pnt2, pnt3)
 
 # Panels
 pan = Panel.byPolyCurveThickness(PC3, 100, 0, "test1", rgb_to_int([192, 192, 192]))
-pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0), end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
+pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0),
+                                   end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 data = searchProfile("HE120A").shape_coords
 
-# Frames
-# frame2 = Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test")
-# frame3 = Frame.byStartpointEndpointProfileName(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2")
+# Frames (NOT COMPLETE)
+frame2 = Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test")
+frame3 = Frame.byStartpointEndpointProfileName(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2")
+frame4 = Frame.byStartpointEndpointProfileNameShapevector(Point(200, 0, 0), Point(500, 500, 0), "HE100A", "test3", 0, 100, 180, )
+frame5 = Frame.byStartpointEndpoint(Point(0, 0, 0), Point(0, 1000, 0), )
 
 # Grid
 GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")
@@ -130,12 +133,12 @@ ext = 1000
 spacX = "20x5400 2500"
 spacY = "10x5400 1000"
 
-grids = GridSystem(spacX,seqX,spacY,seqY,ext)
+grids = GridSystem(spacX, seqX, spacY, seqY, ext)
 
 obj0 = GridA.line
 obj1 = grids[0] + grids[1]
 obj2 = [Line1, Line2, Line3, Line4, Line5, Line6, Line7]
-obj3 = [pan, pan2]#, frame2, frame3]
+obj3 = [pan, pan2]  # , frame2, frame3]
 obj4 = Lines4
 
 
