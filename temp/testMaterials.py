@@ -1,4 +1,4 @@
-
+import json
 
 
 def rgb_to_int(rgb):

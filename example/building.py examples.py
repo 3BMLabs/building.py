@@ -1,12 +1,21 @@
+import sys, os, math, random
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
+
 from objects.panel import *
 from objects.frame import *
-from geometry.curve import *
 from objects.steelshape import *
-from exchange.speckle import *
-from abstract.color import *
-from geometry.linestyle import *
 from objects.datum import *
 
+from geometry.linestyle import *
+from geometry.curve import *
+from exchange.speckle import *
+from abstract.color import *
+from geometry.text import *
 
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]
@@ -114,7 +123,7 @@ Arc.ByThreePoints(pnt1, pnt2, pnt3)
 pan = Panel.byPolyCurveThickness(PC3, 100, 0, "test1", rgb_to_int([192, 192, 192]))
 pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0), end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 data = searchProfile("HE120A").shape_coords
-
+#ToDo test sjkfj
 # Frames
 # frame2 = Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test")
 # frame3 = Frame.byStartpointEndpointProfileName(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2")
@@ -122,6 +131,29 @@ data = searchProfile("HE120A").shape_coords
 # Grid
 GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")
 
+# Color
+c = Color()
+print(c.red)
+print(c.green)
+print(c.blue)
+print(c.Components('red'))
+print(c.Hex('#ff2ba4'))
+print(c.rgba_to_hex([0.5, 0.225, 0, 1]))
+print(c.hex_to_rgba('#7F3900FF'))
+print(c.CMYK([0.5, 0.25, 0, 0.2]))
+print(c.Alpha([255, 0, 0, 128]))
+print(c.Brightness(0.03))
+print(c.RGB([255, 0, 0]))
+print(c.HSV([120, 0.5, 0.8]))
+print(c.HSL([120, 0.5, 0.8]))
+print(c.RAL(1002))
+print(c.Pantone('19-5232'))
+print(c.LRV(237))
+
+
+# Text
+Text1 = Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=90).write() #all parms (with optional)
+Text2 = Text(text="PyBuildingSystem2", font_family="arial").write() # without optional parms
 
 # GridSystem
 seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"

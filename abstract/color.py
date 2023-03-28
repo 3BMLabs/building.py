@@ -30,7 +30,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/color.py"
 
 
-import sys, os, math
+import sys, os, math, random
 from pathlib import Path
 
 file = Path(__file__).resolve()
@@ -51,7 +51,16 @@ class Color:
 
 
 	def Components(self, colorInput=None):
-		"""1"""
+		"""
+		Returns the RGB components of a specified color. 
+
+		Parameters:
+		colorInput: (str) Name of the color to get the components of. 
+
+		Returns:
+		list (list): List of RGB components if color exists in JSON file.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
 		else:
@@ -71,7 +80,16 @@ class Color:
 
 
 	def Hex(self, colorInput=None):
-		"""NAN"""
+		"""
+		Returns the RGB components of a specified hex color code.
+
+		Parameters:
+		colorInput: (str) Hex color code to get the RGB components of.
+
+		Returns:
+		list (list): List of RGB components if hex color code is valid. 			
+		"""
+		
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
 		else:
@@ -88,7 +106,16 @@ class Color:
 
 
 	def rgba_to_hex(self, colorInput=None):
-		"""NAN"""
+		"""
+		Converts an RGBA color to a hex color code.
+		
+		Parameters:
+		colorInput: (tuple) RGBA color to convert to a hex color code.
+
+		Returns:
+		list (list): If RGBA color is not valid, returns an error message.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
 		else:
@@ -113,7 +140,16 @@ class Color:
 
 
 	def hex_to_rgba(self, colorInput=None):
-		"""NAN"""
+		"""
+		Converts a hexadecimal color code to an RGBA color representation.
+
+		Parameters:
+		colorInput (str): A hexadecimal color code. The code can be 6 digits long (representing RGB) or 8 digits long (representing RGBA).
+
+		Returns:
+		list (list): A list containing four values representing the RGBA color. Each value is a float rounded to 2 decimal places between 0 and 1. The order of values is [red, green, blue, alpha].
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
 		else:
@@ -141,7 +177,16 @@ class Color:
 
 
 	def CMYK(self, colorInput=None):
-		"""NAN"""
+		"""
+		Converts a list of CMYK color values to RGB.
+
+		Parameters:
+		colorInput (list): A list of 4 floats between 0 and 1 representing the CMYK values. The order is Cyan, Magenta, Yellow, and Key (Black).
+
+		Returns:
+		list (list): A list of 3 integers between 0 and 255 representing the RGB values.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
 		else:
@@ -157,7 +202,17 @@ class Color:
 
 
 	def Alpha(self, colorInput=None):
-		"""NAN"""
+		"""
+		A function that extracts the RGB values from an RGBA color.
+
+		Parameters:
+		colorInput (list): A list of four integers, where the first three integers represent the red, green, and blue values
+		respectively and the fourth integer represents the alpha value.
+
+		Returns:
+		list (list): A list of three integers representing the red, green, and blue values of the color respectively.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
 		else:
@@ -169,7 +224,16 @@ class Color:
 
 
 	def Brightness(self, colorInput=None):
-		"""Expected value is int(0) - int(1)"""
+		"""
+		Returns the RGB color value of a given brightness level.
+
+		Parameters:
+		colorInput (float): A float value between 0 and 1 representing the brightness level. If not provided, an error message will be returned.
+
+		Returns:
+		list (list): A list of three integers representing the RGB color value.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
 		else:
@@ -184,7 +248,15 @@ class Color:
 
 
 	def RGB(self, colorInput=None):
-		"""NAN"""
+		"""
+		Method to return the input RGB color value.
+
+		Parameters:
+		colorInput (list): A list containing the red, green, and blue values of the color.
+
+		Returns:
+		list (list): A list containing the red, green, and blue values of the color.
+		"""
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
 		else:
@@ -196,7 +268,15 @@ class Color:
 
 
 	def HSV(self, colorInput=None):
-		"""NAN"""
+		"""Converts a color from the HSV color space to the RGB color space.
+
+		Parameters:
+		colorInput (list): A list of three values (hue, saturation, value) representing the HSV color to be converted.
+
+		Returns:
+		list (list): A list of three integers representing the RGB color in the range [0, 255].
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
 		else:
@@ -224,7 +304,16 @@ class Color:
 
 
 	def HSL(self, colorInput=None):
-		"""NAN"""
+		"""
+		Converts a color from HSL (hue, saturation, lightness) color space to RGB color space.
+
+		Parameters:
+		colorInput (list): A list of three integers representing the hue, saturation, and lightness values.
+
+		Returns:
+		list (list): A list of three integers representing the red, green, and blue values of the converted color.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
 		else:
@@ -252,7 +341,16 @@ class Color:
 
 
 	def RAL(self, colorInput=None):
-		"""NAN"""
+		"""
+		Returns the RGB color value for the given RAL color code.
+
+		Parameters:
+		colorInput (int): The RAL color code (e.g. 1000).
+
+		Returns:
+		list (list): The RGB color value in the format [R, G, B, 100].
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
 		else:
@@ -273,7 +371,16 @@ class Color:
 
 
 	def Pantone(self, colorInput=None):
-		"""NAN"""
+		"""
+		This method returns the RGB value of a Pantone color. It takes a single argument, `colorInput`, which represents the Pantone color code. If `colorInput` is not provided, an error message with an example usage will be returned.
+
+		Parameters:
+		colorInput (int): A 3 or 4-digit integer representing the Pantone color code.
+
+		Returns:
+		list (list): A list containing four integers representing the RGB values of the requested Pantone color, along with 100 as the alpha value.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
 		else:
@@ -293,7 +400,16 @@ class Color:
 
 
 	def LRV(self, colorInput=None):
-		"""NAN"""
+		"""
+		This function takes a value as input and returns an RGB value based on the input value using the Light Reflectance Value (LRV) method.
+
+		Parameters:
+		colorInput (int): A single integer value between 0 and 255.
+
+		Returns:
+		list (list): Returns an RGB value as a list of integers in the format [R, G, B], where R, G, and B are integers between 0 and 255.
+		"""
+
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
 		else:
@@ -303,6 +419,12 @@ class Color:
 				return [255, 255, b]
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+
+	def rgb_to_int(rgb):
+		r, g, b = [max(0, min(255, c)) for c in rgb]
+
+		return (255 << 24) | (r << 16) | (g << 8) | b
 
 
 	def __str__(self, colorInput=None):
@@ -344,7 +466,6 @@ c = Color()
 # print(c.hex_to_rgba()) #no value
 # print(c.hex_to_rgba('.')) #incorrect value
 # print(c.hex_to_rgba('#7F3900FF')) #correct value
-
 
 # print(c.CMYK.__doc__) #documentation
 # print(c.CMYK()) #no value
@@ -477,7 +598,7 @@ c = Color()
 # print(ColorGradient([255, 0, 1], [60, 255, 255], steps=888))
 
 
-# print(ColorGradient([255, 0, 1], [60, 255, 255], steps=888))
+# print(ColorGradient([255, 0, 1], [60, 255, 255], steps=12))
 
 # print(ValidateRGB([-1, 0, 1]))
 # print(ValidateRGB(-1, 0, 1))

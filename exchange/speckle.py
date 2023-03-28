@@ -61,7 +61,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
-#from specklepy.objects.primitive import Interval as SpeckleInterval
+from specklepy.objects.primitive import Interval as SpeckleInterval
 
 
 def SpecklePolylineBySpecklePoints(SpecklePoints):
@@ -105,18 +105,18 @@ def SpeckleMeshByMesh(MeshPB):
 
 def ArcToSpeckleArc(Arc: Arc):
     return SpeckleArc(
-        startPoint=PointToSpecklePoint,
-        midPoint=PointToSpecklePoint,
-        endPoint=PointToSpecklePoint,
+        startPoint=PointToSpecklePoint(Arc.startPoint),
+        midPoint=PointToSpecklePoint(Arc.midPoint),
+        endPoint=PointToSpecklePoint(Arc.endPoint),
         domain=SpeckleInterval(start=0, end=1),
         plane=SpecklePlane(origin=PointToSpecklePoint, normal=VectorToSpeckleVector, xdir=VectorToSpeckleVector, ydir=VectorToSpeckleVector),
         radius= Arc.radius,
-        startAngle= Arc.radius,
-        endAngle= Arc.radius,
-        angleRadians= Arc.radius,
+        startAngle= Arc.startAngle,
+        endAngle= Arc.endAngle,
+        angleRadians= Arc.angleRadians,
         area= Arc.radius,
-        length= Arc.radius,
-        units= Arc.radius
+        length= Arc.length,
+        units= Arc.units
     )
 
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):

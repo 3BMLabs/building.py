@@ -36,7 +36,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) #p
 from abstract.vector import *
 from geometry.point import Point as pnt
 
-from packages import helper
 
 class CoordinateSystem: 
     #Origin = Point
