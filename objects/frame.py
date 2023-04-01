@@ -37,16 +37,12 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from abstract.vector import Vector3
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
-from geometry.point import Point
-from geometry.curve import Line 
-from geometry.solid import Extrusion
 from library.profile import *
 from geometry.geometry2d import *
 from library.material import *
-
+from abstract.vector import *
+from abstract.coordinatesystem import *
+from geometry.solid import *
 def colorlist(extrus,color):
     colorlst = []
     for j in range(int(len(extrus.verts) / 3)):

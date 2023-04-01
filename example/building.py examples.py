@@ -121,7 +121,7 @@ Arc.ByThreePoints(pnt1, pnt2, pnt3)
 
 # Panels
 pan = Panel.byPolyCurveThickness(PC3, 100, 0, "test1", rgb_to_int([192, 192, 192]))
-pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0), end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
+pan2 = Panel.byBaselineHeight(Line(start = Point(0, -1000, 0), end = Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 data = searchProfile("HE120A").shape_coords
 #ToDo test sjkfj
 # Frames
