@@ -82,7 +82,7 @@ class PolyCurve:  # pass this object before using it.
 
     @classmethod
     def byPoints(cls, points):
-        # by points,
+        # by points, must be closed polygon
         p1 = PolyCurve()
         count = 0
         p1.points = points
@@ -111,6 +111,18 @@ class PolyCurve:  # pass this object before using it.
                 p1.curves.append(Line(start=i, end=points[0]))
         return p1
 
+    def translate(self, vector3d:Vector3):
+        crvs = []
+        v1 = vector3d
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                crvs.append(Arc(Point.translate(i.start, v1), Point.translate(i.middle, v1), Point.translate(i.end, v1)))
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve.byJoinedCurves(crvs)
+        return crv
     def __id__(self):
         return f"id:{self.id}"
 
