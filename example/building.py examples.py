@@ -1,6 +1,8 @@
 import sys, os, math, random
 from pathlib import Path
 
+import geometry.geometry2d
+
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
@@ -16,6 +18,7 @@ from geometry.curve import *
 from exchange.speckle import *
 from abstract.color import *
 from geometry.text import *
+from geometry.point import Point
 
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]
@@ -28,6 +31,9 @@ obj = []
 # Point 3D
 p1 = Point(0, 100, 0)
 p2 = Point(0, 300, 0)
+
+# Line2d
+l2d = Line2D(0, 100)
 
 # Vector
 v1 = Vector3(0, 100, 0)
@@ -55,10 +61,38 @@ test9 = Vector3.perpendicular(v1)
 test10 = Vector3.normalise(v1)
 # vector byTwoPoints(cls, p1, p2)
 test11 = Vector3.byTwoPoints(p1, p2)
-
+# Point2d
+p2d = Point2D(0,0)
+p2d2 = Point2D(10,5)
+p2d3 = Point2D(20,10)
+test12 = Vector2(0, 10)
+# Point2d Translate
+p2dtrnslt = Point2D.translate(p2d, test12)
+# Point2d rotate
+p2drotate = Point2D.rotate(p2d, 90)
 
 # Point 2D
 p2 = Point2D(1000, 0)
+p3 = Point2D.translate(p2, test12)
+# Line2d Length
+ln2dlength = Line2D.length(l2d)
+
+# Arc2D
+testarc = Arc2D(p2d, p2d2, p2d3)
+Arc2D.points(testarc)
+
+vctr2 = Vector2(10, 10)
+
+ply = PolyCurve2D()
+PolyCurve2D.byJoinedCurves(90)
+PolyCurve2D.points(ply)
+PolyCurve2D.translate(ply, vctr2)
+PolyCurve2D.rotate(ply, 90)
+PolyCurve2D.polygon(ply)
+
+
+# Plane
+btvo = Plane.byTwoVectorsOrigin(v1, v2, pnt(0, 0, 0))
 
 # Curve.py
 Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
@@ -70,7 +104,7 @@ Line6 = Line(start=Point(200, 500, 0), end=Point(200, 0, 0))
 Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
 
 # Line length
-test12 = Line.length(Line1)
+test13 = Line.length(Line1)
 
 # Pattern
 Lines4 = lineToPattern(Line(start=Point(0, 1200, 0),end=Point(11400, 1200, 0)), Centerline)
