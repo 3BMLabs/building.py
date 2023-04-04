@@ -32,6 +32,8 @@ __url__ = "./abstract/vector.py"
 
 import sys, os, math
 from pathlib import Path
+from geometry.point import *
+
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -116,8 +118,8 @@ class Vector3:
             v1.Z*scale
         )
 
-    @classmethod
-    def byTwoPoints(cls, p1, p2):
+    @staticmethod
+    def byTwoPoints(p1: Point, p2: Point):
         return Vector3(
             p2.x-p1.x,
             p2.y-p1.y,
