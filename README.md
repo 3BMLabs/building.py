@@ -41,8 +41,8 @@ Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Panel | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Dimension | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Tag | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | Component3D | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | Component2D | :heavy_check_mark: | :heavy_check_mark:  |  
+&nbsp; | Component3D | | |  
+&nbsp; | Component2D | | |  
 &nbsp; | Hatch | :heavy_check_mark: | :heavy_check_mark:  |  
 Library | Steelprofiles | |  |  
 &nbsp; | Materials | |  |  
