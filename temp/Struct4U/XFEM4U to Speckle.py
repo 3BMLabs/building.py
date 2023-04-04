@@ -4,16 +4,17 @@ from abstract.plane import *
 from objects.panel import *
 from objects.frame import *
 import xml.etree.ElementTree as ET
+from library.material import *
+import sys
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[0]
-sys.path.append(str(package_root_directory))
+#file = Path(__file__).resolve()
+#package_root_directory = file.parents[0]
+#sys.path.append(str(package_root_directory))
 
-#tree = ET.parse("/temp/testplates.xml")
+tree = ET.parse("C:/TEMP/export.xml")
 #tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 2/export.xml")
-tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 1/export.xml")
+#tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 1/export.xml")
 root = tree.getroot()
-
 
 #TODO: Lines and Grids units
 #TODO: Beams in node
@@ -48,11 +49,11 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
         start = XYZ[1][XYZ[0].index(i.text)]
         end = XYZ[1][XYZ[0].index(j.text)]
         try:
-            obj.append(Frame.byStartpointEndpointProfileName(start, end, profile_name, profile_name + "-" + l.text))
+            obj.append(Frame.byStartpointEndpointProfileName(start, end, profile_name, profile_name + "-" + l.text, BaseSteel))
         except:
             pass
             print("could not translate " + profile_name)
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
-Commit = TransportToSpeckle("struct4u.xyz", "24c259ec43", SpeckleObj, "Export from XFEM4U")
+Commit = TransportToSpeckle("struct4u.xyz", "6166d4a8b6", SpeckleObj, "Export from XFEM4U")
