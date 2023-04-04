@@ -219,7 +219,7 @@ class IShapeParallelFlange:
 
 
 class Rectangle:
-    def __init__(self, name, h, b):
+    def __init__(self, name, b, h):
         self.Description = "Rectangle"
         self.ID = "Rec"
 

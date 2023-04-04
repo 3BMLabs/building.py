@@ -83,7 +83,13 @@ class Point:
             0
         )
 
-
+    @staticmethod
+    def rotateXY(p1, Beta, dz):
+        return Point(
+            math.cos(math.radians(Beta))*p1.x - math.sin(math.radians(Beta))*p1.y,
+            math.sin(math.radians(Beta))*p1.x + math.cos(math.radians(Beta))*p1.y,
+            p1.z + dz
+        )
 class CoordinateSystem:
     #Origin = Point
     #xaxis = Normalised Vector

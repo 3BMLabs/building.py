@@ -123,6 +123,18 @@ class PolyCurve:  # pass this object before using it.
                 print("Curvetype not found")
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
+
+    def rotate(self, angle, dz):
+        crvs = []
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                crvs.append(Arc(Point.rotateXY(i.start, angle, dz), Point.rotateXY(i.middle, angle, dz), Point.rotateXY(i.end, angle, dz)))
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.rotateXY(i.start, angle, dz), Point.rotateXY(i.end, angle, dz)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve.byJoinedCurves(crvs)
+        return crv
     def __id__(self):
         return f"id:{self.id}"
 

@@ -30,8 +30,12 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/vector.py"
 
 
-import sys, os, math
+import sys, random
 from pathlib import Path
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 from geometry.point import *
 
 
@@ -119,11 +123,19 @@ class Vector3:
         )
 
     @staticmethod
-    def byTwoPoints(p1: Point, p2: Point):
+    def byTwoPoints(p1, p2):
         return Vector3(
             p2.x-p1.x,
             p2.y-p1.y,
             p2.z-p1.z
+        )
+
+    @staticmethod
+    def rotateXY(v1, Beta):
+        return Vector3(
+            math.cos(Beta)*v1.x - math.sin(Beta)*v1.y,
+            math.sin(Beta)*v1.x + math.cos(Beta)*v1.y,
+            v1.z
         )
 
     def __str__(self):
