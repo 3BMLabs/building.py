@@ -25,42 +25,115 @@ def rgb_to_int(rgb):
 
     return (255 << 24) | (r << 16) | (g << 8) | b
 
+# ------------------------
 
+# INITIALIZE
+v1 = Vector3(0, 100, 0)
+v2 = Vector3(100, 100, 0)
+
+p1 = Point(0, 100, 0)
+p2 = Point(0, 300, 0)
+
+# ------------------------
+
+# FILE: COORDINATESYSTEM
+CSGlobal = CoordinateSystem(pnt(0, 0, 0), XAxis, YAxis, ZAxis)
+
+# ------------------------
+
+# FILE: PLANE
+btvo = Plane.byTwoVectorsOrigin(v1, v2, pnt(0, 0, 0))
+
+# ------------------------
+
+# FILE: VECTOR
+# CLASS: Vector3
+
+# sum ↓
+# v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z
+test1 = Vector3.sum(v1, v2)
+
+# crossProduct ↓
+# v1.Y*v2.Z - v1.Z*v2.Y, v1.Z*v2.X - v1.X*v2.Z, v1.X*v2.Y - v1.Y*v2.X
+test2 = Vector3.crossProduct(v1, v2)
+
+# dotProduct ↓
+# v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z
+test3 = Vector3.dotProduct(v1, v2)
+
+# product ↓
+# v1.X * n, v1.Y * n, v1.Z * n
+test4 = Vector3.product(5, v1)
+
+# length ↓
+# math.sqrt(v1.X * v1.X + v1.Y * v1.Y + v1.Z * v1.Z)
+test5 = Vector3.length(v1)
+
+# pitch ↓
+# v1.X, v1.Y*math.cos(angle) - v1.Z*math.sin(angle), v1.Y*math.sin(angle) + v1.Z*math.cos(angle)
+test6 = Vector3.pitch(v1, 45)
+
+# angleBetween ↓
+# math.degrees(math.acos((Vector3.dotProduct(v1, v2) / (Vector3.length(v1) * Vector3.length(v2)))))
+# (Calculate the angle of two directions)
+test7 = Vector3.angleBetween(v1, v2)
+
+# reverse ↓
+# Turn positive into negative and the other way around
+test8 = Vector3.reverse(v1)
+
+# perpendicular ↓
+# Vector Local X and Local Y perpendicular to given vector and in global Z direction
+test9 = Vector3.perpendicular(v1)
+
+# normalise ↓
+# scale = 1 / Vector3.length(v1)
+# v1.X * scale, v1.Y * scale, v1.Z * scale
+test10 = Vector3.normalise(v1)
+
+# byTwoPoints ↓
+# Subtracts point1 x,y and z from point2 x,y and z
+test11 = Vector3.byTwoPoints(p1, p2)
+
+# ------------------------
+
+# FILE : CURVE
+# CLASS: Line
+
+Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
+Line2 = Line(start=Point(0, 500, 0), end=Point(-200, 500, 0))
+Line3 = Line(start=Point(-200, 500, 0), end=Point(100, 1000, 0))
+Line4 = Line(start=Point(100, 1000, 0), end=Point(400, 500, 0))
+Line5 = Line(start=Point(400, 500, 0), end=Point(200, 500, 0))
+Line6 = Line(start=Point(200, 500, 0), end=Point(200, 0, 0))
+Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
+
+# Calculate the length of a line
+Line.length(Line1)
+# CLASS: PolyCurve
+plycurve = PolyCurve()
+
+# Create a PolyCurve object by joining a list of curves and collecting their starting points
+PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3])
+
+PC2 = PolyCurve.byPoints(
+    [Point(0, 0, 0),
+     Point(2000, 0, 0),
+     Point(0, 1000, 2000),
+     Point(0, 0, 0)
+     ])
+
+# ------------------------
 obj = []
 
 # Point 3D
-p1 = Point(0, 100, 0)
-p2 = Point(0, 300, 0)
+# p1 = Point(0, 100, 0)
+# p2 = Point(0, 300, 0)
 
 # Line2d
 l2d = Line2D(0, 100)
 
-# Vector
-v1 = Vector3(0, 100, 0)
-v2 = Vector3(100, 100, 0)
 
-# Vector sum(v1, v2)
-test1 = Vector3.sum(v1, v2)
-# vector crossProduct(v1, v2)
-test2 = Vector3.crossProduct(v1, v2)
-# vector dotProduct(v1, v2)
-test3 = Vector3.dotProduct(v1, v2)
-# vector product(n, v1)
-test4 = Vector3.product(5, v1)
-# vector length(v1)
-test5 = Vector3.length(v1)
-# vector pitch(v1, angle)
-test6 = Vector3.pitch(v1, 45)
-# vector angleBetween(v1, v2)
-test7 = Vector3.angleBetween(v1, v2)
-# vector reverse(v1)
-test8 = Vector3.reverse(v1)
-# vector perpendicular(v1)
-test9 = Vector3.perpendicular(v1)
-# vector normalise(v1)
-test10 = Vector3.normalise(v1)
-# vector byTwoPoints(cls, p1, p2)
-test11 = Vector3.byTwoPoints(p1, p2)
 # Point2d
 p2d = Point2D(0,0)
 p2d2 = Point2D(10,5)
@@ -90,34 +163,8 @@ PolyCurve2D.translate(ply, vctr2)
 PolyCurve2D.rotate(ply, 90)
 PolyCurve2D.polygon(ply)
 
-
-# Plane
-btvo = Plane.byTwoVectorsOrigin(v1, v2, pnt(0, 0, 0))
-
-# Curve.py
-Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
-Line2 = Line(start=Point(0, 500, 0), end=Point(-200, 500, 0))
-Line3 = Line(start=Point(-200, 500, 0), end=Point(100, 1000, 0))
-Line4 = Line(start=Point(100, 1000, 0), end=Point(400, 500, 0))
-Line5 = Line(start=Point(400, 500, 0), end=Point(200, 500, 0))
-Line6 = Line(start=Point(200, 500, 0), end=Point(200, 0, 0))
-Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
-
-# Line length
-test13 = Line.length(Line1)
-
 # Pattern
 Lines4 = lineToPattern(Line(start=Point(0, 1200, 0),end=Point(11400, 1200, 0)), Centerline)
-
-# sys.exit()
-# PolyCurves(not working)
-PC1 = PolyCurve.byJoinedCurves([Line1,Line2,Line3])
-PC2 = PolyCurve.byPoints(
-    [Point(0, 0, 0),
-     Point(2000, 0, 0),
-     Point(0, 1000, 2000),
-     Point(0, 0, 0)
-     ])
 
 PC3 = PolyCurve.byPoints(
     [Point(3000, 0, 0),
@@ -133,6 +180,8 @@ PC4 = PolyCurve.byPolyCurve2D(
      Point(0, 1000, 2000),
      Point(0, 0, 0)
      ])
+
+PolyCurve.translate(plycurve, v1)
 
 # Polygon(NOT WORKING!)
 flatcurves = [1, 2, 3, 4, 5]

@@ -29,14 +29,7 @@ __title__ = "speckle"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/speckle.py"
 
-
-import sys, random
-from pathlib import Path
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
-from geometry.point import Point
+from geometry.point import *
 from geometry.curve import Line
 from geometry.curve import PolyCurve
 from geometry.curve import Arc
