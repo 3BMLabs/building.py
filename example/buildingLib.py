@@ -17,9 +17,11 @@ lst = []
 for item in jsondata:
     for i in item.values():
         lst.append(i[0]["synonyms"][0])
+        print(i)
 
 ToSpeckle = []
 
+sys.exit()
 #3D Frames
 x = 0
 y = 0
