@@ -76,7 +76,7 @@ class profiledataToShape:
         elif shape_name == "Rectangle":
             prof = Rectangle(name,d1[0], d1[1])
         elif shape_name == "Round":
-            prof = Round(name)
+            prof = Round(name, d1[1])
         elif shape_name == "LAngle":
             prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
         elif shape_name == "Rectangle Hollow Section":

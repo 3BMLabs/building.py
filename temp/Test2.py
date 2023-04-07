@@ -17,29 +17,12 @@ lst = []
 for item in jsondata:
     for i in item.values():
         lst.append(i[0]["synonyms"][0])
-ToSpeckle = []
-
-#sys.exit()
-#3D Frames
-x = 0
-y = 0
-spacing = 1000
-height = 1500
-count = 0
-row = 25
-for i in lst:
-    try:
-        ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i,BaseSteel))
-        x = x + spacing
-        count = count + 1
-        if count > row:
-            count = 0
-            y = y + spacing
-            x = 0
-        else:
-            pass
-    except:
         print(i)
+ToSpeckle = []
+height = 3000
+
+ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 0, height), "DIL10", "DIL10",BaseSteel))
+
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
 
