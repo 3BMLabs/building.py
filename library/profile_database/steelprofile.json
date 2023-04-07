@@ -214,7 +214,6 @@
 {"DIE90": [{"shape_coords":[892,298,17,32,30],"shape_name":"I-shape parallel flange","synonyms":["DIE90"]}]},
 {"DIE95": [{"shape_coords":[942,298,17,32,30],"shape_name":"I-shape parallel flange","synonyms":["DIE95"]}]},
 {"DIE100": [{"shape_coords":[992,298,17,32,30],"shape_name":"I-shape parallel flange","synonyms":["DIE100"]}]},
-{"GROUP=46": [{"shape_coords":[,,,,],"shape_name":"I-shape parallel flange","synonyms":["GROUP=46"]}]},
 {"DIL10": [{"shape_coords":[100,100,5,11,11],"shape_name":"I-shape parallel flange","synonyms":["DIL10"]}]},
 {"DIL12": [{"shape_coords":[120,120,5,11,11],"shape_name":"I-shape parallel flange","synonyms":["DIL12"]}]},
 {"DIL14": [{"shape_coords":[140,140,4.5,12,12],"shape_name":"I-shape parallel flange","synonyms":["DIL14"]}]},
