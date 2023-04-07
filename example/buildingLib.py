@@ -28,7 +28,7 @@ height = 1500
 count = 0
 row = 25
 for i in lst:
-    ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i))
+    ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i,BaseSteel))
     x = x + spacing
     count = count + 1
     if count > row:

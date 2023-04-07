@@ -29,7 +29,7 @@ __title__= "vector"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/vector.py"
 
-
+import math
 import sys, random
 from pathlib import Path
 file = Path(__file__).resolve()
