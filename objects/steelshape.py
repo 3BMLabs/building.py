@@ -272,6 +272,35 @@ class Round:
         def __str__(self):
             return "Profile(" + f"{self.name})"
 
+class Roundtube:
+    #ToDo: add inner circle
+    def __init__(self, name, d, t):
+        self.Description = "Round Tube Profile"
+        self.ID = "Tube"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.d = d
+        self.r = d/2  # radius
+        self.t = t  # wall thickness
+        self.data = (name, d, t, "Round Tube Profile")
+
+        # describe points
+        p1 = Point2D(r, 0)  # right middle
+        p2 = Point2D(0, r)  # middle top
+        p3 = Point2D(-r, 0) # left middle
+        p4 = Point2D(0, -r) # middle bottom
+
+        # describe curves
+        l1 = Arc2D(p1, p2, p3)
+        l2 = Arc2D(p3, p4, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
 
 class LAngle:
     def __init__(self, name, h, b, tw, tf, r1, r2, ex, ey):
@@ -385,12 +414,10 @@ class TProfile:
         l13 = Arc2D(p18, p19, p20)
         l14 = Line2D(p20, p1)
 
-
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"
-
 
 
 class RectangleHollowSection:  #NOT COMPLETE YET

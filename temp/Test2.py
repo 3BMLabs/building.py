@@ -21,7 +21,7 @@ for item in jsondata:
 ToSpeckle = []
 height = 3000
 
-ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 0, height), "DIL10", "DIL10",BaseSteel))
+ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 0, height), "L100/100/10", "L100/100/10",BaseSteel))
 
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
