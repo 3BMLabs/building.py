@@ -244,3 +244,259 @@ def XMLImportPlates(XMLtree):
         Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m, n))
 
     return Panels
+
+class xmlXFEM4U:
+    def __init__(self):
+        self.Frame1 = "<Frame>\n"
+        self.Project = "<ProjectName>" + "Building.py" + "</ProjectName>\n"
+        self.ProjectNumber = "<ProjectNumber>0</ProjectNumber>\n"
+        self.ExportDate = "<ExportDateTime>2023-04-08 19:55:39Z</ExportDateTime>\n"
+        self.XMLVersion = "<XMLExportVersion>v4.0.30319</XMLExportVersion>\n" #
+        self.Nodes = "<Nodes></Nodes>\n"
+        self.Supports = "<Supports></Supports>\n"
+        self.Grids = "<Grids><X>0 5000</X><X_Lable>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC</X_Lable><Y>0 5000</Y><Y_Lable>1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24</Y_Lable><Z>0</Z><Z_Lable>+0</Z_Lable></Grids>\n"
+        self.Profiles = "<Profiles></Profiles>\n"
+        self.Beamgroup = "<Beamgroup></Beamgroup>\n"
+        self.Beams = "<Beams></Beams>\n"
+        self.Panels = "<Panels></Panels>\n"
+        self.Plates = "<Plates></Plates>\n"
+        self.LoadCases = "<LoadCases></LoadCases>\n"
+        self.BeamLoads = "<BeamLoads></BeamLoads>\n"
+        self.NodeLoads = "<NodeLoads></NodeLoads>\n"
+        self.SurfaceLoads = "<SurfaceLoads></SurfaceLoads>\n"
+        self.Combinations = "<Combinations></Combinations>\n"
+        self.RebarLongitudinal = "<RebarLongitudinal></RebarLongitudinal>\n"
+        self.RebarStirrup = "<RebarStirrup></RebarStirrup>\n"
+        self.Layers = "<Layers><Layer_number>1</Layer_number><Layer_description>Layer 1</Layer_description></Layers>\n"
+        self.Frame2 = "</Frame>\n"
+        self.xmlstr = None
+
+    def addBeamsPlates(self, buildingpyobj):
+        obj = buildingpyobj
+        # Number of nodes:
+        n = 0
+        Nodes = []
+        Plates = []
+        Beams = []
+        Beamgroup = []
+        Profiles = []
+        plateN = 0  # Numbering plates
+        beamsN = 0  # Numbering beams
+        beamsGN = 0  # Numbering beamgroup
+        profN = 0  # Numbering profiles
+        Nodes.append("<Nodes>\n")
+        Plates.append("<Plates>\n")
+        Beams.append("<Beams>\n")
+        Beamgroup.append("<Beamgroup>\n")
+
+        Profiles.append("<Profiles>\n")
+
+        ProfileNames = []  # all profiles
+        for i in obj:
+            nm = i.__class__.__name__
+            if nm == "Frame":
+                ProfileNames.append(i.profileName)
+
+        ProfileNamesUnique = []  # Unique profiles
+        for item in ProfileNames:
+            if item not in ProfileNamesUnique:
+                ProfileNamesUnique.append(item)
+
+        for i in ProfileNamesUnique:
+            profN = profN + 1
+            Profiles.append("<Number>" + str(profN) + "</Number>\n")
+            Profiles.append("<Profile_name>" + i + "</Profile_name>\n")
+            Profiles.append("<Material_type>" + "0" + "</Material_type>\n")
+            Profiles.append("<Material>" + "S235" + "</Material>\n")
+            # if i.material.name == "BaseSteel":
+            #    Profiles.append("<Material_type>" + "0" + "</Material_type>")
+            #    Profiles.append("<Material>" + "S235" + "</Material>")
+            # else:
+            #    Profiles.append("<Material_type>" + "0" + "</Material_type>")
+            #    Profiles.append("<Material>" + "S235" + "</Material>")
+            Profiles.append("<Angle>" + "0" + "</Angle>\n")
+
+        for i in obj:
+            nm = i.__class__.__name__
+            if nm == 'Panel':
+                plateN = plateN + 1
+                Plates.append("<Number>" + str(plateN) + "</Number>\n")
+                for j in i.origincurve.points:
+                    n = n + 1
+                    Nodes.append("<Number>" + str(n) + "</Number>\n")
+                    Nodes.append("<X>" + str(round(j.x)) + "</X>\n")
+                    Nodes.append("<Y>" + str(round(j.y)) + "</Y>\n")
+                    Nodes.append("<Z>" + str(round(j.z)) + "</Z>\n")
+                    Plates.append("<Node>" + str(n) + "</Node>\n")
+                Plates.append("<h>" + str(i.thickness) + "</h>\n")
+                Plates.append(
+                    "<Material_type>" + "c9a5876f475cefab7cc11281b017914a1" + "</Material_type>\n")  # material nog uitlezen
+                Plates.append("<Material>" + "C20/25" + "</Material>\n")  # material nog uitlezen
+                Plates.append("<Z>" + "0" + "</Z>\n")
+                Plates.append("<Top_Center_Bottom>" + "Center" + "</Top_Center_Bottom>\n")
+
+            elif nm == 'Frame':
+                ProfN = ProfileNamesUnique.index(i.profileName) + 1
+                beamsGN = beamsGN + 1
+                Beamgroup.append("<Number>" + str(beamsGN) + "</Number>\n")
+
+                n = n + 1
+                Nodes.append("<Number>" + str(n) + "</Number>\n")
+                Nodes.append("<X>" + str(round(i.start.x)) + "</X>\n")
+                Nodes.append("<Y>" + str(round(i.start.y)) + "</Y>\n")
+                Nodes.append("<Z>" + str(round(i.start.z)) + "</Z>\n")
+                Beamgroup.append("<Startnode>" + str(n) + "</Startnode>\n")
+
+                beamsN = beamsN + 1
+                Beams.append("<Number>" + str(beamsN) + "</Number>")
+                Beams.append("<Beamgroupnumber>" + str(beamsGN) + "</Beamgroupnumber>\n")
+                Beams.append("<From_node_number>" + str(n) + "</From_node_number>\n")
+
+                n = n + 1
+                Nodes.append("<Number>" + str(n) + "</Number>\n")
+                Nodes.append("<X>" + str(round(i.end.x)) + "</X>\n")
+                Nodes.append("<Y>" + str(round(i.end.y)) + "</Y>\n")
+                Nodes.append("<Z>" + str(round(i.end.z)) + "</Z>\n")
+
+                Beamgroup.append("<Endnode>" + str(n) + "</Endnode>\n")
+
+                Beams.append("<To_node_number>" + str(n) + "</To_node_number>\n")
+                Beams.append("<Angle>" + str(i.rotation) + "</Angle>\n")
+                Beams.append("<Angle_profile>" + "0" + "</Angle_profile>\n")
+                ProfNstr = str(ProfN)
+                Beams.append("<Profile_number>" + ProfNstr + "</Profile_number>\n")
+                Beams.append("<Z>" + str(i.ZOffset) + "</Z>\n")
+                Beams.append("<Top_Center_Bottom>" + i.YJustification + "</Top_Center_Bottom>\n")
+            elif nm == 'Grid':
+                pass
+        Nodes.append("</Nodes>\n")
+        Plates.append("</Plates>\n")
+        Beams.append("</Beams>\n")
+        Profiles.append("</Profiles>\n")
+        Beamgroup.append("</Beamgroup>\n")
+
+        self.Nodes = ''.join(str(N) for N in Nodes)
+        self.Plates = ''.join(str(P) for P in Plates)
+        self.Beams = ''.join(str(B) for B in Beams)
+        self.Beamgroup = ''.join(str(BP) for BP in Beamgroup)
+        self.Profiles = ''.join(str(Pr) for Pr in Profiles)
+
+    def addGrids(self, spacX, seqX, spacY, seqY, z):
+        self.Grids = "<Grids>" + "<X>" + spacX + "</X>" + "<X_Lable>" + seqX + "</X_Lable>" + "<Y>" + spacY + "</Y>" + "<Y_Lable>" + seqY + "</Y_Lable>" + "<Z>" + "0 " + str(
+            z) + "</Z>" + "<Z_Lable>" + "+0 h" + "</Z_Lable>" + "</Grids>"
+
+    def addLoadCasesCombinations(self):
+        # Load Cases
+        LoadCases = []
+        LoadCases.append("<Number>1</Number>")
+        LoadCases.append("<Description>Permanent</Description>")
+        LoadCases.append("<Type>0</Type>")
+        LoadCases.append("<psi0>1</psi0>")
+        LoadCases.append("<psi1>1</psi1>")
+        LoadCases.append("<psi2>1</psi2>")
+        LoadCases.append("<Number>2</Number>")
+        LoadCases.append("<Description>Veranderlijk</Description>")
+        LoadCases.append("<Type>1</Type>")
+        LoadCases.append("<psi0>0,4</psi0>")
+        LoadCases.append("<psi1>0,5</psi1>")
+        LoadCases.append("<psi2>0,3</psi2>")
+
+        # Load Combinations
+        Combinations = []
+        Combinations.append("<Combinations>")
+        Combinations.append("<LoadCombinationNumber>1</LoadCombinationNumber>")
+        Combinations.append("<Description>Dead")
+        Combinations.append("load</Description>")
+        Combinations.append("<CombTyp>0</CombTyp>")
+        Combinations.append("<Case>1</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1, 35</Gamma>")
+        Combinations.append("<Case>2</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1, 5</Gamma>")
+        Combinations.append("<LoadCombinationNumber>2</LoadCombinationNumber>")
+        Combinations.append("<Description>Live")
+        Combinations.append("load</Description>")
+        Combinations.append("<CombTyp>0</CombTyp>")
+        Combinations.append("<Case>1</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1, 2</Gamma>")
+        Combinations.append("<Case>2</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1, 5</Gamma>")
+        Combinations.append("<LoadCombinationNumber>3</LoadCombinationNumber>")
+        Combinations.append("<Description>Dead")
+        Combinations.append("load</Description>")
+        Combinations.append("<CombTyp>3</CombTyp>")
+        Combinations.append("<Case>1</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("<Case>2</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("<LoadCombinationNumber>4</LoadCombinationNumber>")
+        Combinations.append("<Description>Live")
+        Combinations.append("load</Description>")
+        Combinations.append("<CombTyp>3</CombTyp>")
+        Combinations.append("<Case>1</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("<Case>2</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("<LoadCombinationNumber>5</LoadCombinationNumber>")
+        Combinations.append("<Description>SLS")
+        Combinations.append("Permanent</Description>")
+        Combinations.append("<CombTyp>4</CombTyp>")
+        Combinations.append("<Case>1</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("<LoadCombinationNumber>6</LoadCombinationNumber>")
+        Combinations.append("<Description>SLS")
+        Combinations.append("Quasi - permanent</Description>")
+        Combinations.append("<CombTyp>2</CombTyp>")
+        Combinations.append("<Case>1</Case>")
+        Combinations.append("<Psi>1</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("<Case>2</Case>")
+        Combinations.append("<Psi>0, 8</Psi>")
+        Combinations.append("<Gamma>1</Gamma>")
+        Combinations.append("</Combinations>")
+        self.Combinations = ''.join(str(LC) for LC in Combinations)
+
+    def addProject(self,projectname):
+        self.Project = "<ProjectName>" + projectname + "</ProjectName>"
+
+    def addprojectnumber(self,ProjectNumber):
+        self.ProjectNumber = "<ProjectNumber>" + ProjectNumber + "</ProjectNumber>"
+
+    def addPanels(self):
+        Panels = []
+        Panels.append("<Panels>")
+        Panels.append("<Number>1</Number>")
+        Panels.append("<Description>Panel 1</Description>")
+        Panels.append("<LoadBearingDirection>X</LoadBearingDirection>")        #X or Y
+        Panels.append("<SurfaceType>wall</SurfaceType>")             #Wall, Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+        Panels.append("<NodeX>0</NodeX>")
+        Panels.append("<NodeY>0</NodeY>")
+        Panels.append("<NodeZ>0</NodeZ>")
+        Panels.append("<NodeX>10000</NodeX>")
+        Panels.append("<NodeY>0</NodeY>")
+        Panels.append("<NodeZ>0</NodeZ>")
+        Panels.append("<NodeX>10000</NodeX>")
+        Panels.append("<NodeY>1000</NodeY>")
+        Panels.append("<NodeZ>0</NodeZ>")  #unclosed polygon
+        Panels.append("</Panels>")
+        self.Panels = ''.join(str(Pan) for Pan in Panels)
+
+    def XML(self):
+        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles + self.LoadCases + self.Beamgroup + self.Beams + self.Plates + self.Panels + self.RebarLongitudinal + self.RebarStirrup + self.Layers + self.Frame2
+
+    def __str__(self):
+        return f"{__class__.__name__}(" + f"{self.xmlstr})"
+
+
+
+
+
+

@@ -77,7 +77,10 @@ class Frame:
         f1.start = start
         f1.end = end
         #self.curve = Line(start, end)
-        f1.curve = profiledataToShape(profile_name).prof.curve
+        try:
+            f1.curve = profiledataToShape(profile_name).prof.curve
+        except:
+            print(profile_name)
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name

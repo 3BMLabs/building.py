@@ -151,7 +151,7 @@ def translateObjectsToSpeckleObjects(Obj):
         nm = i.__class__.__name__
         if nm == 'Panel':
             colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, units = "mm"))
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = "mm"))
         elif nm == 'Frame':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))

@@ -54,7 +54,7 @@ class Panel:
         self.origincurve = None
 
     @classmethod
-    def byPolyCurveThickness(cls, polycurve: PolyCurve, thickness: float, offset: float, name: str, color):
+    def byPolyCurveThickness(cls, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
         #Create panel by polycurve
         p1 = Panel()
         p1.name = name
@@ -62,7 +62,7 @@ class Panel:
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, offset)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):
-            p1.colorlst.append(color)
+            p1.colorlst.append(colorrgbint)
         return p1
 
     @classmethod
