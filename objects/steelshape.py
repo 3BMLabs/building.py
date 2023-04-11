@@ -22,7 +22,7 @@
 #***************************************************************************
 
 
-"""This module provides a ????????
+"""This module provides classes for steel shapes
 """
 
 __title__= "shape"
@@ -52,7 +52,7 @@ sqrt2 = math.sqrt(2)
 
 
 class CChannelParallelFlange:
-    def __init__(self, name, h, b, tw, tf, r1, r2, ex):
+    def __init__(self, name, h, b, tw, tf, r, ex):
         self.Description = "C-channel with parallel flange"
         self.ID = "C_PF"
 
@@ -63,20 +63,19 @@ class CChannelParallelFlange:
         self.b = b          #width
         self.tw = tw        #web thickness
         self.tf = tf        #flange thickness
-        self.r1 = r1        #web fillet
-        self.r2 = r2
+        self.r1 = r        #web fillet
         self.ex = ex        #centroid horizontal
 
         #describe points
         p1 = Point2D(-ex, -h / 2)  # left bottom
         p2 = Point2D(b - ex, -h / 2)  # right bottom
         p3 = Point2D(b - ex, -h / 2 + tf)
-        p4 = Point2D(-ex + tw + r1, -h / 2 + tf)  # start arc
-        p5 = Point2D(-ex + tw + r1 - r2, -h / 2 + tf + r1 - r2)  # second point arc
-        p6 = Point2D(-ex + tw, -h / 2 + tf + r1)  # end arc
-        p7 = Point2D(-ex + tw, h / 2 - tf - r1)  # start arc
-        p8 = Point2D(-ex + tw + r1 - r2, h / 2 - tf - r1 + r2)  # second point arc
-        p9 = Point2D(-ex + tw + r1, h / 2 - tf)  # end arc
+        p4 = Point2D(-ex + tw + r, -h / 2 + tf)  # start arc
+        p5 = Point2D(-ex + tw + r, -h / 2 + tf + r)  # second point arc
+        p6 = Point2D(-ex + tw, -h / 2 + tf + r)  # end arc
+        p7 = Point2D(-ex + tw, h / 2 - tf - r)  # start arc
+        p8 = Point2D(-ex + tw + r, h / 2 - tf - r)  # second point arc
+        p9 = Point2D(-ex + tw + r, h / 2 - tf)  # end arc
         p10 = Point2D(b - ex, h / 2 - tf)
         p11 = Point2D(b - ex, h / 2)  # right top
         p12 = Point2D(-ex, h / 2)  # left top
@@ -247,206 +246,6 @@ class Rectangle:
             return "Profile(" + f"{self.name})"
 
 
-class Tshape:
-    def __init__(self, name, h, b, h1, b1):
-        self.Description = "T-shape"
-        self.ID = "T"
-
-        # parameters
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
-        self.h1 = h1
-        self.b1 = b1
-
-        # describe points
-        p1 = Point2D(b1 / 2, -h / 2)  # right bottom
-        p2 = Point2D(b1 / 2, h / 2 - h1)  # right middle 1
-        p3 = Point2D(b / 2, h / 2 - h1) # right middle 2
-        p4 = Point2D(b / 2, h / 2) # right top
-        p5 = Point2D(-b / 2, h / 2)  # left top
-        p6 = Point2D(-b / 2, h / 2 - h1)  # left middle 2
-        p7 = Point2D(-b1 / 2, h / 2 - h1) # left middle 1
-        p8 = Point2D(-b1 / 2, -h / 2) # left bottom
-
-        # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
-        l4 = Line2D(p4, p5)
-        l5 = Line2D(p5, p6)
-        l6 = Line2D(p6, p7)
-        l7 = Line2D(p7, p8)
-        l8 = Line2D(p8, p1)
-
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
-
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
-
-
-class Lshape:
-    def __init__(self, name, h, b, h1, b1):
-        self.Description = "L-shape"
-        self.ID = "L"
-
-        # parameters
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
-        self.h1 = h1
-        self.b1 = b1
-
-        # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + h1)  # right middle
-        p3 = Point2D(-b / 2 + b1, -h / 2 + h1) # middle
-        p4 = Point2D(-b / 2 + b1, h / 2) # middle top
-        p5 = Point2D(-b / 2, h / 2)  # left top
-        p6 = Point2D(-b / 2, -h / 2)  # left bottom
-
-        # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
-        l4 = Line2D(p4, p5)
-        l5 = Line2D(p5, p6)
-        l6 = Line2D(p6, p1)
-
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6])
-
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
-
-
-class Eshape:
-    def __init__(self, name, h, b, h1):
-        self.Description = "E-shape"
-        self.ID = "E"
-
-        # parameters
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
-        self.h1 = h1
-
-        # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + h1)
-        p3 = Point2D(-b / 2 + h1, -h / 2 + h1)
-        p4 = Point2D(-b / 2 + h1, -h1 / 2)
-        p5 = Point2D(b / 2, -h1 / 2)
-        p6 = Point2D(b / 2, h1 / 2)
-        p7 = Point2D(-b / 2 + h1, h1 / 2)
-        p8 = Point2D(-b / 2 + h1, h / 2 - h1)
-        p9 = Point2D(b / 2, h / 2 - h1)
-        p10 = Point2D(b / 2, h / 2)
-        p11 = Point2D(-b / 2, h / 2)
-        p12 = Point2D(-b / 2, -h / 2)
-
-        # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
-        l4 = Line2D(p4, p5)
-        l5 = Line2D(p5, p6)
-        l6 = Line2D(p6, p7)
-        l7 = Line2D(p7, p8)
-        l8 = Line2D(p8, p9)
-        l9 = Line2D(p9, p10)
-        l10 = Line2D(p10, p11)
-        l11 = Line2D(p11, p12)
-        l12 = Line2D(p12, p1)
-
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
-
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
-
-
-class Nshape:
-    def __init__(self, name, h, b, b1):
-        self.Description = "N-shape"
-        self.ID = "N"
-
-        # parameters
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
-        self.b1 = b1
-
-        # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, h / 2)
-        p3 = Point2D(b / 2 - b1, h / 2)
-        p4 = Point2D(b / 2 - b1, -h / 2 + b1 * 2)
-        p5 = Point2D(-b / 2 + b1, h / 2)
-        p6 = Point2D(-b / 2, h / 2)
-        p7 = Point2D(-b / 2, -h / 2)
-        p8 = Point2D(-b / 2 + b1, -h / 2)
-        p9 = Point2D(-b / 2 + b1, h / 2 - b1 * 2)
-        p10 = Point2D(b / 2 - b1, -h / 2)
-
-        # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
-        l4 = Line2D(p4, p5)
-        l5 = Line2D(p5, p6)
-        l6 = Line2D(p6, p7)
-        l7 = Line2D(p7, p8)
-        l8 = Line2D(p8, p9)
-        l9 = Line2D(p9, p10)
-        l10 = Line2D(p10, p1)
-
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
-
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
-
-class Arrowshape:
-    def __init__(self, name, l, b, b1, l1):
-        self.Description = "Arrow-shape"
-        self.ID = "Arrowshape"
-
-        # parameters
-        self.name = name
-        self.curve = []
-        self.l = l  # length
-        self.b = b  # width
-        self.b1 = b1
-        self.l1 = l1
-
-        # describe points
-        p1 = Point2D(0, l / 2)  # top middle
-        p2 = Point2D(b / 2, -l / 2 + l1)
-        # p3 = Point2D(b1 / 2, -l / 2 + l1)
-        p3 = Point2D(b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
-        p4 = Point2D(b1 / 2, -l / 2)
-        p5 = Point2D(-b1 / 2, -l / 2)
-        # p6 = Point2D(-b1 / 2, -l / 2 + l1)
-        p6 = Point2D(-b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
-        p7 = Point2D(-b / 2, -l / 2 + l1)
-
-        # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
-        l4 = Line2D(p4, p5)
-        l5 = Line2D(p5, p6)
-        l6 = Line2D(p6, p7)
-        l7 = Line2D(p7, p1)
-
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7])
-
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
-
-
 class Round:
     def __init__(self, name, r):
         self.Description = "Round"
@@ -457,6 +256,35 @@ class Round:
         self.curve = []
         self.r = r  # radius
         self.data = (name, r, "Round")
+
+        # describe points
+        p1 = Point2D(r, 0)  # right middle
+        p2 = Point2D(0, r)  # middle top
+        p3 = Point2D(-r, 0) # left middle
+        p4 = Point2D(0, -r) # middle bottom
+
+        # describe curves
+        l1 = Arc2D(p1, p2, p3)
+        l2 = Arc2D(p3, p4, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+class Roundtube:
+    #ToDo: add inner circle
+    def __init__(self, name, d, t):
+        self.Description = "Round Tube Profile"
+        self.ID = "Tube"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.d = d
+        self.r = d/2  # radius
+        self.t = t  # wall thickness
+        self.data = (name, d, t, "Round Tube Profile")
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
@@ -519,6 +347,74 @@ class LAngle:
         l9 = Line2D(p12, p1)
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9])
+
+        def __str__(self):
+            return "Profile(" + f"{self.name})"
+
+class TProfile:
+    #ToDo: inner outer fillets in polycurve
+    def __init__(self, name, h, b, tw, tf, r, r1, r2, ex, ey):
+        self.Description = "TProfile"
+        self.ID = "T"
+
+        # parameters
+        self.name = name
+        self.curve = []
+        self.b = b  # width
+        self.h = h  # height
+        self.tw = tw  # wall nominal thickness
+        self.tf = tw
+        self.r = r  # inner fillet
+        self.r01 = r/sqrt2
+        self.r1 = r1  # outer fillet flange
+        self.r11 = r1 / sqrt2
+        self.r2 = r2  # outer fillet top web
+        self.r21 = r2 / sqrt2
+        self.ex = ex  # from left
+        self.ey = ey  # from bottom
+
+        # describe points
+        p1 = Point2D(-ex, -ey)  # left bottom
+        p2 = Point2D(b - ex, -ey)  # right bottom
+        p3 = Point2D(b - ex, -ey + tf - r1)  # start arc
+        p4 = Point2D(b - ex - r1 + self.r11, -ey + tf - r1 + self.r11)  # second point arc
+        p5 = Point2D(b - ex - r1, -ey + tf)  # end arc
+        p6 = Point2D(0.5 * tw + r, -ey + tf)  # start arc
+        p7 = Point2D(0.5 * tw + r - self.r01, -ey + tf + r - self.r01)  # second point arc
+        p8 = Point2D(0.5 * tw, -ey + tf + r)  # end arc
+        p9 = Point2D(0.5 * tw, -ey + h - r2)  # start arc
+        p10 = Point2D(0.5 * tw - self.r21, -ey + h - r2 + self.r21) # second point arc
+        p11 = Point2D(0.5 * tw - r2, -ey + h)  # end arc
+
+        p12 = Point2D(-p11.x,p11.y)
+        p13 = Point2D(-p10.x, p10.y)
+        p14 = Point2D(-p9.x, p9.y)
+        p15 = Point2D(-p8.x, p8.y)
+        p16 = Point2D(-p7.x, p7.y)
+        p17 = Point2D(-p6.x, p6.y)
+        p18 = Point2D(-p5.x, p5.y)
+        p19 = Point2D(-p4.x, p4.y)
+        p20 = Point2D(-p3.x, p3.y)
+
+        # describe curves
+        l1 = Line2D(p1, p2)
+
+        l2 = Line2D(p2, p3)
+        l3 = Arc2D(p3, p4, p5)
+        l4 = Line2D(p5, p6)
+        l5 = Arc2D(p6, p7, p8)
+        l6 = Line2D(p8, p9)
+        l7 = Arc2D(p9, p10, p11)
+        l8 = Line2D(p11, p12)
+
+        l9 = Arc2D(p12, p13, p14)
+        l10 = Line2D(p14, p15)
+        l11 = Arc2D(p15, p16, p17)
+        l12 = Line2D(p17, p18)
+        l13 = Arc2D(p18, p19, p20)
+        l14 = Line2D(p20, p1)
+
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"

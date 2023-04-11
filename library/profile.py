@@ -41,7 +41,8 @@ sys.path.append(str(package_root_directory))
 from packages import helper
 from objects.steelshape import *
 
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
+# jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
+jsonFile = "https://raw.githubusercontent.com/joas1606/jupyter/main/jsontestfile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
@@ -54,7 +55,8 @@ class searchProfile:
         for item in data:
             for i in item.values():
                 synonymList = i[0]["synonyms"]
-                if self.name in synonymList:
+                # if self.name in synonymList:
+                if self.name.lower() in [synonym.lower() for synonym in synonymList]:
                     self.shape_coords = i[0]["shape_coords"]
                     self.shape_name = i[0]["shape_name"]
                     self.synonyms = i[0]["synonyms"]
@@ -68,17 +70,24 @@ class profiledataToShape:
         #self.d1.insert(0,name)
         d1 = self.d1
         if shape_name == "C-channel parallel flange":
-            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6])
+            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
         elif shape_name == "C-channel sloped flange":
             prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
         elif shape_name == "I-shape parallel flange":
             prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+        elif shape_name == "I-shape sloped flange":
+            prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
+            #Todo: add sloped flange shape
         elif shape_name == "Rectangle":
             prof = Rectangle(name,d1[0], d1[1])
         elif shape_name == "Round":
-            prof = Round(name)
+            prof = Round(name, d1[1])
+        elif shape_name == "Round tube profile":
+            prof = Roundtube(name, d1[0], d1[1])
         elif shape_name == "LAngle":
             prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
+        elif shape_name == "TProfile":
+            prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
         elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         else:

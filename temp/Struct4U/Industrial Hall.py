@@ -1,3 +1,10 @@
+import sys
+from sys import *
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[0]
+sys.path.append(str(package_root_directory))
+
 from exchange.speckle import *
 from objects.panel import *
 from objects.frame import *
@@ -5,11 +12,6 @@ from objects.datum import *
 from exchange.struct4U import *
 from abstract.vector import *
 from abstract.coordinatesystem import *
-from objects.analytical import *
-
-file = Path(__file__).resolve()
-package_root_directory = file.parents[0]
-sys.path.append(str(package_root_directory))
 
 # GridSystem
 seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
@@ -17,11 +19,11 @@ seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 ext = 5000 #extension grid
 
 #INPUT in mm
-spac = 7000 #grid spacing 1
-n = 6 # number of grids 1
+spac = 7000 #gridspacing 1
+n = 6 # number of grids -1
 
-spac_y = 5200 #grid spacing 2
-nw = 5 # number of grids 2
+spac_y = 5200 #stramien in dwarsrichting
+nw = 5 # n-stramienen dwarsrichting
 
 z = 9000 #height of the structure
 afschot = 0
@@ -29,13 +31,12 @@ afschot = 0
 GEVELKOLOM = "IPE330"
 HOOFDLIGGER = "HEA700"
 RANDLIGGER = "HEA160"
-KOPPELLIGGER = "K80/5"
+KOPPELLIGGER = "K80/80/5"
 HOEKKOLOM = "HEA300"
 KOPGEVELKOLOM = "HEA180"
 RANDLIGGER_KOPGEVEL = "HEA160"
-WVB_DAK = "L70/7"
-WVB_GEVEL = "S100x5"
-FOUNDATIONBEAM =
+WVB_DAK = "L70/70/7"
+WVB_GEVEL = "S100X5"
 
 #WINDVERBANDEN
 wvb = [
@@ -57,6 +58,8 @@ spacY = str(nw) + "x" + str(spac_y)  #"4x5400"
 grids = GridSystem(spacX,seqX,spacY,seqY,ext)
 obj1 = grids[0] + grids[1]
 
+gridsXML = GridXML(spacX,spacY,seqX,seqY,str(z))
+
 #obj1 = []
 #SPANTEN
 for i in range(n):
@@ -64,8 +67,6 @@ for i in range(n):
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y*0.5, z+afschot), Point(x, y, z), HOOFDLIGGER,"Hoofdligger deel 2", BaseSteel))
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, 0, 0), Point(x, 0, z), GEVELKOLOM, "Kolom 1", BaseSteel))
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, z), GEVELKOLOM, "Kolom 2", BaseSteel))
-    obj1.append(Support.pinned(Point(x, y, 0)))
-    obj1.append(Support.pinned(Point(x, 0, 0)))
     x = x + spac
 
 #RANDLIGGERS & KOPPELKOKERS
@@ -130,19 +131,15 @@ for i in wvb: #For loop voor verticale windverbanden rondom
 
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj1)
-Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "Parametric Structure.py")
+#Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "Parametric Structure.py")
 
-#Export to XFEM4U XML String
+#ExportXML
+XMLString = XMLExport(gridsXML, obj1)
 
-xmlS4U = xmlXFEM4U() # Create XML object with standard values
-xmlS4U.addBeamsPlates(obj1) #Add Beams, Profiles, Plates, Beamgroups, Nodes
-xmlS4U.addProject("Parametric Industrial Hall")
-xmlS4U.addPanels(obj1) #add Load Panels
-xmlS4U.addGrids(spacX,seqX,spacY,seqY,z) # Grids
-xmlS4U.XML()
-XMLString = xmlS4U.xmlstr
-
-filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/Industrial Hall/Hall.xml"
+filepath = "C:/TEMP/hall.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
+
 file.close()
+
+print(XMLString)

@@ -14,6 +14,7 @@ pan3 = Panel.byPolyCurveThickness(PolyCurve.byPoints([Point(0,0,0),Point(1000,0,
 frame2 = Frame.byStartpointEndpointProfileName(Point(0,5000,0), Point(10000,5000,0), "IPE600", "test")
 frame3 = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(10000,0,0), "IPE450", "test2")
 
+"tralalalala" 
 
 SpeckleObj = translateObjectsToSpeckleObjects([frame2,frame3,pan3])
 
