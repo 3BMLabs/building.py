@@ -18,44 +18,50 @@ tree = ET.parse("C:/Users/mikev/Documents/GitHub/Struct4U/Industrial Steel Struc
 
 root = tree.getroot()
 
-#TODO: Lines and Grids units
 #TODO: Beams in node
 #TODO: Materialcolor
 #TODO: Concrete Profiles
 
+obj = []
 #LoadGrid and create in Speckle
-Grids = XMLImportGrids(tree,1000)
 XYZ = XMLImportNodes(tree)
-obj = XMLImportPlates(tree)
+
+#obj = obj + XMLImportGrids(tree, 1000)
+
+#obj.append(XMLImportPlates(tree))
 
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
 BeamsNumber = root.findall(".//Beams/Number")
 BeamsTo = root.findall(".//Beams/To_node_number")
 BeamsName = root.findall(".//Beams/Profile_number")
+BeamsLayer = root.findall(".//Beams/Layer")
 
 #print(BeamsFrom)
 #PROFILES
 ProfileNumber = root.findall(".//Profiles/Number")
-#ProfileNumber = root.findall(".//Profiles/Material_type")
 ProfileName = root.findall(".//Profiles/Profile_name")
 
-#sys.exit()
+ExcludeLayer = "25"
+#BEAMS
 
 beams = []
-for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
+for i, j, k, l, m in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber, BeamsLayer):
     profile_name = ProfileName[int(k.text)-1].text
     profile_name = profile_name.split()[0]
     if profile_name == None:
         pass
     else:
-        start = XYZ[1][XYZ[0].index(i.text)]
-        end = XYZ[1][XYZ[0].index(j.text)]
-        try:
-            obj.append(Frame.byStartpointEndpointProfileName(start, end, profile_name, profile_name + "-" + l.text, BaseSteel))
-        except:
+        if m == ExcludeLayer:
             pass
-            print("could not translate " + profile_name)
+        else:
+            start = XYZ[1][XYZ[0].index(i.text)]
+            end = XYZ[1][XYZ[0].index(j.text)]
+            try:
+                obj.append(Frame.byStartpointEndpointProfileName(start, end, profile_name, profile_name + "-" + l.text, BaseSteel))
+            except:
+                pass
+                print("could not translate " + profile_name)
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 

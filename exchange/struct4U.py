@@ -33,6 +33,7 @@ import xml.etree.ElementTree as ET
 from geometry.curve import *
 from exchange.speckle import *
 from objects.panel import *
+from objects.datum import *
 
 #TODO Line to Grid Object
 #TODO Grid Object with building.py line --> convert to Speckle Line with pattern
@@ -116,18 +117,19 @@ def XMLImportGrids(XMLtree, gridExtension):
 
     grids = []
     for i in GridsX:
-        grids.append(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)))
+        grids.append(Line(start=Point(i, -GridEx, 0),end=Point(i, Ymax+GridEx, 0)))
 
     for i in GridsY:
-        grids.append(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)))
+        grids.append(Line(start=Point(-GridEx, i, 0),end=Point(Xmax+GridEx, i, 0)))
 
     for i in GridsZ:
-        grids.append(Line(Point(0, 0, i) , Point(0, Xmax, i)))
+        grids.append(Line(start=Point(0, 0, i) , end=Point(0, Xmax, i)))
 
-    #for i in grids:
-     #   line = LineToSpeckleLine(i) #Grid to SpeckleLine
+    obj = []
+    for i in grids:
+        obj.append(Grid.byStartpointEndpoint(i,"Grid"))
      #   gridlines.append(line)
-    return grids
+    return obj
 
 #def findMaterial(material):
 
