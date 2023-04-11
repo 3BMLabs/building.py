@@ -5,6 +5,7 @@ from objects.datum import *
 from exchange.struct4U import *
 from abstract.vector import *
 from abstract.coordinatesystem import *
+from objects.analytical import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[0]
@@ -63,6 +64,8 @@ for i in range(n):
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y*0.5, z+afschot), Point(x, y, z), HOOFDLIGGER,"Hoofdligger deel 2", BaseSteel))
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, 0, 0), Point(x, 0, z), GEVELKOLOM, "Kolom 1", BaseSteel))
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, z), GEVELKOLOM, "Kolom 2", BaseSteel))
+    obj1.append(Support.pinned(Point(x, y, 0)))
+    obj1.append(Support.pinned(Point(x, 0, 0)))
     x = x + spac
 
 #RANDLIGGERS & KOPPELKOKERS
@@ -134,6 +137,7 @@ Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "Parametri
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj1) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Parametric Industrial Hall")
+xmlS4U.addPanels(obj1) #add Load Panels
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,z) # Grids
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr

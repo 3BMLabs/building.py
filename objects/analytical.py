@@ -49,24 +49,98 @@ class Support:
         self.dy: float = 0 #eccentricity in y
         self.dz: float = 0 #eccentricity in z
 
+    @staticmethod
+    def pinned(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Ty = "A"
+        sup.Tz = "A"
+        return(sup)
 
+    @staticmethod
+    def xRoller(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Ty = "A"
+        sup.Tz = "A"
+        return(sup)
 
+    @staticmethod
+    def yRoller(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Tz = "A"
+        return(sup)
 
+    @staticmethod
+    def zRoller(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Ty = "A"
+        return(sup)
 
+    @staticmethod
+    def fixed(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Ty = "A"
+        sup.Tz = "A"
+        sup.Rx = "A"
+        sup.Ry = "A"
+        sup.Rz = "A"
+        return(sup)
+class LoadCase:
+    def __init__(self):
+        self.Number = None
+        self.Description: str = ""
+        self.psi0 = 1
+        self.psi1 = 1
+        self.psi2 = 1
+        self.Type = 0   #0 = permanent, 1 = variabel
 
-        < Nodenumber > 3 < / Nodenumber >
-        < Tx > < / Tx >
-        < Ty > < / Ty >
-        < Tz > S < / Tz >
-        < Rx > < / Rx >
-        < Ry > < / Ry >
-        < Rz > < / Rz >
-        < Kx > 0 < / Kx >
-        < Ky > 0 < / Ky >
-        < Kz > 35000 < / Kz >
-        < Cx > 0 < / Cx >
-        < Cy > 0 < / Cy >
-        < Cz > 0 < / Cz >
-        < dx > 0 < / dx >
-        < dy > 0 < / dy >
-        < dz > 0 < / dz >
+class SurfaceLoad:
+    def __init__(self):
+        self.LoadCase = None
+        self.PolyCurve: PolyCurve = None
+        self.Description: str = ""
+        self.crs = "Local"
+        self.direction = "Z"
+        self.LoadBearingDirection = "X"
+        self.q1 = 0
+        self.q2 = 0
+        self.q3 = 0
+        self.LoadConstantOrLinear = "constant"
+        self.iq1 = -1
+        self.iq2 = -1
+        self.iq3 = -1
+
+class LoadPanel:
+    def __init__(self):
+        self.PolyCurve: PolyCurve = None
+        self.Description: str = ""
+        self.LoadBearingDirection = "X"
+        self.SurfaceType = "" #Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
+    SurfaceLoads = []
+    x = startx
+    y = starty
+    for j in range(ny):
+        for i in range(nx):
+            SL = SurfaceLoad()
+            SL.Description = description
+            SL.LoadCase = LoadCase
+            SL.PolyCurve = PolyCurve.byPoints(
+                [Point(x, y, 0),
+                Point(x + width, y, 0),
+                Point(x, y + height, 0),
+                Point(x, y, 0)]
+            )
+            SL.q1 = SL.q2 = SL.q3 = q123 #[kN/m2]
+            SurfaceLoads.append(SL)
+            x = x + dx
+        y = y + dy
+    return SurfaceLoads

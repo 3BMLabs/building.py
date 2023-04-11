@@ -24,8 +24,8 @@ floorthickness = 200
 width = spac_x * nx
 
 height = spac_y*ny
-spacX = str(nx+1) + "x" + str(spac_x)  #example "13x5400"
-spacY = str(ny+1) + "x" + str(spac_y)  # example "4x5400"
+spacX = str(nx) + "x" + str(spac_x)  #example "13x5400"
+spacY = str(ny) + "x" + str(spac_y)  # example "4x5400"
 grids = GridSystem(spacX, seqX, spacY, seqY, ext)
 obj = grids[0] + grids[1] #list with objects
 
@@ -42,8 +42,52 @@ obj.append(Panel.byPolyCurveThickness(
     BaseConcrete.colorint))
 
 #Supports
-sup = Support(Number = 0)
-Line
+x = 0
+y = 0
+for i in range(nx):
+    for j in range(ny)
+        sup = Support()
+        sup.Point = Point(x,y,0)
+        sup.Tz = "S"
+        sup.Kz = 35000
+        obj.append(sup)
+        y = y + spac_y
+    x = x + spac_x
+
+#Loads
+
+#Load cases
+LC1 = LoadCase()
+LC1.Number = 1
+LC1.Description = "Dead Load"
+LC1.Type = 0
+
+LC2 = LoadCase()
+LC2.Number = 2
+LC2.Description = "Chessboard 1"
+LC2.Type = 1
+LC2.psi0 = 0.4
+LC2.psi1 = 0.5
+LC2.psi2 = 0.3
+
+LC3 = LoadCase()
+LC3.Number = 3
+LC3.Description = "Chessboard 2"
+LC3.Type = 1
+LC3.psi0 = 0.4
+LC3.psi1 = 0.5
+LC3.psi2 = 0.3
+
+obj.append(LC1)
+obj.append(LC2)
+obj.append(LC3)
+
+#Surfaceload
+
+
+obj.append(ChessBoardSurfaceLoadsRectangle(0,0,spac_x*2,spac_y*2,6,6,spac_x,spac_y,1,-20,obj))
+
+
 #Export to Speckle
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 #Commit = TransportToSpeckle("struct4u.xyz", "de68169deb", SpeckleObj, "Parametric Structure.py")

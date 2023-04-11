@@ -280,16 +280,18 @@ class xmlXFEM4U:
         Beams = []
         Beamgroup = []
         Profiles = []
+        Supports= []
         plateN = 0  # Numbering plates
         beamsN = 0  # Numbering beams
         beamsGN = 0  # Numbering beamgroup
         profN = 0  # Numbering profiles
+        supportN = 0 # Numbering of supports
         Nodes.append("<Nodes>\n")
         Plates.append("<Plates>\n")
         Beams.append("<Beams>\n")
         Beamgroup.append("<Beamgroup>\n")
-
         Profiles.append("<Profiles>\n")
+        Supports.append("<Supports>\n")
 
         ProfileNames = []  # all profiles
         for i in obj:
@@ -369,17 +371,51 @@ class xmlXFEM4U:
                 Beams.append("<Top_Center_Bottom>" + i.YJustification + "</Top_Center_Bottom>\n")
             elif nm == 'Grid':
                 pass
+        for i in obj:
+            nm = i.__class__.__name__
+            if nm == 'Support':
+                supportN = supportN = 1
+                n = n + 1
+                Nodes.append("<Number>" + str(n) + "</Number>\n")
+                Nodes.append("<X>" + str(round(i.end.x)) + "</X>\n")
+                Nodes.append("<Y>" + str(round(i.end.y)) + "</Y>\n")
+                Nodes.append("<Z>" + str(round(i.end.z)) + "</Z>\n")
+
+                Supports.append("<Number>" + str(supportN) + "</Number>")
+                Supports.append("<Nodenumber>" + str(n) + "</Nodenumber>")
+                Supports.append("<Tx>" + self.Tx + "</Tx>")
+                Supports.append("<Ty>" + self.Ty + "</Ty>")
+                Supports.append("<Tz>" + self.Tz + "</Tz>")
+                Supports.append("<Rx>" + self.Rx + "</Rx>")
+                Supports.append("<Ry>" + self.Ry + "</Ry>")
+                Supports.append("<Rz>" + self.Rz + "</Rz>")
+                Supports.append("<Kx>" + str(self.Kx) + "</Kx>")
+                Supports.append("<Ky>" + str(self.Ky) + "</Ky>")
+                Supports.append("<Kz>" + str(self.Kz) + "</Kz>")
+                Supports.append("<Cx>" + str(self.Cx) + "</Cx>")
+                Supports.append("<Cy>" + str(self.Cy) + "</Cy>")
+                Supports.append("<Cz>" + str(self.Cz) + "</Cz>")
+                Supports.append("<dx>" + str(self.dx) + "</dx>")
+                Supports.append("<dy>" + str(self.dy) + "</dy>")
+                Supports.append("<dz>" + str(self.dz) + "</dz>")
+
+            else:
+                pass
+
+
         Nodes.append("</Nodes>\n")
         Plates.append("</Plates>\n")
         Beams.append("</Beams>\n")
         Profiles.append("</Profiles>\n")
         Beamgroup.append("</Beamgroup>\n")
+        Supports.append("</Supports>\n")
 
         self.Nodes = ''.join(str(N) for N in Nodes)
         self.Plates = ''.join(str(P) for P in Plates)
         self.Beams = ''.join(str(B) for B in Beams)
         self.Beamgroup = ''.join(str(BP) for BP in Beamgroup)
         self.Profiles = ''.join(str(Pr) for Pr in Profiles)
+        self.Supports = ''.join(str(Sup) for Sup in Supports)
 
     def addGrids(self, spacX, seqX, spacY, seqY, z):
         self.Grids = "<Grids>" + "<X>" + spacX + "</X>" + "<X_Lable>" + seqX + "</X_Lable>" + "<Y>" + spacY + "</Y>" + "<Y_Lable>" + seqY + "</Y_Lable>" + "<Z>" + "0 " + str(
@@ -464,33 +500,65 @@ class xmlXFEM4U:
         Combinations.append("</Combinations>")
         self.Combinations = ''.join(str(LC) for LC in Combinations)
 
+    def addSurfaceLoad(self,obj):
+        nm = i.__class__.__name__
+        SurfaceLoads = []
+        SurfaceLoads.append("<SurfaceLoads>")
+        slN = 0
+        for i in obj:
+            slN = slN + 1
+            if nm == "SurfaceLoad":
+                SurfaceLoads.append("<Number>" + str(n) + "</Number>")
+                SurfaceLoads.append("<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>")
+                SurfaceLoads.append("<Description>" + i.Description + "</Description>")
+                for j in i.PolyCurve.points:
+                    SurfaceLoads.append("<NodeX>" + str(j.X) + "</NodeX>")
+                    SurfaceLoads.append("<NodeY>" + str(j.Y) + "</NodeY>")
+                    SurfaceLoads.append("<NodeZ>" + str(j.Z) + "</NodeZ>")
+                SurfaceLoads.append("<Coordinate_system>" + i.crs + "</Coordinate_system>")
+                SurfaceLoads.append("<Direction>" + i.direction + "</Direction>")
+                SurfaceLoads.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>")
+                SurfaceLoads.append("<q1>" + str(i.q1) + "</q1>")
+                SurfaceLoads.append("<q2>" + str(i.q2) + "</q2>")
+                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>")
+                SurfaceLoads.append("<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>")
+                SurfaceLoads.append("<iq1>" + str(i.iq1) + "</iq1>")
+                SurfaceLoads.append("<iq2>" + str(i.iq2) + "</iq2>")
+                SurfaceLoads.append("<iq3>" + str(i.iq3) + "</iq3>")
+                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>")
+            else:
+                pass
+        SurfaceLoads.append("</SurfaceLoads>")
+        self.SurfaceLoads = ''.join(str(SL) for SL in SurfaceLoads)
+    def addPanels(self,obj):
+        nm = i.__class__.__name__
+        Panels = []
+        Panels.append("<Panels>")
+        slN = 0
+        for i in obj:
+            slN = slN + 1
+            if nm == "LoadPanel":
+                Panels.append("<Number>" + str(n) + "</Number>")
+                Panels.append("<Description>" + i.Description + "</Description>")
+                for j in i.PolyCurve.points:
+                    Panels.append("<NodeX>" + str(j.X) + "</NodeX>")
+                    Panels.append("<NodeY>" + str(j.Y) + "</NodeY>")
+                    Panels.append("<NodeZ>" + str(j.Z) + "</NodeZ>")
+                Panels.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>")
+                Panels.append("<SurfaceType>" + i.LoadBearingDirection + "</SurfaceType>")
+            else:
+                pass
+        Panels.append("</Panels>")
+        self.Panels = ''.join(str(pan) for pan in Panels)
+
     def addProject(self,projectname):
         self.Project = "<ProjectName>" + projectname + "</ProjectName>"
 
     def addprojectnumber(self,ProjectNumber):
         self.ProjectNumber = "<ProjectNumber>" + ProjectNumber + "</ProjectNumber>"
 
-    def addPanels(self):
-        Panels = []
-        Panels.append("<Panels>")
-        Panels.append("<Number>1</Number>")
-        Panels.append("<Description>Panel 1</Description>")
-        Panels.append("<LoadBearingDirection>X</LoadBearingDirection>")        #X or Y
-        Panels.append("<SurfaceType>wall</SurfaceType>")             #Wall, Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
-        Panels.append("<NodeX>0</NodeX>")
-        Panels.append("<NodeY>0</NodeY>")
-        Panels.append("<NodeZ>0</NodeZ>")
-        Panels.append("<NodeX>10000</NodeX>")
-        Panels.append("<NodeY>0</NodeY>")
-        Panels.append("<NodeZ>0</NodeZ>")
-        Panels.append("<NodeX>10000</NodeX>")
-        Panels.append("<NodeY>1000</NodeY>")
-        Panels.append("<NodeZ>0</NodeZ>")  #unclosed polygon
-        Panels.append("</Panels>")
-        self.Panels = ''.join(str(Pan) for Pan in Panels)
-
     def XML(self):
-        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles + self.LoadCases + self.Beamgroup + self.Beams + self.Plates + self.Panels + self.RebarLongitudinal + self.RebarStirrup + self.Layers + self.Frame2
+        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles  + self.Beamgroup + self.Beams + self.Plates + self.Panels + + self.LoadCases + self.BeamLoads + self.NodeLoads + self.SurfaceLOads + self.Combinations + self.RebarLongitudinal + self.RebarStirrup + self.Layers + self.Frame2
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
