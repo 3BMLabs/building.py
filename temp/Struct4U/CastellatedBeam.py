@@ -1,7 +1,4 @@
-from exchange.speckle import *
 from exchange.struct4U import *
-from objects.panel import *
-from objects.frame import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[0]
@@ -29,7 +26,6 @@ VZ = Vector3(0,0,1)
 
 obj = []
 
-
 #Middle
 xval = 0
 n = int(l/spac)+ 2
@@ -49,7 +45,6 @@ for i in range(n):
     pnts.append(Point(xval, 0, h / 2 + dh))
     pnts2.append(Point(xval, 0, h / 2 - dh))
     xval = xval + db
-
 
 pnts.append(Point(xval, 0, h / 2))
 pnts2.append(Point(xval, 0, h / 2))
@@ -75,34 +70,28 @@ top = PolyCurve.byPoints([
     Point(xval, b/2, h),
     Point(xval, -b/2, h),
     Point(0, -b/2, h)])
+
 #Bottomplate
 bottom = top.translate(Vector3(0,0,-h))
-
-#crv = PolyCurve.byPoints([
-#    Point(0,0,h/2),
-#    Point(l,0,h/2),
-#    Point(l,0,h),
-#    Point(0,0,h),
-#    Point(0,0,h/2)
-#])
 
 obj.append(Panel.byPolyCurveThickness(top,tf,-tf,"top",rgb_to_int([192, 192, 192])))
 obj.append(Panel.byPolyCurveThickness(bottom,tf,0,"bottom",rgb_to_int([192, 192, 192])))
 obj.append(Panel.byPolyCurveThickness(crv,tw,0,"middle",rgb_to_int([192, 192, 192])))
 obj.append(Panel.byPolyCurveThickness(crv2,tw,0,"middle",rgb_to_int([192, 192, 192])))
-#obj.append(Panel.byPolyCurveThickness(crv,tw,tw/2,"middle",rgb_to_int([192, 192, 192])))
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
 #Commit = TransportToSpeckle("struct4u.xyz", "eb801b33ca", SpeckleObj, "Castellated Beam")
 
-XMLString = XMLExport("<Grids></Grids>", obj)
+#Export to XFEM4U XML String
+xmlS4U = xmlXFEM4U()
+xmlS4U.addBeamsPlates(obj)
+xmlS4U.addProject("Castellated Beam")
+xmlS4U.XML()
+XMLString = xmlS4U.xmlstr
 
-filepath = "C:/TEMP/CastellatedBeam.xml"
-
+filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/Castellated Beam/Castellated Beam.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
 
 file.close()
-
-print(XMLString)

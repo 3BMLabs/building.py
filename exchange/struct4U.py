@@ -341,7 +341,6 @@ class xmlXFEM4U:
                 ProfN = ProfileNamesUnique.index(i.profileName) + 1
                 beamsGN = beamsGN + 1
                 Beamgroup.append("<Number>" + str(beamsGN) + "</Number>\n")
-
                 n = n + 1
                 Nodes.append("<Number>" + str(n) + "</Number>\n")
                 Nodes.append("<X>" + str(round(i.start.x)) + "</X>\n")
@@ -377,27 +376,27 @@ class xmlXFEM4U:
                 supportN = supportN = 1
                 n = n + 1
                 Nodes.append("<Number>" + str(n) + "</Number>\n")
-                Nodes.append("<X>" + str(round(i.end.x)) + "</X>\n")
-                Nodes.append("<Y>" + str(round(i.end.y)) + "</Y>\n")
-                Nodes.append("<Z>" + str(round(i.end.z)) + "</Z>\n")
+                Nodes.append("<X>" + str(round(i.Point.x)) + "</X>\n")
+                Nodes.append("<Y>" + str(round(i.Point.y)) + "</Y>\n")
+                Nodes.append("<Z>" + str(round(i.Point.z)) + "</Z>\n")
 
                 Supports.append("<Number>" + str(supportN) + "</Number>")
                 Supports.append("<Nodenumber>" + str(n) + "</Nodenumber>")
-                Supports.append("<Tx>" + self.Tx + "</Tx>")
-                Supports.append("<Ty>" + self.Ty + "</Ty>")
-                Supports.append("<Tz>" + self.Tz + "</Tz>")
-                Supports.append("<Rx>" + self.Rx + "</Rx>")
-                Supports.append("<Ry>" + self.Ry + "</Ry>")
-                Supports.append("<Rz>" + self.Rz + "</Rz>")
-                Supports.append("<Kx>" + str(self.Kx) + "</Kx>")
-                Supports.append("<Ky>" + str(self.Ky) + "</Ky>")
-                Supports.append("<Kz>" + str(self.Kz) + "</Kz>")
-                Supports.append("<Cx>" + str(self.Cx) + "</Cx>")
-                Supports.append("<Cy>" + str(self.Cy) + "</Cy>")
-                Supports.append("<Cz>" + str(self.Cz) + "</Cz>")
-                Supports.append("<dx>" + str(self.dx) + "</dx>")
-                Supports.append("<dy>" + str(self.dy) + "</dy>")
-                Supports.append("<dz>" + str(self.dz) + "</dz>")
+                Supports.append("<Tx>" + i.Tx + "</Tx>")
+                Supports.append("<Ty>" + i.Ty + "</Ty>")
+                Supports.append("<Tz>" + i.Tz + "</Tz>")
+                Supports.append("<Rx>" + i.Rx + "</Rx>")
+                Supports.append("<Ry>" + i.Ry + "</Ry>")
+                Supports.append("<Rz>" + i.Rz + "</Rz>")
+                Supports.append("<Kx>" + str(i.Kx) + "</Kx>")
+                Supports.append("<Ky>" + str(i.Ky) + "</Ky>")
+                Supports.append("<Kz>" + str(i.Kz) + "</Kz>")
+                Supports.append("<Cx>" + str(i.Cx) + "</Cx>")
+                Supports.append("<Cy>" + str(i.Cy) + "</Cy>")
+                Supports.append("<Cz>" + str(i.Cz) + "</Cz>")
+                Supports.append("<dx>" + str(i.dx) + "</dx>")
+                Supports.append("<dy>" + str(i.dy) + "</dy>")
+                Supports.append("<dz>" + str(i.dz) + "</dz>")
 
             else:
                 pass
@@ -503,49 +502,51 @@ class xmlXFEM4U:
     def addSurfaceLoad(self,obj):
         nm = i.__class__.__name__
         SurfaceLoads = []
-        SurfaceLoads.append("<SurfaceLoads>")
+        SurfaceLoads.append("<SurfaceLoads>\n")
         slN = 0
         for i in obj:
             slN = slN + 1
             if nm == "SurfaceLoad":
-                SurfaceLoads.append("<Number>" + str(n) + "</Number>")
-                SurfaceLoads.append("<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>")
-                SurfaceLoads.append("<Description>" + i.Description + "</Description>")
+                SurfaceLoads.append("<Number>" + str(n) + "</Number>\n")
+                SurfaceLoads.append("<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>\n")
+                SurfaceLoads.append("<Description>" + i.Description + "</Description>\n")
                 for j in i.PolyCurve.points:
-                    SurfaceLoads.append("<NodeX>" + str(j.X) + "</NodeX>")
-                    SurfaceLoads.append("<NodeY>" + str(j.Y) + "</NodeY>")
-                    SurfaceLoads.append("<NodeZ>" + str(j.Z) + "</NodeZ>")
-                SurfaceLoads.append("<Coordinate_system>" + i.crs + "</Coordinate_system>")
-                SurfaceLoads.append("<Direction>" + i.direction + "</Direction>")
-                SurfaceLoads.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>")
-                SurfaceLoads.append("<q1>" + str(i.q1) + "</q1>")
-                SurfaceLoads.append("<q2>" + str(i.q2) + "</q2>")
-                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>")
-                SurfaceLoads.append("<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>")
-                SurfaceLoads.append("<iq1>" + str(i.iq1) + "</iq1>")
-                SurfaceLoads.append("<iq2>" + str(i.iq2) + "</iq2>")
-                SurfaceLoads.append("<iq3>" + str(i.iq3) + "</iq3>")
-                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>")
+                    SurfaceLoads.append("<NodeX>" + str(j.X) + "</NodeX>\n")
+                    SurfaceLoads.append("<NodeY>" + str(j.Y) + "</NodeY>\n")
+                    SurfaceLoads.append("<NodeZ>" + str(j.Z) + "</NodeZ>\n")
+                SurfaceLoads.append("<Coordinate_system>" + i.crs + "</Coordinate_system>\n")
+                SurfaceLoads.append("<Direction>" + i.direction + "</Direction>\n")
+                SurfaceLoads.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
+                SurfaceLoads.append("<q1>" + str(i.q1) + "</q1>\n")
+                SurfaceLoads.append("<q2>" + str(i.q2) + "</q2>\n")
+                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>\n")
+                SurfaceLoads.append("<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>\n")
+                SurfaceLoads.append("<iq1>" + str(i.iq1) + "</iq1>\n")
+                SurfaceLoads.append("<iq2>" + str(i.iq2) + "</iq2>\n")
+                SurfaceLoads.append("<iq3>" + str(i.iq3) + "</iq3>\n")
+                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>\n")
             else:
                 pass
-        SurfaceLoads.append("</SurfaceLoads>")
+        SurfaceLoads.append("</SurfaceLoads>\n")
         self.SurfaceLoads = ''.join(str(SL) for SL in SurfaceLoads)
+
     def addPanels(self,obj):
-        nm = i.__class__.__name__
         Panels = []
         Panels.append("<Panels>")
         slN = 0
         for i in obj:
+            nm = i.__class__.__name__
+            Panels = []
             slN = slN + 1
             if nm == "LoadPanel":
-                Panels.append("<Number>" + str(n) + "</Number>")
-                Panels.append("<Description>" + i.Description + "</Description>")
+                Panels.append("<Number>" + str(n) + "</Number>\n")
+                Panels.append("<Description>" + i.Description + "</Description>\n")
                 for j in i.PolyCurve.points:
-                    Panels.append("<NodeX>" + str(j.X) + "</NodeX>")
-                    Panels.append("<NodeY>" + str(j.Y) + "</NodeY>")
-                    Panels.append("<NodeZ>" + str(j.Z) + "</NodeZ>")
-                Panels.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>")
-                Panels.append("<SurfaceType>" + i.LoadBearingDirection + "</SurfaceType>")
+                    Panels.append("<NodeX>" + str(j.X) + "</NodeX>\n")
+                    Panels.append("<NodeY>" + str(j.Y) + "</NodeY>\n")
+                    Panels.append("<NodeZ>" + str(j.Z) + "</NodeZ>\n")
+                Panels.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
+                Panels.append("<SurfaceType>" + i.LoadBearingDirection + "</SurfaceType>\n")
             else:
                 pass
         Panels.append("</Panels>")
@@ -555,10 +556,10 @@ class xmlXFEM4U:
         self.Project = "<ProjectName>" + projectname + "</ProjectName>"
 
     def addprojectnumber(self,ProjectNumber):
-        self.ProjectNumber = "<ProjectNumber>" + ProjectNumber + "</ProjectNumber>"
+        self.ProjectNumber = "<ProjectNumber>" + ProjectNumber + "</ProjectNumber>\n"
 
     def XML(self):
-        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles  + self.Beamgroup + self.Beams + self.Plates + self.Panels + + self.LoadCases + self.BeamLoads + self.NodeLoads + self.SurfaceLOads + self.Combinations + self.RebarLongitudinal + self.RebarStirrup + self.Layers + self.Frame2
+        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles + self.Beamgroup + self.Beams + self.Plates + self.Panels + self.LoadCases + self.BeamLoads + self.NodeLoads + self.SurfaceLoads + self.Combinations + self.RebarLongitudinal + self.RebarStirrup + self.Layers + self.Frame2
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"

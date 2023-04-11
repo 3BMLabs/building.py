@@ -47,7 +47,6 @@ class Support:
         self.Cz: float = 0 # kNm/rad
         self.dx: float = 0 #eccentricity in x
         self.dy: float = 0 #eccentricity in y
-<<<<<<< Updated upstream
         self.dz: float = 0 #eccentricity in z
 
     @staticmethod
@@ -94,6 +93,7 @@ class Support:
         sup.Ry = "A"
         sup.Rz = "A"
         return(sup)
+
 class LoadCase:
     def __init__(self):
         self.Number = None
@@ -125,6 +125,7 @@ class LoadPanel:
         self.Description: str = ""
         self.LoadBearingDirection = "X"
         self.SurfaceType = "" #Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+
 def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
     SurfaceLoads = []
     x = startx
@@ -145,6 +146,3 @@ def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, heigh
             x = x + dx
         y = y + dy
     return SurfaceLoads
-=======
-        self.dz: float = 0 #eccentricity in z
->>>>>>> Stashed changes
