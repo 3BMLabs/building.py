@@ -7,8 +7,8 @@ from library.profile import searchProfile
 # pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 # pan2 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 
-test = searchProfile("R8")
-print(test.shape_coords)
+test = searchProfile("s120X9")
+print(test.synonyms)
 
 
 # lshape = Frame.byStartpointEndpoint(Point(0, 0, 0), Point(0, 0, 50),
