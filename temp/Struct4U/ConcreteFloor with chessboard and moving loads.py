@@ -24,8 +24,13 @@ floorthickness = 200
 width = spac_x * nx
 
 height = spac_y*ny
+<<<<<<< Updated upstream
 spacX = str(nx) + "x" + str(spac_x)  #example "13x5400"
 spacY = str(ny) + "x" + str(spac_y)  # example "4x5400"
+=======
+spacX = "0 " + str(nx) + "x" + str(spac_x)  #example "13x5400"
+spacY = "0 " + str(ny) + "x" + str(spac_y)  # example "4x5400"
+>>>>>>> Stashed changes
 grids = GridSystem(spacX, seqX, spacY, seqY, ext)
 obj = grids[0] + grids[1] #list with objects
 
@@ -42,18 +47,29 @@ obj.append(Panel.byPolyCurveThickness(
     BaseConcrete.colorint))
 
 #Supports
+<<<<<<< Updated upstream
 x = 0
 y = 0
 for i in range(nx):
     for j in range(ny)
         sup = Support()
         sup.Point = Point(x,y,0)
+=======
+
+x = 0
+for i in range(nx+1):
+    y = 0
+    for j in range(ny+1):
+        sup = Support()
+        sup.Point = Point(x, y, 0)
+>>>>>>> Stashed changes
         sup.Tz = "S"
         sup.Kz = 35000
         obj.append(sup)
         y = y + spac_y
     x = x + spac_x
 
+<<<<<<< Updated upstream
 #Loads
 
 #Load cases
@@ -88,14 +104,18 @@ obj.append(LC3)
 obj.append(ChessBoardSurfaceLoadsRectangle(0,0,spac_x*2,spac_y*2,6,6,spac_x,spac_y,1,-20,obj))
 
 
+=======
+print(obj)
+#sys.exit()
+>>>>>>> Stashed changes
 #Export to Speckle
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
-#Commit = TransportToSpeckle("struct4u.xyz", "de68169deb", SpeckleObj, "Parametric Structure.py")
+Commit = TransportToSpeckle("struct4u.xyz", "de68169deb", SpeckleObj, "Parametric Structure.py")
 
 #Export to XFEM4U XML String
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
-xmlS4U.addProject("Parametric Industrial Hall")
+xmlS4U.addProject("Concrete floor with loads")
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,0) # Grids
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr

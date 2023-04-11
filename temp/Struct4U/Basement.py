@@ -1,6 +1,6 @@
-from objects.frame import *
 from objects.datum import *
 from exchange.struct4U import *
+from library.material import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[0]
@@ -13,13 +13,15 @@ ext = 2000 #extension grid
 
 #INPUT in mm
 width = 5000
-length = 7000
+length = 8500
 height = 2600
 floorThickness = 200
 wallThickness = 160
 
 #Grids
-grids = GridSystem("0 " + str(width), seqX, "0 " + str(length), seqY, ext)
+xstr = "0 " + str(width)
+ystr = "0 " + str(length)
+grids = GridSystem(xstr, seqX, ystr, seqY, ext)
 obj = grids[0] + grids[1] #list with objects
 
 #Concretefloor
@@ -47,7 +49,7 @@ Commit = TransportToSpeckle("struct4u.xyz", "9fd1692151", SpeckleObj, "Parametri
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Parametric Concrete Basement")
-xmlS4U.addGrids(spacX,seqX,spacY,seqY,0) # Grids
+xmlS4U.addGrids(xstr,seqX,ystr,seqY,0) # Grids
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 

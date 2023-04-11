@@ -47,6 +47,7 @@ class Support:
         self.Cz: float = 0 # kNm/rad
         self.dx: float = 0 #eccentricity in x
         self.dy: float = 0 #eccentricity in y
+<<<<<<< Updated upstream
         self.dz: float = 0 #eccentricity in z
 
     @staticmethod
@@ -144,3 +145,6 @@ def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, heigh
             x = x + dx
         y = y + dy
     return SurfaceLoads
+=======
+        self.dz: float = 0 #eccentricity in z
+>>>>>>> Stashed changes
