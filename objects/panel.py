@@ -66,7 +66,7 @@ class Panel:
         return p1
 
     @classmethod
-    def byBaselineHeight(cls, baseline: Line, height: float, thickness: float, name: str, color):
+    def byBaselineHeight(cls, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
         #place panel vertical from baseline
         p1 = Panel()
         p1.name = name
@@ -80,5 +80,5 @@ class Panel:
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):
-            p1.colorlst.append(color)
+            p1.colorlst.append(colorrgbint)
         return p1

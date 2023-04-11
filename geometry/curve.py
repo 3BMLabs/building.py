@@ -146,6 +146,32 @@ class PolyCurve:  # pass this object before using it.
 
 # 2D PolyCurve to 3D PolyGon
 
+def Rect(vector: Vector3, width: float, height: float):
+    #Rectangle in XY-plane
+    p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
+    p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
+    p3 = Point(0,0,0).translate(Point(width, height, 0), vector)
+    p4 = Point(0,0,0).translate(Point(0, height, 0), vector)
+    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    return crv
+
+def RectXY(vector: Vector3, width: float, height: float):
+    #Rectangle in XY-plane
+    p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
+    p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
+    p3 = Point(0,0,0).translate(Point(width, 0, height), vector)
+    p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
+    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    return crv
+
+def RectYZ(vector: Vector3, width: float, height: float):
+    #Rectangle in XY-plane
+    p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
+    p2 = Point(0,0,0).translate(Point(0, width, 0), vector)
+    p3 = Point(0,0,0).translate(Point(0, width, height), vector)
+    p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
+    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    return crv
 
 def polygon(flatCurves):
     points = []

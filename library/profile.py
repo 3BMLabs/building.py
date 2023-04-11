@@ -56,7 +56,9 @@ class searchProfile:
         for item in data:
             for i in item.values():
                 synonymList = i[0]["synonyms"]
-                # if self.name in synonymList:
+                #if self.name in synonymList:
+                #bools = [self.name.lower() in e for e in [synonym.lower() for synonym in synonymList]]
+                #if True in bools:
                 if self.name.lower() in [synonym.lower() for synonym in synonymList]:
                     self.shape_coords = i[0]["shape_coords"]
                     self.shape_name = i[0]["shape_name"]

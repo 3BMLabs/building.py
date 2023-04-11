@@ -141,7 +141,7 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpoint(cls, start, end, polycurve, name, rotation, material):
+    def byStartpointEndpoint(cls, start, end, polycurve, name, rotation: float, material):
         #2D polycurve
         f1 = Frame()
         f1.start = start

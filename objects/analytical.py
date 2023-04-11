@@ -33,12 +33,12 @@ class Support:
     def __init__(self):
         self.Number = None
         self.Point: Point = Point(0,0,0)
-        self.Tx: str = "" # A, P, N, S
-        self.Ty: str = "" # A, P, N, S
-        self.Tz: str = "" # A, P, N, S
-        self.Rx: str = "" # A, P, N, S
-        self.Ry: str = "" # A, P, N, S
-        self.Rz: str = "" # A, P, N, S
+        self.Tx: str = " " # A, P, N, S
+        self.Ty: str = " " # A, P, N, S
+        self.Tz: str = " " # A, P, N, S
+        self.Rx: str = " " # A, P, N, S
+        self.Ry: str = " " # A, P, N, S
+        self.Rz: str = " " # A, P, N, S
         self.Kx: float = 0 # kN/m
         self.Ky: float = 0 # kN/m
         self.Kz: float = 0 # kN/m
@@ -108,16 +108,27 @@ class SurfaceLoad:
         self.LoadCase = None
         self.PolyCurve: PolyCurve = None
         self.Description: str = ""
-        self.crs = "Local"
-        self.direction = "Z"
-        self.LoadBearingDirection = "X"
+        self.crs = "ccaa0435161960d4c7e436cf107a03f61"
+        self.direction = "caf2b4ce743de1df30071f9566b1015c6"
+        self.LoadBearingDirection = "cfebf3fce7063ab9a89d28a86508c0fb3"
         self.q1 = 0
         self.q2 = 0
         self.q3 = 0
-        self.LoadConstantOrLinear = "constant"
+        self.LoadConstantOrLinear = "cb81ae405e988f21166edf06d7fd646fb"
         self.iq1 = -1
         self.iq2 = -1
         self.iq3 = -1
+
+    @staticmethod
+    def byLoadCasePolyCurveQ(LoadCase, PolyCurve, q):
+        SL = SurfaceLoad()
+        SL.LoadCase = LoadCase
+        SL.PolyCurve = PolyCurve
+        SL.q1 = q
+        SL.q2 = q
+        SL.q3 = q
+        return SL
+
 
 class LoadPanel:
     def __init__(self):

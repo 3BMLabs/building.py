@@ -17,11 +17,11 @@ seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 ext = 2500 #extension grid
 
 #INPUT in mm
-spac = 7000 #grid spacing 1
-n = 6 # number of grids 1
+spac = 6500 #grid spacing 1
+n = 7 # number of grids 1
 
 spac_y = 5200 #grid spacing 2
-nw = 5 # number of grids 2
+nw = 4 # number of grids 2
 
 z = 9000 #height of the structure
 afschot = 0
@@ -29,13 +29,13 @@ afschot = 0
 GEVELKOLOM = "IPE330"
 HOOFDLIGGER = "HEA700"
 RANDLIGGER = "HEA160"
-KOPPELLIGGER = "K80/5"
+KOPPELLIGGER = "HFRHS80x80x5"
 HOEKKOLOM = "HEA300"
 KOPGEVELKOLOM = "HEA180"
 RANDLIGGER_KOPGEVEL = "HEA160"
 WVB_DAK = "L70/7"
 WVB_GEVEL = "S100x5"
-#FOUNDATIONBEAM =
+FOUNDATIONBEAM = Rectangle("FB 400x600",400,600).curve
 
 #WINDVERBANDEN
 wvb = [
@@ -47,10 +47,12 @@ wvb = [
     ["L2",4,1]]
 
 
-#MODELLERING
+#MODELERING
 x = spac #stramienmaat
 y = spac_y*nw #width hall
+width = y
 l = (n+1) * spac
+length = l
 
 spacX = str(n+1) + "x" + str(spac)  #"13x5400"
 spacY = str(nw) + "x" + str(spac_y)  #"4x5400"
@@ -69,7 +71,11 @@ for i in range(n):
     x = x + spac
 
 #FOUNDATION BEAM
-obj1.append(Frame.byStartpointEndpoint(Point(0,0,0),Point()))
+obj1.append(Frame.byStartpointEndpoint(Point(0,0,0), Point(0,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.byStartpointEndpoint(Point(l,0,0), Point(l,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.byStartpointEndpoint(Point(0,0,0), Point(l,0,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.byStartpointEndpoint(Point(0,y,0), Point(l,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+
 
 #RANDLIGGERS & KOPPELKOKERS
 x = 0
@@ -78,7 +84,7 @@ for i in range(n+1): #elk stramienvak + 1
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, z), Point(x+spac, y, z), RANDLIGGER, "Randligger 2", BaseSteel))
     ys = spac_y
     for i in range(nw-1):
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x+spac, ys, z), KOPPELLIGGER,"Koppelkoker", BaseSteel))
+        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x+spac, ys, z), RANDLIGGER_KOPGEVEL,"Koppelkoker", BaseSteel))
         ys = ys + spac_y
     x = x + spac
 
@@ -132,7 +138,46 @@ for i in wvb: #For loop for vertical bracing
     else:
         pass
 
-#Belastingen
+#Arealoads
+q = -0.5 #[kN/m2]
+sl = SurfaceLoad()
+sl.q1 = sl.q2 = sl.q3 = q
+sl.PolyCurve = Rect(Vector3(0, 0, 0), width, length)
+obj1.append(sl)
+def LoadPanels(width,length,z):
+    #LoadPanels
+    LPRoof = LoadPanel()
+    LPRoof.Description = "Roof"
+    LPRoof.LoadBearingDirection = "X"
+    LPRoof.PolyCurve = Rect(Vector3(0,0,z),width,length)
+    obj1.append(LPRoof)
+
+    LPWall1 = LoadPanel()
+    LPWall1.Description = "Kopgevel 1"
+    LPWall1.LoadBearingDirection = "X"
+    LPWall1.PolyCurve = RectXY(Vector3(0,0,0),width,z)
+    obj1.append(LPWall1)
+
+    LPWall2 = LoadPanel()
+    LPWall2.Description = "Kopgevel 2"
+    LPWall2.LoadBearingDirection = "X"
+    LPWall2.PolyCurve = RectXY(Vector3(0,length,0),width,z)
+    obj1.append(LPWall2)
+
+    LPWall3 = LoadPanel()
+    LPWall3.Description = "Langsgevel 1"
+    LPWall3.LoadBearingDirection = "X"
+    LPWall3.PolyCurve = RectYZ(Vector3(0,0,0),length,z)
+    obj1.append(LPWall3)
+
+    LPWall4 = LoadPanel()
+    LPWall4.Description = "Langsgevel 1"
+    LPWall4.LoadBearingDirection = "X"
+    LPWall4.PolyCurve = RectYZ(Vector3(width,0,0),length,z)
+
+    obj1.append(LPWall4)
+
+LoadPanels(length,width,z)
 
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj1)
@@ -143,8 +188,10 @@ SpeckleObj = translateObjectsToSpeckleObjects(obj1)
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj1) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Parametric Industrial Hall")
-#xmlS4U.addPanels(obj1) #add Load Panels
+xmlS4U.addPanels(obj1) #add Load Panels
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,z) # Grids
+#xmlS4U.addSurfaceLoad(obj1)
+xmlS4U.addLoadCasesCombinations()
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 

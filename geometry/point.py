@@ -91,6 +91,15 @@ class Point:
             math.sin(math.radians(Beta))*p1.x + math.cos(math.radians(Beta))*p1.y,
             p1.z + dz
         )
+
+    @staticmethod
+    def intersect(p1,p2):
+        #Intersection of two points
+        if p1.x == p2.x and p1.y == p2.y and p1.z == p2.z:
+            return 1
+        else:
+            return 0
+
 class CoordinateSystem:
     #Origin = Point
     #xaxis = Normalised Vector

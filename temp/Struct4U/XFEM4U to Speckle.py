@@ -11,9 +11,11 @@ import sys
 #package_root_directory = file.parents[0]
 #sys.path.append(str(package_root_directory))
 
-tree = ET.parse("C:/TEMP/export.xml")
+#tree = ET.parse("C:/TEMP/export.xml")
 #tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 2/export.xml")
 #tree = ET.parse("C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Struct4U/Example Projects/Industrial steel structure 1/export.xml")
+tree = ET.parse("C:/Users/mikev/Documents/GitHub/Struct4U/Industrial Steel Structure/Industrial Steel Structure.xml")
+
 root = tree.getroot()
 
 #TODO: Lines and Grids units
@@ -35,7 +37,7 @@ BeamsName = root.findall(".//Beams/Profile_number")
 #print(BeamsFrom)
 #PROFILES
 ProfileNumber = root.findall(".//Profiles/Number")
-ProfileNumber = root.findall(".//Profiles/Material_type")
+#ProfileNumber = root.findall(".//Profiles/Material_type")
 ProfileName = root.findall(".//Profiles/Profile_name")
 
 #sys.exit()
@@ -43,6 +45,7 @@ ProfileName = root.findall(".//Profiles/Profile_name")
 beams = []
 for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
     profile_name = ProfileName[int(k.text)-1].text
+    profile_name = profile_name.split()[0]
     if profile_name == None:
         pass
     else:
@@ -56,4 +59,4 @@ for i, j, k, l in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber):
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 
-Commit = TransportToSpeckle("struct4u.xyz", "6166d4a8b6", SpeckleObj, "Export from XFEM4U")
+Commit = TransportToSpeckle("struct4u.xyz", "a63404e44e", SpeckleObj, "Export from XFEM4U")

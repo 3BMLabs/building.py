@@ -49,6 +49,7 @@ Commit = TransportToSpeckle("struct4u.xyz", "9fd1692151", SpeckleObj, "Parametri
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Parametric Concrete Basement")
+xmlS4U.addLoadCasesCombinations()
 xmlS4U.addGrids(xstr,seqX,ystr,seqY,0) # Grids
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
