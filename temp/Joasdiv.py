@@ -7,7 +7,7 @@ from library.profile import searchProfile
 # pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 # pan2 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 
-test = searchProfile("s120X9")
+test = searchProfile("K100/100/5")
 print(test.synonyms)
 
 
