@@ -46,11 +46,11 @@ Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Hatch | :heavy_check_mark: | :heavy_check_mark:  |  
 Library | Steelprofiles | |  |  
 &nbsp; | Materials | |  |  
-Exchange | Speckle | 50% |  |  
+Exchange | Speckle | :heavy_check_mark: |  |  
 &nbsp; | IFC | |  |  
 &nbsp; | PAT | |  |  
 &nbsp; | OBJ | |  |  
-&nbsp; | Struct4U | |  |  
+&nbsp; | Struct4U |:heavy_check_mark: |  |  
 Import | Image | 50% |  |  
 &nbsp; | GIS | |  |  
 &nbsp; | CityJSON | 50% |  |  
