@@ -47,6 +47,7 @@ jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/p
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
+
 class searchProfile:
     def __init__(self, name):
         self.name = name
@@ -63,6 +64,7 @@ class searchProfile:
                     self.shape_coords = i[0]["shape_coords"]
                     self.shape_name = i[0]["shape_name"]
                     self.synonyms = i[0]["synonyms"]
+
 
 class profiledataToShape:
     def __init__(self, name1):

@@ -10,7 +10,6 @@ from library.profile import searchProfile
 test = searchProfile("K100/100/5")
 print(test.synonyms)
 
-
 # lshape = Frame.byStartpointEndpoint(Point(0, 0, 0), Point(0, 0, 50),
 #                                     Lshape("joas", 300, 200, 50, 50).curve, "L-frame", 0, "Steel")
 # e1shape = Frame.byStartpointEndpoint(Point(400, 0, 0), Point(400, 0, 50),
@@ -27,7 +26,6 @@ print(test.synonyms)
 
 class Arrow:
     def __init__(self, x, y, z):
-
         self.arrowlist = None
         self.x = x
         self.y = y
@@ -55,11 +53,78 @@ class Arrow:
         return self
 
 
-a = Arrow(2400, -200, 0).draw_arrow()
+    def draw_triangle(self):
+        self.trianglelist = []
+        l1 = Line(start=Point(self.x, self.y, self.z), end=Point(self.x, self.y, self.z - 200))
+        self.trianglelist.append(l1)
+        l2 = Line(start=Point(self.x, self.y, self.z - 200), end=Point(self.x, self.y - 100, self.z -200))
+        self.trianglelist.append(l2)
+        l3 = Line(start=Point(self.x, self.y, self.z), end=Point(self.x, self.y - 100, self.z -200))
+        self.trianglelist.append(l3)
+        l4 = Line(start=Point(self.x, self.y, self.z - 200), end=Point(self.x - 100, self.y, self.z - 200))
+        self.trianglelist.append(l4)
+        l5 = Line(start=Point(self.x - 100, self.y, self.z - 200), end=Point(self.x, self.y, self.z))
+        self.trianglelist.append(l5)
+        l6 = Line(start=Point(self.x - 100, self.y, self.z - 200), end=Point(self.x, self.y - 100, self.z - 200))
+        self.trianglelist.append(l6)
+
+        self.trianglelist.append([l1, l2, l3, l4, l5, l6])
+
+        return self
 
 
-SpeckleObj = translateObjectsToSpeckleObjects(a.arrowlist)
+def cone_to_speckle():
+    vert = []
+    faces = []
+    vertx = 0
+    verty = 0
+    vertz = 0
+    trianglelist = [0]
+    facenr = -1
+
+
+    for i in trianglelist:
+        faces.append(3)
+        vert.append(vertx)
+        vert.append(verty)
+        vert.append(vertz)
+        facenr += 1
+        faces.append(facenr)
+        vertz -= 200
+        verty -= 100
+        vert.append(vertx)
+        vert.append(verty)
+        vert.append(vertz)
+        facenr += 1
+        faces.append(facenr)
+        vertx -= 100
+        verty += 100
+        vert.append(vertx)
+        vert.append(verty)
+        vert.append(vertz)
+        facenr += 1
+        faces.append(facenr)
+        vertx = 0
+        verty = 0
+        vertz = 0
+
+# faces = [3, 0, 1, 2]
+# verts = [0, 0, 0, 0, -100, -200, -100, 0, -200]
+# facenr = 2
+
+
+    def SpeckleMeshByCone(verts, faces, name):
+        spcklmesh = SpeckleMesh(vertices=verts, faces=faces, name=name)
+        return spcklmesh
+
+    SpeckleObj = [SpeckleMeshByCone(vert, faces, "cone")]
+    return SpeckleObj
+
+
+# a = Arrow(2400, -200, 0).draw_arrow()
+a = Arrow(0, 0, 0).draw_triangle()
+
+SpeckleObj = translateObjectsToSpeckleObjects(a.trianglelist)
 # SpeckleObj = translateObjectsToSpeckleObjects([lshape, e1shape, nshape, tshape, e2shape, arrowshape] + a.arrowlist)
 
-
-# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
+Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
