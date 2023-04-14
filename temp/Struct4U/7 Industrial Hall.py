@@ -31,21 +31,40 @@ HOOFDLIGGER = "HEA700"
 RANDLIGGER = "HEA160"
 KOPPELLIGGER = "HFRHS80x80x5"
 HOEKKOLOM = "HEA300"
-KOPGEVELKOLOM = "HEA180"
+KOPGEVELKOLOM = "IPE300"
 RANDLIGGER_KOPGEVEL = "HEA160"
-WVB_DAK = "L70/7"
+WVB_DAK = "L70X70X7"
 WVB_GEVEL = "S100x5"
 FOUNDATIONBEAM = Rectangle("FB 400x600",400,600).curve
 
-#WINDVERBANDEN
+#WINDVERBANDEN GEVEL
 wvb = [
     ["K1",2,1],
     ["K2",2,1],
     ["L1",4,1],
     ["L1",8,1],
-    ["L2",2,1],
     ["L2",4,1]]
 
+
+#WINDVERBANDEN DAK
+wvbDak = [
+    [1,1,1],  #Stramienvak X, Stramienvak Y, 0=R1, 1=R2, 2=R1,R2
+    [2,2,1],
+    [3,3,1],
+    [4,4,1],
+    [5,4,0],
+    [6,3,0],
+    [7,2,0],
+    [8,1,0],
+    [1, 4, 0],
+    [2, 3, 0],
+    [3, 2, 0],
+    [4, 1, 0],
+    [5, 1, 1],
+    [6, 2, 1],
+    [7, 3, 1],
+    [8, 4, 1]
+    ]
 
 #MODELERING
 x = spac #stramienmaat
@@ -84,12 +103,9 @@ for i in range(n+1): #elk stramienvak + 1
     obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, z), Point(x+spac, y, z), RANDLIGGER, "Randligger 2", BaseSteel))
     ys = spac_y
     for i in range(nw-1):
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x+spac, ys, z), RANDLIGGER_KOPGEVEL,"Koppelkoker", BaseSteel))
+        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x+spac, ys, z), KOPPELLIGGER,"Koppelkoker", BaseSteel))
         ys = ys + spac_y
     x = x + spac
-
-#WINDVERBANDEN DAK
-x = 0
 
 #KOPGEVEL
 x = 0
@@ -108,13 +124,6 @@ for i in range(2): #VOORZIJDE EN ACHTERZIJDE
         obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x, ys+spac_y, z), RANDLIGGER_KOPGEVEL, "RANDLIGGER KOPGEVEL", BaseSteel))
         ys = ys + spac_y
     x = l
-
-wvb = [
-    ["K1",2,1],
-    ["K2",2,1],
-    ["L1",4,1],
-    ["L1",8,1],
-    ["L2",4,1]]
 
 #WVB in gevel
 #Positie 1: K1, K2, L1 of L2: K1 is kopgevel 1, #K2 is kopgevel 2, #L1 is langsgevel 1, L2 is langsgevel 2
@@ -138,12 +147,24 @@ for i in wvb: #For loop for vertical bracing
     else:
         pass
 
-#Arealoads
-q = -0.5 #[kN/m2]
-sl = SurfaceLoad()
-sl.q1 = sl.q2 = sl.q3 = q
-sl.PolyCurve = Rect(Vector3(0, 0, 0), width, length)
-obj1.append(sl)
+    #[1,1,1],  #Stramienvak X, Stramienvak Y, 0=R1, 1=R2, 2=R1,R2
+
+for i in wvbDak:
+    x1 = (i[0]-1)*spac
+    x2 = i[0]*spac
+    y1 = (i[1]-1)*spac_y
+    y2 = i[1] * spac_y
+    if i[2] == 0:
+        x1t = x1
+        x1 = x2
+        x2 = x1t
+    else:
+        x1 = x1
+    obj1.append(Frame.byStartpointEndpointProfileName(
+        Point(x1, y1, z),
+        Point(x2, y2, z),
+        WVB_DAK,"WVB DAK", BaseSteel))
+
 def LoadPanels(width,length,z):
     #LoadPanels
     LPRoof = LoadPanel()
@@ -181,7 +202,7 @@ LoadPanels(length,width,z)
 
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj1)
-#Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "Parametric Structure.py")
+Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "7 Industrial Hall.py")
 
 #Export to XFEM4U XML String
 
@@ -190,12 +211,12 @@ xmlS4U.addBeamsPlates(obj1) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Parametric Industrial Hall")
 xmlS4U.addPanels(obj1) #add Load Panels
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,z) # Grids
-#xmlS4U.addSurfaceLoad(obj1)
+xmlS4U.addSurfaceLoad(obj1)
 xmlS4U.addLoadCasesCombinations()
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 
-filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/Industrial Hall/Hall.xml"
+filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/7 Industrial Hall/Hall.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
 file.close()

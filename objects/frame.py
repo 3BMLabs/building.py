@@ -93,14 +93,17 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameShapevector(cls, start, end, profile_name, name, vector2d: Vector2,rotation, material):
+    def byStartpointEndpointProfileNameShapevector(cls, start, end, profile_name, name, vector2d: Vector2, rotation, material):
         f1 = Frame()
         f1.start = start
         f1.end = end
         #self.curve = Line(start, end)
-        curv = profiledataToShape(profile_name).prof.curve
+        try:
+            f1.curve = profiledataToShape(profile_name).prof.curve
+        except:
+            print(profile_name)
         f1.rotation = rotation
-        curvrot = curv.rotate(rotation)  #rotation in degrees
+        curvrot = f1.curve.rotate(rotation)  #rotation in degrees
         f1.curve = curvrot.translate(vector2d)
         f1.XOffset = vector2d.X
         f1.YOffset = vector2d.Y

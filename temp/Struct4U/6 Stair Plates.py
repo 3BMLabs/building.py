@@ -62,7 +62,7 @@ xmlS4U.addProject("Struct4U Parametric Stair")
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 
-filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/Stair Plates/stair.xml"
+filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/6 Stair Plates/stair.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
 

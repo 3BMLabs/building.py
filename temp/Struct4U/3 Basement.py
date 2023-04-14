@@ -7,8 +7,8 @@ package_root_directory = file.parents[0]
 sys.path.append(str(package_root_directory))
 
 # GridSystem
-seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
-seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
+seqX = "A B C D E"
+seqY = "1 2 3 4 5"
 ext = 2000 #extension grid
 
 #INPUT in mm
@@ -40,10 +40,9 @@ obj.append(Panel.byPolyCurveThickness(PolyCurve.byPoints([Point(0,length,0),Poin
 obj.append(Panel.byPolyCurveThickness(PolyCurve.byPoints([Point(0,0,0),Point(0,length,0),Point(0,length,height),Point(0,0,height),Point(0,0,0)]),wallThickness,0,"Wall 3",BaseConcrete.colorint)) # Wall 3
 obj.append(Panel.byPolyCurveThickness(PolyCurve.byPoints([Point(width,0,0),Point(width,length,0),Point(width,length,height),Point(width,0,height),Point(width,0,0)]),wallThickness,0,"Wall 4",BaseConcrete.colorint)) # Wall 4
 
-
 #Export to Speckle
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
-Commit = TransportToSpeckle("struct4u.xyz", "9fd1692151", SpeckleObj, "Parametric Structure.py")
+Commit = TransportToSpeckle("struct4u.xyz", "9fd1692151", SpeckleObj, "Parametric Concrete Basement")
 
 #Export to XFEM4U XML String
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
@@ -54,7 +53,7 @@ xmlS4U.addGrids(xstr,seqX,ystr,seqY,0) # Grids
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 
-filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/Concrete Basement/Concrete Basement.xml"
+filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/3 Concrete Basement/Concrete Basement.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
 file.close()
