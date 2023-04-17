@@ -34,14 +34,14 @@ import math, os, sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) #path: PyBuildingSystems
 from abstract.vector import *
-from geometry.point import Point as pnt
+from geometry.point import Point
 
 from packages import helper
 
 class CoordinateSystem: 
     #Origin = Point
     #xaxis = Normalised Vector
-    def __init__(self,origin: pnt, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
+    def __init__(self,origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
@@ -50,4 +50,5 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
 
-CSGlobal = CoordinateSystem(pnt(0,0,0), XAxis, YAxis, ZAxis)
+
+CSGlobal = CoordinateSystem(Point(0,0,0), XAxis, YAxis, ZAxis)

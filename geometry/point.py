@@ -38,6 +38,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from abstract.vector import *
+from abstract.coordinatesystem import *
 from abstract.vector import XAxis, YAxis, ZAxis
 
 
@@ -99,20 +100,6 @@ class Point:
             return 1
         else:
             return 0
-
-class CoordinateSystem:
-    #Origin = Point
-    #xaxis = Normalised Vector
-    def __init__(self,origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
-        self.Origin = origin
-        self.Xaxis = xaxis
-        self.Yaxis = yaxis
-        self.Zaxis = zaxis
-
-    def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
-
-CSGlobal = CoordinateSystem(Point(0,0,0), XAxis, YAxis, ZAxis)
 
 
 def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector: Vector3):

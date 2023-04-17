@@ -125,6 +125,8 @@ class PolyCurve:  # pass this object before using it.
         return crv
 
     def rotate(self, angle, dz):
+        #angle in degrees
+        #dz = displacement in z-direction
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
@@ -207,11 +209,12 @@ class Arc:
         self.midPoint = midPoint
         self.endPoint = endPoint
         self.plane = Plane(
-            origin=Point.from_coords((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2),
-            normal=Vector3.from_coords(0, 0, 1),
-            xdir=Vector3.from_coords(1, 0, 0),
-            ydir=Vector3.from_coords(0, 1, 0)
+            origin = Point.from_coords((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2),
+            normal = Vector3.from_coords(0, 0, 1),
+            xdir = Vector3.from_coords(1, 0, 0),
+            ydir = Vector3.from_coords(0, 1, 0)
         )
+        #TODO: DIT IS NOG EEN SPECKLE PLANE --> MOET EEN BUILDING PY PLANE WORDEN OF NIET?
         self.radius=self.radius()
         self.startAngle=0
         self.endAngle=0
