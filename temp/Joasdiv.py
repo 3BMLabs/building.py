@@ -1,14 +1,12 @@
-from objects.panel import *
-from objects.frame import *
-from objects.steelshape import *
 from exchange.speckle import *
 from library.profile import searchProfile
+import math
 
 # pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 # pan2 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 
-test = searchProfile("K100/100/5")
-print(test.synonyms)
+testprofile = searchProfile("K100/100/5")
+# print(testprofile.synonyms)
 
 # lshape = Frame.byStartpointEndpoint(Point(0, 0, 0), Point(0, 0, 50),
 #                                     Lshape("joas", 300, 200, 50, 50).curve, "L-frame", 0, "Steel")
@@ -24,8 +22,50 @@ print(test.synonyms)
 #                                         Arrowshape("joas", 300, 200, 50, 100).curve, "Arrow-frame", 0, "Steel")
 
 
-class Arrow:
+obj = []
+
+
+def SpeckleMeshByMesh(verts, faces):
+    spcklmesh = SpeckleMesh(vertices=verts, faces=faces, name="Joas", units="mm")
+    return spcklmesh
+
+
+# vertices = [0, 0, 0, -100, 0, -200, 0, -100, -200, 100, 0, -200, 0, 100, -200]
+# faces = [3, 0, 1, 2, 3, 0, 2, 3, 3, 0, 3, 4, 3, 0, 1, 4, 4, 1, 2, 3, 4]
+
+
+vertices = []
+faces = []
+
+degrees = 0
+vertx = 100 * math.sin(math.radians(degrees))
+verty = 100 * math.cos(math.radians(degrees))
+testnr = 1
+
+while testnr <= 4:
+    vertices.append(vertx)
+    vertices.append(verty)
+    vertices.append(-200)
+    degrees = degrees + 90
+    vertx = 100 * math.sin(math.radians(degrees))
+    verty = 100 * math.cos(math.radians(degrees))
+    testnr += 1
+print(vertices)
+
+
+obj.append(SpeckleMeshByMesh(vertices, faces))
+SpeckleObjects = obj
+Message = "Shiny commit 140"
+SpeckleHost = "speckle.xyz"
+StreamID = "8136460d9e"
+
+# Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObjects, Message)
+# print(Commit)
+
+
+class DrawLines:
     def __init__(self, x, y, z):
+        self.trianglelist = None
         self.arrowlist = None
         self.x = x
         self.y = y
@@ -52,7 +92,6 @@ class Arrow:
 
         return self
 
-
     def draw_triangle(self):
         self.trianglelist = []
         l1 = Line(start=Point(self.x, self.y, self.z), end=Point(self.x, self.y, self.z - 200))
@@ -75,56 +114,50 @@ class Arrow:
 
 def cone_to_speckle():
     vert = []
-    faces = []
+    face = []
     vertx = 0
     verty = 0
     vertz = 0
     trianglelist = [0]
     facenr = -1
 
-
     for i in trianglelist:
-        faces.append(3)
+        face.append(3)
         vert.append(vertx)
         vert.append(verty)
         vert.append(vertz)
         facenr += 1
-        faces.append(facenr)
+        face.append(facenr)
         vertz -= 200
         verty -= 100
         vert.append(vertx)
         vert.append(verty)
         vert.append(vertz)
         facenr += 1
-        faces.append(facenr)
+        face.append(facenr)
         vertx -= 100
         verty += 100
         vert.append(vertx)
         vert.append(verty)
         vert.append(vertz)
         facenr += 1
-        faces.append(facenr)
+        face.append(facenr)
         vertx = 0
         verty = 0
         vertz = 0
-
-# faces = [3, 0, 1, 2]
-# verts = [0, 0, 0, 0, -100, -200, -100, 0, -200]
-# facenr = 2
-
 
     def SpeckleMeshByCone(verts, faces, name):
         spcklmesh = SpeckleMesh(vertices=verts, faces=faces, name=name)
         return spcklmesh
 
-    SpeckleObj = [SpeckleMeshByCone(vert, faces, "cone")]
-    return SpeckleObj
+    speckleobj = [SpeckleMeshByCone(vert, face, "cone")]
+    return speckleobj
 
 
-# a = Arrow(2400, -200, 0).draw_arrow()
-a = Arrow(0, 0, 0).draw_triangle()
+# a = DrawLines(2400, -200, 0).draw_arrow()
+a = DrawLines(0, 0, 0).draw_triangle()
 
-SpeckleObj = translateObjectsToSpeckleObjects(a.trianglelist)
-# SpeckleObj = translateObjectsToSpeckleObjects([lshape, e1shape, nshape, tshape, e2shape, arrowshape] + a.arrowlist)
-
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
+# SpeckleObj = translateObjectsToSpeckleObjects(a.trianglelist)
+# # SpeckleObj = translateObjectsToSpeckleObjects([lshape, e1shape, nshape, tshape, e2shape, arrowshape] + a.arrowlist)
+#
+# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
