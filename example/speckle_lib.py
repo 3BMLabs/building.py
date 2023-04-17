@@ -222,4 +222,3 @@ objList.append(MeshBase6)
 
 
 send_to_speckle(host="https://3bm.exchange", stream_id="fa4e56aed4", objects=objList, msg="Objects")
-
