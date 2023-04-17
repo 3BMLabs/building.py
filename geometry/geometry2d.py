@@ -182,7 +182,7 @@ class PolyCurve2D:
         points = []
         for i in self.curves:
             if i == Arc2D:
-                points.append(i.start,i.middle)
+                points.append(i.start, i.middle) #
             else:
                 points.append(i.start)
         points.append(points[0])

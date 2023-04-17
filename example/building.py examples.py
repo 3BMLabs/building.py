@@ -11,6 +11,7 @@ from geometry.text import *
 from geometry.point import Point
 from exchange.speckle import *
 from abstract.color import *
+from abstract.plane import *
 from geometry.solid import Extrusion
 
 
@@ -18,23 +19,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-
-def rgb_to_int(rgb):
-    r, g, b = [max(0, min(255, c)) for c in rgb]
-
-    return (255 << 24) | (r << 16) | (g << 8) | b
-
-# ------------------------
-
 # INITIALIZE
-
-# Vector3D
-v1 = Vector3(0, 100, 0)
-v2 = Vector3(100, 100, 0)
-
-# Point
-p1 = Point(0, 100, 0)
-p2 = Point(0, 300, 0)
 pnt1 = Point(0, 0, 0)
 pnt2 = Point(0, 10, 0)
 pnt3 = Point(0, 20, 0)
@@ -45,25 +30,18 @@ p2d2 = Point2D(10, 5)
 p2d3 = Point2D(20, 10)
 test12 = Vector2(0, 10)
 
-# create a new Polycurve
-plycurve = PolyCurve()
 
-# plane
-plane = Plane()
+# CLASS: COORDINATESYSTEM
+CS = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
 
-# ------------------------
+CSGlobal
 
-# FILE: COORDINATESYSTEM
-CSGlobal = CoordinateSystem(pnt(0, 0, 0), XAxis, YAxis, ZAxis)
+# CLASS: PLANE
+v1 = Vector3(0, 100, 0)
+v2 = Vector3(100, 100, 0)
 
-# ------------------------
+plane_ex = Plane.byTwoVectorsOrigin(v1, v2, Point(0, 0, 0))
 
-# FILE: PLANE
-btvo = Plane.byTwoVectorsOrigin(v1, v2, pnt(0, 0, 0))
-
-# ------------------------
-
-# FILE: VECTOR
 # CLASS: Vector3
 
 # sum ↓
@@ -92,7 +70,7 @@ test6 = Vector3.pitch(v1, 45)
 
 # angleBetween ↓
 # math.degrees(math.acos((Vector3.dotProduct(v1, v2) / (Vector3.length(v1) * Vector3.length(v2)))))
-# (Calculate the angle of two directions)
+# (Calculate the angle of two vectors)
 test7 = Vector3.angleBetween(v1, v2)
 
 # reverse ↓
@@ -108,11 +86,13 @@ test9 = Vector3.perpendicular(v1)
 # v1.X * scale, v1.Y * scale, v1.Z * scale
 test10 = Vector3.normalise(v1)
 
+# Point
+p1 = Point(0, 100, 0)
+p2 = Point(0, 300, 0)
+
 # byTwoPoints ↓
 # Subtracts point1 x,y and z from point2 x,y and z
 test11 = Vector3.byTwoPoints(p1, p2)
-
-# ------------------------
 
 # FILE : CURVE
 # CLASS: Line
@@ -130,10 +110,14 @@ Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
 Line.length(Line1)
 
 # CLASS: PolyCurve
+
+# create a new Polycurve
+plycurve = PolyCurve()
+
 # Create a PolyCurve object by joining a list of curves and collecting their starting points
 PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3])
 
-# Creating a PolyCurve object (PC2) from a 3D polygon curve defined by 4 Point objects.
+# Creating a PolyCurve object (PC2) from a list of Points.
 # by points, must be a closed polygon
 PC2 = PolyCurve.byPoints(
     [Point(0, 0, 0),
@@ -142,31 +126,29 @@ PC2 = PolyCurve.byPoints(
      Point(0, 0, 0)
      ])
 
-# Another example of byPoints
-PC3 = PolyCurve.byPoints(
-    [Point(3000, 0, 0),
-     Point(5000, 0, 0),
-     Point(5000, 2000, 2000),
-     Point(2000, 2000, 2000),
-     Point(3000, 0, 0)
-     ])
+ply2D = PolyCurve2D.byJoinedCurves([
+    Line2D(
+        Point2D(0,0),
+        Point2D(100,0)),
+    Line2D(
+        Point2D(100, 0),
+        Point2D(100, 100)),
+    Line2D(
+        Point2D(100,100),
+        Point2D(0,0))]
+    )
 
 # Creating a PolyCurve object (PC4) from a 3D polygon curve defined by four points.
-PC4 = PolyCurve.byPolyCurve2D(
-    [Point(0, 0, 0),
-     Point(2000, 0, 0),
-     Point(0, 1000, 2000),
-     Point(0, 0, 0)
-     ])
+PC4 = PolyCurve.byPolyCurve2D(ply2D)
 
-# Poly-curve translate moves the curve by v1 distance.
+# Poly-curve translate moves the curve by v1 vector.
 plycurve.translate(v1)
 
 # Poly-curve Rotate  # NOT SURE WHAT THE INPUT HAS TO BE
 plycurve.rotate(90, 10)
 
 # Polygon # CHECK IF ITS WORKING
-flat_curves = [Line(Point(0, 0, 0), Point(0, 1, 0)), Line(Point(0, 1, 0), Point(1, 1, 0))]
+flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))]
 plygn1 = polygon(flat_curves)
 
 # CLASS: POLYGON
@@ -194,17 +176,17 @@ Arc.length(arc1)
 Arc.ByThreePoints(pnt1, pnt2, pnt3)
 
 # CLASS CIRCLE
+
 radius = 5
 length = 2 * radius * math.pi
-circle = Circle(radius, plane, length)
+circle = Circle(radius, plane_ex, length)
 
 # CLASS ELLIPSE
 # An Ellipse object is created with firstRadius=3, secondRadius=5
-ellipse = Ellipse(3, 5, plane)
-
-# ------------------------
+ellipse = Ellipse(3, 5, plane_ex)
 
 # FILE Geometry2D
+
 # Class Vector2
 vctr2 = Vector2(10, 10)
 
@@ -236,9 +218,9 @@ Arc2D.points(testarc)
 ply = PolyCurve2D()
 
 # Combine multiple lines and make it as 1 object
-PolyCurve2D.byJoinedCurves([l2d, l2d2, l2d3])\
+PolyCurve2D.byJoinedCurves([l2d, l2d2, l2d3])
 
-# return the start and end points of each curve in ply.
+# return all the points within the PolyCurve2D
 PolyCurve2D.points(ply)
 
 # translates each curve in ply by a Vector2D and returns a new PolyCurve2D.
@@ -270,6 +252,8 @@ LTP = lineToPattern(Line(start=Point(0, 1200, 0), end=Point(11400, 1200, 0)), Ce
 # FILE: POINT
 # Class Point
 # calculate the difference between two 3D points and return a Vector3.
+exam = Point(0, 0, 0)
+
 Point.difference(p1, p2)
 
 # translates a 3D point (p1) by a given Vector3 (v1) and returns a new Point.
@@ -322,7 +306,7 @@ frame6 = Frame.byStartpointEndpoint(p1, p2, PC1, "test", 90, "Steel")
 # ------------------------
 
 # CLASS: Panel
-pan = Panel.byPolyCurveThickness(PC3, 100, 0, "test1", rgb_to_int([192, 192, 192]))
+pan = Panel.byPolyCurveThickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
 pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0),
                                    end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 
@@ -357,21 +341,3 @@ Text1 = Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, 
 Text2 = Text(text="PyBuildingSystem2", font_family="arial").write()
 # without optional parms
 
-# GridSystem
-seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
-seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
-ext = 1000
-spacX = "20x5400 2500"
-spacY = "10x5400 1000"
-
-grids = GridSystem(spacX,seqX,spacY,seqY,ext)
-
-obj0 = GridA.line
-obj1 = grids[0] + grids[1]
-obj2 = [Line1, Line2, Line3, Line4, Line5, Line6, Line7]
-obj3 = [pan, pan2]  # , frame2, frame3]
-obj4 = LTP
-
-
-# SpeckleObj = translateObjectsToSpeckleObjects(obj2)
-# Commit = TransportToSpeckle("3bm.exchange", "8136460d9e", SpeckleObj, "building.py examples.py")

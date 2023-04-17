@@ -107,7 +107,7 @@ class Vector3:
     @staticmethod
     def perpendicular(v1):
         #Vector Lokale X en Lokale Y haaks op gegeven vector en in globale Z-richting.
-        lokX = Vector3(v1.Y,-v1.X,0)
+        lokX = Vector3(v1.Y, -v1.X, 0)
         lokZ = Vector3.crossProduct(v1, lokX)
         if lokZ.Z<0:
             lokZ = Vector3.reverse(lokZ)
