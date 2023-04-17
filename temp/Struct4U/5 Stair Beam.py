@@ -29,10 +29,9 @@ p2 = Point(x, y, z)
 ddeg = DegreesSpiral / NumberOfTreads
 
 for i in range(NumberOfTreads):
-    obj.append(Frame.byStartpointEndpointProfileNameJustifiction(Point(0, 0, z), p2, Tread, "Tread","Center","Center",90,BaseSteel))  # Treads
+    obj.append(Frame.byStartpointEndpointProfileNameJustifiction(Point(0, 0, z), p2, Tread, "Tread","Center","Center",0, BaseSteel))  # Treads
     p2 = Point.rotateXY(p2, ddeg, dz)
     z = z + dz
-
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 Commit = TransportToSpeckle("struct4u.xyz", "4bb051dcbb", SpeckleObj, "Parametric Spiral Staircase.py")
@@ -45,7 +44,7 @@ xmlS4U.addProject("Struct4U Parametric Stair")
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 
-filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/Stair Beams/stair.xml"
+filepath = "C:/Users/mikev/Documents/GitHub/Struct4U/5 Stair Beams/stair.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
 
