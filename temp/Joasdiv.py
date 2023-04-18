@@ -25,44 +25,6 @@ testprofile = searchProfile("K100/100/5")
 obj = []
 
 
-def SpeckleMeshByMesh(verts, faces):
-    spcklmesh = SpeckleMesh(vertices=verts, faces=faces, name="Joas", units="mm")
-    return spcklmesh
-
-
-# vertices = [0, 0, 0, -100, 0, -200, 0, -100, -200, 100, 0, -200, 0, 100, -200]
-# faces = [3, 0, 1, 2, 3, 0, 2, 3, 3, 0, 3, 4, 3, 0, 1, 4, 4, 1, 2, 3, 4]
-
-
-vertices = []
-faces = []
-
-degrees = 0
-vertx = 100 * math.sin(math.radians(degrees))
-verty = 100 * math.cos(math.radians(degrees))
-testnr = 1
-
-while testnr <= 4:
-    vertices.append(vertx)
-    vertices.append(verty)
-    vertices.append(-200)
-    degrees = degrees + 90
-    vertx = 100 * math.sin(math.radians(degrees))
-    verty = 100 * math.cos(math.radians(degrees))
-    testnr += 1
-print(vertices)
-
-
-obj.append(SpeckleMeshByMesh(vertices, faces))
-SpeckleObjects = obj
-Message = "Shiny commit 140"
-SpeckleHost = "speckle.xyz"
-StreamID = "8136460d9e"
-
-# Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObjects, Message)
-# print(Commit)
-
-
 class DrawLines:
     def __init__(self, x, y, z):
         self.trianglelist = None
