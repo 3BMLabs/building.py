@@ -1,20 +1,3 @@
-#Point
-#SpeckleLine
-#SpeckleArc
-#Polyline
-#SpeckleMesh
-#Vector (cannot be visualised)
-#Plane
-#SpeckleInterval
-
-#Section 1:
-# -> Create plane / platform
-# -> import text, check if text has converter ose
-# -> text by each specklepy object.
-# -> send to speckleserver (default method)
-# -> consequent variable names / clean space after comma
-# -> show everything in the right scale
-
 from typing import List, Tuple
 from svg.path import parse_path
 import sys, math, requests, json
