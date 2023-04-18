@@ -340,16 +340,16 @@ objList.append(MeshExample1)
 MeshBase0 = Platform(10, [0,0,0], btmShape="OveralShape")
 objList.append(MeshBase0)
 
-MeshBase1 = Platform(2, [0,0,10], btmShape="btmShape", text="LINE", txyz=[0+18,0+50,10])
+MeshBase1 = Platform(2, [0,0,10], btmShape="btmShape", text="LINE", txyz=[0+20,0+50,10])
 objList.append(MeshBase1)
 
-MeshBase2 = Platform(2, [150,0,10], btmShape="btmShape", text="POINT", txyz=[150+18,0+50,10])
+MeshBase2 = Platform(2, [150,0,10], btmShape="btmShape", text="ARC", txyz=[150+18,0+50,10])
 objList.append(MeshBase2)
 
-MeshBase3 = Platform(2, [150,150,10], btmShape="btmShape", text="ARC", txyz=[150+20,150+50,10])
+MeshBase3 = Platform(2, [150,150,10], btmShape="btmShape", text="POLYLINE", txyz=[150+0,150+50,10])
 objList.append(MeshBase3)
 
-MeshBase4 = Platform(2, [0,150,10], btmShape="btmShape", text="POLYLINE", txyz=[0,150+50,10])
+MeshBase4 = Platform(2, [0,150,10], btmShape="btmShape", text="POINT", txyz=[0+15,150+50,10])
 objList.append(MeshBase4)
 
 MeshBase5 = Platform(2, [300,0,10], btmShape="btmShape", text="SOLID2", txyz=[300+10,0+50,10])
@@ -360,4 +360,4 @@ objList.append(MeshBase6)
 #Platform - end
 
 
-send_to_speckle(host="https://3bm.exchange", stream_id="fa4e56aed4", objects=objList, msg="Objects")
+send_to_speckle(host="https://speckle.xyz", stream_id="d2e38baf76", objects=objList, msg="Objects")
