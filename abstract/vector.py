@@ -38,12 +38,6 @@ sys.path.append(str(package_root_directory))
 
 # from geometry.point import *
 
-
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
-
 from packages import helper
 
 class Vector3:

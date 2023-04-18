@@ -30,18 +30,18 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/coordinatesystem.py"
 
 
-import math, os, sys
+import math
+import os
+import sys
+from pathlib import Path
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) #path: PyBuildingSystems
-from abstract.vector import *
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from abstract.vector import Vector3, XAxis, YAxis, ZAxis
 from geometry.point import Point
 
-from packages import helper
-
-class CoordinateSystem: 
-    #Origin = Point
-    #xaxis = Normalised Vector
-    def __init__(self,origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
+class CoordinateSystem:
+    def __init__(self, origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
@@ -50,5 +50,4 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
 
-
-CSGlobal = CoordinateSystem(Point(0,0,0), XAxis, YAxis, ZAxis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)

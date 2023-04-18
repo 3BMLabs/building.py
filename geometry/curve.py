@@ -41,7 +41,7 @@ from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
-# from specklepy.objects.primitive import Interval as SpeckleInterval #temp
+from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
 class Line:
@@ -204,17 +204,16 @@ class PolyGon:
 
 
 class Arc:
-    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
+    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point, plane: Plane, radius: int):
         self.startPoint = startPoint
         self.midPoint = midPoint
         self.endPoint = endPoint
-        self.plane = Plane(
-            origin = Point.from_coords((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2),
-            normal = Vector3.from_coords(0, 0, 1),
-            xdir = Vector3.from_coords(1, 0, 0),
-            ydir = Vector3.from_coords(0, 1, 0)
+        self.plane = plane or Plane(
+            origin = Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2),
+            normal = Vector3(0, 0, 1),
+            xdir = Vector3(1, 0, 0),
+            ydir = Vector3(0, 1, 0)
         )
-        #TODO: DIT IS NOG EEN SPECKLE PLANE --> MOET EEN BUILDING PY PLANE WORDEN OF NIET?
         self.radius=self.radius()
         self.startAngle=0
         self.endAngle=0
@@ -222,7 +221,6 @@ class Arc:
         self.area=0
         self.length=self.length()
         self.units="mm"
-        # self.id = id
 
     def distance(self, p1, p2):
         return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)

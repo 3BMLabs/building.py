@@ -1,12 +1,9 @@
-import sys, random, math
+import sys, math, requests, json
 from svg.path import parse_path
-import json
 from typing import List, Tuple
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.geometry2d import Point2D
 from exchange.speckle import *
@@ -169,12 +166,13 @@ class Text:
 
 
     def load_path(self) -> List[str]:
-        with open(f'C:/Users/jonat/Desktop/font_json/{self.font_family}.json', 'r') as f:
-            glyph_data = json.load(f)
-            return [
-                glyph_data[letter]["glyph-path"] 
-                for letter in self.text if letter in glyph_data
-            ]
+        url = f"https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Arial.json"
+        response = requests.get(url)
+        glyph_data = response.json()
+        return [
+            glyph_data[letter]["glyph-path"] 
+            for letter in self.text if letter in glyph_data
+        ]
 
 
     def write(self) -> List[List[Polyline]]:
@@ -320,22 +318,12 @@ class Text:
         return Polyline.from_points(pts_list)
 
 
-p = Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=90).write()
-# p1 = Text(text="Maarten", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=0).write()
-# p2 = Text(text="Piet", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=-90).write()
-# p3 = Text(text="Joas", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=180).write()
-
-# p4 = Text(text="Speckle", font_family="arial", bounding_box=False, xyz=[-1800,-1800,0], rotation=0).write()
-# p5 = Text(text="12345678910", font_family="arial", bounding_box=False, xyz=[-7200,-7200,0], rotation=0).write()
-# p6 = Text(text="abcdefghijklmnopqrstuvwxyz", font_family="arial", bounding_box=False, xyz=[-8900,-8900,0], rotation=0).write()
-
-# p1 = Text(text="112", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=45).write()
-# p2 = Text(text="112", font_family="arial", bounding_box=True, xyz=[0,0,0], rotation=-90).write()
+p = Text(text="PYBUILDINGSYSTEM", font_family="arial", bounding_box=False, xyz=[0,0,0], rotation=90).write()
 
 
 obj = []
 obj.append(p)
-obj.append(Line)
+# obj.append(p2)
 
 SpeckleHost = "3bm.exchange"  # struct4u.xyz
 StreamID = "fa4e56aed4"  # c4cc12fa6f

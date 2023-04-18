@@ -33,12 +33,10 @@ __url__ = "./geometry/point.py"
 import sys, os, math
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
-from abstract.coordinatesystem import *
+# from abstract.coordinatesystem import *
 from abstract.vector import XAxis, YAxis, ZAxis
 
 
