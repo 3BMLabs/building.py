@@ -9,7 +9,7 @@ sys.path.append(str(package_root_directory))
 obj = []
 
 #BEAMS
-obj.append(Frame.byStartpointEndpoint(Point(0,0,0),Point(2000,0,0),Rectangle("400x600",400,600).curve,"400x600",0,BaseConcrete))  #Concrete Beam
+obj.append(Frame.byStartpointEndpoint(Point(0,0,0), Point(2000,0,0), Rectangle("400x600", 400,600).curve,"400x600",0,BaseConcrete))  #Concrete Beam
 obj.append(Frame.byStartpointEndpointProfileNameShapevector(Point(0,1000,0),Point(2000,1000,0),"HEA400","HEA400",Vector2(0,0),0,BaseSteel)) #Steel Beam
 
 obj.append( #List with elements to Speckle

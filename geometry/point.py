@@ -101,6 +101,17 @@ class Point:
         else:
             return 0
 
+class CoordinateSystem:
+    #Origin = Point
+    #xaxis = Normalised Vector
+    def __init__(self,origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
+        self.Origin = origin
+        self.Xaxis = xaxis
+        self.Yaxis = yaxis
+        self.Zaxis = zaxis
+
+    def __str__(self):
+        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
 
 def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector: Vector3):
     vz = DirectionVector  # LineVector and new Z-axis
