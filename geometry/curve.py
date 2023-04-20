@@ -224,16 +224,19 @@ class PolyGon:
 
 
 class Arc:
-    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point, plane: Plane, radius: int):
+    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
         self.startPoint = startPoint
         self.midPoint = midPoint
         self.endPoint = endPoint
-        self.plane = plane or Plane(
-            origin = Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2),
-            normal = Vector3(0, 0, 1),
-            xdir = Vector3(1, 0, 0),
-            ydir = Vector3(0, 1, 0)
+
+        v1=Vector3(x=1, y=0, z=0)
+        v2=Vector3(x=0, y=1, z=0)
+        self.plane = Plane.byTwoVectorsOrigin(
+            v1, 
+            v2, 
+            Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
         )
+        
         self.radius=self.radius()
         self.startAngle=0
         self.endAngle=0
@@ -244,7 +247,7 @@ class Arc:
 
     def distance(self, p1, p2):
         return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)
-    
+
     def radius(self):
         a = self.distance(self.startPoint, self.midPoint)
         b = self.distance(self.midPoint, self.endPoint)
@@ -269,45 +272,8 @@ class Arc:
 
         return arc_length
 
-
-    @classmethod
-    def ByThreePoints(self, startPoint: Point, midPoint: Point, endPoint: Point, plane=None):
-        radius = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).radius
-        startAngle = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).startAngle
-        endAngle = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).endAngle
-        angleRadians = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).angleRadians
-        area = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).area
-        length = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).length
-        units = self(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint).units
-
-        if plane is None:
-            plane = Plane(
-                origin=Point.from_coords((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2),
-                normal=Vector3.from_coords(0, 0, 1),
-                xdir=Vector3.from_coords(1, 0, 0),
-                ydir=Vector3.from_coords(0, 1, 0)
-            )
-        
-        return Arc(
-            startPoint=startPoint,
-            midPoint=midPoint,
-            endPoint=endPoint,
-            domain=SpeckleInterval(start=0, end=1), #create IntervalToSpeckleInterval in 'speckle.py'
-            plane=plane,
-            radius=radius,
-            startAngle=startAngle,
-            endAngle=endAngle,
-            angleRadians=angleRadians,
-            area=area,
-            length=length,
-            units=units
-        )
-    
-    def __id__(self):
-        return f"id:{self.id}"
-
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"
+        return f"{__class__.__name__}(Object output n.t.b.)"
 
 
 class Circle:

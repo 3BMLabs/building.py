@@ -42,48 +42,52 @@ from packages import helper
 
 class Vector3:
     def __init__(self, x, y, z):
-        self.X = x
-        self.Y = y
-        self.Z = z
+        self.x: float = 0.0
+        self.y: float = 0.0
+        self.z: float = 0.0
+
+        self.x = x
+        self.y = y
+        self.z = z
 
     @staticmethod
     def sum(v1, v2):
         return Vector3(
-            v1.X + v2.X,
-            v1.Y + v2.Y,
-            v1.Z + v2.Z
+            v1.x + v2.x,
+            v1.y + v2.y,
+            v1.z + v2.z
         )
 
     @staticmethod #Returns vector perpendicular on the two vectors
     def crossProduct(v1, v2):
         return Vector3(
-            v1.Y*v2.Z - v1.Z*v2.Y,
-            v1.Z*v2.X - v1.X*v2.Z,
-            v1.X*v2.Y - v1.Y*v2.X
+            v1.y*v2.z - v1.z*v2.y,
+            v1.z*v2.x - v1.x*v2.z,
+            v1.x*v2.y - v1.y*v2.x
         )
 
     @staticmethod #inwendig product, if zero, then vectors are perpendicular
     def dotProduct(v1, v2):
-        return v1.X*v2.X+v1.Y*v2.Y+v1.Z*v2.Z
+        return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
 
     @staticmethod
     def product(n, v1): #Same as scale
         return Vector3(
-            v1.X*n,
-            v1.Y*n,
-            v1.Z*n
+            v1.x*n,
+            v1.y*n,
+            v1.z*n
         )
 
     @staticmethod
     def length(v1):
-        return math.sqrt(v1.X*v1.X+v1.Y*v1.Y+v1.Z*v1.Z)
+        return math.sqrt(v1.x*v1.x+v1.y*v1.y+v1.z*v1.z)
 
     @staticmethod
     def pitch(v1, angle):
         return Vector3(
-            v1.X,
-            v1.Y*math.cos(angle) - v1.Z*math.sin(angle),
-            v1.Y*math.sin(angle) + v1.Z*math.cos(angle)
+            v1.x,
+            v1.y*math.cos(angle) - v1.z*math.sin(angle),
+            v1.y*math.sin(angle) + v1.z*math.cos(angle)
         )
 
     @staticmethod
@@ -93,17 +97,17 @@ class Vector3:
     @staticmethod
     def reverse(v1):
         return Vector3(
-            v1.X*-1,
-            v1.Y*-1,
-            v1.Z*-1
+            v1.x*-1,
+            v1.y*-1,
+            v1.z*-1
         )
 
     @staticmethod
     def perpendicular(v1):
-        #Vector Lokale X en Lokale Y haaks op gegeven vector en in globale Z-richting.
-        lokX = Vector3(v1.Y, -v1.X, 0)
+        #Vector Lokale x en Lokale y haaks op gegeven vector en in globale z-richting.
+        lokX = Vector3(v1.y, -v1.x, 0)
         lokZ = Vector3.crossProduct(v1, lokX)
-        if lokZ.Z<0:
+        if lokZ.z<0:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
 
@@ -111,9 +115,9 @@ class Vector3:
     def normalise(v1):
         scale = 1/Vector3.length(v1)
         return Vector3(
-            v1.X*scale,
-            v1.Y*scale,
-            v1.Z*scale
+            v1.x*scale,
+            v1.y*scale,
+            v1.z*scale
         )
 
     @staticmethod
@@ -133,7 +137,7 @@ class Vector3:
         )
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.X},{self.Y},{self.Z})"
+        return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
 
 
 XAxis = Vector3(1, 0, 0)
