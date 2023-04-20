@@ -35,17 +35,13 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-# from geometry.point import Point
-# from geometry.curve import PolyCurve
-
-from specklepy.objects.geometry import Point
-from specklepy.objects.geometry import Polyline
+from geometry.point import Point
+from geometry.curve import PolyCurve
 
 
 class BoundingBox2d:
     def __init__(self, points=list[Point]):
         self.points = points
-        print(points)
         self.z = 0
 
 
@@ -63,17 +59,14 @@ class BoundingBox2d:
         right_top = Point(x=max_x, y=max_y, z=self.z)
         right_bottom = Point(x=max_x, y=min_y, z=self.z)
         
-        return left_top, left_bottom, right_bottom, right_top, left_top
+        return [left_top, left_bottom, right_bottom, right_top, left_top]
 
     def perimeter(self):
-        return Polyline.from_points(self.corners(self.points)), Polyline.from_points(self.points)
-    
+        return PolyCurve.byPoints(self.corners(self.points))   
 
 class BoundingBox3d:
     def __init__(self, points=list[Point]):
         self.points = points
-        print(points)
-        self.z = 0
 
 
     def corners(self, points=list[Point]):
@@ -98,7 +91,7 @@ class BoundingBox3d:
         right_top_top = Point(x=max_x, y=max_y, z=max_z)
         right_bottom_top = Point(x=max_x, y=min_y, z=max_z)
 
-        return left_top_bottom, left_top_top, right_top_top, right_top_bottom, left_top_bottom, left_bottom_bottom, left_bottom_top, left_top_top, left_bottom_top, right_bottom_top, right_bottom_bottom, left_bottom_bottom, right_bottom_bottom, right_top_bottom, right_top_top, right_bottom_top
+        return [left_top_bottom, left_top_top, right_top_top, right_top_bottom, left_top_bottom, left_bottom_bottom, left_bottom_top, left_top_top, left_bottom_top, right_bottom_top, right_bottom_bottom, left_bottom_bottom, right_bottom_bottom, right_top_bottom, right_top_top, right_bottom_top]
 
     def perimeter(self):
-        return Polyline.from_points(self.corners(self.points)), Polyline.from_points(self.points)
+        return PolyCurve.byPoints(self.corners(self.points))

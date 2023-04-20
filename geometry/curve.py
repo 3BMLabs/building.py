@@ -66,10 +66,10 @@ class Line:
         return f"{__class__.__name__}(" + f"{self.start},{self.end})"
 
 
-class PolyCurve:  # pass this object before using it.
-    def __init__(self, id=helper.generateID()) -> None:
-        self.curves = []  # collect in list
-        self.points = []
+class PolyCurve:
+    def __init__(self, points=None, id=helper.generateID()):
+        self.curves = []
+        self.points = points or []
         self.id = id
 
     @classmethod
@@ -81,18 +81,37 @@ class PolyCurve:  # pass this object before using it.
         return p1
 
     @classmethod
-    def byPoints(cls, points):
-        # by points, must be closed polygon
+    def byPoints(cls, points:list[Point]):
+        crvs = []
         p1 = PolyCurve()
-        count = 0
-        p1.points = points
-        for i in points:
-            count = count + 1
+        curves = []
+        
+        for index, point in enumerate(points):
             try:
-                p1.curves.append(Line(start=i, end=points[count]))
+                nextpoint = points[index+1]
+                
+                crvs.append(Line(start=point, end=nextpoint))
             except:
-                p1.curves.append(Line(start=i, end=points[0]))
-        return p1
+                firstpoint = points[0]
+                crvs.append(Line(start=point, end=firstpoint))
+        crv = PolyCurve.byJoinedCurves(crvs)
+        return crv
+        # print(p1.curves)
+        # return curves
+        # px = PolyCurve.byJoinedCurves(curves)
+        # print(px)
+        # print(p1(lines))
+        # p1 = PolyCurve()
+        # count = 0
+        # p1.points = points
+        # for i in points:
+        #     count = count + 1
+        #     try:
+        #         p1.curves.append(Line(start=i, end=points[count]))
+        #     except:
+        #         p1.curves.append(Line(start=i, end=points[0]))
+        # return p1
+
 
     @classmethod
     def byPolyCurve2D(cls, PolyCurve2D):
@@ -137,6 +156,7 @@ class PolyCurve:  # pass this object before using it.
                 print("Curvetype not found")
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
+    
     def __id__(self):
         return f"id:{self.id}"
 

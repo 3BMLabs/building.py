@@ -64,14 +64,11 @@ from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.primitive import Interval as SpeckleInterval
 
 
-def SpecklePolylineBySpecklePoints(SpecklePoints):
-    SpecklePolyLine.from_points(SpecklePoints)
-    return SpecklePolyLine
-
 
 def PointToSpecklePoint(Point: Point):
     SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
     return SpecklePnt
+
 
 
 def VectorToSpeckleVector(Vector3: Vector3):
@@ -82,6 +79,11 @@ def VectorToSpeckleVector(Vector3: Vector3):
 def LineToSpeckleLine(Line: Line):
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = "mm")
     return SpeckleLn
+
+
+def SpecklePolylineBySpecklePoints(SpecklePoints):
+    SpecklePl = [PointToSpecklePoint(point) for point in SpecklePoints]
+    return SpecklePolyLine.from_points(SpecklePl)
 
 
 def Line2DToSpeckleLine3D(ln):
@@ -191,6 +193,7 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
+        print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = "mm"))
@@ -199,8 +202,8 @@ def translateObjectsToSpeckleObjects(Obj):
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))
         elif nm == 'PolyCurve':
             pnts = []
-            for j in i.points:
-                pnts.append(PointToSpecklePoint(j))
+            for point in i.points:
+                pnts.append(point)
             SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
         elif nm == 'Line':
             SpeckleObj.append(LineToSpeckleLine(i))
