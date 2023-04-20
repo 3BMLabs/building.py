@@ -18,27 +18,20 @@ from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.primitive import Interval as SpeckleInterval
-from abstract.boundingbox import BoundingBox
+from abstract.boundingbox import BoundingBox2d, BoundingBox3d
 
 # from geometry.point import Point
 # from geometry.curve import PolyCurve
 
-p1 = Point(x=0, y=0, z=0)
-p2 = Point(x=0, y=500, z=0)
-p3 = Point(x=400, y=800, z=0)
-bb = BoundingBox([p1,p2,p3])#.perimeter()
-#Speckle Point
-
-# pc1 = Polyline.from_points(points=[p1,p2,p3])
-
-
-#Speckle Line
-# Line = SpeckleLine(start = SpecklePoint.from_coords(0, 0, 0), end = SpecklePoint.from_coords(-800, -1000, 1000))
+p1 = Point(x=900, y=0, z=0)
+p2 = Point(x=20, y=500, z=30)
+p3 = Point(x=650, y=800, z=0)
+bb = BoundingBox2d([p1,p2,p3]).perimeter()
 
 
 obj = []
 obj.append(bb)
-# obj.append(p2)
+
 
 SpeckleHost = "3bm.exchange"  # struct4u.xyz
 StreamID = "fa4e56aed4"  # c4cc12fa6f
