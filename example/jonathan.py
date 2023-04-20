@@ -6,16 +6,17 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
-from geometry.point import Point as PBPoint
+from geometry.point import Point
 from abstract.boundingbox import BoundingBox2d, BoundingBox3d
 from geometry.curve import PolyCurve
 
 
-p1 = PBPoint(x=900, y=0, z=0)
-p2 = PBPoint(x=20, y=500, z=30)
-p3 = PBPoint(x=400, y=410, z=160)
-p4 = PBPoint(x=650, y=800, z=0)
+p1 = Point(x=900, y=0, z=0)
+p2 = Point(x=20, y=500, z=30)
+p3 = Point(x=400, y=410, z=160)
+p4 = Point(x=650, y=800, z=0)
 obj = [p1,p2,p3,p4]
+
 
 # bb = BoundingBox2d(points=[p1,p2,p3,p4]).perimeter()
 bb = BoundingBox3d(points=[p1,p2,p3,p4]).perimeter()
