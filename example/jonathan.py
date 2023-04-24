@@ -12,7 +12,7 @@ from geometry.curve import PolyCurve as BPPolyCurve
 # from specklepy.objects.geometry import Point as SpecklePoint
 # from specklepy.objects.geometry import Polyline
 
-class Text: #todo: add space (width depends on font-family?) and solid (thickness). 
+class Text:
     def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: BPPoint = None, rotation: float = None):
         self.text = text
         self.font_family = font_family
@@ -36,10 +36,9 @@ class Text: #todo: add space (width depends on font-family?) and solid (thicknes
 
 
     def write(self) -> List[List[BPPolyCurve]]:
-        word_list = []
+        output_list = []
         for index, letter_path in enumerate(self.path_list):
             path = parse_path(letter_path)
-            output_list = []
             points = []
             allPoints = []
 
@@ -73,11 +72,11 @@ class Text: #todo: add space (width depends on font-family?) and solid (thicknes
                 width = self.calculate_bounding_box(allPoints)[1]
 
                 self.x += width + self.character_offset
-            word_list.append(output_list)
-        return word_list
+        return output_list
 
-    def __str__(self) -> str:
-        return f"{__class__.__name__}(Objects n.t.b.)"
+    def get_output(self) -> List[List[BPPolyCurve]]:
+        return self.write()
+
 
     def calculate_bounding_box(self, points):
         points = [elem for elem in points if elem != 'M']
@@ -175,10 +174,7 @@ class Text: #todo: add space (width depends on font-family?) and solid (thicknes
         return BPPolyCurve.byPoints(pts_list)
     
 
-Text1 = Text(text="TEST", font_family="arial", bounding_box=False, xyz=BPPoint(20,10,20), rotation=90).write()
-# print(Text1)
-
-
+Text1 = Text(text="TOST", font_family="arial", bounding_box=False, xyz=BPPoint(20,10,20), rotation=90)
 
 obj = [Text1]
 

@@ -95,8 +95,16 @@ def Line2DToSpeckleLine3D(ln):
 
 
 def PolyCurveToSpecklePolyLine(polycurve: PolyCurve):
-    SpecklePl = [PointToSpecklePoint(point) for point in PolyCurve.points]
-    return SpecklePolyLine.from_points(SpecklePl)
+    print(polycurve)
+    # characterList = []
+    # for pc in polycurve.points:
+        # print(pc)
+
+    # SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points]
+    # for index, p in enumerate(SpecklePl):
+    #     print(index)
+    # return SpecklePl
+    # return SpecklePolyLine.from_points(SpecklePl)
 
 
 def GridToLines(Grid):
@@ -122,7 +130,8 @@ def SpeckleMeshByMesh(MeshPB):
 
 
 def TextToSpeckleCurveSurface(Text):
-    pass
+    for polyc in Text.write():
+        PolyCurveToSpecklePolyLine(polyc)
 
 
 def ArcToSpeckleArc(Arc: Arc):
@@ -203,10 +212,6 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Frame':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))
-        elif nm == "list":
-            print(i)
-            # insideList = i
-            # print(insideList)
         elif nm == 'PolyCurve':
             pnts = []
             for point in i.points:

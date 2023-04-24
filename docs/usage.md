@@ -9,7 +9,7 @@ Vector2(0, 100) # returns 2d-vector
 ```
 <br>
 
-#### Point2D:  
+#### Point2D:
 > _`Input: XY=(number/float)`_
 <br>
 
@@ -19,13 +19,11 @@ Point2D(0, 100) # returns Point2D
 <br>
 
 #### Point:
+##### link_point
 > _`Input: XYZ=(number/float)`_
 <br>
 
 ``` python
-p1 = Point(0, 100, 0)
-p2 = Point(0, 300, 0)
-
 Point(0, 100, 20) # returns Point
 ```
 <br>
@@ -35,10 +33,10 @@ Point(0, 100, 20) # returns Point
 <br>
 
 ``` python
-v1 = Vector3(0, 1, 0)
-v2 = Vector3(1, 0, 0)
-
 Vector3(0, 1, 0) # returns 3d-vector
+
+v1 = Vector3(0, 1, 0) # example vector1
+v2 = Vector3(1, 0, 0) # example vector2
 Vector3.sum(v1, v2) # returns sum of 2 vectors
 Vector3.crossProduct(v1, v2) # returns vector perpendicular on the two vectors
 Vector3.dotProduct(v1, v2) # inner product, if zero, then vectors are perpendicular
@@ -53,10 +51,9 @@ Vector3.byTwoPoints(p1, p2) # Subtracts point1 x,y and z from point2 x,y and z
 ```
 <br>
 
-#### Line:  
-> _`Input: Point, Point`_
+#### Line:
+_<code>Input usage: Line(start=<a href="#link_point">Point</a>, end=<a href="#link_point">Point</a>)</code>_
 <br>
-
 ``` python
 Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
 Line2 = Line(start=Point(0, 500, 0), end=Point(-200, 500, 0))
