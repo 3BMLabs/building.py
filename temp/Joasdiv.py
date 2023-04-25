@@ -1,7 +1,5 @@
 from exchange.speckle import *
 from library.profile import searchProfile
-from joastemp import send_cone_to_speckle
-import math
 
 # pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 # pan2 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
@@ -21,7 +19,6 @@ testprofile = searchProfile("K100/100/5")
 #                                      Eshape("joas", 300, 200, 50).curve, "E2-frame", 0, "Steel")
 # arrowshape = Frame.byStartpointEndpoint(Point(2000, 0, 0), Point(2000, 0, 50),
 #                                         Arrowshape("joas", 300, 200, 50, 100).curve, "Arrow-frame", 0, "Steel")
-
 
 obj = []
 
@@ -77,8 +74,6 @@ class DrawLines:
 
 # a = DrawLines(2400, -200, 0).draw_arrow()
 a = DrawLines(0, 0, 0).draw_triangle()
-cone = send_cone_to_speckle()
-lst = [cone]
 Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Test")
 
 

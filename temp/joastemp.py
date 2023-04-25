@@ -1,13 +1,13 @@
 from exchange.speckle import *
 from abstract.color import *
 
-originx = 700
-originy = 500
-originz = -500
-number_of_triangles = 30
-number_of_rectangles = 40
-r = 80
-r2 = 30
+originx = 0
+originy = 0
+originz = 0
+number_of_triangles = 300
+number_of_rectangles = 400
+r = 800
+r2 = 300
 vertices_up = [originx, originy, originz + 350]
 vertices_right = [originx + 350, originy, originz]
 vertices_front = [originx, originy + 350, originz]
@@ -221,6 +221,103 @@ for i in range(number_of_rectangles):
                 count += 2
             else:
                 pass
+# Round
+round_x = 0
+round_y = 0
+round_z = 0
+round_triangles = 20
+round_r = 800
+round_vertices = [round_x, round_y, round_z]
+round_faces = []
+round_facenr = 1
+round_degrees = 0
+round_degrees2 = 360 / round_triangles
+
+# Circle Y1
+
+for i in range(round_triangles):
+    x = 0
+    z = math.cos(math.radians(round_degrees)) * round_r
+    y = math.sin(math.radians(round_degrees)) * round_r
+    round_degrees += round_degrees2
+    round_vertices.append(round_x + x)
+    round_vertices.append(round_y + y)
+    round_vertices.append(round_z + z)
+
+    round_faces.append(3)
+    round_faces.append(0)
+
+    if round_facenr < round_triangles:
+        round_faces.append(round_facenr)
+        round_faces.append(round_facenr + 1)
+        round_facenr += 1
+    else:
+        round_faces.append(round_triangles)
+        round_faces.append(1)
+
+        round_faces.append(round_triangles)
+        for i in range(round_triangles):
+            round_faces.append(i + 1)
+
+
+# Circle X
+round_vertices2 = [round_x, round_y, round_z]
+round_faces2 = []
+round_facenr = 1
+round_degrees = 0
+
+for i in range(round_triangles):
+    x = math.cos(math.radians(round_degrees)) * round_r
+    y = math.sin(math.radians(round_degrees)) * round_r
+    round_degrees += round_degrees2
+    round_vertices2.append(round_x + x)
+    round_vertices2.append(round_y + y)
+    round_vertices2.append(round_z)
+
+    round_faces2.append(3)
+    round_faces2.append(0)
+
+    if round_facenr < round_triangles:
+        round_faces2.append(round_facenr)
+        round_faces2.append(round_facenr + 1)
+        round_facenr += 1
+    else:
+        round_faces2.append(round_triangles)
+        round_faces2.append(1)
+
+        round_faces2.append(round_triangles)
+        for i in range(round_triangles):
+            round_faces2.append(i + 1)
+
+# Circle Y2
+round_vertices3 = [round_x, round_y, round_z]
+round_faces3 = []
+round_facenr = 1
+round_degrees = 0
+
+for i in range(round_triangles):
+    y = 0
+    z = math.cos(math.radians(round_degrees)) * round_r
+    x = math.sin(math.radians(round_degrees)) * round_r
+    round_degrees += round_degrees2
+    round_vertices3.append(round_x + x)
+    round_vertices3.append(round_y + y)
+    round_vertices3.append(round_z + z)
+
+    round_faces3.append(3)
+    round_faces3.append(0)
+
+    if round_facenr < round_triangles:
+        round_faces3.append(round_facenr)
+        round_faces3.append(round_facenr + 1)
+        round_facenr += 1
+    else:
+        round_faces3.append(round_triangles)
+        round_faces3.append(1)
+
+        round_faces3.append(round_triangles)
+        for i in range(round_triangles):
+            round_faces3.append(i + 1)
 
 
 def SpeckleMeshByCone(verts, face):
@@ -228,15 +325,20 @@ def SpeckleMeshByCone(verts, face):
     return spcklmesh
 
 
-SpeckleObjup = [SpeckleMeshByCone(vertices_up, faces_up)]
-SpeckleObjup2 = [SpeckleMeshByCone(vertices2, faces2)]
+SpeckleObj1 = [SpeckleMeshByCone(round_vertices, round_faces)]
+SpeckleObj2 = [SpeckleMeshByCone(round_vertices2, round_faces2)]
+SpeckleObj3 = [SpeckleMeshByCone(round_vertices3, round_faces3)]
 
-SpeckleObjright = [SpeckleMeshByCone(vertices_right, faces_right)]
-SpeckleObjright2 = [SpeckleMeshByCone(vertices_right2, faces_right2)]
+SpeckleObjUp = [SpeckleMeshByCone(vertices_up, faces_up)]
+SpeckleObjUp2 = [SpeckleMeshByCone(vertices2, faces2)]
 
-SpeckleObjfront = [SpeckleMeshByCone(vertices_front, faces_front)]
-SpeckleObjfront2 = [SpeckleMeshByCone(vertices_front2, faces_front2)]
+SpeckleObjRight = [SpeckleMeshByCone(vertices_right, faces_right)]
+SpeckleObjRight2 = [SpeckleMeshByCone(vertices_right2, faces_right2)]
 
-lst = [SpeckleObjright, SpeckleObjright2, SpeckleObjup, SpeckleObjup2, SpeckleObjfront, SpeckleObjfront2]
-# lst = [SpeckleObjright, SpeckleObjright2]
+SpeckleObjFront = [SpeckleMeshByCone(vertices_front, faces_front)]
+SpeckleObjFront2 = [SpeckleMeshByCone(vertices_front2, faces_front2)]
+
+
+lst = [SpeckleObj1, SpeckleObj2, SpeckleObj3]
+lst2 = [SpeckleObjUp, SpeckleObjUp2, SpeckleObjRight, SpeckleObjRight2, SpeckleObjFront, SpeckleObjFront2]
 Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")
