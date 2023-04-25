@@ -9,8 +9,6 @@ from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObject
 from geometry.point import Point as BPPoint
 from geometry.curve import PolyCurve as BPPolyCurve
 
-# from specklepy.objects.geometry import Point as SpecklePoint
-# from specklepy.objects.geometry import Polyline
 
 class Text:
     def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: BPPoint = None, rotation: float = None):
@@ -142,8 +140,8 @@ class Text:
         for element in sub_lists:
             tmp = []
             for point in element:
-                x = point[0]# + self.x
-                y = point[1]# + self.y
+                x = point[0]
+                y = point[1]
                 z = self.z
                 tmp.append(BPPoint(x,y,z))
             output_list.append(tmp)

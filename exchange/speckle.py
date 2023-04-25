@@ -41,11 +41,7 @@ from geometry.curve import Arc
 from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
 from abstract.plane import Plane
-
-#from packages.specklepy.api.client import SpeckleClient
-#from packages.specklepy.api.credentials import get_default_account
-#from packages.specklepy.transports.server import ServerTransport
-#from packages.specklepy.api import operations
+from abstract.interval import Interval
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
@@ -63,6 +59,10 @@ from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.primitive import Interval as SpeckleInterval
 
 
+
+def IntervalToSpeckleInterval(Interval: Interval):
+    SpeckleInt = SpeckleInterval(start=Interval.start, end=Interval.end)
+    return SpeckleInt
 
 def PointToSpecklePoint(Point: Point):
     SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
@@ -95,16 +95,16 @@ def Line2DToSpeckleLine3D(ln):
 
 
 def PolyCurveToSpecklePolyLine(polycurve: PolyCurve):
-    print(polycurve)
-    # characterList = []
-    # for pc in polycurve.points:
-        # print(pc)
-
-    # SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points]
-    # for index, p in enumerate(SpecklePl):
-    #     print(index)
-    # return SpecklePl
-    # return SpecklePolyLine.from_points(SpecklePl)
+    tmpList = []
+    for item in polycurve:
+        nList = []
+        for n in item.points:
+            p = PointToSpecklePoint(n)
+            nList.append(p)
+        spklpc = SpecklePolylineBySpecklePoints(nList)
+        tmpList.append(spklpc)
+       
+    return tmpList
 
 
 def GridToLines(Grid):
@@ -130,9 +130,11 @@ def SpeckleMeshByMesh(MeshPB):
 
 
 def TextToSpeckleCurveSurface(Text):
+    returnlist = []
     for polyc in Text.write():
-        PolyCurveToSpecklePolyLine(polyc)
-
+        pc = PolyCurveToSpecklePolyLine(polyc)
+        returnlist.append(pc)
+    return returnlist
 
 def ArcToSpeckleArc(Arc: Arc):
     speckle_plane = SpecklePlane(
@@ -151,7 +153,7 @@ def ArcToSpeckleArc(Arc: Arc):
     area = Arc.area
     length = Arc.length
     units = Arc.units
-    speckle_interval = SpeckleInterval(start=0, end=1)
+    speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
     return SpeckleArc(
         startPoint=start_point,
         midPoint=mid_point,
@@ -217,6 +219,8 @@ def translateObjectsToSpeckleObjects(Obj):
             for point in i.points:
                 pnts.append(point)
             SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
+        elif nm == 'Interval':
+            SpeckleObj.append(IntervalToSpeckleInterval(i))
         elif nm == 'Line':
             SpeckleObj.append(LineToSpeckleLine(i))
         elif nm == 'Plane':
