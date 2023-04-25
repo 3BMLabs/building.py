@@ -65,7 +65,12 @@ def IntervalToSpeckleInterval(Interval: Interval):
     return SpeckleInt
 
 def PointToSpecklePoint(Point: Point):
-    SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
+    try:
+        SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, Point.z)
+    except:
+        SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, 0)
+    
+    SpecklePnt.units = "mm"
     return SpecklePnt
 
 
@@ -86,7 +91,9 @@ def PlaneToSpecklePlane(Plane: Plane):
 
 def SpecklePolylineBySpecklePoints(SpecklePoints: list[Point]):
     SpecklePl = [PointToSpecklePoint(point) for point in SpecklePoints]
-    return SpecklePolyLine.from_points(SpecklePl)
+    SpecklePolyline = SpecklePolyLine.from_points(SpecklePl)
+    SpecklePolyline.units = "mm"
+    return SpecklePolyline
 
 
 def Line2DToSpeckleLine3D(ln):

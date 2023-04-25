@@ -1,4 +1,7 @@
 # BUILDING.PY EXAMPLES
+### TODO:
+- Add base of classes.
+<br><br>
 
 #### Vector2:  
 > _`Input: XY=(number/float)`_
@@ -52,7 +55,7 @@ Vector3.byTwoPoints(p1, p2) # Subtracts point1 x,y and z from point2 x,y and z
 <br>
 
 #### Line:
-_<code>Input usage: Line(start=<a href="#link_point">Point</a>, end=<a href="#link_point">Point</a>)</code>_
+>_<code>Input usage: Line(start=<a href="#link_point">Point</a>, end=<a href="#link_point">Point</a>)</code>_
 <br>
 ``` python
 Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
@@ -79,16 +82,18 @@ PolyCurve.byJoinedCurves([Line1, Line2, Line3]) # Create a PolyCurve object by j
 <br>
 
 #### Polycurve.byPoints:  
-> _`Input: Point`_
+
+>_<code>Input usage: Polycurve.byPoints(list[<a href="#link_point">Point</a>])</code>_
+
 <br>
 
 ``` python
-PolyCurve.byPoints(
-    [Point(0, 0, 0),
-     Point(2000, 0, 0),
-     Point(0, 1000, 2000),
-     Point(0, 0, 0)
-     ])
+Point1 = Point(0, 0, 0)
+Point2 = Point(0, 1000, 0)
+Point3 = Point(1000, 1000, 0)
+Point4 = Point(1000, 0, 0)
+
+PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point1])
 ```
 <br>
 

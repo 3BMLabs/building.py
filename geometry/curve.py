@@ -44,16 +44,22 @@ from abstract.plane import Plane
 from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
-class Line:
-    def __init__(self, start: Point, end: Point, id=helper.generateID()) -> None:
+class Line: #add Line.bylenght (start and endpoint)
+    def __init__(self, start: Point or Point2D, end: Point or Point2D, id=helper.generateID()) -> None:
         self.start: Point = start
         self.end: Point = end
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
-        self.z = [self.start.z, self.end.z]
+        try:
+            self.z = [self.start.z, self.end.z]
+        except:
+            self.z = 0
         self.dx = self.end.x-self.start.x
         self.dy = self.end.y-self.start.y
-        self.dz = self.end.z-self.start.z
+        try:
+            self.dz = self.end.z-self.start.z
+        except:
+            self.dz = 0
         self.id = id
 
     def __id__(self):
@@ -96,21 +102,6 @@ class PolyCurve:
                 crvs.append(Line(start=point, end=firstpoint))
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
-        # print(p1.curves)
-        # return curves
-        # px = PolyCurve.byJoinedCurves(curves)
-        # print(px)
-        # print(p1(lines))
-        # p1 = PolyCurve()
-        # count = 0
-        # p1.points = points
-        # for i in points:
-        #     count = count + 1
-        #     try:
-        #         p1.curves.append(Line(start=i, end=points[count]))
-        #     except:
-        #         p1.curves.append(Line(start=i, end=points[0]))
-        # return p1
 
 
     @classmethod

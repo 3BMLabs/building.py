@@ -36,7 +36,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-# from geometry.point import *
+from geometry.point import *
 
 from packages import helper
 
@@ -57,6 +57,26 @@ class Vector3:
             v1.y + v2.y,
             v1.z + v2.z
         )
+
+    @staticmethod
+    def toPoint(v1):
+        from geometry.point import Point
+        return Point(x=v1.x,y=v1.y,z=v1.z)
+
+
+    @staticmethod
+    def toLine(v1, v2):
+        from geometry.point import Point
+        from geometry.curve import Line
+        return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
+
+
+    @staticmethod
+    def lineByLength(v1, length:float):
+        from geometry.point import Point
+        from geometry.curve import Line
+        return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
+    
 
     @staticmethod #Returns vector perpendicular on the two vectors
     def crossProduct(v1, v2):

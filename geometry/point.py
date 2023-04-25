@@ -37,7 +37,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
 # from abstract.coordinatesystem import *
-from abstract.vector import XAxis, YAxis, ZAxis
+# from abstract.vector import XAxis, YAxis, ZAxis
 
 
 from geometry.geometry2d import Point2D

@@ -1,3 +1,5 @@
+#Line to polycurve. return intersects
+
 import sys, math, requests, json
 from svg.path import parse_path
 from typing import List, Tuple
@@ -6,183 +8,95 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
-from geometry.point import Point as BPPoint
-from geometry.curve import PolyCurve as BPPolyCurve
+from geometry.point import Point, Point2D
+from geometry.curve import PolyCurve, Line
+from abstract.vector import Vector3
 
 
-class Text:
-    def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: BPPoint = None, rotation: float = None):
-        self.text = text
-        self.font_family = font_family
-        self.bounding_box = bounding_box
-        self.originX, self.originY, self.originZ = xyz.x, xyz.y, xyz.z or (0, 0, 0)
-        self.x, self.y, self.z = xyz.x, xyz.y, xyz.z or (0, 0, 0)
-        self.rotation = rotation
-        self.character_offset = 150
-        self.spacie = 200
-        self.path_list = self.load_path()
-        self.f = []
+v10 = Vector3(-500, 500, 0)
+v20 = Vector3(1500, 500, 0)
+LineX = Vector3.toLine(v10, v20)
+
+Point1 = Point(0, 0, 0)
+Point2 = Point(0, 1000, 0)
+Point3 = Point(1000, 1000, 0)
+Point4 = Point(1000, 0, 0)
+
+Ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point1])
 
 
-    def load_path(self) -> List[str]:
-        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-            glyph_data = json.load(f)
-            return [
-                glyph_data[letter]["glyph-path"] 
-                for letter in self.text if letter in glyph_data
-            ]
+# p1 = Point(-500, 500, 0)
+# p2 = Point(1500, 500, 0)
+# l1 = Line(start=p1, end=p2)
+
+# p3 = Point(1000, 1000, 0)
+# p4 = Point(1000, 0, 0)
+# l2 = Line(start=p3, end=p4)
 
 
-    def write(self) -> List[List[BPPolyCurve]]:
-        output_list = []
-        for index, letter_path in enumerate(self.path_list):
-            path = parse_path(letter_path)
-            points = []
-            allPoints = []
 
-            for segment in path:
-                segment_type = segment.__class__.__name__
-                if segment_type == 'Move':
-                    if len(points) > 0:
-                        points = []
-                        allPoints.append("M")
-                    subpath_started = True
-                elif subpath_started:
-                    if segment_type == 'Line':
-                        points.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-                        allPoints.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-                    elif segment_type == 'CubicBezier':
-                        points.extend(segment.sample(10))
-                        allPoints.extend(segment.sample(10))
-                    elif segment_type == 'QuadraticBezier':
-                        for i in range(11):
-                            t = i / 10.0
-                            point = segment.point(t)
-                            points.append((point.real, point.imag))
-                            allPoints.append((point.real, point.imag))
-                    elif segment_type == 'Arc':
-                        points.extend(segment.sample(10))
-                        allPoints.extend(segment.sample(10))
-            if points:
-                output_list.append(self.convert_points_to_polyline(allPoints))
-                if self.bounding_box == True and self.bounding_box != None:
-                    output_list.append(self.calculate_bounding_box(allPoints)[0])
-                width = self.calculate_bounding_box(allPoints)[1]
+from abstract.intersect import *
+# p1 = Point2D(10, 10)
+# q1 = Point2D(100, 10)
+# p2 = Point2D(10, 20)
+# q2 = Point2D(100, 20)
+# Ply1 = PolyCurve.byPoints([p1, q1, p2, q2])
+# if doIntersect(p1, q1, p2, q2):
+# 	print("Yes")
+# else:
+# 	print("No")
 
-                self.x += width + self.character_offset
-        return output_list
-
-    def get_output(self) -> List[List[BPPolyCurve]]:
-        return self.write()
+# p1 = Point2D(1000, 0)
+# q1 = Point2D(0, 1000)
+# p2 = Point2D(0, 0)
+# q2 = Point2D(1000,1000)
 
 
-    def calculate_bounding_box(self, points):
-        points = [elem for elem in points if elem != 'M']
-        x_values = [point[0] for point in points]
-        y_values = [point[1] for point in points]
+p1 = Point(1000, 0, 0)
+q1 = Point(0, 1000, 0)
+p2 = Point(0, 0, 0)
+q2 = Point(1000,1000, 0)
 
-        min_x = min(x_values)
-        max_x = max(x_values)
-        min_y = min(y_values)
-        max_y = max(y_values)
-
-        ltX = self.x
-        ltY = self.y + max_y - min_y
-
-        lbX = self.x
-        lbY = self.y + min_y - min_y
-
-        rtX = self.x + max_x - min_x
-        rtY = self.y + max_y - min_y
-
-        rbX = self.x + max_x - min_x
-        rbY = self.y + min_y - min_y
-        
-        left_top = BPPoint(ltX, ltY, self.z)
-        left_bottom = BPPoint(lbX, lbY, self.z)
-        right_top = BPPoint(rtX, rtY, self.z)
-        right_bottom = BPPoint(rbX, rbY, self.z)
+lx2 = Line(p1, q1)
+lx3 = Line(p2, q2)
+intersection_point = Intersect().getIntersect(lx2, lx3)
 
 
-        bounding_box_polyline = self.rotate_polyline([left_top, right_top, right_bottom, left_bottom, left_top])
+# dointersect = Intersect().doIntersect(lx2, lx3)
 
-        char_width = rtX - ltX
-        char_height = ltY - lbY
-        return bounding_box_polyline, char_width, char_height
+# print(dointersect)
+print(intersection_point)
 
-
-    def convert_points_to_polyline(self, points: list[BPPoint]) -> BPPolyCurve: #move
-        if self.rotation == None:
-            self.rotation = 0
-
-        output_list = []
-        sub_lists = [[]]
-
-        tempPoints = [elem for elem in points if elem != 'M']
-        x_values = [point[0] for point in tempPoints]
-        y_values = [point[1] for point in tempPoints]
-
-        xmin = min(x_values)
-        ymin = min(y_values)
-
-        for item in points:
-            if item == 'M':
-                sub_lists.append([])
-            else:
-                x = item[0] + self.x - xmin
-                y = item[1] + self.y - ymin
-                z = self.z
-                eput = x, y, z
-                sub_lists[-1].append(eput)
-
-        output_list = []
-
-        for element in sub_lists:
-            tmp = []
-            for point in element:
-                x = point[0]
-                y = point[1]
-                z = self.z
-                tmp.append(BPPoint(x,y,z))
-            output_list.append(tmp)
-
-        polyline_list = []
-        for pts in output_list:
-            polyline_list.append(self.rotate_polyline(pts))
-        return polyline_list
+# p3 = intersection_point
 
 
-    def rotate_polyline(self, polylinePoints):
-        translated_points = [(coord.x - self.originX, coord.y - self.originY) for coord in polylinePoints]
-        radians = math.radians(self.rotation)
-        cos = math.cos(radians)
-        sin = math.sin(radians)
-        
-        rotated_points = [
-            (
-                (x - self.originX) * cos - (y - self.originY) * sin + self.originZ,
-                (x - self.originX) * sin + (y - self.originY) * cos + self.originZ
-            ) for x, y in translated_points
-        ]
+# intersection_point = Intersect().doIntersect(lx2, lx3)
 
-        pts_list = []
-        for x, y in rotated_points:
-            pts_list.append(BPPoint(x,y,self.z))
+# if doIntersect(p1, q1, p2, q2):
+# 	print("Yes")
+# else:
+# 	print("No")
 
-        return BPPolyCurve.byPoints(pts_list)
-    
+# getIntersect(p1, q1, p2, q2)
 
-Text1 = Text(text="TOST", font_family="arial", bounding_box=False, xyz=BPPoint(20,10,20), rotation=90)
+# p1 = Point2D(-50,-50)
+# q1 = Point2D(0, 0)
+# p2 = Point2D(10, 10)
+# q2 = Point2D(100, 100)
+# Ply3 = PolyCurve.byPoints([p1, q1, p2, q2, p1])
 
-obj = [Text1]
+# if doIntersect(p1, q1, p2, q2):
+# 	print("Yes")
+# else:
+# 	print("No")
 
 
-SpeckleHost = "3bm.exchange"  # struct4u.xyz
-StreamID = "fa4e56aed4"  # c4cc12fa6f
+obj = [lx2, lx3, intersection_point]
+# obj = [Ply1, Ply2, Ply3]
+
+SpeckleHost = "3bm.exchange"
+StreamID = "fa4e56aed4"
 SpeckleObjects = obj
 Message = "Shiny commit 170"
-
-
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
-
 Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)
