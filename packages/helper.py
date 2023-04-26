@@ -69,3 +69,43 @@ def list_transpose(lst):
     #list of lists, transpose columns/rows
     newlist = list(map(list, zip(*lst)))
     return newlist
+
+def is_null(lst):
+    return all(el is None for el in lst)
+
+def clean_list(input_list, preserve_indices=True):
+    if not input_list:
+        return input_list
+    
+    culled_list = []
+
+    if preserve_indices:
+        if is_null(input_list):
+            return None
+        
+        j = len(input_list) - 1
+        while j >= 0 and input_list[j] is None:
+            j -= 1
+
+        for i in range(j + 1):
+            sublist = input_list[i]
+
+            if isinstance(sublist, list):
+                val = clean_list(sublist, preserve_indices)
+                culled_list.append(val)
+            else:
+                culled_list.append(input_list[i])
+    else:
+        if is_null(input_list):
+            return []
+        
+        for el in input_list:
+            if isinstance(el, list):
+                if not is_null(el):
+                    val = clean_list(el, preserve_indices=False)
+                    if val:
+                        culled_list.append(val)
+            elif el is not None:
+                culled_list.append(el)
+            
+    return culled_list

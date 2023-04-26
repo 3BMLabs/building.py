@@ -40,6 +40,8 @@ Vector3(0, 1, 0) # returns 3d-vector
 
 v1 = Vector3(0, 1, 0) # example vector1
 v2 = Vector3(1, 0, 0) # example vector2
+v10 = Vector3(0, 1000, 0) # example vector10
+v20 = Vector3(1000, 0, 0) # example vector20
 Vector3.sum(v1, v2) # returns sum of 2 vectors
 Vector3.crossProduct(v1, v2) # returns vector perpendicular on the two vectors
 Vector3.dotProduct(v1, v2) # inner product, if zero, then vectors are perpendicular
@@ -51,6 +53,8 @@ Vector3.reverse(v1) # returns vector in the opposite direction
 Vector3.perpendicular(v1) # Vector local X and local Y perpendicular to given vector and in global Z-direction
 Vector3.normalise(v1) # ??
 Vector3.byTwoPoints(p1, p2) # Subtracts point1 x,y and z from point2 x,y and z
+Vector3.toPoint(v1) # Translates a Vector to a Point
+Vector3.toLine(v10, v20) # Returns a Line from point v10, and Point v20
 ```
 <br>
 
