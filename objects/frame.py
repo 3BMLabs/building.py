@@ -74,7 +74,7 @@ class Frame:
         self.colorlst = []
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start, end, profile_name, name, material):
+    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material = None):
         f1 = Frame()
         f1.start = start
         f1.end = end
@@ -95,7 +95,7 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameShapevector(cls, start, end, profile_name, name, vector2d: Vector2,rotation, material):
+    def byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material = None):
         f1 = Frame()
         f1.start = start
         f1.end = end
@@ -118,7 +118,7 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start, end, profile_name, name, XJustifiction, YJustifiction, rotation, material):
+    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None):
         f1 = Frame()
         f1.start = start
         f1.end = end
@@ -143,7 +143,7 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpoint(cls, start, end, polycurve, name, rotation: float, material):
+    def byStartpointEndpoint(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material = None):
         # 2D polycurve
         f1 = Frame()
         f1.start = start

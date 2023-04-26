@@ -1,8 +1,15 @@
+import sys, os
+from pathlib import Path
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[0]
+sys.path.append(str(package_root_directory))
+
 from objects.frame import *
 from exchange.speckle import *
 from objects.datum import *
 from objects.frame import *
-from helpers import helper
+from helpers.helper import *
 #Proof of Concept modules
 
 # GridSystem
@@ -19,19 +26,10 @@ obj = grids[0] + grids[1]
 width = spacing
 length = spacing *2
 
-def flatten(lst):
-    flat_list = []
-    for sub in lst:
-        try:
-            for item in sub:
-                flat_list.append(item)
-        except:
-            flat_list.append(sub) #This is not a list but an item
-    return flat_list
 def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,rot: bool, floorframing :bool):
-    x = vector.X
-    y = vector.Y
-    z = vector.Z
+    x = vector.x
+    y = vector.y
+    z = vector.z
     StartPoint = Point(x,y,z)
 
     if rot:
