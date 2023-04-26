@@ -40,6 +40,9 @@ sys.path.append(str(package_root_directory))
 def flatten(lst):
     flat_list = []
     for sublist in lst:
-        for item in sublist:
-            flat_list.append(item)
+        try:
+            for item in sublist:
+                flat_list.append(item)
+        except:
+            flat_list.append(sublist)
     return flat_list

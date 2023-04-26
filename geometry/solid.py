@@ -55,7 +55,7 @@ class Extrusion:
         self.colorlst = []
 
     @classmethod
-    def byPolyCurveHeightVector(cls, polycurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    def byPolyCurveHeightVector(cls, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0

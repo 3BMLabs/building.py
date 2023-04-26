@@ -29,16 +29,18 @@ no = 5 #rgb color
 profilenumber = 0
 shapename = "I-shape parallel flange"
 Mat = Material.byNameColor("Steel", Color().RGB([237, no, no]))
+#print(Mat.colorint)
+#sys.exit()
 
 for i in lst:
     Mat = BaseSteel
-    if searchProfile(i).shape_name is shapename:
-        no = no
-    else:
-        no = no + 5
-        shapename = searchProfile(i).shape_name
+    #if searchProfile(i).shape_name is shapename:
+   #     no = no
+  #  else:
+   #     no = no + 5
+    shapename = searchProfile(i).shape_name
     try:
-        ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i,Mat))
+        ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i, Mat))
         x = x + spacing
         count = count + 1
         if count > row:

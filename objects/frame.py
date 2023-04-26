@@ -74,7 +74,7 @@ class Frame:
         self.colorlst = []
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material = None):
+    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material):
         f1 = Frame()
         f1.start = start
         f1.end = end

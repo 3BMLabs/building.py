@@ -2,7 +2,7 @@ import sys, os
 from pathlib import Path
 
 file = Path(__file__).resolve()
-package_root_directory = file.parents[0]
+package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from objects.frame import *
@@ -10,6 +10,8 @@ from exchange.speckle import *
 from objects.datum import *
 from objects.frame import *
 from helpers.helper import *
+from geometry.point import *
+from abstract.vector import Vector3
 #Proof of Concept modules
 
 # GridSystem
@@ -20,11 +22,11 @@ heigth = 3300
 
 spacX = str(nx) + "x" + str(spacing)  #"13x5400"
 spacY = str(ny) + "x" + str(spacing)  #"4x5400"
-grids = GridSystem(spacX,seqChar,spacY,seqNumber,2500)
+grids = GridSystem(spacX, seqChar, spacY, seqNumber,2500)
 obj = grids[0] + grids[1]
 
 width = spacing
-length = spacing *2
+length = spacing * 2
 
 def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,rot: bool, floorframing :bool):
     x = vector.x
@@ -121,9 +123,8 @@ for i in Modules:
         rot = 90
     else:
         rot = 0
-    obj.append(module(width, length, heigth, V, rot,1 ))
+    obj.append(module(width, length, heigth, V, rot, 1 ))
 
 obj1 = flatten(obj)
 SpeckleObj = translateObjectsToSpeckleObjects(obj1)
 Commit = TransportToSpeckle("3bm.exchange", "17f6dbaddc", SpeckleObj, "Modules")
-

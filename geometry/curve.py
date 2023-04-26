@@ -41,7 +41,7 @@ from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
-from specklepy.objects.primitive import Interval as SpeckleInterval #temp
+#from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
 class Line: #add Line.bylenght (start and endpoint)
@@ -102,7 +102,6 @@ class PolyCurve:
                 crvs.append(Line(start=point, end=firstpoint))
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
-
 
     @classmethod
     def byPolyCurve2D(cls, PolyCurve2D):
@@ -219,7 +218,7 @@ class Arc:
         self.startPoint = startPoint
         self.midPoint = midPoint
         self.endPoint = endPoint
-
+        self.origin = self.originarc()
         v1=Vector3(x=1, y=0, z=0)
         v2=Vector3(x=0, y=1, z=0)
         self.plane = Plane.byTwoVectorsOrigin(
@@ -228,16 +227,17 @@ class Arc:
             Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
         )
         
-        self.radius=self.radius()
+        self.radius = self.radius()
         self.startAngle=0
         self.endAngle=0
-        self.angleRadians=0
+        self.angleRadian = self.angleRadian()
         self.area=0
-        self.length=self.length()
+        self.length = self.length()
         self.units="mm"
 
     def distance(self, p1, p2):
         return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)
+
 
     def radius(self):
         a = self.distance(self.startPoint, self.midPoint)
@@ -248,6 +248,25 @@ class Arc:
         R = (a * b * c) / (4 * A)
         return R
 
+    def originarc(self):
+        #calculation of origin of arc #Todo can be simplified for sure
+        Vstartend = Vector3.byTwoPoints(self.startPoint, self.endPoint)
+        halfVstartend = Vector3.scale(Vstartend,0.5)
+        b = 0.5 * Vector3.length(Vstartend) #half distance between start and end
+        x = math.sqrt(Arc.radius(self) * Arc.radius(self) - b * b) #distance from start-end line to origin
+        mid = Point.translate(self.startPoint,halfVstartend)
+        v2 = Vector3.byTwoPoints(self.midPoint,mid)
+        v3 = Vector3.normalise(v2)
+        tocenter = Vector3.scale(v3,x)
+        center = Point.translate(mid, tocenter)
+        #self.origin = center
+        return center
+
+    def angleRadian(self):
+        v1 = Vector3.byTwoPoints(self.origin,self.endPoint)
+        v2 = Vector3.byTwoPoints(self.origin,self.startPoint)
+        angle = Vector3.angleBetween(v1,v2)
+        return angle
     def length(self):
         x1, y1, z1 = self.startPoint.x, self.startPoint.y, self.startPoint.z
         x2, y2, z2 = self.midPoint.x, self.midPoint.y, self.midPoint.z
@@ -257,15 +276,18 @@ class Arc:
         a = math.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
         b = math.sqrt((x3-x2)**2+(y3-y2)**2+(z3-z2)**2)
         c = math.sqrt((x3-x1)**2+(y3-y1)**2+(z3-z1)**2)
-        cos_hoek = (a**2 + b**2 - c**2) / (2*a*b)
-        m1 = math.acos(cos_hoek)
+        cos_angle = (a**2 + b**2 - c**2) / (2*a*b)
+        m1 = math.acos(cos_angle)
         arc_length = r1 * m1
 
         return arc_length
 
+    def pointatparameter(self,count):
+        angle = self.angleRadian/count
+        CoordinateSystem
+        transformPoint()
     def __str__(self) -> str:
         return f"{__class__.__name__}(Object output n.t.b.)"
-
 
 class Circle:
     def __init__(self, radius, plane, length, id=helper.generateID()) -> None:

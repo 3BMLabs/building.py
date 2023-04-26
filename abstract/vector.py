@@ -156,6 +156,14 @@ class Vector3:
             v1.z
         )
 
+    @staticmethod
+    def scale(v1, scalefactor):
+        return Vector3(
+            v1.x * scalefactor,
+            v1.y * scalefactor,
+            v1.z * scalefactor
+        )
+
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
 

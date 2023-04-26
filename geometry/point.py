@@ -33,16 +33,13 @@ __url__ = "./geometry/point.py"
 import sys, os, math
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from abstract.vector import *
-# from abstract.coordinatesystem import *
-# from abstract.vector import XAxis, YAxis, ZAxis
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
 
 
 from geometry.geometry2d import Point2D
 from packages import helper
-
 
 class Point:
     def __init__(self, x, y, z, id=helper.generateID()):
@@ -61,6 +58,7 @@ class Point:
 
     @staticmethod
     def difference(pointxyz1, pointxyz2):
+        from abstract.vector import Vector3
         return Vector3(
             pointxyz2.x - pointxyz1.x,
             pointxyz2.y - pointxyz1.y,
@@ -68,11 +66,11 @@ class Point:
         )
 
     @staticmethod
-    def translate(point1, vector: Vector3):
+    def translate(point1, vector):
         return Point(
-            point1.x + vector.X,
-            point1.y + vector.Y,
-            point1.z + vector.Z
+            point1.x + vector.x,
+            point1.y + vector.y,
+            point1.z + vector.z
         )
 
     @staticmethod
@@ -92,7 +90,7 @@ class Point:
         )
 
     @staticmethod
-    def intersect(p1,p2):
+    def intersect(p1, p2):
         #Intersection of two points
         if p1.x == p2.x and p1.y == p2.y and p1.z == p2.z:
             return 1
@@ -102,7 +100,7 @@ class Point:
 class CoordinateSystem:
     #Origin = Point
     #xaxis = Normalised Vector
-    def __init__(self,origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
+    def __init__(self,origin: Point, xaxis, yaxis, zaxis):
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
@@ -111,25 +109,26 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
 
-def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector: Vector3):
+def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
+    from abstract.vector import Vector3
     vz = DirectionVector  # LineVector and new Z-axis
     vz = Vector3.normalise(vz)  # NewZAxis
     vx = Vector3.perpendicular(vz)[0]  # NewXAxis
     try:
         vx = Vector3.normalise(vx)  # NewXAxisNormalised
     except:
-        vx = Vector3(1,0,0) #In case of vertical element the length is zero
+        vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
     vy = Vector3.perpendicular(vz)[1]  # NewYAxis
     try:
         vy = Vector3.normalise(vy)  # NewYAxisNormalised
     except:
-        vy = Vector3(0,1,0)  #In case of vertical element the length is zero
-    P1 = PointLocal #het te transformeren punt
+        vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
+    P1 = PointLocal #point to transform
     CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
     v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
-    v2 = Vector3.product(P1.x, CSNew.Xaxis)  # locale transformatie van X
-    v3 = Vector3.product(P1.y, CSNew.Yaxis)  # locale transformatie van Y
-    v4 = Vector3.product(P1.z, CSNew.Zaxis)  # locale transformatie van Z
-    vtot = Vector3(v1.X + v2.X + v3.X + v4.X, v1.Y + v2.Y + v3.Y + v4.Y, v1.Z + v2.Z + v3.Z + v4.Z)
-    pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 moet nog gecheckt worden
+    v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
+    v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
+    v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
+    vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
+    pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
     return pointNew
