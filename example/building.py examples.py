@@ -13,6 +13,7 @@ from exchange.speckle import *
 from abstract.color import *
 from abstract.plane import *
 from geometry.solid import Extrusion
+from abstract.boundingbox import BoundingBox2d, BoundingBox3d
 
 
 file = Path(__file__).resolve()
@@ -341,3 +342,14 @@ Text1 = Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, 
 Text2 = Text(text="PyBuildingSystem2", font_family="arial").write()
 # without optional parms
 
+
+#Boundingbox
+p1 = Point(x=900, y=0, z=0)
+p2 = Point(x=20, y=500, z=30)
+p3 = Point(x=400, y=410, z=160)
+p4 = Point(x=650, y=800, z=0)
+obj = [p1,p2,p3,p4]
+
+bb = BoundingBox2d(points=[p1,p2,p3,p4]).perimeter()
+bb = BoundingBox3d(points=[p1,p2,p3,p4]).perimeter()
+#Boundingbox

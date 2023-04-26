@@ -1,6 +1,5 @@
 from exchange.speckle import *
 from library.profile import searchProfile
-import math
 
 # pan1 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
 # pan2 = Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand")
@@ -20,7 +19,6 @@ testprofile = searchProfile("K100/100/5")
 #                                      Eshape("joas", 300, 200, 50).curve, "E2-frame", 0, "Steel")
 # arrowshape = Frame.byStartpointEndpoint(Point(2000, 0, 0), Point(2000, 0, 50),
 #                                         Arrowshape("joas", 300, 200, 50, 100).curve, "Arrow-frame", 0, "Steel")
-
 
 obj = []
 
@@ -74,50 +72,10 @@ class DrawLines:
         return self
 
 
-def cone_to_speckle():
-    vert = []
-    face = []
-    vertx = 0
-    verty = 0
-    vertz = 0
-    trianglelist = [0]
-    facenr = -1
-
-    for i in trianglelist:
-        face.append(3)
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        face.append(facenr)
-        vertz -= 200
-        verty -= 100
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        face.append(facenr)
-        vertx -= 100
-        verty += 100
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        face.append(facenr)
-        vertx = 0
-        verty = 0
-        vertz = 0
-
-    def SpeckleMeshByCone(verts, faces, name):
-        spcklmesh = SpeckleMesh(vertices=verts, faces=faces, name=name)
-        return spcklmesh
-
-    speckleobj = [SpeckleMeshByCone(vert, face, "cone")]
-    return speckleobj
-
-
 # a = DrawLines(2400, -200, 0).draw_arrow()
 a = DrawLines(0, 0, 0).draw_triangle()
+Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Test")
+
 
 # SpeckleObj = translateObjectsToSpeckleObjects(a.trianglelist)
 # # SpeckleObj = translateObjectsToSpeckleObjects([lshape, e1shape, nshape, tshape, e2shape, arrowshape] + a.arrowlist)

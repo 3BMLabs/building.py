@@ -22,42 +22,26 @@
 #***************************************************************************
 
 
-"""This module provides tools for planes
+"""This module provides tools for intervales
 """
 
-__title__= "plane"
+__title__= "interval"
 __author__ = "Maarten & Jonathan"
-__url__ = "./abstract/plane.py"
+__url__ = "./abstract/interval.py"
 
 import sys, os, math
 from pathlib import Path
+from typing import Any, List
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
 from geometry.point import Point as pnt
 
-class Plane:
-    #Plane is an infinite element in space defined by a point and a normal
-    def __init__(self):
-        self.Origin = pnt(0, 0, 0)
-        self.Normal = Vector3(x=0, y=0, z=1)
-        self.v1 = Vector3(x=1, y=0, z=0)
-        self.v2 = Vector3(x=0, y=1, z=0)
-
-    @classmethod
-    def byTwoVectorsOrigin(cls, v1, v2, origin):
-        p1 = Plane()
-        p1.Normal = Vector3.normalise(Vector3.crossProduct(v1, v2))
-        p1.Origin = origin
-        p1.v1 = v1
-        p1.v2 = v2
-        return p1
+class Interval:
+    def __init__(self, start:float, end:float):
+        self.start = start
+        self.end = end
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Normal}, {self.v1}, {self.v2})"
-
-    #TODO
-    #byLineAndPoint
-    #byOriginNormal
-    #byThreePoints
+        return f"{__class__.__name__}"
