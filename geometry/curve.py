@@ -41,6 +41,7 @@ from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
+from helpers.helper import *
 #from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
@@ -76,6 +77,7 @@ class PolyCurve:
     def __init__(self, points=None, id=helper.generateID()):
         self.curves = []
         self.points = points or []
+        self.segmentcurves = None
         self.id = id
 
     @classmethod
@@ -103,21 +105,38 @@ class PolyCurve:
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
 
-    @classmethod
-    def byPolyCurve2D(cls, PolyCurve2D):
+    @staticmethod
+    def segment(cls, count):
+        #Create segmented polycurve. Arcs, elips will be translated to straight lines
+        crvs = []
+        for i in cls.curves:
+            if i.__class__.__name__ == "Arc":
+                crvs.append(Arc.segmentedarc(i, count))
+            elif i.__class__.__name__ == "Line":
+                crvs.append(i)
+        crv = flatten(crvs)
+        pc = PolyCurve.byJoinedCurves(crv)
+        return pc
+
+    @staticmethod
+    def byPolyCurve2D(PolyCurve2D):
         # by points,
         p1 = PolyCurve()
         count = 0
-        points = []
-        for i in PolyCurve2D:
-            points.append(Point(i.start.x, i.start.y, 0))
-        p1.points = points
-        for i in points:
-            count = count + 1
-            try:
-                p1.curves.append(Line(start=i, end=points[count]))
-            except:
-                p1.curves.append(Line(start=i, end=points[0]))
+        curves = []
+        for i in PolyCurve2D.curves:
+            if i.__class__.__name__ == "Arc2D":
+                curves.append(Arc(Point(i.start.x, i.start.y, 0), Point(i.middle.x, i.middle.y, 0), Point(i.end.x, i.end.y, 0)))
+            elif i.__class__.__name__ == "Line2D":
+                curves.append(Line(Point(i.start.x, i.start.y,0),Point(i.end.x, i.end.y,0)))
+            else:
+                print("Curvetype not found")
+        pnts = []
+        for i in curves:
+            pnts.append(i.start)
+        pnts.append(curves[0].start)
+        p1.points = pnts
+        p1.curves = curves
         return p1
 
     def translate(self, vector3d:Vector3):
@@ -130,6 +149,7 @@ class PolyCurve:
                 crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
             else:
                 print("Curvetype not found")
+        crv = flatten()
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
 
@@ -159,7 +179,7 @@ class PolyCurve:
 # 2D PolyCurve to 3D PolyGon
 
 def Rect(vector: Vector3, width: float, height: float):
-    #Rectangle in XY-plane
+    #Rectangle in XY-plane with translation of vector
     p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, height, 0), vector)
@@ -215,9 +235,9 @@ class PolyGon:
 
 class Arc:
     def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
-        self.startPoint = startPoint
-        self.midPoint = midPoint
-        self.endPoint = endPoint
+        self.start = startPoint
+        self.mid = midPoint
+        self.end = endPoint
         self.origin = self.originarc()
         v1=Vector3(x=1, y=0, z=0)
         v2=Vector3(x=0, y=1, z=0)
@@ -226,23 +246,30 @@ class Arc:
             v2, 
             Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
         )
-        
-        self.radius = self.radius()
+        self.radius = self.radiusarc()
         self.startAngle=0
         self.endAngle=0
         self.angleRadian = self.angleRadian()
         self.area=0
         self.length = self.length()
         self.units="mm"
+        self.coordinatesystem = self.coordinatesystemarc()
 
     def distance(self, p1, p2):
         return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)
 
+    def coordinatesystemarc(self):
+        vx = Vector3.byTwoPoints(self.origin, self.start)  # Local X-axe
+        v2 = Vector3.byTwoPoints(self.origin, self.end)
+        vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
+        vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalise(vx), Vector3.normalise(vy), Vector3.normalise(vz))
+        return self.coordinatesystem
 
-    def radius(self):
-        a = self.distance(self.startPoint, self.midPoint)
-        b = self.distance(self.midPoint, self.endPoint)
-        c = self.distance(self.endPoint, self.startPoint)
+    def radiusarc(self):
+        a = self.distance(self.start, self.mid)
+        b = self.distance(self.mid, self.end)
+        c = self.distance(self.end, self.start)
         s = (a + b + c) / 2
         A = math.sqrt(s * (s-a) * (s-b) * (s-c))
         R = (a * b * c) / (4 * A)
@@ -250,12 +277,12 @@ class Arc:
 
     def originarc(self):
         #calculation of origin of arc #Todo can be simplified for sure
-        Vstartend = Vector3.byTwoPoints(self.startPoint, self.endPoint)
+        Vstartend = Vector3.byTwoPoints(self.start, self.end)
         halfVstartend = Vector3.scale(Vstartend,0.5)
         b = 0.5 * Vector3.length(Vstartend) #half distance between start and end
-        x = math.sqrt(Arc.radius(self) * Arc.radius(self) - b * b) #distance from start-end line to origin
-        mid = Point.translate(self.startPoint,halfVstartend)
-        v2 = Vector3.byTwoPoints(self.midPoint,mid)
+        x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b) #distance from start-end line to origin
+        mid = Point.translate(self.start, halfVstartend)
+        v2 = Vector3.byTwoPoints(self.mid, mid)
         v3 = Vector3.normalise(v2)
         tocenter = Vector3.scale(v3,x)
         center = Point.translate(mid, tocenter)
@@ -263,14 +290,14 @@ class Arc:
         return center
 
     def angleRadian(self):
-        v1 = Vector3.byTwoPoints(self.origin,self.endPoint)
-        v2 = Vector3.byTwoPoints(self.origin,self.startPoint)
-        angle = Vector3.angleBetween(v1,v2)
+        v1 = Vector3.byTwoPoints(self.origin, self.end)
+        v2 = Vector3.byTwoPoints(self.origin, self.start)
+        angle = Vector3.angleRadianBetween(v1,v2)
         return angle
     def length(self):
-        x1, y1, z1 = self.startPoint.x, self.startPoint.y, self.startPoint.z
-        x2, y2, z2 = self.midPoint.x, self.midPoint.y, self.midPoint.z
-        x3, y3, z3 = self.endPoint.x, self.endPoint.y, self.endPoint.z
+        x1, y1, z1 = self.start.x, self.start.y, self.start.z
+        x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
+        x3, y3, z3 = self.end.x, self.end.y, self.end.z
 
         r1 = ((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)**0.5 / 2
         a = math.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
@@ -282,10 +309,31 @@ class Arc:
 
         return arc_length
 
-    def pointatparameter(self,count):
-        angle = self.angleRadian/count
-        CoordinateSystem
-        transformPoint()
+    @staticmethod
+    def pointsAtParameter(arc, count: int):
+        # Create points at parameter on an arc based on an interval
+        d_alpha = arc.angleRadian / (count - 1)
+        alpha = 0
+        pnts = []
+        for i in range(count):
+            pnts.append(Point(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha), 0))
+            alpha = alpha + d_alpha
+        CSNew = arc.coordinatesystem
+        pnts2 = []  # transformed points
+        for i in pnts:
+            pnts2.append(transformPoint2(i, CSNew))
+        return pnts2
+
+    @staticmethod
+    def segmentedarc(arc, count):
+        pnts = Arc.pointsAtParameter(arc,count)
+        i = 0
+        lines = []
+        for j in range(len(pnts)-1):
+            lines.append(Line(pnts[i],pnts[i+1]))
+            i = i + 1
+        return lines
+
     def __str__(self) -> str:
         return f"{__class__.__name__}(Object output n.t.b.)"
 

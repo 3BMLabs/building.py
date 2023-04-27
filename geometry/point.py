@@ -132,3 +132,12 @@ def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, New
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
     return pointNew
+
+def transformPoint2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
+    #Transfrom point from Global Coordinatesystem to a new Coordinatesystem
+    #CSold = CSGlobal
+    from abstract.vector import Vector3
+    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    pn3 = Point.translate(pn2, Vector3.scale(CoordinateSystemNew.Zaxis, PointLocal.z))
+    return pn3

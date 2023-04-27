@@ -143,20 +143,21 @@ def TextToSpeckleCurveSurface(Text):
         returnlist.append(pc)
     return returnlist
 
+
 def ArcToSpeckleArc(Arc: Arc):
     speckle_plane = SpecklePlane(
-        origin=PointToSpecklePoint(Arc.plane.Origin),
-        normal=VectorToSpeckleVector(Arc.plane.Normal),
-        xdir=VectorToSpeckleVector(Arc.plane.v1),
-        ydir=VectorToSpeckleVector(Arc.plane.v2)
+        origin = PointToSpecklePoint(Arc.plane.Origin),
+        normal = VectorToSpeckleVector(Arc.plane.Normal),
+        xdir = VectorToSpeckleVector(Arc.plane.v1),
+        ydir = VectorToSpeckleVector(Arc.plane.v2)
     )
-    start_point = PointToSpecklePoint(Arc.startPoint)
-    mid_point = PointToSpecklePoint(Arc.midPoint)
-    end_point = PointToSpecklePoint(Arc.endPoint)
+    start_point = PointToSpecklePoint(Arc.start)
+    mid_point = PointToSpecklePoint(Arc.mid)
+    end_point = PointToSpecklePoint(Arc.end)
     radius = Arc.radius
     start_angle = Arc.startAngle
     end_angle = Arc.endAngle
-    angle_radians = Arc.angleRadians
+    angle_radians = Arc.angleRadian
     area = Arc.area
     length = Arc.length
     units = Arc.units

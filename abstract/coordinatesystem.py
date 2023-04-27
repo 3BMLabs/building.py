@@ -37,15 +37,25 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.vector import Vector3, XAxis, YAxis, ZAxis
+from abstract.vector import *
 from geometry.point import Point
 
+
 class CoordinateSystem:
+    #UNITY VECTORS REQUIRED
     def __init__(self, origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
         self.Zaxis = zaxis
+
+    @classmethod
+    def byOrigin(self, origin: Point):
+        self.Origin = origin
+        self.Xaxis = XAxis
+        self.Yaxis = YAxis
+        self.Zaxis = ZAxis
+        return self
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"

@@ -114,6 +114,9 @@ class Vector3:
     def angleBetween(v1, v2):
         return math.degrees(math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2)))))
 
+    def angleRadianBetween(v1, v2):
+        return math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2))))
+
     @staticmethod
     def reverse(v1):
         return Vector3(

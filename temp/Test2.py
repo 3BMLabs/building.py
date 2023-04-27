@@ -6,31 +6,34 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from geometry.curve import *
-from abstract.vector import *
+from abstract.interval import *
+from abstract.coordinatesystem import *
+from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
+from library.profile import *
 
 startPoint = Point(0,0,0)
 midPoint = Point(70,181,0)
 endPoint = Point(47,374,0)
 
-a = Vector3.length(Point.difference(startPoint, midPoint))
-b = Vector3.length(Point.difference(midPoint, endPoint))
-c = Vector3.length(Point.difference(endPoint, startPoint))
-s = (a + b + c) / 2
-A = math.sqrt(s * (s - a) * (s - b) * (s - c))
-R = (a * b * c) / (4 * A)
+a = Arc(startPoint=startPoint, midPoint=midPoint, endPoint=endPoint)
+b = Arc(Point(100,0,0), Point(100/math.sqrt(2),100/math.sqrt(2),0), Point(0,100,0))
 
-# calculation of origin of arc
-Vstartend = Vector3.byTwoPoints(startPoint, endPoint)
-halfVstartend = Vector3.scale(Vstartend, 0.5)
-b = 0.5 * Vector3.length(Vstartend)  # half distance between start and end
-x = math.sqrt(R * R - b * b)  # distance from start-end line to origin
-mid = Point.translate(startPoint, halfVstartend)
-v2 = Vector3.byTwoPoints(midPoint, mid)
-v3 = Vector3.normalise(v2)
-tocenter = Vector3.scale(v3, x)
-center = Point.translate(mid, tocenter)
-origin = center
+count = 15
+#intv = Interval.bystartendcount(0, 1, count)
+#obj = Arc.pointsAtParameter(b,intv)
 
-a = Arc(startPoint=startPoint,midPoint=midPoint,endPoint=endPoint)
-b = a.originarc()
-print(b)
+obj = Arc.pointsAtParameter(a,count)
+
+prof = profiledataToShape("HEA200")
+
+
+pc2 = prof.prof.curve #2D polycurve
+pc = PolyCurve.byPolyCurve2D(pc2)
+
+#test = PolyCurve.segment(pc,10)
+#print(test)
+
+#sys.exit()
+obj.append(pc)
+SpeckleObj = translateObjectsToSpeckleObjects(obj)
+Commit = TransportToSpeckle("3bm.exchange", "f140e5ec07", SpeckleObj, "Shiny commit 180")

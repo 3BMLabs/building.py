@@ -42,6 +42,17 @@ class Interval:
     def __init__(self, start:float, end:float):
         self.start = start
         self.end = end
+        self.interval = None
 
+    @classmethod
+    def bystartendcount(self, start: float, end: float, count: int):
+        intval = []
+        numb = start
+        delta = end-start
+        for i in range(count):
+            intval.append(numb)
+            numb = numb + (delta / (count - 1))
+        self.interval = intval
+        return self
     def __str__(self):
         return f"{__class__.__name__}"
