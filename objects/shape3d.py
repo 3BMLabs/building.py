@@ -31,9 +31,9 @@ __url__ = "./objects/shape3d.py"
 
 import sys, os, math
 from pathlib import Path
-from specklepy import *
-from specklepy.objects.geometry import Mesh as SpeckleMesh
-# from abstract.color import *
+# from specklepy import *
+# from specklepy.objects.geometry import Mesh as SpeckleMesh
+from exchange.speckle import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -277,6 +277,5 @@ class Origin:
 
 
     lst = [SpeckleObjUp, SpeckleObjUp2, SpeckleObjRight, SpeckleObjRight2, SpeckleObjFront, SpeckleObjFront2]
-    return lst
-    # Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")
+    Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")
     # Commit = TransportToSpeckle(server, stream, lst, message)
