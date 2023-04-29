@@ -38,6 +38,8 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from packages import helper
+from abstract.vector import Vector3
+from abstract.coordinatesystem import CoordinateSystem
 
 class curve:
 #Line2D, etc moet van class curve zijn. start end
@@ -45,11 +47,57 @@ class curve:
 
 class Vector2:
     def __init__(self, x, y, id=helper.generateID()) -> None:
-        self.X: float = 0.0
-        self.Y: float = 0.0
-        self.X = x
-        self.Y = y
+        self.x: float = 0.0
+        self.y: float = 0.0
+        self.x = x
+        self.y = y
         self.id = id
+
+    @staticmethod
+    def byTwoPoints(p1, p2):
+        return Vector2(
+            p2.x-p1.x,
+            p2.y-p1.y
+        )
+
+    @staticmethod
+    def length(v1):
+        return math.sqrt(v1.x * v1.x + v1.y * v1.y)
+
+    @staticmethod
+    def scale(v1, scalefactor):
+        return Vector2(
+            v1.x * scalefactor,
+            v1.y * scalefactor
+        )
+
+    @staticmethod
+    def normalise(v1):
+        scale = 1/Vector2.length(v1)
+        return Vector2(
+            v1.x*scale,
+            v1.y*scale
+        )
+
+    @staticmethod #inwendig product, if zero, then vectors are perpendicular
+    def dotProduct(v1, v2):
+        return v1.x*v2.x+v1.y*v2.y
+
+    @staticmethod
+    def angleBetween(v1, v2):
+        return math.degrees(math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2)))))
+
+    @staticmethod
+    def angleRadianBetween(v1, v2):
+        return math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2))))
+
+    @staticmethod #Returns vector perpendicular on the two vectors
+    def crossProduct(v1, v2):
+        return Vector3(
+            v1.y - v2.y,
+            v2.x - v1.x,
+            v1.x*v2.y - v1.y*v2.x
+        )
 
     def __id__(self):
         return f"id:{self.id}"
@@ -68,8 +116,8 @@ class Point2D:
     def __id__(self):
         return f"id:{self.id}"
     def translate(self, vector: Vector2):
-        x = self.x + vector.X
-        y = self.y + vector.Y
+        x = self.x + vector.x
+        y = self.y + vector.y
         p1 = Point2D(x, y)
         return p1
 
@@ -86,6 +134,18 @@ class Point2D:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y})"
+
+
+def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
+    # Transform point from Global Coordinatesystem to a new Coordinatesystem
+    # CSold = CSGlobal
+    from abstract.vector import Vector3
+    from geometry.point import Point
+    PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
+    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    pn3 = Point2D(pn.x,pn.y)
+    return pn3
 
 class Line2D:
     def __init__(self, pntxy1, pntxy2, id=helper.generateID()) -> None:
@@ -112,11 +172,14 @@ class Line2D:
 class Arc2D:
     def __init__(self,pntxy1,pntxy2,pntxy3, id=helper.generateID()) -> None:
         self.start:Point2D = pntxy1
-        self.middle: Point2D = pntxy2
+        self.mid: Point2D = pntxy2
         self.end: Point2D = pntxy3
-        #self.radius
+        self.origin = self.originarc()
+        self.angleRadian = self.angleRadian()
+        self.radius = self.radiusarc()
+        self.coordinatesystem = self.coordinatesystemarc()
         #self.length
-        #self.origin
+
         self.id = id
 
     def __id__(self):
@@ -124,10 +187,73 @@ class Arc2D:
 
     def points(self):
         #returns point on the curve
-        return (self.start, self.middle, self.end)
+        return (self.start, self.mid, self.end)
+
+    def coordinatesystemarc(self):
+        vx2d = Vector2.byTwoPoints(self.origin, self.start)  # Local X-axe
+        vx = Vector3(vx2d.x, vx2d.y, 0)
+        vy = Vector3(vx.y, vx.x * -1,0)
+        vz = Vector3(0,0,1)
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalise(vx), Vector3.normalise(vy), Vector3.normalise(vz))
+        return self.coordinatesystem
+
+    def angleRadian(self):
+        v1 = Vector2.byTwoPoints(self.origin, self.end)
+        v2 = Vector2.byTwoPoints(self.origin, self.start)
+        angle = Vector2.angleRadianBetween(v1,v2)
+        return angle
+
+    def originarc(self):
+        #calculation of origin of arc #Todo can be simplified for sure
+        Vstartend = Vector2.byTwoPoints(self.start, self.end)
+        halfVstartend = Vector2.scale(Vstartend,0.5)
+        b = 0.5 * Vector2.length(Vstartend) #half distance between start and end
+        x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
+        mid = Point2D.translate(self.start, halfVstartend)
+        v2 = Vector2.byTwoPoints(self.mid, mid)
+        v3 = Vector2.normalise(v2)
+        tocenter = Vector2.scale(v3, x)
+        center = Point2D.translate(mid, tocenter)
+        #self.origin = center
+        return center
+
+    def radiusarc(self):
+        a = Vector2.length(Vector2.byTwoPoints(self.start, self.mid))
+        b = Vector2.length(Vector2.byTwoPoints(self.mid, self.end))
+        c = Vector2.length(Vector2.byTwoPoints(self.end, self.start))
+        s = (a + b + c) / 2
+        A = math.sqrt(s * (s-a) * (s-b) * (s-c))
+        R = (a * b * c) / (4 * A)
+        return R
+
+
+    @staticmethod
+    def pointsAtParameter(arc, count: int):
+        # Create points at parameter on an arc based on an interval
+        d_alpha = arc.angleRadian / (count - 1)
+        alpha = 0
+        pnts = []
+        for i in range(count):
+            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha), 0))
+            alpha = alpha + d_alpha
+        CSNew = arc.coordinatesystem
+        pnts2 = []  # transformed points
+        for i in pnts:
+            pnts2.append(transformPoint2D(i, CSNew))
+        return pnts2
+
+    @staticmethod
+    def segmentedarc(arc, count):
+        pnts = Arc2D.pointsAtParameter(arc,count)
+        i = 0
+        lines = []
+        for j in range(len(pnts)-1):
+            lines.append(Line2D(pnts[i],pnts[i+1]))
+            i = i + 1
+        return lines
 
     def __str__(self):
-        return f"{__class__.__name__}({self.start},{self.middle},{self.end})"
+        return f"{__class__.__name__}({self.start},{self.mid},{self.end})"
 
 
 class PolyCurve2D:
@@ -169,7 +295,7 @@ class PolyCurve2D:
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D(i.start.rotate(rotation), i.middle.rotate(rotation), i.end.rotate(rotation)))
+                crvs.append(Arc2D(i.start.rotate(rotation), i.mid.rotate(rotation), i.end.rotate(rotation)))
             elif i.__class__.__name__ == "Line2D":
                 crvs.append(Line2D(i.start.rotate(rotation), i.end.rotate(rotation)))
             else:
@@ -182,7 +308,7 @@ class PolyCurve2D:
         points = []
         for i in self.curves:
             if i == Arc2D:
-                points.append(i.start, i.middle) #
+                points.append(i.start, i.mid) #
             else:
                 points.append(i.start)
         points.append(points[0])

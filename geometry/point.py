@@ -38,7 +38,6 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 
-from geometry.geometry2d import Point2D
 from packages import helper
 
 class Point:
@@ -74,7 +73,8 @@ class Point:
         )
 
     @staticmethod
-    def point2DTo3D(point2D: Point2D):
+    def point2DTo3D(point2D):
+        from geometry.geometry2d import Point2D
         return Point(
             point2D.x,
             point2D.y,

@@ -75,12 +75,13 @@ class Frame:
 
     @classmethod
     def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material):
+        from library.profile import profiledataToShape
         f1 = Frame()
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
         try:
-            f1.curve = profiledataToShape(profile_name).prof.curve
+            f1.curve = profiledataToShape(profile_name).polycurve2d
         except:
             print(profile_name)
         f1.directionVector = Vector3.byTwoPoints(start, end)
@@ -100,12 +101,15 @@ class Frame:
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
-        curv = profiledataToShape(profile_name).prof.curve
+        try:
+            curv = profiledataToShape(profile_name).curve
+        except:
+            print(profile_name)
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.curve = curvrot.translate(vector2d)
-        f1.XOffset = vector2d.X
-        f1.YOffset = vector2d.Y
+        f1.XOffset = vector2d.x
+        f1.YOffset = vector2d.y
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -127,8 +131,8 @@ class Frame:
         curv = profiledataToShape(profile_name).prof.curve
         curvrot = curv.rotate(rotation)  # rotation in degrees
         v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
-        f1.XOffset = v1.X
-        f1.YOffset = v1.Y
+        f1.XOffset = v1.x
+        f1.YOffset = v1.y
         f1.curve = curv.translate(v1)
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)

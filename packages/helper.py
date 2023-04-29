@@ -109,3 +109,13 @@ def clean_list(input_list, preserve_indices=True):
                 culled_list.append(el)
             
     return culled_list
+
+def flatten(lst):
+    flat_list = []
+    for sublist in lst:
+        try:
+            for item in sublist:
+                flat_list.append(item)
+        except:
+            flat_list.append(sublist)
+    return flat_list

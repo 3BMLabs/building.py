@@ -41,7 +41,7 @@ from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
-from helpers.helper import *
+from packages.helper import *
 #from specklepy.objects.primitive import Interval as SpeckleInterval #temp
 
 
@@ -126,7 +126,7 @@ class PolyCurve:
         curves = []
         for i in PolyCurve2D.curves:
             if i.__class__.__name__ == "Arc2D":
-                curves.append(Arc(Point(i.start.x, i.start.y, 0), Point(i.middle.x, i.middle.y, 0), Point(i.end.x, i.end.y, 0)))
+                curves.append(Arc(Point(i.start.x, i.start.y, 0), Point(i.mid.x, i.mid.y, 0), Point(i.end.x, i.end.y, 0)))
             elif i.__class__.__name__ == "Line2D":
                 curves.append(Line(Point(i.start.x, i.start.y,0),Point(i.end.x, i.end.y,0)))
             else:
@@ -166,7 +166,32 @@ class PolyCurve:
                 print("Curvetype not found")
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
-    
+
+    def toPolyCurve2D(self):
+        # by points,
+        from geometry.geometry2d import PolyCurve2D
+        from geometry.geometry2d import Point2D
+        from geometry.geometry2d import Line2D
+        from geometry.geometry2d import Arc2D
+
+        p1 = PolyCurve2D()
+        count = 0
+        curves = []
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
+                                  Point2D(i.end.x, i.end.y)))
+            elif i.__class__.__name__ == "Line":
+                curves.append(Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
+            else:
+                print("Curvetype not found")
+        pnts = []
+        for i in curves:
+            pnts.append(i.start)
+        pnts.append(curves[0].start)
+        p1.points = pnts
+        p1.curves = curves
+        return p1
     def __id__(self):
         return f"id:{self.id}"
 
@@ -260,7 +285,7 @@ class Arc:
 
     def coordinatesystemarc(self):
         vx = Vector3.byTwoPoints(self.origin, self.start)  # Local X-axe
-        v2 = Vector3.byTwoPoints(self.origin, self.end)
+        v2 = Vector3.byTwoPoints(self.end, self.origin)
         vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
         vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalise(vx), Vector3.normalise(vy), Vector3.normalise(vz))
