@@ -66,6 +66,7 @@ class CChannelParallelFlange:
         self.r1 = r        #web fillet
         self.ex = ex        #centroid horizontal
 
+
         #describe points
         p1 = Point2D(-ex, -h / 2)  # left bottom
         p2 = Point2D(b - ex, -h / 2)  # right bottom
@@ -256,18 +257,25 @@ class Round:
         self.curve = []
         self.r = r  # radius
         self.data = (name, r, "Round")
+        dr = r / sqrt2 #grootste deel
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
-        p2 = Point2D(0, r)  # middle top
-        p3 = Point2D(-r, 0) # left middle
-        p4 = Point2D(0, -r) # middle bottom
+        p2 = Point2D(dr, dr)
+        p3 = Point2D(0, r)  # middle top
+        p4 = Point2D(-dr, dr)
+        p5 = Point2D(-r, 0) # left middle
+        p6 = Point2D(-dr, -dr)
+        p7 = Point2D(0, -r) # middle bottom
+        p8 = Point2D(dr, -dr)
 
         # describe curves
         l1 = Arc2D(p1, p2, p3)
-        l2 = Arc2D(p3, p4, p1)
+        l2 = Arc2D(p3, p4, p5)
+        l3 = Arc2D(p5, p6, p7)
+        l4 = Arc2D(p7, p8, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2])
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"
@@ -285,18 +293,26 @@ class Roundtube:
         self.r = d/2  # radius
         self.t = t  # wall thickness
         self.data = (name, d, t, "Round Tube Profile")
+        dr = self.r / sqrt2 #grootste deel
+        r = self.r
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
-        p2 = Point2D(0, r)  # middle top
-        p3 = Point2D(-r, 0) # left middle
-        p4 = Point2D(0, -r) # middle bottom
+        p2 = Point2D(dr, dr)
+        p3 = Point2D(0, r)  # middle top
+        p4 = Point2D(-dr, dr)
+        p5 = Point2D(-r, 0) # left middle
+        p6 = Point2D(-dr, -dr)
+        p7 = Point2D(0, -r) # middle bottom
+        p8 = Point2D(dr, -dr)
 
         # describe curves
         l1 = Arc2D(p1, p2, p3)
-        l2 = Arc2D(p3, p4, p1)
+        l2 = Arc2D(p3, p4, p5)
+        l3 = Arc2D(p5, p6, p7)
+        l4 = Arc2D(p7, p8, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2])
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"
@@ -433,20 +449,33 @@ class RectangleHollowSection:  #NOT COMPLETE YET
         self.t = t # thickness
         self.r1 = r1 # outer radius
         self.r2 = r2 # inner radius
+        dr = r1 - r1 / sqrt2
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, h / 2)  # right top
-        p3 = Point2D(-b / 2, h / 2) # left top
-        p4 = Point2D(-b / 2, -h / 2) # left bottom
+        p1 = Point2D(-b / 2 + r1, - h / 2)  #left bottom end arc
+        p2 = Point2D(b / 2 - r1, - h / 2)  #right bottom start arc
+        p3 = Point2D(b / 2 - dr, - h / 2 + dr) #right bottom mid arc
+        p4 = Point2D(b / 2, - h / 2 + r1) #right bottom end arc
+        p5 = Point2D(p4.x, -p4.y) #right start arc
+        p6 = Point2D(p3.x, -p3.y) #right mid arc
+        p7 = Point2D(p2.x, -p2.y) #right end arc
+        p8 = Point2D(-p7.x, p7.y) #left start arc
+        p9 = Point2D(-p6.x, p6.y)  #left mid arc
+        p10 = Point2D(-p5.x, p5.y)  #left end arc
+        p11 = Point2D(p10.x, -p10.y) #right bottom start arc
+        p12 = Point2D(p9.x, -p9.y) #right bottom mid arc
 
         # describe curves
         l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
-        l4 = Line2D(p4, p1)
+        l2 = Arc2D(p2,p3,p4)
+        l3 = Line2D(p4,p5)
+        l4 = Arc2D(p5,p6,p7)
+        l5 = Line2D(p7,p8)
+        l6 = Arc2D(p8, p9, p10)
+        l7 = Line2D(p10, p11)
+        l8 = Arc2D(p11, p12, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
+        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
 
         def __str__(self):
             return "Profile(" + f"{self.name})"

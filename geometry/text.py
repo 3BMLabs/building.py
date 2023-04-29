@@ -63,7 +63,7 @@ class Text: #todo: add space (width depends on font-family?) and solid (thicknes
 
 
     def load_path(self) -> List[str]:
-        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
+        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json', 'r') as f:
             glyph_data = json.load(f)
             return [
                 glyph_data[letter]["glyph-path"] 

@@ -71,6 +71,7 @@ class profiledataToShape:
         from geometry.curve import PolyCurve
         profile_data = searchProfile(name1)
         shape_name = profile_data.shape_name
+        self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
         #self.d1.insert(0,name)

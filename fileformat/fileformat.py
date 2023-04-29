@@ -32,15 +32,17 @@ __url__ = "./fileformat/fileformat.py"
 
 import sys, os, math
 from pathlib import Path
+from exchange.speckle import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-class Buildingpy():
-    def __init__(self):
-        self.name = "projectname"
-        self.number = "projectnumber"
+
+class BuildingPy:
+    def __init__(self, name, number):
+        self.name: str = name
+        self.number: str = number
         self.objects = []
 
         #Geometry settings
@@ -48,4 +50,9 @@ class Buildingpy():
 
         #Speckle settings
         self.speckleserver = "3bm.exchange"
-        self.specklestream = "f140e5ec07"
+        self.specklestream = None
+
+    def toSpeckle(self, streamid, commitstring):
+        self.specklestream = streamid
+        speckleobj = translateObjectsToSpeckleObjects(self.objects)
+        TransportToSpeckle(self.speckleserver,streamid,speckleobj,commitstring)

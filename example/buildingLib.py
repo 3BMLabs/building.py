@@ -19,33 +19,34 @@ for item in jsondata:
 ToSpeckle = []
 
 test = profiledataToShape("HEA200")
+
 #sys.exit()
 #3D Frames
 x = 0
 y = 0
 spacing = 1000
+spacing_vert = 1500
 height = 2000
 count = 0
-row = 25
-
+shape = "HEA"
+type = "HEA"
 #Mat = Material.byNameColor("Steel", Color().RGB([237, 237, 237]))
 
 for i in lst:
     Mat = BaseSteel
     try:
+        prof = i[:3]
+        shape = i[:3]
         ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i, Mat))
         x = x + spacing
-        count = count + 1
-        if count > row:
-            count = 0
-            y = y + spacing
-            x = 0
+        if type == shape:
+            y = y
         else:
-            pass
+            x = 0
+            y = y + spacing_vert
+            type = shape
     except:
         print(i)
-
-ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(0,0,0),Point(4000,0,0),"HEA200","HEA200",BaseSteel))
 
 SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
 
