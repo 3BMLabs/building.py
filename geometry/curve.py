@@ -230,26 +230,29 @@ def RectYZ(vector: Vector3, width: float, height: float):
     crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
     return crv
 
-def polygon(flatCurves):
-    points = []
-    for i in flatCurves:
-        points.append(i.start)
-        try:
-            points.append(i.middle)
-        except:
-            pass
-    points.append(points[0])
-    points3D = []
-    for i in points:
-        points3D.append(Point.point2DTo3D(i))
-    return points3D
+
 
 class PolyGon:
     def __init__(self, lines, id=helper.generateID()) -> None:
         self.Lines = lines#collect in list
         self.id = id
         pass #Lines
-    pass
+    
+    @staticmethod
+    def polygon(flatCurves):
+        points = []
+        for i in flatCurves:
+            points.append(i.start)
+            try:
+                points.append(i.middle)
+            except:
+                pass
+        points.append(points[0])
+        points3D = []
+        for i in points:
+            points3D.append(Point.point2DTo3D(i))
+        return points3D
+
 
     def __id__(self):
         return f"id:{self.id}"

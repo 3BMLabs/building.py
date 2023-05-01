@@ -150,7 +150,7 @@ plycurve.rotate(90, 10)
 
 # Polygon # CHECK IF ITS WORKING
 flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))]
-plygn1 = polygon(flat_curves)
+# plygn1 = polygon(flat_curves)
 
 # CLASS: POLYGON
 # create an instance
