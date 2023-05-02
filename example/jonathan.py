@@ -1,5 +1,10 @@
 #Line to polycurve. return intersects
 
+# line to polycurve intersect
+# line to surface intersect
+# divide surfaces
+
+
 import sys, math, requests, json
 from svg.path import parse_path
 from typing import List, Tuple

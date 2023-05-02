@@ -19,7 +19,7 @@ class Text:
         self.x, self.y, self.z = xyz.x, xyz.y, xyz.z or (0, 0, 0)
         self.rotation = rotation
         self.character_offset = 150
-        self.spacie = 200
+        self.space = 850
         self.path_list = self.load_path()
         self.f = []
 
@@ -27,49 +27,56 @@ class Text:
     def load_path(self) -> List[str]:
         with open(f'library/text/json/{self.font_family}.json', 'r') as f:
             glyph_data = json.load(f)
-            return [
-                glyph_data[letter]["glyph-path"] 
-                for letter in self.text if letter in glyph_data
-            ]
+            output = []
+            for letter in self.text:
+                if letter in glyph_data:
+                    output.append(glyph_data[letter]["glyph-path"])
+                elif letter == " ":
+                    output.append("space")
+            return output
+
 
 
     def write(self) -> List[List[PolyCurve]]:
         output_list = []
-        for index, letter_path in enumerate(self.path_list):
-            path = parse_path(letter_path)
+        for letter_path in self.path_list:
             points = []
             allPoints = []
+            if letter_path == "space":
+                self.x += self.space + self.character_offset
+                pass
+            else:
+                path = parse_path(letter_path)
+                for segment in path:
+                    segment_type = segment.__class__.__name__
+                    if segment_type == 'Move':
+                        if len(points) > 0:
+                            points = []
+                            allPoints.append("M")
+                        subpath_started = True
+                    elif subpath_started:
+                        if segment_type == 'Line':
+                            points.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
+                            allPoints.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
+                        elif segment_type == 'CubicBezier':
+                            points.extend(segment.sample(10))
+                            allPoints.extend(segment.sample(10))
+                        elif segment_type == 'QuadraticBezier':
+                            for i in range(11):
+                                t = i / 10.0
+                                point = segment.point(t)
+                                points.append((point.real, point.imag))
+                                allPoints.append((point.real, point.imag))
+                        elif segment_type == 'Arc':
+                            points.extend(segment.sample(10))
+                            allPoints.extend(segment.sample(10))
+                if points:
+                    output_list.append(self.convert_points_to_polyline(allPoints))
+                    if self.bounding_box == True and self.bounding_box != None:
+                        output_list.append(self.calculate_bounding_box(allPoints)[0])
+                    width = self.calculate_bounding_box(allPoints)[1]
 
-            for segment in path:
-                segment_type = segment.__class__.__name__
-                if segment_type == 'Move':
-                    if len(points) > 0:
-                        points = []
-                        allPoints.append("M")
-                    subpath_started = True
-                elif subpath_started:
-                    if segment_type == 'Line':
-                        points.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-                        allPoints.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-                    elif segment_type == 'CubicBezier':
-                        points.extend(segment.sample(10))
-                        allPoints.extend(segment.sample(10))
-                    elif segment_type == 'QuadraticBezier':
-                        for i in range(11):
-                            t = i / 10.0
-                            point = segment.point(t)
-                            points.append((point.real, point.imag))
-                            allPoints.append((point.real, point.imag))
-                    elif segment_type == 'Arc':
-                        points.extend(segment.sample(10))
-                        allPoints.extend(segment.sample(10))
-            if points:
-                output_list.append(self.convert_points_to_polyline(allPoints))
-                if self.bounding_box == True and self.bounding_box != None:
-                    output_list.append(self.calculate_bounding_box(allPoints)[0])
-                width = self.calculate_bounding_box(allPoints)[1]
-
-                self.x += width + self.character_offset
+                    self.x += width + self.character_offset
         return output_list
 
     def get_output(self) -> List[List[PolyCurve]]:
@@ -172,7 +179,7 @@ class Text:
         return PolyCurve.byPoints(pts_list)
     
 
-Text1 = Text(text="TOST", font_family="arial", bounding_box=False, xyz=Point(20,10,20), rotation=90)
+Text1 = Text(text="Dit vind ik stom", font_family="arial", bounding_box=False, xyz=Point(20,10,20), rotation=0)
 
 obj = [Text1]
 
