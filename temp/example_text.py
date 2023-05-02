@@ -13,7 +13,7 @@ from geometry.curve import PolyCurve
 class Text:
     def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: Point = None, rotation: float = None):
         self.text = text
-        self.font_family = font_family
+        self.font_family = font_family or "arial"
         self.bounding_box = bounding_box
         self.originX, self.originY, self.originZ = xyz.x, xyz.y, xyz.z or (0, 0, 0)
         self.x, self.y, self.z = xyz.x, xyz.y, xyz.z or (0, 0, 0)
@@ -179,7 +179,7 @@ class Text:
         return PolyCurve.byPoints(pts_list)
     
 
-Text1 = Text(text="Dit vind ik stom", font_family="arial", bounding_box=False, xyz=Point(20,10,20), rotation=0)
+Text1 = Text(text="Hello world!", xyz=Point(20,10,20), rotation=0)
 
 obj = [Text1]
 

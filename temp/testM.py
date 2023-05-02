@@ -3,7 +3,7 @@
 
 from fileformat.fileformat import *
 from objects.frame import *
-from geometry.text import *
+from abstract.text import *
 
 Project = BuildingPy(name="testproject",number="0")
 

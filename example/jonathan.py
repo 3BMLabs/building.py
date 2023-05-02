@@ -13,91 +13,49 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
-from geometry.point import Point, Point2D
-from geometry.curve import PolyCurve, Line
+from geometry.point import Point
+from geometry.curve import *
 from abstract.vector import Vector3
+from abstract.intersect2 import *
+from abstract.plane import Plane
+from abstract.text import Text
+
+p001 = Point(0,0,0)
+p002 = Point(1000,1000,0)
+p003 = Point(500,500,10)
 
 
-v10 = Vector3(-500, 500, 0)
-v20 = Vector3(1500, 500, 0)
-LineX = Vector3.toLine(v10, v20)
+cp = Point.origin(p001, p002)
 
-Point1 = Point(0, 0, 0)
-Point2 = Point(0, 1000, 0)
-Point3 = Point(1000, 1000, 0)
-Point4 = Point(1000, 0, 0)
+p1 = Point(30,10,0)
+p2 = Point(10,0,0)
+p3 = Point(130,5000,0)
+p4 = Point(20,20,0)
 
-Ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point1])
+dimLine = Line(p1, p2)
+len = round(dimLine.length(), 2)
 
+plane1 = Plane.byTwoVectorsOrigin(
+    p1, p2, Point.origin(p1, p2)
+)
 
-# p1 = Point(-500, 500, 0)
-# p2 = Point(1500, 500, 0)
-# l1 = Line(start=p1, end=p2)
+pvector = Point.toVector(p1)
+calcAngle = Vector3.angleRadianBetween(pvector, p2)
+Text1 = Text(text=str(len), xyz=Point(20,10,20), rotation=180)
 
-# p3 = Point(1000, 1000, 0)
-# p4 = Point(1000, 0, 0)
-# l2 = Line(start=p3, end=p4)
+print(p1, Point.origin(p1,p2), p2)
 
+arcy = Arc(p001, p003, p002)
 
-
-from abstract.intersect import *
-# p1 = Point2D(10, 10)
-# q1 = Point2D(100, 10)
-# p2 = Point2D(10, 20)
-# q2 = Point2D(100, 20)
-# Ply1 = PolyCurve.byPoints([p1, q1, p2, q2])
-# if doIntersect(p1, q1, p2, q2):
-# 	print("Yes")
-# else:
-# 	print("No")
-
-# p1 = Point2D(1000, 0)
-# q1 = Point2D(0, 1000)
-# p2 = Point2D(0, 0)
-# q2 = Point2D(1000,1000)
+print(calcAngle)
+#2 lines er haaks op.
+#2 circles
+#test along the line
 
 
-p1 = Point(1000, 0, 0)
-q1 = Point(0, 1000, 0)
-p2 = Point(0, 0, 0)
-q2 = Point(1000,1000, 0)
 
-lx2 = Line(p1, q1)
-lx3 = Line(p2, q2)
-intersection_point = Intersect().getIntersect(lx2, lx3)
+obj = [p1, p2, dimLine, plane1, arcy, Text1]
 
-
-# dointersect = Intersect().doIntersect(lx2, lx3)
-
-# print(dointersect)
-print(intersection_point)
-
-# p3 = intersection_point
-
-
-# intersection_point = Intersect().doIntersect(lx2, lx3)
-
-# if doIntersect(p1, q1, p2, q2):
-# 	print("Yes")
-# else:
-# 	print("No")
-
-# getIntersect(p1, q1, p2, q2)
-
-# p1 = Point2D(-50,-50)
-# q1 = Point2D(0, 0)
-# p2 = Point2D(10, 10)
-# q2 = Point2D(100, 100)
-# Ply3 = PolyCurve.byPoints([p1, q1, p2, q2, p1])
-
-# if doIntersect(p1, q1, p2, q2):
-# 	print("Yes")
-# else:
-# 	print("No")
-
-
-obj = [lx2, lx3, intersection_point]
-# obj = [Ply1, Ply2, Ply3]
 
 SpeckleHost = "3bm.exchange"
 StreamID = "fa4e56aed4"

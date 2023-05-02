@@ -59,6 +59,32 @@ class Vector3:
         )
 
     @staticmethod
+    def diff(v1, v2):
+        return Vector3(
+            v1.x - v2.x,
+            v1.y - v2.y,
+            v1.z - v2.z
+        )
+
+    @staticmethod
+    def divide(v1, v2):
+        return Vector3(
+            v1.x / v2.x,
+            v1.y / v2.y,
+            v1.z / v2.z
+        )
+
+
+    @staticmethod
+    def square(v1):
+        return Vector3(
+            v1.x **2,
+            v1.y **2,
+            v1.z **2
+        )
+
+
+    @staticmethod
     def toPoint(v1):
         from geometry.point import Point
         return Point(x=v1.x,y=v1.y,z=v1.z)
