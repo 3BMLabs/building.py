@@ -27,6 +27,55 @@ Point4 = Point(1000, 0, 0)
 ```
 <br>
 
+#### Point.difference:
+> _`Input: Point, Point`_
+<br>
+
+``` python
+Point.difference(Point1, Point2) # calculate the difference between two 3D points and return a Vector3
+```
+<br>
+
+#### Vector3.sum:  
+> _`Input: Vector3, Vector3`_
+<br>
+
+#### Point.translate:
+> _`Input: Point, Vector3`_
+<br>
+
+``` python
+Point.translate(Point1, v1) # translates a 3D point by a given Vector and returns a new Point
+```
+<br>
+
+#### Point.point2DTo3D:
+> _`Input: Point2D`_
+<br>
+
+``` python
+Point.point2DTo3D(p2d) # Transforms a 2D point into a 3D point
+```
+<br>
+
+#### Point.rotateXY:
+> _`Input: Point, Degrees, Number of steps`_
+<br>
+
+``` python
+Point.rotateXY(p1, 30, 5) # rotate (30 degrees) and translate (5 steps) a 3D point around the Z axis
+```
+<br>
+
+#### transformPoint:
+> _`Input: Point, Coordinate system, Point, Vector3`_
+<br>
+
+``` python
+transformed_point = transformPoint(p1, CSGlobal, p2, v1)
+```
+<br>
+
 #### Vector3.sum:  
 > _`Input: Vector3, Vector3`_
 <br>
@@ -215,11 +264,11 @@ Line.length(Line1) # Calculate the length of a line
 <br>
 
 #### Line2D:  
-> _`Input: ??`_
+> _`Input: XY=(number/float)`_
 <br>
 
 ``` python
-l2d = # ??
+l2d = Line2D(0, 100)
 ```
 <br>
 
@@ -449,4 +498,152 @@ CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis) # returns CoordinateSystem
 ``` python
 BoundingBox2d(points=[POINTS]).perimeter() # returns 2d-perimeter
 BoundingBox3d(points=[POINTS]).perimeter() # returns 3d-perimeter
+```
+
+#### Extrusion.byPolyCurveHeightVector:  
+> _`Input: PolyCurve, Height, Coördinate system, Point, Vector3`_
+<br>
+
+``` python
+Extrusion.byPolyCurveHeightVector(PC1, 20, 30, p1, v1) # Extrude a 2D profile to a 3D mesh
+```
+
+#### Extrusion.byPolyCurveHeight:  
+> _`Input: PolyCurve, Height, Dzloc`_
+<br>
+
+``` python
+Extrusion.byPolyCurveHeight(PC1, 20, 40) # Extrude a 2D profile to a 3D mesh
+```
+
+#### Grid.byStartpointEndpoint:  
+> _`Input: Line, Name`_
+<br>
+
+``` python
+GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A") # Create panel by polycurve
+```
+
+#### getGridDistances:  
+> _`Input: Grid`_
+<br>
+
+``` python
+getGridDistances(GridA) # ??
+```
+
+#### GridSystem:  
+> _`Input: spacingX, labelsX, spacingY, labelsY, gridExtension`_
+<br>
+
+``` python
+spacingX = "4x5400 4000 4000"
+labelsX = "A B C D"
+spacingY = "4x4000 5400"
+labelsY = "1 2 3"
+gridExtension = 1000
+
+grdsystem = GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension)
+```
+
+#### Frame.byStartpointEndpointProfileName:  
+> _`Input: start: Point, end: Point, profile_name: str, name: str, material`_
+<br>
+
+``` python
+Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
+```
+
+#### Frame.byStartpointEndpointProfileNameShapevector:  
+> _`Input: start: Point, end: Point, profile_name: str, name: str, Vector2, rotation: float, material`_
+<br>
+
+``` python
+Frame.byStartpointEndpointProfileNameShapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
+```
+
+#### Frame.byStartpointEndpointProfileNameShapevector:  
+> _`Input: start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material`_
+<br>
+
+``` python
+Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
+```
+
+#### Frame.byStartpointEndpoint:  
+> _`Input: start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material`_
+<br>
+
+``` python
+Frame.byStartpointEndpoint(p1, p2, PC1, "test", 90, "Steel")
+```
+
+#### Panel.byPolyCurveThickness:  
+> _`Input: PolyCurve, thickness: float, offset: float, name: str, colorrgbint`_
+<br>
+
+``` python
+Panel.byPolyCurveThickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
+```
+
+#### Panel.byBaselineHeight:  
+> _`Input: baseline: Line, height: float, thickness: float, name: str, colorrgbint`_
+<br>
+
+``` python
+Panel.byBaselineHeight(Line(start=Point(0, -1000, 0),
+                            end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
+```
+
+#### Text:  
+> _`Input: text: str, font_family: str, bounding_box: bool, xyz: Tuple[float, float, float], rotation: float`_
+<br>
+
+``` python
+Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0, 0, 0], rotation=90).write() # all parms (with optional)
+
+Text(text="PyBuildingSystem2", font_family="arial").write() # without optional parms
+```
+
+#### BoundingBox2d:  
+> _`Input: points=list[Point]`_
+<br>
+
+``` python
+BoundingBox2d(points=[Point1, Point2, Point3 ,Point4]).perimeter() # Boundingbox
+```
+
+#### BoundingBox3d:  
+> _`Input: points=list[Point]`_
+<br>
+
+``` python
+BoundingBox3d(points=[Point1, Point2, Point3 ,Point4]).perimeter() # Boundingbox
+```
+
+#### Intersect.getIntersect:  
+> _`Input: line1:Line, line2:Line`_
+<br>
+
+``` python
+Intersect.getIntersect(Line(start=Point(0, -1000, 0),
+                            end=Point(3000, -1000, 0)),
+                        Line(start=Point(0, -1000, 0),
+                            end=Point(3000, -1000, 0))) # Finds the intersection point between two given lines?
+```
+
+#### Intersect.onSegment:  
+> _`Input: ?, ?, ?`_
+<br>
+
+``` python
+Intersect.onSegment("?, ?, ?") # ?
+```
+
+#### Intersect.orientation:  
+> _`Input: ?, ?, ?`_
+<br>
+
+``` python
+Intersect.orientation("?, ?, ?") # Checks the orientation of three 2D points?
 ```

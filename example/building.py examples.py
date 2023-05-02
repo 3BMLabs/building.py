@@ -111,10 +111,6 @@ Line7 = Line(start=Point(200, 0, 0), end=Point(0, 0, 0))
 Line.length(Line1)
 
 # CLASS: PolyCurve
-
-# create a new Polycurve
-plycurve = PolyCurve()
-
 # Create a PolyCurve object by joining a list of curves and collecting their starting points
 PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3])
 
@@ -149,12 +145,11 @@ plycurve.translate(v1)
 plycurve.rotate(90, 10)
 
 # Polygon # CHECK IF ITS WORKING
-flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))]
-# plygn1 = polygon(flat_curves)
-
 # CLASS: POLYGON
 # create an instance
-polygon1 = PolyGon(flat_curves)
+# moet nog naar worden gekeken
+flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))]
+plygn1 = PolyGon(flat_curves)
 
 # CLASS ARC
 # Create a new Arc
@@ -215,9 +210,6 @@ testarc = Arc2D(p2d, p2d2, p2d3)
 Arc2D.points(testarc)
 
 # Class PolyCurve2D
-# Create a new 2D Polycurve
-ply = PolyCurve2D()
-
 # Combine multiple lines and make it as 1 object
 PolyCurve2D.byJoinedCurves([l2d, l2d2, l2d3])
 
@@ -276,7 +268,7 @@ transformed_point = transformPoint(p1, CSGlobal, p2, v1)
 # Extrude a 2D profile to a 3D mesh
 Extrusion.byPolyCurveHeightVector(PC1, 20, 30, p1, v1)
 Extrusion.byPolyCurveHeight(PC1, 20, 40)
-
+  
 # ------------------------
 
 # FILE: Datum
