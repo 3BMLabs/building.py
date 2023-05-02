@@ -46,7 +46,7 @@ from packages.helper import *
 
 
 class Line: #add Line.bylenght (start and endpoint)
-    def __init__(self, start: Point or Point2D, end: Point or Point2D, id=helper.generateID()) -> None:
+    def __init__(self, start: Point, end: Point, id=helper.generateID()) -> None:
         self.start: Point = start
         self.end: Point = end
         self.x = [self.start.x, self.end.x]

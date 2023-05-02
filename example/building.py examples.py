@@ -7,7 +7,7 @@ from objects.steelshape import *
 from objects.datum import *
 from geometry.linestyle import *
 from geometry.curve import *
-from geometry.text import *
+from abstract.text import *
 from geometry.point import Point
 from exchange.speckle import *
 from abstract.color import *

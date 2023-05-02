@@ -1,6 +1,9 @@
 # BUILDING.PY EXAMPLES
 ### TODO:
 - Add base of classes.
+- Text1 = Text(text="Hello world!", font_family="arial", bounding_box=False, xyz=Point(20,10,20), rotation=0)
+- Build scale abstract class
+
 <br><br>
 
 #### Vector2:  
