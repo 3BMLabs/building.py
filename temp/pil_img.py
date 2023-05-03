@@ -1,84 +1,86 @@
+import sys, os, math
+from pathlib import Path
+from typing import Any, List
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from exchange.speckle import *
 from PIL import Image
 
+class imagePyB:
 
-def send_img_to_speckle(img):
-    # img = Image.open("photo.jpg")
+    def __init__(self):
+        self.imgpath = None
+        self.pixels = None
+        self.facenr = -1
+        self.numberofpixels = 0
+        self.vertx = 0
+        self.verty = 0
+        self.vertz = 0
+        self.name = None
+        self.kleurcode_rijen = []
+        self.pixellist = []
+        self.vert = []
+        self.faces = []
+        self.colorlst = []
 
-    pixels = img.load()
-    facenr = -1
-    numberofpixels = 0
-    vertx = 0
-    verty = 0
-    vertz = 0
-
-    kleurcode_rijen = []
-    pixellist = []
-    vert = []
-    faces = []
-    colorlst = []
-
-    def rgb_to_int(rgb):
+    def rgb_to_int(self, rgb):
         r, g, b = [max(0, min(255, c)) for c in rgb]
         return (255 << 24) | (r << 16) | (g << 8) | b
 
-    for y in range(img.height):
-        rij_kleurcodes = []
-        for x in range(img.width):
-            rij_kleurcodes.append(pixels[x, y])
-        kleurcode_rijen.append(rij_kleurcodes)
+    def byFile(self, imgpath):  
+        self.imgpath = imgpath
+        self.img = Image.open(self.imgpath)
+        self.pixels = self.img.load()
+        for y in range(self.img.height):
+            rij_kleurcodes = []
+            for x in range(self.img.width):
+                rij_kleurcodes.append(self.pixels[x, y])
+            self.kleurcode_rijen.append(rij_kleurcodes)
 
-    for kleurcode_rij in kleurcode_rijen:
-        for kleurcode in kleurcode_rij:
-            pixellist.append(kleurcode)
+        for kleurcode_rij in self.kleurcode_rijen:
+            for kleurcode in kleurcode_rij:
+                self.pixellist.append(kleurcode)
 
-    for i in pixellist:
-        faces.append(4)
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        faces.append(facenr)
-        vertx += 1
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        faces.append(facenr)
-        verty -= 1
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        faces.append(facenr)
-        vertx -= 1
-        vert.append(vertx)
-        vert.append(verty)
-        vert.append(vertz)
-        facenr += 1
-        faces.append(facenr)
-        vertx += 1
-        verty += 1
-        numberofpixels += 1
+        for i in self.pixellist:
+            self.faces.append(4)
+            self.vert.append(self.vertx)
+            self.vert.append(self.verty)
+            self.vert.append(self.vertz)
+            self.facenr += 1
+            self.faces.append(self.facenr)
+            self.vertx += 1
+            self.vert.append(self.vertx)
+            self.vert.append(self.verty)
+            self.vert.append(self.vertz)
+            self.facenr += 1
+            self.faces.append(self.facenr)
+            self.verty -= 1
+            self.vert.append(self.vertx)
+            self.vert.append(self.verty)
+            self.vert.append(self.vertz)
+            self.facenr += 1
+            self.faces.append(self.facenr)
+            self.vertx -= 1
+            self.vert.append(self.vertx)
+            self.vert.append(self.verty)
+            self.vert.append(self.vertz)
+            self.facenr += 1
+            self.faces.append(self.facenr)
+            self.vertx += 1
+            self.verty += 1
+            self.numberofpixels += 1
 
-        if numberofpixels == len(rij_kleurcodes):
-            vertx = 0
-            verty -= 1
-            numberofpixels = 0
+            if self.numberofpixels == len(rij_kleurcodes):
+                self.vertx = 0
+                self.verty -= 1
+                self.numberofpixels = 0
 
-    for i in pixellist:
-        argbint_color = rgb_to_int(i)
-        colorlst.append(argbint_color)
-        colorlst.append(argbint_color)
-        colorlst.append(argbint_color)
-        colorlst.append(argbint_color)
-
-    def SpeckleMeshByImage(verts, faces, name):
-        spcklmesh = SpeckleMesh(vertices=verts, faces=faces, name=name, colors=colorlst)
-        return spcklmesh
-
-    SpeckleObj = [SpeckleMeshByImage(vert, faces, "First img")]
-    # Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit")
-    # Commit = TransportToSpeckle(server_url, server_token, SpeckleObj, commit_message)
-    # return Commit
-    return SpeckleObj
+        for i in self.pixellist:
+            argbint_color = self.rgb_to_int(i)
+            self.colorlst.append(argbint_color)
+            self.colorlst.append(argbint_color)
+            self.colorlst.append(argbint_color)
+            self.colorlst.append(argbint_color)
+            #self.colorlst = None
+        return self

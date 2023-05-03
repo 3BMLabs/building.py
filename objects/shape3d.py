@@ -31,13 +31,14 @@ __url__ = "./objects/shape3d.py"
 
 import sys, os, math
 from pathlib import Path
-# from specklepy import *
-# from specklepy.objects.geometry import Mesh as SpeckleMesh
-from exchange.speckle import *
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
+
+from exchange.speckle import *
+# from specklepy import *
+# from specklepy.objects.geometry import Mesh as SpeckleMesh
 
 class Origin:
     originx = 0

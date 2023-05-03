@@ -1,24 +1,20 @@
-from pil_img import *
+import sys, os, math
+from pathlib import Path
+from typing import Any, List
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from temp.pil_img import imagePyB
 from objects.frame import *
-from temp.Joasdiv import cone_to_speckle
 from objects.shape import *
-from objects.shape3d import *
+from exchange.speckle import *
 
+newimg = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/rgb.png")
+#newimg = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/bugatti-chiron.jpg")
 
-img = Image.open("photo.jpg")
-image = send_img_to_speckle(img)
-lshape = Frame.byStartpointEndpoint(Point(-300, 0, 0), Point(-300, 0, 50), Lshape("joas", 300, 200, 50, 50).curve, "L-frame", 0, BaseSteel)
-l2shape = Frame.byStartpointEndpoint(Point(-600, 0, 0), Point(-600, 0, 50), Lshape("joas", 300, 200, 50, 50).curve, "L-frame", 0, BaseSteel)
-SpeckleObj = translateObjectsToSpeckleObjects([lshape, l2shape])
-lst = [SpeckleObj, image]
-list1 = Origin()
+newimg.name = "small img2"
 
+SpeckleObj = translateObjectsToSpeckleObjects([newimg])
 
-
-
-# cone = cone_to_speckle()
-# lst2 = [cone]
-
-
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", list1, "Test")
-# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst2, "Test")
+#sys.exit()
+Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
