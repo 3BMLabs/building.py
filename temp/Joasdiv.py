@@ -74,7 +74,7 @@ class DrawLines:
 
 # a = DrawLines(2400, -200, 0).draw_arrow()
 a = DrawLines(0, 0, 0).draw_triangle()
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Test")
+# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Test")
 
 
 # SpeckleObj = translateObjectsToSpeckleObjects(a.trianglelist)
