@@ -11,8 +11,8 @@ newimg = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/
 newimg2 = imagePyB().byStream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
 
 newimg.name = "small img2"
-# SpeckleObj = translateObjectsToSpeckleObjects([newimg2])
-# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
+SpeckleObj = translateObjectsToSpeckleObjects([newimg2])
+Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
 
 # ====================================
 
@@ -23,6 +23,6 @@ from objects.shape3d import Origin
 # Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
 # lst = [SpeckleObjUp, SpeckleObjUp2, SpeckleObjRight, SpeckleObjRight2, SpeckleObjFront, SpeckleObjFront2]
 
-blabla = Origin.SpeckleOb()
+# blabla = Origin.SpeckleOb()
 
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")
+# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")
