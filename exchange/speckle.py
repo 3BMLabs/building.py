@@ -227,6 +227,9 @@ def translateObjectsToSpeckleObjects(Obj):
             for point in i.points:
                 pnts.append(point)
             SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
+        elif nm == 'ImagePyB':
+            colrs = i.colorlst
+            SpeckleObj.append(SpeckleMesh(vertices=i.verts, faces=i.faces, colors = colrs, name = i.name, units = "mm"))
         elif nm == 'Interval':
             SpeckleObj.append(IntervalToSpeckleInterval(i))
         elif nm == 'Line':
