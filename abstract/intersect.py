@@ -36,7 +36,7 @@ from typing import Any, List
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
-from geometry.point import Point, Point2D
+from geometry.point import Point
 from geometry.curve import Line
 
 class Intersect:

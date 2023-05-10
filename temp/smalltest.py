@@ -1,24 +1,28 @@
-from pil_img import *
-from objects.frame import *
-from temp.Joasdiv import cone_to_speckle
-from objects.shape import *
-from objects.shape3d import *
+import sys
+from pathlib import Path
 
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-img = Image.open("photo.jpg")
-image = send_img_to_speckle(img)
-lshape = Frame.byStartpointEndpoint(Point(-300, 0, 0), Point(-300, 0, 50), Lshape("joas", 300, 200, 50, 50).curve, "L-frame", 0, BaseSteel)
-l2shape = Frame.byStartpointEndpoint(Point(-600, 0, 0), Point(-600, 0, 50), Lshape("joas", 300, 200, 50, 50).curve, "L-frame", 0, BaseSteel)
-SpeckleObj = translateObjectsToSpeckleObjects([lshape, l2shape])
-lst = [SpeckleObj, image]
-list1 = Origin()
+from temp.pil_img import imagePyB
+from exchange.speckle import *
 
+# newimg = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/rgb.png", 50, 100, 10, -10, -10)
+newimg = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/bugatti-chiron.jpg", 100, 100, dx=10, dy=10)
+newimg2 = imagePyB().byStream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
 
+newimg.name = "small img2"
+# SpeckleObj = translateObjectsToSpeckleObjects([newimg2])
+# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
 
+# ====================================
 
-# cone = cone_to_speckle()
-# lst2 = [cone]
+from objects.shape3d import Origin
 
+# neworigin = Origin().CreateOrigin()
+# SpeckleObj = translateObjectsToSpeckleObjects([neworigin])
+# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
+# lst = [SpeckleObjUp, SpeckleObjUp2, SpeckleObjRight, SpeckleObjRight2, SpeckleObjFront, SpeckleObjFront2]
 
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", list1, "Test")
-# Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst2, "Test")
+blabla = Origin.SpeckleOb()
+
+Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")

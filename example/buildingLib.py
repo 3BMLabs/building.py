@@ -9,6 +9,7 @@ from objects.steelshape import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
+from library.profile import profiledataToShape
 
 # Export all steelprofiles to Speckle
 lst = []
@@ -17,38 +18,33 @@ for item in jsondata:
         lst.append(i[0]["synonyms"][0])
 ToSpeckle = []
 
+test = profiledataToShape("HEA200")
+
 #sys.exit()
 #3D Frames
 x = 0
 y = 0
 spacing = 1000
+spacing_vert = 1500
 height = 2000
 count = 0
-row = 25
-no = 5 #rgb color
-profilenumber = 0
-shapename = "I-shape parallel flange"
-Mat = Material.byNameColor("Steel", Color().RGB([237, no, no]))
-#print(Mat.colorint)
-#sys.exit()
+shape = "HEA"
+type = "HEA"
+#Mat = Material.byNameColor("Steel", Color().RGB([237, 237, 237]))
 
 for i in lst:
     Mat = BaseSteel
-    #if searchProfile(i).shape_name is shapename:
-   #     no = no
-  #  else:
-   #     no = no + 5
-    shapename = searchProfile(i).shape_name
     try:
+        prof = i[:3]
+        shape = i[:3]
         ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i, Mat))
         x = x + spacing
-        count = count + 1
-        if count > row:
-            count = 0
-            y = y + spacing
-            x = 0
+        if type == shape:
+            y = y
         else:
-            pass
+            x = 0
+            y = y + spacing_vert
+            type = shape
     except:
         print(i)
 

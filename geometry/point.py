@@ -38,7 +38,6 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 
-from geometry.geometry2d import Point2D
 from packages import helper
 
 class Point:
@@ -55,6 +54,12 @@ class Point:
         
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y},{self.z})"
+
+    # @staticmethod
+    # def distance(point1, point2):
+    #     x1, y1, z1 = point1
+    #     x2, y2, z2 = point2
+    #     return math.dist([x1, y1, z1], [x2, y2, z2])
 
     @staticmethod
     def difference(pointxyz1, pointxyz2):
@@ -74,12 +79,48 @@ class Point:
         )
 
     @staticmethod
-    def point2DTo3D(point2D: Point2D):
+    def origin(point1, point2):
+        return Point(
+            (point1.x + point2.x) /2,
+            (point1.y + point2.y) /2,
+            (point1.z + point2.z) /2
+        )
+
+    @staticmethod
+    def point2DTo3D(point2D):
+        from geometry.geometry2d import Point2D
         return Point(
             point2D.x,
             point2D.y,
             0
         )
+
+    @staticmethod
+    def toVector(point1):
+        from abstract.vector import Vector3
+        return Vector3(
+            point1.x,
+            point1.y,
+            point1.z
+        )
+
+    @staticmethod
+    def sum(p1, p2):
+        return Point(
+            p1.x + p2.x,
+            p1.y + p2.y,
+            p1.z + p2.z
+        )
+
+
+    @staticmethod
+    def diff(p1, p2):
+        return Point(
+            p1.x - p2.x,
+            p1.y - p2.y,
+            p1.z - p2.z
+        )
+
 
     @staticmethod
     def rotateXY(p1, Beta, dz):

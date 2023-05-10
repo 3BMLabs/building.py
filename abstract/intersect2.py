@@ -22,27 +22,62 @@
 #***************************************************************************
 
 
-"""This module provides a library of materials
+"""This module provides tools for intersects
 """
 
-__title__= "helpers"
+__title__= "intersect"
 __author__ = "Maarten & Jonathan"
-__url__ = "./helpers/helper.py"
+__url__ = "./abstract/intersect.py"
 
-
-import sys, os
+import numpy as np
+import sys, os, math
 from pathlib import Path
+from typing import Any, List
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-def flatten(lst):
-    flat_list = []
-    for sublist in lst:
-        try:
-            for item in sublist:
-                flat_list.append(item)
-        except:
-            flat_list.append(sublist)
-    return flat_list
+from abstract.vector import *
+from geometry.point import Point
+from geometry.curve import Line
+
+
+class Intersect: #werkt nog niet!!
+    def __init__(self):
+        pass
+
+    def getIntersect(self, line1:Line, line2:Line):
+        a, b = line1.start, line1.end
+        c, d = line2.start, line2.end
+
+        d1 = Vector3.diff(b, a)
+        d2 = Vector3.diff(d, c)
+        print(d1, d2)
+
+        n = Vector3.crossProduct(d1, d2)
+        print(n)
+        
+        w = Vector3.crossProduct(d1, n)
+        print(w)
+
+        # t = Vector3.sum(d, d2)
+        t = Vector3.crossProduct(d1, d2)
+        w*(d, d2)
+
+        dp1 = Vector3.dotProduct(Vector3.crossProduct(w, d1), n)
+        sp1 = Vector3.square(n)
+
+        t = Vector3(
+            sp1.x / dp1,
+            sp1.y / dp1,
+            sp1.z / dp1
+        )
+        
+        p = Vector3.sum(a, Vector3.crossProduct(d1, t))
+        print(p)
+        return Vector3.toPoint(p)
+
+
+    def __str__(self) -> str:
+        return "Intersection of two lines in 3D space."
+
+

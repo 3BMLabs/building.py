@@ -68,8 +68,10 @@ class searchProfile:
 
 class profiledataToShape:
     def __init__(self, name1):
+        from geometry.curve import PolyCurve
         profile_data = searchProfile(name1)
         shape_name = profile_data.shape_name
+        self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
         #self.d1.insert(0,name)
@@ -99,6 +101,11 @@ class profiledataToShape:
             prof = "error, profile not created"
         self.prof = prof
         self.data = d1
+        pc2d = self.prof.curve  # 2D polycurve
+        pc3d = PolyCurve.byPolyCurve2D(pc2d)
+        pcsegment = PolyCurve.segment(pc3d, 10)
+        pc2d2 = pcsegment.toPolyCurve2D()
+        self.polycurve2d = pc2d2
 
 def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
     xval = []
