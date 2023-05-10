@@ -96,6 +96,10 @@ class Vector3:
         from geometry.curve import Line
         return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
 
+    @staticmethod
+    def byLine(l1):
+        from geometry.curve import Line
+        return Vector3(l1.dx,l1.dy,l1.dz)
 
     @staticmethod
     def lineByLength(v1, length:float):

@@ -56,8 +56,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
-from specklepy.objects.primitive import Interval as SpeckleInterval
-
+#from specklepy.objects.primitive import Interval as SpeckleInterval
 
 
 def IntervalToSpeckleInterval(Interval: Interval):
