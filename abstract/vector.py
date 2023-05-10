@@ -105,7 +105,8 @@ class Vector3:
     def lineByLength(v1, length:float):
         from geometry.point import Point
         from geometry.curve import Line
-        return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
+        return None
+        # return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
     
 
     @staticmethod #Returns vector perpendicular on the two vectors

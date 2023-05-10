@@ -1,46 +1,30 @@
-#Line to polycurve. return intersects
-
-# line to polycurve intersect
-# line to surface intersect
-# divide surfaces
-
-
 import sys, math, requests, json
 from svg.path import parse_path
 from typing import List, Tuple
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
 from geometry.point import Point
-from geometry.curve import PolyCurve, Line
+from geometry.curve import *
 from abstract.vector import Vector3
-from abstract.intersect2 import *
+from abstract.intersect2d import *
+from abstract.plane import Plane
+from abstract.text import Text
+from abstract.intersect2d import Intersect2d
 
 
-p1 = Point(5,5,4)
-q1 = Point(10,10,6)
-p2 = Point(5,5,5)
-q2 = Point(10,10,3)
+l1 = Line(start=Point(230,-1000,0), end=Point(0,1000,0))
+l2 = Line(start=Point(-1000,0,0), end=Point(1230,0,0))
 
+p1 = Intersect2d().getIntersectPoint(l1, l2)
 
-# p1 = Point(3, -1, 0)
-# q1 = Point(6, 1, 0)
-# p2 = Point(3, -6, 0)
-# q2 = Point(6, 3, 0)
-
-lx2 = Line(p1, q1)
-lx3 = Line(p2, q2)
-intersection_point = Intersect().getIntersect(lx2, lx3)
-
-
-obj = [lx2, lx3, intersection_point]
-
+obj = [l1, l2, p1]
 
 SpeckleHost = "3bm.exchange"
 StreamID = "fa4e56aed4"
 SpeckleObjects = obj
-Message = "Shiny commit 170"
+Message = "x"
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)

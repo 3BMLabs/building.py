@@ -66,6 +66,28 @@ class Line: #add Line.bylenght (start and endpoint)
     def __id__(self):
         return f"id:{self.id}"
 
+    def offset(line, vector):
+        start = Point(line.start.x + vector.x, line.start.y + vector.y, line.start.z + vector.z)
+        end = Point(line.end.x + vector.x, line.end.y + vector.y, line.end.z + vector.z)
+        return Line(start=start, end=end)
+
+    def split(self, points: list[Point]):
+        lines = []
+        if type(points) == list:
+            for index, p in enumerate(range(len(points)+1)):
+                if index == 0:
+                    lines.append(Line(start=self.start, end=points[index-1]))
+                elif index == len(points):
+                    lines.append(Line(start=points[index-2], end=self.end))
+                else:
+                    lines.append(Line(start=points[index], end=points[index-1]))
+
+        elif type(points) == Point:
+            point = points
+            lines.append(Line(start=self.start, end=point))
+            lines.append(Line(start=point, end=self.end))
+        return lines
+
     def length(self):
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
 
@@ -97,13 +119,23 @@ class PolyCurve:
         for index, point in enumerate(points):
             try:
                 nextpoint = points[index+1]
-                
                 crvs.append(Line(start=point, end=nextpoint))
             except:
                 firstpoint = points[0]
                 crvs.append(Line(start=point, end=firstpoint))
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
+
+    @classmethod
+    def generate_lines(cls):
+        # print(cls)
+        print(cls.points)
+
+        # lines = []
+        # for i in range(len(self.points) - 1):
+        #     print(Line(self.points[i], self.points[i+1]))
+        #     lines.append(Line(self.points[i], self.points[i+1]))
+        # return lines
 
     @staticmethod
     def segment(cls, count):

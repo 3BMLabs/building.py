@@ -30,6 +30,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/intersect.py"
 
 import sys, os, math
+from packages import numpy as np
 from pathlib import Path
 from typing import Any, List
 
@@ -42,3 +43,14 @@ from geometry.curve import Line
 class Intersect:
     def __init__(self):
         pass
+    
+    def getIntersectPoint(line1: Line, line2: Line) -> Point:
+        p1, p2 = line1.start, line1.end
+        p1X, p1Y, P1Z = p1.x, p1.y, p1.z
+        p2X, p2Y, P2Z = p2.x, p2.y, p2.z
+
+        p3, p4 = line2.start, line2.end
+        p3X, p3Y, P3Z = p3.x, p3.y, p3.z
+        p4X, p4Y, P4Z = p4.x, p4.y, p4.z
+
+        print(p1X, p1Y, P1Z)
