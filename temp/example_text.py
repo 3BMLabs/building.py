@@ -10,7 +10,7 @@ from abstract.text import Text
 from geometry.point import Point
 
 
-Text1 = Text(text="Hello world!", xyz=Point(20,10,20), rotation=0)
+Text1 = Text(text="Hello world!", xyz=Point(0,0,0), rotation=0)
 
 obj = [Text1]
 

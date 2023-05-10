@@ -603,9 +603,9 @@ Panel.byBaselineHeight(Line(start=Point(0, -1000, 0),
 <br>
 
 ``` python
-Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0, 0, 0], rotation=90).write() # all parms (with optional)
+Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0, 0, 0], rotation=90) # all parms (with optional)
 
-Text(text="PyBuildingSystem2", font_family="arial").write() # without optional parms
+Text(text="PyBuildingSystem2", font_family="arial") # without optional parms
 ```
 
 #### BoundingBox2d:  
