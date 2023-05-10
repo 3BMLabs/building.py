@@ -10,7 +10,7 @@ from svg.path import parse_path
 from typing import List, Tuple
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
 from geometry.point import Point
