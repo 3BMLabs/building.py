@@ -6,6 +6,12 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from exchange.speckle import *
 from abstract.color import *
 
+@staticmethod
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+    return (255 << 24) | (r << 16) | (g << 8) | b
+
+colorlist = []
 originx = 0
 originy = 0
 originz = 0
@@ -24,8 +30,11 @@ degrees = 0
 degrees2 = 360 / number_of_triangles
 
 # UP ARROW ----------------------------------
-
+joehoe = []
 for i in range(number_of_triangles):
+
+    joehoe.append([255, 0, 0])
+
     x = math.cos(math.radians(degrees)) * r
     y = math.sin(math.radians(degrees)) * r
     degrees += degrees2
@@ -35,6 +44,9 @@ for i in range(number_of_triangles):
 
     faces_up.append(3)
     faces_up.append(0)
+    for q in joehoe:
+        argbint_color = rgb_to_int(q) # frgyewfgwegsftewagftyegwqiywregqftyeiwgqteiqwfy
+    colorlist.append(argbint_color) # nhewifuvhgcyorlewfrefyurefryefugruyiewrefyerw
 
     if facenr < number_of_triangles:
         faces_up.append(facenr)
@@ -325,10 +337,10 @@ for i in range(number_of_rectangles):
 #             round_faces3.append(i + 1)
 
 
-def SpeckleMeshByCone(verts, face, color):
+def SpeckleMeshByCone(verts, face):
     # color = -1762845660
     colors = []
-    spcklmesh = SpeckleMesh(vertices=verts, faces=face, name="Joas", units="mm", colors=color)
+    spcklmesh = SpeckleMesh(vertices=verts, faces=face, name="Joas", units="mm")
     return spcklmesh
 
 
@@ -336,7 +348,7 @@ def SpeckleMeshByCone(verts, face, color):
 # SpeckleObj2 = [SpeckleMeshByCone(round_vertices2, round_faces2)]
 # SpeckleObj3 = [SpeckleMeshByCone(round_vertices3, round_faces3)]
 
-SpeckleObjUp = [SpeckleMeshByCone(vertices_up, faces_up, [0,0,255])]
+SpeckleObjUp = [SpeckleMeshByCone(vertices_up, faces_up)]
 # SpeckleObjUp2 = [SpeckleMeshByCone(vertices2, faces2)]
 #
 # SpeckleObjRight = [SpeckleMeshByCone(vertices_right, faces_right)]
