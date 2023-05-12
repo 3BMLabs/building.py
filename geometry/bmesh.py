@@ -47,63 +47,64 @@ from specklepy.objects.geometry import Brep, BrepFace, BrepLoop, BrepLoopType, B
 
 
 #Brep start
-pt1 = Point(x=0, y=0, z=0)
-pt2 = Point(x=1, y=0, z=0)
-pt3 = Point(x=0, y=1, z=0)
-pt4 = Point(x=1, y=1, z=0)
-brep = Brep(points=[pt1, pt2, pt3, pt4], faces=[0, 1, 2, 3])
-obj1 = [brep]
+# pt1 = Point(x=0, y=0, z=0)
+# pt2 = Point(x=1, y=0, z=0)
+# pt3 = Point(x=0, y=1, z=0)
+# pt4 = Point(x=1, y=1, z=0)
+# brep = Brep(points=[pt1, pt2, pt3, pt4], faces=[0, 1, 2, 3])
+# obj1 = [brep]
 
-send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
+# send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
 #Brep end
 
 
-#BrepEdge start
+# #BrepEdge start
 start_point = Point.from_coords(0, 0, 0)
 end_point = Point.from_coords(1, 1, 1)
 tangent_vector = Vector.from_coords(1, 0, 0)
 brep_edge = BrepEdge(start_point=start_point, end_point=end_point, tangent_vector=tangent_vector)
+brep_edge._displayValue = True
 obj1 = [brep_edge]
-
 send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
-#BrepEdge end
+
+# #BrepEdge end
 
 
-#BrepFace start
-pt1 = Point(x=0, y=0, z=0)
-pt2 = Point(x=1, y=0, z=0)
-pt3 = Point(x=0, y=1, z=0)
-edge1 = BrepEdge(start=pt1, end=pt2)
-edge2 = BrepEdge(start=pt2, end=pt3)
-edge3 = BrepEdge(start=pt3, end=pt1)
-outer_loop = BrepLoop(type=BrepLoopType.Outer, edges=[edge1, edge2, edge3])
-face = BrepFace(outer_loop=outer_loop)
-obj1 = [face]
+# #BrepFace start
+# pt1 = Point(x=0, y=0, z=0)
+# pt2 = Point(x=1, y=0, z=0)
+# pt3 = Point(x=0, y=1, z=0)
+# edge1 = BrepEdge(start=pt1, end=pt2)
+# edge2 = BrepEdge(start=pt2, end=pt3)
+# edge3 = BrepEdge(start=pt3, end=pt1)
+# outer_loop = BrepLoop(type=BrepLoopType.Outer, edges=[edge1, edge2, edge3])
+# face = BrepFace(outer_loop=outer_loop)
+# obj1 = [face]
 
-send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
-#BrepFace end
-
-
-#BrepLoop start
-pt1 = Point(x=0, y=0, z=0)
-pt2 = Point(x=1, y=0, z=0)
-pt3 = Point(x=0, y=1, z=0)
-edge1 = BrepEdge(start=pt1, end=pt2)
-edge2 = BrepEdge(start=pt2, end=pt3)
-edge3 = BrepEdge(start=pt3, end=pt1)
-loop = BrepLoop(type=BrepLoopType.CurveOnSurface, edges=[edge1, edge2, edge3])
-obj1 = [loop]
-
-send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
-#BrepLoop end
+# send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
+# #BrepFace end
 
 
-#BrepTrim start
-pt1 = Point(x=0, y=0, z=0)
-pt2 = Point(x=1, y=0, z=0)
-edge = BrepEdge(start=pt1, end=pt2)
-trim = BrepTrim(edge=edge, type=BrepTrimType.CurveOnSurface)
-obj1 = [trim]
+# #BrepLoop start
+# pt1 = Point(x=0, y=0, z=0)
+# pt2 = Point(x=1, y=0, z=0)
+# pt3 = Point(x=0, y=1, z=0)
+# edge1 = BrepEdge(start=pt1, end=pt2)
+# edge2 = BrepEdge(start=pt2, end=pt3)
+# edge3 = BrepEdge(start=pt3, end=pt1)
+# loop = BrepLoop(type=BrepLoopType.CurveOnSurface, edges=[edge1, edge2, edge3])
+# obj1 = [loop]
 
-send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
-#BrepTrim end
+# send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
+# #BrepLoop end
+
+
+# #BrepTrim start
+# pt1 = Point(x=0, y=0, z=0)
+# pt2 = Point(x=1, y=0, z=0)
+# edge = BrepEdge(start=pt1, end=pt2)
+# trim = BrepTrim(edge=edge, type=BrepTrimType.CurveOnSurface)
+# obj1 = [trim]
+
+# send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
+# #BrepTrim end

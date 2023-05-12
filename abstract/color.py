@@ -40,7 +40,6 @@ sys.path.append(str(package_root_directory))
 
 class Color:
 	"""Documentation: output returns [r, g, b]"""
-
 	def __init__(self, colorInput=None):
 		self.colorInput = colorInput
 
@@ -297,6 +296,11 @@ class Color:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
 
+	def rgb_to_int(rgb):
+		r, g, b = [max(0, min(255, c)) for c in rgb]
+		return (255 << 24) | (r << 16) | (g << 8) | b
+
+
 	def __str__(self, colorInput=None):
 		colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK", "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
 		if colorInput is None:
@@ -310,7 +314,7 @@ class Color:
 		pass
 
 
-c = Color()
+# c = Color()
 # print(c) #available attributes
 
 # print(c.red)

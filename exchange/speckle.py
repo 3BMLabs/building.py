@@ -42,6 +42,7 @@ from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from abstract.interval import Interval
+from packages.helper import *
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
@@ -217,9 +218,30 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
+        # print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = "mm"))
+        
+        all_vertices = []
+        all_faces = []
+        all_colors = []
+        if nm == 'Surface' or nm == 'Face':
+            for index in range(len(i.PolyCurveList)):
+                all_vertices.append(i.extrusion[index].verts)
+                all_faces.append(i.extrusion[index].faces)
+                all_colors.append(i.colorlst[index])
+            all_vertices = flatten(all_vertices)
+            all_faces = flatten(all_faces)
+            all_colors = flatten(all_colors)
+            SpeckleObj.append(SpeckleMesh(vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units="mm"))
+            print(all_vertices, all_faces, all_colors)
+
+        # if nm == 'Surface' or nm == 'Face':
+        #     for index in range(len(i.PolyCurveList)):
+        #         colrs = i.colorlst[index]
+        #         SpeckleObj.append(SpeckleMesh(vertices=i.extrusion[index].verts, faces=i.extrusion[index].faces, colors = colrs, name = i.name[index], units = "mm"))
+
         elif nm == 'Frame':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))

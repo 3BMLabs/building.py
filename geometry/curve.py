@@ -42,8 +42,7 @@ from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from packages.helper import *
-#from specklepy.objects.primitive import Interval as SpeckleInterval #temp
-
+from abstract.interval import Interval
 
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point, id=helper.generateID()) -> None:
@@ -71,16 +70,30 @@ class Line: #add Line.bylenght (start and endpoint)
         end = Point(line.end.x + vector.x, line.end.y + vector.y, line.end.z + vector.z)
         return Line(start=start, end=end)
 
+    def pointOnIntverval(self, interval=None):
+        if interval == None:
+            interval = 0.0
+
+        x1, y1, z1 = self.start.x, self.start.y, self.start.z
+        x2, y2, z2 = self.end.x, self.end.y, self.end.z
+        if float(interval) == 0.0:
+            return self.start
+        else:
+            devBy = 1/interval
+            return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
+        
+
     def split(self, points: list[Point]):
         lines = []
         if type(points) == list:
-            for index, p in enumerate(range(len(points)+1)):
-                if index == 0:
-                    lines.append(Line(start=self.start, end=points[index-1]))
-                elif index == len(points):
-                    lines.append(Line(start=points[index-2], end=self.end))
-                else:
-                    lines.append(Line(start=points[index], end=points[index-1]))
+            print(points)
+            # for index, p in enumerate(range(len(points)+1)):
+            #     if index == 0:
+            #         lines.append(Line(start=self.start, end=points[index-1]))
+            #     elif index == len(points):
+            #         lines.append(Line(start=points[index-2], end=self.end))
+            #     else:
+            #         lines.append(Line(start=points[index], end=points[index-1]))
 
         elif type(points) == Point:
             point = points
