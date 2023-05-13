@@ -35,17 +35,21 @@ ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
 
 
+
+
+
+
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
 
 startLinexAxis = Line(start=Point(10000,-10000,0), end=Point(-10000,-10000,0))
 startLineyAxis = Line(start=Point(-10000,-10000,0), end=Point(-10000,10000,0))
 
-# obj = [ply1]
-obj = []
+obj = [ply1]
+# obj = []
 
 gridLines = []
-
+# sys.exit()
 for xRange in range(50):
     vector1 = Vector3(0, 600*(xRange+1), 0)
     vector2 = Vector3(600*(xRange+1), 0, 0)
@@ -59,19 +63,30 @@ lns = [Intersctline, Intersctline2]
 
 
 insect = Intersect2d().getIntersectLinePolyCurve(ply1, Intersctline2, split=True, stretch=False) #stretch
-print(insect)
+# print(insect)
+# print(ply1.curves)
+
+
+for i in ply1.curves:
+    st = insect["InnerGridLines"][0].start
+    en = insect["InnerGridLines"][0].end
+    if is_point_on_line_segment(st, i) == True: #start
+        draw = Line.split(i, [st])
+        for lne in draw:
+            obj.append(lne)
+
+    if is_point_on_line_segment(en, i) == True: #end
+        draw = Line.split(i, [en])
+        for lne in draw:
+            obj.append(lne)
 
 
 
-
-# obj.append(ply1_split)
 
 for pt in insect["IntersectGridPoints"]:
     obj.append(pt)
 
-# for ln in insect["SplittedLines"]:
-#     for l in ln:
-#         obj.append(l)
+
 
 for pt in insect["InnerGridLines"]:
     obj.append(pt)

@@ -78,7 +78,7 @@ class Intersect2d:
 
     
     #polycurve to line intersect
-    def getIntersectLinePolyCurve(self, polycurves: List[Point], lines, split=None, stretch=None) -> List[Point]:
+    def getIntersectLinePolyCurve(self, polycurves: list[Point], lines, split=None, stretch=None) -> list[Point]:
         dict = {}
         intersectionsPointsList = []
         splitedLinesList = []
@@ -160,30 +160,17 @@ class Intersect2d:
                 else:
                     OuterGridLines.append(line)
 
-
         # dict["IntersectPolyCurve"] = polycurves
         dict["IntersectGridPoints"] = intersectionsPointsList
         dict["SplittedLines"] = splitedLinesList
         dict["InnerGridLines"] = InnerGridLines
         dict["OuterGridLines"] = OuterGridLines
 
-        # print(dict)
-        # sys.exit()
         return dict
     
-    # shorter
-    # for line in lines if isinstance(lines, list) else [lines]:
-    # for i in range(len(polycurves.points) - 1):
-    #     genLine = Line(polycurves.points[i], polycurves.points[i+1])
-    #     inCheck = Intersect2d().getLineIntersect(genLine, line)
-
-    #     x_vals = [polycurves.points[i].x, polycurves.points[i+1].x]
-    #     y_vals = [polycurves.points[i].y, polycurves.points[i+1].y]
-    #     if min(x_vals) <= inCheck.x <= max(x_vals) and min(y_vals) <= inCheck.y <= max(y_vals):
-    #         intersectionsPoints.append(inCheck)
 
 
-def is_point_in_line(point, line): #check if point in in line
+def is_point_in_line(point, line): #check if point is in align with line
     distance = abs((line.end.y - line.start.y) * point.x
                    - (line.end.x - line.start.x) * point.y
                    + line.end.x * line.start.y
@@ -193,13 +180,22 @@ def is_point_in_line(point, line): #check if point in in line
 
 
 def is_point_on_line_segment(point, line):
-    if not is_point_in_line(point, line):
-        return False
     x_min = min(line.start.x, line.end.x)
     x_max = max(line.start.x, line.end.x)
     y_min = min(line.start.y, line.end.y)
     y_max = max(line.start.y, line.end.y)
-    return x_min <= point.x <= x_max and y_min <= point.y <= y_max
+
+    # Check if the point is in the bounding box of the line segment
+    if x_min <= point.x <= x_max and y_min <= point.y <= y_max:
+        # Check if the distance from the point to the line is within a small tolerance
+        distance = abs((line.end.y - line.start.y) * point.x
+                       - (line.end.x - line.start.x) * point.y
+                       + line.end.x * line.start.y
+                       - line.end.y * line.start.x) \
+                   / line.length()
+        return distance < 1e-9
+    else:
+        return False
 
 
 def is_point_in_polygon(point, polygon):

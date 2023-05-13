@@ -45,7 +45,7 @@ from packages import helper
 
 class Extrusion:
     #Extrude a 2D profile to a 3D mesh
-    def __init__(self):
+    def __init__(self, id):
         self.verts = []
         self.faces = []
         self.numberFaces = 0
@@ -53,10 +53,11 @@ class Extrusion:
         self.name = "none"
         self.color = (255,255,0)
         self.colorlst = []
+        self.id = id
 
     @classmethod
     def byPolyCurveHeightVector(cls, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
-        Extrus = Extrusion()
+        Extrus = Extrusion(id=helper.generateID())
         #2D PolyCurve @ Global origin
         count = 0
         for i in polycurve:
@@ -122,7 +123,7 @@ class Extrusion:
     @classmethod
     def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc):
         #global len
-        Extrus = Extrusion()
+        Extrus = Extrusion(id=helper.generateID())
         Points = polycurve.points
         V1 = Vector3.byTwoPoints(Points[0], Points[1])  # Vector op basis van punt 0 en 1
         V2 = Vector3.byTwoPoints(Points[-2], Points[-1])  # Vector op basis van laatste punt en een na laatste punt

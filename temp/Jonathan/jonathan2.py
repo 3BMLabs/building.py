@@ -39,7 +39,7 @@ z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
 
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
-obj = [ply1, z]
+# obj = [ply1, z]
 
 
 

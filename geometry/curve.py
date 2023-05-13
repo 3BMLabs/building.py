@@ -62,8 +62,6 @@ class Line: #add Line.bylenght (start and endpoint)
             self.dz = 0
         self.id = id
 
-    def __id__(self):
-        return f"id:{self.id}"
 
     def offset(line, vector):
         start = Point(line.start.x + vector.x, line.start.y + vector.y, line.start.z + vector.z)
@@ -118,45 +116,29 @@ class PolyCurve:
         self.id = id
 
     @classmethod
-    def byJoinedCurves(cls, curvelst):
-        p1 = PolyCurve()
-        for i in curvelst:
-            p1.curves.append(i)
-            p1.points.append(i.start)
-        return p1
+    def byJoinedCurves(self, curvelst):
+        plycrv = PolyCurve()
+        for curve in curvelst:
+            plycrv.curves.append(curve)
+            plycrv.points.append(curve.start)
+        return plycrv
 
     @classmethod
-    def byPoints(cls, points:list[Point]):
-        crvs = []
-        p1 = PolyCurve()
-        curves = []
-        
+    def byPoints(self, points:list[Point]):
+        plycrv = PolyCurve()        
         for index, point in enumerate(points):
             try:
                 nextpoint = points[index+1]
-                crvs.append(Line(start=point, end=nextpoint))
+                plycrv.curves.append(Line(start=point, end=nextpoint))
             except:
                 firstpoint = points[0]
-                crvs.append(Line(start=point, end=firstpoint))
-        crv = PolyCurve.byJoinedCurves(crvs)
-        return crv
-
-    # @classmethod
-    # def generate_lines(cls):
-        # print(cls)
-        # print(cls.points)
-
-        # lines = []
-        # for i in range(len(self.points) - 1):
-        #     print(Line(self.points[i], self.points[i+1]))
-        #     lines.append(Line(self.points[i], self.points[i+1]))
-        # return lines
+                plycrv.curves.append(Line(start=point, end=firstpoint))
+        return PolyCurve.byJoinedCurves(plycrv.curves)
 
     @staticmethod
-    def segment(cls, count):
-        #Create segmented polycurve. Arcs, elips will be translated to straight lines
+    def segment(self, count): #Create segmented polycurve. Arcs, elips will be translated to straight lines
         crvs = []
-        for i in cls.curves:
+        for i in self.curves:
             if i.__class__.__name__ == "Arc":
                 crvs.append(Arc.segmentedarc(i, count))
             elif i.__class__.__name__ == "Line":
@@ -168,8 +150,7 @@ class PolyCurve:
     @staticmethod
     def byPolyCurve2D(PolyCurve2D):
         # by points,
-        p1 = PolyCurve()
-        count = 0
+        plycrv = PolyCurve()
         curves = []
         for i in PolyCurve2D.curves:
             if i.__class__.__name__ == "Arc2D":
@@ -182,9 +163,9 @@ class PolyCurve:
         for i in curves:
             pnts.append(i.start)
         pnts.append(curves[0].start)
-        p1.points = pnts
-        p1.curves = curves
-        return p1
+        plycrv.points = pnts
+        plycrv.curves = curves
+        return plycrv
 
 
     def split(self, lines: list[Line]):

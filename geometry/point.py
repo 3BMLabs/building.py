@@ -48,9 +48,8 @@ class Point:
         self.x = x
         self.y = y
         self.z = z
+        self.id = id
 
-    def __id__(self):
-        return f"id:{self.id}"
         
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y},{self.z})"

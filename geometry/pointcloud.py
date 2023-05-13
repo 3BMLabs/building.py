@@ -46,8 +46,5 @@ class PointCloud:
         self.points = []
         self.id = id
 
-    def __id__(self):
-        return f"id:{self.id}"
-        
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.points})"
