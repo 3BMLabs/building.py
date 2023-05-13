@@ -18,7 +18,7 @@ from abstract.intersect2d import Intersect2d
 l1 = Line(start=Point(230,-1000,0), end=Point(0,1000,0))
 l2 = Line(start=Point(-1000,0,0), end=Point(1230,0,0))
 
-p1 = Intersect2d().getIntersectPoint(l1, l2)
+p1 = Intersect2d().getLineIntersect(l1, l2)
 
 obj = [l1, l2, p1]
 

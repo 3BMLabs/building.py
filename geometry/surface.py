@@ -46,8 +46,10 @@ from abstract.intersect2d import *
 
 #check if there are innercurves inside the outer curve.
 
-class Surface: 
+class Surface: #Polycurves must be closed!!!!!!!
     def __init__(self, PolyCurves:list=PolyCurve, color=None, id=helper.generateID()) -> None:
+        #self.outerPolyCurve
+        #self.innerPolyCurves
         self.extrusion = []
         self.thickness = 0
         self.offset = 0

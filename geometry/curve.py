@@ -70,10 +70,10 @@ class Line: #add Line.bylenght (start and endpoint)
         end = Point(line.end.x + vector.x, line.end.y + vector.y, line.end.z + vector.z)
         return Line(start=start, end=end)
 
-    def pointOnIntverval(self, interval=None):
+    # @classmethod
+    def pointAtParameter(self, interval=None):
         if interval == None:
             interval = 0.0
-
         x1, y1, z1 = self.start.x, self.start.y, self.start.z
         x2, y2, z2 = self.end.x, self.end.y, self.end.z
         if float(interval) == 0.0:
@@ -81,25 +81,20 @@ class Line: #add Line.bylenght (start and endpoint)
         else:
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
-        
+
 
     def split(self, points: list[Point]):
-        lines = []
-        if type(points) == list:
-            print(points)
-            # for index, p in enumerate(range(len(points)+1)):
-            #     if index == 0:
-            #         lines.append(Line(start=self.start, end=points[index-1]))
-            #     elif index == len(points):
-            #         lines.append(Line(start=points[index-2], end=self.end))
-            #     else:
-            #         lines.append(Line(start=points[index], end=points[index-1]))
-
-        elif type(points) == Point:
+        if isinstance(points, list):        
+            points.extend([self.start, self.end])
+            sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
+            lines = create_lines(sorted_points)
+            return lines
+        elif isinstance(points, Point):
             point = points
             lines.append(Line(start=self.start, end=point))
             lines.append(Line(start=point, end=self.end))
-        return lines
+            return lines
+
 
     def length(self):
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
@@ -107,9 +102,16 @@ class Line: #add Line.bylenght (start and endpoint)
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.start},{self.end})"
 
+def create_lines(points):
+    lines = []
+    for i in range(len(points)-1):
+        line = Line(points[i], points[i+1])
+        lines.append(line)
+    return lines
+
 
 class PolyCurve:
-    def __init__(self, points=None, id=helper.generateID()):
+    def __init__(self, points=None, id=helper.generateID()): #isclosed?
         self.curves = []
         self.points = points or []
         self.segmentcurves = None
@@ -139,10 +141,10 @@ class PolyCurve:
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
 
-    @classmethod
-    def generate_lines(cls):
+    # @classmethod
+    # def generate_lines(cls):
         # print(cls)
-        print(cls.points)
+        # print(cls.points)
 
         # lines = []
         # for i in range(len(self.points) - 1):
@@ -183,6 +185,21 @@ class PolyCurve:
         p1.points = pnts
         p1.curves = curves
         return p1
+
+
+    def split(self, lines: list[Line]):
+        pass
+        # if isinstance(points, list):        
+        #     points.extend([self.start, self.end])
+        #     sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
+        #     lines = create_lines(sorted_points)
+        #     return lines
+        # elif isinstance(points, Point):
+        #     point = points
+        #     lines.append(Line(start=self.start, end=point))
+        #     lines.append(Line(start=point, end=self.end))
+        #     return lines
+
 
     def translate(self, vector3d:Vector3):
         crvs = []

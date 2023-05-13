@@ -20,7 +20,6 @@ from objects.panel import Panel
 from abstract.color import Color
 from geometry.surface import Surface
 
-
 Point1 = Point(1500,-3500,0)
 Point2 = Point(6900,5000,0)
 Point3 = Point(3420,5000,0)
@@ -35,10 +34,10 @@ ply2 = PolyCurve.byPoints([Point5, Point6, Point7, Point8, Point5])
 
 
 
-l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
-l2 = Line(start=Point(-1000,0,0), end=Point(1230,0,0))
-f1 = Intersect2d().getIntersectPoint(l1, l2)
-obj = [l1, l2, f1]
+# l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
+# l2 = Line(start=Point(-1000,0,0), end=Point(1230,0,0))
+# f1 = Intersect2d().getLineIntersect(l1, l2)
+# obj = [l1, l2, f1]
 
 Point1 = Point(1500,0,0)
 Point2 = Point(6900,1000,0)
@@ -49,12 +48,11 @@ ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point1])
 # srf1 = Surface([ply1, ply2])
 
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
-# obj = [srf1]
-
+# obj.append(srf1)
 obj = [ply1]
 
 
-f1 = Intersect2d().getIntersectPointPolyCurve(ply1, l3, split=True)
+f1 = Intersect2d().getLineIntersectPolyCurve(ply1, l3, split=True)
 
 for ff in f1: #points
     obj.append(ff)
@@ -74,7 +72,7 @@ for ff in f1: #points
 #     gridLines.append(Line.offset(startLinexAxis, vector1))
 #     gridLines.append(Line.offset(startLineyAxis, vector2))
 
-# insect = Intersect2d().getIntersectPointPolyCurve(ply1, gridLines, split=True)
+# insect = Intersect2d().getLineIntersectPolyCurve(ply1, gridLines, split=True)
 
 # for innie1 in insect[1]:
 #     for z in innie1:
@@ -84,7 +82,6 @@ for ff in f1: #points
 #     obj.append(grid)
 # obj.append(startLinexAxis)
 # obj.append(startLineyAxis)
-
 
 SpeckleHost = "3bm.exchange"
 StreamID = "fa4e56aed4"

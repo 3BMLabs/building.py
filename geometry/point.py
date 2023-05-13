@@ -55,11 +55,18 @@ class Point:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y},{self.z})"
 
-    # @staticmethod
-    # def distance(point1, point2):
-    #     x1, y1, z1 = point1
-    #     x2, y2, z2 = point2
-    #     return math.dist([x1, y1, z1], [x2, y2, z2])
+    @staticmethod
+    def distance(point1, point2):
+        return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2 + (point1.z - point2.z)**2)
+
+    @staticmethod
+    def calculate_distance(points:list) -> float:
+        distances = []
+        for i in range(len(points)):
+            for j in range(i+1, len(points)):
+                distances.append((points[i], points[j], Point.distance(points[i], points[j])))
+        distances.sort(key=lambda x: x[2])
+        return distances
 
     @staticmethod
     def difference(pointxyz1, pointxyz2):

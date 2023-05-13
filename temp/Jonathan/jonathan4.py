@@ -2,7 +2,7 @@ import sys, math, requests, json
 from svg.path import parse_path
 from typing import List, Tuple
 from pathlib import Path
-
+# https://help.xtools.pro/pro/22.0/en/XTools_Pro_Components/Geometry_Tools/Split_Polygons.htm
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
@@ -35,22 +35,14 @@ ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
 
 
-
-
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
-
-obj = [ply1, z]
-
-
 
 
 startLinexAxis = Line(start=Point(10000,-10000,0), end=Point(-10000,-10000,0))
 startLineyAxis = Line(start=Point(-10000,-10000,0), end=Point(-10000,10000,0))
 
-obj = [ply1]
-
-
-
+# obj = [ply1]
+obj = []
 
 gridLines = []
 
@@ -60,18 +52,19 @@ for xRange in range(50):
     gridLines.append(Line.offset(startLinexAxis, vector1))
     gridLines.append(Line.offset(startLineyAxis, vector2))
 
-Intersctline  = Line(start=Point(2900,200,0), end=Point(-10000,200,0))
+Intersctline  = Line(start=Point(5000,200,0), end=Point(-10000,200,0))
 # Intersctline1 = Line(start=Point(200,10000,0), end=Point(200,-1000,0))
-Intersctline2 = Line(start=Point(200,-1000,0), end=Point(200,10000,0))
+Intersctline2 = Line(start=Point(400,-4000,0), end=Point(400,12000,0))
 lns = [Intersctline, Intersctline2]
 
-# centerpoint = Intersctline1.pointOnIntverval(0)
-# obj.append(centerpoint)
 
-insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=True) #stretch
+insect = Intersect2d().getIntersectLinePolyCurve(ply1, Intersctline2, split=True, stretch=False) #stretch
 print(insect)
-# obj.append(Intersctline1)
 
+
+
+
+# obj.append(ply1_split)
 
 for pt in insect["IntersectGridPoints"]:
     obj.append(pt)
@@ -92,7 +85,7 @@ for pt in insect["InnerGridLines"]:
 # obj.append(startLineyAxis)
 
 
-
+# sys.exit()
 
 
 SpeckleHost = "3bm.exchange"

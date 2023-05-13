@@ -60,15 +60,15 @@ for xRange in range(50):
     gridLines.append(Line.offset(startLinexAxis, vector1))
     gridLines.append(Line.offset(startLineyAxis, vector2))
 
-Intersctline  = Line(start=Point(2900,200,0), end=Point(-10000,200,0))
+Intersctline  = Line(start=Point(5000,200,0), end=Point(-10000,200,0))
 # Intersctline1 = Line(start=Point(200,10000,0), end=Point(200,-1000,0))
-Intersctline2 = Line(start=Point(200,-1000,0), end=Point(200,10000,0))
+Intersctline2 = Line(start=Point(400,-4000,0), end=Point(400,12000,0))
 lns = [Intersctline, Intersctline2]
 
 # centerpoint = Intersctline1.pointOnIntverval(0)
 # obj.append(centerpoint)
 
-insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=True) #stretch
+insect = Intersect2d().getIntersectLinePolyCurve(ply1, lns, split=True, stretch=False) #stretch
 print(insect)
 # obj.append(Intersctline1)
 
