@@ -127,6 +127,7 @@ class PolyCurve:
     def byPoints(self, points:list[Point]):
         plycrv = PolyCurve()        
         for index, point in enumerate(points):
+            plycrv.points.append(point)
             try:
                 nextpoint = points[index+1]
                 plycrv.curves.append(Line(start=point, end=nextpoint))
