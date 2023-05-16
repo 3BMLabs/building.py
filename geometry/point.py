@@ -48,7 +48,7 @@ class Point:
         self.x = x
         self.y = y
         self.z = z
-        self.id = id=helper.generateID()
+        self.id = helper.generateID()
 
         
     def __str__(self) -> str:

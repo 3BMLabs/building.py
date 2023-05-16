@@ -46,12 +46,12 @@ class curve:
     pass
 
 class Vector2:
-    def __init__(self, x, y, id=helper.generateID()) -> None:
+    def __init__(self, x, y) -> None:
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
         self.y = y
-        self.id = id
+        self.id = helper.generateID()
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -106,15 +106,16 @@ class Vector2:
         return f"{__class__.__name__}({self.X},{self.Y})"
 
 class Point2D:
-    def __init__(self, x, y, id=helper.generateID()) -> None:
+    def __init__(self, x, y) -> None:
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
         self.y = y
-        self.id = id
+        self.id = helper.generateID()
 
     def __id__(self):
         return f"id:{self.id}"
+    
     def translate(self, vector: Vector2):
         x = self.x + vector.x
         y = self.y + vector.y
@@ -148,7 +149,7 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
     return pn3
 
 class Line2D:
-    def __init__(self, pntxy1, pntxy2, id=helper.generateID()) -> None:
+    def __init__(self, pntxy1, pntxy2) -> None:
         self.start: Point2D = pntxy1
         self.end: Point2D = pntxy2
         self.x = [self.start.x, self.end.x]
@@ -156,7 +157,7 @@ class Line2D:
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
         self.length = 0
-        self.id = id
+        self.id = helper.generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -170,7 +171,7 @@ class Line2D:
 
 
 class Arc2D:
-    def __init__(self,pntxy1,pntxy2,pntxy3, id=helper.generateID()) -> None:
+    def __init__(self,pntxy1,pntxy2,pntxy3) -> None:
         self.start:Point2D = pntxy1
         self.mid: Point2D = pntxy2
         self.end: Point2D = pntxy3
@@ -180,7 +181,7 @@ class Arc2D:
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
 
-        self.id = id
+        self.id = helper.generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -257,10 +258,10 @@ class Arc2D:
 
 
 class PolyCurve2D:
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         self.curves = [] #collect in list
         self.points2D = []
-        self.id = id
+        self.id = helper.generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -319,9 +320,9 @@ class PolyCurve2D:
 
 
 class Surface2D:
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass #PolyCurve2D
-        self.id = id
+        self.id = helper.generateID()
     pass #opening(PolyCurve2D)
         
     def __id__(self):
@@ -332,9 +333,9 @@ class Surface2D:
 
 
 class Profile2D:
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass #Surface2D, collect curves and add parameters
-        self.id = id
+        self.id = helper.generateID()
     #voorzien van parameters
     #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
     pass
@@ -347,9 +348,9 @@ class Profile2D:
 
 
 class ParametricProfile2D:
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass #iets van profile hier inladen
-        self.id = id
+        self.id = helper.generateID()
     # Aluminium
     # Generic
     # Precast Concrete

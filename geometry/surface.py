@@ -134,9 +134,9 @@ class Surface: #Polycurves must be closed!!!!!!!
 
 
 class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass
-        self.id = id
+        self.id = helper.generateID()
     pass
 
     def __id__(self):
@@ -147,9 +147,9 @@ class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
 
 
 class PolySurface:
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass
-        self.id = id
+        self.id = helper.generateID()
     pass
 
     def __id__(self):

@@ -342,9 +342,9 @@ def RectYZ(vector: Vector3, width: float, height: float):
 
 
 class PolyGon:
-    def __init__(self, lines, id=helper.generateID()) -> None:
+    def __init__(self, lines) -> None:
         self.Lines = lines#collect in list
-        self.id = id
+        self.id = helper.generateID()
         pass #Lines
     
     @staticmethod
@@ -372,6 +372,7 @@ class PolyGon:
 
 class Arc:
     def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
+        self.id = helper.generateID()
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
