@@ -35,8 +35,6 @@ Point5 = Point(-2900,1600,0) #x
 ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
 
-
-
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
 

@@ -36,8 +36,12 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import Vector3
 from geometry.point import Point
-from geometry.curve import Line, PolyCurve
+from geometry.curve import Line, PolyCurve, Rect
 from geometry.surface import Surface
+from geometry.solid import Extrusion
+
+#OVERAL FOR EACH OBJECT A ROTATION/POSITION
+#Make sure that the objects can be merged!
 
 class WurksRaster3d:
     def __init__(self, lines: list[Line], bottom: float, top: float): #-320, 20
@@ -56,6 +60,34 @@ class WurksRaster3d:
             pts.append(Point.translate(line.start, self.top))
             surfList.append(Surface(PolyCurve.byPoints(pts)))
         return surfList
+
+class WurksPedestal(): #place on point (facebased), point = top pedestal
+    def __init__(self) -> None: #classes with different tops (must be parameterized)
+        pass   
+        #type base
+        #type frame
+        #type top
+
+
+    def byPoint(self, point:Point, rotation=None):
+        # top,
+        # ffh / ph / ufh
+
+        base = Rect(Vector3(0,0,0), 80, 80)
+        x1 = Extrusion.byPolyCurveHeight(base, 3, 20)
+
+        frame = Rect(Vector3(35,35,0), 10, 10)
+        x2 = Extrusion.byPolyCurveHeight(frame, 120, -100)
+
+        top = Rect(Vector3(0,0,0), 80, 80)
+        x3 = Extrusion.byPolyCurveHeight(top, 3, -103)
+
+
+        return Extrusion.merge([x1, x2, x3], name="test")
+
+
+
+    pass #pootje, voet diameter(vierkant), verstelbare hoogte inregelen, 
 
 class WurksComputerFloor(): #centerpoint / rotation / panel pattern / ply
     pass #some type of floor object

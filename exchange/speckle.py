@@ -220,11 +220,10 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
-        # print(nm)
+        print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = "mm"))
-        
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))
         all_vertices = []
         all_faces = []
         all_colors = []
@@ -236,44 +235,54 @@ def translateObjectsToSpeckleObjects(Obj):
             all_vertices = flatten(all_vertices)
             all_faces = flatten(all_faces)
             all_colors = flatten(all_colors)
-            SpeckleObj.append(SpeckleMesh(vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units="mm"))
-            # print(all_vertices, all_faces, all_colors)
-
-        # if nm == 'Surface' or nm == 'Face':
-        #     for index in range(len(i.PolyCurveList)):
-        #         colrs = i.colorlst[index]
-        #         SpeckleObj.append(SpeckleMesh(vertices=i.extrusion[index].verts, faces=i.extrusion[index].faces, colors = colrs, name = i.name[index], units = "mm"))
+            SpeckleObj.append(SpeckleMesh(vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units= project.units))
 
         elif nm == 'Frame':
-            colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.profileName, units = "mm"))
+            SpeckleObj.append(SpeckleMesh(vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
+
+        elif nm == "Extrusion":
+            clrs = [] #i.colorlst
+            SpeckleObj.append(SpeckleMesh(vertices=i.verts, faces=i.faces, colors = clrs, name = "n", units = project.units))
+
         elif nm == 'PolyCurve':
             pnts = []
             for point in i.points:
                 pnts.append(point)
             SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
+
         elif nm == 'ImagePyB':
             colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(vertices=i.verts, faces=i.faces, colors = colrs, name = i.name, units = "mm"))
+            SpeckleObj.append(SpeckleMesh(vertices=i.verts, faces=i.faces, colors = colrs, name = i.name, units = project.units))
+
         elif nm == 'Interval':
             SpeckleObj.append(IntervalToSpeckleInterval(i))
+
         elif nm == 'Line':
             SpeckleObj.append(LineToSpeckleLine(i))
+
         elif nm == 'Plane':
             SpeckleObj.append(PlaneToSpecklePlane(i))
+
         elif nm == 'Arc':
             SpeckleObj.append(ArcToSpeckleArc(i))
+
         elif nm == 'Line2D':
             SpeckleObj.append(Line2DToSpeckleLine3D(i))
+
         elif nm == 'Point':
             SpeckleObj.append(PointToSpecklePoint(i))
+
         elif nm == 'Text':
             SpeckleObj.append(TextToSpeckleCurveSurface(i))
+
         elif nm == 'Point2D':
             SpeckleObj.append(Point2DToSpecklePoint(i))
+
         elif nm == 'Grid':
             for j in GridToLines(i):
                 SpeckleObj.append(j)
+
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))
+
     return SpeckleObj

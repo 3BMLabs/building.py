@@ -68,13 +68,29 @@ lns = [Intersctline, Intersctline2]
 
 insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False) #stretch
 
+# insect["InnerGridLines"] list with 50 lines.
+# insect2 = Intersect2d().getIntersectLinePolyCurve(line1, line2)
+collectlistInsidePly = []
+collectlistOutsidePly = []
+for i in range(len(insect["InnerGridLines"])):
+    line1 = insect["InnerGridLines"][i]
+    for j in range(i+1, len(insect["InnerGridLines"])):
+        line2 = insect["InnerGridLines"][j]
+        intersection = Intersect2d().getLineIntersect(line1, line2)
+        if intersection != None and intersection not in collectlistInsidePly:
+            if is_point_in_polygon(intersection, ply1):
+                collectlistInsidePly.append(intersection)
+            else:
+                collectlistOutsidePly.append(intersection)
+
+for x in collectlistInsidePly:
+    obj.append(x)
 # for b in insect["InnerGridLines"]:
 #     obj.append(b)
 
-print(insect["InnerGridLines"])
-rstr = WurksRaster3d(insect["InnerGridLines"], -320, 20).byLine() #get return the polycurves / raster
-for i in rstr:
-    obj.append(i)
+# rstr = WurksRaster3d(insect["InnerGridLines"], -320, 20).byLine() #get return the polycurves / raster
+# for i in rstr:
+#     obj.append(i)
 
 x = Surface(ply1)
 obj.append(x)

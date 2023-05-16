@@ -73,7 +73,7 @@ insect = Intersect2d().getIntersectLinePolyCurve(ply1, Intersctline2, split=True
 for i in insect["InnerGridLines"]: #use this 2x (to divide the polycurve)
     obj.append(i)
 
-for i in insect["SplittedLines"][0]:
+for i in insect["SplittedLines"]:
     obj.append(i)
 
 

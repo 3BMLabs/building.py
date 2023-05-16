@@ -45,7 +45,7 @@ from packages import helper
 
 class Extrusion:
     #Extrude a 2D profile to a 3D mesh
-    def __init__(self, id):
+    def __init__(self):
         self.verts = []
         self.faces = []
         self.numberFaces = 0
@@ -53,11 +53,31 @@ class Extrusion:
         self.name = "none"
         self.color = (255,255,0)
         self.colorlst = []
-        self.id = id
+        self.id = helper.generateID()
+
+    @classmethod
+    def merge(cls, extrusions:list, name=None):
+        Outrus = Extrusion()
+        if isinstance(extrusions, list):
+            Outrus.verts = []
+            Outrus.faces = []
+            Outrus.colorlst = []
+            for ext in extrusions:
+                Outrus.verts.append(ext.verts)
+                Outrus.faces.append(ext.faces)
+                Outrus.colorlst.append(ext.colorlst)
+            Outrus.verts = flatten(Outrus.verts)
+            Outrus.faces = flatten(Outrus.faces)
+            Outrus.colorlst = flatten(Outrus.colorlst)
+            return Outrus
+
+        elif isinstance(extrusions, Extrusion):
+            return extrusions
+
 
     @classmethod
     def byPolyCurveHeightVector(cls, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
-        Extrus = Extrusion(id=helper.generateID())
+        Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
         for i in polycurve:
@@ -121,9 +141,10 @@ class Extrusion:
         return Extrus
 
     @classmethod
-    def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc):
+    def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc: float):
         #global len
-        Extrus = Extrusion(id=helper.generateID())
+        id = helper.generateID()
+        Extrus = Extrusion()
         Points = polycurve.points
         V1 = Vector3.byTwoPoints(Points[0], Points[1])  # Vector op basis van punt 0 en 1
         V2 = Vector3.byTwoPoints(Points[-2], Points[-1])  # Vector op basis van laatste punt en een na laatste punt
@@ -196,6 +217,8 @@ class Extrusion:
             # then
         Extrus.numberFaces = len(faces)
         Extrus.countVertsFaces = (4 * len(faces))
+
+        for j in range(int(len(Extrus.verts) / 3)):
+            Extrus.colorlst.append(Extrus.color)
+
         return Extrus
-    
-    

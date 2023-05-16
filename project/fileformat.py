@@ -48,6 +48,8 @@ class BuildingPy:
         #prefix objects (name)
         #Geometry settings
 
+        #different settings for company's?
+
         #rename this to autoclose?
         self.closed: bool = True #auto close polygons? By default true, else overwrite
         self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
