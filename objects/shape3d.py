@@ -29,18 +29,14 @@ __title__ = "shape3d"
 __author__ = "Joas"
 __url__ = "./objects/shape3d.py"
 
-import sys
-import math
+import sys, math
 from pathlib import Path
 from exchange.speckle import *
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 
 class Origin:
-
     def __init__(self):
         self.originx = 0
         self.originy = 0

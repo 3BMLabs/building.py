@@ -35,12 +35,14 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from project.fileformat import *
 from geometry.point import *
 from packages import helper
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from packages.helper import *
 from abstract.interval import Interval
+
 
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
@@ -112,15 +114,32 @@ class PolyCurve:
         self.curves = []
         self.points = points or []
         self.segmentcurves = None
+
+        #Methods ()
+        #close
+        #pointonperimeter
+
+        #Properties
+        self.approximateLength = None
+        self.graphicsStyleId = None
         self.id = helper.generateID()
+        self.isClosed = None
+        self.isCyclic = None
+        self.isElementGeometry = None
+        self.isReadOnly = None
         self.length = self.calcLength()
-        self.isclosed = self.checkClosed()
+        self.period = None
+        self.reference = None
+        self.visibility = None
+
+
+    def close(self):
+        return 0
 
 
     def calcLength(self):
-        for i in self.curves:
-            print(i)
-        return self.curves
+        return sum(i.length for i in self.curves)
+        # return sum(i.length for i in self.curves)
 
         # if self.length == None:
         #     self.length = 0
@@ -130,16 +149,9 @@ class PolyCurve:
         # print(self.curves)
 
 
-    def checkClosed(self):
-        pass
-        # if self.curves[0] == self.curves[-1]:
-        #     self.closed = True
-        # else:
-        #     self.closed = False
-
     @classmethod
     def byJoinedCurves(self, curvelst):
-        plycrv = PolyCurve()
+        plycrv = PolyCurve() #add isclosed
         for curve in curvelst:
             plycrv.curves.append(curve)
             plycrv.points.append(curve.start)
@@ -147,6 +159,8 @@ class PolyCurve:
 
     @classmethod
     def byPoints(self, points:list[Point]):
+        projectClosed = project.closed
+
         plycrv = PolyCurve()        
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -156,11 +170,21 @@ class PolyCurve:
             except:
                 firstpoint = points[0]
                 plycrv.curves.append(Line(start=point, end=firstpoint))
-        return PolyCurve.byJoinedCurves(plycrv.curves)
+        
+        if projectClosed:
+            if plycrv.points[0] != plycrv.points[-1]:
+                plycrv.curves.append(plycrv.curves[0])
+                plycrv.isclosed = True
+        # elif projectClosed == False:
+        #     if plycrv.points[0] == plycrv.points[-1]:
+        #         plycrv.curves.pop(-1)
+        #         plycrv.isclosed = False
+            
+        return plycrv
 
     @staticmethod
     def segment(self, count): #Create segmented polycurve. Arcs, elips will be translated to straight lines
-        crvs = []
+        crvs = [] #add isclosed
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
                 crvs.append(Arc.segmentedarc(i, count))
@@ -344,7 +368,7 @@ class Arc:
         self.angleRadian = self.angleRadian()
         self.area=0
         self.length = self.length()
-        self.units="mm"
+        self.units=project.units
         self.coordinatesystem = self.coordinatesystemarc()
 
     def distance(self, p1, p2):

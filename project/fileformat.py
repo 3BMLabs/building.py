@@ -35,26 +35,35 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from exchange.speckle import *
 
 class BuildingPy:
-    def __init__(self, name, number):
+    def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
         self.objects = []
         self.units = "mm"
-        self.origin = Point
-        #base point/ origin?
+        self.decimals = 3 #not implemented yet
+        self.origin = [0,0,0]
         #prefix objects (name)
-        #units (mm/inch/m)
         #Geometry settings
+
+        self.closed: bool = True #auto close polygons? By default true, else overwrite
         self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
 
         #Speckle settings
         self.speckleserver = "3bm.exchange"
         self.specklestream = None
 
+    # @property
+    # def units(self):
+    #     return "mm"
+
+
     def toSpeckle(self, streamid, commitstring):
+        from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)
         TransportToSpeckle(self.speckleserver,streamid,speckleobj,commitstring)
+
+
+project = BuildingPy()

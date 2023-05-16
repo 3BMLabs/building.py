@@ -33,9 +33,8 @@ __url__ = "./objects/frame.py"
 import sys, os, math
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from library.profile import *
 from geometry.geometry2d import *

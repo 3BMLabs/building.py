@@ -18,6 +18,9 @@ from geometry.curve import *
 # from geometry.solid import Extrusion
 # from geometry.surface import *
 # from math import fabs
+from project.fileformat import *
+
+
 
 l = Line(Point(0, 0, 0), Point(1, 250, 0))
 print(l.length)
@@ -29,6 +32,14 @@ Point2 = Point(6900,5000,0) #b
 Point3 = Point(0,10000,0) #x
 Point4 = Point(0,0,0) #x
 Point5 = Point(-2900,1600,0) #x
-ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
-ply1.length
+ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5])
+print(ply1.close())
+# for i in ply1.points:
+#     print(i)
+print(ply1.isclosed)
+print(ply1.calcLength())
+
+
+# print(ply1)
+# ply1.length
 # print()

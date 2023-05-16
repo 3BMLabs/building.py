@@ -30,13 +30,12 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/steelshape.py"
 
 
-import sys, os, math
+import sys, math
 from pathlib import Path
 from objects.frame import *
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from geometry.geometry2d import *
 

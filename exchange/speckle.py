@@ -58,6 +58,7 @@ from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.primitive import Interval as SpeckleInterval
+from project.fileformat import project
 
 
 def IntervalToSpeckleInterval(Interval: Interval):
@@ -70,7 +71,7 @@ def PointToSpecklePoint(Point: Point):
     except:
         SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, 0)
     
-    SpecklePnt.units = "mm"
+    SpecklePnt.units = project.units
     return SpecklePnt
 
 
@@ -92,7 +93,7 @@ def PlaneToSpecklePlane(Plane: Plane):
 def SpecklePolylineBySpecklePoints(SpecklePoints: list[Point]):
     SpecklePl = [PointToSpecklePoint(point) for point in SpecklePoints]
     SpecklePolyline = SpecklePolyLine.from_points(SpecklePl)
-    SpecklePolyline.units = "mm"
+    SpecklePolyline.units = project.units
     return SpecklePolyline
 
 
