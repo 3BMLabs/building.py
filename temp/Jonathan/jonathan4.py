@@ -112,6 +112,7 @@ for x1 in list1:
 part2.append(en)
 part2.append(st)
 
+
 plyl1 = PolyCurve.byPoints(part1)
 obj.append(Surface([plyl1]))
 obj.append(plyl1)

@@ -25,14 +25,31 @@ from math import fabs
 # l2 = Line(start=Point(-1000,0,0), end=Point(1230,0,0))
 # f1 = Intersect2d().getLineIntersect(l1, l2)
 # obj = [l1, l2, f1]
+#Shoelace formula
 
+def calculate_area(ply):
+    area = 0.0
+    n = len(ply.points)
 
-Point1 = Point(1000,4000,0) #b
-Point2 = Point(1000,0,0) #b
-Point3 = Point(0,0,0) #x
-Point4 = Point(0,340,0) #x
-Point5 = Point(0,-4000,0) #x
-ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
+    for i in range(n):
+        p1 = ply.points[i]
+        p2 = ply.points[(i + 1) % n]
+
+        area += (p1.x * p2.y - p2.x * p1.y) / 2
+
+    return abs(area)
+
+# Create the points and PolyCurve object
+Point1 = Point(1000, 4000, 0)  # b
+Point2 = Point(1000, 0, 0)     # b
+Point3 = Point(0, 0, 0)        # x
+Point4 = Point(0, 340, 0)      # x
+Point5 = Point(0, -4000, 0)    # x
+ply1 = PolyCurve([Point1, Point2, Point3, Point4, Point5, Point1])
+
+# Calculate the area
+area = calculate_area(ply1)
+print("Area:", area)
 
 
 def polycurve_area(ply: PolyCurve) -> float:

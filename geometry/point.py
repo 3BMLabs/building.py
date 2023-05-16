@@ -41,14 +41,14 @@ sys.path.append(str(package_root_directory))
 from packages import helper
 
 class Point:
-    def __init__(self, x, y, z, id=helper.generateID()):
+    def __init__(self, x, y, z):
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
         self.x = x
         self.y = y
         self.z = z
-        self.id = id
+        self.id = id=helper.generateID()
 
         
     def __str__(self) -> str:

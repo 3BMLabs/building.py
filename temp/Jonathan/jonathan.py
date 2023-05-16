@@ -46,13 +46,12 @@ Point4 = Point(0,0,0)
 ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point1])
 
 # srf1 = Surface([ply1, ply2])
-
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 # obj.append(srf1)
 obj = [ply1]
 
 
-f1 = Intersect2d().getLineIntersectPolyCurve(ply1, l3, split=True)
+f1 = Intersect2d().getIntersectLinePolyCurve(ply1, l3, split=True)
 
 for ff in f1: #points
     obj.append(ff)

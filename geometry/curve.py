@@ -33,9 +33,7 @@ __url__ = "./geometry/curve.py"
 import sys, os, math
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from packages import helper
@@ -45,9 +43,10 @@ from packages.helper import *
 from abstract.interval import Interval
 
 class Line: #add Line.bylenght (start and endpoint)
-    def __init__(self, start: Point, end: Point, id=helper.generateID()) -> None:
+    def __init__(self, start: Point, end: Point) -> None:
         self.start: Point = start
         self.end: Point = end
+        self.id = id=helper.generateID()
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         try:
@@ -60,7 +59,7 @@ class Line: #add Line.bylenght (start and endpoint)
             self.dz = self.end.z-self.start.z
         except:
             self.dz = 0
-        self.id = id
+        self.length = self.length()
 
 
     def offset(line, vector):
@@ -109,11 +108,34 @@ def create_lines(points):
 
 
 class PolyCurve:
-    def __init__(self, points=None, id=helper.generateID()): #isclosed?
+    def __init__(self, points=None): #isclosed?
         self.curves = []
         self.points = points or []
         self.segmentcurves = None
-        self.id = id
+        self.id = helper.generateID()
+        self.length = self.calcLength()
+        self.isclosed = self.checkClosed()
+
+
+    def calcLength(self):
+        for i in self.curves:
+            print(i)
+        return self.curves
+
+        # if self.length == None:
+        #     self.length = 0
+        #     for curve in self.curves:
+        #         self.length += curve.length()
+        # return self.length
+        # print(self.curves)
+
+
+    def checkClosed(self):
+        pass
+        # if self.curves[0] == self.curves[-1]:
+        #     self.closed = True
+        # else:
+        #     self.closed = False
 
     @classmethod
     def byJoinedCurves(self, curvelst):
@@ -236,13 +258,11 @@ class PolyCurve:
         p1.points = pnts
         p1.curves = curves
         return p1
-    def __id__(self):
-        return f"id:{self.id}"
 
     def __str__(self):
         PolyCurveName = f"{__class__.__name__}("
-#       for i in self.curves:
-#            PolyCurveName = PolyCurveName + i
+        for i in self.curves:
+            PolyCurveName = PolyCurveName + f"{i}, "
         return PolyCurveName + ")"
 
 # 2D PolyCurve to 3D PolyGon
@@ -366,6 +386,7 @@ class Arc:
         v2 = Vector3.byTwoPoints(self.origin, self.start)
         angle = Vector3.angleRadianBetween(v1,v2)
         return angle
+    
     def length(self):
         x1, y1, z1 = self.start.x, self.start.y, self.start.z
         x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
@@ -407,14 +428,14 @@ class Arc:
         return lines
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}(Object output n.t.b.)"
+        return f"{__class__.__name__}()"
 
-class Circle:
-    def __init__(self, radius, plane, length, id=helper.generateID()) -> None:
+class Circle: #auto calculate length!
+    def __init__(self, radius, plane, length) -> None:
         self.radius = radius
         self.plane = plane
         self.length = length
-        self.id = id
+        self.id = helper.generateID()
         pass #Curve
 
     def __id__(self):
@@ -425,11 +446,11 @@ class Circle:
 
 
 class Ellipse:
-    def __init__(self, firstRadius, secondRadius, plane, id=helper.generateID()) -> None:
+    def __init__(self, firstRadius, secondRadius, plane) -> None:
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane
-        self.id = id
+        self.id = helper.generateID()
         pass #Curve
     pass
 

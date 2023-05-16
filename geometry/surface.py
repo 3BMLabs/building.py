@@ -33,9 +33,7 @@ __url__ = "./geometry/surface.py"
 import sys, os, math
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from packages import helper
@@ -47,14 +45,18 @@ from abstract.intersect2d import *
 #check if there are innercurves inside the outer curve.
 
 class Surface: #Polycurves must be closed!!!!!!!
-    def __init__(self, PolyCurves:list=PolyCurve, color=None, id=helper.generateID()) -> None:
+    def __init__(self, PolyCurves:list=PolyCurve, color=None) -> None:
         #self.outerPolyCurve
         #self.innerPolyCurves
-        self.extrusion = []
-        self.thickness = 0
+        if isinstance(PolyCurves, PolyCurve):
+            PolyCurves = [PolyCurves]
+
+        self.mesh = []
+        self.length = 0
+        # self.thickness = 0
         self.offset = 0
         self.name = "test2"
-        self.id = id
+        self.id = helper.generateID()
         self.PolyCurveList = PolyCurves
         self.color = None
         self.origincurve = None
@@ -67,25 +69,35 @@ class Surface: #Polycurves must be closed!!!!!!!
         self.fill(self.PolyCurveList)
 
     def fill(self, PolyCurveList):
-        for polyCurve in PolyCurveList:
+        if isinstance(PolyCurveList, PolyCurve):
             plycColorList = []
-            p = Extrusion.byPolyCurveHeight(polyCurve, self.thickness, self.offset)
-            self.extrusion.append(p)
+            print("Single")
+            p = Extrusion.byPolyCurveHeight(PolyCurveList, 0, self.offset)
+            self.mesh.append(p)
             for j in range(int(len(p.verts) / 3)):
                 plycColorList.append(self.color)
             self.colorlst.append(plycColorList)
 
+        elif isinstance(PolyCurveList, list):
+            for polyCurve in PolyCurveList:
+                plycColorList = []
+                p = Extrusion.byPolyCurveHeight(polyCurve, 0, self.offset)
+                self.mesh.append(p)
+                for j in range(int(len(p.verts) / 3)):
+                    plycColorList.append(self.color)
+                self.colorlst.append(plycColorList)
+
     def void(self, polyCurve):
         # Find the index of the extrusion that intersects with the polyCurve
         idx = None
-        for i, extr in enumerate(self.extrusion):
+        for i, extr in enumerate(self.mesh):
             if extr.intersects(polyCurve):
                 idx = i
                 break
 
         if idx is not None:
             # Remove the intersected extrusion from the extrusion list
-            removed = self.extrusion.pop(idx)
+            removed = self.mesh.pop(idx)
 
             # Remove the corresponding color list from the colorlst list
             removed_colors = self.colorlst.pop(idx)
@@ -101,7 +113,7 @@ class Surface: #Polycurves must be closed!!!!!!!
             hole_extrusion = hole_surface.extrusion[0]
 
             # Add the hole extrusion to the extrusion list
-            self.extrusion.append(hole_extrusion)
+            self.mesh.append(hole_extrusion)
 
             # Add the hole colors to the colorlst list
             hole_colors = [Color.rgb_to_int(Color().Components("red"))] * int(len(hole_extrusion.verts) / 3)

@@ -32,19 +32,21 @@ __url__ = "./fileformat/fileformat.py"
 
 import sys, os, math
 from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from exchange.speckle import *
-
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
 
 class BuildingPy:
     def __init__(self, name, number):
         self.name: str = name
         self.number: str = number
         self.objects = []
-
+        self.units = "mm"
+        self.origin = Point
+        #base point/ origin?
+        #prefix objects (name)
+        #units (mm/inch/m)
         #Geometry settings
         self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
 

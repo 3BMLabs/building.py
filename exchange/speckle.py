@@ -235,7 +235,7 @@ def translateObjectsToSpeckleObjects(Obj):
             all_faces = flatten(all_faces)
             all_colors = flatten(all_colors)
             SpeckleObj.append(SpeckleMesh(vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units="mm"))
-            print(all_vertices, all_faces, all_colors)
+            # print(all_vertices, all_faces, all_colors)
 
         # if nm == 'Surface' or nm == 'Face':
         #     for index in range(len(i.PolyCurveList)):

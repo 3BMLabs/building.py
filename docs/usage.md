@@ -447,7 +447,7 @@ Arc.radius(arc1) # Calculating radius of arc using the distance function
 <br>
 
 ``` python
-Arc.length(arc1) # Calculate length of Arc using its points
+Arc.length(arc1) # Calculate length of Arc
 ```
 <br>
 

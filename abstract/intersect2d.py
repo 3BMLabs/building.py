@@ -170,7 +170,7 @@ class Intersect2d:
     
 
 
-def is_point_in_line(point, line): #check if point is in align with line
+def is_point_in_line(point, line): #check if point is in align with line (in direction)
     distance = abs((line.end.y - line.start.y) * point.x
                    - (line.end.x - line.start.x) * point.y
                    + line.end.x * line.start.y
