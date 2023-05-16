@@ -34,7 +34,7 @@ import sys, os, math
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-
+from geometry.point import Point
 
 class BuildingPy:
     def __init__(self, name=None, number=None):
@@ -43,10 +43,11 @@ class BuildingPy:
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not implemented yet
-        self.origin = [0,0,0]
+        self.origin = Point(0,0,0)
         #prefix objects (name)
         #Geometry settings
 
+        #rename this to autoclose?
         self.closed: bool = True #auto close polygons? By default true, else overwrite
         self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
 

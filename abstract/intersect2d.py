@@ -192,7 +192,7 @@ def is_point_on_line_segment(point, line):
                        - (line.end.x - line.start.x) * point.y
                        + line.end.x * line.start.y
                        - line.end.y * line.start.x) \
-                   / line.length()
+                   / line.length
         return distance < 1e-9
     else:
         return False

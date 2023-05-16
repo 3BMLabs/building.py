@@ -53,6 +53,7 @@ class Surface: #Polycurves must be closed!!!!!!!
 
         self.mesh = []
         self.length = 0
+        self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
         # self.thickness = 0
         self.offset = 0
         self.name = "test2"
@@ -71,7 +72,6 @@ class Surface: #Polycurves must be closed!!!!!!!
     def fill(self, PolyCurveList):
         if isinstance(PolyCurveList, PolyCurve):
             plycColorList = []
-            print("Single")
             p = Extrusion.byPolyCurveHeight(PolyCurveList, 0, self.offset)
             self.mesh.append(p)
             for j in range(int(len(p.verts) / 3)):

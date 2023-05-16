@@ -70,57 +70,65 @@ lns = [Intersctline, Intersctline2]
 
 insect = Intersect2d().getIntersectLinePolyCurve(ply1, Intersctline2, split=True, stretch=False) #stretch
 
+for i in insect["InnerGridLines"]: #use this 2x (to divide the polycurve)
+    obj.append(i)
 
-st = insect["InnerGridLines"][0].start #Point(400.0,9710.144927536232,0)
-en = insect["InnerGridLines"][0].end #Point(400.0,-2622.5,0)
-
-
-i1 = None
-i2 = None
-
-list1 = []
-list2 = []
+for i in insect["SplittedLines"][0]:
+    obj.append(i)
 
 
-for index, i in enumerate(ply1.curves):
-    if is_point_on_line_segment(st, i) == True:
-        i1 = index
-    if is_point_on_line_segment(en, i) == True:
-        i2 = index
+print(insect)
+# sys.exit()
+# sys.exit()
+# st = insect["InnerGridLines"][0].start #Point(400.0,9710.144927536232,0)
+# en = insect["InnerGridLines"][0].end #Point(400.0,-2622.5,0)
 
 
-for x in range(i1,(i2)):
-    list1.append(x)
+# i1 = None
+# i2 = None
 
-for p in range(i2,len(ply1.curves)):
-    list2.append(p)
-
-for a in range(0,i1):
-    list2.append(a)
+# list1 = []
+# list2 = []
 
 
-part1 = [st, en]
-for x1 in list2:
-    if ply1.curves[x1].end not in part1:
-        part1.append(ply1.curves[x1].end)
-part1.append(st)
-
-part2 = [st]
-for x1 in list1:
-    if ply1.curves[x1].end not in part2:
-        part2.append(ply1.curves[x1].end)
-part2.append(en)
-part2.append(st)
+# for index, i in enumerate(ply1.curves):
+#     if is_point_on_line_segment(st, i) == True:
+#         i1 = index
+#     if is_point_on_line_segment(en, i) == True:
+#         i2 = index
 
 
-plyl1 = PolyCurve.byPoints(part1)
-obj.append(Surface([plyl1]))
-obj.append(plyl1)
+# for x in range(i1,(i2)):
+#     list1.append(x)
 
-plyl2 = PolyCurve.byPoints(part2)
-obj.append(Surface([plyl2]))
-obj.append(plyl2)
+# for p in range(i2,len(ply1.curves)):
+#     list2.append(p)
 
+# for a in range(0,i1):
+#     list2.append(a)
+
+
+# part1 = [st, en]
+# for x1 in list2:
+#     if ply1.curves[x1].end not in part1:
+#         part1.append(ply1.curves[x1].end)
+# part1.append(st)
+
+# part2 = [st]
+# for x1 in list1:
+#     if ply1.curves[x1].end not in part2:
+#         part2.append(ply1.curves[x1].end)
+# part2.append(en)
+# part2.append(st)
+
+
+# plyl1 = PolyCurve.byPoints(part1)
+# obj.append(Surface([plyl1]))
+# obj.append(plyl1)
+
+# plyl2 = PolyCurve.byPoints(part2)
+# obj.append(Surface([plyl2]))
+# obj.append(plyl2)
 
 
 for pt in insect["IntersectGridPoints"]:

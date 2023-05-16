@@ -32,6 +32,7 @@ __url__ = "./geometry/curve.py"
 
 import sys, os, math
 from pathlib import Path
+import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -114,7 +115,6 @@ class PolyCurve:
         self.curves = []
         self.points = points or []
         self.segmentcurves = None
-
         #Methods ()
         #close
         #pointonperimeter
@@ -127,26 +127,42 @@ class PolyCurve:
         self.isCyclic = None
         self.isElementGeometry = None
         self.isReadOnly = None
-        self.length = self.calcLength()
+        # self.length = self.calcLength()
         self.period = None
         self.reference = None
         self.visibility = None
 
 
-    def close(self):
-        return 0
+    def area(self): #shoelace formula
+        if self.isClosed:
+            if len(self.points) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points)
+            x_y = np.array([(self.points[i].x, self.points[i].y) for i in range(num_points)])
+            x_y = x_y.reshape(-1,2)
+            x = x_y[:,0]
+            y = x_y[:,1]
+            S1 = np.sum(x*np.roll(y,-1))
+            S2 = np.sum(y*np.roll(x,-1))
+
+            area = .5*np.absolute(S1 - S2)
+            return area
+        else:
+            return "Polycurve is not closed, no area!"
 
 
-    def calcLength(self):
+    def length(self):
         return sum(i.length for i in self.curves)
-        # return sum(i.length for i in self.curves)
 
-        # if self.length == None:
-        #     self.length = 0
-        #     for curve in self.curves:
-        #         self.length += curve.length()
-        # return self.length
-        # print(self.curves)
+    def close(self):
+        if self.curves[0] == self.curves[-1]:
+            return self
+        else:
+            self.curves.append(self.curves[0])
+            plycrv = PolyCurve()
+            for curve in self.curves:
+                plycrv.curves.append(curve)
+        return plycrv
 
 
     @classmethod
@@ -156,6 +172,7 @@ class PolyCurve:
             plycrv.curves.append(curve)
             plycrv.points.append(curve.start)
         return plycrv
+
 
     @classmethod
     def byPoints(self, points:list[Point]):
@@ -173,18 +190,22 @@ class PolyCurve:
         
         if projectClosed:
             if plycrv.points[0] != plycrv.points[-1]:
-                plycrv.curves.append(plycrv.curves[0])
-                plycrv.isclosed = True
-        # elif projectClosed == False:
-        #     if plycrv.points[0] == plycrv.points[-1]:
-        #         plycrv.curves.pop(-1)
-        #         plycrv.isclosed = False
-            
+                plycrv.points.append(points[0])
+                plycrv.isClosed = True
+            else:
+                plycrv.isClosed = True
+        elif projectClosed == False:
+            if plycrv.points[0] == plycrv.points[-1]:
+                plycrv.isClosed = True
+            else:
+                plycrv.isClosed = False
+
         return plycrv
+
 
     @staticmethod
     def segment(self, count): #Create segmented polycurve. Arcs, elips will be translated to straight lines
-        crvs = [] #add isclosed
+        crvs = [] #add isClosed
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
                 crvs.append(Arc.segmentedarc(i, count))

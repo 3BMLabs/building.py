@@ -212,7 +212,8 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
         object_id = hash,
         message = messageCommit,
     )
-    print(f"Commit ID: {commit_id}")
+    
+    print(f"View commit: https://{host}/streams/{streamid}/commits/{commit_id}")
     return commit_id
 
 def translateObjectsToSpeckleObjects(Obj):
@@ -229,8 +230,8 @@ def translateObjectsToSpeckleObjects(Obj):
         all_colors = []
         if nm == 'Surface' or nm == 'Face':
             for index in range(len(i.PolyCurveList)):
-                all_vertices.append(i.extrusion[index].verts)
-                all_faces.append(i.extrusion[index].faces)
+                all_vertices.append(i.mesh[index].verts)
+                all_faces.append(i.mesh[index].faces)
                 all_colors.append(i.colorlst[index])
             all_vertices = flatten(all_vertices)
             all_faces = flatten(all_faces)

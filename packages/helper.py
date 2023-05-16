@@ -43,7 +43,6 @@ class generateID:
         self.id = None
         self.object = None
         self.name = None
-        self.prefix = "#"
         self.generateID()
 
     def generateID(self) -> None:
@@ -54,12 +53,11 @@ class generateID:
             id += random.choice(random_source)
 
         id_list = list(id)
-        self.get = f"{self.prefix}"+"".join(id_list)
-        self.id = self.get
+        self.id = f"#"+"".join(id_list)
         return f"test {self.__class__.__name__}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.id})"
+        return f"{self.id}"
 
 
 def findjson(id, json_string):
