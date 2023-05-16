@@ -40,7 +40,7 @@ def lineToPattern(baseline, patternobj):
     #This converts a line to list of lines based on a pattern
     origin = baseline.start
     dir = Vector3.byTwoPoints(baseline.start, baseline.end)
-    unityvect = Vector3.normalise(dir)
+    unityvect = Vector3.normalize(dir)
 
     Pattern = patternobj
     l = baseline.length()

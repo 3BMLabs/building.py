@@ -713,9 +713,9 @@ class TestKron:
     def test_kron_shape(self, shape_a, shape_b):
         a = np.ones(shape_a)
         b = np.ones(shape_b)
-        normalised_shape_a = (1,) * max(0, len(shape_b)-len(shape_a)) + shape_a
-        normalised_shape_b = (1,) * max(0, len(shape_a)-len(shape_b)) + shape_b
-        expected_shape = np.multiply(normalised_shape_a, normalised_shape_b)
+        normalized_shape_a = (1,) * max(0, len(shape_b)-len(shape_a)) + shape_a
+        normalized_shape_b = (1,) * max(0, len(shape_a)-len(shape_b)) + shape_b
+        expected_shape = np.multiply(normalized_shape_a, normalized_shape_b)
 
         k = np.kron(a, b)
         assert np.array_equal(

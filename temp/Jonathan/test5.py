@@ -18,7 +18,7 @@ from abstract.intersect2d import Intersect2d
 from objects.datum import *
 from geometry.solid import Extrusion
 from geometry.surface import *
-from objects.objectcollection import WurksRaster
+from objects.objectcollection import WurksRaster3d
 
 #finish
 # l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
@@ -30,7 +30,7 @@ from objects.objectcollection import WurksRaster
 Point1 = Point(1500,-4030,0) #b
 Point2 = Point(6900,5000,0) #b
 Point3 = Point(0,10000,0) #x
-Point4 = Point(0,0,0) #x
+Point4 = Point(-1000,4000,0) #x
 Point5 = Point(-2900,1600,0) #x
 ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
@@ -66,17 +66,18 @@ Intersctline2 = Line(start=Point(400,-4000,0), end=Point(400,12000,0))
 lns = [Intersctline, Intersctline2]
 
 
-insect = Intersect2d().getIntersectLinePolyCurve(ply1, Intersctline2, split=True, stretch=False) #stretch
+insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False) #stretch
 
-rstr = WurksRaster().byLine([Intersctline], 200) #get return the polycurves / raster
+# for b in insect["InnerGridLines"]:
+#     obj.append(b)
 
-obj.append(rstr.toPolyCurve())
-# for l in rstr.lines:
-#     obj.append(l)
+print(insect["InnerGridLines"])
+rstr = WurksRaster3d(insect["InnerGridLines"], -320, 20).byLine() #get return the polycurves / raster
+for i in rstr:
+    obj.append(i)
 
-# sys.exit()
-
-# obj.append(Intersctline)
+x = Surface(ply1)
+obj.append(x)
 
 
 

@@ -39,18 +39,14 @@ ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5])
 # Point4 = Point(0,1000,0) #x
 # ply2 = PolyCurve.byPoints([Point1, Point2, Point3, Point4])
 
-print(ply1.area())
+print(ply1.area()) #method
+print(ply1.centroid()) #method
+print(ply1.length()) #method
+print(ply1.isClosed) #parameter
+centerpoint = ply1.centroid()
+obj = [ply1, centerpoint]
 
 
-obj = [ply1]
-# print(ply1.length())
-# print(ply1.isclosed)
-
-
-
-# print(ply1)
-# ply1.length
-# print()
 
 SpeckleHost = "3bm.exchange"
 StreamID = "fa4e56aed4"

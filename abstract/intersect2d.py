@@ -162,7 +162,7 @@ class Intersect2d:
 
         # dict["IntersectPolyCurve"] = polycurves
         dict["IntersectGridPoints"] = intersectionsPointsList
-        dict["SplittedLines"] = splitedLinesList
+        dict["SplittedLines"] = flatten(splitedLinesList)
         dict["InnerGridLines"] = InnerGridLines
         dict["OuterGridLines"] = OuterGridLines
 

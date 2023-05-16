@@ -146,7 +146,7 @@ class Point:
 
 class CoordinateSystem:
     #Origin = Point
-    #xaxis = Normalised Vector
+    #xaxis = normalized Vector
     def __init__(self,origin: Point, xaxis, yaxis, zaxis):
         self.Origin = origin
         self.Xaxis = xaxis
@@ -159,15 +159,15 @@ class CoordinateSystem:
 def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
     from abstract.vector import Vector3
     vz = DirectionVector  # LineVector and new Z-axis
-    vz = Vector3.normalise(vz)  # NewZAxis
+    vz = Vector3.normalize(vz)  # NewZAxis
     vx = Vector3.perpendicular(vz)[0]  # NewXAxis
     try:
-        vx = Vector3.normalise(vx)  # NewXAxisNormalised
+        vx = Vector3.normalize(vx)  # NewXAxisnormalized
     except:
         vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
     vy = Vector3.perpendicular(vz)[1]  # NewYAxis
     try:
-        vy = Vector3.normalise(vy)  # NewYAxisNormalised
+        vy = Vector3.normalize(vy)  # NewYAxisnormalized
     except:
         vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
     P1 = PointLocal #point to transform

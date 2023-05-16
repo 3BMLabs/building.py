@@ -54,12 +54,10 @@ class Surface: #Polycurves must be closed!!!!!!!
         self.mesh = []
         self.length = 0
         self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
-        # self.thickness = 0
         self.offset = 0
         self.name = "test2"
         self.id = helper.generateID()
         self.PolyCurveList = PolyCurves
-        self.color = None
         self.origincurve = None
         if color is None:
             self.color = Color.rgb_to_int(Color().Components("gray"))
@@ -129,8 +127,8 @@ class Surface: #Polycurves must be closed!!!!!!!
     def __id__(self):
         return f"id:{self.id}"
 
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"
+    # def __str__(self) -> str:
+    #     return f"{__class__.__name__}({self})"
 
 
 class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?

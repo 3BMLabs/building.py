@@ -132,7 +132,11 @@ class Vector3:
     @staticmethod
     def length(v1):
         return math.sqrt(v1.x*v1.x+v1.y*v1.y+v1.z*v1.z)
-
+    
+    # @staticmethod
+    # def length(v1):
+    #     return (v1.x ** 2 + v1.y ** 2 + v1.z ** 2) ** 0.5
+    
     @staticmethod
     def pitch(v1, angle):
         return Vector3(
@@ -167,13 +171,13 @@ class Vector3:
         return lokX, lokZ
 
     @staticmethod
-    def normalise(v1):
-        scale = 1/Vector3.length(v1)
-        return Vector3(
-            v1.x*scale,
-            v1.y*scale,
-            v1.z*scale
-        )
+    def normalize(v1):
+        length = Vector3.length(v1)
+        if length == 0:
+            scale = 1
+        else:
+            scale = 1 / length
+        return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
 
     @staticmethod
     def byTwoPoints(p1, p2):

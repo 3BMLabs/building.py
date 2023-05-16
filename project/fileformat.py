@@ -44,6 +44,7 @@ class BuildingPy:
         self.units = "mm"
         self.decimals = 3 #not implemented yet
         self.origin = Point(0,0,0)
+        self.scale = 1
         #prefix objects (name)
         #Geometry settings
 

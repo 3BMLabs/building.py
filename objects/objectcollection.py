@@ -29,7 +29,7 @@ __title__= "plane"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/objectcollection.py"
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -37,34 +37,28 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.vector import Vector3
 from geometry.point import Point
 from geometry.curve import Line, PolyCurve
+from geometry.surface import Surface
 
-
-class WurksRaster:
-    def __init__(self):
+class WurksRaster3d:
+    def __init__(self, lines: list[Line], bottom: float, top: float): #-320, 20
+        self.bottom = Vector3(0, 0, bottom)
+        self.top = Vector3(0, 0, top)
         self.name = "x"
-        
+        self.lines = lines
 
-    def byLine(self, lines: list[Line], height: float):
-        self.height = Vector3(0, 0, height)
-        self.inputLines = lines
-        self.toPolyCurve()
+    def byLine(self):
+        surfList = []
+        for line in self.lines:
+            pts = []
+            pts.append(Point.translate(line.start, self.bottom))
+            pts.append(Point.translate(line.end, self.bottom))
+            pts.append(Point.translate(line.end, self.top))
+            pts.append(Point.translate(line.start, self.top))
+            surfList.append(Surface(PolyCurve.byPoints(pts)))
+        return surfList
 
+class WurksComputerFloor(): #centerpoint / rotation / panel pattern / ply
+    pass #some type of floor object
 
-    def fRaster(self):
-        fourlines = []
-        for line in self.inputLines:
-            btm = line
-            fourlines.append(btm)
-            offbtm = Line.offset(btm, self.height)
-            fourlines.append(offbtm)
-            left = Line(btm.start, offbtm.start)
-            fourlines.append(left)
-            right = Line(btm.end, offbtm.end)
-            fourlines.append(right)
-        return fourlines
-    
-
-    def toPolyCurve(self):
-        self.lines = self.fRaster()
-        print(self.lines)
-        return PolyCurve.byJoinedCurves(self.lines)
+class WurksFloorFinish():
+    pass #direction / pattern / ect

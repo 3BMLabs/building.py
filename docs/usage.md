@@ -166,12 +166,12 @@ Vector3.perpendicular(v1) # Vector local X and local Y perpendicular to given ve
 ```
 <br>
 
-#### Vector3.normalise:  
+#### Vector3.normalize:  
 > _`Input: Vector3`_
 <br>
 
 ``` python
-Vector3.normalise(v1) # ??
+Vector3.normalize(v1) # ??
 ```
 <br>
 

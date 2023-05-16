@@ -72,7 +72,7 @@ class Vector2:
         )
 
     @staticmethod
-    def normalise(v1):
+    def normalize(v1):
         scale = 1/Vector2.length(v1)
         return Vector2(
             v1.x*scale,
@@ -195,7 +195,7 @@ class Arc2D:
         vx = Vector3(vx2d.x, vx2d.y, 0)
         vy = Vector3(vx.y, vx.x * -1,0)
         vz = Vector3(0,0,1)
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalise(vx), Vector3.normalise(vy), Vector3.normalise(vz))
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy), Vector3.normalize(vz))
         return self.coordinatesystem
 
     def angleRadian(self):
@@ -212,7 +212,7 @@ class Arc2D:
         x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
         mid = Point2D.translate(self.start, halfVstartend)
         v2 = Vector2.byTwoPoints(self.mid, mid)
-        v3 = Vector2.normalise(v2)
+        v3 = Vector2.normalize(v2)
         tocenter = Vector2.scale(v3, x)
         center = Point2D.translate(mid, tocenter)
         #self.origin = center

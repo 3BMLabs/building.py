@@ -133,6 +133,19 @@ class PolyCurve:
         self.visibility = None
 
 
+    def centroid(self):
+        if self.isClosed:
+            if len(self.points) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points)
+            polygon = np.array([(self.points[i].x, self.points[i].y) for i in range(num_points)],dtype=np.float64)
+            polygon2 = np.roll(polygon, -1, axis=0)
+            signed_areas = 0.5 * np.cross(polygon, polygon2)
+            centroids = (polygon + polygon2) / 3.0
+            centroid = np.average(centroids, axis=0, weights=signed_areas)
+            return Point(centroid[0], centroid[1], self.points[0].z)
+
+
     def area(self): #shoelace formula
         if self.isClosed:
             if len(self.points) < 3:
@@ -199,7 +212,6 @@ class PolyCurve:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
-
         return plycrv
 
 
@@ -401,7 +413,7 @@ class Arc:
         v2 = Vector3.byTwoPoints(self.end, self.origin)
         vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
         vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalise(vx), Vector3.normalise(vy), Vector3.normalise(vz))
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy), Vector3.normalize(vz))
         return self.coordinatesystem
 
     def radiusarc(self):
@@ -421,7 +433,7 @@ class Arc:
         x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b) #distance from start-end line to origin
         mid = Point.translate(self.start, halfVstartend)
         v2 = Vector3.byTwoPoints(self.mid, mid)
-        v3 = Vector3.normalise(v2)
+        v3 = Vector3.normalize(v2)
         tocenter = Vector3.scale(v3,x)
         center = Point.translate(mid, tocenter)
         #self.origin = center
