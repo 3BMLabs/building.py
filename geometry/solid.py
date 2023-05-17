@@ -143,7 +143,6 @@ class Extrusion:
     @classmethod
     def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc: float):
         #global len
-        id = helper.generateID()
         Extrus = Extrusion()
         Points = polycurve.points
         V1 = Vector3.byTwoPoints(Points[0], Points[1])  # Vector op basis van punt 0 en 1
@@ -209,16 +208,10 @@ class Extrusion:
             Extrus.faces.append(len(x)) #Number of verts in face
             for y in x:
                 Extrus.faces.append(y)
-            #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
-            # list structure of verts is x y z x y z x y z
-            #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
-            # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
-            # first number is number of vertices.
-            # then
+
         Extrus.numberFaces = len(faces)
         Extrus.countVertsFaces = (4 * len(faces))
 
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
-
         return Extrus

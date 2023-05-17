@@ -27,7 +27,7 @@
 
 __title__= "SVG"
 __author__ = "Maarten & Jonathan"
-__url__ = "./exchange/file/svg.py"
+__url__ = "./exchange/svg.py"
 
 
 #reader

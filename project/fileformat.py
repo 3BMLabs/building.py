@@ -48,6 +48,10 @@ class BuildingPy:
         #prefix objects (name)
         #Geometry settings
 
+        #export selection info
+        self.domain = None
+        self.applicationId = "OPEN-AEC | BuildingPy"
+
         #different settings for company's?
 
         #rename this to autoclose?

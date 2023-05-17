@@ -39,6 +39,7 @@ from geometry.point import Point
 from geometry.curve import Line, PolyCurve, Rect
 from geometry.surface import Surface
 from geometry.solid import Extrusion
+from exchange.DXF import ReadDXF
 
 #OVERAL FOR EACH OBJECT A ROTATION/POSITION
 #Make sure that the objects can be merged!
@@ -70,20 +71,52 @@ class WurksPedestal(): #place on point (facebased), point = top pedestal
 
 
     def byPoint(self, point:Point, rotation=None):
+        height = 200
+        #Upper pedestal part:
+        #head plate 80x80mm
+        #thickness 2.8mm
+        #Nut: M16
         # top,
         # ffh / ph / ufh
 
-        base = Rect(Vector3(0,0,0), 80, 80)
-        x1 = Extrusion.byPolyCurveHeight(base, 3, 20)
+        #BASE
+        baselength = 90
+        basewidth = 120
+        baseheight = 3
 
-        frame = Rect(Vector3(35,35,0), 10, 10)
-        x2 = Extrusion.byPolyCurveHeight(frame, 120, -100)
+        #FRAME
+        diameter = 10
 
-        top = Rect(Vector3(0,0,0), 80, 80)
-        x3 = Extrusion.byPolyCurveHeight(top, 3, -103)
+        #TOP
+        topfilename = "C:\\Mappen\\GitHub\\3BMLabs\\building.py\\temp\Jonathan\\pedestal_foot.dxf"
+        topheight = 3
+
+        base = Rect(Vector3(0,0,0), baselength, basewidth)
+        x1 = Extrusion.byPolyCurveHeight(base, baseheight, 20)
+        # for i in x1.verts:
+        #     print(i)
+
+        frame = Rect(Vector3((baselength/2)-(diameter/2),(basewidth/2)-(diameter/2),0), diameter, diameter)
+        # tmp = []
+        # for x in frame.points:
+        #     tmp.append(Point.translate(x, Vector3(point.x, point.y, point.z)))
+        # transframe = PolyCurve.byPoints(tmp)
+        transframe = frame.translate(Vector3(point.x, point.y, height))
+        # transframe = PolyCurve.byPoints(tmp)
+        for j in transframe.points:
+            print(j)
 
 
-        return Extrusion.merge([x1, x2, x3], name="test")
+        x2 = Extrusion.byPolyCurveHeight(transframe, 2, 100)
+        # for i in x2.verts:
+        #     print(i)
+
+
+        top = ReadDXF(topfilename).polycurve
+        transtop = top.translate(Vector3(point.x, point.y, height))
+        x3 = Extrusion.byPolyCurveHeight(transtop, 100, 200)
+
+        return x1, x2, x3#Extrusion.merge([x1, x2, x3], name="test")
 
 
 

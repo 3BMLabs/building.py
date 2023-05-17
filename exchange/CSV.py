@@ -27,7 +27,7 @@
 
 __title__= "CSV"
 __author__ = "Maarten & Jonathan"
-__url__ = "./exchange/file/csv.py"
+__url__ = "./exchange/csv.py"
 
 
 #reader

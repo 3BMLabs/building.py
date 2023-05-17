@@ -27,8 +27,8 @@ from objects.objectcollection import WurksRaster3d
 # obj = [l1, l2, f1]
 
 
-Point1 = Point(1500,-4030,0) #b
-Point2 = Point(6900,5000,0) #b
+Point1 = Point(1500,-10000,0) #b
+Point2 = Point(5000,5000,0) #b
 Point3 = Point(0,10000,0) #x
 Point4 = Point(-1000,4000,0) #x
 Point5 = Point(-2900,1600,0) #x

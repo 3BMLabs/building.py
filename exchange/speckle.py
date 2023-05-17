@@ -81,7 +81,7 @@ def VectorToSpeckleVector(Vector3: Vector3):
 
 
 def LineToSpeckleLine(Line: Line):
-    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = "mm")
+    SpeckleLn = SpeckleLine(start = PointToSpecklePoint(Line.start), end = PointToSpecklePoint(Line.end), units = project.units)
     return SpeckleLn
 
 
@@ -90,10 +90,16 @@ def PlaneToSpecklePlane(Plane: Plane):
     return SpecklePln
 
 
-def SpecklePolylineBySpecklePoints(SpecklePoints: list[Point]):
-    SpecklePl = [PointToSpecklePoint(point) for point in SpecklePoints]
+def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
+    SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points]
     SpecklePolyline = SpecklePolyLine.from_points(SpecklePl)
+    SpecklePolyline.id = polycurve.id
     SpecklePolyline.units = project.units
+    SpecklePolyline.domain = project.domain
+    SpecklePolyline.applicationId = project.applicationId
+    SpecklePolyline.area = polycurve.area()
+    SpecklePolyline.length = polycurve.length()
+    SpecklePolyline.closed = polycurve.isClosed
     return SpecklePolyline
 
 
@@ -105,20 +111,15 @@ def Line2DToSpeckleLine3D(ln):
 def PolyCurveToSpecklePolyLine(polycurve: PolyCurve):
     tmpList = []
     for item in polycurve:
-        nList = []
-        for n in item.points:
-            p = PointToSpecklePoint(n)
-            nList.append(p)
-        spklpc = SpecklePolylineBySpecklePoints(nList)
+        spklpc = SpecklePolylineBySpecklePoints(item)
         tmpList.append(spklpc)
-       
     return tmpList
 
 
 def GridToLines(Grid):
     SpeckleLines = []
     for i in Grid.line:
-        SpeckleLines.append(SpeckleLine(start = PointToSpecklePoint(i.start), end = PointToSpecklePoint(i.end), units = "mm")) #, units = "mm"
+        SpeckleLines.append(SpeckleLine(start = PointToSpecklePoint(i.start), end = PointToSpecklePoint(i.end), units = project.units))
     return SpeckleLines
 
 
@@ -133,7 +134,7 @@ def SpeckleMeshByMesh(MeshPB):
     for i in range(MeshPB.countVertsFaces):
         colrs.append(color)
     #colors = colrs
-    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs, units = "mm")
+    spcklmesh = SpeckleMesh(vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs, units = project.units)
     return spcklmesh
 
 
@@ -246,9 +247,7 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'PolyCurve':
             pnts = []
-            for point in i.points:
-                pnts.append(point)
-            SpeckleObj.append(SpecklePolylineBySpecklePoints(pnts))
+            SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
         elif nm == 'ImagePyB':
             colrs = i.colorlst

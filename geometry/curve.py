@@ -111,9 +111,9 @@ def create_lines(points):
 
 
 class PolyCurve:
-    def __init__(self, points=None): #isclosed?
+    def __init__(self): #isclosed?
         self.curves = []
-        self.points = points or []
+        self.points = []
         self.segmentcurves = None
         #Methods ()
         #close
@@ -161,7 +161,8 @@ class PolyCurve:
             area = .5*np.absolute(S1 - S2)
             return area
         else:
-            return "Polycurve is not closed, no area!"
+            print("Polycurve is not closed, no area!")
+            return None
 
 
     def length(self):
@@ -179,11 +180,31 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst):
-        plycrv = PolyCurve() #add isclosed
-        for curve in curvelst:
-            plycrv.curves.append(curve)
-            plycrv.points.append(curve.start)
+    def byJoinedCurves(self, curvelst:list[Line]):
+        projectClosed = project.closed
+
+        plycrv = PolyCurve()
+        for index, curve in enumerate(curvelst):
+            if index == 0:
+                plycrv.curves.append(curve)
+                plycrv.points.append(curve.start)
+                plycrv.points.append(curve.end)
+            else:
+                plycrv.curves.append(curve)
+                plycrv.points.append(curve.end)
+        
+        if projectClosed:
+            if plycrv.points[0].value == plycrv.points[-1].value:
+                plycrv.points.append(curvelst[0].start)
+                plycrv.isClosed = True
+            else:
+                plycrv.curves.append(curve)
+                plycrv.isClosed = True
+        elif projectClosed == False:
+            if plycrv.points[0].value == plycrv.points[-1].value:
+                plycrv.isClosed = True
+            else:
+                plycrv.isClosed = False
         return plycrv
 
 
@@ -202,13 +223,14 @@ class PolyCurve:
                 plycrv.curves.append(Line(start=point, end=firstpoint))
         
         if projectClosed:
-            if plycrv.points[0] != plycrv.points[-1]:
-                plycrv.points.append(points[0])
+            if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = True
+                plycrv.points.append(points[0])
+
         elif projectClosed == False:
-            if plycrv.points[0] == plycrv.points[-1]:
+            if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
@@ -272,7 +294,7 @@ class PolyCurve:
                 crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
             else:
                 print("Curvetype not found")
-        crv = flatten()
+        # crv = flatten()
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
 
@@ -318,7 +340,7 @@ class PolyCurve:
 
     def __str__(self):
         PolyCurveName = f"{__class__.__name__}("
-        for i in self.curves:
+        for i in self.points:
             PolyCurveName = PolyCurveName + f"{i}, "
         return PolyCurveName + ")"
 

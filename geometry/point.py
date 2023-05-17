@@ -48,6 +48,7 @@ class Point:
         self.x = x
         self.y = y
         self.z = z
+        self.value = self.x, self.y, self.z
         self.id = helper.generateID()
 
         
@@ -77,11 +78,11 @@ class Point:
         )
 
     @staticmethod
-    def translate(point1, vector):
+    def translate(point, vector):
         return Point(
-            point1.x + vector.x,
-            point1.y + vector.y,
-            point1.z + vector.z
+            point.x + vector.x,
+            point.y + vector.y,
+            point.z + vector.z
         )
 
     @staticmethod

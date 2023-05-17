@@ -20,90 +20,18 @@ from geometry.solid import Extrusion
 from geometry.surface import *
 from objects.objectcollection import *
 
-#finish
-# l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
-# l2 = Line(start=Point(-1000,0,0), end=Point(1230,0,0))
-# f1 = Intersect2d().getLineIntersect(l1, l2)
-# obj = [l1, l2, f1]
 
-
-# Point1 = Point(1500,-4030,0) #b
-# Point2 = Point(6900,5000,0) #b
-# Point3 = Point(0,10000,0) #x
-# Point4 = Point(-1000,4000,0) #x
-# Point5 = Point(-2900,1600,0) #x
-# ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
-# z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
-
-
-
-# l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
-
-
-# startLinexAxis = Line(start=Point(10000,-10000,0), end=Point(-10000,-10000,0))
-# startLineyAxis = Line(start=Point(-10000,-10000,0), end=Point(-10000,10000,0))
-
-# part1 = PolyCurve.byPoints([Point(400.0,9710.144927536232,0), Point(400.0,-2622.5,0), Point(1500,-4030,0), Point(6900,5000,0), Point(400.0,9710.144927536232,0)])
-# part2 = PolyCurve.byPoints([Point(400.0,9710.144927536232,0), Point(0,10000,0), Point(0,0,0), Point(-2900,1600,0), Point(400.0,-2622.5,0), Point(400.0,9710.144927536232,0)])
-
-
-# obj = []
-
-
-
-# gridLines = []
-# # sys.exit()
-# for xRange in range(50):
-#     vector1 = Vector3(0, 600*(xRange+1), 0)
-#     vector2 = Vector3(600*(xRange+1), 0, 0)
-#     gridLines.append(Line.offset(startLinexAxis, vector1))
-#     gridLines.append(Line.offset(startLineyAxis, vector2))
-
-# Intersctline  = Line(start=Point(5000,-200,0), end=Point(-10000,-200,0))
-# # Intersctline1 = Line(start=Point(200,10000,0), end=Point(200,-1000,0))
-# Intersctline2 = Line(start=Point(400,-4000,0), end=Point(400,12000,0))
-# lns = [Intersctline, Intersctline2]
-
-
-# insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False) #stretch
-
-
-# collectlistInsidePly = []
-# collectlistOutsidePly = []
-# for i in range(len(insect["InnerGridLines"])):
-#     line1 = insect["InnerGridLines"][i]
-#     for j in range(i+1, len(insect["InnerGridLines"])):
-#         line2 = insect["InnerGridLines"][j]
-#         intersection = Intersect2d().getLineIntersect(line1, line2)
-#         if intersection != None and intersection not in collectlistInsidePly:
-#             if is_point_in_polygon(intersection, ply1):
-#                 collectlistInsidePly.append(intersection)
-#             else:
-#                 collectlistOutsidePly.append(intersection)
-# for x in collectlistInsidePly:
-#     obj.append(x)
-
-
-# x = Surface(ply1)
-# obj.append(x)
-
-
-
-# base = Rect(Vector3(0,0,0), 80, 80)
-# x1 = Extrusion.byPolyCurveHeight(base, 3, 20)
-
-# frame = Rect(Vector3(35,35,0), 10, 10)
-# x2 = Extrusion.byPolyCurveHeight(frame, 120, -100)
-
-# top = Rect(Vector3(0,0,0), 80, 80)
-# x3 = Extrusion.byPolyCurveHeight(top, 3, -103)
 obj = []
-i = WurksPedestal().byPoint(Point(0,20,0))
-obj.append(i)
-# for j in i:
-#     obj.append(j)
 
+# for x in i.points:
+    # print(x)
 
+i = WurksPedestal().byPoint(Point(0,500,0))
+
+# obj.append(i[2])
+
+for j in i:
+    obj.append(j)
 
 
 SpeckleHost = "3bm.exchange"
