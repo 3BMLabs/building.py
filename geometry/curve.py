@@ -143,7 +143,7 @@ class PolyCurve:
             signed_areas = 0.5 * np.cross(polygon, polygon2)
             centroids = (polygon + polygon2) / 3.0
             centroid = np.average(centroids, axis=0, weights=signed_areas)
-            return Point(centroid[0], centroid[1], self.points[0].z)
+            return Point(x=centroid[0], y=centroid[1], z=self.points[0].z)
 
 
     def area(self): #shoelace formula
@@ -192,12 +192,11 @@ class PolyCurve:
             else:
                 plycrv.curves.append(curve)
                 plycrv.points.append(curve.end)
-        
         if projectClosed:
             if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.points.append(curvelst[0].start)
                 plycrv.isClosed = True
             else:
+                # plycrv.points.append(curvelst[0].start)
                 plycrv.curves.append(curve)
                 plycrv.isClosed = True
         elif projectClosed == False:
@@ -205,6 +204,8 @@ class PolyCurve:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
+        if plycrv.points[-2].value == plycrv.points[0].value:
+            plycrv.curves = plycrv.curves.pop(-1)
         return plycrv
 
 

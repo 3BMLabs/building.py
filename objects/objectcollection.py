@@ -91,30 +91,25 @@ class WurksPedestal(): #place on point (facebased), point = top pedestal
         topfilename = "C:\\Mappen\\GitHub\\3BMLabs\\building.py\\temp\Jonathan\\pedestal_foot.dxf"
         topheight = 3
 
-        base = Rect(Vector3(0,0,0), baselength, basewidth)
-        x1 = Extrusion.byPolyCurveHeight(base, baseheight, 20)
-        # for i in x1.verts:
-        #     print(i)
-
-        frame = Rect(Vector3((baselength/2)-(diameter/2),(basewidth/2)-(diameter/2),0), diameter, diameter)
-        # tmp = []
-        # for x in frame.points:
-        #     tmp.append(Point.translate(x, Vector3(point.x, point.y, point.z)))
-        # transframe = PolyCurve.byPoints(tmp)
-        transframe = frame.translate(Vector3(point.x, point.y, height))
-        # transframe = PolyCurve.byPoints(tmp)
-        for j in transframe.points:
-            print(j)
-
-
-        x2 = Extrusion.byPolyCurveHeight(transframe, 2, 100)
-        # for i in x2.verts:
-        #     print(i)
-
 
         top = ReadDXF(topfilename).polycurve
-        transtop = top.translate(Vector3(point.x, point.y, height))
-        x3 = Extrusion.byPolyCurveHeight(transtop, 100, 200)
+        top = top.translate(Vector3(point.x, point.y, height))
+        top = top.translate(Vector3(x=top.centroid().x, y=top.centroid().y, z=0))
+        x3 = Extrusion.byPolyCurveHeight(top, topheight, point.z)
+
+        frame = Rect(Vector3((baselength/2)-(diameter/2),(basewidth/2)-(diameter/2),0), diameter, diameter)
+        frame = frame.translate(Vector3(x=top.centroid().x, y=top.centroid().y, z=0))
+        frame
+        x2 = Extrusion.byPolyCurveHeight(frame, 200, -10)
+
+        base = Rect(Vector3(0,0,0), baselength, basewidth)
+        base = base.translate(Vector3(x=top.centroid().x, y=top.centroid().y, z=0))
+        x1 = Extrusion.byPolyCurveHeight(base, baseheight, -100)
+
+
+
+
+
 
         return x1, x2, x3#Extrusion.merge([x1, x2, x3], name="test")
 
