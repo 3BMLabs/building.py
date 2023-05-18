@@ -96,43 +96,10 @@ class Intersect2d:
         splitedLinesList = []
         InnerGridLines = []
         OuterGridLines = []
-        if isinstance(lines, list):
-            for line in lines:
-                IntersectGridPoints = []
-                for i in range(len(polycurves.points) - 1):
-                    genLine = Line(polycurves.points[i], polycurves.points[i+1])
-                    checkIntersect = Intersect2d().getLineIntersect(genLine, line)
-                    if stretch == False or stretch == None:
-                        if checkIntersect != None:
-                            if is_point_on_line_segment(checkIntersect, line) == False:
-                                checkIntersect = None
-                            else:
-                                minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
-                                maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
-                                minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
-                                maxY = max(polycurves.points[i].y, polycurves.points[i+1].y)
-                            if checkIntersect != None:
-                                if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
-                                    intersectionsPointsList.append(checkIntersect)
-                                    IntersectGridPoints.append(checkIntersect)
-
-                    elif stretch == True: #autojoin/combine the lines if they in same direction.
-                        minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
-                        maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
-                        minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
-                        maxY = max(polycurves.points[i].y, polycurves.points[i+1].y)
-                        if checkIntersect != None:
-                            if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
-                                intersectionsPointsList.append(checkIntersect)
-                                IntersectGridPoints.append(checkIntersect)
-
-                if split == True:
-                    if len(IntersectGridPoints) > 0:
-                        splitedLinesList.append(line.split(IntersectGridPoints))
-
-        elif isinstance(lines, Line):
+        if isinstance(lines, Line):
+            lines = [lines]
+        for line in lines:
             IntersectGridPoints = []
-            line = lines
             for i in range(len(polycurves.points) - 1):
                 genLine = Line(polycurves.points[i], polycurves.points[i+1])
                 checkIntersect = Intersect2d().getLineIntersect(genLine, line)
@@ -163,6 +130,7 @@ class Intersect2d:
             if split == True:
                 if len(IntersectGridPoints) > 0:
                     splitedLinesList.append(line.split(IntersectGridPoints))
+
 
         for splittedLines in splitedLinesList:
             for line in splittedLines:

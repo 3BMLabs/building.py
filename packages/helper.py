@@ -135,6 +135,7 @@ def all_true(lst):
             return False
     return True
 
-
-def return_method():
-    print("this is a method, use ()")
+def replace_at_index(object, index, new_object):
+    if index < 0 or index >= len(object):
+        raise IndexError("Index out of range")
+    return object[:index] + new_object + object[index+1:]
