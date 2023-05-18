@@ -163,22 +163,22 @@ def SpeckleMeshByImage(img):
     return SpeckleMsh
 
 
-def ArcToSpeckleArc(Arc: Arc):
+def ArcToSpeckleArc(arc: Arc):
     speckle_plane = SpecklePlane(
-        origin = PointToSpecklePoint(Arc.plane.Origin),
-        normal = VectorToSpeckleVector(Arc.plane.Normal),
-        xdir = VectorToSpeckleVector(Arc.plane.v1),
+        origin = PointToSpecklePoint(arc.plane.Origin),
+        normal = VectorToSpeckleVector(arc.plane.Normal),
+        xdir = VectorToSpeckleVector(arc.plane.v1),
         ydir = VectorToSpeckleVector(Arc.plane.v2)
     )
-    start_point = PointToSpecklePoint(Arc.start)
-    mid_point = PointToSpecklePoint(Arc.mid)
-    end_point = PointToSpecklePoint(Arc.end)
-    radius = Arc.radius
-    start_angle = Arc.startAngle
-    end_angle = Arc.endAngle
-    angle_radians = Arc.angleRadian
-    area = Arc.area
-    length = Arc.length
+    start_point = PointToSpecklePoint(arc.start)
+    mid_point = PointToSpecklePoint(arc.mid)
+    end_point = PointToSpecklePoint(arc.end)
+    radius = arc.radius
+    start_angle = arc.startAngle
+    end_angle = arc.endAngle
+    angle_radians = arc.angleRadian
+    area = arc.area
+    length = arc.length
     units = "m"
     speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
     return SpeckleArc(
