@@ -1,4 +1,4 @@
-import sys, os, math
+import sys
 from pathlib import Path
 
 file = Path(__file__).resolve()
@@ -13,7 +13,7 @@ from geometry.point import *
 
 Project = BuildingPy(name="testproject",number="0")
 
-Text1 = Text(text="test", font_family="arial", bounding_box=False, xyz=Point(10, 10, 10), rotation=0)
+Text1 = Text(text="1234", font_family="arial", bounding_box=False, xyz=Point(10, 10, 10), rotation=0)
 frame = Frame.byStartpointEndpointProfileName(Point(0,0,0), Point(4000,0,0), "IPE600", "IPE", BaseSteel)
 
 ln = Line(start= Point(0,0,0), end = Point(0,3000,0))

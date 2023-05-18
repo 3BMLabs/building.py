@@ -164,11 +164,12 @@ def SpeckleMeshByImage(img):
 
 
 def ArcToSpeckleArc(arc: Arc):
+    print(arc)
     speckle_plane = SpecklePlane(
         origin = PointToSpecklePoint(arc.plane.Origin),
         normal = VectorToSpeckleVector(arc.plane.Normal),
         xdir = VectorToSpeckleVector(arc.plane.v1),
-        ydir = VectorToSpeckleVector(Arc.plane.v2)
+        ydir = VectorToSpeckleVector(arc.plane.v2)
     )
     start_point = PointToSpecklePoint(arc.start)
     mid_point = PointToSpecklePoint(arc.mid)
