@@ -23,4 +23,4 @@ def calculate_execution_time(func1, func2):
     print(f"Execution time for func1: {execution_time_func1} seconds")
     print(f"Execution time for func2: {execution_time_func2} seconds")
 
-calculate_execution_time(WorkPlane().create(1000,2000),WorkPlane().create(1000,2000))
+calculate_execution_time(WorkPlane().create,WorkPlane().create)
