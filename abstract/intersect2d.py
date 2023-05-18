@@ -76,6 +76,18 @@ class Intersect2d:
         nX, nY = np.array([p3X, p3Y]) + t * db
         return Point(nX, nY, 0)
 
+
+    def getMultiLineIntersect(self, lines=list[Line]) -> list[Point]:
+        pts = []
+        for i in range(len(lines)):
+            line1 = lines[i]
+            for j in range(i+1, len(lines)):
+                line2 = lines[j]
+                intersection = Intersect2d().getLineIntersect(line1, line2)
+                if intersection not in pts and intersection != None and is_point_on_line_segment(intersection, line2) == True:
+                    pts.append(intersection)
+        return pts
+
     
     #polycurve to line intersect
     def getIntersectLinePolyCurve(self, polycurves: list[Point], lines, split=None, stretch=None) -> list[Point]:

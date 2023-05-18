@@ -19,6 +19,7 @@ from objects.datum import *
 from geometry.solid import Extrusion
 from geometry.surface import *
 from objects.objectcollection import *
+from project.fileformat import *
 
 #finish
 # l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
@@ -27,13 +28,15 @@ from objects.objectcollection import *
 # obj = [l1, l2, f1]
 
 
-Point1 = Point(1500,-10000,0) #b
-Point2 = Point(5000,5000,0) #b
+Point1 = Point(1500,-4030,0) #b
+Point2 = Point(6900,5000,0) #b
 Point3 = Point(0,10000,0) #x
 Point4 = Point(-1000,4000,0) #x
 Point5 = Point(-2900,1600,0) #x
 ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
+
+
 
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
@@ -66,19 +69,24 @@ lns = [Intersctline, Intersctline2]
 
 insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False) #stretch
 
-# for b in insect["InnerGridLines"]:
-#     obj.append(b)
 
 j = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
 
 for p in j:
-    ped = WurksPedestal().byPoint(p, 320)
+    ped = WurksPedestal().byPoint(p, 200)
     for i in ped:
         obj.append(i)
 
-rstr = WurksRaster3d(insect["InnerGridLines"], -140, 20).byLine() #get return the polycurves / raster
-for i in rstr:
-    obj.append(i)
+
+for x in insect["InnerGridLines"]:
+    obj.append(x)
+
+# for b in insect["InnerGridLines"]:
+#     obj.append(b)
+
+# rstr = WurksRaster3d(insect["InnerGridLines"], -320, 20).byLine() #get return the polycurves / raster
+# for i in rstr:
+#     obj.append(i)
 
 x = Surface(ply1)
 obj.append(x)

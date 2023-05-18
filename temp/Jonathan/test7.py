@@ -1,42 +1,24 @@
-import sys, math, requests, json
-from svg.path import parse_path
-from typing import List, Tuple
+import sys
 from pathlib import Path
-# https://help.xtools.pro/pro/22.0/en/XTools_Pro_Components/Geometry_Tools/Split_Polygons.htm
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-
-from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
 from geometry.point import Point
-from geometry.curve import *
-from abstract.vector import Vector3
-from abstract.intersect2d import *
-from abstract.plane import Plane
-from abstract.text import Text
-from abstract.intersect2d import Intersect2d
-from objects.datum import *
-from geometry.solid import Extrusion
-from geometry.surface import *
 from objects.objectcollection import *
+from project.fileformat import *
 
 
-obj = []
-
-# for x in i.points:
-    # print(x)
-
-i = WurksPedestal().byPoint(Point(0,500,0))
-
-# obj.append(i[2])
+i = WurksPedestal().byPoint(Point(0,0,100), 200)
+k = WurksPedestal().byPoint(Point(0,200,0), 300)
+wp = WorkPlane().create
 
 for j in i:
-    obj.append(j)
+    project.objects.append(j)
+
+for j in k:
+    project.objects.append(j)
+
+project.objects.append(wp)
 
 
-SpeckleHost = "3bm.exchange"
-StreamID = "fa4e56aed4"
-SpeckleObjects = obj
-Message = "x"
-SpeckleObj = translateObjectsToSpeckleObjects(obj)
-Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)
+project.toSpeckle("fa4e56aed4")

@@ -143,7 +143,7 @@ class PolyCurve:
             signed_areas = 0.5 * np.cross(polygon, polygon2)
             centroids = (polygon + polygon2) / 3.0
             centroid = np.average(centroids, axis=0, weights=signed_areas)
-            return Point(x=centroid[0], y=centroid[1], z=self.points[0].z)
+            return Point(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals), z=self.points[0].z)
 
 
     def area(self): #shoelace formula

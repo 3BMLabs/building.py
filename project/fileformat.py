@@ -67,7 +67,7 @@ class BuildingPy:
     #     return "mm"
 
 
-    def toSpeckle(self, streamid, commitstring):
+    def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)

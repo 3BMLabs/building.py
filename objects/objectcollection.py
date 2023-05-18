@@ -41,7 +41,7 @@ from geometry.surface import Surface
 from geometry.solid import Extrusion
 from exchange.DXF import ReadDXF
 
-#OVERAL FOR EACH OBJECT A ROTATION/POSITION
+#EVERYWHERE FOR EACH OBJECT A ROTATION/POSITION
 #Make sure that the objects can be merged!
 
 class WurksRaster3d:
@@ -70,8 +70,7 @@ class WurksPedestal(): #place on point (facebased), point = top pedestal
         #type top
 
 
-    def byPoint(self, point:Point, rotation=None):
-        height = 200
+    def byPoint(self, point:Point, height=int, rotation=None): #add angle rotation
         #Upper pedestal part:
         #head plate 80x80mm
         #thickness 2.8mm
@@ -79,46 +78,48 @@ class WurksPedestal(): #place on point (facebased), point = top pedestal
         # top,
         # ffh / ph / ufh
 
-        #BASE
-        baselength = 90
-        basewidth = 120
-        baseheight = 3
+        #TOP
+        topfilename = "temp\\jonathan\\pedestal_top.dxf"
+        topheight = 3
 
         #FRAME
         diameter = 10
 
-        #TOP
-        topfilename = "C:\\Mappen\\GitHub\\3BMLabs\\building.py\\temp\Jonathan\\pedestal_foot.dxf"
-        topheight = 3
+        #BASE
+        basefilename = "temp\\jonathan\\pedestal_foot.dxf"
+        baseheight = 3
 
 
         top = ReadDXF(topfilename).polycurve
-        top = top.translate(Vector3(point.x, point.y, height))
-        top = top.translate(Vector3(x=top.centroid().x, y=top.centroid().y, z=0))
-        x3 = Extrusion.byPolyCurveHeight(top, topheight, point.z)
+        topcenter = Point.difference(top.centroid(), point)
+        top = top.translate(Point.toVector(topcenter))
+        x3 = Extrusion.byPolyCurveHeight(top, topheight, 0)
 
-        frame = Rect(Vector3((baselength/2)-(diameter/2),(basewidth/2)-(diameter/2),0), diameter, diameter)
-        frame = frame.translate(Vector3(x=top.centroid().x, y=top.centroid().y, z=0))
-        frame
-        x2 = Extrusion.byPolyCurveHeight(frame, 200, -10)
+        frame = Rect(Vector3(x=(top.centroid().x)-(diameter/2), y=(top.centroid().y)-(diameter/2),z=point.z-topheight), diameter, diameter)
+        x2 = Extrusion.byPolyCurveHeight(frame, height-baseheight-topheight, 0)
 
-        base = Rect(Vector3(0,0,0), baselength, basewidth)
-        base = base.translate(Vector3(x=top.centroid().x, y=top.centroid().y, z=0))
-        x1 = Extrusion.byPolyCurveHeight(base, baseheight, -100)
-
-
-
-
-
+        base = ReadDXF(basefilename).polycurve
+        basecenter = Point.difference(base.centroid(), point)
+        base = base.translate(Point.toVector(basecenter))
+        x1 = Extrusion.byPolyCurveHeight(base, baseheight, -height)    
 
         return x1, x2, x3#Extrusion.merge([x1, x2, x3], name="test")
 
 
-
     pass #pootje, voet diameter(vierkant), verstelbare hoogte inregelen, 
+
 
 class WurksComputerFloor(): #centerpoint / rotation / panel pattern / ply
     pass #some type of floor object
 
+
 class WurksFloorFinish():
     pass #direction / pattern / ect
+
+
+class WorkPlane():
+    def __init__(self):
+        self.create = self.Fcreate()
+
+    def Fcreate(self):
+        return Rect(Vector3(0,0,0), 1000, 1000)

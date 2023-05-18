@@ -52,7 +52,7 @@ class Panel:
         self.origincurve = None
 
     @classmethod
-    def byPolyCurveThickness(cls, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
+    def byPolyCurveThickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
         #Create panel by polycurve
         p1 = Panel()
         p1.name = name
@@ -64,7 +64,7 @@ class Panel:
         return p1
 
     @classmethod
-    def byBaselineHeight(cls, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
+    def byBaselineHeight(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
         #place panel vertical from baseline
         p1 = Panel()
         p1.name = name

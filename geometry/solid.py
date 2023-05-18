@@ -53,10 +53,12 @@ class Extrusion:
         self.name = "none"
         self.color = (255,255,0)
         self.colorlst = []
+        self.topface = None #return polycurve -> surface
+        self.bottomface = None #return polycurve -> surface
         self.id = helper.generateID()
 
     @classmethod
-    def merge(cls, extrusions:list, name=None):
+    def merge(self, extrusions:list, name=None):
         Outrus = Extrusion()
         if isinstance(extrusions, list):
             Outrus.verts = []
@@ -76,7 +78,7 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeightVector(cls, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    def byPolyCurveHeightVector(self, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
@@ -141,7 +143,7 @@ class Extrusion:
         return Extrus
 
     @classmethod
-    def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc: float):
+    def byPolyCurveHeight(self, polycurve: PolyCurve, height, dzloc: float):
         #global len
         Extrus = Extrusion()
         Points = polycurve.points
