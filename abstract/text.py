@@ -74,8 +74,6 @@ class Text:
                     output.append("space")
             return output
 
-
-
     def write(self) -> List[List[PolyCurve]]:
         output_list = []
         for letter_path in self.path_list:
@@ -121,8 +119,9 @@ class Text:
     def get_output(self) -> List[List[PolyCurve]]:
         return self.write()
 
-
     def calculate_bounding_box(self, points):
+        #THIS FUNCTION SHOULD BE STAND ALONE FUNCTION FOR ALL GEOMETRY IN THE FUTURE
+
         points = [elem for elem in points if elem != 'M']
         x_values = [point[0] for point in points]
         y_values = [point[1] for point in points]
@@ -158,6 +157,8 @@ class Text:
 
 
     def convert_points_to_polyline(self, points: list[Point]) -> PolyCurve: #move
+        #TO BE REPLACED BY THE GENERIC PolyCurve.byPoints
+
         if self.rotation == None:
             self.rotation = 0
 
@@ -199,6 +200,7 @@ class Text:
 
 
     def rotate_polyline(self, polylinePoints):
+        #TO BE REPLACED BY THE GENERIC GEOMETRY.TRANSLATE
         translated_points = [(coord.x - self.originX, coord.y - self.originY) for coord in polylinePoints]
         radians = math.radians(self.rotation)
         cos = math.cos(radians)

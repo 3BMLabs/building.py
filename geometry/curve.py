@@ -32,13 +32,13 @@ __url__ = "./geometry/curve.py"
 
 import sys, os, math
 from pathlib import Path
-import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from project.fileformat import *
 from geometry.point import *
 from packages import helper
+import numpy as np
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from packages.helper import *
@@ -425,7 +425,7 @@ class Arc:
         self.angleRadian = self.angleRadian()
         self.area=0
         self.length = self.length()
-        self.units=project.units
+        self.units = project.units
         self.coordinatesystem = self.coordinatesystemarc()
 
     def distance(self, p1, p2):

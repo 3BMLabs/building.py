@@ -46,6 +46,9 @@ class Grid:
         self.bulbStart = 1
         self.bulbEnd = 1
 
+   # @classmethod
+  #  def bulb(cls,name):
+        
     @classmethod
     def byStartpointEndpoint(cls, line, name):
         #Create panel by polycurve

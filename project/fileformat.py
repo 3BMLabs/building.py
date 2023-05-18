@@ -74,4 +74,4 @@ class BuildingPy:
         TransportToSpeckle(self.speckleserver,streamid,speckleobj,commitstring)
 
 
-project = BuildingPy()
+project = BuildingPy("Project","0")
