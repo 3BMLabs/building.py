@@ -133,7 +133,7 @@ class PolyCurve:
         self.visibility = None
 
 
-    def centroid(self):
+    def centroid(self) -> Point:
         if self.isClosed:
             if len(self.points) < 3:
                 return "Polygon has less than 3 points!"
@@ -146,7 +146,7 @@ class PolyCurve:
             return Point(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals), z=self.points[0].z)
 
 
-    def area(self): #shoelace formula
+    def area(self) -> float: #shoelace formula
         if self.isClosed:
             if len(self.points) < 3:
                 return "Polygon has less than 3 points!"
@@ -165,10 +165,10 @@ class PolyCurve:
             return None
 
 
-    def length(self):
+    def length(self) -> float:
         return sum(i.length for i in self.curves)
 
-    def close(self):
+    def close(self) -> bool:
         if self.curves[0] == self.curves[-1]:
             return self
         else:
@@ -383,7 +383,7 @@ class PolyGon:
         pass #Lines
     
     @staticmethod
-    def polygon(flatCurves):
+    def polygon(flatCurves: list[Line]) -> list[Point]:
         points = []
         for i in flatCurves:
             points.append(i.start)
@@ -428,7 +428,7 @@ class Arc:
         self.units = project.units
         self.coordinatesystem = self.coordinatesystemarc()
 
-    def distance(self, p1, p2):
+    def distance(self, p1, p2) -> float:
         return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)
 
     def coordinatesystemarc(self):

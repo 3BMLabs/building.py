@@ -30,7 +30,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/color.py"
 
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 file = Path(__file__).resolve()

@@ -361,4 +361,4 @@ SpeckleObjUp = [SpeckleMeshByCone(vertices_up, faces_up)]
 # lst2 = [SpeckleObjUp, SpeckleObjUp2, SpeckleObjRight, SpeckleObjRight2, SpeckleObjFront, SpeckleObjFront2]
 lst2 = [SpeckleObjUp]
 
-Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst2, "Shiny Committt")
+Commit = TransportToSpeckle("3bm.exchange", "fa4e56aed4", lst2, "Shiny Committt")

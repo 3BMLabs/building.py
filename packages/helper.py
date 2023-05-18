@@ -134,3 +134,7 @@ def all_true(lst):
         if not element:
             return False
     return True
+
+
+def return_method():
+    print("this is a method, use ()")

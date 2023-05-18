@@ -8,17 +8,8 @@ from objects.objectcollection import *
 from project.fileformat import *
 
 
-i = WurksPedestal().byPoint(Point(0,0,100), 200)
-k = WurksPedestal().byPoint(Point(0,200,0), 300)
-wp = WorkPlane().create
-
-for j in i:
-    project.objects.append(j)
-
-for j in k:
-    project.objects.append(j)
-
-project.objects.append(wp)
+WurksPedestal().byPoint(Point(100,200,0), 300, 90)
+WorkPlane().create()
 
 
 project.toSpeckle("fa4e56aed4")

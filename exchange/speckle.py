@@ -221,14 +221,14 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
-        print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))
-        all_vertices = []
-        all_faces = []
-        all_colors = []
-        if nm == 'Surface' or nm == 'Face':
+        
+        elif nm == 'Surface' or nm == 'Face':
+            all_vertices = []
+            all_faces = []
+            all_colors = []
             for index in range(len(i.PolyCurveList)):
                 all_vertices.append(i.mesh[index].verts)
                 all_faces.append(i.mesh[index].faces)
@@ -283,5 +283,8 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))
+
+        else:
+            print(f"{nm} Object not yet added to translateObjectsToSpeckleObjects")
 
     return SpeckleObj

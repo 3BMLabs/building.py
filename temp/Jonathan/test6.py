@@ -71,10 +71,11 @@ insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, st
 
 j = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
 
-for p in j:
-    ped = WurksPedestal().byPoint(p, 320)
-    for i in ped:
-        obj.append(i)
+
+ped = WurksPedestal().byPoint(j, 320)
+for i in ped:
+    for j in i:
+        obj.append(j)
 
 rstr = WurksRaster3d(insect["InnerGridLines"], -140, 20).byLine() #get return the polycurves / raster
 for i in rstr:

@@ -36,6 +36,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.point import Point
 
+
 class BuildingPy:
     def __init__(self, name=None, number=None):
         self.name: str = name
@@ -57,6 +58,9 @@ class BuildingPy:
         #rename this to autoclose?
         self.closed: bool = True #auto close polygons? By default true, else overwrite
         self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
+
+        #text
+        self.createdTxt = "has been created"
 
         #Speckle settings
         self.speckleserver = "3bm.exchange"

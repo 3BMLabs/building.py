@@ -44,8 +44,7 @@ class BoundingBox2d:
         self.points = points
         self.z = 0
 
-
-    def corners(self, points=list[Point]):
+    def corners(self, points=list[Point]) -> list(Point):
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
 
@@ -61,7 +60,7 @@ class BoundingBox2d:
         
         return [left_top, left_bottom, right_bottom, right_top, left_top]
 
-    def perimeter(self):
+    def perimeter(self) -> PolyCurve:
         return PolyCurve.byPoints(self.corners(self.points))   
 
 class BoundingBox3d:
