@@ -80,8 +80,10 @@ for pt in insect["IntersectGridPoints"]:
 #     for l in ln:
 #         obj.append(l)
 
+
 for pt in insect["InnerGridLines"]:
     obj.append(pt)
+
 
 # sys.exit()
 
@@ -93,10 +95,8 @@ for pt in insect["InnerGridLines"]:
 
 
 
-
-
 SpeckleHost = "3bm.exchange"
-StreamID = "fa4e56aed4"
+StreamID = "5ab2faedba"
 SpeckleObjects = obj
 Message = "x"
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
