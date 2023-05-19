@@ -344,7 +344,7 @@ class PolyCurve:
             print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
 
 
-    def multi_split(self, lines:list[Line]): #enable multi-line split
+    def multi_split(self, lines:list[Line]): #SOOOO SLOW, MUST INCREASE SPEAD
         lines = flatten(lines)
         new_polygons = []
         for index, line in enumerate(lines):
@@ -363,6 +363,27 @@ class PolyCurve:
                                 new_polygons.append(n_p)
         project.objects.append(flatten(new_polygons))
         return flatten(new_polygons)
+
+
+    # def multi_split(self, lines: list[Line]):
+    #     lines = flatten(lines)
+    #     new_polygons = []
+
+    #     for line in lines:
+    #         if not new_polygons:
+    #             n_p = self.split(line, returnlines=True)
+    #             if n_p:
+    #                 new_polygons.extend(filter(None, n_p))
+    #         else:
+    #             temp_polygons = []
+    #             for new_poly in flatten(new_polygons):
+    #                 n_p = new_poly.split(line, returnlines=True)
+    #                 if n_p:
+    #                     temp_polygons.extend(filter(None, n_p))
+    #             new_polygons = temp_polygons
+
+    #     project.objects.append(flatten(new_polygons))
+    #     return flatten(new_polygons)
 
 
     def translate(self, vector3d:Vector3):

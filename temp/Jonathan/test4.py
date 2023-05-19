@@ -87,14 +87,14 @@ lns = [Intersctline, Intersctline2, Intersctline3]
 singleLineSplit = Intersect2d().getIntersectLinePolyCurve(ply1, lns, split=True, stretch=False)
 singleLineSplit = singleLineSplit["InnerGridLines"]
 
-# innergridlines = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False)
-# innergridlines = innergridlines["InnerGridLines"]
+innergridlines = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False)
+innergridlines = innergridlines["InnerGridLines"]
 
-for x in singleLineSplit:
+for x in innergridlines:
     project.objects.append(x)
 project.objects.append(ply1)
 
-splitted = ply1.multi_split(lns)
+splitted = ply1.multi_split(innergridlines)
 
 for x in splitted:
     project.objects.append(Surface(x))
