@@ -27,23 +27,23 @@ from project.fileformat import *
 # obj = [l1, l2, f1]
 
 
-# Point1 = Point(1500,-4030,0)
-# Point2 = Point(6900,5000,0)
-# Point3 = Point(0,10000,0)
-# Point4 = Point(0,0,0)
-# Point5 = Point(-2900,1600,0)
-# ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
+Point1 = Point(1500,-4030,0)
+Point2 = Point(6900,5000,0)
+Point3 = Point(0,10000,0)
+Point4 = Point(0,0,0)
+Point5 = Point(-2900,1600,0)
+ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 
-Point1 = Point(0,0,0)
-Point2 = Point(0,8000,0)
-Point3 = Point(3000,11000,0)
-Point4 = Point(5000,4000,0)
-Point5 = Point(5000,0,0)
-Point6 = Point(3000,0,0)
-Point7 = Point(3000,3000,0)
-Point8 = Point(1000,3000,0)
-Point9 = Point(1000,0,0)
-ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point6, Point7, Point8, Point9])
+# Point1 = Point(0,0,0)
+# Point2 = Point(0,8000,0)
+# Point3 = Point(3000,11000,0)
+# Point4 = Point(5000,4000,0)
+# Point5 = Point(5000,0,0)
+# Point6 = Point(3000,0,0)
+# Point7 = Point(3000,3000,0)
+# Point8 = Point(1000,3000,0)
+# Point9 = Point(1000,0,0)
+# ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point6, Point7, Point8, Point9])
 
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
 # project.objects.append(ply1)
@@ -69,14 +69,35 @@ for xRange in range(50):
 Intersctline  = Line(start=Point(5000,-200,0), end=Point(-10000,5000,0))
 Intersctline1 = Line(start=Point(200,10000,0), end=Point(200,-1000,0))
 Intersctline2 = Line(start=Point(400,-4000,0), end=Point(400,12000,0))
-Intersctline3  = Line(start=Point(5000,3500,0), end=Point(-10000,4500,0))
+Intersctline3  = Line(start=Point(8000,4000,0), end=Point(-10000,4500,0))
 
-lns = [Intersctline, Intersctline2]
+# for gl in flatten(gridLines):
+#     project.objects.append(gl)
+
+# lns = [Intersctline, Intersctline2]
+lns = [Intersctline, Intersctline2, Intersctline3]
+
+# project.objects.append(Intersctline)
+# project.objects.append(Intersctline2)
+# project.objects.append(Intersctline3)
+
+# ply1.split(Intersctline3)
 
 # project.objects.append(ply1)
-project.objects.append(Intersctline3)
+singleLineSplit = Intersect2d().getIntersectLinePolyCurve(ply1, lns, split=True, stretch=False)
+singleLineSplit = singleLineSplit["InnerGridLines"]
 
-ply1.split(Intersctline3)
+# innergridlines = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False)
+# innergridlines = innergridlines["InnerGridLines"]
+
+for x in singleLineSplit:
+    project.objects.append(x)
+project.objects.append(ply1)
+
+splitted = ply1.multi_split(lns)
+
+for x in splitted:
+    project.objects.append(Surface(x))
 
 
 project.toSpeckle("5ab2faedba")

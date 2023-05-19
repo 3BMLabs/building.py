@@ -169,6 +169,7 @@ class PolyCurve:
     def length(self) -> float:
         return sum(i.length for i in self.curves)
 
+
     def close(self) -> bool:
         if self.curves[0] == self.curves[-1]:
             return self
@@ -183,7 +184,6 @@ class PolyCurve:
     @classmethod
     def byJoinedCurves(self, curvelst:list[Line]):
         projectClosed = project.closed
-
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
             if index == 0:
@@ -213,7 +213,6 @@ class PolyCurve:
     @classmethod
     def byPoints(self, points:list[Point]):
         projectClosed = project.closed
-
         plycrv = PolyCurve()        
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -272,12 +271,19 @@ class PolyCurve:
         return plycrv
 
 
-    def split(self, line: Line):
+    def split(self, line: Line, returnlines=None): #make sure that the lines start/stop already on the edge of the polycurve
         from abstract.intersect2d import Intersect2d, is_point_on_line_segment
 
         allLines = self.curves.copy()
-        insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
 
+        # insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
+        # for pt in insect["IntersectGridPoints"]:
+        #     for index, line in enumerate(allLines):
+        #         if is_point_on_line_segment(pt, line) == True:
+        #             cuttedLines = line.split([pt])
+        #             allLines = replace_at_index(allLines,index, cuttedLines)
+
+        insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
         for pt in insect["IntersectGridPoints"]:
             for index, line in enumerate(allLines):
                 if is_point_on_line_segment(pt, line) == True:
@@ -310,24 +316,53 @@ class PolyCurve:
             partlist1 = flatten(completelist[s2:s1+1])
             partlist2 = flatten([completelist[s1+1:]] + [completelist[:s2]])
 
+            SplittedPolyCurves = []
             #part1
             if part1LineStart != None and part1LineEnd != None:
                 for i, index in enumerate(partlist1):
                     pts = self.points[index]
                     part1.insert(i+1, pts)
-
-                project.objects.append(PolyCurve.byPoints(part1))
+                if returnlines:
+                    SplittedPolyCurves.append(PolyCurve.byPoints(part1))
+                else:
+                    project.objects.append(PolyCurve.byPoints(part1))
 
             #part2 -> BUGG?
             if part2LineStart != None and part2LineEnd != None:
                 for index in partlist2:
                     pts = self.points[index]
                     part2.insert(index, pts)
+                if returnlines:
+                    SplittedPolyCurves.append(PolyCurve.byPoints(part2))
+                else:
+                    project.objects.append(PolyCurve.byPoints(part2))
 
-                project.objects.append(PolyCurve.byPoints(part2))
+            if returnlines: #return lines while using multi_split
+                return SplittedPolyCurves
 
         else:
             print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
+
+
+    def multi_split(self, lines:list[Line]): #enable multi-line split
+        lines = flatten(lines)
+        new_polygons = []
+        for index, line in enumerate(lines):
+            if index == 0:
+                n_p = self.split(line, returnlines=True)
+                if n_p != None:
+                    for np in n_p:
+                        if np != None:
+                            new_polygons.append(n_p)
+            else:
+                for new_poly in flatten(new_polygons):
+                    n_p = new_poly.split(line, returnlines=True)
+                    if n_p != None:
+                        for np in n_p:
+                            if np != None:
+                                new_polygons.append(n_p)
+        project.objects.append(flatten(new_polygons))
+        return flatten(new_polygons)
 
 
     def translate(self, vector3d:Vector3):
