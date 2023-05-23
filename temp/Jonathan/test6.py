@@ -72,10 +72,10 @@ insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, st
 j = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
 
 
-ped = WurksPedestal().byPoint(j, 320)
-for i in ped:
-    for j in i:
-        obj.append(j)
+# ped = WurksPedestal().byPoint(j, 320)
+# for i in ped:
+#     for j in i:
+#         obj.append(j)
 
 rstr = WurksRaster3d(insect["InnerGridLines"], -140, 20).byLine() #get return the polycurves / raster
 for i in rstr:
@@ -87,7 +87,7 @@ obj.append(x)
 
 
 SpeckleHost = "3bm.exchange"
-StreamID = "fa4e56aed4"
+StreamID = "5ab2faedba"
 SpeckleObjects = obj
 Message = "x"
 SpeckleObj = translateObjectsToSpeckleObjects(obj)

@@ -365,27 +365,6 @@ class PolyCurve:
         return flatten(new_polygons)
 
 
-    # def multi_split(self, lines: list[Line]):
-    #     lines = flatten(lines)
-    #     new_polygons = []
-
-    #     for line in lines:
-    #         if not new_polygons:
-    #             n_p = self.split(line, returnlines=True)
-    #             if n_p:
-    #                 new_polygons.extend(filter(None, n_p))
-    #         else:
-    #             temp_polygons = []
-    #             for new_poly in flatten(new_polygons):
-    #                 n_p = new_poly.split(line, returnlines=True)
-    #                 if n_p:
-    #                     temp_polygons.extend(filter(None, n_p))
-    #             new_polygons = temp_polygons
-
-    #     project.objects.append(flatten(new_polygons))
-    #     return flatten(new_polygons)
-
-
     def translate(self, vector3d:Vector3):
         crvs = []
         v1 = vector3d
@@ -509,16 +488,17 @@ class PolyGon:
 class Arc:
     def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
         self.id = helper.generateID()
-        self.start = startPoint
-        self.mid = midPoint
-        self.end = endPoint
+        db = 0.0001
+        self.start = Point.product(db, startPoint)
+        self.mid = Point.product(db, midPoint)
+        self.end = Point.product(db, endPoint)
         self.origin = self.originarc()
         v1=Vector3(x=1, y=0, z=0)
         v2=Vector3(x=0, y=1, z=0)
         self.plane = Plane.byTwoVectorsOrigin(
-            v1, 
-            v2, 
-            Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
+            v1,
+            v2,
+            Point((self.start.x + self.end.x) / 2, (self.start.y + self.end.y) / 2, (self.start.z + self.end.z) / 2)
         )
         self.radius = self.radiusarc()
         self.startAngle=0
@@ -526,7 +506,6 @@ class Arc:
         self.angleRadian = self.angleRadian()
         self.area=0
         self.length = self.length()
-        self.units = project.units
         self.coordinatesystem = self.coordinatesystemarc()
 
     def distance(self, p1, p2) -> float:
@@ -560,7 +539,6 @@ class Arc:
         v3 = Vector3.normalize(v2)
         tocenter = Vector3.scale(v3,x)
         center = Point.translate(mid, tocenter)
-        #self.origin = center
         return center
 
     def angleRadian(self):
@@ -581,7 +559,7 @@ class Arc:
         cos_angle = (a**2 + b**2 - c**2) / (2*a*b)
         m1 = math.acos(cos_angle)
         arc_length = r1 * m1
-
+    
         return arc_length
 
     @staticmethod
@@ -611,6 +589,7 @@ class Arc:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}()"
+
 
 class Circle: #auto calculate length!
     def __init__(self, radius, plane, length) -> None:

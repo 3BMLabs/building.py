@@ -39,6 +39,7 @@ sys.path.append(str(package_root_directory))
 
 
 from packages import helper
+# from project.fileformat import project
 
 class Point:
     def __init__(self, x, y, z):
@@ -50,7 +51,7 @@ class Point:
         self.z = z
         self.value = self.x, self.y, self.z
         self.id = helper.generateID()
-
+        self.units = "mm"
         
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y},{self.z})"
@@ -135,6 +136,14 @@ class Point:
             math.cos(math.radians(Beta))*p1.x - math.sin(math.radians(Beta))*p1.y,
             math.sin(math.radians(Beta))*p1.x + math.cos(math.radians(Beta))*p1.y,
             p1.z + dz
+        )
+
+    @staticmethod
+    def product(n, p1): #Same as scale
+        return Point(
+            p1.x*n,
+            p1.y*n,
+            p1.z*n
         )
 
     @staticmethod

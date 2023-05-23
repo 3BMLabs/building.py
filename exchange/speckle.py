@@ -63,6 +63,7 @@ from project.fileformat import project
 
 def IntervalToSpeckleInterval(interval: Interval):
     SpeckleInt = SpeckleInterval(start=interval.start, end=interval.end)
+    SpeckleInt.units = project.units
     return SpeckleInt
 
 
@@ -79,6 +80,7 @@ def PointToSpecklePoint(point: Point):
 
 def VectorToSpeckleVector(vector3: Vector3):
     SpeckleVctr = SpeckleVector.from_coords(vector3.x, vector3.y, vector3.z)
+    SpeckleVctr.units = project.units
     return SpeckleVctr
 
 
@@ -89,11 +91,13 @@ def LineToSpeckleLine(line: Line):
     SpeckleLn.domain = project.domain
     SpeckleLn.length = line.length
     SpeckleLn.applicationId = project.applicationId
+    SpeckleLn.color = 0
     return SpeckleLn
 
 
 def PlaneToSpecklePlane(plane: Plane):
     SpecklePln = SpecklePlane(origin = PointToSpecklePoint(plane.Origin), normal = VectorToSpeckleVector(plane.Normal), xdir = VectorToSpeckleVector(plane.v1), ydir = VectorToSpeckleVector(plane.v2))
+    SpecklePln.units = project.units
     return SpecklePln
 
 
@@ -137,6 +141,7 @@ def GridToLines(Grid):
 
 def Point2DToSpecklePoint(Point2D: Point2D):
     SpecklePnt = SpecklePoint.from_coords(Point2D.x, Point2D.y, 0)
+    SpecklePnt.units = project.units
     return SpecklePnt
 
 
@@ -163,26 +168,28 @@ def SpeckleMeshByImage(img):
     return SpeckleMsh
 
 
-def ArcToSpeckleArc(arc: Arc):
-    print(arc)
+def ArcToSpeckleArc(arc: Arc): #deze is tijdelijk 1duizendste, omdat er een fout zit in de berekening van de radius
+
     speckle_plane = SpecklePlane(
         origin = PointToSpecklePoint(arc.plane.Origin),
         normal = VectorToSpeckleVector(arc.plane.Normal),
         xdir = VectorToSpeckleVector(arc.plane.v1),
         ydir = VectorToSpeckleVector(arc.plane.v2)
     )
+
     start_point = PointToSpecklePoint(arc.start)
     mid_point = PointToSpecklePoint(arc.mid)
     end_point = PointToSpecklePoint(arc.end)
+
     radius = arc.radius
     start_angle = arc.startAngle
     end_angle = arc.endAngle
     angle_radians = arc.angleRadian
     area = arc.area
     length = arc.length
-    units = "m"
     speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
-    return SpeckleArc(
+
+    spArc = SpeckleArc(
         applicationId = project.applicationId,
         startPoint=start_point,
         midPoint=mid_point,
@@ -194,9 +201,11 @@ def ArcToSpeckleArc(arc: Arc):
         endAngle=end_angle,
         angleRadians=angle_radians,
         area=area,
-        length=length,
-        units=units
+        length=length
     )
+
+    spArc.units = project.units
+    return spArc
 
 
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
@@ -226,7 +235,6 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
-        # print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))

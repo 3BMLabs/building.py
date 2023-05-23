@@ -18,7 +18,7 @@ from abstract.intersect2d import Intersect2d
 from objects.datum import *
 from geometry.solid import Extrusion
 from geometry.surface import *
-from objects.objectcollection import WurksRaster3d
+from objects.objectcollection import WurksRaster3d, WurksPedestal
 
 #finish
 # l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
@@ -70,36 +70,34 @@ insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, st
 
 # insect["InnerGridLines"] list with 50 lines.
 # insect2 = Intersect2d().getIntersectLinePolyCurve(line1, line2)
-collectlistInsidePly = []
-collectlistOutsidePly = []
-for i in range(len(insect["InnerGridLines"])):
-    line1 = insect["InnerGridLines"][i]
-    for j in range(i+1, len(insect["InnerGridLines"])):
-        line2 = insect["InnerGridLines"][j]
-        intersection = Intersect2d().getLineIntersect(line1, line2)
-        if intersection != None and intersection not in collectlistInsidePly:
-            if is_point_in_polygon(intersection, ply1):
-                collectlistInsidePly.append(intersection)
-            else:
-                collectlistOutsidePly.append(intersection)
+# collectlistInsidePly = []
+# collectlistOutsidePly = []
+# for i in range(len(insect["InnerGridLines"])):
+#     line1 = insect["InnerGridLines"][i]
+#     for j in range(i+1, len(insect["InnerGridLines"])):
+#         line2 = insect["InnerGridLines"][j]
+#         intersection = Intersect2d().getLineIntersect(line1, line2)
+#         if intersection != None and intersection not in collectlistInsidePly:
+#             if is_point_in_polygon(intersection, ply1):
+#                 collectlistInsidePly.append(intersection)
+#             else:
+#                 collectlistOutsidePly.append(intersection)
 
-for x in collectlistInsidePly:
-    obj.append(x)
+# for x in collectlistInsidePly:
+#     obj.append(x)
 # for b in insect["InnerGridLines"]:
 #     obj.append(b)
+# print()
 
-# rstr = WurksRaster3d(insect["InnerGridLines"], -320, 20).byLine() #get return the polycurves / raster
-# for i in rstr:
-#     obj.append(i)
+WurksPedestal().byPoint(insect["IntersectGridPoints"], 200)
+# WurksPedestal.byPoints(, )
 
-x = Surface(ply1)
-obj.append(x)
+MultiRaster = WurksRaster3d(insect["InnerGridLines"], -40, 20).byLine() #get return the polycurves / raster
+for enkelRaster in MultiRaster:
+    # obj.append(enkelRaster)
+    project.objects.append(enkelRaster)
 
 
+project.objects.append(Surface(ply1))
 
-SpeckleHost = "3bm.exchange"
-StreamID = "5ab2faedba"
-SpeckleObjects = obj
-Message = "x"
-SpeckleObj = translateObjectsToSpeckleObjects(obj)
-Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)
+project.toSpeckle("5ab2faedba")

@@ -20,6 +20,8 @@ from geometry.solid import Extrusion
 from geometry.surface import *
 from objects.objectcollection import *
 from project.fileformat import *
+from objects.shape3d import Origin
+from exchange.DXF import ReadDXF
 
 #finish
 # l1 = Line(start=Point(230,-1000,0), end=Point(45,1000,0))
@@ -31,12 +33,14 @@ from project.fileformat import *
 Point1 = Point(1500,-4030,0) #b
 Point2 = Point(6900,5000,0) #b
 Point3 = Point(0,10000,0) #x
-Point4 = Point(-1000,4000,0) #x
+Point4 = Point(-1000,2000,0) #x
 Point5 = Point(-2900,1600,0) #x
 ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
-
-
+arrow = ReadDXF("library/object_database/DXF/Arrow.dxf")
+arrowShape = ReadDXF.create_polycurve(arrow)
+print(arrowShape)
+project.objects.append(arrowShape)
 
 l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
@@ -47,13 +51,10 @@ startLineyAxis = Line(start=Point(-10000,-10000,0), end=Point(-10000,10000,0))
 part1 = PolyCurve.byPoints([Point(400.0,9710.144927536232,0), Point(400.0,-2622.5,0), Point(1500,-4030,0), Point(6900,5000,0), Point(400.0,9710.144927536232,0)])
 part2 = PolyCurve.byPoints([Point(400.0,9710.144927536232,0), Point(0,10000,0), Point(0,0,0), Point(-2900,1600,0), Point(400.0,-2622.5,0), Point(400.0,9710.144927536232,0)])
 
+# project.objects.append(Origin.CreateOrigin)
 
-
-# obj = [ply1]
-# obj = [part2, part1]
 
 gridLines = []
-# sys.exit()
 for xRange in range(50):
     vector1 = Vector3(0, 600*(xRange+1), 0)
     vector2 = Vector3(600*(xRange+1), 0, 0)
@@ -69,26 +70,27 @@ lns = [Intersctline, Intersctline2]
 insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, stretch=False) #stretch
 
 
-j = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
+pts = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
 
-# for p in j:
-ped = WurksPedestal().byPoint(j, 200)
-    # for i in ped:
-    #     obj.append(i)
+# WurksPedestal().byPoint(j[0], 200)
+
+part1 = Arc(startPoint = Point(0,3000/1,0), midPoint = Point(50/1,3050/1,0), endPoint = Point(0,3100/1,0))
+pointsON = Arc.pointsAtParameter(part1, 3)
+# project.objects.append(part1)
 
 
-for x in insect["InnerGridLines"]:
-    project.objects.append(x)
 
-# for b in insect["InnerGridLines"]:
-#     obj.append(b)
+for b in insect["InnerGridLines"]:
+    project.objects.append(b)
 
-# rstr = WurksRaster3d(insect["InnerGridLines"], -320, 20).byLine() #get return the polycurves / raster
-# for i in rstr:
-#     obj.append(i)
 
-x = Surface(ply1)
-project.objects.append(x)
+WurksPedestal().byPoint(pts, 200)
+WurksPedestal().byPoint(insect["IntersectGridPoints"], 200)
+WurksRaster3d().byLine(insect["InnerGridLines"], -200, 40) #get return the polycurves / raster
+
+
+# project.objects.append(Surface(ply1))
+project.objects.append(Extrusion.byPolyCurveHeight(ply1, 20, -20))
 
 
 project.toSpeckle("5ab2faedba")
