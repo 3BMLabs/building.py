@@ -48,7 +48,6 @@ part1 = PolyCurve.byPoints([Point(400.0,9710.144927536232,0), Point(400.0,-2622.
 part2 = PolyCurve.byPoints([Point(400.0,9710.144927536232,0), Point(0,10000,0), Point(0,0,0), Point(-2900,1600,0), Point(400.0,-2622.5,0), Point(400.0,9710.144927536232,0)])
 
 
-obj = []
 
 # obj = [ply1]
 # obj = [part2, part1]
@@ -72,14 +71,14 @@ insect = Intersect2d().getIntersectLinePolyCurve(ply1, gridLines, split=True, st
 
 j = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
 
-for p in j:
-    ped = WurksPedestal().byPoint(p, 200)
-    for i in ped:
-        obj.append(i)
+# for p in j:
+ped = WurksPedestal().byPoint(j, 200)
+    # for i in ped:
+    #     obj.append(i)
 
 
 for x in insect["InnerGridLines"]:
-    obj.append(x)
+    project.objects.append(x)
 
 # for b in insect["InnerGridLines"]:
 #     obj.append(b)
@@ -89,13 +88,7 @@ for x in insect["InnerGridLines"]:
 #     obj.append(i)
 
 x = Surface(ply1)
-obj.append(x)
+project.objects.append(x)
 
 
-
-SpeckleHost = "3bm.exchange"
-StreamID = "fa4e56aed4"
-SpeckleObjects = obj
-Message = "x"
-SpeckleObj = translateObjectsToSpeckleObjects(obj)
-Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)
+project.toSpeckle("5ab2faedba")

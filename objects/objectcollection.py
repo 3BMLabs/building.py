@@ -63,47 +63,66 @@ class WurksRaster3d:
             surfList.append(Surface(PolyCurve.byPoints(pts)))
         return surfList
 
-class WurksPedestal(): #place on point (facebased), point = top pedestal
-    def __init__(self) -> None: #classes with different tops (must be parameterized)
-        pass   
-        #type base
-        #type frame
-        #type top
+class WurksPedestal:
+    def __init__(self):
+        self.topfilename = "temp\\jonathan\\pedestal_top.dxf"
+        self.basefilename = "temp\\jonathan\\pedestal_foot.dxf"
+        self.diameter = 10
+        self.topheight = 3
+        self.baseheight = 3
+        self.cache = {}
+        self.top_dxf = None
+        self.base_dxf = None
 
+    def load_dxf(self, filename):
+        if filename in self.cache:
+            return self.cache[filename]
+        else:
+            dxf = ReadDXF(filename).polycurve
+            self.cache[filename] = dxf
+            return dxf
 
-    def byPoint(self, points:Point or list[Point], height=int, rotation=None): #add angle rotation
-        #TOP
-        topfilename = "temp\\jonathan\\pedestal_top.dxf"
-        topheight = 3
+    def load_top_dxf(self):
+        if self.top_dxf is None:
+            self.top_dxf = self.load_dxf(self.topfilename)
+        return self.top_dxf
 
-        #FRAME
-        diameter = 10
+    def load_base_dxf(self):
+        if self.base_dxf is None:
+            self.base_dxf = self.load_dxf(self.basefilename)
+        return self.base_dxf
 
-        #BASE
-        basefilename = "temp\\jonathan\\pedestal_foot.dxf"
-        baseheight = 3
-
+    def byPoint(self, points, height, rotation=None):
         if isinstance(points, Point):
             points = [points]
 
+        top = self.load_top_dxf()
+        base = self.load_base_dxf()
+
         for point in points:
-            top = ReadDXF(topfilename).polycurve
             topcenter = Point.difference(top.centroid(), point)
-            top = top.translate(Point.toVector(topcenter))
-            project.objects.append(Extrusion.byPolyCurveHeight(top, topheight, 0))
+            translated_top = top.translate(Point.toVector(topcenter))
+            project.objects.append(Extrusion.byPolyCurveHeight(translated_top, self.topheight, 0))
 
-            frame = Rect(Vector3(x=(top.centroid().x)-(diameter/2), y=(top.centroid().y)-(diameter/2),z=point.z-topheight), diameter, diameter)
-            project.objects.append(Extrusion.byPolyCurveHeight(frame, height-baseheight-topheight, 0))
+            frame = Rect(
+                Vector3(x=(translated_top.centroid().x) - (self.diameter / 2),
+                        y=(translated_top.centroid().y) - (self.diameter / 2),
+                        z=point.z - self.topheight),
+                self.diameter, self.diameter
+            )
+            project.objects.append(Extrusion.byPolyCurveHeight(frame, height - self.baseheight - self.topheight, 0))
 
-            base = ReadDXF(basefilename).polycurve
             basecenter = Point.difference(base.centroid(), point)
-            base = base.translate(Point.toVector(basecenter))
-            project.objects.append(Extrusion.byPolyCurveHeight(base, baseheight, -height)) 
+            translated_base = base.translate(Point.toVector(basecenter))
+            project.objects.append(Extrusion.byPolyCurveHeight(translated_base, self.baseheight, -height))
 
-        print(f"{len(points)}* {__class__.__name__} {project.createdTxt}")
+        print(f"{len(points)}* {self.__class__.__name__} {project.createdTxt}")
+
 
 
     pass #pootje, voet diameter(vierkant), verstelbare hoogte inregelen, 
+
+
 
 
 class WurksComputerFloor(): #centerpoint / rotation / panel pattern / ply
