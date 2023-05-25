@@ -37,13 +37,18 @@ from exchange.DXF import ReadDXF
 # Point5 = Point(-2900,1600,0) #x
 # ply1 = PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point5, Point1])
 # z = Extrusion.byPolyCurveHeight(ply1, 1000, 200)
+
 # arrow = ReadDXF("library/object_database/DXF/Arrow.dxf")
 # arrowShape = ReadDXF.create_polycurve(arrow)
-# print(arrowShape)
+# print(arrowShape.points)
 # project.objects.append(arrowShape)
 
-# l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
+floor = ReadDXF("library/object_database/DXF/customfloor.dxf")
+floorShape = ReadDXF.create_polycurve(floor)
+for fshape in floorShape:
+    project.objects.append(fshape)
 
+# l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
 # startLinexAxis = Line(start=Point(10000,-10000,0), end=Point(-10000,-10000,0))
 # startLineyAxis = Line(start=Point(-10000,-10000,0), end=Point(-10000,10000,0))

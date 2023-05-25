@@ -49,12 +49,19 @@ class ReadDXF():
         self.filename = filename
         self.get_line_coordinates()
         self.polycurve = self.create_polycurve()
-        self.isClosed = self.polycurve.isClosed
+        self.isClosed = project.closed
 
 
     def convert_coordinates(self, start_point, end_point, reference_point):
-        relative_start = start_point - reference_point
-        relative_end = end_point - reference_point
+        
+        # relative_start = start_point - reference_point
+        # print(start_point, end_point, reference_point)
+        relative_start = start_point[0] - reference_point[0], start_point[1] - reference_point[1], start_point[2] - reference_point[2]
+        # print(relative_start)
+        # print(end_point, reference_point)
+        relative_end = end_point[0] - reference_point[0], end_point[1] - reference_point[1], end_point[2] - reference_point[2]
+        # relative_end = end_point - reference_point
+        # print(relative_end)
         relative_start = round(relative_start[0], project.decimals), round(relative_start[1], project.decimals), round(relative_start[2], project.decimals)
         relative_end = round(relative_end[0], project.decimals), round(relative_end[1], project.decimals), round(relative_end[2], project.decimals)
         return relative_start, relative_end
@@ -75,10 +82,39 @@ class ReadDXF():
                 p2 = Point(x=relative_end[0], y=relative_end[1], z=relative_end[2]) 
                 line = Line(start=p1, end=p2)
                 self.points.append(p1)
-                # self.points.append(p2)
                 self.lines.append(line)
+
+
+            elif entity.dxftype() == 'LWPOLYLINE':
+                splittedpoints = []
+                splittedlines = []
+                with entity.points() as points:
+                    endpoint = None
+                    for point in points:
+                        if reference_point is None:
+                            reference_point = point
+                        if endpoint is None:
+                            endpoint = point
+                        point = point[0], point[1], point[2]
+                        endpoint = endpoint[0], endpoint[1], endpoint[2]
+                        reference_point = reference_point[0], reference_point[1], reference_point[2]
+                        relative_start, relative_end = self.convert_coordinates(point, endpoint, reference_point)
+                        p1 = Point(x=relative_start[0], y=relative_start[1], z=relative_start[2])
+                        p2 = Point(x=relative_end[0], y=relative_end[1], z=relative_end[2]) 
+                        line = Line(start=p1, end=p2)
+                        splittedpoints.append(p1)
+                        splittedlines.append(line)
+                    self.points.append(splittedpoints)
+                    self.lines.append(splittedlines)
+        # print(self.lines)
         return self.lines
 
-
+    
     def create_polycurve(self):
-        return PolyCurve.byPoints(self.points)
+        if len(self.points) == 1:
+            return PolyCurve.byPoints(self.points)
+        elif len(self.points) > 1:
+            plList = []
+            for pl in self.points:
+                plList.append(PolyCurve.byPoints(pl))
+            return plList

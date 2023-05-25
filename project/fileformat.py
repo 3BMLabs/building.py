@@ -43,7 +43,7 @@ class BuildingPy:
         self.number: str = number
         self.objects = []
         self.units = "mm"
-        self.decimals = 3 #not implemented yet
+        self.decimals = 3 #not fully implemented yet
         self.origin = Point(0,0,0)
         self.scale = 1
         #prefix objects (name)

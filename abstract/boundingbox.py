@@ -40,11 +40,13 @@ from geometry.curve import PolyCurve
 
 
 class BoundingBox2d:
-    def __init__(self, points=list[Point]):
-        self.points = points
+    def __init__(self):
+        self.points = []
+        self.corners = []
         self.z = 0
 
-    def corners(self, points=list[Point]) -> list(Point):
+    def byPoints(self, points=list[Point]):
+        self.points = points
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
 
@@ -57,11 +59,13 @@ class BoundingBox2d:
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
         right_bottom = Point(x=max_x, y=min_y, z=self.z)
-        
+        self.corners.append(left_top) 
+        self.corners.append(left_bottom) 
+        self.corners.append(right_bottom) 
+        self.corners.append(right_top) 
+
         return [left_top, left_bottom, right_bottom, right_top, left_top]
 
-    def perimeter(self) -> PolyCurve:
-        return PolyCurve.byPoints(self.corners(self.points))   
 
 class BoundingBox3d:
     def __init__(self, points=list[Point]):

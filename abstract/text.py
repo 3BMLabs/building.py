@@ -60,7 +60,7 @@ class Text:
         self.character_offset = 150
         self.space = 850
         self.path_list = self.load_path()
-        self.f = []
+        # self.f = []
 
 
     def load_path(self) -> List[str]:

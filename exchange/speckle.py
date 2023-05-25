@@ -126,6 +126,7 @@ def Line2DToSpeckleLine3D(line: Line):
 
 def PolyCurveToSpecklePolyLine(polycurve: PolyCurve):
     tmpList = []
+
     for item in polycurve:
         spklpc = SpecklePolylineBySpecklePoints(item)
         tmpList.append(spklpc)

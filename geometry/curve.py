@@ -213,7 +213,7 @@ class PolyCurve:
     @classmethod
     def byPoints(self, points:list[Point]):
         projectClosed = project.closed
-        plycrv = PolyCurve()        
+        plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
             try:
@@ -420,11 +420,9 @@ class PolyCurve:
         return p1
 
     def __str__(self):
-        PolyCurveName = f"{__class__.__name__}("
-        for i in self.points:
-            PolyCurveName = PolyCurveName + f"{i}, "
-        return PolyCurveName + ")"
-
+        l = len(self.points)
+        return f"{__class__.__name__}, ({l} points)"
+            
 # 2D PolyCurve to 3D PolyGon
 
 def Rect(vector: Vector3, width: float, height: float):

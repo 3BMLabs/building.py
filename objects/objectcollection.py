@@ -140,14 +140,19 @@ class WorkPlane():
     def __init__(self):
         self.length = None
         self.width = None
+        self.points = []
 
     def create(self, length: float = None, width: float = None) -> str:
         self.length = length or 1000
         self.width = width or 1000
-
-        project.objects.append(Rect(Vector3(0, 0, 0), self.length, self.width))
+        rect = Rect(Vector3(0, 0, 0), self.length, self.width)
+        for pt in rect.points:
+            self.points.append(pt)
+        project.objects.append(rect)
         print(f"1* {self.__class__.__name__} {project.createdTxt}")
+        return Rect(Vector3(0, 0, 0), self.length, self.width)
 
     pass #pootje, voet diameter(vierkant), verstelbare hoogte inregelen, 
 
+WorkPlane = WorkPlane()
 #rotation(Vector3)/#volume/#scale
