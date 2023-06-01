@@ -42,19 +42,19 @@ from geometry.point import *
 from abstract.vector import *
 from abstract.coordinatesystem import *
 from abstract.boundingbox import *
+from geometry.solid import *
+from geometry.geometry2d import *
 
-#implement these in /packages
 from svg.path import parse_path
 import json
 from typing import List, Tuple
 
-
-
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, xyz: Point = None, v: Vector3 = None):
+    def __init__(self, text: str = None, font_family: str = None, cs= None ,xyz: Point = None, v: Vector3 = None):
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = xyz
+        self.csglobal = cs or CSGlobal
         self.x, self.y, self.z = xyz.x, xyz.y, xyz.z
         self.v = v
         self.character_offset = 150
@@ -124,7 +124,8 @@ class Text:
     def translate(self, polyCurve):
         trans = []
         for pt in polyCurve.points:
-            trans.append(transformPoint(pt, CSGlobal, self.xyz, self.v))
+            pNew = transformPoint(pt, self.csglobal, self.xyz, self.v)
+            trans.append(pNew)
         project.objects.append(polyCurve.byPoints(trans))
 
 
@@ -157,120 +158,7 @@ class Text:
         output_list = [[Point(point[0], point[1], self.xyz.z) for point in element] for element in sub_lists]
 
         polyline_list = [
-            PolyCurve.byPoints([Point(coord.x, coord.y, 0) for coord in pts])
+            PolyCurve.byPoints([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
             for pts in output_list
         ]
         return polyline_list
-
-
-class Text2:
-    def __init__(self, text: str = None, font_family: str = None, bounding_box: bool = None, xyz: Point = None, v: Vector3 = None):
-        self.text = text
-        self.font_family = font_family or "arial"
-        self.bounding_box = bounding_box
-        self.xyz = xyz
-        self.x, self.y, self.z = xyz.x, xyz.y, xyz.z
-        self.v = v
-        self.character_offset = 150
-        self.space = 850
-        self.path_list = self.load_path()
-
-
-    def load_path(self) -> List[str]:
-        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-            glyph_data = json.load(f)
-            output = []
-            for letter in self.text:
-                if letter in glyph_data:
-                    output.append(glyph_data[letter]["glyph-path"])
-                elif letter == " ":
-                    output.append("space")
-            return output
-
-
-    def write(self) -> List[List[PolyCurve]]:
-        output_list = []
-        for letter_path in self.path_list:
-            points = []
-            allPoints = []
-            if letter_path == "space":
-                self.x += self.space + self.character_offset
-                pass
-            else:
-                path = parse_path(letter_path)
-                for segment in path:
-                    segment_type = segment.__class__.__name__
-                    if segment_type == 'Move':
-                        if len(points) > 0:
-                            points = []
-                            allPoints.append("M")
-                        subpath_started = True
-                    elif subpath_started:
-                        if segment_type == 'Line':
-                            points.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-                            allPoints.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-                        elif segment_type == 'CubicBezier':
-                            points.extend(segment.sample(10))
-                            allPoints.extend(segment.sample(10))
-                        elif segment_type == 'QuadraticBezier':
-                            for i in range(11):
-                                t = i / 10.0
-                                point = segment.point(t)
-                                points.append((point.real, point.imag))
-                                allPoints.append((point.real, point.imag))
-                        elif segment_type == 'Arc':
-                            points.extend(segment.sample(10))
-                            allPoints.extend(segment.sample(10))
-                if points:
-                    output_list.append(self.convert_points_to_polyline(allPoints))
-                    width = self.calculate_bounding_box(allPoints)[1]
-                    self.x += width + self.character_offset
-        pList = []
-        for ply in flatten(output_list):
-            project.objects.append(ply)
-            pList.append(ply)
-        print(f'Object text naar objects gestuurd.')
-        return pList
-
-
-    def calculate_bounding_box(self, points):
-        points = [elem for elem in points if elem != 'M']
-        ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = BoundingBox2d().byPoints(ptList)
-        return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
-
-
-    def convert_points_to_polyline(self, points: list[Point]) -> PolyCurve:
-        output_list = []
-        sub_lists = [[]]
-        tempPoints = [elem for elem in points if elem != 'M']
-        x_values = [point[0] for point in tempPoints]
-        y_values = [point[1] for point in tempPoints]
-        xmin = min(x_values)
-        ymin = min(y_values)
-
-        for item in points:
-            if item == 'M':
-                sub_lists.append([])
-            else:
-                x = item[0] + self.x - xmin
-                y = item[1] + self.y - ymin
-                z = 0
-                eput = x, y, z
-                sub_lists[-1].append(eput)
-
-        output_list = [[Point(point[0], point[1], 0) for point in element] for element in sub_lists]
-        return PolyCurve.byPoints(flatten(output_list))
-
-
-
-    # def rotate_polyline(self, polylinePoints):
-    #     cs1 = CoordinateSystem(Point(0,0,0), XAxis, YAxis, ZAxis)
-    #     rotated_points = []
-    #     for Px, Py in [(coord.x, coord.y) for coord in polylinePoints]:
-    #         print(self.xyz.z)
-    #         rotated_point = transformPoint(Point(0,0,0), cs1, Point(Px, Py,self.xyz.z), self.v)
-    #         print(rotated_point)
-    #         rotated_points.append(rotated_point)
-
-    #     return PolyCurve.byPoints(rotated_points)

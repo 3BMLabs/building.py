@@ -23,11 +23,12 @@ from project.fileformat import *
 from objects.shape3d import Origin
 from exchange.DXF import ReadDXF
 from abstract.boundingbox import BoundingBox2d
+from abstract.coordinatesystem import CSGlobal
 
 # Text1 = Text(text="123 4", font_family="arial", bounding_box=True, xyz=Point(0, 0, 0), rotation=Vector3(1, 0, 0)).write()
 
 
-Text(text="23 140 823A", font_family="arial", xyz=Point(0, 0, 0), v=Vector3(1, 0, 0)).write()
+Text(text="23 140 823A", font_family="arial", cs=CSGlobal, xyz=Point(0, 0, 0), v=Vector3(0, 1, 0)).write()
 WorkPlane.create(5000, 5000)
 # sys.exit()
 
