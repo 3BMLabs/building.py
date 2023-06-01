@@ -169,26 +169,61 @@ def SpeckleMeshByImage(img):
     return SpeckleMsh
 
 
-def ArcToSpeckleArc(arc: Arc): #deze is tijdelijk 1duizendste, omdat er een fout zit in de berekening van de radius
+def ArcToSpeckleArc(arc: Arc):
+
+    # speckle_plane = SpecklePlane(
+    #     origin = PointToSpecklePoint(arc.plane.Origin),
+    #     normal = VectorToSpeckleVector(arc.plane.Normal),
+    #     xdir = VectorToSpeckleVector(arc.plane.v1),
+    #     ydir = VectorToSpeckleVector(arc.plane.v2)
+    # )
+
+    # start_point = PointToSpecklePoint(arc.start)
+    # mid_point = PointToSpecklePoint(arc.mid)
+    # end_point = PointToSpecklePoint(arc.end)
+
+    # radius = arc.radius
+    # start_angle = arc.startAngle
+    # end_angle = arc.endAngle
+    # angle_radians = arc.angleRadian
+    # area = arc.area
+    # length = arc.length
+    # speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
+
+    # start = Point(-500, 0, 0)
+    # mid = Point(0, 0, 0)
+    # end = Point(500, 0, 0)
+
+    # start = Point(0, 0, 0)
+    # mid = Point(0, 500, 0)
+    # end = Point(0, 1000, 0)
+
+
+    start = Point(1000, 0, 0)
+    mid = Point(0, 0, 0)
+    end = Point(1000, 0, 0)
 
     speckle_plane = SpecklePlane(
-        origin = PointToSpecklePoint(arc.plane.Origin),
+        origin = PointToSpecklePoint(mid),
         normal = VectorToSpeckleVector(arc.plane.Normal),
         xdir = VectorToSpeckleVector(arc.plane.v1),
         ydir = VectorToSpeckleVector(arc.plane.v2)
     )
 
-    start_point = PointToSpecklePoint(arc.start)
-    mid_point = PointToSpecklePoint(arc.mid)
-    end_point = PointToSpecklePoint(arc.end)
+    stupidNumber = 0.0000001
+    start_point = PointToSpecklePoint(Point(start.x+stupidNumber, start.y+stupidNumber, start.z))
+    mid_point = PointToSpecklePoint(Point(mid.x-stupidNumber, mid.y-stupidNumber, mid.z))
+    end_point = PointToSpecklePoint(end)
 
-    radius = arc.radius
+    radius = 2 #equals 1000
     start_angle = arc.startAngle
     end_angle = arc.endAngle
     angle_radians = arc.angleRadian
     area = arc.area
     length = arc.length
     speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
+
+
 
     spArc = SpeckleArc(
         applicationId = project.applicationId,
@@ -204,6 +239,7 @@ def ArcToSpeckleArc(arc: Arc): #deze is tijdelijk 1duizendste, omdat er een fout
         area=area,
         length=length
     )
+
 
     spArc.units = project.units
     return spArc

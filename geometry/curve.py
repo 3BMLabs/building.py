@@ -504,11 +504,11 @@ class PolyGon:
 
 
 class Arc:
-    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
+    def __init__(self, startPoint: Point, endPoint: Point):
         self.id = helper.generateID()
         db = 0.0001
         self.start = Point.product(db, startPoint)
-        self.mid = Point.product(db, midPoint)
+        self.mid = Point(0,-1,0)#Point.product(db, midPoint)
         self.end = Point.product(db, endPoint)
         self.origin = self.originarc()
         v1=Vector3(x=1, y=0, z=0)
