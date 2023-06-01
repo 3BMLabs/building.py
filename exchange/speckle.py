@@ -236,6 +236,7 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
+        print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))
@@ -261,7 +262,9 @@ def translateObjectsToSpeckleObjects(Obj):
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = "n", units = project.units))
 
         elif nm == 'PolyCurve':
-            pnts = []
+            SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
+
+        elif nm == 'BoundingBox2d':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
         elif nm == 'ImagePyB':
@@ -286,7 +289,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Point':
             SpeckleObj.append(PointToSpecklePoint(i))
 
-        elif nm == 'Text':
+        elif nm == 'Text' or 'Text2':
             SpeckleObj.append(TextToSpeckleCurveSurface(i))
 
         elif nm == 'Point2D':

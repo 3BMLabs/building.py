@@ -13,7 +13,7 @@ from geometry.curve import *
 from abstract.vector import Vector3
 from abstract.intersect2d import *
 from abstract.plane import Plane
-from abstract.text import Text
+from abstract.text import Text, Text2
 from abstract.intersect2d import Intersect2d
 from objects.datum import *
 from geometry.solid import Extrusion
@@ -24,40 +24,29 @@ from objects.shape3d import Origin
 from exchange.DXF import ReadDXF
 from abstract.boundingbox import BoundingBox2d
 
+# Text1 = Text(text="123 4", font_family="arial", bounding_box=True, xyz=Point(0, 0, 0), rotation=Vector3(1, 0, 0)).write()
 
-Text2 = Text(text="2", font_family="arial", bounding_box=False, xyz=Point(0, 0, 5), rotation=0)
 
-j = None
-for n in Text2.write():
-    j = n[0].points
-    # print()
-    # print(BoundingBox2d.perimeter())
-
-x = BoundingBox2d().byPoints(j)
-i = PolyCurve().byPoints(x)
-
-project.objects.append(i)
-project.objects.append(Text2)
-
+Text(text="23 140 823A", font_family="arial", xyz=Point(0, 0, 0), v=Vector3(1, 0, 0)).write()
+WorkPlane.create(5000, 5000)
 # sys.exit()
 
 
-# p1 = Point(0, 0, 0)
-# p2 = Point(120, 210, 50)
-# project.objects.append(p1)
-# project.objects.append(p2)
+# project.objects.append(Text2[0])
+# print(Text2.write())
+# j = None
+# for n in Text1:
+#     j = n.points
+    # print()
+    # print(BoundingBox2d.perimeter())
 
-# v1 = Vector3(1,0,0)
+# x = BoundingBox2d().byPoints(j)
+# i = PolyCurve().byPoints(x)
 
-# wp1 = WorkPlane.create()
+# project.objects.append(i)
+# project.objects.append(Text2)
 
-# cs1 = CoordinateSystem(p1, XAxis, YAxis, ZAxis)
-
-
-# trans = []
-# for pt in wp1.points:
-#     trans.append(transformPoint(pt, cs1, p2, v1))
-# project.objects.append(PolyCurve().byPoints(trans))
+# sys.exit()
 
 
 project.toSpeckle("5ab2faedba")

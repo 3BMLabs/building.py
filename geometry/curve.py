@@ -49,7 +49,7 @@ class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
         self.start: Point = start
         self.end: Point = end
-        self.id = id=helper.generateID()
+        self.id = helper.generateID()
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         try:
@@ -116,6 +116,8 @@ class PolyCurve:
         self.curves = []
         self.points = []
         self.segmentcurves = None
+        self.width = None
+        self.height = None
         #Methods ()
         #close
         #pointonperimeter
@@ -132,6 +134,24 @@ class PolyCurve:
         self.period = None
         self.reference = None
         self.visibility = None
+
+    def get_width(self) -> float:
+        print(self)
+        x_values = [point.x for point in self.points]
+        y_values = [point.y for point in self.points]
+
+        min_x = min(x_values)
+        max_x = max(x_values)
+        min_y = min(y_values)
+        max_y = max(y_values)
+        
+        left_top = Point(x=min_x, y=max_y, z=self.z)
+        left_bottom = Point(x=min_x, y=min_y, z=self.z)
+        right_top = Point(x=max_x, y=max_y, z=self.z)
+        right_bottom = Point(x=max_x, y=min_y, z=self.z)
+        self.width = abs(Point.distance(left_top, right_top))
+        self.height = abs(Point.distance(left_top, left_bottom))
+        return self.width
 
 
     def centroid(self) -> Point:
