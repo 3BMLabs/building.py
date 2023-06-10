@@ -31,6 +31,8 @@ __url__ = "./package/helper.py"
 
 
 import string, random, json
+import urllib
+import xml.etree.ElementTree as ET
 
 def find_in_list_of_list(mylist, char):
     for sub_list in mylist:
@@ -139,3 +141,15 @@ def replace_at_index(object, index, new_object):
     if index < 0 or index >= len(object):
         raise IndexError("Index out of range")
     return object[:index] + new_object + object[index+1:]
+
+def xmldata(myurl, xPathStrings):
+    urlFile = urllib.request.urlopen(myurl)
+    tree = ET.parse(urlFile)
+    xPathResults = []
+    for xPathString in xPathStrings:
+        a = tree.findall(xPathString)
+        xPathResulttemp2 = []
+        for xPathResult in a:
+            xPathResulttemp2.append(xPathResult.text)
+        xPathResults.append(xPathResulttemp2)
+    return xPathResults

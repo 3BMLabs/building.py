@@ -136,6 +136,22 @@ class Point2D:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y})"
 
+    @staticmethod
+    def distance(point1, point2):
+        return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)
+
+    @staticmethod
+    def midpoint(point1, point2):
+        return Point2D((point2.x-point1.x)/2, (point2.y-point1.y)/2)
+
+    @staticmethod
+    def toPixel(point1, Xmin, Ymin, TotalWidth, TotalHeight, ImgWidthPix: int, ImgHeightPix: int):
+      # Convert Point to pixel on a image given a deltaX, deltaY, Width of the image etc.
+      x = point1.x
+      y = point1.y
+      xpix = math.floor(((x - Xmin) / TotalWidth) * ImgWidthPix)
+      ypix = ImgHeightPix-math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix) # min vanwege coord stelsel Image.Draw
+      return xpix, ypix
 
 def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
@@ -166,6 +182,9 @@ class Line2D:
         self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
         return self.length
 
+    def fline(self):
+        #returns line for Folium(GIS)
+        return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.start},{self.end})"
 
@@ -279,6 +298,19 @@ class PolyCurve2D:
             self.points2D.append(i.end)
         return self.points2D
 
+    @classmethod
+    def byPoints(self, points: list):
+        plycrv = PolyCurve2D()
+        for index, point2D in enumerate(points):
+            plycrv.points2D.append(point2D)
+            try:
+                nextpoint = points[index + 1]
+                plycrv.curves.append(Line2D(point2D, nextpoint))
+            except:
+                firstpoint = points[0]
+                plycrv.curves.append(Line2D(point2D, firstpoint))
+        return plycrv
+
     def translate(self, vector2d:Vector2):
         crvs = []
         v1 = vector2d
@@ -303,6 +335,20 @@ class PolyCurve2D:
                 print("Curvetype not found")
         crv = PolyCurve2D.byJoinedCurves(crvs)
         return crv
+
+    @staticmethod
+    def boundingboxGlobalCS(PC):
+        x =[]
+        y =[]
+        for i in PC.points():
+            x.append(i.x)
+            y.append(i.y)
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)
+        ymax = max(y)
+        bbox = PolyCurve2D.byPoints([Point2D(xmin,ymin),Point2D(xmax,ymin),Point2D(xmax,ymax),Point2D(xmin,ymax),Point2D(xmin,ymin)])
+        return bbox
 
     @staticmethod
     def polygon(self):
