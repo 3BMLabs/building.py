@@ -190,18 +190,10 @@ def ArcToSpeckleArc(arc: Arc):
     # length = arc.length
     # speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
 
-    # start = Point(-500, 0, 0)
-    # mid = Point(0, 0, 0)
-    # end = Point(500, 0, 0)
-
-    # start = Point(0, 0, 0)
-    # mid = Point(0, 500, 0)
-    # end = Point(0, 1000, 0)
-
-
-    start = Point(1000, 0, 0)
-    mid = Point(0, 0, 0)
-    end = Point(1000, 0, 0)
+    DevBy = 1000
+    start = Point(1, 0, 0)
+    mid = Point(2000/DevBy, 2000/DevBy, 0/DevBy) #use this (1)
+    end = Point(1, 0, 0)
 
     speckle_plane = SpecklePlane(
         origin = PointToSpecklePoint(mid),
@@ -215,7 +207,7 @@ def ArcToSpeckleArc(arc: Arc):
     mid_point = PointToSpecklePoint(Point(mid.x-stupidNumber, mid.y-stupidNumber, mid.z))
     end_point = PointToSpecklePoint(end)
 
-    radius = 2 #equals 1000
+    radius = 1500/DevBy #use this (2)
     start_angle = arc.startAngle
     end_angle = arc.endAngle
     angle_radians = arc.angleRadian
@@ -239,7 +231,6 @@ def ArcToSpeckleArc(arc: Arc):
         area=area,
         length=length
     )
-
 
     spArc.units = project.units
     return spArc

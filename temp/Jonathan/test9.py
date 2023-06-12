@@ -43,10 +43,10 @@ from exchange.DXF import ReadDXF
 # print(arrowShape.points)
 # project.objects.append(arrowShape)
 
-floor = ReadDXF("library/object_database/DXF/customfloor.dxf")
-floorShape = ReadDXF.create_polycurve(floor)
-for fshape in floorShape:
-    project.objects.append(fshape)
+# floor = ReadDXF("library/object_database/DXF/customfloor.dxf")
+# floorShape = ReadDXF.create_polycurve(floor)
+# for fshape in floorShape:
+#     project.objects.append(fshape)
 
 # l3 = Line(start=Point(300, -1500, 0), end=Point(1730, 1520, 0))
 
@@ -75,11 +75,12 @@ for fshape in floorShape:
 
 # j = Intersect2d().getMultiLineIntersect(insect["InnerGridLines"])
 
-# part1 = Arc(startPoint = Point(0,3000,0), midPoint = Point(50,3050,0), endPoint = Point(0,3100,0))
-# project.objects.append(part1)
+part1 = Arc(startPoint = Point(50,3000,0), endPoint = Point(0,3100,0))
+project.objects.append(part1)
+project.objects.append(Line(start=Point(2000,0,0), end=Point(0,3000,0)))
 # project.objects.append(Line(start=Point(0,0,0), end=Point(0,3000,0)))
-# project.objects.append(Point(0,0,0))
-# project.objects.append(Point(0,3100,0))
+project.objects.append(Point(0,0,0))
+project.objects.append(Point(0,3100,0))
 
 
 project.toSpeckle("5ab2faedba")
