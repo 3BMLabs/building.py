@@ -37,15 +37,27 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import PolyCurve
+from packages import helper
 
 
 class BoundingBox2d:
-    def __init__(self, points=list[Point]):
-        self.points = points
+    def __init__(self):
+        self.id = helper.generateID()
+        self.points = []
+        self.corners = []
+        self.isClosed = True
+        self.width = 0
+        self.height = 0
         self.z = 0
 
+    def length(self):
+        return 0
+    
+    def area(self):
+        return 0
 
-    def corners(self, points=list[Point]):
+    def byPoints(self, points=list[Point]):
+        self.points = points
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
 
@@ -58,11 +70,15 @@ class BoundingBox2d:
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
         right_bottom = Point(x=max_x, y=min_y, z=self.z)
-        
-        return [left_top, left_bottom, right_bottom, right_top, left_top]
+        self.width = abs(Point.distance(left_top, right_top))
+        self.height = abs(Point.distance(left_top, left_bottom))
+        self.corners.append(left_top) 
+        self.corners.append(left_bottom) 
+        self.corners.append(right_bottom)
+        self.corners.append(right_top)
+        return self
 
-    def perimeter(self):
-        return PolyCurve.byPoints(self.corners(self.points))   
+
 
 class BoundingBox3d:
     def __init__(self, points=list[Point]):

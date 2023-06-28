@@ -48,7 +48,7 @@ class Plane:
     @classmethod
     def byTwoVectorsOrigin(cls, v1, v2, origin):
         p1 = Plane()
-        p1.Normal = Vector3.normalise(Vector3.crossProduct(v1, v2))
+        p1.Normal = Vector3.normalize(Vector3.crossProduct(v1, v2))
         p1.Origin = origin
         p1.v1 = v1
         p1.v2 = v2

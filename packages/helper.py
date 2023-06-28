@@ -31,6 +31,8 @@ __url__ = "./package/helper.py"
 
 
 import string, random, json
+import urllib
+import xml.etree.ElementTree as ET
 
 def find_in_list_of_list(mylist, char):
     for sub_list in mylist:
@@ -38,18 +40,27 @@ def find_in_list_of_list(mylist, char):
             return (mylist.index(sub_list))
     raise ValueError("'{char}' is not in list".format(char=char))
 
-def generateID():
-    id = ""
-    prefixID = "#"
-    lengthID = 12
-    random_source = string.ascii_uppercase + string.digits
+class generateID:
+    def __init__(self) -> None:
+        self.id = None
+        self.object = None
+        self.name = None
+        self.generateID()
 
-    for x in range(lengthID):
-        id += random.choice(random_source)
+    def generateID(self) -> None:
+        id = ""
+        lengthID = 12
+        random_source = string.ascii_uppercase + string.digits
+        for x in range(lengthID):
+            id += random.choice(random_source)
 
-    id_list = list(id)
-    id = "".join(id_list)
-    return f"{prefixID}{id}"
+        id_list = list(id)
+        self.id = f"#"+"".join(id_list)
+        return f"test {self.__class__.__name__}"
+
+    def __repr__(self) -> str:
+        return f"{self.id}"
+
 
 def findjson(id, json_string):
     #faster way to search in json
@@ -119,3 +130,26 @@ def flatten(lst):
         except:
             flat_list.append(sublist)
     return flat_list
+
+def all_true(lst):
+    for element in lst:
+        if not element:
+            return False
+    return True
+
+def replace_at_index(object, index, new_object):
+    if index < 0 or index >= len(object):
+        raise IndexError("Index out of range")
+    return object[:index] + new_object + object[index+1:]
+
+def xmldata(myurl, xPathStrings):
+    urlFile = urllib.request.urlopen(myurl)
+    tree = ET.parse(urlFile)
+    xPathResults = []
+    for xPathString in xPathStrings:
+        a = tree.findall(xPathString)
+        xPathResulttemp2 = []
+        for xPathResult in a:
+            xPathResulttemp2.append(xPathResult.text)
+        xPathResults.append(xPathResulttemp2)
+    return xPathResults

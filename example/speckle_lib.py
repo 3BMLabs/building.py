@@ -397,4 +397,4 @@ objList.append(MeshBase8)
 #Platform - end
 
 
-send_to_speckle(host="https://speckle.xyz", stream_id="d2e38baf76", objects=objList, msg="Objects")
+send_to_speckle(host="https://3bm.exchange", stream_id="fa4e56aed4", objects=objList, msg="Objects")

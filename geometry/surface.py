@@ -33,31 +33,108 @@ __url__ = "./geometry/surface.py"
 import sys, os, math
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from packages import helper
+from geometry.curve import *
+from geometry.solid import Extrusion
+from abstract.color import Color
+from abstract.intersect2d import *
 
+#check if there are innercurves inside the outer curve.
 
-class Surface: #based on point data?
-    def __init__(self, id=helper.generateID()) -> None:
-        pass
-        self.id = id
-    pass #Opening
+class Surface: #Polycurves must be closed!!!!!!!
+    def __init__(self, PolyCurves:list[PolyCurve], color=None) -> None:
+        #self.outerPolyCurve
+        #self.innerPolyCurves
+        if isinstance(PolyCurves, PolyCurve):
+            PolyCurves = [PolyCurves]
+
+        self.mesh = []
+        self.length = 0
+        self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
+        self.offset = 0
+        self.name = "test2"
+        self.id = helper.generateID()
+        self.PolyCurveList = PolyCurves
+        self.origincurve = None
+        if color is None:
+            self.color = Color.rgb_to_int(Color().Components("gray"))
+        else:
+            self.color = color
+
+        self.colorlst = []
+        self.fill(self.PolyCurveList)
+
+    def fill(self, PolyCurveList):
+        if isinstance(PolyCurveList, PolyCurve):
+            plycColorList = []
+            p = Extrusion.byPolyCurveHeight(PolyCurveList, 0, self.offset)
+            self.mesh.append(p)
+            for j in range(int(len(p.verts) / 3)):
+                plycColorList.append(self.color)
+            self.colorlst.append(plycColorList)
+
+        elif isinstance(PolyCurveList, list):
+            for polyCurve in PolyCurveList:
+                plycColorList = []
+                p = Extrusion.byPolyCurveHeight(polyCurve, 0, self.offset)
+                self.mesh.append(p)
+                for j in range(int(len(p.verts) / 3)):
+                    plycColorList.append(self.color)
+                self.colorlst.append(plycColorList)
+
+    def void(self, polyCurve):
+        # Find the index of the extrusion that intersects with the polyCurve
+        idx = None
+        for i, extr in enumerate(self.mesh):
+            if extr.intersects(polyCurve):
+                idx = i
+                break
+
+        if idx is not None:
+            # Remove the intersected extrusion from the extrusion list
+            removed = self.mesh.pop(idx)
+
+            # Remove the corresponding color list from the colorlst list
+            removed_colors = self.colorlst.pop(idx)
+
+            # Create a new list of colors for the remaining extrusions
+            new_colors = []
+            for colors in self.colorlst:
+                new_colors.extend(colors)
+
+            # Fill the hole with a new surface
+            hole_surface = Surface([polyCurve], color=self.color)
+            hole_surface.fill([polyCurve])
+            hole_extrusion = hole_surface.extrusion[0]
+
+            # Add the hole extrusion to the extrusion list
+            self.mesh.append(hole_extrusion)
+
+            # Add the hole colors to the colorlst list
+            hole_colors = [Color.rgb_to_int(Color().Components("red"))] * int(len(hole_extrusion.verts) / 3)
+            self.colorlst.append(hole_colors)
+
+            # Add the remaining colors to the colorlst list
+            self.colorlst.extend(new_colors)
+
+            # Update the origin curve
+            self.origincurve = self.PolyCurveList[0]
+
 
     def __id__(self):
         return f"id:{self.id}"
 
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self})"
+    # def __str__(self) -> str:
+    #     return f"{__class__.__name__}({self})"
 
 
 class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass
-        self.id = id
+        self.id = helper.generateID()
     pass
 
     def __id__(self):
@@ -68,9 +145,9 @@ class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
 
 
 class PolySurface:
-    def __init__(self, id=helper.generateID()) -> None:
+    def __init__(self) -> None:
         pass
-        self.id = id
+        self.id = helper.generateID()
     pass
 
     def __id__(self):

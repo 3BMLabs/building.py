@@ -29,12 +29,10 @@ __title__= "panel"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/panel.py"
 
-import sys, os, math
+import sys
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.coordinatesystem import CoordinateSystem
 from abstract.coordinatesystem import CSGlobal
@@ -54,7 +52,7 @@ class Panel:
         self.origincurve = None
 
     @classmethod
-    def byPolyCurveThickness(cls, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
+    def byPolyCurveThickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
         #Create panel by polycurve
         p1 = Panel()
         p1.name = name
@@ -66,7 +64,7 @@ class Panel:
         return p1
 
     @classmethod
-    def byBaselineHeight(cls, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
+    def byBaselineHeight(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
         #place panel vertical from baseline
         p1 = Panel()
         p1.name = name

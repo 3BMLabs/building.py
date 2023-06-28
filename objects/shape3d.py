@@ -29,18 +29,18 @@ __title__ = "shape3d"
 __author__ = "Joas"
 __url__ = "./objects/shape3d.py"
 
-import sys
-import math
+import sys, math, requests, json
+from svg.path import parse_path
+from typing import List, Tuple
 from pathlib import Path
-from exchange.speckle import *
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from exchange.speckle import *
 
 
 class Origin:
-
     def __init__(self):
         self.originx = 0
         self.originy = 0
@@ -279,5 +279,3 @@ class Origin:
     #
         self.lst = [self.SpeckleObjUp, self.SpeckleObjUp2, self.SpeckleObjRight, self.SpeckleObjRight2, self.SpeckleObjFront, self.SpeckleObjFront2]
         return self
-
-    # Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Commit")

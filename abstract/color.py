@@ -1,36 +1,36 @@
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools for colors
 """
 
-__title__= "color"
+__title__ = "color"
 __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/color.py"
 
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 file = Path(__file__).resolve()
@@ -40,15 +40,12 @@ sys.path.append(str(package_root_directory))
 
 class Color:
 	"""Documentation: output returns [r, g, b]"""
-
 	def __init__(self, colorInput=None):
 		self.colorInput = colorInput
-	
 
-	red = [255,0,0]
-	green = [0,255,0]
-	blue = [0,0,255]
-
+	red = [255, 0, 0]
+	green = [0, 255, 0]
+	blue = [0, 0, 255]
 
 	def Components(self, colorInput=None):
 		"""1"""
@@ -69,13 +66,12 @@ class Color:
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
-
 	def Hex(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
 		else:
-			#validate if value is correct/found
+			# validate if value is correct/found
 			try:
 				colorInput = colorInput.split("#")[1]
 				rgb_color = list(int(colorInput[i:i+2], 16) for i in (1, 3, 5))
@@ -85,7 +81,6 @@ class Color:
 				# return list(int(colorInput[i:i+2], 16) for i in (0, 2, 4))
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
 
 	def rgba_to_hex(self, colorInput=None):
 		"""NAN"""
@@ -111,13 +106,12 @@ class Color:
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
-
 	def hex_to_rgba(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
 			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
 		else:
-			#validate if value is correct/found
+			# validate if value is correct/found
 			try:
 				colorInput = colorInput.lstrip('#')
 				red_int = int(colorInput[0:2], 16)
@@ -139,7 +133,6 @@ class Color:
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
-
 	def CMYK(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
@@ -152,9 +145,8 @@ class Color:
 				b = int((1-y) * (1-k) * 255)
 				return [r, g, b]
 			except:
-				#add check help attribute
+				# add check help attribute
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
 
 	def Alpha(self, colorInput=None):
 		"""NAN"""
@@ -166,7 +158,6 @@ class Color:
 				return [r, g, b]
 			except:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
 
 	def Brightness(self, colorInput=None):
 		"""Expected value is int(0) - int(1)"""
@@ -305,6 +296,11 @@ class Color:
 				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
 
+	def rgb_to_int(rgb):
+		r, g, b = [max(0, min(255, c)) for c in rgb]
+		return (255 << 24) | (r << 16) | (g << 8) | b
+
+
 	def __str__(self, colorInput=None):
 		colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK", "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
 		if colorInput is None:
@@ -318,7 +314,7 @@ class Color:
 		pass
 
 
-c = Color()
+# c = Color()
 # print(c) #available attributes
 
 # print(c.red)

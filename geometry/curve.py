@@ -33,22 +33,23 @@ __url__ = "./geometry/curve.py"
 import sys, os, math
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from project.fileformat import *
 from geometry.point import *
 from packages import helper
+import numpy as np
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from packages.helper import *
-#from specklepy.objects.primitive import Interval as SpeckleInterval #temp
+from abstract.interval import Interval
 
 
 class Line: #add Line.bylenght (start and endpoint)
-    def __init__(self, start: Point, end: Point, id=helper.generateID()) -> None:
+    def __init__(self, start: Point, end: Point) -> None:
         self.start: Point = start
         self.end: Point = end
+        self.id = helper.generateID()
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         try:
@@ -61,10 +62,39 @@ class Line: #add Line.bylenght (start and endpoint)
             self.dz = self.end.z-self.start.z
         except:
             self.dz = 0
-        self.id = id
+        self.length = self.length()
 
-    def __id__(self):
-        return f"id:{self.id}"
+
+    def offset(line, vector):
+        start = Point(line.start.x + vector.x, line.start.y + vector.y, line.start.z + vector.z)
+        end = Point(line.end.x + vector.x, line.end.y + vector.y, line.end.z + vector.z)
+        return Line(start=start, end=end)
+
+    # @classmethod
+    def pointAtParameter(self, interval=None):
+        if interval == None:
+            interval = 0.0
+        x1, y1, z1 = self.start.x, self.start.y, self.start.z
+        x2, y2, z2 = self.end.x, self.end.y, self.end.z
+        if float(interval) == 0.0:
+            return self.start
+        else:
+            devBy = 1/interval
+            return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
+
+
+    def split(self, points: list[Point]):
+        if isinstance(points, list):        
+            points.extend([self.start, self.end])
+            sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
+            lines = create_lines(sorted_points)
+            return lines
+        elif isinstance(points, Point):
+            point = points
+            lines.append(Line(start=self.start, end=point))
+            lines.append(Line(start=point, end=self.end))
+            return lines
+
 
     def length(self):
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
@@ -73,43 +103,165 @@ class Line: #add Line.bylenght (start and endpoint)
         return f"{__class__.__name__}(" + f"{self.start},{self.end})"
 
 
+def create_lines(points):
+    lines = []
+    for i in range(len(points)-1):
+        line = Line(points[i], points[i+1])
+        lines.append(line)
+    return lines
+
+
 class PolyCurve:
-    def __init__(self, points=None, id=helper.generateID()):
+    def __init__(self): #isclosed?
         self.curves = []
-        self.points = points or []
+        self.points = []
         self.segmentcurves = None
-        self.id = id
+        self.width = None
+        self.height = None
+        #Methods ()
+        #close
+        #pointonperimeter
 
-    @classmethod
-    def byJoinedCurves(cls, curvelst):
-        p1 = PolyCurve()
-        for i in curvelst:
-            p1.curves.append(i)
-            p1.points.append(i.start)
-        return p1
+        #Properties
+        self.approximateLength = None
+        self.graphicsStyleId = None
+        self.id = helper.generateID()
+        self.isClosed = None
+        self.isCyclic = None
+        self.isElementGeometry = None
+        self.isReadOnly = None
+        # self.length = self.calcLength()
+        self.period = None
+        self.reference = None
+        self.visibility = None
 
-    @classmethod
-    def byPoints(cls, points:list[Point]):
-        crvs = []
-        p1 = PolyCurve()
-        curves = []
+    def get_width(self) -> float:
+        print(self)
+        x_values = [point.x for point in self.points]
+        y_values = [point.y for point in self.points]
+
+        min_x = min(x_values)
+        max_x = max(x_values)
+        min_y = min(y_values)
+        max_y = max(y_values)
         
+        left_top = Point(x=min_x, y=max_y, z=self.z)
+        left_bottom = Point(x=min_x, y=min_y, z=self.z)
+        right_top = Point(x=max_x, y=max_y, z=self.z)
+        right_bottom = Point(x=max_x, y=min_y, z=self.z)
+        self.width = abs(Point.distance(left_top, right_top))
+        self.height = abs(Point.distance(left_top, left_bottom))
+        return self.width
+
+
+    def centroid(self) -> Point:
+        if self.isClosed:
+            if len(self.points) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points)
+            polygon = np.array([(self.points[i].x, self.points[i].y) for i in range(num_points)],dtype=np.float64)
+            polygon2 = np.roll(polygon, -1, axis=0)
+            signed_areas = 0.5 * np.cross(polygon, polygon2)
+            centroids = (polygon + polygon2) / 3.0
+            centroid = np.average(centroids, axis=0, weights=signed_areas)
+            return Point(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals), z=self.points[0].z)
+
+
+    def area(self) -> float: #shoelace formula
+        if self.isClosed:
+            if len(self.points) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points)
+            x_y = np.array([(self.points[i].x, self.points[i].y) for i in range(num_points)])
+            x_y = x_y.reshape(-1,2)
+            x = x_y[:,0]
+            y = x_y[:,1]
+            S1 = np.sum(x*np.roll(y,-1))
+            S2 = np.sum(y*np.roll(x,-1))
+
+            area = .5*np.absolute(S1 - S2)
+            return area
+        else:
+            print("Polycurve is not closed, no area!")
+            return None
+
+
+    def length(self) -> float:
+        return sum(i.length for i in self.curves)
+
+
+    def close(self) -> bool:
+        if self.curves[0] == self.curves[-1]:
+            return self
+        else:
+            self.curves.append(self.curves[0])
+            plycrv = PolyCurve()
+            for curve in self.curves:
+                plycrv.curves.append(curve)
+        return plycrv
+
+
+    @classmethod
+    def byJoinedCurves(self, curvelst:list[Line]):
+        projectClosed = project.closed
+        plycrv = PolyCurve()
+        for index, curve in enumerate(curvelst):
+            if index == 0:
+                plycrv.curves.append(curve)
+                plycrv.points.append(curve.start)
+                plycrv.points.append(curve.end)
+            else:
+                plycrv.curves.append(curve)
+                plycrv.points.append(curve.end)
+        if projectClosed:
+            if plycrv.points[0].value == plycrv.points[-1].value:
+                plycrv.isClosed = True
+            else:
+                # plycrv.points.append(curvelst[0].start)
+                plycrv.curves.append(curve)
+                plycrv.isClosed = True
+        elif projectClosed == False:
+            if plycrv.points[0].value == plycrv.points[-1].value:
+                plycrv.isClosed = True
+            else:
+                plycrv.isClosed = False
+        if plycrv.points[-2].value == plycrv.points[0].value:
+            plycrv.curves = plycrv.curves.pop(-1)
+        return plycrv
+
+
+    @classmethod
+    def byPoints(self, points:list[Point]):
+        projectClosed = project.closed
+        plycrv = PolyCurve()
         for index, point in enumerate(points):
+            plycrv.points.append(point)
             try:
                 nextpoint = points[index+1]
-                
-                crvs.append(Line(start=point, end=nextpoint))
+                plycrv.curves.append(Line(start=point, end=nextpoint))
             except:
                 firstpoint = points[0]
-                crvs.append(Line(start=point, end=firstpoint))
-        crv = PolyCurve.byJoinedCurves(crvs)
-        return crv
+                plycrv.curves.append(Line(start=point, end=firstpoint))
+        
+        if projectClosed:
+            if plycrv.points[0].value == plycrv.points[-1].value:
+                plycrv.isClosed = True
+            else:
+                plycrv.isClosed = True
+                plycrv.points.append(points[0])
+
+        elif projectClosed == False:
+            if plycrv.points[0].value == plycrv.points[-1].value:
+                plycrv.isClosed = True
+            else:
+                plycrv.isClosed = False
+        return plycrv
+
 
     @staticmethod
-    def segment(cls, count):
-        #Create segmented polycurve. Arcs, elips will be translated to straight lines
-        crvs = []
-        for i in cls.curves:
+    def segment(self, count): #Create segmented polycurve. Arcs, elips will be translated to straight lines
+        crvs = [] #add isClosed
+        for i in self.curves:
             if i.__class__.__name__ == "Arc":
                 crvs.append(Arc.segmentedarc(i, count))
             elif i.__class__.__name__ == "Line":
@@ -121,8 +273,7 @@ class PolyCurve:
     @staticmethod
     def byPolyCurve2D(PolyCurve2D):
         # by points,
-        p1 = PolyCurve()
-        count = 0
+        plycrv = PolyCurve()
         curves = []
         for i in PolyCurve2D.curves:
             if i.__class__.__name__ == "Arc2D":
@@ -135,9 +286,104 @@ class PolyCurve:
         for i in curves:
             pnts.append(i.start)
         pnts.append(curves[0].start)
-        p1.points = pnts
-        p1.curves = curves
-        return p1
+        plycrv.points = pnts
+        plycrv.curves = curves
+        return plycrv
+
+
+    def split(self, line: Line, returnlines=None): #make sure that the lines start/stop already on the edge of the polycurve
+        from abstract.intersect2d import Intersect2d, is_point_on_line_segment
+
+        allLines = self.curves.copy()
+
+        # insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
+        # for pt in insect["IntersectGridPoints"]:
+        #     for index, line in enumerate(allLines):
+        #         if is_point_on_line_segment(pt, line) == True:
+        #             cuttedLines = line.split([pt])
+        #             allLines = replace_at_index(allLines,index, cuttedLines)
+
+        insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
+        for pt in insect["IntersectGridPoints"]:
+            for index, line in enumerate(allLines):
+                if is_point_on_line_segment(pt, line) == True:
+                    cuttedLines = line.split([pt])
+                    allLines = replace_at_index(allLines,index, cuttedLines)
+
+        if len(insect["IntersectGridPoints"]) == 2:
+            part1 = []
+            part2 = []
+
+            for j in allLines:
+                #part1
+                if j.start == insect["IntersectGridPoints"][1]:
+                    part1LineEnd = j.end
+                    part1.append(j.start)
+                if j.end == insect["IntersectGridPoints"][0]:
+                    part1LineStart = j.start
+                    part1.append(j.end)
+                #part2
+                if j.start == insect["IntersectGridPoints"][0]:
+                    part2LineEnd = j.end
+                    part2.append(j.start)
+                if j.end == insect["IntersectGridPoints"][1]:
+                    part2LineStart = j.start
+                    part2.append(j.end)
+
+            s2 = self.points.index(part1LineStart)
+            s1 = self.points.index(part1LineEnd)
+            completelist = list(range(len(self.points)))
+            partlist1 = flatten(completelist[s2:s1+1])
+            partlist2 = flatten([completelist[s1+1:]] + [completelist[:s2]])
+
+            SplittedPolyCurves = []
+            #part1
+            if part1LineStart != None and part1LineEnd != None:
+                for i, index in enumerate(partlist1):
+                    pts = self.points[index]
+                    part1.insert(i+1, pts)
+                if returnlines:
+                    SplittedPolyCurves.append(PolyCurve.byPoints(part1))
+                else:
+                    project.objects.append(PolyCurve.byPoints(part1))
+
+            #part2 -> BUGG?
+            if part2LineStart != None and part2LineEnd != None:
+                for index in partlist2:
+                    pts = self.points[index]
+                    part2.insert(index, pts)
+                if returnlines:
+                    SplittedPolyCurves.append(PolyCurve.byPoints(part2))
+                else:
+                    project.objects.append(PolyCurve.byPoints(part2))
+
+            if returnlines: #return lines while using multi_split
+                return SplittedPolyCurves
+
+        else:
+            print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
+
+
+    def multi_split(self, lines:list[Line]): #SOOOO SLOW, MUST INCREASE SPEAD
+        lines = flatten(lines)
+        new_polygons = []
+        for index, line in enumerate(lines):
+            if index == 0:
+                n_p = self.split(line, returnlines=True)
+                if n_p != None:
+                    for np in n_p:
+                        if np != None:
+                            new_polygons.append(n_p)
+            else:
+                for new_poly in flatten(new_polygons):
+                    n_p = new_poly.split(line, returnlines=True)
+                    if n_p != None:
+                        for np in n_p:
+                            if np != None:
+                                new_polygons.append(n_p)
+        project.objects.append(flatten(new_polygons))
+        return flatten(new_polygons)
+
 
     def translate(self, vector3d:Vector3):
         crvs = []
@@ -149,7 +395,7 @@ class PolyCurve:
                 crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
             else:
                 print("Curvetype not found")
-        crv = flatten()
+        # crv = flatten()
         crv = PolyCurve.byJoinedCurves(crvs)
         return crv
 
@@ -192,15 +438,11 @@ class PolyCurve:
         p1.points = pnts
         p1.curves = curves
         return p1
-    def __id__(self):
-        return f"id:{self.id}"
 
     def __str__(self):
-        PolyCurveName = f"{__class__.__name__}("
-#       for i in self.curves:
-#            PolyCurveName = PolyCurveName + i
-        return PolyCurveName + ")"
-
+        l = len(self.points)
+        return f"{__class__.__name__}, ({l} points)"
+            
 # 2D PolyCurve to 3D PolyGon
 
 def Rect(vector: Vector3, width: float, height: float):
@@ -233,13 +475,13 @@ def RectYZ(vector: Vector3, width: float, height: float):
 
 
 class PolyGon:
-    def __init__(self, lines, id=helper.generateID()) -> None:
+    def __init__(self, lines) -> None:
         self.Lines = lines#collect in list
-        self.id = id
+        self.id = helper.generateID()
         pass #Lines
     
     @staticmethod
-    def polygon(flatCurves):
+    def polygon(flatCurves: list[Line]) -> list[Point]:
         points = []
         for i in flatCurves:
             points.append(i.start)
@@ -262,17 +504,19 @@ class PolyGon:
 
 
 class Arc:
-    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
-        self.start = startPoint
-        self.mid = midPoint
-        self.end = endPoint
+    def __init__(self, startPoint: Point, endPoint: Point):
+        self.id = helper.generateID()
+        db = 0.0001
+        self.start = Point.product(db, startPoint)
+        self.mid = Point(0,-1,0)#Point.product(db, midPoint)
+        self.end = Point.product(db, endPoint)
         self.origin = self.originarc()
         v1=Vector3(x=1, y=0, z=0)
         v2=Vector3(x=0, y=1, z=0)
         self.plane = Plane.byTwoVectorsOrigin(
-            v1, 
-            v2, 
-            Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
+            v1,
+            v2,
+            Point((self.start.x + self.end.x) / 2, (self.start.y + self.end.y) / 2, (self.start.z + self.end.z) / 2)
         )
         self.radius = self.radiusarc()
         self.startAngle=0
@@ -280,10 +524,9 @@ class Arc:
         self.angleRadian = self.angleRadian()
         self.area=0
         self.length = self.length()
-        self.units="mm"
         self.coordinatesystem = self.coordinatesystemarc()
 
-    def distance(self, p1, p2):
+    def distance(self, p1, p2) -> float:
         return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)
 
     def coordinatesystemarc(self):
@@ -291,7 +534,7 @@ class Arc:
         v2 = Vector3.byTwoPoints(self.end, self.origin)
         vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
         vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalise(vx), Vector3.normalise(vy), Vector3.normalise(vz))
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy), Vector3.normalize(vz))
         return self.coordinatesystem
 
     def radiusarc(self):
@@ -311,10 +554,9 @@ class Arc:
         x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b) #distance from start-end line to origin
         mid = Point.translate(self.start, halfVstartend)
         v2 = Vector3.byTwoPoints(self.mid, mid)
-        v3 = Vector3.normalise(v2)
+        v3 = Vector3.normalize(v2)
         tocenter = Vector3.scale(v3,x)
         center = Point.translate(mid, tocenter)
-        #self.origin = center
         return center
 
     def angleRadian(self):
@@ -322,6 +564,7 @@ class Arc:
         v2 = Vector3.byTwoPoints(self.origin, self.start)
         angle = Vector3.angleRadianBetween(v1,v2)
         return angle
+    
     def length(self):
         x1, y1, z1 = self.start.x, self.start.y, self.start.z
         x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
@@ -334,7 +577,7 @@ class Arc:
         cos_angle = (a**2 + b**2 - c**2) / (2*a*b)
         m1 = math.acos(cos_angle)
         arc_length = r1 * m1
-
+    
         return arc_length
 
     @staticmethod
@@ -363,14 +606,15 @@ class Arc:
         return lines
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}(Object output n.t.b.)"
+        return f"{__class__.__name__}()"
 
-class Circle:
-    def __init__(self, radius, plane, length, id=helper.generateID()) -> None:
+
+class Circle: #auto calculate length!
+    def __init__(self, radius, plane, length) -> None:
         self.radius = radius
         self.plane = plane
         self.length = length
-        self.id = id
+        self.id = helper.generateID()
         pass #Curve
 
     def __id__(self):
@@ -381,11 +625,11 @@ class Circle:
 
 
 class Ellipse:
-    def __init__(self, firstRadius, secondRadius, plane, id=helper.generateID()) -> None:
+    def __init__(self, firstRadius, secondRadius, plane) -> None:
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane
-        self.id = id
+        self.id = helper.generateID()
         pass #Curve
     pass
 

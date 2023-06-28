@@ -53,9 +53,32 @@ class Extrusion:
         self.name = "none"
         self.color = (255,255,0)
         self.colorlst = []
+        self.topface = None #return polycurve -> surface
+        self.bottomface = None #return polycurve -> surface
+        self.id = helper.generateID()
 
     @classmethod
-    def byPolyCurveHeightVector(cls, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    def merge(self, extrusions:list, name=None):
+        Outrus = Extrusion()
+        if isinstance(extrusions, list):
+            Outrus.verts = []
+            Outrus.faces = []
+            Outrus.colorlst = []
+            for ext in extrusions:
+                Outrus.verts.append(ext.verts)
+                Outrus.faces.append(ext.faces)
+                Outrus.colorlst.append(ext.colorlst)
+            Outrus.verts = flatten(Outrus.verts)
+            Outrus.faces = flatten(Outrus.faces)
+            Outrus.colorlst = flatten(Outrus.colorlst)
+            return Outrus
+
+        elif isinstance(extrusions, Extrusion):
+            return extrusions
+
+
+    @classmethod
+    def byPolyCurveHeightVector(self, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
@@ -120,7 +143,7 @@ class Extrusion:
         return Extrus
 
     @classmethod
-    def byPolyCurveHeight(cls, polycurve: PolyCurve, height, dzloc):
+    def byPolyCurveHeight(self, polycurve: PolyCurve, height, dzloc: float):
         #global len
         Extrus = Extrusion()
         Points = polycurve.points
@@ -187,12 +210,10 @@ class Extrusion:
             Extrus.faces.append(len(x)) #Number of verts in face
             for y in x:
                 Extrus.faces.append(y)
-            #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
-            # list structure of verts is x y z x y z x y z
-            #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
-            # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
-            # first number is number of vertices.
-            # then
+
         Extrus.numberFaces = len(faces)
         Extrus.countVertsFaces = (4 * len(faces))
+
+        for j in range(int(len(Extrus.verts) / 3)):
+            Extrus.colorlst.append(Extrus.color)
         return Extrus

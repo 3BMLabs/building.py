@@ -39,27 +39,35 @@ sys.path.append(str(package_root_directory))
 
 
 from packages import helper
+# from project.fileformat import project
 
 class Point:
-    def __init__(self, x, y, z, id=helper.generateID()):
+    def __init__(self, x, y, z):
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
         self.x = x
         self.y = y
         self.z = z
-
-    def __id__(self):
-        return f"id:{self.id}"
+        self.value = self.x, self.y, self.z
+        self.id = helper.generateID()
+        self.units = "mm"
         
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y},{self.z})"
 
-    # @staticmethod
-    # def distance(point1, point2):
-    #     x1, y1, z1 = point1
-    #     x2, y2, z2 = point2
-    #     return math.dist([x1, y1, z1], [x2, y2, z2])
+    @staticmethod
+    def distance(point1, point2):
+        return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2 + (point1.z - point2.z)**2)
+
+    @staticmethod
+    def calculate_distance(points:list) -> float:
+        distances = []
+        for i in range(len(points)):
+            for j in range(i+1, len(points)):
+                distances.append((points[i], points[j], Point.distance(points[i], points[j])))
+        distances.sort(key=lambda x: x[2])
+        return distances
 
     @staticmethod
     def difference(pointxyz1, pointxyz2):
@@ -71,11 +79,11 @@ class Point:
         )
 
     @staticmethod
-    def translate(point1, vector):
+    def translate(point, vector):
         return Point(
-            point1.x + vector.x,
-            point1.y + vector.y,
-            point1.z + vector.z
+            point.x + vector.x,
+            point.y + vector.y,
+            point.z + vector.z
         )
 
     @staticmethod
@@ -131,6 +139,14 @@ class Point:
         )
 
     @staticmethod
+    def product(n, p1): #Same as scale
+        return Point(
+            p1.x*n,
+            p1.y*n,
+            p1.z*n
+        )
+
+    @staticmethod
     def intersect(p1, p2):
         #Intersection of two points
         if p1.x == p2.x and p1.y == p2.y and p1.z == p2.z:
@@ -140,7 +156,7 @@ class Point:
 
 class CoordinateSystem:
     #Origin = Point
-    #xaxis = Normalised Vector
+    #xaxis = normalized Vector
     def __init__(self,origin: Point, xaxis, yaxis, zaxis):
         self.Origin = origin
         self.Xaxis = xaxis
@@ -153,15 +169,15 @@ class CoordinateSystem:
 def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
     from abstract.vector import Vector3
     vz = DirectionVector  # LineVector and new Z-axis
-    vz = Vector3.normalise(vz)  # NewZAxis
+    vz = Vector3.normalize(vz)  # NewZAxis
     vx = Vector3.perpendicular(vz)[0]  # NewXAxis
     try:
-        vx = Vector3.normalise(vx)  # NewXAxisNormalised
+        vx = Vector3.normalize(vx)  # NewXAxisnormalized
     except:
         vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
     vy = Vector3.perpendicular(vz)[1]  # NewYAxis
     try:
-        vy = Vector3.normalise(vy)  # NewYAxisNormalised
+        vy = Vector3.normalize(vy)  # NewYAxisnormalized
     except:
         vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
     P1 = PointLocal #point to transform

@@ -27,8 +27,8 @@ def argsort(
             axis=axis,
         )
         # Rely on flip()/argsort() to validate axis
-        normalised_axis = axis if axis >= 0 else x.ndim + axis
-        max_i = x.shape[normalised_axis] - 1
+        normalized_axis = axis if axis >= 0 else x.ndim + axis
+        max_i = x.shape[normalized_axis] - 1
         res = max_i - res
     return Array._new(res)
 

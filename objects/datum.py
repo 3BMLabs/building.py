@@ -29,6 +29,11 @@ __title__= "datum"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/datum.py"
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from geometry.linestyle import *
 
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
@@ -41,6 +46,9 @@ class Grid:
         self.bulbStart = 1
         self.bulbEnd = 1
 
+   # @classmethod
+  #  def bulb(cls,name):
+        
     @classmethod
     def byStartpointEndpoint(cls, line, name):
         #Create panel by polycurve

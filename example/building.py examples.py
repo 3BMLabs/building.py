@@ -82,10 +82,10 @@ test8 = Vector3.reverse(v1)
 # Vector Local X and Local Y perpendicular to given vector and in global Z direction
 test9 = Vector3.perpendicular(v1)
 
-# normalise ↓
+# normalize ↓
 # scale = 1 / Vector3.length(v1)
 # v1.X * scale, v1.Y * scale, v1.Z * scale
-test10 = Vector3.normalise(v1)
+test10 = Vector3.normalize(v1)
 
 # Point
 p1 = Point(0, 100, 0)

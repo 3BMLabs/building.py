@@ -27,7 +27,7 @@
 
 __title__= "PAT"
 __author__ = "Maarten & Jonathan"
-__url__ = "./exchange/file/pat.py"
+__url__ = "./exchange/pat.py"
 
 
 #reader

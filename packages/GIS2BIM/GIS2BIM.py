@@ -59,6 +59,18 @@ def GetWebServerData(servertitle, category, parameter):
 	result = data[test.index(servertitle)][parameter]
 	return result
 
+def xmldata(myurl, xPathStrings):
+    urlFile = urllib.request.urlopen(myurl)
+    tree = ET.parse(urlFile)
+    xPathResults = []
+    for xPathString in xPathStrings:
+        a = tree.findall(xPathString)
+        xPathResulttemp2 = []
+        for xPathResult in a:
+            xPathResulttemp2.append(xPathResult.text)
+        xPathResults.append(xPathResulttemp2)
+    return xPathResults
+
 def GetWebServerDataService(category,service):
 	#Get a list with webserverdata from github repository of GIS2BIM(up to date list of GIS-servers & requests)
 	Serverlocation = "https://raw.githubusercontent.com/DutchSailor/GIS2BIM/master/GIS2BIM_Data.json"
@@ -156,6 +168,8 @@ def GML_poslistData(tree,xPathString,dx,dy,scale,DecimalNumbers):
             x +=XYZCountDimensions
         xyPosList.append(coordSplitXY)
     return xyPosList
+
+
 
 def CreateBoundingBox(CoordinateX,CoordinateY,BoxWidth,BoxHeight,DecimalNumbers):
 #Create Boundingboxstring for use in webrequests.
