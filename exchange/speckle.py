@@ -57,7 +57,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
-from specklepy.objects.primitive import Interval as SpeckleInterval
+#from specklepy.objects.primitive import Interval as SpeckleInterval
 from project.fileformat import project
 
 
@@ -139,6 +139,13 @@ def GridToLines(Grid):
         SpeckleLines.append(SpeckleLine(applicationId = project.applicationId, start = PointToSpecklePoint(i.start), end = PointToSpecklePoint(i.end), units = project.units))
     return SpeckleLines
 
+def GridSystemToLines(GridSystem):
+    SpeckleLines = []
+    for j in GridSystem.gridsX:
+        SpeckleLines.append(GridToLines(j))
+    for k in GridSystem.gridsY:
+        SpeckleLines.append(GridToLines(k))
+    return SpeckleLines
 
 def Point2DToSpecklePoint(Point2D: Point2D):
     SpecklePnt = SpecklePoint.from_coords(Point2D.x, Point2D.y, 0)
@@ -316,8 +323,8 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Point':
             SpeckleObj.append(PointToSpecklePoint(i))
 
-        elif nm == 'Text' or 'Text2':
-            SpeckleObj.append(TextToSpeckleCurveSurface(i))
+#        elif nm == 'Text' or 'Text2':
+#            SpeckleObj.append(TextToSpeckleCurveSurface(i))
 
         elif nm == 'Point2D':
             SpeckleObj.append(Point2DToSpecklePoint(i))
@@ -325,6 +332,12 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Grid':
             for j in GridToLines(i):
                 SpeckleObj.append(j)
+                print(j)
+
+        elif nm == 'GridSystem':
+            for j in GridSystemToLines(i):
+                SpeckleObj.append(j)
+                print(j)
 
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))

@@ -43,8 +43,8 @@ class Grid:
     def __init__(self):
         self.line = None
         self.name = None
-        self.bulbStart = 1
-        self.bulbEnd = 1
+        self.bulbStart = 0
+        self.bulbEnd = 0
 
    # @classmethod
   #  def bulb(cls,name):
@@ -77,30 +77,38 @@ def getGridDistances(Grids):
             GridsNew.append(distance)
     return GridsNew
 
-def GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension):
+class GridSystem:
+    def __init__(self):
+        self.gridsX = None
+        self.gridsY = None
+        self.name = None
+    @classmethod
+    def bySpacingLabels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
+        gs = GridSystem()
+        # Create gridsystem
+        #spacingXformat = "0 3000 3000 3000"
+        GridEx = gridExtension
 
-    #GRIDS
-    GridEx = gridExtension
+        GridsX = spacingX.split()
+        GridsX = getGridDistances(GridsX)
+        Xmax = max(GridsX)
+        GridsXLable = labelsX.split()
+        GridsY = spacingY.split()
+        GridsY = getGridDistances(GridsY)
+        Ymax = max(GridsY)
+        GridsYLable = labelsY.split()
 
-    GridsX = spacingX.split()
-    GridsX = getGridDistances(GridsX)
-    Xmax = max(GridsX)
-    GridsXLable = labelsX.split()
-    GridsY = spacingY.split()
-    GridsY = getGridDistances(GridsY)
-    Ymax = max(GridsY)
-    GridsYLable = labelsY.split()
+        gridsX = []
+        count = 0
+        for i in GridsX:
+            gridsX.append(Grid.byStartpointEndpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
+            count =+ 1
 
-    gridsX = []
-    count = 0
-    for i in GridsX:
-        gridsX.append(Grid.byStartpointEndpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
-        count =+ 1
-
-    gridsY = []
-    count = 0
-    for i in GridsY:
-        gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
-        count = + 1
-
-    return gridsX, gridsY
+        gridsY = []
+        count = 0
+        for i in GridsY:
+            gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
+            count = + 1
+        gs.gridsX = gridsX
+        gs.gridsY = gridsY
+        return gs

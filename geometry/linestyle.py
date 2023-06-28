@@ -43,7 +43,7 @@ def lineToPattern(baseline, patternobj):
     unityvect = Vector3.normalize(dir)
 
     Pattern = patternobj
-    l = baseline.length()
+    l = baseline.length
     patternlength = sum(Pattern[1]) * Pattern[2]
     count = math.floor(l / patternlength)  # aantal hele lengtes van het patroon
     lines = []

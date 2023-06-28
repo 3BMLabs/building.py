@@ -11,6 +11,9 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[0]
 sys.path.append(str(package_root_directory))
 
+project = BuildingPy("Industrial Hall","7")
+
+
 # GridSystem
 seqX = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqY = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
@@ -200,9 +203,12 @@ def LoadPanels(width,length,z):
 
 LoadPanels(length,width,z)
 
+project.objects.append(obj1)
+project.toSpeckle("92cf563acc")
 
-SpeckleObj = translateObjectsToSpeckleObjects(obj1)
-Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "7 Industrial Hall.py")
+
+#SpeckleObj = translateObjectsToSpeckleObjects(obj1)
+#Commit = TransportToSpeckle("struct4u.xyz", "95f9fd2609", SpeckleObj, "7 Industrial Hall.py")
 
 #Export to XFEM4U XML String
 
