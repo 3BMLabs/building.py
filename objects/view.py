@@ -33,6 +33,16 @@ __url__ = "./objects/annotation.py"
 class View:
     def __init__(self):
         self.name = None
+        self.id = helper.generateID()
+        self.origin = Point(0,0,0)
+        self.cutplane: CoordinateSystem = None
+        self.visibility =
+        self.scale = 0.01
+
+class Visibility:
+    def __init__(self):
+        self.name = None
+        self.id = helper.generateID()
         self.origin = Point(0,0,0)
         self.cutplane: CoordinateSystem = None
         self.visibility =

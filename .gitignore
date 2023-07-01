@@ -1,2 +1,5 @@
 *.pyc
 \prive
+*.iml
+*.xml
+*.xml

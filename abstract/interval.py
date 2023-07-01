@@ -54,5 +54,7 @@ class Interval:
             numb = numb + (delta / (count - 1))
         self.interval = intval
         return self
+
+
     def __str__(self):
         return f"{__class__.__name__}"

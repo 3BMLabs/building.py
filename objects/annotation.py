@@ -37,9 +37,14 @@ class Dimension:
         self.id = helper.generateID()
         self.scale = 0.01
 
+    def geom:
+
 class DimensionType:
-
-
+    def __init__(self):
+        self.name: Point = None
+        self.id = helper.generateID()
+        self.font = None
+        self.
 class
 class Label:
 class LabelType:
