@@ -25,8 +25,10 @@ from abstract.boundingbox import BoundingBox2d
 from abstract.coordinatesystem import CSGlobal
 
 
-Text(text="23 140 823A", font_family="arial", cs=CSGlobal, xyz=Point(600, 1000, 0), v=Vector3(1, 0, 0)).write()
+Text(text="23 140 823A", font_family="arial", cs=CSGlobal, xyz=Point(600, 2000, 0), v=Vector3(0, 1, 1)).write()
+Text(text="23 140 823A", font_family="arial", cs=CSGlobal, xyz=Point(600, 0, 0), v=Vector3(0, 1, 1)).write()
+
 WorkPlane.create(5000, 5000)
 
 
-project.toSpeckle("5ab2faedba")
+project.toSpeckle("abed1f4f8b")

@@ -15,18 +15,19 @@ from abstract.vector import Vector3
 #Proof of Concept modules
 
 # GridSystem
-nx = 5
-ny = 5
-spacing = 2950
-heigth = 3300
+nx = 16
+ny = 4
+spacingx = 2912
+spacingy = 3978
+heigth = 3500
 
-spacX = str(nx) + "x" + str(spacing)  #"13x5400"
-spacY = str(ny) + "x" + str(spacing)  #"4x5400"
+spacX = str(nx) + "x" + str(spacingx)  #"13x5400"
+spacY = str(ny) + "x" + str(spacingy)  #"4x5400"
 grids = GridSystem(spacX, seqChar, spacY, seqNumber,2500)
 obj = grids[0] + grids[1]
 
-width = spacing
-length = spacing * 2
+width = spacingx
+length = spacingy * 4
 
 def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,rot: bool, floorframing :bool):
     x = vector.x
@@ -89,18 +90,30 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,ro
 
     return obj
 
+def ModulesUltimo(levels,numberofmodules):
+    Lst = []
+    level = 0
+    for i in range(levels):
+        x = 0
+        for i in range(numberofmodules):
+            Lst.append([level,x,0,0])
+            x = x +1
+        level = level + 1
+    return Lst
+
 Modules = [ #Syntax: Level, GridX, GridY, Rotation # 0 is 0, 1 = 90
 [0,0,0,0],
-[0,0,1,0],
-[0,0,2,0],
-[0,0,3,0],
-[0,0,4,0],
-[0,2,1,1],
-[0,2,3,1],
-[0,3,1,0],
-[0,3,2,0],
-[0,3,3,0],
-[0,3,4,0],
+[0,0,0,0],
+[0,0,0,0],
+[0,0,0,0],
+[0,0,0,0],
+[0,2,0,1],
+[0,2,0,1],
+[0,3,0,0],
+[0,3,0,0],
+[0,3,0,0],
+[0,3,0,0],
+[0,3,0,0],
 
 [2,0,0,0],
 [2,0,1,0],
@@ -115,8 +128,10 @@ Modules = [ #Syntax: Level, GridX, GridY, Rotation # 0 is 0, 1 = 90
 [2,3,4,0],
 ]
 
+Modules = ModulesUltimo(2,15)
+
 for i in Modules:
-    V = Vector3(i[1]*spacing, i[2]*spacing,i[0]*heigth)
+    V = Vector3(i[1]*spacingx, i[2]*spacingy,i[0]*heigth)
     if i[3] == 0:
         rot = 0
     elif i[3] == 1:
@@ -127,4 +142,4 @@ for i in Modules:
 
 obj1 = flatten(obj)
 SpeckleObj = translateObjectsToSpeckleObjects(obj1)
-Commit = TransportToSpeckle("3bm.exchange", "17f6dbaddc", SpeckleObj, "Modules")
+Commit = TransportToSpeckle("3bm.exchange", "0b0c65a2b7", SpeckleObj, "Ultimo Modules")

@@ -316,7 +316,7 @@ class PolyCurve2D:
         v1 = vector2d
         for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D(i.start.translate(v1), i.middle.translate(v1), i.end.translate(v1)))
+                crvs.append(Arc2D(i.start.translate(v1), i.mid.translate(v1), i.end.translate(v1)))
             elif i.__class__.__name__ == "Line2D":
                 crvs.append(Line2D(i.start.translate(v1), i.end.translate(v1)))
             else:

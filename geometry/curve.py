@@ -135,6 +135,20 @@ class PolyCurve:
         self.reference = None
         self.visibility = None
 
+    def scale(self, scalefactor):
+        crvs = []
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                arcie = Arc(Point.product(scalefactor, i.start), Point.product(scalefactor, i.end))
+                arcie.mid = Point.product(scalefactor,i.mid)
+                crvs.append(arcie)
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.product(scalefactor, i.start), Point.product(scalefactor, i.end)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve.byJoinedCurves(crvs)
+        return crv
+
     def get_width(self) -> float:
         print(self)
         x_values = [point.x for point in self.points]
