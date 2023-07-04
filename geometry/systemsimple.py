@@ -35,7 +35,7 @@ from geometry.curve import *
 from abstract.coordinatesystem import *
 from abstract.interval import *
 from objects.frame import *
-
+from objects.panel import *
 
 class System:
     #Generic class for systems
@@ -139,6 +139,7 @@ class RectangleSystem:
         self.left_frame_type = Rectangle("left_frame_type", 38, 184)
         self.right_frame_type = Rectangle("left_frame_type", 38, 184)
         self.inner_frame_type = Rectangle("inner_frame_type", 38, 184)
+
         self.material = BaseTimber
         self.inner_width: float =  0
         self.inner_height: float =  0
@@ -149,30 +150,91 @@ class RectangleSystem:
         self.division_system = None
         self.inner_frame_objects = []
         self.outer_frame_objects = []
+        self.panel_objects = []
+        self.symbolic_inner_mother_surface = None
+        self.symbolic_inner_panels = None
+        self.symbolic_outer_grids = []
+        self.symbolic_inner_grids = []
+
+    def __inner_panels(self):
+        #First Inner panel
+        i = self.division_system.distances[0]
+        point1 = self.mother_surface_origin_point_x_zero
+        point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(i - self.inner_frame_type.b * 0.5, 0, 0))
+        point3 = Point.translate(self.mother_surface_origin_point_x_zero,
+                                 Vector3(i - self.inner_frame_type.b * 0.5, self.inner_height, 0))
+        point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(0, self.inner_height, 0))
+        self.panel_objects.append(
+            Panel.byPolyCurveThickness(
+                PolyCurve.byPoints([point1, point2, point3, point4, point1]), 184, 0, "innerpanel",
+                rgb_to_int([255, 240, 160]))
+        )
+        count = 0
+        # In between
+        for i in self.division_system.distances:
+            try:
+                point1 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count]+self.inner_frame_type.b*0.5,0,0))
+                point2 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count+1]-self.inner_frame_type.b*0.5,0,0))
+                point3 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count+1]-self.inner_frame_type.b*0.5,self.inner_height,0))
+                point4 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
+                self.panel_objects.append(
+                    Panel.byPolyCurveThickness(
+                        PolyCurve.byPoints([point1,point2,point3,point4,point1]),184,0,"innerpanel",rgb_to_int([255,240,160]))
+                    )
+                count = count + 1
+            except:
+                #Last panel
+                point1 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count]+self.inner_frame_type.b*0.5,0,0))
+                point2 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.inner_width+self.left_frame_type.b,0,0))
+                point3 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.inner_width+self.left_frame_type.b,self.inner_height,0))
+                point4 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
+                self.panel_objects.append(
+                    Panel.byPolyCurveThickness(
+                        PolyCurve.byPoints([point1,point2,point3,point4,point1]),184,0,"innerpanel",rgb_to_int([255,240,160]))
+                    )
+                count = count + 1
 
     def __inner_mother_surface(self):
         #Inner mother surface is the surface within the outer frames dependent on the width of the outer frametypes.
         self.inner_width = self.width-self.left_frame_type.b-self.right_frame_type.b
         self.inner_height = self.height-self.top_frame_type.b-self.bottom_frame_type.b
         self.mother_surface_origin_point = Point(self.left_frame_type.b,self.bottom_frame_type.b,0)
+        self.mother_surface_origin_point_x_zero = Point(0,self.bottom_frame_type.b,0)
+        self.symbolic_inner_mother_surface = PolyCurve.byPoints(
+            [self.mother_surface_origin_point,
+             Point.translate(self.mother_surface_origin_point,Vector3(self.inner_width,0,0)),
+             Point.translate(self.mother_surface_origin_point,Vector3(self.inner_width,self.inner_height,0)),
+             Point.translate(self.mother_surface_origin_point, Vector3(0, self.inner_height, 0)),
+             self.mother_surface_origin_point]
+        )
+
     def __inner_frames(self):
         for i in self.division_system.distances:
-            start_point = Point.translate(self.mother_surface_origin_point,Vector3(i,0,0))
-            end_point = Point.translate(self.mother_surface_origin_point,Vector3(i,self.inner_height,0))
+            start_point = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(i,0,0))
+            end_point = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(i,self.inner_height,0))
             self.inner_frame_objects.append(
                 Frame.byStartpointEndpointCurveJustifiction(start_point,end_point, self.inner_frame_type.curve, "innerframe","center","top", 0,self.material)
             )
+            self.symbolic_inner_grids.append(Line(start=start_point,end=end_point))
 
     def __outer_frames(self):
         bottomframe = Frame.byStartpointEndpointCurveJustifiction(Point(0,0,0),Point(self.width,0,0), self.bottom_frame_type.curve, "bottomframe","left","top", 0,self.material)
+        self.symbolic_outer_grids.append(Line(start=Point(0,0,0), end=Point(self.width,0,0)))
+
         topframe = Frame.byStartpointEndpointCurveJustifiction(Point(0,self.height,0),Point(self.width,self.height,0), self.top_frame_type.curve, "bottomframe","right","top", 0,self.material)
+        self.symbolic_outer_grids.append(Line(start=Point(0,self.height,0), end=Point(self.width,self.height,0)))
+
         leftframe = Frame.byStartpointEndpointCurveJustifiction(Point(0,self.bottom_frame_type.b,0),Point(0,self.height-self.top_frame_type.b,0), self.left_frame_type.curve, "leftframe","right","top", 0,self.material)
+        self.symbolic_outer_grids.append(Line(start=Point(0,self.bottom_frame_type.b,0), end=Point(0,self.height-self.top_frame_type.b,0)))
+
         rightframe = Frame.byStartpointEndpointCurveJustifiction(Point(self.width,self.bottom_frame_type.b,0),Point(self.width,self.height-self.top_frame_type.b,0), self.right_frame_type.curve, "leftframe","left","top", 0,self.material)
+        self.symbolic_outer_grids.append(Line(start=Point(self.width,self.bottom_frame_type.b,0), end=Point(self.width,self.height-self.top_frame_type.b,0)))
+
         self.outer_frame_objects.append(bottomframe)
         self.outer_frame_objects.append(topframe)
         self.outer_frame_objects.append(leftframe)
         self.outer_frame_objects.append(rightframe)
-    def by_width_height_divisionsystem_studtype(self,width,height,framewidth,frameheight,division_system):
+    def by_width_height_divisionsystem_studtype(self,width,height,framewidth,frameheight,division_system,filling):
         self.width = width
         self.height = height
         self.bottom_frame_type = Rectangle("bottom_frame_type", framewidth, frameheight)
@@ -184,6 +246,10 @@ class RectangleSystem:
         self.__inner_mother_surface()
         self.__inner_frames()
         self.__outer_frames()
+        if filling:
+            self.__inner_panels()
+        else:
+            pass
         return self
 
 
