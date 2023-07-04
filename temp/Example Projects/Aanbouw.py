@@ -27,11 +27,25 @@ BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
 #3 HSB-wanden
 lengte_hsb_wand_1 = breedte-mw-spouw
 
-div = DivisionSystem().by_fixed_distance_unequal_division(lengte_hsb_wand_1,610,610-19,1)
+div1 = DivisionSystem().by_fixed_distance_unequal_division(lengte_hsb_wand_1,610,610-19,1)
+div2 = DivisionSystem().by_fixed_number_equal_spacing(3000,4)
+div3 = DivisionSystem().by_fixed_distance_equal_division(3000,610,0)
 
-print(div.distances)
+print(div3)
+print(div1.distances)
+print(div2.distances)
+print(div3.distances)
 
-sys.exit()
+#sys.exit()
+div2 = DivisionSystem().by_fixed_distance_unequal_division(5000,610,610,0)
+wall = RectangleSystem().by_width_height_divisionsystem_studtype(5000,3000,38,184,div2)
+
+for i in wall.outer_frame_objects:
+    project.objects.append(i)
+for i in wall.inner_frame_objects:
+    project.objects.append(i)
+
+
 #project.objects.append(Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand",BaseConcrete.colorint))
 
 project.toSpeckle("92cf563acc")

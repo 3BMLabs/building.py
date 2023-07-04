@@ -37,6 +37,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 
 from library.profile import *
+from library.profile import profiledataToShape
 from geometry.geometry2d import *
 from library.material import *
 from abstract.vector import *
@@ -60,7 +61,7 @@ class Frame:
         self.profileName = "none"
         self.start = None
         self.end = None
-        self.curve = None
+        self.curve = None # 2D polycurve of the sectionprofile
         self.length = 0
         self.coordinateSystem: CoordinateSystem = CSGlobal
         self.YJustification = "Origin"  #Top, Center, Origin, Bottom
@@ -164,4 +165,27 @@ class Frame:
         f1.colorlst = colorlist(f1.extrusion, f1.color)
         return f1
 
+    @classmethod
+    def byStartpointEndpointCurveJustifiction(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None):
+        f1 = Frame()
+        f1.start = start
+        f1.end = end
+        # self.curve = Line(start, end)
+        f1.rotation = rotation
+        curv = polycurve
+        curvrot = curv.rotate(rotation)  # rotation in degrees
+        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction) #center, left, right, origin / center, top bottom, origin
+        f1.XOffset = v1.x
+        f1.YOffset = v1.y
+        f1.curve = curv.translate(v1)
+        f1.directionVector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = "none"
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        return f1
 
