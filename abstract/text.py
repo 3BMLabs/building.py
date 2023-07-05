@@ -58,9 +58,12 @@ class Text:
         self.xyz = cs.Origin
         self.x, self.y, self.z = cs.Origin.x, cs.Origin.y, cs.Origin.z
         self.scale = scale or 1
+        self.height = None
+        self.width = None
         self.character_offset = 150
         self.space = 850
         self.curves = []
+        self.points = []
         self.path_list = self.load_path()
 
 
@@ -118,8 +121,14 @@ class Text:
         for ply in flatten(output_list):
             translated = self.translate(ply)
             pList.append(translated)
-            # for i in ply.points:
-            #     print(i)
+
+
+        for pl in pList:
+            for pt in pl.points:
+                self.points.append(pt)
+        bb = BoundingBox2d().byPoints(self.points)
+        self.height = bb.height
+        self.width = bb.width
 
         print(f'Object text naar objects gestuurd.')
         return pList
@@ -128,7 +137,8 @@ class Text:
     def translate(self, polyCurve):
         trans = []
         for pt in polyCurve.points:
-            pNew = transformPoint2(pt, self.csglobal)
+            pscale = Point.product(self.scale, pt)
+            pNew = transformPoint2(pscale, self.csglobal)
             trans.append(pNew)
         return polyCurve.byPoints(trans)
 

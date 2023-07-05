@@ -30,9 +30,14 @@ YAxis = Vector3(0, 1, 0)
 ZAxis = Vector3(0, 0, 1)
 CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
 t1 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal, scale=1).write()
+print(t1.width)
+sys.exit()
 for x in t1:
     project.objects.append(x)
 
+# t2 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal).write()
+# for x in t2:
+#     project.objects.append(x)
 
 # CSXGlobal = CoordinateSystem(Point(0, 500, 450), XAxis, ZAxis, YAxis)
 # t2 = Text(text="testit", font_family="arial", cs=CSXGlobal).write()
@@ -46,6 +51,7 @@ for x in t1:
 #     project.objects.append(x)
 
 WorkPlane.create(5000, 5000)
+WorkPlane.create(5000, 2000)
 
 
 project.toSpeckle("9f6798a2fa")
