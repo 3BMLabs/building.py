@@ -29,18 +29,21 @@ XAxis = Vector3(1, 0, 0)
 YAxis = Vector3(0, 1, 0)
 ZAxis = Vector3(0, 0, 1)
 CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
-
-t1 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal, xyz=Point(0, 0, 0)).write()
+t1 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal, scale=1).write()
 for x in t1:
     project.objects.append(x)
 
 
-
-
-CSXGlobal = CoordinateSystem(Point(0, 500, 450), XAxis, ZAxis, YAxis)
-t2 = Text(text="testit", font_family="arial", cs=CSXGlobal, xyz=Point(450, 0, 0)).write()
-for x in t2:
-    project.objects.append(x)
+# CSXGlobal = CoordinateSystem(Point(0, 500, 450), XAxis, ZAxis, YAxis)
+# t2 = Text(text="testit", font_family="arial", cs=CSXGlobal).write()
+# for x in t2:
+#     project.objects.append(x)
+#
+# print(Vector3.normalize(Vector3(1,1,0)))
+# CSXGlobal = CoordinateSystem(Point(7000, 7000, 450), Vector3.normalize(Vector3(1,1,0)), Vector3.normalize(Vector3(-1,1,0)), ZAxis)
+# t3 = Text(text="tralalkalala  123565437584392012345 asdagdg", font_family="calibri", cs=CSXGlobal).write()
+# for x in t3:
+#     project.objects.append(x)
 
 WorkPlane.create(5000, 5000)
 

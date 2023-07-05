@@ -44,18 +44,20 @@ from abstract.coordinatesystem import *
 from abstract.boundingbox import *
 from geometry.solid import *
 from geometry.geometry2d import *
+from abstract.coordinatesystem import CoordinateSystem
 
 from svg.path import parse_path
 import json
 from typing import List, Tuple
 
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, cs= None ,xyz: Point = None):
+    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, scale=None):
         self.text = text
         self.font_family = font_family or "arial"
-        self.xyz = xyz
         self.csglobal = cs
-        self.x, self.y, self.z = xyz.x, xyz.y, xyz.z
+        self.xyz = cs.Origin
+        self.x, self.y, self.z = cs.Origin.x, cs.Origin.y, cs.Origin.z
+        self.scale = scale or 1
         self.character_offset = 150
         self.space = 850
         self.curves = []
@@ -127,7 +129,6 @@ class Text:
         trans = []
         for pt in polyCurve.points:
             pNew = transformPoint2(pt, self.csglobal)
-            # pNew = transformPoint(pt, self.csglobal, self.xyz)
             trans.append(pNew)
         return polyCurve.byPoints(trans)
 
