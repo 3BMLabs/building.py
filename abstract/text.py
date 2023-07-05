@@ -50,15 +50,15 @@ import json
 from typing import List, Tuple
 
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, cs= None ,xyz: Point = None, v: Vector3 = None):
+    def __init__(self, text: str = None, font_family: str = None, cs= None ,xyz: Point = None):
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = xyz
-        self.csglobal = cs or CSGlobal
+        self.csglobal = cs
         self.x, self.y, self.z = xyz.x, xyz.y, xyz.z
-        self.v = v
         self.character_offset = 150
         self.space = 850
+        self.curves = []
         self.path_list = self.load_path()
 
 
@@ -114,8 +114,10 @@ class Text:
 
         pList = []
         for ply in flatten(output_list):
-            self.translate(ply)
-            pList.append(ply)
+            translated = self.translate(ply)
+            pList.append(translated)
+            # for i in ply.points:
+            #     print(i)
 
         print(f'Object text naar objects gestuurd.')
         return pList
@@ -124,9 +126,10 @@ class Text:
     def translate(self, polyCurve):
         trans = []
         for pt in polyCurve.points:
-            pNew = transformPoint(pt, self.csglobal, self.xyz, self.v)
+            pNew = transformPoint2(pt, self.csglobal)
+            # pNew = transformPoint(pt, self.csglobal, self.xyz)
             trans.append(pNew)
-        project.objects.append(polyCurve.byPoints(trans))
+        return polyCurve.byPoints(trans)
 
 
     def calculate_bounding_box(self, points):

@@ -25,10 +25,24 @@ from abstract.boundingbox import BoundingBox2d
 from abstract.coordinatesystem import CSGlobal
 
 
-Text(text="23 140 823A", font_family="arial", cs=CSGlobal, xyz=Point(600, 2000, 0), v=Vector3(0, 1, 1)).write()
-Text(text="23 140 823A", font_family="arial", cs=CSGlobal, xyz=Point(600, 0, 0), v=Vector3(0, 1, 1)).write()
+XAxis = Vector3(1, 0, 0)
+YAxis = Vector3(0, 1, 0)
+ZAxis = Vector3(0, 0, 1)
+CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+
+t1 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal, xyz=Point(0, 0, 0)).write()
+for x in t1:
+    project.objects.append(x)
+
+
+
+
+CSXGlobal = CoordinateSystem(Point(0, 500, 450), XAxis, ZAxis, YAxis)
+t2 = Text(text="testit", font_family="arial", cs=CSXGlobal, xyz=Point(450, 0, 0)).write()
+for x in t2:
+    project.objects.append(x)
 
 WorkPlane.create(5000, 5000)
 
 
-project.toSpeckle("abed1f4f8b")
+project.toSpeckle("9f6798a2fa")

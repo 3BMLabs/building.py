@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/building.py.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/building.py.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/interval.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/interval.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/annotation.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/annotation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/view.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/Example Projects/Aanbouw.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Example Projects/Aanbouw.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp/Jonathan/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Jonathan/text.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,14 +35,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/JoasHollander/Documents/GitHub/building.py/temp",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/JoasHollander/Documents/GitHub/building.py/temp&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\JoasHollander\Documents\GitHub\building.py\temp" />
@@ -55,7 +50,7 @@
   </component>
   <component name="RunManager">
     <configuration name="Joasdiv" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PyBuildingSystems" />
+      <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -161,10 +156,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.Joasdiv" />
         <item itemvalue="Python.joastemp (1)" />
         <item itemvalue="Python.smalltest" />
         <item itemvalue="Python.pil_img" />
-        <item itemvalue="Python.Joasdiv" />
         <item itemvalue="Python.joastemp" />
       </list>
     </recent_temporary>
