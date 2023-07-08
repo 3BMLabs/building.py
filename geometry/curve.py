@@ -63,6 +63,7 @@ class Line: #add Line.bylenght (start and endpoint)
         except:
             self.dz = 0
         self.length = self.length()
+        self.vector: Vector3 = Vector3.byTwoPoints(start,end)
 
     def translate(self,direction:Vector3):
         self.start = Point.translate(self.start,direction)
@@ -91,6 +92,10 @@ class Line: #add Line.bylenght (start and endpoint)
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
 
+    def mid_point(self):
+        vect = Vector3.scale(self.vector,0.5)
+        mid = Point.translate(self.start,vect)
+        return mid
 
     def split(self, points: list[Point]):
         if isinstance(points, list):        

@@ -40,6 +40,9 @@ ColumnTag.by_frame(f3).write(project)
 f4 = Frame.byStartpointEndpointProfileName(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
 tg = FrameTag.by_frame(f4).write(project)
 
+DL = Dimension(Point(0,-1000,0),Point(5400,-1000,0),DT2_5_mm)
+DL.write(project)
+
 
 CS = CoordinateSystem(Point(10800,10800,0),XAxis,YAxis,ZAxis)
 t1 = Text(text="Textnote", font_family="calibri", cs=CS, scale=0.1).write()
