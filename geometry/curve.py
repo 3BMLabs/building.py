@@ -97,7 +97,7 @@ class Line: #add Line.bylenght (start and endpoint)
         mid = Point.translate(self.start,vect)
         return mid
 
-    def split(self, points: list[Point]):
+    def split(self, points: Point):
         if isinstance(points, list):        
             points.extend([self.start, self.end])
             sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
@@ -230,7 +230,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst:list[Line]):
+    def byJoinedCurves(self, curvelst:Line):
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
@@ -259,7 +259,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points:list[Point]):
+    def byPoints(self, points:Point):
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, point in enumerate(points):
@@ -286,7 +286,7 @@ class PolyCurve:
         return plycrv
 
     @classmethod
-    def unclosed_by_points(self, points: list[Point]):
+    def unclosed_by_points(self, points: Point):
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -403,7 +403,7 @@ class PolyCurve:
             print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
 
 
-    def multi_split(self, lines:list[Line]): #SOOOO SLOW, MUST INCREASE SPEAD
+    def multi_split(self, lines:Line): #SOOOO SLOW, MUST INCREASE SPEAD
         lines = flatten(lines)
         new_polygons = []
         for index, line in enumerate(lines):
@@ -520,7 +520,7 @@ class PolyGon:
         pass #Lines
     
     @staticmethod
-    def polygon(flatCurves: list[Line]) -> list[Point]:
+    def polygon(flatCurves: Line) -> Point:
         points = []
         for i in flatCurves:
             points.append(i.start)

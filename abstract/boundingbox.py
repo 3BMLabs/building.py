@@ -56,7 +56,7 @@ class BoundingBox2d:
     def area(self):
         return 0
 
-    def byPoints(self, points=list[Point]):
+    def byPoints(self, points=Point):
         self.points = points
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
@@ -81,11 +81,11 @@ class BoundingBox2d:
 
 
 class BoundingBox3d:
-    def __init__(self, points=list[Point]):
+    def __init__(self, points=Point):
         self.points = points
 
 
-    def corners(self, points=list[Point]):
+    def corners(self, points=Point):
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
         z_values = [point.z for point in self.points]

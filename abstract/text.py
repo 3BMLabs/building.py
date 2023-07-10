@@ -67,8 +67,8 @@ class Text:
         self.path_list = self.load_path()
 
 
-    def load_path(self) -> List[str]:
-        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json', 'r') as f:
+    def load_path(self) -> str:
+        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
             glyph_data = json.load(f)
             output = []
             for letter in self.text:
@@ -150,7 +150,7 @@ class Text:
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
 
 
-    def convert_points_to_polyline(self, points: list[Point]) -> PolyCurve: #move
+    def convert_points_to_polyline(self, points: Point) -> PolyCurve: #move
         output_list = []
         sub_lists = [[]]
         tempPoints = [elem for elem in points if elem != 'M']

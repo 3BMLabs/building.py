@@ -30,8 +30,8 @@ YAxis = Vector3(0, 1, 0)
 ZAxis = Vector3(0, 0, 1)
 CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
 t1 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal, scale=1).write()
-print(t1.width)
-sys.exit()
+# print(t1.width)
+# sys.exit()
 for x in t1:
     project.objects.append(x)
 
