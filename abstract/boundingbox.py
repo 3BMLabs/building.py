@@ -76,8 +76,8 @@ class BoundingBox2d:
         self.corners.append(left_bottom) 
         self.corners.append(right_bottom)
         self.corners.append(right_top)
+        print(self.height)
         return self
-
 
 
 class BoundingBox3d:

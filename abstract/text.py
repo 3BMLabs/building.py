@@ -54,9 +54,9 @@ class Text:
     def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, scale=None):
         self.text = text
         self.font_family = font_family or "arial"
-        self.csglobal = cs
         self.xyz = cs.Origin
-        self.x, self.y, self.z = cs.Origin.x, cs.Origin.y, cs.Origin.z
+        self.csglobal = cs
+        self.x, self.y, self.z = self.csglobal.Origin.x, self.csglobal.Origin.y, self.csglobal.Origin.z
         self.scale = scale or 1
         self.height = None
         self.width = None
@@ -120,15 +120,16 @@ class Text:
         pList = []
         for ply in flatten(output_list):
             translated = self.translate(ply)
-            pList.append(translated)
+            pList.append(ply)
 
 
         for pl in pList:
             for pt in pl.points:
                 self.points.append(pt)
-        bb = BoundingBox2d().byPoints(self.points)
-        self.height = bb.height
-        self.width = bb.width
+        # bb = BoundingBox2d().byPoints(self.points)
+        # print(bb)
+        # self.height = bb.height
+        # self.width = bb.width
 
         print(f'Object text naar objects gestuurd.')
         return pList

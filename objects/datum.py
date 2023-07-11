@@ -113,5 +113,3 @@ class GridSystem:
         gs.gridsX = gridsX
         gs.gridsY = gridsY
         return gs
-
-

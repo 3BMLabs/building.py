@@ -23,17 +23,24 @@ from objects.shape3d import Origin
 from exchange.DXF import ReadDXF
 from abstract.boundingbox import BoundingBox2d
 from abstract.coordinatesystem import CSGlobal
-
+from geometry.systemsimple import *
 
 XAxis = Vector3(1, 0, 0)
-YAxis = Vector3(0, 1, 0)
+YAxis = Vector3(0, -1, 0)
 ZAxis = Vector3(0, 0, 1)
-CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal, scale=1).write()
-# print(t1.width)
-# sys.exit()
+CSXGlobal = CoordinateSystem(Point(5900, 4000, 0), XAxis, YAxis, ZAxis)
+t1 = Text(text="1", font_family="arial", cs=CSXGlobal, scale=2).write()
 for x in t1:
     project.objects.append(x)
+
+# CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+# t2 = Text(text="(0, 0, 0)", font_family="arial", cs=CSXGlobal, scale=0.5).write()
+# for x in t2:
+#     project.objects.append(x)
+
+grids = GridSystem.bySpacingLabels("0 500 5400",seqChar,"0 4000", seqNumber,2500)
+project.objects.append(grids)
+
 
 # t2 = Text(text="23 140 823A", font_family="arial", cs=CSXGlobal).write()
 # for x in t2:
@@ -50,8 +57,5 @@ for x in t1:
 # for x in t3:
 #     project.objects.append(x)
 
-WorkPlane.create(5000, 5000)
-WorkPlane.create(5000, 2000)
 
-
-project.toSpeckle("9f6798a2fa")
+project.toSpeckle("5ab2faedba")
