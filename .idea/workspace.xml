@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/abstract/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/text.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/Jonathan/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Jonathan/text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/frame.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/frame.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,20 +34,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/JoasHollander/Documents/GitHub/building.py/temp&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Users/mikev/3BM Dropbox/Maarten Vroegindeweij/Maarten en Jonathan 3BM/1985 GIS2EGG",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\JoasHollander\Documents\GitHub\building.py\temp" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.Joasdiv">
     <configuration name="Joasdiv" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />

@@ -80,10 +80,7 @@ class Frame:
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
-        try:
-            f1.curve = profiledataToShape(profile_name).polycurve2d
-        except:
-            print(profile_name)
+        f1.curve = profiledataToShape(profile_name).polycurve2d
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
