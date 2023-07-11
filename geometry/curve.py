@@ -43,7 +43,7 @@ from abstract.vector import Vector3
 from abstract.plane import Plane
 from packages.helper import *
 from abstract.interval import Interval
-
+from abstract.coordinatesystem import *
 
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
@@ -63,7 +63,17 @@ class Line: #add Line.bylenght (start and endpoint)
         except:
             self.dz = 0
         self.length = self.length()
+        self.vector: Vector3 = Vector3.byTwoPoints(start,end)
 
+    def translate(self,direction:Vector3):
+        self.start = Point.translate(self.start,direction)
+        self.end = Point.translate(self.end,direction)
+        return self
+
+    def transform(self,CSNew: CoordinateSystem):
+        self.start = transformPoint2(self.start,CSNew)
+        self.end = transformPoint2(self.end,CSNew)
+        return self
 
     def offset(line, vector):
         start = Point(line.start.x + vector.x, line.start.y + vector.y, line.start.z + vector.z)
@@ -82,8 +92,12 @@ class Line: #add Line.bylenght (start and endpoint)
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
 
+    def mid_point(self):
+        vect = Vector3.scale(self.vector,0.5)
+        mid = Point.translate(self.start,vect)
+        return mid
 
-    def split(self, points: list[Point]):
+    def split(self, points: Point):
         if isinstance(points, list):        
             points.extend([self.start, self.end])
             sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
@@ -216,7 +230,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst:list[Line]):
+    def byJoinedCurves(self, curvelst:Line):
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
@@ -245,7 +259,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points:list[Point]):
+    def byPoints(self, points:Point):
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, point in enumerate(points):
@@ -271,6 +285,17 @@ class PolyCurve:
                 plycrv.isClosed = False
         return plycrv
 
+    @classmethod
+    def unclosed_by_points(self, points: Point):
+        plycrv = PolyCurve()
+        for index, point in enumerate(points):
+            plycrv.points.append(point)
+            try:
+                nextpoint = points[index + 1]
+                plycrv.curves.append(Line(start=point, end=nextpoint))
+            except:
+                pass
+        return plycrv
 
     @staticmethod
     def segment(self, count): #Create segmented polycurve. Arcs, elips will be translated to straight lines
@@ -291,7 +316,7 @@ class PolyCurve:
         curves = []
         for i in PolyCurve2D.curves:
             if i.__class__.__name__ == "Arc2D":
-                curves.append(Arc(Point(i.start.x, i.start.y, 0), Point(i.mid.x, i.mid.y, 0), Point(i.end.x, i.end.y, 0)))
+                curves.append(Arc(Point(i.start.x, i.start.y, 0), Point(i.mid.x, i.mid.y, 0), Point(i.end.x,i.end.y, 0)))
             elif i.__class__.__name__ == "Line2D":
                 curves.append(Line(Point(i.start.x, i.start.y,0),Point(i.end.x, i.end.y,0)))
             else:
@@ -378,7 +403,7 @@ class PolyCurve:
             print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
 
 
-    def multi_split(self, lines:list[Line]): #SOOOO SLOW, MUST INCREASE SPEAD
+    def multi_split(self, lines:Line): #SOOOO SLOW, MUST INCREASE SPEAD
         lines = flatten(lines)
         new_polygons = []
         for index, line in enumerate(lines):
@@ -495,7 +520,7 @@ class PolyGon:
         pass #Lines
     
     @staticmethod
-    def polygon(flatCurves: list[Line]) -> list[Point]:
+    def polygon(flatCurves: Line) -> Point:
         points = []
         for i in flatCurves:
             points.append(i.start)
@@ -518,37 +543,38 @@ class PolyGon:
 
 
 class Arc:
-    def __init__(self, startPoint: Point, endPoint: Point):
+    def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
         self.id = helper.generateID()
-        db = 0.0001
-        self.start = Point.product(db, startPoint)
-        self.mid = Point(0,-1,0)#Point.product(db, midPoint)
-        self.end = Point.product(db, endPoint)
+        self.start = startPoint
+        self.mid = midPoint
+        self.end = endPoint
         self.origin = self.originarc()
-        v1=Vector3(x=1, y=0, z=0)
-        v2=Vector3(x=0, y=1, z=0)
+        v1 = Vector3(x=1, y=0, z=0)
+        v2 = Vector3(x=0, y=1, z=0)
         self.plane = Plane.byTwoVectorsOrigin(
             v1,
             v2,
-            Point((self.start.x + self.end.x) / 2, (self.start.y + self.end.y) / 2, (self.start.z + self.end.z) / 2)
+            Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
         )
         self.radius = self.radiusarc()
-        self.startAngle=0
-        self.endAngle=0
+        self.startAngle = 0
+        self.endAngle = 0
         self.angleRadian = self.angleRadian()
-        self.area=0
+        self.area = 0
         self.length = self.length()
+        self.units = project.units
         self.coordinatesystem = self.coordinatesystemarc()
 
-    def distance(self, p1, p2) -> float:
-        return math.sqrt((p2.x-p1.x)**2 + (p2.y-p1.y)**2 + (p2.z-p1.z)**2)
+    def distance(self, p1, p2):
+        return math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2 + (p2.z - p1.z) ** 2)
 
     def coordinatesystemarc(self):
         vx = Vector3.byTwoPoints(self.origin, self.start)  # Local X-axe
         v2 = Vector3.byTwoPoints(self.end, self.origin)
         vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
         vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy), Vector3.normalize(vz))
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy),
+                                                 Vector3.normalize(vz))
         return self.coordinatesystem
 
     def radiusarc(self):
@@ -556,42 +582,43 @@ class Arc:
         b = self.distance(self.mid, self.end)
         c = self.distance(self.end, self.start)
         s = (a + b + c) / 2
-        A = math.sqrt(s * (s-a) * (s-b) * (s-c))
+        A = math.sqrt(s * (s - a) * (s - b) * (s - c))
         R = (a * b * c) / (4 * A)
         return R
 
     def originarc(self):
-        #calculation of origin of arc #Todo can be simplified for sure
+        # calculation of origin of arc #Todo can be simplified for sure
         Vstartend = Vector3.byTwoPoints(self.start, self.end)
-        halfVstartend = Vector3.scale(Vstartend,0.5)
-        b = 0.5 * Vector3.length(Vstartend) #half distance between start and end
-        x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b) #distance from start-end line to origin
+        halfVstartend = Vector3.scale(Vstartend, 0.5)
+        b = 0.5 * Vector3.length(Vstartend)  # half distance between start and end
+        x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b)  # distance from start-end line to origin
         mid = Point.translate(self.start, halfVstartend)
         v2 = Vector3.byTwoPoints(self.mid, mid)
         v3 = Vector3.normalize(v2)
-        tocenter = Vector3.scale(v3,x)
+        tocenter = Vector3.scale(v3, x)
         center = Point.translate(mid, tocenter)
+        # self.origin = center
         return center
 
     def angleRadian(self):
         v1 = Vector3.byTwoPoints(self.origin, self.end)
         v2 = Vector3.byTwoPoints(self.origin, self.start)
-        angle = Vector3.angleRadianBetween(v1,v2)
+        angle = Vector3.angleRadianBetween(v1, v2)
         return angle
-    
+
     def length(self):
         x1, y1, z1 = self.start.x, self.start.y, self.start.z
         x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
         x3, y3, z3 = self.end.x, self.end.y, self.end.z
 
-        r1 = ((x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)**0.5 / 2
-        a = math.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
-        b = math.sqrt((x3-x2)**2+(y3-y2)**2+(z3-z2)**2)
-        c = math.sqrt((x3-x1)**2+(y3-y1)**2+(z3-z1)**2)
-        cos_angle = (a**2 + b**2 - c**2) / (2*a*b)
+        r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
+        a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+        b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
+        c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
+        cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
         m1 = math.acos(cos_angle)
         arc_length = r1 * m1
-    
+
         return arc_length
 
     @staticmethod
@@ -611,11 +638,11 @@ class Arc:
 
     @staticmethod
     def segmentedarc(arc, count):
-        pnts = Arc.pointsAtParameter(arc,count)
+        pnts = Arc.pointsAtParameter(arc, count)
         i = 0
         lines = []
-        for j in range(len(pnts)-1):
-            lines.append(Line(pnts[i],pnts[i+1]))
+        for j in range(len(pnts) - 1):
+            lines.append(Line(pnts[i], pnts[i + 1]))
             i = i + 1
         return lines
 

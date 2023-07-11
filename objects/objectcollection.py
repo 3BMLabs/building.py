@@ -52,7 +52,7 @@ class WurksRaster3d:
         self.name = "x"
         self.lines = None
 
-    def byLine(self, lines: list[Line], bottom: float, top: float):
+    def byLine(self, lines: Line, bottom: float, top: float):
         self.bottom = Vector3(0, 0, bottom)
         self.top = Vector3(0, 0, top)
         self.lines = lines

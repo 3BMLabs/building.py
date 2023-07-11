@@ -40,22 +40,45 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.vector import *
 from geometry.point import Point
 
-
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, xaxis: Vector3, yaxis: Vector3, zaxis: Vector3):
+    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
         self.Zaxis = zaxis
 
     @classmethod
-    def byOrigin(self, origin: Point):
+    def by_origin(self, origin: Point):
         self.Origin = origin
         self.Xaxis = XAxis
         self.Yaxis = YAxis
         self.Zaxis = ZAxis
         return self
+
+    @staticmethod
+    def translate(CSOld, direction):
+        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+        new_origin = Point.translate(CSNew.Origin, direction)
+        CSNew.Origin = new_origin
+        return CSNew
+
+    @staticmethod
+    def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
+        vz = DirectionVectorZ  # LineVector and new Z-axis
+        vz = Vector3.normalize(vz)  # NewZAxis
+        vx = Vector3.perpendicular(vz)[0]  # NewXAxis
+        try:
+            vx = Vector3.normalize(vx)  # NewXAxisnormalized
+        except:
+            vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
+        vy = Vector3.perpendicular(vz)[1]  # NewYAxis
+        try:
+            vy = Vector3.normalize(vy)  # NewYAxisnormalized
+        except:
+            vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
+        CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
+        return CSNew
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"

@@ -78,6 +78,7 @@ def getGridDistances(Grids):
     return GridsNew
 
 class GridSystem:
+    #rectangle Gridsystem
     def __init__(self):
         self.gridsX = None
         self.gridsY = None

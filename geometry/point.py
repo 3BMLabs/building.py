@@ -32,7 +32,7 @@ __url__ = "./geometry/point.py"
 
 import sys, os, math
 from pathlib import Path
-
+#from abstract.coordinatesystem import *
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
@@ -40,6 +40,7 @@ sys.path.append(str(package_root_directory))
 
 from packages import helper
 # from project.fileformat import project
+
 
 class Point:
     def __init__(self, x, y, z):
@@ -154,17 +155,50 @@ class Point:
         else:
             return 0
 
+
+
 class CoordinateSystem:
-    #Origin = Point
-    #xaxis = normalized Vector
-    def __init__(self,origin: Point, xaxis, yaxis, zaxis):
+    #UNITY VECTORS REQUIRED
+    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
         self.Zaxis = zaxis
 
+    @classmethod
+    def by_origin(self, origin: Point):
+        self.Origin = origin
+        self.Xaxis = XAxis
+        self.Yaxis = YAxis
+        self.Zaxis = ZAxis
+        return self
+
+    @staticmethod
+    def translate(CSOld, direction):
+        CSNew = CoordinateSystem()
+        new_origin = Point.translate(CSOld.Origin,direction)
+        CSNew.Origin = new_origin
+        return CSNew
+
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+
+    @staticmethod
+    def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
+        vz = DirectionVectorZ  # LineVector and new Z-axis
+        vz = Vector3.normalize(vz)  # NewZAxis
+        vx = Vector3.perpendicular(vz)[0]  # NewXAxis
+        try:
+            vx = Vector3.normalize(vx)  # NewXAxisnormalized
+        except:
+            vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
+        vy = Vector3.perpendicular(vz)[1]  # NewYAxis
+        try:
+            vy = Vector3.normalize(vy)  # NewYAxisnormalized
+        except:
+            vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
+        CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
+        return CSNew
 
 def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
     from abstract.vector import Vector3

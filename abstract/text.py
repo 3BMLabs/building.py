@@ -51,21 +51,25 @@ import json
 from typing import List, Tuple
 
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, scale=None):
+    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, height=None, scale=None):
         self.text = text
         self.font_family = font_family or "arial"
-        self.csglobal = cs
         self.xyz = cs.Origin
-        self.x, self.y, self.z = cs.Origin.x, cs.Origin.y, cs.Origin.z
+        self.csglobal = cs
+        self.x, self.y, self.z = 0,0,0
         self.scale = scale or 1
+        self.height = height
+        self.bbHeight = None
+        self.width = None
         self.character_offset = 150
         self.space = 850
         self.curves = []
+        self.points = []
         self.path_list = self.load_path()
 
 
-    def load_path(self) -> List[str]:
-        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json', 'r') as f:
+    def load_path(self) -> str:
+        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
             glyph_data = json.load(f)
             output = []
             for letter in self.text:
@@ -113,24 +117,39 @@ class Text:
                     output_list.append(self.convert_points_to_polyline(allPoints))
                     width = self.calculate_bounding_box(allPoints)[1]
                     self.x += width + self.character_offset
-
+                    
+            height = self.calculate_bounding_box(allPoints)[2]
+            self.bbHeight = height
         pList = []
         for ply in flatten(output_list):
             translated = self.translate(ply)
             pList.append(translated)
-            # for i in ply.points:
-            #     print(i)
+
+
+        for pl in pList:
+            for pt in pl.points:
+                self.points.append(pt)
+
+        # bb = BoundingBox2d().byPoints(self.points)
+        
+
+        # self.height = bb.height
+        # print(bb)
 
         print(f'Object text naar objects gestuurd.')
         return pList
 
 
     def translate(self, polyCurve):
+        calcScale = self.bbHeight / self.height
+        print(calcScale)
         trans = []
         for pt in polyCurve.points:
-            pNew = transformPoint2(pt, self.csglobal)
+            pscale = Point.product(self.scale, pt)
+            pNew = transformPoint2(pscale, self.csglobal)
             trans.append(pNew)
         return polyCurve.byPoints(trans)
+
 
 
     def calculate_bounding_box(self, points):
@@ -140,7 +159,7 @@ class Text:
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
 
 
-    def convert_points_to_polyline(self, points: list[Point]) -> PolyCurve: #move
+    def convert_points_to_polyline(self, points: Point) -> PolyCurve: #move
         output_list = []
         sub_lists = [[]]
         tempPoints = [elem for elem in points if elem != 'M']

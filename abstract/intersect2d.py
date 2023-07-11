@@ -77,7 +77,7 @@ class Intersect2d:
         return Point(nX, nY, 0)
 
 
-    def getMultiLineIntersect(self, lines=list[Line]) -> list[Point]:
+    def getMultiLineIntersect(self, lines=Line) -> Point:
         pts = []
         for i in range(len(lines)):
             line1 = lines[i]
@@ -90,7 +90,7 @@ class Intersect2d:
 
     
     #polycurve to line intersect
-    def getIntersectLinePolyCurve(self, polycurves: list[Point], lines, split=None, stretch=None) -> list[Point]:
+    def getIntersectLinePolyCurve(self, polycurves: Point, lines, split=None, stretch=None) -> Point:
         dict = {}
         intersectionsPointsList = []
         splitedLinesList = []
