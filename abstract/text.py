@@ -51,14 +51,15 @@ import json
 from typing import List, Tuple
 
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, scale=None):
+    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, height=None, scale=None):
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin
         self.csglobal = cs
-        self.x, self.y, self.z = self.csglobal.Origin.x, self.csglobal.Origin.y, self.csglobal.Origin.z
+        self.x, self.y, self.z = 0,0,0
         self.scale = scale or 1
-        self.height = None
+        self.height = height
+        self.bbHeight = None
         self.width = None
         self.character_offset = 150
         self.space = 850
@@ -116,32 +117,39 @@ class Text:
                     output_list.append(self.convert_points_to_polyline(allPoints))
                     width = self.calculate_bounding_box(allPoints)[1]
                     self.x += width + self.character_offset
-
+                    
+            height = self.calculate_bounding_box(allPoints)[2]
+            self.bbHeight = height
         pList = []
         for ply in flatten(output_list):
             translated = self.translate(ply)
-            pList.append(ply)
+            pList.append(translated)
 
 
         for pl in pList:
             for pt in pl.points:
                 self.points.append(pt)
+
         # bb = BoundingBox2d().byPoints(self.points)
-        # print(bb)
+        
+
         # self.height = bb.height
-        # self.width = bb.width
+        # print(bb)
 
         print(f'Object text naar objects gestuurd.')
         return pList
 
 
     def translate(self, polyCurve):
+        calcScale = self.bbHeight / self.height
+        print(calcScale)
         trans = []
         for pt in polyCurve.points:
             pscale = Point.product(self.scale, pt)
             pNew = transformPoint2(pscale, self.csglobal)
             trans.append(pNew)
         return polyCurve.byPoints(trans)
+
 
 
     def calculate_bounding_box(self, points):
