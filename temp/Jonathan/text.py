@@ -40,7 +40,7 @@ for x in t1:
     
 
 CSXGlobal = CoordinateSystem(Point(500, 500, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Jonathan", font_family="arial", cs=CSXGlobal, height=1500).write()
+t1 = Text(text="Jonathan test", font_family="arial", cs=CSXGlobal, height=1500).write()
 for x in t1:
     project.objects.append(x)
 

@@ -157,8 +157,8 @@ class Text:
                     width = self.calculate_bounding_box(allPoints)[1]
                     self.x += width + self.character_offset
                     
-            height = self.calculate_bounding_box(allPoints)[2]
-            self.bbHeight = height
+                height = self.calculate_bounding_box(allPoints)[2]
+                self.bbHeight = height
         pList = []
         for ply in flatten(output_list):
             translated = self.translate(ply)
