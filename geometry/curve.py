@@ -534,7 +534,6 @@ class PolyGon:
             points3D.append(Point.point2DTo3D(i))
         return points3D
 
-
     def __id__(self):
         return f"id:{self.id}"
 
@@ -554,7 +553,8 @@ class Arc:
         self.plane = Plane.byTwoVectorsOrigin(
             v1,
             v2,
-            Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
+            self.origin
+            #Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
         )
         self.radius = self.radiusarc()
         self.startAngle = 0
@@ -597,14 +597,24 @@ class Arc:
         v3 = Vector3.normalize(v2)
         tocenter = Vector3.scale(v3, x)
         center = Point.translate(mid, tocenter)
-        # self.origin = center
         return center
 
     def angleRadian(self):
         v1 = Vector3.byTwoPoints(self.origin, self.end)
         v2 = Vector3.byTwoPoints(self.origin, self.start)
-        angle = Vector3.angleRadianBetween(v1, v2)
-        return angle
+        v3 = Vector3.byTwoPoints(self.origin, self.mid)
+        v4 = Vector3.sum(v1,v2)
+        try:
+            v4b = Vector3.new_length(v4,self.radius)
+            print(v3, v4b)
+            if Vector3.value(v3) == Vector3.value(v4b):
+                angle = Vector3.angleRadianBetween(v1, v2)
+            else:
+                angle = 2*math.pi-Vector3.angleRadianBetween(v1, v2)
+            return angle
+        except:
+            angle = 2*math.pi-Vector3.angleRadianBetween(v1, v2)
+            return angle
 
     def length(self):
         x1, y1, z1 = self.start.x, self.start.y, self.start.z

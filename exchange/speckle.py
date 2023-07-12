@@ -186,6 +186,7 @@ def ArcToSpeckleArc(arc: Arc):
         units = project.units
     )
 
+
     start_point = PointToSpecklePoint(arc.start)
     mid_point = PointToSpecklePoint(arc.mid)
     end_point = PointToSpecklePoint(arc.end)

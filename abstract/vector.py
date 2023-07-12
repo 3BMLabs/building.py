@@ -154,6 +154,11 @@ class Vector3:
         return math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2))))
 
     @staticmethod
+    def value(v1):
+        roundValue = 4
+        return (round(v1.x, roundValue),round(v1.y, roundValue),round(v1.z, roundValue))
+
+    @staticmethod
     def reverse(v1):
         return Vector3(
             v1.x*-1,
@@ -202,6 +207,12 @@ class Vector3:
             v1.y * scalefactor,
             v1.z * scalefactor
         )
+
+    @staticmethod
+    def new_length(v1, newlength: float):
+        scale = newlength /Vector3.length(v1)
+    
+        return Vector3.scale(v1,scale)
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"

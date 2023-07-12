@@ -30,10 +30,13 @@ project.objects.append(l1)
 a3 = Arc(startPoint=Point(0,0,0), midPoint=Point(500,500,0), endPoint=Point(1000,0,0))
 project.objects.append(a3)
 
-a2 = Arc(startPoint=Point(0,0,0), midPoint=Point(500,-500,0), endPoint=Point(0,-1000,0))
+a2 = Arc(startPoint=Point(0,0,0), midPoint=Point(500,500,0), endPoint=Point(1000,0,0))
 project.objects.append(a2)
 
-a1 = Arc(startPoint=Point(-500,0,0), midPoint=Point(500,500,0), endPoint=Point(500,0,0))
+l1 = Line(start=Point(-500,0,0), end=Point(0,-1650,0))
+project.objects.append(l1)
+
+a1 = Arc(startPoint=Point(-500,0,0), midPoint=Point(0, 1651, 0), endPoint=Point(500,0,0))
 project.objects.append(a1)
 print(f"id: {a1.id}", f"start: {a1.start}", f"mid: {a1.mid}", f"end: {a1.end}", f"origin: {a1.origin}", f"radius: {a1.radius}", f"angleRad: {a1.angleRadian}", f"length: {a1.length}", a1.coordinatesystem, sep="\n")
 
@@ -43,7 +46,5 @@ project.objects.append(l2)
 l3 = Line(start=Point(500,0,0), end=Point(0,-1000,0))
 project.objects.append(l3)
 
-# l2 = Line(start=Point(0, 0, 0), end=Point(0,1000000,0))
-# project.objects.append(l2)
 
 project.toSpeckle("5ab2faedba")
