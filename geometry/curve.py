@@ -554,7 +554,6 @@ class Arc:
             v1,
             v2,
             self.origin
-            #Point((startPoint.x + endPoint.x) / 2, (startPoint.y + endPoint.y) / 2, (startPoint.z + endPoint.z) / 2)
         )
         self.radius = self.radiusarc()
         self.startAngle = 0
