@@ -178,50 +178,25 @@ def SpeckleMeshByImage(img):
 
 def ArcToSpeckleArc(arc: Arc):
 
-    # speckle_plane = SpecklePlane(
-    #     origin = PointToSpecklePoint(arc.plane.Origin),
-    #     normal = VectorToSpeckleVector(arc.plane.Normal),
-    #     xdir = VectorToSpeckleVector(arc.plane.v1),
-    #     ydir = VectorToSpeckleVector(arc.plane.v2)
-    # )
-
-    # start_point = PointToSpecklePoint(arc.start)
-    # mid_point = PointToSpecklePoint(arc.mid)
-    # end_point = PointToSpecklePoint(arc.end)
-
-    # radius = arc.radius
-    # start_angle = arc.startAngle
-    # end_angle = arc.endAngle
-    # angle_radians = arc.angleRadian
-    # area = arc.area
-    # length = arc.length
-    # speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
-
-    DevBy = 1000
-    start = Point(1, 0, 0)
-    mid = Point(2000/DevBy, 2000/DevBy, 0/DevBy) #use this (1)
-    end = Point(1, 0, 0)
-
     speckle_plane = SpecklePlane(
-        origin = PointToSpecklePoint(mid),
+        origin = PointToSpecklePoint(arc.plane.Origin),
         normal = VectorToSpeckleVector(arc.plane.Normal),
         xdir = VectorToSpeckleVector(arc.plane.v1),
-        ydir = VectorToSpeckleVector(arc.plane.v2)
+        ydir = VectorToSpeckleVector(arc.plane.v2),
+        units = project.units
     )
 
-    stupidNumber = 0.0000001
-    start_point = PointToSpecklePoint(Point(start.x+stupidNumber, start.y+stupidNumber, start.z))
-    mid_point = PointToSpecklePoint(Point(mid.x-stupidNumber, mid.y-stupidNumber, mid.z))
-    end_point = PointToSpecklePoint(end)
+    start_point = PointToSpecklePoint(arc.start)
+    mid_point = PointToSpecklePoint(arc.mid)
+    end_point = PointToSpecklePoint(arc.end)
 
-    radius = 1500/DevBy #use this (2)
+    radius = arc.radius
     start_angle = arc.startAngle
     end_angle = arc.endAngle
     angle_radians = arc.angleRadian
     area = arc.area
     length = arc.length
     speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
-
 
 
     spArc = SpeckleArc(
@@ -236,7 +211,8 @@ def ArcToSpeckleArc(arc: Arc):
         endAngle=end_angle,
         angleRadians=angle_radians,
         area=area,
-        length=length
+        length=length,
+        units=project.units
     )
 
     spArc.units = project.units
