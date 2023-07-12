@@ -57,7 +57,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
-#from specklepy.objects.primitive import Interval as SpeckleInterval
+from specklepy.objects.primitive import Interval as SpeckleInterval
 from project.fileformat import project
 
 
@@ -270,7 +270,6 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
-        # print(nm)
         if nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))
@@ -332,12 +331,10 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Grid':
             for j in GridToLines(i):
                 SpeckleObj.append(j)
-                print(j)
 
         elif nm == 'GridSystem':
             for j in GridSystemToLines(i):
                 SpeckleObj.append(j)
-                print(j)
 
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))

@@ -45,20 +45,21 @@ from abstract.boundingbox import *
 from geometry.solid import *
 from geometry.geometry2d import *
 from abstract.coordinatesystem import CoordinateSystem
+from project.fileformat import *
 
 from svg.path import parse_path
 import json
 from typing import List, Tuple
 
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, height=None, scale=None):
+    def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, height=None):
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin
         self.csglobal = cs
         self.x, self.y, self.z = 0,0,0
-        self.scale = scale or 1
-        self.height = height
+        self.scale = None
+        self.height = height or project.font_height
         self.bbHeight = None
         self.width = None
         self.character_offset = 150
@@ -66,6 +67,7 @@ class Text:
         self.curves = []
         self.points = []
         self.path_list = self.load_path()
+        self.load_o_example = self.load_o()
 
 
     def load_path(self) -> str:
@@ -80,7 +82,44 @@ class Text:
             return output
 
 
+    def load_o(self) -> str:
+        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
+            glyph_data = json.load(f)
+            load_o = []
+            letter = "o"
+            if letter in glyph_data:
+                load_o.append(glyph_data[letter]["glyph-path"])
+            return load_o
+
+
     def write(self) -> List[List[PolyCurve]]:
+        #start ref_symbol
+        path = self.load_o_example
+        ref_points = []
+        ref_allPoints = []
+        for segment in path:
+            pathx = parse_path(segment)
+            for segment in pathx:
+                segment_type = segment.__class__.__name__
+                if segment_type == 'Line':
+                    ref_points.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
+                    ref_allPoints.extend([(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
+                elif segment_type == 'CubicBezier':
+                    ref_points.extend(segment.sample(10))
+                    ref_allPoints.extend(segment.sample(10))
+                elif segment_type == 'QuadraticBezier':
+                    for i in range(11):
+                        t = i / 10.0
+                        point = segment.point(t)
+                        ref_points.append((point.real, point.imag))
+                        ref_allPoints.append((point.real, point.imag))
+                elif segment_type == 'Arc':
+                    ref_points.extend(segment.sample(10))
+                    ref_allPoints.extend(segment.sample(10))
+        height = self.calculate_bounding_box(ref_allPoints)[2]
+        self.scale = self.height / height 
+        #end ref_symbol
+
         output_list = []
         for letter_path in self.path_list:
             points = []
@@ -129,20 +168,12 @@ class Text:
         for pl in pList:
             for pt in pl.points:
                 self.points.append(pt)
-
-        # bb = BoundingBox2d().byPoints(self.points)
         
-
-        # self.height = bb.height
-        # print(bb)
-
         print(f'Object text naar objects gestuurd.')
         return pList
 
 
     def translate(self, polyCurve):
-        calcScale = self.bbHeight / self.height
-        print(calcScale)
         trans = []
         for pt in polyCurve.points:
             pscale = Point.product(self.scale, pt)

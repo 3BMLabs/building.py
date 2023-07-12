@@ -47,6 +47,7 @@ class BuildingPy:
         self.origin = Point(0,0,0)
         self.default_font = "calibri"
         self.scale = 1
+        self.font_height = 500
         #prefix objects (name)
         #Geometry settings
 

@@ -34,13 +34,13 @@ XAxis = Vector3(1, 0, 0)
 YAxis = Vector3(0, 1, 0)
 ZAxis = Vector3(0, 0, 1)
 CSXGlobal = CoordinateSystem(Point(5900, 4000, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Piet", font_family="arial", cs=CSXGlobal, scale=1).write()
+t1 = Text(text="Piet", font_family="arial", cs=CSXGlobal).write()
 for x in t1:
     project.objects.append(x)
     
 
 CSXGlobal = CoordinateSystem(Point(5900, 4000, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Jonathan", font_family="arial", cs=CSXGlobal, scale=1.2).write()
+t1 = Text(text="Jonathan", font_family="arial", cs=CSXGlobal).write()
 for x in t1:
     project.objects.append(x)
 
@@ -48,7 +48,7 @@ XAxis = Vector3(1, 1, 0)
 YAxis = Vector3(-1, 1, 0)
 ZAxis = Vector3(0, 0, 1)
 CSXGlobal = CoordinateSystem(Point(500, 500, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Maarten", font_family="arial", cs=CSXGlobal, scale=5).write()
+t1 = Text(text="Maarten", font_family="arial", cs=CSXGlobal, height=1000).write()
 for x in t1:
     project.objects.append(x)
 
@@ -56,7 +56,7 @@ XAxis = Vector3(1, 0, 1)
 YAxis = Vector3(0, 1, 0)
 ZAxis = Vector3(0, 0, -1)
 CSXGlobal = CoordinateSystem(Point(500, 4000, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Jurian", font_family="arial", cs=CSXGlobal, scale=1.5).write()
+t1 = Text(text="Jurian", font_family="arial", cs=CSXGlobal, height=1500).write()
 for x in t1:
     project.objects.append(x)
 
@@ -64,7 +64,7 @@ XAxis = Vector3(-1, 0, 0)
 YAxis = Vector3(0, -1, 0)
 ZAxis = Vector3(1, 0, 1)
 CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Joas", font_family="arial", cs=CSXGlobal, scale=1.5).write()
+t1 = Text(text="Joas", font_family="arial", cs=CSXGlobal, height=1000).write()
 for x in t1:
     project.objects.append(x)
 
@@ -72,9 +72,9 @@ XAxis = Vector3(1, 0, 0)
 YAxis = Vector3(0, 1, 0)
 ZAxis = Vector3(0, 0, 1)
 CSXGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
-t1 = Text(text="Yeez", font_family="arial", cs=CSXGlobal, height=500).write()
+t1 = Text(text="jon", font_family="arial", cs=CSXGlobal, height=500).write()
 for x in t1:
     project.objects.append(x)
 
 
-project.toSpeckle("286a541c18")
+project.toSpeckle("5ab2faedba")
