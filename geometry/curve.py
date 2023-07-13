@@ -658,6 +658,14 @@ class Arc:
     def __str__(self) -> str:
         return f"{__class__.__name__}()"
 
+def transformArc(Arcold,CSNew: CoordinateSystem):
+    start = transformPoint2(Arcold.start,CSNew)
+    mid = transformPoint2(Arcold.mid,CSNew)
+    end = transformPoint2(Arcold.end,CSNew)
+    print(start,mid,end)
+    Arcnew = Arc(startPoint=start,midPoint=mid,endPoint=end)
+
+    return Arcnew
 
 class Circle: #auto calculate length!
     def __init__(self, radius, plane, length) -> None:

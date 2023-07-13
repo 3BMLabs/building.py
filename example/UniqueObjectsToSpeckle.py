@@ -1,3 +1,11 @@
+
+
+import sys, os, math
+from pathlib import Path
+from typing import Any, List
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from objects.panel import *
 from objects.frame import *
 from objects.steelshape import *
@@ -9,19 +17,11 @@ from abstract.text import Text
 from objects.annotation import *
 project = BuildingPy("Aanbouw","0")
 
-Line
 
 #INPUT
-lengte = 7000
-breedte = 3500
-hoogte = 3000
-mw = 100
-spouw = 30
 
 #GRIDS
-#grids = GridSystem.bySpacingLabels("0 " + str(lengte),seqChar,"0" + str(breedte),seqNumber,1000)
-grids = GridSystem.bySpacingLabels("0 8x5400",seqChar,"0 3x5400",seqNumber,1000)
-project.objects.append(grids)
+grids = GridSystem.bySpacingLabels("0 8x5400",seqChar,"0 3x5400",seqNumber,1500).write(project)
 
 BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
 
@@ -41,17 +41,17 @@ ColumnTag.by_frame(f3).write(project)
 f4 = Frame.byStartpointEndpointProfileName(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
 tg = FrameTag.by_frame(f4).write(project)
 
-DL = Dimension(Point(0,-1000,0),Point(5400,-1000,0),DT2_5_mm)
-DL.write(project)
+DL = Dimension(Point(0,-1000,0),Point(5400,-1000,0),DT2_5_mm).write(project)
+
 
 
 CS = CoordinateSystem(Point(10800,10800,0),XAxis,YAxis,ZAxis)
-t1 = Text(text="Textnote", font_family="calibri", cs=CS, scale=0.1).write()
+t1 = Text(text="Textnote", font_family="calibri", cs=CS, height=200).write()
 for x in t1:
     project.objects.append(x)
 
 CS = CoordinateSystem(Point(0,0,0),XAxis,YAxis,ZAxis)
-t2 = Text(text="Textnote", font_family="calibri", cs=CS, scale=0.1).write()
+t2 = Text(text="Textnote", font_family="calibri", cs=CS, height=200).write()
 for x in t2:
     project.objects.append(x)
 

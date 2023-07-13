@@ -74,6 +74,7 @@ DT1_8_mm = DimensionType.by_name_font_textheight_tick_mark_extension("1.8 mm","c
 class Dimension:
     def __init__(self, start: Point, end: Point, dimension_type) -> None:
         self.start: Point = start
+        self.text_height = 100
         self.end: Point = end
         self.id = helper.generateID()
         self.scale = 0.1 #text
@@ -101,7 +102,7 @@ class Dimension:
         crvs = Line(start = self.dimension_type.tick_mark.curves[0].start,end = self.dimension_type.tick_mark.curves[0].end) #erg vieze oplossing. #Todo
         self.curves.append(Line.transform(self.dimension_type.tick_mark.curves[0], cs_new_start)) #dimension tick start
         self.curves.append(Line.transform(crvs, cs_new_end))  #dimension tick end
-        self.text = Text(text=str(round(self.length)), font_family=self.dimension_type.font, cs=cs_new_mid, scale=self.scale).write()
+        self.text = Text(text=str(round(self.length)), font_family=self.dimension_type.font, cs=cs_new_mid, height=self.text_height).write()
 
     def write(self,project):
         for i in self.curves:
@@ -116,17 +117,16 @@ class FrameTag:
         self.scale = 0.1
         self.cs: CoordinateSystem = CSGlobal
         self.offset_from_start = 500
-        # self.textoff_vector_local: Vector3 = Vector3(self.width/5,self.height*0.8,0)
         self.textoff_vector_local: Vector3 = Vector3(1, 1, 1)
         self.font_family = "calibri"
         self.text: str = "text"
-        self.textheight = 2.5
-        self.textcurves = None
+        self.text_curves = None
+        self.text_height = 100
 
     def __textobject(self):
         cstext = self.cs
         # cstextnew = cstext.translate(self.textoff_vector_local)
-        self.textcurves = Text(text=self.text, font_family=self.font_family, cs=cstext, scale=self.scale).write
+        self.text_curves = Text(text=self.text, font_family=self.font_family, height=self.text_height, cs=cstext).write
 
     def by_cs_text(self, coordinate_system: CoordinateSystem, text):
         self.cs = coordinate_system
@@ -135,7 +135,7 @@ class FrameTag:
         return self
 
     def write(self, project):
-        for x in self.textcurves():
+        for x in self.text_curves():
             project.objects.append(x)
         return self
     @staticmethod
@@ -157,18 +157,19 @@ class ColumnTag:
         #Dimensions in 1/100 scale
         self.width = 700
         self.height = 500
-        self.factor = 3
-        self.scale = 0.1
+        self.factor = 3 #hellingsfacor leader
+        self.scale = 0.1 #voor tekeningverschaling
         self.cs: CoordinateSystem = CSGlobal
-       # self.textoff_vector_local: Vector3 = Vector3(self.width/5,self.height*0.8,0)
-        self.textoff_vector_local: Vector3 = Vector3(1,1,1)
 
+        #self.textoff_vector_local: Vector3 = Vector3(1,1,1)
         self.font_family = "calibri"
         self.curves = []
         #self.leadercurves()
         self.text: str = "text"
-        self.textheight = 2.5
-        self.textcurves = None
+        self.text_height = 100
+        self.text_offset_factor = 5
+        self.textoff_vector_local: Vector3 = Vector3(self.height/self.factor,self.height+self.height/self.text_offset_factor,0)
+        self.text_curves = None
         #self.textobject()
 
 
@@ -184,8 +185,9 @@ class ColumnTag:
 
     def __textobject(self):
         cstext = self.cs
-        #cstextnew = cstext.translate(self.textoff_vector_local)
-        self.textcurves = Text(text=self.text, font_family=self.font_family, cs=cstext, scale=self.scale).write
+
+        cstextnew = CoordinateSystem.translate(cstext,self.textoff_vector_local)
+        self.text_curves = Text(text=self.text, font_family=self.font_family, height=self.text_height, cs=cstextnew).write
 
 
     def by_cs_text(self,coordinate_system: CoordinateSystem, text):
@@ -197,7 +199,7 @@ class ColumnTag:
 
 
     def write(self,project):
-        for x in self.textcurves():
+        for x in self.text_curves():
             project.objects.append(x)
         for y in self.curves:
             project.objects.append(y)

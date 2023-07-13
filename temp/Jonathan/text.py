@@ -1,4 +1,4 @@
-import sys, math, requests, json
+import sys, math, json
 from svg.path import parse_path
 from typing import List, Tuple
 from pathlib import Path
