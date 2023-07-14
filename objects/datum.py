@@ -61,9 +61,9 @@ class GridheadType:
 
     def geom(self):
         radius = self.radius
-        self.curves.append(Arc(startPoint=Point(-radius,0,0),midPoint=Point(0,radius,0),endPoint=Point(radius,0,0)))
-        self.curves.append(Arc(startPoint=Point(-radius,0,0),midPoint=Point(0,-radius,0),endPoint=Point(radius,0,0)))
-
+        self.curves.append(Arc(startPoint=Point(-radius,radius,0),midPoint=Point(0,radius*2,0),endPoint=Point(radius,radius,0)))
+        self.curves.append(Arc(startPoint=Point(-radius,radius,0),midPoint=Point(0,0,0),endPoint=Point(radius,radius,0)))
+        #origin is at center of circle
 
 GHT30 = GridheadType().by_diam("2.5 mm",400,"calibri",200)
 
@@ -79,14 +79,16 @@ class GridHead:
         self.curves = []
         self.__textobject()
         self.__geom()
+
     def __geom(self):
-        CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
+        #CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
         for i in self.grid_head_type.curves:
-            self.curves.append(transformArc(i,CStot))
+            self.curves.append(transformArc(i,(self.CS)))
+
     def __textobject(self):
-        cstext = self.CS
-        cstextnew = CoordinateSystem.translate(cstext,Vector3(-100,30,0))
-        self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family, height=self.grid_head_type.text_height, cs=cstextnew).write()
+        cs_text = self.CS
+        cs_text_new = CoordinateSystem.move_local(cs_text,-100,40,0) #to change after center text function is implemented
+        self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family, height=self.grid_head_type.text_height, cs=cs_text_new).write()
 
     @staticmethod
     def by_name_gridheadtype_y(name,cs: CoordinateSystem, gridhead_type,y: float):
@@ -109,6 +111,8 @@ class GridHead:
 class Grid:
     def __init__(self):
         self.line = None
+        self.start = None
+        self.end = None
         self.direction: Vector3 = Vector3(0,1,0)
         self.grid_head_type = GHT30
         self.name = None
@@ -118,12 +122,17 @@ class Grid:
         self.grid_heads = []
 
     def __cs(self,line):
-        self.cs_end = CoordinateSystem(line.end,XAxis,YAxis,ZAxis)  #Only vertical now
-        
+        self.direction = line.vector_normalised
+        vect3 = Vector3.rotateXY(self.direction,math.radians(-90))
+        self.cs_end = CoordinateSystem(line.end,vect3,self.direction,ZAxis)
+
+
     @classmethod
     def byStartpointEndpoint(cls, line, name):
         #Create panel by polycurve
         g1 = Grid()
+        g1.start = line.start
+        g1.end = line.start
         g1.name = name
         g1.__cs(line)
         g1.line = lineToPattern(line, Centerline)
@@ -135,6 +144,12 @@ class Grid:
             self.grid_heads.append(
                 GridHead.by_name_gridheadtype_y(self.name,self.cs_end,self.grid_head_type,0))
 
+    def write(self, project):
+        for x in self.line:
+            project.objects.append(x)
+        for y in self.grid_heads:
+            y.write(project)
+        return self
 
 def getGridDistances(Grids):
     #Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
@@ -161,7 +176,7 @@ class GridSystem:
     def __init__(self):
         self.gridsX = None
         self.gridsY = None
-        self.dimensions = None
+        self.dimensions = []
         self.name = None
     @classmethod
     def bySpacingLabels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
@@ -183,18 +198,35 @@ class GridSystem:
         dimensions = []
         count = 0
         ymaxdim1 = Ymax+GridEx-300
+        ymaxdim2 = Ymax+GridEx-0
+        xmaxdim1 = Xmax+GridEx-300
+        xmaxdim2 = Xmax+GridEx-0
         for i in GridsX:
             gridsX.append(Grid.byStartpointEndpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
             try:
-                dimensions.append(Dimension(Point(i,ymaxdim1,0),Point(GridsX[count+1],ymaxdim1,0),DT2_5_mm).write(project))
+                dim = Dimension(Point(i,ymaxdim1,0),Point(GridsX[count+1],ymaxdim1,0),DT2_5_mm)
+                gs.dimensions.append(dim)
             except:
                 pass
             count = count + 1
+
+        #Totaal maatvoering 1
+        dim = Dimension(Point(GridsX[0], ymaxdim2, 0), Point(Xmax, ymaxdim2, 0), DT2_5_mm)
+        gs.dimensions.append(dim)
+
+        #Totaal maatvoering 2
+        dim = Dimension(Point(xmaxdim2, GridsY[0], 0), Point(xmaxdim2,Ymax,0), DT2_5_mm)
+        gs.dimensions.append(dim)
 
         gridsY = []
         count = 0
         for i in GridsY:
             gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
+            try:
+                dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0),DT2_5_mm)
+                gs.dimensions.append(dim)
+            except:
+                pass
             count = count + 1
         gs.gridsX = gridsX
         gs.gridsY = gridsY
@@ -208,4 +240,8 @@ class GridSystem:
         for y in self.gridsY:
             project.objects.append(y)
             for j in y.grid_heads:
-                i.write(project)
+                j.write(project)
+        for z in self.dimensions:
+            z.write(project)
+        return self
+

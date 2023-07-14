@@ -59,6 +59,14 @@ class Vector3:
         )
 
     @staticmethod
+    def sum3(v1, v2, v3):
+        return Vector3(
+            v1.x + v2.x + v3.x,
+            v1.y + v2.y + v3.y,
+            v1.z + v2.z + v3.z
+        )
+
+    @staticmethod
     def diff(v1, v2):
         return Vector3(
             v1.x - v2.x,

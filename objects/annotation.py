@@ -83,6 +83,16 @@ class Dimension:
         self.length: float = Line(start=self.start,end=self.end).length
         self.text = None
         self.geom()
+
+    @staticmethod
+    def by_startpoint_endpoint_offset(start:Point,end:Point,dimension_type: DimensionType, offset: float):
+        DS = Dimension()
+        DS.start = start
+        DS.end = end
+        DS.dimension_type = dimension_type
+        DS.geom()
+        return DS
+
     def geom(self):
         #baseline
         baseline = Line(start=self.start,end=self.end)
@@ -100,6 +110,7 @@ class Dimension:
         self.curves.append(Line(tick_mark_extension_point_2,self.end)) #extention_end
         self.curves.append(Line(self.start,self.end)) #baseline
         crvs = Line(start = self.dimension_type.tick_mark.curves[0].start,end = self.dimension_type.tick_mark.curves[0].end) #erg vieze oplossing. #Todo
+
         self.curves.append(Line.transform(self.dimension_type.tick_mark.curves[0], cs_new_start)) #dimension tick start
         self.curves.append(Line.transform(crvs, cs_new_end))  #dimension tick end
         self.text = Text(text=str(round(self.length)), font_family=self.dimension_type.font, cs=cs_new_mid, height=self.text_height).write()
@@ -116,8 +127,8 @@ class FrameTag:
         # Dimensions in 1/100 scale
         self.scale = 0.1
         self.cs: CoordinateSystem = CSGlobal
-        self.offset_from_start = 500
-        self.textoff_vector_local: Vector3 = Vector3(1, 1, 1)
+        self.offset_x = 500
+        self.offset_y = 100
         self.font_family = "calibri"
         self.text: str = "text"
         self.text_curves = None
@@ -145,8 +156,11 @@ class FrameTag:
         x = frame_vector
         y = Vector3.rotateXY(x,math.radians(90))
         z = ZAxis
-        v = Vector3.scale(frame_vector,tag.offset_from_start)
-        origintext = Point.translate(frame.start,v)
+        vx = Vector3.scale(frame_vector,tag.offset_x)
+        frame_width = PolyCurve2D.bounds(frame.curve)[4]
+        vy = Vector3.scale(y,frame_width*0.5+tag.offset_y)
+        origintext = Point.translate(frame.start,vx)
+        origintext = Point.translate(origintext,vy)
         csnew = CoordinateSystem(origintext,x,y,z)
         tag.cs = csnew
         tag.text = frame.name

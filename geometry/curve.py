@@ -64,16 +64,19 @@ class Line: #add Line.bylenght (start and endpoint)
             self.dz = 0
         self.length = self.length()
         self.vector: Vector3 = Vector3.byTwoPoints(start,end)
+        self.vector_normalised = Vector3.normalize(self.vector)
 
     def translate(self,direction:Vector3):
         self.start = Point.translate(self.start,direction)
         self.end = Point.translate(self.end,direction)
         return self
 
-    def transform(self,CSNew: CoordinateSystem):
-        self.start = transformPoint2(self.start,CSNew)
-        self.end = transformPoint2(self.end,CSNew)
-        return self
+    @staticmethod
+    def transform(line, CSNew: CoordinateSystem):
+        ln = Line(start=line.start, end=line.end)
+        ln.start = transformPoint2(ln.start,CSNew)
+        ln.end = transformPoint2(ln.end,CSNew)
+        return ln
 
     def offset(line, vector):
         start = Point(line.start.x + vector.x, line.start.y + vector.y, line.start.z + vector.z)
@@ -164,7 +167,6 @@ class PolyCurve:
         return crv
 
     def get_width(self) -> float:
-        print(self)
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
 
@@ -605,7 +607,6 @@ class Arc:
         v4 = Vector3.sum(v1,v2)
         try:
             v4b = Vector3.new_length(v4,self.radius)
-            print(v3, v4b)
             if Vector3.value(v3) == Vector3.value(v4b):
                 angle = Vector3.angleRadianBetween(v1, v2)
             else:
@@ -662,7 +663,6 @@ def transformArc(Arcold,CSNew: CoordinateSystem):
     start = transformPoint2(Arcold.start,CSNew)
     mid = transformPoint2(Arcold.mid,CSNew)
     end = transformPoint2(Arcold.end,CSNew)
-    print(start,mid,end)
     Arcnew = Arc(startPoint=start,midPoint=mid,endPoint=end)
 
     return Arcnew

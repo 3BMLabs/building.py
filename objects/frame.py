@@ -78,7 +78,6 @@ class Frame:
     def props(self):
         self.vector = Vector3(self.end.x-self.start.x,self.end.y-self.start.y,self.end.z-self.start.z)
         self.vector_normalised = Vector3.normalize(self.vector)
-        print(self.vector_normalised)
         self.length = Vector3.length(self.vector)
 
     @classmethod

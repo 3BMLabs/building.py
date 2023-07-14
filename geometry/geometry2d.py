@@ -290,6 +290,8 @@ class PolyCurve2D:
         pc = PolyCurve2D()
         for i in curves:
             pc.curves.append(i)
+            pc.points2D.append(i.start)
+            pc.points2D.append(i.end)
         return pc
 
     def points(self):
@@ -340,15 +342,31 @@ class PolyCurve2D:
     def boundingboxGlobalCS(PC):
         x =[]
         y =[]
-        for i in PC.points():
-            x.append(i.x)
-            y.append(i.y)
+        for i in PC.curves():
+            x.append(i.start.x)
+            y.append(i.start.y)
         xmin = min(x)
         xmax = max(x)
         ymin = min(y)
         ymax = max(y)
         bbox = PolyCurve2D.byPoints([Point2D(xmin,ymin),Point2D(xmax,ymin),Point2D(xmax,ymax),Point2D(xmin,ymax),Point2D(xmin,ymin)])
         return bbox
+
+    @staticmethod
+    def bounds(PC):
+        #returns xmin,xmax,ymin,ymax,width,height of polycurve 2D
+        x =[]
+        y =[]
+        for i in PC.curves:
+            x.append(i.start.x)
+            y.append(i.start.y)
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)
+        ymax = max(y)
+        width = xmax-xmin
+        height = ymax-ymin
+        return xmin,xmax,ymin,ymax,width,height
 
     @staticmethod
     def polygon(self):

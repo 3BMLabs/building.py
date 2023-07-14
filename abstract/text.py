@@ -71,7 +71,8 @@ class Text:
 
 
     def load_path(self) -> str:
-        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
+      #  with open(f'library/text/json/{self.font_family}.json', 'r') as f:
+        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
             glyph_data = json.load(f)
             output = []
             for letter in self.text:
@@ -83,7 +84,8 @@ class Text:
 
 
     def load_o(self) -> str:
-        with open(f'library/text/json/{self.font_family}.json', 'r') as f:
+       # with open(f'library/text/json/{self.font_family}.json', 'r') as f:
+        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
             glyph_data = json.load(f)
             load_o = []
             letter = "o"
@@ -169,7 +171,7 @@ class Text:
             for pt in pl.points:
                 self.points.append(pt)
         
-        print(f'Object text naar objects gestuurd.')
+        #print(f'Object text naar objects gestuurd.')
         return pList
 
 

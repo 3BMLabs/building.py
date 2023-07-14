@@ -41,12 +41,12 @@ from abstract.vector import *
 from geometry.point import Point
 
 class CoordinateSystem:
-    #UNITY VECTORS REQUIRED
+    #UNITY VECTORS REQUIRED #TOdo organize resic
     def __init__(self, origin: Point, xaxis, yaxis, zaxis):
         self.Origin = origin
-        self.Xaxis = xaxis
-        self.Yaxis = yaxis
-        self.Zaxis = zaxis
+        self.Xaxis = Vector3.normalize(xaxis)
+        self.Yaxis = Vector3.normalize(yaxis)
+        self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
@@ -62,6 +62,19 @@ class CoordinateSystem:
         new_origin = Point.translate(CSNew.Origin, direction)
         CSNew.Origin = new_origin
         return CSNew
+
+    @staticmethod
+    def move_local(CSOld,x: float, y:float, z:float):
+        #move coordinatesystem by y in local coordinates(not global)
+        xloc_vect_norm = CSOld.Xaxis
+        xdisp = Vector3.scale(xloc_vect_norm,x)
+        yloc_vect_norm = CSOld.Xaxis
+        ydisp = Vector3.scale(yloc_vect_norm, y)
+        zloc_vect_norm = CSOld.Xaxis
+        zdisp = Vector3.scale(zloc_vect_norm, z)
+        disp = Vector3.sum3(xdisp,ydisp,zdisp)
+        CS = CoordinateSystem.translate(CSOld,disp)
+        return CS
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):

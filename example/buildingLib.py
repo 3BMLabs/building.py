@@ -10,13 +10,16 @@ from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
 from library.profile import profiledataToShape
+from objects.annotation import *
+import threading
+
+project = BuildingPy("Library Profiles","0")
 
 # Export all steelprofiles to Speckle
 lst = []
 for item in jsondata:
     for i in item.values():
         lst.append(i[0]["synonyms"][0])
-ToSpeckle = []
 
 test = profiledataToShape("HEA200")
 
@@ -32,12 +35,15 @@ shape = "HEA"
 type = "HEA"
 #Mat = Material.byNameColor("Steel", Color().RGB([237, 237, 237]))
 
+
 for i in lst:
     Mat = BaseSteel
     try:
         prof = i[:3]
         shape = i[:3]
-        ToSpeckle.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i, Mat))
+        fram = Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
+        ColumnTag.by_frame(fram).write(project)
+
         x = x + spacing
         if type == shape:
             y = y
@@ -48,6 +54,4 @@ for i in lst:
     except:
         print(i)
 
-SpeckleObj = translateObjectsToSpeckleObjects(ToSpeckle)
-
-Commit = TransportToSpeckle("3bm.exchange", "ceae170aaf", SpeckleObj, "Library of building.py")
+project.toSpeckle("ceae170aaf")
