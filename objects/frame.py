@@ -62,6 +62,7 @@ class Frame:
         self.start = None
         self.end = None
         self.curve = None # 2D polycurve of the sectionprofile
+        self.curve3d = None # Translated 3D polycurve of the sectionprofile
         self.length = 0
         self.coordinateSystem: CoordinateSystem = CSGlobal
         self.YJustification = "Origin"  #Top, Center, Origin, Bottom
@@ -87,14 +88,15 @@ class Frame:
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
-        f1.curve = profiledataToShape(profile_name).polycurve2d
+        f1.curve = profiledataToShape(profile_name).polycurve2d #polycurve2d
         #except:
             #print(profile_name)
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, start, f1.directionVector)
         f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint
@@ -122,6 +124,7 @@ class Frame:
         f1.name = name
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
         f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint
@@ -147,6 +150,7 @@ class Frame:
         f1.name = name
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
         f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint
@@ -166,9 +170,10 @@ class Frame:
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, start, f1.directionVector)
         f1.extrusion.name = name
-        f1.profileName = "none"
+        f1.curve3d = curvrot
+        f1.profileName = name
         f1.material = material
         f1.color = material.colorint
         f1.colorlst = colorlist(f1.extrusion, f1.color)
@@ -187,8 +192,9 @@ class Frame:
         f1.name = frame_name
         f1.profileName = frame_name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot.curves, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, start, f1.directionVector)
         f1.extrusion.name = frame_name
+        f1.curve3d = curvrot
         f1.material = material
         f1.color = material.colorint
         f1.colorlst = colorlist(f1.extrusion, f1.color)
@@ -209,6 +215,7 @@ class Frame:
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot.curves, f1.length, CSGlobal, start, f1.directionVector)
         f1.extrusion.name = profile_name
+        f1.curve3d = curvrot
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint

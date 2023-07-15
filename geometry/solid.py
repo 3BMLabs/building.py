@@ -44,7 +44,7 @@ from packages import helper
 
 
 class Extrusion:
-    #Extrude a 2D profile to a 3D mesh
+    #Extrude a 2D profile to a 3D mesh or solid
     def __init__(self):
         self.verts = []
         self.faces = []
@@ -55,6 +55,7 @@ class Extrusion:
         self.colorlst = []
         self.topface = None #return polycurve -> surface
         self.bottomface = None #return polycurve -> surface
+        self.polycurve_3d_translated = None
         self.id = helper.generateID()
 
     @classmethod
@@ -78,11 +79,12 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeightVector(self, polycurve: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    def byPolyCurveHeightVector(self, polycurve2d: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
-        for i in polycurve:
+        Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(polycurve2d,startpoint,DirectionVector)
+        for i in polycurve2d.curves:
             startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
             endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
             endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
@@ -119,26 +121,27 @@ class Extrusion:
             # then
 
         #bottomface
-        Extrus.faces.append(len(polycurve))
+        Extrus.faces.append(len(polycurve2d.curves))
         count = 0
-        for i in polycurve:
+        for i in polycurve2d.curves:
             Extrus.faces.append(count)
             count = count + 4
 
         # topface
-        Extrus.faces.append(len(polycurve))
+        Extrus.faces.append(len(polycurve2d.curves))
         count = 3
-        for i in polycurve:
+        for i in polycurve2d.curves:
             Extrus.faces.append(count)
             count = count + 4
 
         Extrus.countVertsFaces = (4 * Extrus.numberFaces) #aantal zonder bovenzijde/onderzijde
 
-        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve)*2
+        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
 
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
+
 
         return Extrus
 
@@ -155,6 +158,9 @@ class Extrusion:
 
         pnts = []
         faces = []
+
+        Extrus.polycurve_3d_translated = polycurve
+
         #allverts
         for pnt in Points:
             pnts.append(Point.translate(pnt, Vector3.product(dzloc, norm))) # Onderzijde verplaatst met dzloc

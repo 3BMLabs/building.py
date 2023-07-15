@@ -58,7 +58,7 @@ class BuildingPy:
         #different settings for company's?
 
         #rename this to autoclose?
-        self.closed: bool = True #auto close polygons? By default true, else overwrite
+        self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
 
         #text
@@ -67,6 +67,8 @@ class BuildingPy:
         #Speckle settings
         self.speckleserver = "3bm.exchange"
         self.specklestream = None
+
+        #FreeCAD settings
 
     # @property
     # def units(self):
@@ -78,6 +80,10 @@ class BuildingPy:
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)
         TransportToSpeckle(self.speckleserver,streamid,speckleobj,commitstring)
+
+    def toFreeCAD(self):
+        from exchange.freecad_bupy import translateObjectsToFreeCAD
+        translateObjectsToFreeCAD(self.objects)
 
 
 project = BuildingPy("Project","0")

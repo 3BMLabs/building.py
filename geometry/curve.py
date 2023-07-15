@@ -138,7 +138,6 @@ class PolyCurve:
         #Methods ()
         #close
         #pointonperimeter
-
         #Properties
         self.approximateLength = None
         self.graphicsStyleId = None
@@ -436,9 +435,9 @@ class PolyCurve:
                 crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
             else:
                 print("Curvetype not found")
-        # crv = flatten()
-        crv = PolyCurve.byJoinedCurves(crvs)
-        return crv
+        pc = PolyCurve()
+        pc.curves = crvs
+        return pc
 
     def rotate(self, angle, dz):
         #angle in degrees
@@ -479,6 +478,34 @@ class PolyCurve:
         p1.points = pnts
         p1.curves = curves
         return p1
+
+    @staticmethod
+    def transform_from_origin(polycurve, startpoint: Point,directionvector: Vector3):
+        crvs = []
+        for i in polycurve.curves:
+            if i.__class__.__name__ == "Arc":
+                crvs.append(Arc(transformPoint(i.start,CSGlobal,startpoint,directionvector),
+                                transformPoint(i.mid, CSGlobal, startpoint, directionvector),
+                                transformPoint(i.end, CSGlobal, startpoint, directionvector)
+                                ))
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line(start = transformPoint(i.start,CSGlobal,startpoint,directionvector),
+                                end = transformPoint(i.end, CSGlobal, startpoint, directionvector)
+                                ))
+            elif i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
+                                transformPoint(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
+                                transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                                ))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(Line(start = transformPoint(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
+                                end = transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                                ))
+            else:
+                print(i.__class__.__name__ + "Curvetype not found")
+        pc = PolyCurve()
+        pc.curves = crvs
+        return pc
 
     def __str__(self):
         l = len(self.points)
