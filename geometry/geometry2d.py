@@ -196,7 +196,7 @@ class Arc2D:
         self.end: Point2D = pntxy3
         self.origin = self.originarc()
         self.angleRadian = self.angleRadian()
-        self.radius = self.radiusarc()
+        #self.radius = self.radiusarc()
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
 
@@ -228,13 +228,16 @@ class Arc2D:
         Vstartend = Vector2.byTwoPoints(self.start, self.end)
         halfVstartend = Vector2.scale(Vstartend,0.5)
         b = 0.5 * Vector2.length(Vstartend) #half distance between start and end
-        x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
+        try:
+            x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
+        except:
+            x = 0
         mid = Point2D.translate(self.start, halfVstartend)
         v2 = Vector2.byTwoPoints(self.mid, mid)
         v3 = Vector2.normalize(v2)
         tocenter = Vector2.scale(v3, x)
         center = Point2D.translate(mid, tocenter)
-        #self.origin = center
+        self.origin = center
         return center
 
     def radiusarc(self):

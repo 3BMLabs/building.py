@@ -149,6 +149,7 @@ class FrameTag:
         for x in self.text_curves():
             project.objects.append(x)
         return self
+
     @staticmethod
     def by_frame(frame):
         tag = FrameTag()
@@ -166,6 +167,8 @@ class FrameTag:
         tag.text = frame.name
         tag.__textobject()
         return tag
+
+
 class ColumnTag:
     def __init__(self):
         #Dimensions in 1/100 scale
@@ -173,6 +176,7 @@ class ColumnTag:
         self.height = 500
         self.factor = 3 #hellingsfacor leader
         self.scale = 0.1 #voor tekeningverschaling
+        self.position = "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
         self.cs: CoordinateSystem = CSGlobal
 
         #self.textoff_vector_local: Vector3 = Vector3(1,1,1)
@@ -186,7 +190,6 @@ class ColumnTag:
         self.text_curves = None
         #self.textobject()
 
-
     def __leadercurves(self):
         self.startpoint = Point(0,0,0)
         self.midpoint = Point.translate(self.startpoint, Vector3(self.height/self.factor, self.height,0))
@@ -196,13 +199,11 @@ class ColumnTag:
             j = Line.transform(i,self.cs)
             self.curves.append(j)
 
-
     def __textobject(self):
         cstext = self.cs
 
         cstextnew = CoordinateSystem.translate(cstext,self.textoff_vector_local)
         self.text_curves = Text(text=self.text, font_family=self.font_family, height=self.text_height, cs=cstextnew).write
-
 
     def by_cs_text(self,coordinate_system: CoordinateSystem, text):
         self.cs = coordinate_system
@@ -211,7 +212,6 @@ class ColumnTag:
         self.__textobject()
         return self
 
-
     def write(self,project):
         for x in self.text_curves():
             project.objects.append(x)
@@ -219,9 +219,10 @@ class ColumnTag:
             project.objects.append(y)
 
     @staticmethod
-    def by_frame(frame):
+    def by_frame(frame, position= "TL"):
         tag = ColumnTag()
         csold = CSGlobal
+        tag.position = position
         tag.cs = CoordinateSystem.translate(csold,Vector3(frame.start.x,frame.start.y,frame.start.z))
         tag.text = frame.name
         tag.__leadercurves()
