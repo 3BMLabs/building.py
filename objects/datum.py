@@ -67,11 +67,13 @@ class GridheadType:
 
 GHT30 = GridheadType().by_diam("2.5 mm",400,"calibri",200)
 
+GHT50 = GridheadType().by_diam("GHT50",600,"calibri",350)
+
 class GridHead:
     def __init__(self):
         self.grid_name: str = "A"
-        self.grid_head_type = GHT30
-        self.radius = GHT30.radius
+        self.grid_head_type = GHT50
+        self.radius = GHT50.radius
         self.CS: CoordinateSystem = CSGlobal
         self.x: float = 0.5
         self.y: float = 0
@@ -114,7 +116,7 @@ class Grid:
         self.start = None
         self.end = None
         self.direction: Vector3 = Vector3(0,1,0)
-        self.grid_head_type = GHT30
+        self.grid_head_type = GHT50
         self.name = None
         self.bulbStart = False
         self.bulbEnd = True
@@ -223,7 +225,7 @@ class GridSystem:
         for i in GridsY:
             gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
             try:
-                dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0),DT2_5_mm)
+                dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0),DT3_5_mm)
                 gs.dimensions.append(dim)
             except:
                 pass
