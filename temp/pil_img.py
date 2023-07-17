@@ -5,6 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image
 import urllib.request
+from exchange.speckle import *
 
 
 class imagePyB:
@@ -194,4 +195,10 @@ class imagePyB:
             self.colorlst.append(argbint_color)
             self.colorlst.append(argbint_color)
         return self
+
+
+newimg = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/rgb.png", 50, 100, 10, -10, -10)
+newimg2 = imagePyB().byStream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
+SpeckleObj = translateObjectsToSpeckleObjects([newimg])
+Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", SpeckleObj, "Shiny Commit 1234567890")
 
