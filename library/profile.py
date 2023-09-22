@@ -67,7 +67,7 @@ class searchProfile:
 
 
 class profiledataToShape:
-    def __init__(self, name1, segmented = True):
+    def __init__(self, name1, segmented = False):
         from geometry.curve import PolyCurve
         profile_data = searchProfile(name1)
         shape_name = profile_data.shape_name

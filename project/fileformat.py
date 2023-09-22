@@ -59,7 +59,7 @@ class BuildingPy:
 
         #rename this to autoclose?
         self.closed: bool = False #auto close polygons? By default true, else overwrite
-        self.round: bool = True #If True then arcs will be segmented. Can be used in Speckle.
+        self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
 
         #text
         self.createdTxt = "has been created"

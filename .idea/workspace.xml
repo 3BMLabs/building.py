@@ -5,13 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/PyBuildingSystems.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/PyBuildingSystems.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/shape3d.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/shape3d.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/joastemp.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/joastemp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/pil_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/pil_img.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/smalltest.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/smalltest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/Steel Structure.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/Steel Structure.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/profile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fileformat.py" beforeDir="false" afterPath="$PROJECT_DIR$/project/fileformat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp/FreeCAD_POC/test.FCMacro" beforeDir="false" afterPath="$PROJECT_DIR$/temp/FreeCAD_POC/test.FCMacro" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,20 +40,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/TEMP/pythontest&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Users/mikev/Documents/GitHub/GIS2BIM",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\JoasHollander\Documents\GitHub\building.py\temp" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.Joasdiv">
     <configuration name="Joasdiv" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />

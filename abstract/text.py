@@ -37,7 +37,6 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from exchange.speckle import *
 from geometry.point import *
 from abstract.vector import *
 from abstract.coordinatesystem import *
@@ -47,7 +46,7 @@ from geometry.geometry2d import *
 from abstract.coordinatesystem import CoordinateSystem
 from project.fileformat import *
 
-from svg.path import parse_path
+from packages.svg.path import parse_path
 import json
 from typing import List, Tuple
 
