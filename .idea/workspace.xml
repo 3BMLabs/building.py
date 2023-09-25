@@ -5,14 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/text.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/text.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/Steel Structure.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/Steel Structure.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/fileformat.py" beforeDir="false" afterPath="$PROJECT_DIR$/project/fileformat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/FreeCAD_POC/test.FCMacro" beforeDir="false" afterPath="$PROJECT_DIR$/temp/FreeCAD_POC/test.FCMacro" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exchange/PAT.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/pat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +38,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/mikev/Documents/GitHub/GIS2BIM",
+    "last_opened_file_path": "C:/Users/mikev/Documents/GitHub/building.py",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -53,7 +47,7 @@
       <recent name="C:\Users\JoasHollander\Documents\GitHub\building.py\temp" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Joasdiv">
+  <component name="RunManager">
     <configuration name="Joasdiv" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
