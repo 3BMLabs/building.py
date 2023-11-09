@@ -58,7 +58,7 @@ obj = [ply1, ply2]
 
 
 SpeckleHost = "3bm.exchange"
-StreamID = "fa4e56aed4"
+StreamID = "3e0d8773b3"
 SpeckleObjects = obj
 Message = "x"
 SpeckleObj = translateObjectsToSpeckleObjects(obj)

@@ -36,7 +36,7 @@ class View:
         self.id = helper.generateID()
         self.origin = Point(0,0,0)
         self.cutplane: CoordinateSystem = None
-        self.visibility =
+        self.visibility = None
         self.scale = 0.01
 
 class Visibility:
@@ -45,5 +45,5 @@ class Visibility:
         self.id = helper.generateID()
         self.origin = Point(0,0,0)
         self.cutplane: CoordinateSystem = None
-        self.visibility =
+        self.visibility = None
         self.scale = 0.01
