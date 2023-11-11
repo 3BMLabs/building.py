@@ -64,3 +64,7 @@ Notice that this version is very much a beta version, although it is in our opin
 We are currently working on version 0.1. Releasedate: april 14 2023
 Versions 0.x will be subject to significant changes of the API until the release of version 1 which is planned on january 7 2024.
 
+# Examples
+
+
+
