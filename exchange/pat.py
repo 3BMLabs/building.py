@@ -36,6 +36,88 @@ Patprefix = ';%UNITS=MM' \
 
 Revitmodelpattern = ";%TYPE=MODEL"
 
+class PATRow:
+    def __init__(self,):
+        self.angle = 0
+        self.x_orig = 0
+        self.y_orig = 0
+        self.shift_pattern = 0
+        self.offset = 0
+        self.dash = 0
+        self.space = 0
+        self.patstr = ""
+
+    def createpatstr(self):
+        patstr = str(self.angle) + ",  " + str(self.x_orig) + ",  " + str(self.y_orig) + ",  " + str(self.shift_pattern) + ",  " + str(
+            self.offset)
+        if self.dash == 0:
+            addstr = ""
+        else:
+            addstr = ",  " + str(self.dash) + ",  " + str(self.space)
+        patstr = patstr + addstr
+        return patstr
+
+    def create(self,angle: float, x_orig: float, y_orig: float, shift_pattern: float, offset: float, dash: float=0, space: float=0):
+        self.angle = angle
+        self.x_orig = x_orig
+        self.y_orig = y_orig
+        self.shift_pattern = shift_pattern
+        self.offset = offset
+        self.dash = dash
+        self.space = space
+        self.patstr = self.createpatstr()
+        return self
+
+class PAT:
+    def __init__(self,):
+        self.patrows = []
+        self.patstrings = []
+        self.name = "None"
+        self.patterntype = "None"
+
+    def TilePattern(self, name: str, width: float, height: float, patterntype: str):
+        #this is rectangle tile pattern
+        self.name = name
+        self.patterntype = patterntype
+        row1 = PATRow().create(0,0,0,0,height,0,0)
+        row2 = PATRow().create(90,0,0,0,width,0,0)
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(";")
+        return self
+    def BlockPattern(self, name: str, grosswidthheight: float, numbersublines: int, patterntype: str):
+        #this is a block pattern
+        subspacing = grosswidthheight / numbersublines
+        self.name = name
+        self.patterntype = patterntype
+        row1 = PATRow().create(0,0,0,0,grosswidthheight,0,0)
+        row2 = PATRow().create(90,0,0,0,grosswidthheight,0,0)
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        n = 0
+        for i in range(numbersublines):
+            row3 = PATRow().create(0, grosswidthheight, subspacing * n, grosswidthheight, grosswidthheight, grosswidthheight, -grosswidthheight)
+            row4 = PATRow().create(90, subspacing * n, 0, grosswidthheight, grosswidthheight, grosswidthheight,-grosswidthheight)
+            self.patrows.append(row3)
+            self.patrows.append(row4)
+            self.patstrings.append(row3.patstr)
+            self.patstrings.append(row4.patstr)
+            n = n + 1
+        self.patstrings.append(";")
+        return self
+
+#Old method
 def PatRow(angle: float, x_orig: float, y_orig: float, shift_pattern: float, offset: float, dash: float=0, space: float=0):
     #if dash and space are 0 then no pattern
     #rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
