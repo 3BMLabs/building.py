@@ -50,7 +50,7 @@ Library | Steelprofiles | |  |
 &nbsp; | Materials | |  |  
 Exchange | Speckle | :heavy_check_mark: |  |  
 &nbsp; | IFC | |  |  
-&nbsp; | PAT | |  |  
+&nbsp; | PAT |:heavy_check_mark: |  |  
 &nbsp; | OBJ | |  |  
 &nbsp; | Struct4U |:heavy_check_mark: |  |  
 Import | Image | 50% |  |  
