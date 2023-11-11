@@ -11,6 +11,8 @@ The goals of the building.py project are:
   * FreeCAD
   * Revit
   * XFEM4U
+  * IFC using IFCOpenShell
+  * Scia Engineer
 
 # Implemented
 
