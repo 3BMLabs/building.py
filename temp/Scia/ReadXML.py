@@ -122,7 +122,6 @@ def getStaaf(root):
                         for index, header in enumerate(obj):
                             if header.attrib["t"] == h3:
                                 h3Index = index
-                                print(h3Index)
                             if header.attrib["t"] == h4:
                                 h4Index = index
                             elif header.attrib["t"] == h5:
@@ -144,15 +143,19 @@ def getStaaf(root):
                             else:
                                 elementType = elementType.split("-")[1].strip()
                                 objExporter.append(lineSeg)
-                                try:
-                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), rotationDEG, BaseSteel))
 
+                                try:
+                                    # pass
+                                    # objExporter.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, "center", "center", rotationDEG, BaseSteel))
+
+                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), rotationDEG, BaseSteel))
+                                    # objExporter.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, "center", "center", rotationDEG, BaseSteel))
                                     # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,elementType,elementType,BaseSteel))
-                                    # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,"HEA400","HEA400",BaseSteel))
+                                    # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,"HEA160","HEA160",BaseSteel))
                                 except Exception as e:
                                     if elementType not in unrecognizedElements:
                                         unrecognizedElements.append(elementType)
-                                    # print(e, elementType)
+                                    print(e, elementType)
 
 getStaaf(root)
 print(unrecognizedElements)
