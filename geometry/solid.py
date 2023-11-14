@@ -83,6 +83,7 @@ class Extrusion:
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
+        
         Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(polycurve2d,startpoint,DirectionVector)
         for i in polycurve2d.curves:
             startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
