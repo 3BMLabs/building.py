@@ -65,7 +65,7 @@ class BuildingPy:
         self.createdTxt = "has been created"
 
         #Speckle settings
-        self.speckleserver = "3bm.exchange"
+        self.speckleserver = "speckle.xyz"
         self.specklestream = None
 
         #FreeCAD settings
