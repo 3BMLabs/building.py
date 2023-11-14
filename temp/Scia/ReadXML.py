@@ -21,7 +21,7 @@ from packages.helper import *
 from objects.frame import *
 from objects.analytical import *
 
-path = "C:\\Users\\Jonathan\\Desktop\\TEMP\\_1.xml"
+path = "C:\\Users\\Jonathan\\Desktop\\TEMP\\_3.xml"
 scale = 1000
 objExporter = []
 
@@ -42,10 +42,6 @@ def getAllKnoop(root):
 
 
 # getAllKnoop(root)
-
-
-
-# import xml.etree.ElementTree as ET
 
 def findKnoop(name):
     tableName = "EP_DSG_Elements.EP_StructNode.1"
@@ -143,23 +139,20 @@ def getStaaf(root):
                                 # objExporter.append(Support.pinned(p1))
                                 # objExporter.append(Support.pinned(p2))
                                 # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(x=0,y=12), 0, BaseSteel))
-                                objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, "HE100A", "Frame 4", Vector2(0,0), 20, BaseSteel))
+                                # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, "HE100A", "Frame 4", Vector2(0,0), 20, BaseSteel))
 
                                 try:
                                     # elementType = elementType.replace("SHS", "K") #temp
                                     # Frame.byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material = None):
                                     # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(x=0,y=0), 0, BaseSteel))
-                                    
-
-                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), 20, BaseSteel))
+                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), 0, BaseSteel))
 
                                     # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,elementType,elementType,BaseSteel))
                                     # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,"HEA400","HEA400",BaseSteel))
-                                except:
+                                except Exception as e:
                                     if elementType not in unrecognizedElements:
                                         unrecognizedElements.append(elementType)
-                                    pass
-
+                                    # print(e)
 
 getStaaf(root)
 print(unrecognizedElements)
