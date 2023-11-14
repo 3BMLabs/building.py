@@ -113,7 +113,8 @@ class Frame:
         try:
             curv = profiledataToShape(profile_name).polycurve2d
         except:
-            print(profile_name) #Profile does not exist
+            pass
+            # print(profile_name) #Profile does not exist
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.curve = curvrot.translate(vector2d)
