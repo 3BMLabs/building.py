@@ -29,6 +29,13 @@ __title__ = "revit"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/revit.py"
 
+
+
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from geometry.point import Point
 from geometry.curve import Line
 
@@ -42,3 +49,4 @@ from specklepy.objects.geometry import Point as SpecklePoint
 from specklepy.objects.geometry import Line as SpeckleLine
 
 #convert from our line class to Revit line (3d model line)
+
