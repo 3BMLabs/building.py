@@ -22,7 +22,7 @@ from packages.helper import *
 from objects.frame import *
 from objects.analytical import *
 
-path = "C:\\Users\\Jonathan\\Desktop\\TEMP\\_3.xml"
+path = "C:\\Users\\Jonathan\\Desktop\\TEMP\\_25167-Export.xml"
 scale = 1000
 objExporter = []
 
@@ -143,14 +143,15 @@ def getStaaf(root):
                             else:
                                 elementType = elementType.split("-")[1].strip()
                                 objExporter.append(lineSeg)
+                                # print(p1, p2, elementType, rotationDEG)
+                                # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), rotationDEG, BaseSteel))
 
                                 try:
-                                    # pass
+                                    pass
                                     # objExporter.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, "center", "center", rotationDEG, BaseSteel))
 
-                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), rotationDEG, BaseSteel))
                                     # objExporter.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, "center", "center", rotationDEG, BaseSteel))
-                                    # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,elementType,elementType,BaseSteel))
+                                    objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,elementType,elementType,BaseSteel))
                                     # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,"HEA160","HEA160",BaseSteel))
                                 except Exception as e:
                                     if elementType not in unrecognizedElements:

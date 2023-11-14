@@ -167,6 +167,7 @@ class CoordinateSystem:
 
     @classmethod
     def by_origin(self, origin: Point):
+        from abstract.coordinatesystem import XAxis, YAxis, ZAxis
         self.Origin = origin
         self.Xaxis = XAxis
         self.Yaxis = YAxis
@@ -185,6 +186,7 @@ class CoordinateSystem:
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
+        from abstract.vector import Vector3
         vz = DirectionVectorZ  # LineVector and new Z-axis
         vz = Vector3.normalize(vz)  # NewZAxis
         vx = Vector3.perpendicular(vz)[0]  # NewXAxis

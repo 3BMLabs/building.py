@@ -134,34 +134,34 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None):
+    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float):
         f1 = Frame()
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
         f1.rotation = rotation
-        # curv = profiledataToShape(profile_name).d1
-        try:
-            curv = profiledataToShape(profile_name).polycurve2d
-            curvrot = curv.rotate(rotation)  # rotation in degrees
-            v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
-            f1.XOffset = v1.x
-            f1.YOffset = v1.y
-            f1.curve = curv.translate(v1)
-            f1.directionVector = Vector3.byTwoPoints(start, end)
-            f1.length = Vector3.length(f1.directionVector)
-            f1.name = name
-            f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, start, f1.directionVector)
-            f1.extrusion.name = name
-            f1.curve3d = f1.extrusion.polycurve_3d_translated
-            f1.profileName = profile_name
-            f1.material = material
-            f1.color = material.colorint
-            f1.colorlst = colorlist(f1.extrusion, f1.color)
-            f1.props()
-            return f1
-        except:
-            pass
+
+        curv = profiledataToShape(profile_name).polycurve2d
+        #extra movement of curv with ey & ez
+
+        curvrot = curv.rotate(rotation)  # rotation in degrees
+        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        f1.XOffset = v1.x
+        f1.YOffset = v1.y
+        f1.curve = curv.translate(v1)
+        f1.directionVector = Vector3.byTwoPoints(start, end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
             # print(profile_name) #Profile does not exist
         # curv = profiledataToShape(profile_name).prof.curve
 

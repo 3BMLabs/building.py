@@ -593,9 +593,3 @@ class xmlXFEM4U:
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
-
-
-
-
-
-

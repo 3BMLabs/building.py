@@ -32,13 +32,13 @@ __url__ = "./geometry/curve.py"
 
 import sys, os, math
 from pathlib import Path
+import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from project.fileformat import *
 from geometry.point import *
 from packages import helper
-import numpy as np
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from packages.helper import *
@@ -493,7 +493,7 @@ class PolyCurve:
                                 end = transformPoint(i.end, CSGlobal, startpoint, directionvector)
                                 ))
             elif i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
+                crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
                                 transformPoint(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
                                 transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
                                 ))

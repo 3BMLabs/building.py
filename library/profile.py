@@ -110,7 +110,9 @@ class profiledataToShape:
             pc2d2 = pc2d
         self.polycurve2d = pc2d2
 
-def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
+def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
+    
+    # print(XJustifiction)
     xval = []
     yval = []
     for i in plycrv2D.curves:
@@ -122,8 +124,11 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
     xmax = max(xval)
     ymin = min(yval)
     ymax = max(yval)
+
     b = xmax-xmin
     h = ymax-ymin
+
+    # print(b, h)
 
     dxleft = -xmax
     dxright = -xmin
@@ -157,6 +162,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
     else:
         dy = 0
 
+    # print(dx, dy)
     v1 = Vector2(dx, dy)
 
     return v1
