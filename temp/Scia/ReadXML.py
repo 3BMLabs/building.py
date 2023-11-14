@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import math
 import xml.etree.ElementTree as ET
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -36,9 +37,11 @@ def getAllKnoop(root):
                 for obj in table:
                     if obj.tag == "{http://www.scia.cz}h":
                         for header in obj:
-                            print(header.attrib["t"])
+                            # print(header.attrib["t"])
+                            pass
                     else:
-                        print(obj.attrib["nm"])
+                        pass
+                        # print(obj.attrib["nm"])
 
 
 # getAllKnoop(root)
@@ -90,6 +93,8 @@ def getStaaf(root):
     h1 = "Laag"
     h2 = "Loodrecht uitlijning"
     h3 = "LCS-rotatie"
+    h3Index = None
+
     h4 = "Beginknoop"
     h4Index = None
 
@@ -115,6 +120,9 @@ def getStaaf(root):
                 for obj in table:
                     if obj.tag == "{http://www.scia.cz}h":
                         for index, header in enumerate(obj):
+                            if header.attrib["t"] == h3:
+                                h3Index = index
+                                print(h3Index)
                             if header.attrib["t"] == h4:
                                 h4Index = index
                             elif header.attrib["t"] == h5:
@@ -122,64 +130,32 @@ def getStaaf(root):
                             elif header.attrib["t"] == h6:
                                 h6Index = index
                     else:
+                        rotationRAD = obj[h3Index].attrib["v"]
+                        rotationDEG = float(rotationRAD)*float(180) / math.pi
                         p1 = findKnoop(obj[h4Index].attrib["n"])
                         p2 = findKnoop(obj[h5Index].attrib["n"])
                         lineSeg = Line(start=p1, end=p2)
                         
-                        elementType = (obj[h6Index].attrib["n"])#.split("-")[1].strip() #try to get those elements from the lib maarten did write earlier.
+                        elementType = (obj[h6Index].attrib["n"])
                         for removeLayer in removeLayers:
-                            # print(elementType.lower(), removeLayer.lower())
                             if removeLayer.lower() in elementType.lower():
                                 print(f"[removeLayers]: {elementType}")
+                                pass
                             else:
-
                                 elementType = elementType.split("-")[1].strip()
-
                                 objExporter.append(lineSeg)
-                                # objExporter.append(Support.pinned(p1))
-                                # objExporter.append(Support.pinned(p2))
-                                # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(x=0,y=12), 0, BaseSteel))
-                                # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, "HE100A", "Frame 4", Vector2(0,0), 20, BaseSteel))
-
                                 try:
-                                    # elementType = elementType.replace("SHS", "K") #temp
-                                    # Frame.byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material = None):
-                                    # objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(x=0,y=0), 0, BaseSteel))
-                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), 0, BaseSteel))
+                                    objExporter.append(Frame.byStartpointEndpointProfileNameShapevector(p1, p2, elementType, elementType, Vector2(0,0), rotationDEG, BaseSteel))
 
                                     # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,elementType,elementType,BaseSteel))
                                     # objExporter.append(Frame.byStartpointEndpointProfileName(p1,p2,"HEA400","HEA400",BaseSteel))
                                 except Exception as e:
                                     if elementType not in unrecognizedElements:
                                         unrecognizedElements.append(elementType)
-                                    # print(e)
+                                    # print(e, elementType)
 
 getStaaf(root)
 print(unrecognizedElements)
-# print()
-# sys.exit()
-# for container in root:
-#     for table in container:
-#         print(table.attrib["t"])
-
-#knopen: "EP_DSG_Elements.EP_StructNode.1";
-#staaf: "EP_DSG_Elements.EP_Beam.1";
-#materialen: "CrossSection.EP_CssGeometry.1";
-#
-
-# Print de naam van het project
-# for project in root.findall("project"):
-#   print(project.attrib["name"])
-  
-# Print de namen van alle lagen
-# for layer in root.findall("container"):
-#     print(layer.attrib["nm"])
-
-# Print de ID en naam van alle objecten in de laag "Lagen"
-# for obj in root.find("container")[1].findall("obj"):
-#     print(obj.attrib["id"], obj.attrib["nm"])
-
-# sys.exit()
 
 SpeckleHost = "speckle.xyz"
 StreamID = "c6e11e74cb"
