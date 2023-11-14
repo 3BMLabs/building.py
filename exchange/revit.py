@@ -30,7 +30,6 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/revit.py"
 
 
-
 import sys
 from pathlib import Path
 
