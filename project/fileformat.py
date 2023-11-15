@@ -35,7 +35,8 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.point import Point
-
+from abstract.coordinatesystem import CoordinateSystem
+from abstract.vector import Vector3
 
 class BuildingPy:
     def __init__(self, name=None, number=None):
@@ -69,6 +70,11 @@ class BuildingPy:
         self.specklestream = None
 
         #FreeCAD settings
+
+        XAxis = Vector3(1, 0, 0)
+        YAxis = Vector3(0, 1, 0)
+        ZAxis = Vector3(0, 0, 1)
+        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
 
     # @property
     # def units(self):

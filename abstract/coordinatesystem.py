@@ -39,6 +39,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
 from geometry.point import Point
+from project.fileformat import project
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
@@ -96,4 +97,4 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
 
-CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+CSGlobal = project.CSGlobal

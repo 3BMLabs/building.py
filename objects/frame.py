@@ -142,9 +142,12 @@ class Frame:
         f1.rotation = rotation
 
         curv = profiledataToShape(profile_name).polycurve2d
-        #extra movement of curv with ey & ez
+        curv = curv.translate(Vector2(ey, ez))
+
 
         curvrot = curv.rotate(rotation)  # rotation in degrees
+        #wrong
+
         v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
         f1.XOffset = v1.x
         f1.YOffset = v1.y

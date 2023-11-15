@@ -151,7 +151,11 @@ class LoadXML:
         h8Index = None
 
         h9 = "ey"
+        h9Index = None
+
         h10= "ez"
+        h10Index = None
+
         h11 = "Tabel van geometrie"
 
         removeLayers = ["dummy"]
@@ -172,14 +176,23 @@ class LoadXML:
                                     h6Index = index
                                 elif header.attrib["t"] == h8:
                                     h8Index = index
-
+                                elif header.attrib["t"] == h9:
+                                    h9Index = index
+                                elif header.attrib["t"] == h10:
+                                    h10Index = index
                         else:
                             rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = float(rotationRAD)*float(180) / math.pi
-                            print(rotationDEG)
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi)
+                            # print(rotationDEG)
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
+
+                            ey = float(obj[h9Index].attrib["v"]) * -1
+                            ez = float(obj[h10Index].attrib["v"])
+
+                            print(ey, ez)
+                            
                             lineSeg = Line(start=p1, end=p2)
                             
                             elementType = (obj[h6Index].attrib["n"])
@@ -193,7 +206,7 @@ class LoadXML:
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
 
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel))                                        
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
