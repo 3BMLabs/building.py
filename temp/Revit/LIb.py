@@ -1195,8 +1195,6 @@ class RectangleHollowSection:  #NOT COMPLETE YET
 
 
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/DutchSailor/Project-Ocondat/master/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/joas1606/jupyter/main/jsontestfile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 

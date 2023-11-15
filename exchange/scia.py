@@ -107,21 +107,21 @@ class LoadXML:
     def convertJustification(self, justification):
         justification = justification.lower()
         if justification == "left":
-            return "center", "left"
-        elif justification == "right":
             return "center", "right"
+        elif justification == "right":
+            return "center", "left"
         elif justification == "top":
             return "top", "center"
         elif justification == "bottom":
             return "bottom", "center"
         elif justification == "top left":
-            return "top", "left"
-        elif justification == "top right":
             return "top", "right"
+        elif justification == "top right":
+            return "top", "left"
         elif justification == "bottom left":
-            return "bottom", "left"
-        elif justification == "bottom right":
             return "bottom", "right"
+        elif justification == "bottom right":
+            return "bottom", "left"
         elif justification == "center" or justification == "midden" or justification == "centre":
             return "center", "center"
         else:
@@ -182,7 +182,7 @@ class LoadXML:
                                     h10Index = index
                         else:
                             rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi)
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
                             # print(rotationDEG)
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
@@ -192,8 +192,6 @@ class LoadXML:
 
                             ey = float(obj[h9Index].attrib["v"]) * -project.scale
                             ez = float(obj[h10Index].attrib["v"]) * project.scale
-
-                            # print(ey, ez)
                             
                             lineSeg = Line(start=p1, end=p2)
                             
@@ -206,8 +204,6 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
-                                    self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        
-
                                     try:
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        
                                     except Exception as e:

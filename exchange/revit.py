@@ -32,20 +32,25 @@ __url__ = "./exchange/revit.py"
 
 import sys
 from pathlib import Path
+# import specklepy
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import Line
 
-from specklepy.api.client import SpeckleClient
-from specklepy.api.credentials import get_default_account
-from specklepy.transports.server import ServerTransport
-from specklepy.api import operations
+# from specklepy.api.client import SpeckleClient
+# from specklepy.api.credentials import get_default_account
+# from specklepy.transports.server import ServerTransport
+# from specklepy.api import operations
 
-from specklepy.objects import Base
-from specklepy.objects.geometry import Point as SpecklePoint
-from specklepy.objects.geometry import Line as SpeckleLine
+# from specklepy.objects import Base
+# from specklepy.objects.geometry import Point as SpecklePoint
+# from specklepy.objects.geometry import Line as SpeckleLine
 
 #convert from our line class to Revit line (3d model line)
+
+
+#draw line in revit using specklepy
+
 
