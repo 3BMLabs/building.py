@@ -187,11 +187,13 @@ class LoadXML:
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
+                            #TEMP
+                            p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
 
-                            ey = float(obj[h9Index].attrib["v"]) * -1
-                            ez = float(obj[h10Index].attrib["v"])
+                            ey = float(obj[h9Index].attrib["v"]) * -project.scale
+                            ez = float(obj[h10Index].attrib["v"]) * project.scale
 
-                            print(ey, ez)
+                            # print(ey, ez)
                             
                             lineSeg = Line(start=p1, end=p2)
                             
@@ -204,6 +206,7 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
+                                    self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        
 
                                     try:
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        

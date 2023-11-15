@@ -493,6 +493,7 @@ class PolyCurve:
                                 end = transformPoint(i.end, CSGlobal, startpoint, directionvector)
                                 ))
             elif i.__class__.__name__ == "Arc2D":
+                # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
                 crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
                                 transformPoint(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
                                 transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)

@@ -82,7 +82,6 @@ class Vector3:
             v1.z / v2.z
         )
 
-
     @staticmethod
     def square(v1):
         return Vector3(
@@ -90,7 +89,6 @@ class Vector3:
             v1.y **2,
             v1.z **2
         )
-
 
     @staticmethod
     def toPoint(v1):

@@ -144,14 +144,18 @@ class Frame:
         curv = profiledataToShape(profile_name).polycurve2d
         curv = curv.translate(Vector2(ey, ez))
 
-
+        # print(rotation)
         curvrot = curv.rotate(rotation)  # rotation in degrees
+        print("\nWITH ROTATION:")
+        for l in curvrot.curves:
+            print(l)
+        # cr = curv.ro
         #wrong
 
         v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
         f1.XOffset = v1.x
         f1.YOffset = v1.y
-        f1.curve = curv.translate(v1)
+        f1.curve = curvrot.translate(v1)
         f1.directionVector = Vector3.byTwoPoints(start, end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
