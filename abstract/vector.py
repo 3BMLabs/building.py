@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile- start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -39,6 +41,8 @@ sys.path.append(str(package_root_directory))
 from geometry.point import *
 
 from packages import helper
+
+# [!not included in BP singlefile - end]
 
 class Vector3:
     def __init__(self, x, y, z):

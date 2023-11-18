@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -38,7 +40,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.vector import *
 from geometry.point import Point as pnt
 
-
+# [!not included in BP singlefile - end]
 class Dimension:
     def __init__(self, start:float, end:float):
         self.start = start

@@ -156,6 +156,7 @@ class Point:
             return 0
 
 
+from abstract import vector
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
@@ -176,8 +177,9 @@ class CoordinateSystem:
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem()
-        new_origin = Point.translate(CSOld.Origin,direction)
+        new_origin = Point.translate(CSOld.Origin, direction)
+        CSNew = CoordinateSystem(new_origin,xaxis=vector.XAxis,yaxis=vector.YAxis,zaxis=vector.ZAxis)
+
         CSNew.Origin = new_origin
         return CSNew
 
