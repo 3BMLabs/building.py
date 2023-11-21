@@ -32,14 +32,15 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/boundingbox.py"
 
 
-import sys, math, os
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import PolyCurve
-from packages import helper
+import helper
+
 
 # [!not included in BP singlefile - end]
 

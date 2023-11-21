@@ -30,13 +30,11 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/surface.py"
 
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.point import *
-from packages import helper
 from geometry.curve import *
 from geometry.solid import Extrusion
 from abstract.color import Color

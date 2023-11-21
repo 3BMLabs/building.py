@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -44,6 +46,7 @@ from abstract.vector import *
 from abstract.coordinatesystem import *
 from geometry.solid import *
 
+# [!not included in BP singlefile - end]
 
 def colorlist(extrus,color):
     colorlst = []
@@ -83,7 +86,9 @@ class Frame:
 
     @classmethod
     def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material):
+        # [!not included in BP singlefile - start]
         from library.profile import profiledataToShape
+        # [!not included in BP singlefile - end]
         f1 = Frame()
         f1.start = start
         f1.end = end

@@ -21,7 +21,6 @@
 #*                                                                         *
 #***************************************************************************
 
-from geometry.point import *
 from geometry.curve import *
 """This module provides tools for analytical element like supports, loads
 """

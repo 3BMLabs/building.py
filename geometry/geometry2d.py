@@ -1,3 +1,4 @@
+# [included in BP singlefile]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -30,14 +31,14 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/geometry2d.py"
 
 
-import sys, os, math
+import sys, math
 from pathlib import Path
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from packages import helper
+import helper
 from abstract.vector import Vector3
 from abstract.coordinatesystem import CoordinateSystem
 

@@ -30,21 +30,15 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/curve.py"
 
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from geometry.point import *
-from packages import helper
-from abstract.vector import Vector3
-from abstract.plane import Plane
-
 from temp.EXPORTER import send_to_speckle
-from specklepy.objects.geometry import Brep, BrepFace, BrepLoop, BrepLoopType, BrepEdge, Point, Vector, BrepTrim, BrepTrimType
-
+from specklepy.objects.geometry import BrepEdge, Point, Vector
 
 #Brep start
 # pt1 = Point(x=0, y=0, z=0)

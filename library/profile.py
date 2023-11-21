@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -29,18 +31,17 @@ __title__= "profile"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/profile.py"
 
-import sys, os, math
+import sys
 from pathlib import Path
-import json
 import urllib.request
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from packages import helper
 from objects.steelshape import *
 
+# [!not included in BP singlefile - end]
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
 # jsonFile = "https://raw.githubusercontent.com/DutchSailor/Project-Ocondat/master/steelprofile.json"
 # jsonFile = "https://raw.githubusercontent.com/joas1606/jupyter/main/jsontestfile.json"

@@ -5,8 +5,42 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/write_bp_single_file.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CreateBuildingPySingleFile.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/boundingbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/boundingbox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/color.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/color.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/dimension.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/intersect2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/intersect2d.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/vector.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/vector.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exchange/pat.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/pat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exchange/scia.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/scia.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exchange/speckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/speckle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exchange/struct4U.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/struct4U.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/bmesh.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/bmesh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/curve.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/curve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/geometry2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/geometry2d.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/linestyle.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/linestyle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/point.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/point.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/pointcloud.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/pointcloud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/solid.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/solid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/surface.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/surface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/systemsimple.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/systemsimple.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/profile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/analytical.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/analytical.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/annotation.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/annotation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/datum.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/datum.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/frame.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/frame.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/objectcollection.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/objectcollection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/panel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/shape.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/shape.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/steelshape.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/steelshape.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/view.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/view.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/helper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fileformat.py" beforeDir="false" afterPath="$PROJECT_DIR$/project/fileformat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp/Example Projects/Unit System.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Example Projects/Unit System.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp/Scia/ReadXML.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Scia/ReadXML.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +79,9 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\JoasHollander\Documents\GitHub\building.py\temp" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mikev\Documents\GitHub\building.py" />
     </key>
   </component>
   <component name="RunManager">

@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -37,6 +39,7 @@ from objects.frame import *
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.geometry2d import *
+# [!not included in BP singlefile - end]
 
 sqrt2 = math.sqrt(2)
 class Tshape:

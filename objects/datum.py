@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -38,6 +40,7 @@ from geometry.linestyle import *
 from geometry.curve import *
 from objects.annotation import *
 
+# [!not included in BP singlefile - end]
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 

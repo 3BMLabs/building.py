@@ -31,8 +31,7 @@ __title__= "vector"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/vector.py"
 
-import math
-import sys, random
+import sys
 from pathlib import Path
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -40,7 +39,6 @@ sys.path.append(str(package_root_directory))
 
 from geometry.point import *
 
-from packages import helper
 
 # [!not included in BP singlefile - end]
 
@@ -108,13 +106,10 @@ class Vector3:
 
     @staticmethod
     def byLine(l1):
-        from geometry.curve import Line
         return Vector3(l1.dx,l1.dy,l1.dz)
 
     @staticmethod
     def lineByLength(v1, length:float):
-        from geometry.point import Point
-        from geometry.curve import Line
         return None
         # return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
     

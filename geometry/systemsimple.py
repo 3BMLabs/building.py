@@ -31,8 +31,6 @@ __title__= "systemsimple"
 __author__ = "Maarten"
 __url__ = "./geometry/systemsimple.py"
 
-from geometry.curve import *
-from abstract.coordinatesystem import *
 from abstract.interval import *
 from objects.frame import *
 from objects.panel import *
