@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -39,6 +41,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.vector import *
 from geometry.point import Point
 from geometry.curve import Line
+
+# [!not included in BP singlefile - end]
 
 class Intersect:
     def __init__(self):

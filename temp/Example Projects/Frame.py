@@ -8,11 +8,12 @@ from geometry.systemsimple import *
 
 project = BuildingPy("Project test BuildingPy","0")
 
-Beam1 = Frame.byStartpointEndpointProfileName(Point(0,0,0),Point(3000,0,0),"HEA200","HEA200",BaseSteel)
+#Beam1 = Frame.byStartpointEndpointProfileName(Point(0,0,0),Point(3000,0,0),"HEA200","HEA200",BaseSteel)
 
-test = searchProfile("UNP200")
+Beam2 = Frame.byStartpointEndpointProfileName(Point(0,0,500),Point(0,0,1000),"HEA200","test",BaseSteel)
+#test = searchProfile("SHS60/60/4.0")
 
-print(test.shape_coords)
-project.objects.append(Beam1)
+#print(test.shape_coords)
+#project.objects.append(Beam1)
 
 #project.toSpeckle("f66b54f6c4")

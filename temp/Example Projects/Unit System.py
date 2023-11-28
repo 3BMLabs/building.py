@@ -1,15 +1,14 @@
-import sys, os
+import sys
 from pathlib import Path
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from objects.frame import *
 from exchange.speckle import *
 from objects.datum import *
 from objects.frame import *
-from packages.helper import *
+from helper import *
 from geometry.point import *
 from abstract.vector import Vector3
 #Proof of Concept modules

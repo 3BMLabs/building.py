@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -29,6 +31,8 @@ from geometry.curve import *
 __title__= "analytical"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/analytical.py"
+
+# [!not included in BP singlefile - end]
 
 class Support:
     def __init__(self):

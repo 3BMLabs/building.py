@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -38,7 +40,7 @@ from abstract.coordinatesystem import CoordinateSystem
 from abstract.coordinatesystem import CSGlobal
 from geometry.solid import Extrusion
 from geometry.curve import *
-
+# [!not included in BP singlefile - end]
 class Panel:
     #Panel
     def __init__(self):

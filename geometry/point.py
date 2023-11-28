@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -30,15 +32,16 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/point.py"
 
 
-import sys, os, math
+import sys, math
 from pathlib import Path
 #from abstract.coordinatesystem import *
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
+import helper
+# [!not included in BP singlefile - end]
 
-from packages import helper
 # from project.fileformat import project
 
 
@@ -97,7 +100,6 @@ class Point:
 
     @staticmethod
     def point2DTo3D(point2D):
-        from geometry.geometry2d import Point2D
         return Point(
             point2D.x,
             point2D.y,
@@ -156,6 +158,7 @@ class Point:
             return 0
 
 
+from abstract import vector
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
@@ -176,8 +179,9 @@ class CoordinateSystem:
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem()
-        new_origin = Point.translate(CSOld.Origin,direction)
+        new_origin = Point.translate(CSOld.Origin, direction)
+        CSNew = CoordinateSystem(new_origin,xaxis=vector.XAxis,yaxis=vector.YAxis,zaxis=vector.ZAxis)
+
         CSNew.Origin = new_origin
         return CSNew
 

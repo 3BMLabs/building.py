@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij                              *

@@ -42,7 +42,7 @@ from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from abstract.interval import Interval
-from packages.helper import *
+from helper import *
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account

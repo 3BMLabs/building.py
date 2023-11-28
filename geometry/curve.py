@@ -1,3 +1,4 @@
+# [included in BP singlefile]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -30,19 +31,14 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/curve.py"
 
 
-import sys, os, math
+import sys
 from pathlib import Path
 import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from project.fileformat import *
-from geometry.point import *
-from packages import helper
-from abstract.vector import Vector3
 from abstract.plane import Plane
-from packages.helper import *
-from abstract.interval import Interval
+from helper import *
 from abstract.coordinatesystem import *
 
 class Line: #add Line.bylenght (start and endpoint)

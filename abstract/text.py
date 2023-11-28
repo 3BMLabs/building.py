@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile- start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -49,6 +51,8 @@ from project.fileformat import *
 from packages.svg.path import parse_path
 import json
 from typing import List, Tuple
+
+# [!not included in BP singlefile - end]
 
 class Text:
     def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, height=None):

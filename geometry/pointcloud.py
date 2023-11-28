@@ -30,15 +30,14 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/pointcloud.py"
 
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from geometry.point import *
-from packages import helper
+import helper
 
 
 class PointCloud:

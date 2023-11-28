@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -21,8 +23,6 @@
 #*                                                                         *
 #***************************************************************************
 
-from geometry.point import *
-from geometry.curve import *
 from abstract.text import *
 """This module provides tools for annotations like text, label, dimension, dimension tick etc
 """
@@ -30,6 +30,8 @@ from abstract.text import *
 __title__= "annotation"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/annotation.py"
+
+# [!not included in BP singlefile - end]
 
 class TickMark:
     #Dimension Tick Mark

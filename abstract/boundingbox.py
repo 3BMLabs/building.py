@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -30,15 +32,17 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/boundingbox.py"
 
 
-import sys, math, os
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import PolyCurve
-from packages import helper
+import helper
 
+
+# [!not included in BP singlefile - end]
 
 class BoundingBox2d:
     def __init__(self):

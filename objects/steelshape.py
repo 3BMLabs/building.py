@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -36,8 +38,9 @@ from objects.frame import *
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-
 from geometry.geometry2d import *
+
+# [!not included in BP singlefile - end]
 
 sqrt2 = math.sqrt(2)
 
@@ -48,7 +51,6 @@ sqrt2 = math.sqrt(2)
   #shape is een parametrische vorm heeft als resultaat een 2D curve
   #section is een profiel met eigenschappen HEA200, 200,200,10,10,5 en eventuele rekenkundige eigenschappen.
   #beam is een object wat in 3D zit met materiaal enz.
-
 
 class CChannelParallelFlange:
     def __init__(self, name, h, b, tw, tf, r, ex):

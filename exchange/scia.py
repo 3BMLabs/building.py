@@ -1,3 +1,4 @@
+# [included in BP singlefile]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -32,25 +33,9 @@ __url__ = "./exchange/scia.py"
 
 import sys
 from pathlib import Path
-import math
-import xml.etree.ElementTree as ET
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from exchange.speckle import TransportToSpeckle, translateObjectsToSpeckleObjects
-from geometry.point import Point
-from geometry.curve import *
-from abstract.vector import Vector3
-from abstract.intersect2d import *
-from abstract.plane import Plane
-from abstract.text import Text
-from abstract.intersect2d import Intersect2d
-from objects.datum import *
-from geometry.solid import Extrusion
-from objects.panel import Panel
-from abstract.color import Color
-from geometry.surface import Surface
-from packages.helper import *
 from objects.frame import *
 from objects.analytical import *
 from project.fileformat import BuildingPy

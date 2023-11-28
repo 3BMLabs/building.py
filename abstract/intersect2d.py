@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -29,17 +31,17 @@ __title__= "intersect"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/intersect.py"
 
-import sys, os, math
+import sys
 from pathlib import Path
-from typing import Any, List
 import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.vector import *
 from geometry.point import Point
 from geometry.curve import Line
-from packages.helper import *
+from helper import *
+
+# [!not included in BP singlefile - end]
 
 class Intersect2d:
     def __init__(self):
