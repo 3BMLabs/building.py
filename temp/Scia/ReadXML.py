@@ -158,12 +158,12 @@ def getStaaf(root):
                                         unrecognizedElements.append(elementType)
                                     print(e, elementType)
 
-getStaaf(root)
-print(unrecognizedElements)
+# getStaaf(root)
+# print(unrecognizedElements)
 
-SpeckleHost = "speckle.xyz"
-StreamID = "c6e11e74cb"
-SpeckleObjects = objExporter
-Message = "Elements"
-SpeckleObj = translateObjectsToSpeckleObjects(objExporter)
-Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)
+# SpeckleHost = "speckle.xyz"
+# StreamID = "c6e11e74cb"
+# SpeckleObjects = objExporter
+# Message = "Elements"
+# SpeckleObj = translateObjectsToSpeckleObjects(objExporter)
+# Commit = TransportToSpeckle(SpeckleHost, StreamID, SpeckleObj, Message)

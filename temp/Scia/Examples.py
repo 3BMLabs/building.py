@@ -6,8 +6,6 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from objects.frame import *
 from exchange.scia import *
 
-from exchange.struct4U import *
-
 from objects.analytical import *
 from project.fileformat import BuildingPy
 

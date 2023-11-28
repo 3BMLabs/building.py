@@ -106,21 +106,21 @@ class LoadXML:
 
     def convertJustification(self, justification):
         justification = justification.lower()
-        if justification == "left":
+        if justification == "left" or justification == "links":
             return "center", "right"
-        elif justification == "right":
+        elif justification == "right" or justification == "rechts":
             return "center", "left"
-        elif justification == "top":
+        elif justification == "top" or justification == "boven":
             return "top", "center"
-        elif justification == "bottom":
+        elif justification == "bottom" or justification == "onder":
             return "bottom", "center"
-        elif justification == "top left":
+        elif justification == "top left" or justification == "linksboven":
             return "top", "right"
-        elif justification == "top right":
+        elif justification == "top right" or justification == "rechtsboven":
             return "top", "left"
-        elif justification == "bottom left":
+        elif justification == "bottom left" or justification == "linksonder":
             return "bottom", "right"
-        elif justification == "bottom right":
+        elif justification == "bottom right" or justification == "rechtsonder":
             return "bottom", "left"
         elif justification == "center" or justification == "midden" or justification == "centre":
             return "center", "center"

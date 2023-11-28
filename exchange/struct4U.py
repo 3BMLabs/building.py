@@ -446,9 +446,12 @@ class xmlXFEM4U:
         self.Profiles = ''.join(str(Pr) for Pr in Profiles)
         self.Supports = ''.join(str(Sup) for Sup in Supports)
 
-    def addGrids(self, spacX, seqX, spacY, seqY, z):
-        self.Grids = "<Grids>" + "<X>" + spacX + "</X>" + "<X_Lable>" + seqX + "</X_Lable>" + "<Y>" + spacY + "</Y>" + "<Y_Lable>" + seqY + "</Y_Lable>" + "<Z>" + "0 " + str(
-            z) + "</Z>" + "<Z_Lable>" + "+0 h" + "</Z_Lable>" + "</Grids>"
+    def addGrids(self, spacX=None, seqX=None, spacY=None, seqY=None, z=None):
+        if spacX is None:
+            self.Grids = "<Grids>" + "</Grids>"
+        else:
+            self.Grids = "<Grids>" + "<X>" + spacX + "</X>" + "<X_Lable>" + seqX + "</X_Lable>" + "<Y>" + spacY + "</Y>" + "<Y_Lable>" + seqY + "</Y_Lable>" + "<Z>" + "0 " + str(
+                z) + "</Z>" + "<Z_Lable>" + "+0 h" + "</Z_Lable>" + "</Grids>"
 
     def addLoadCasesCombinations(self):
         # Standard Load Cases and Combinations
@@ -531,54 +534,56 @@ class xmlXFEM4U:
         self.LoadCases = ''.join(str(LCa) for LCa in LoadCases)
         self.Combinations = ''.join(str(LC) for LC in Combinations)
 
-    def addSurfaceLoad(self,obj):
+    def addSurfaceLoad(self,obj=None):
         SurfaceLoads = []
         SurfaceLoads.append("<SurfaceLoads>\n")
-        slN = 0
-        for i in obj:
-            nm = i.__class__.__name__
-            if nm == "SurfaceLoad":
-                slN = slN + 1
-                SurfaceLoads.append("<Number>" + str(slN) + "</Number>\n")
-                SurfaceLoads.append("<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>\n")
-                SurfaceLoads.append("<Description>" + i.Description + "</Description>\n")
-                for j in i.PolyCurve.points:
-                    SurfaceLoads.append("<NodeX>" + str(j.x) + "</NodeX>\n")
-                    SurfaceLoads.append("<NodeY>" + str(j.y) + "</NodeY>\n")
-                    SurfaceLoads.append("<NodeZ>" + str(j.z) + "</NodeZ>\n")
-                SurfaceLoads.append("<Coordinate_system>" + i.crs + "</Coordinate_system>\n")
-                SurfaceLoads.append("<Direction>" + i.direction + "</Direction>\n")
-                SurfaceLoads.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
-                SurfaceLoads.append("<q1>" + str(i.q1) + "</q1>\n")
-                SurfaceLoads.append("<q2>" + str(i.q2) + "</q2>\n")
-                SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>\n")
-                SurfaceLoads.append("<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>\n")
-                SurfaceLoads.append("<iq1>" + str(i.iq1) + "</iq1>\n")
-                SurfaceLoads.append("<iq2>" + str(i.iq2) + "</iq2>\n")
-                SurfaceLoads.append("<iq3>" + str(i.iq3) + "</iq3>\n")
-            else:
-                pass
+        if obj != None:
+            slN = 0
+            for i in obj:
+                nm = i.__class__.__name__
+                if nm == "SurfaceLoad":
+                    slN = slN + 1
+                    SurfaceLoads.append("<Number>" + str(slN) + "</Number>\n")
+                    SurfaceLoads.append("<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>\n")
+                    SurfaceLoads.append("<Description>" + i.Description + "</Description>\n")
+                    for j in i.PolyCurve.points:
+                        SurfaceLoads.append("<NodeX>" + str(j.x) + "</NodeX>\n")
+                        SurfaceLoads.append("<NodeY>" + str(j.y) + "</NodeY>\n")
+                        SurfaceLoads.append("<NodeZ>" + str(j.z) + "</NodeZ>\n")
+                    SurfaceLoads.append("<Coordinate_system>" + i.crs + "</Coordinate_system>\n")
+                    SurfaceLoads.append("<Direction>" + i.direction + "</Direction>\n")
+                    SurfaceLoads.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
+                    SurfaceLoads.append("<q1>" + str(i.q1) + "</q1>\n")
+                    SurfaceLoads.append("<q2>" + str(i.q2) + "</q2>\n")
+                    SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>\n")
+                    SurfaceLoads.append("<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>\n")
+                    SurfaceLoads.append("<iq1>" + str(i.iq1) + "</iq1>\n")
+                    SurfaceLoads.append("<iq2>" + str(i.iq2) + "</iq2>\n")
+                    SurfaceLoads.append("<iq3>" + str(i.iq3) + "</iq3>\n")
+                else:
+                    pass
         SurfaceLoads.append("</SurfaceLoads>\n")
         self.SurfaceLoads = ''.join(str(SL) for SL in SurfaceLoads)
 
-    def addPanels(self,obj):
+    def addPanels(self,obj=None):
         Panels = []
         Panels.append("<Panels>\n")
-        slN = 0
-        for i in obj:
-            nm = i.__class__.__name__
-            if nm == "LoadPanel":
-                slN = slN + 1
-                Panels.append("<Number>" + str(slN) + "</Number>\n")
-                Panels.append("<Description>" + i.Description + "</Description>\n")
-                for j in i.PolyCurve.points:
-                    Panels.append("<NodeX>" + str(j.x) + "</NodeX>\n")
-                    Panels.append("<NodeY>" + str(j.y) + "</NodeY>\n")
-                    Panels.append("<NodeZ>" + str(j.z) + "</NodeZ>\n")
-                Panels.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
-                Panels.append("<SurfaceType>" + i.LoadBearingDirection + "</SurfaceType>\n")
-            else:
-                pass
+        if obj != None:
+            slN = 0
+            for i in obj:
+                nm = i.__class__.__name__
+                if nm == "LoadPanel":
+                    slN = slN + 1
+                    Panels.append("<Number>" + str(slN) + "</Number>\n")
+                    Panels.append("<Description>" + i.Description + "</Description>\n")
+                    for j in i.PolyCurve.points:
+                        Panels.append("<NodeX>" + str(j.x) + "</NodeX>\n")
+                        Panels.append("<NodeY>" + str(j.y) + "</NodeY>\n")
+                        Panels.append("<NodeZ>" + str(j.z) + "</NodeZ>\n")
+                    Panels.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
+                    Panels.append("<SurfaceType>" + i.LoadBearingDirection + "</SurfaceType>\n")
+                else:
+                    pass
         Panels.append("</Panels>\n")
         self.Panels = ''.join(str(pan) for pan in Panels)
 
