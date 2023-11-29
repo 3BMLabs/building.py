@@ -1,4 +1,6 @@
 # [included in BP singlefile]
+# [!not included in BP singlefile - start]
+
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -41,11 +43,13 @@ from abstract.plane import Plane
 from helper import *
 from abstract.coordinatesystem import *
 
+# [!not included in BP singlefile - end]
+
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
         self.start: Point = start
         self.end: Point = end
-        self.id = helper.generateID()
+        self.id = generateID()
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         try:
@@ -137,7 +141,7 @@ class PolyCurve:
         #Properties
         self.approximateLength = None
         self.graphicsStyleId = None
-        self.id = helper.generateID()
+        self.id = generateID()
         self.isClosed = None
         self.isCyclic = None
         self.isElementGeometry = None
@@ -542,7 +546,7 @@ def RectYZ(vector: Vector3, width: float, height: float):
 class PolyGon:
     def __init__(self, lines) -> None:
         self.Lines = lines#collect in list
-        self.id = helper.generateID()
+        self.id = generateID()
         pass #Lines
     
     @staticmethod
@@ -569,7 +573,7 @@ class PolyGon:
 
 class Arc:
     def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
-        self.id = helper.generateID()
+        self.id = generateID()
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -696,7 +700,7 @@ class Circle: #auto calculate length!
         self.radius = radius
         self.plane = plane
         self.length = length
-        self.id = helper.generateID()
+        self.id = generateID()
         pass #Curve
 
     def __id__(self):
@@ -711,7 +715,7 @@ class Ellipse:
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane
-        self.id = helper.generateID()
+        self.id = generateID()
         pass #Curve
     pass
 

@@ -228,7 +228,7 @@ class GridSystem:
         for i in GridsY:
             gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
             try:
-                dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0),DT3_5_mm)
+                dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0))#,DT3_5_mm)
                 gs.dimensions.append(dim)
             except:
                 pass

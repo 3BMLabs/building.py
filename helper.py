@@ -1,3 +1,6 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
+
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -33,6 +36,9 @@ __url__ = "./package/helper.py"
 import string, random, json
 import urllib
 import xml.etree.ElementTree as ET
+
+# [!not included in BP singlefile - end]
+
 
 def find_in_list_of_list(mylist, char):
     for sub_list in mylist:

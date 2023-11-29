@@ -31,7 +31,7 @@ xmlS4U.addLoadCasesCombinations()
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 
-filepath = "C:/Users/Jonathan/Desktop/Hall3.xml"
+filepath = "C:/Users/Jonathan/Desktop/test.xml"
 file = open(filepath, "w")
 a = file.write(XMLString)
 file.close()

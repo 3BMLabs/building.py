@@ -1,4 +1,5 @@
 # [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -35,6 +36,8 @@ from geometry.curve import *
 from exchange.speckle import *
 from objects.panel import *
 from objects.datum import *
+
+# [!not included in BP singlefile - end]
 
 #TODO Line to Grid Object
 #TODO Grid Object with building.py line --> convert to Speckle Line with pattern

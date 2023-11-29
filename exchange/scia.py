@@ -1,4 +1,5 @@
 # [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -40,6 +41,7 @@ from objects.frame import *
 from objects.analytical import *
 from project.fileformat import BuildingPy
 
+# [!not included in BP singlefile - end]
 
 class LoadXML:
     def __init__(self, filename=str, project=BuildingPy):

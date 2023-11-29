@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -40,6 +42,7 @@ from geometry.solid import Extrusion
 from abstract.color import Color
 from abstract.intersect2d import *
 
+# [!not included in BP singlefile - end]
 #check if there are innercurves inside the outer curve.
 
 class Surface: #Polycurves must be closed!!!!!!!
@@ -54,7 +57,7 @@ class Surface: #Polycurves must be closed!!!!!!!
         self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
         self.offset = 0
         self.name = "test2"
-        self.id = helper.generateID()
+        self.id = generateID()
         self.PolyCurveList = PolyCurves
         self.origincurve = None
         if color is None:
@@ -132,7 +135,7 @@ class Surface: #Polycurves must be closed!!!!!!!
 class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
     def __init__(self) -> None:
         pass
-        self.id = helper.generateID()
+        self.id = generateID()
     pass
 
     def __id__(self):
@@ -145,7 +148,7 @@ class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
 class PolySurface:
     def __init__(self) -> None:
         pass
-        self.id = helper.generateID()
+        self.id = generateID()
     pass
 
     def __id__(self):

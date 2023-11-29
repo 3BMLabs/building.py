@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -35,11 +37,13 @@ from abstract.interval import *
 from objects.frame import *
 from objects.panel import *
 
+# [!not included in BP singlefile - end]
+
 class System:
     #Generic class for systems
     def __init__(self):
         self.name = None
-        self.id = helper.generateID()
+        self.id = generateID()
         self.polycurve = None
         self.direction: Vector3 = Vector3(1,0,0)
 
@@ -49,7 +53,7 @@ class DivisionSystem:
 
     def __init__(self):
         self.name = None
-        self.id = helper.generateID()
+        self.id = generateID()
         self.system_length: float = 100
         self.spacing: float = 10
         self.distance_first: float = 5
@@ -129,7 +133,7 @@ class RectangleSystem:
     #Reclangle Left Bottom is in Local XYZ. Main direction parallel to height direction vector. Top is z=0
     def __init__(self):
         self.name = None
-        self.id = helper.generateID()
+        self.id = generateID()
         self.height = 3000
         self.width = 2000
         self.bottom_frame_type = Rectangle("bottom_frame_type", 38, 184)

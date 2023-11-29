@@ -46,7 +46,7 @@ import helper
 
 class BoundingBox2d:
     def __init__(self):
-        self.id = helper.generateID()
+        self.id = generateID()
         self.points = []
         self.corners = []
         self.isClosed = True

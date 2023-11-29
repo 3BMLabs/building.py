@@ -43,7 +43,7 @@ import helper
 class PointCloud:
     def __init__(self, points) -> None:
         self.points = []
-        self.id = helper.generateID()
+        self.id = generateID()
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.points})"

@@ -1,4 +1,5 @@
 # [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -42,6 +43,7 @@ from geometry.curve import *
 from abstract.plane import *
 import helper
 
+# [!not included in BP singlefile - end]
 
 class Extrusion:
     #Extrude a 2D profile to a 3D mesh or solid
@@ -56,7 +58,7 @@ class Extrusion:
         self.topface = None #return polycurve -> surface
         self.bottomface = None #return polycurve -> surface
         self.polycurve_3d_translated = None
-        self.id = helper.generateID()
+        self.id = generateID()
 
     @classmethod
     def merge(self, extrusions:list, name=None):

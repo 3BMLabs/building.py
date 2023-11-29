@@ -37,7 +37,7 @@ class TickMark:
     #Dimension Tick Mark
     def __init(self):
         self.name = None
-        self.id = helper.generateID()
+        self.id = generateID()
         self.curves = []
 
     @staticmethod
@@ -52,7 +52,7 @@ TMDiagonal = TickMark.by_curves("diagonal",[Line(start = Point(-100,-100,0),end 
 class DimensionType:
     def __init__(self):
         self.name = None
-        self.id = helper.generateID()
+        self.id = generateID()
         self.font = None
         self.text_height = 2.5
         self.tick_mark: TickMark = TMDiagonal
@@ -78,7 +78,7 @@ class Dimension:
         self.start: Point = start
         self.text_height = 100
         self.end: Point = end
-        self.id = helper.generateID()
+        self.id = generateID()
         self.scale = 0.1 #text
         self.dimension_type: DimensionType = dimension_type
         self.curves = []

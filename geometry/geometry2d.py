@@ -1,4 +1,5 @@
 # [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -38,13 +39,12 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-import helper
+from helper import *
 from abstract.vector import Vector3
 from abstract.coordinatesystem import CoordinateSystem
 
-class curve:
-#Line2D, etc moet van class curve zijn. start end
-    pass
+# [!not included in BP singlefile - end]
+
 
 class Vector2:
     def __init__(self, x, y) -> None:
@@ -52,7 +52,7 @@ class Vector2:
         self.y: float = 0.0
         self.x = x
         self.y = y
-        self.id = helper.generateID()
+        self.id = generateID()
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -112,7 +112,7 @@ class Point2D:
         self.y: float = 0.0
         self.x = x
         self.y = y
-        self.id = helper.generateID()
+        self.id = generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -174,7 +174,7 @@ class Line2D:
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
         self.length = 0
-        self.id = helper.generateID()
+        self.id = generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -201,7 +201,7 @@ class Arc2D:
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
 
-        self.id = helper.generateID()
+        self.id = generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -284,7 +284,7 @@ class PolyCurve2D:
     def __init__(self) -> None:
         self.curves = [] #collect in list
         self.points2D = []
-        self.id = helper.generateID()
+        self.id = generateID()
 
     def __id__(self):
         return f"id:{self.id}"
@@ -390,7 +390,7 @@ class PolyCurve2D:
 class Surface2D:
     def __init__(self) -> None:
         pass #PolyCurve2D
-        self.id = helper.generateID()
+        self.id = generateID()
     pass #opening(PolyCurve2D)
         
     def __id__(self):
@@ -403,7 +403,7 @@ class Surface2D:
 class Profile2D:
     def __init__(self) -> None:
         pass #Surface2D, collect curves and add parameters
-        self.id = helper.generateID()
+        self.id = generateID()
     #voorzien van parameters
     #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
     pass
@@ -418,7 +418,7 @@ class Profile2D:
 class ParametricProfile2D:
     def __init__(self) -> None:
         pass #iets van profile hier inladen
-        self.id = helper.generateID()
+        self.id = generateID()
     # Aluminium
     # Generic
     # Precast Concrete

@@ -39,7 +39,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-import helper
+from helper import *
 # [!not included in BP singlefile - end]
 
 # from project.fileformat import project
@@ -54,7 +54,7 @@ class Point:
         self.y = y
         self.z = z
         self.value = self.x, self.y, self.z
-        self.id = helper.generateID()
+        self.id = generateID()
         self.units = "mm"
         
     def __str__(self) -> str:
@@ -179,8 +179,16 @@ class CoordinateSystem:
 
     @staticmethod
     def translate(CSOld, direction):
+        from abstract.vector import Vector3
         new_origin = Point.translate(CSOld.Origin, direction)
-        CSNew = CoordinateSystem(new_origin,xaxis=vector.XAxis,yaxis=vector.YAxis,zaxis=vector.ZAxis)
+        
+        XAxis = Vector3(1, 0, 0)
+
+        YAxis = Vector3(0, 1, 0)
+
+        ZAxis = Vector3(0, 0, 1)
+
+        CSNew = CoordinateSystem(new_origin,xaxis=XAxis,yaxis=YAxis,zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew

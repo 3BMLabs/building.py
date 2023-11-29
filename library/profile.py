@@ -34,6 +34,7 @@ __url__ = "./objects/profile.py"
 import sys
 from pathlib import Path
 import urllib.request
+import json
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]

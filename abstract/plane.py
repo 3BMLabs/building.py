@@ -1,5 +1,5 @@
 # [included in BP singlefile]
-# [!not included in BP singlefile- start]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -37,14 +37,14 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
-from geometry.point import Point as pnt
+from geometry.point import Point
 
 # [!not included in BP singlefile - end]
 
 class Plane:
     #Plane is an infinite element in space defined by a point and a normal
     def __init__(self):
-        self.Origin = pnt(0, 0, 0)
+        self.Origin = Point(0, 0, 0)
         self.Normal = Vector3(x=0, y=0, z=1)
         self.v1 = Vector3(x=1, y=0, z=0)
         self.v2 = Vector3(x=0, y=1, z=0)
