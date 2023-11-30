@@ -12,7 +12,7 @@ from objects.analytical import *
 from project.fileformat import project
 
 
-filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\scia_temp.xml"
+filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\_1.xml"
 
 project = BuildingPy("TempCommit", "0")
 
@@ -22,4 +22,3 @@ LoadXML(filepath, project)
 
 #send the loadxml objects back
 #so after send return the project.objects (start and end coords)
-#all objects information send back

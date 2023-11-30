@@ -115,10 +115,22 @@ class LoadXML:
             print(f"Justification: [{justification}] not recognized")
             return "center", "center"
 
+    def structuralElementRecognision(self, tag):
+        columnstrings = ["kolom", "column"]
+        for columnstring in columnstrings:
+            if columnstring.lower() in tag.lower():
+                return "Column"
+        return "Beam"
+
+
     def getStaaf(self):
         tableName = "EP_DSG_Elements.EP_Beam.1"
         h0 = "Naam"
+        h0Index = None
+
         h1 = "Laag"
+        h1Index = None
+
         h2 = "Loodrecht uitlijning"
         h3 = "LCS-rotatie"
         h3Index = None
@@ -153,20 +165,27 @@ class LoadXML:
                     for obj in table:
                         if obj.tag == "{http://www.scia.cz}h":
                             for index, header in enumerate(obj):
+                                if header.attrib["t"] == h0:
+                                    h0Index = index
+                                if header.attrib["t"] == h1:
+                                    h1Index = index
                                 if header.attrib["t"] == h3:
                                     h3Index = index
                                 if header.attrib["t"] == h4:
                                     h4Index = index
-                                elif header.attrib["t"] == h5:
+                                if header.attrib["t"] == h5:
                                     h5Index = index
-                                elif header.attrib["t"] == h6:
+                                if header.attrib["t"] == h6:
                                     h6Index = index
-                                elif header.attrib["t"] == h8:
+                                if header.attrib["t"] == h8:
                                     h8Index = index
-                                elif header.attrib["t"] == h9:
+                                if header.attrib["t"] == h9:
                                     h9Index = index
-                                elif header.attrib["t"] == h10:
+                                if header.attrib["t"] == h10:
                                     h10Index = index
+                            if h1Index == None:
+                                print("Incorrect Scia XML Export Template")
+                                sys.exit()
                         else:
                             rotationRAD = obj[h3Index].attrib["v"]
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
@@ -182,6 +201,8 @@ class LoadXML:
                             
                             lineSeg = Line(start=p1, end=p2)
                             
+                            layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
+
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -192,7 +213,7 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
