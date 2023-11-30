@@ -37,11 +37,12 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-import helper
+from helper import *
 
 
 class PointCloud:
     def __init__(self, points) -> None:
+        self.type = __class__.__name__        
         self.points = []
         self.id = generateID()
 

@@ -47,6 +47,7 @@ from abstract.coordinatesystem import *
 
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
+        self.type = __class__.__name__        
         self.start: Point = start
         self.end: Point = end
         self.id = generateID()
@@ -130,6 +131,7 @@ def create_lines(points):
 
 class PolyCurve:
     def __init__(self): #isclosed?
+        self.type = __class__.__name__        
         self.curves = []
         self.points = []
         self.segmentcurves = None
@@ -545,6 +547,7 @@ def RectYZ(vector: Vector3, width: float, height: float):
 
 class PolyGon:
     def __init__(self, lines) -> None:
+        self.type = __class__.__name__        
         self.Lines = lines#collect in list
         self.id = generateID()
         pass #Lines
@@ -574,6 +577,7 @@ class PolyGon:
 class Arc:
     def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
         self.id = generateID()
+        self.type = __class__.__name__        
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -697,6 +701,7 @@ def transformArc(Arcold,CSNew: CoordinateSystem):
 
 class Circle: #auto calculate length!
     def __init__(self, radius, plane, length) -> None:
+        self.type = __class__.__name__        
         self.radius = radius
         self.plane = plane
         self.length = length
@@ -712,6 +717,7 @@ class Circle: #auto calculate length!
 
 class Ellipse:
     def __init__(self, firstRadius, secondRadius, plane) -> None:
+        self.type = __class__.__name__        
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane

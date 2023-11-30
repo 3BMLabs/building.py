@@ -51,7 +51,7 @@ class Surface: #Polycurves must be closed!!!!!!!
         #self.innerPolyCurves
         if isinstance(PolyCurves, PolyCurve):
             PolyCurves = [PolyCurves]
-
+        self.type = __class__.__name__
         self.mesh = []
         self.length = 0
         self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
@@ -136,6 +136,7 @@ class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
     def __init__(self) -> None:
         pass
         self.id = generateID()
+        self.type = __class__.__name__        
     pass
 
     def __id__(self):
@@ -149,6 +150,7 @@ class PolySurface:
     def __init__(self) -> None:
         pass
         self.id = generateID()
+        self.type = __class__.__name__        
     pass
 
     def __id__(self):

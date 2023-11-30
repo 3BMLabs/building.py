@@ -48,6 +48,7 @@ import helper
 class Extrusion:
     #Extrude a 2D profile to a 3D mesh or solid
     def __init__(self):
+        self.type = __class__.__name__        
         self.verts = []
         self.faces = []
         self.numberFaces = 0

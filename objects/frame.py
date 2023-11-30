@@ -60,6 +60,7 @@ class Frame:
     # Frame
     def __init__(self):
         self.extrusion = None
+        self.type = __class__.__name__
         self.name = "none"
         self.profileName = "none"
         self.start = None

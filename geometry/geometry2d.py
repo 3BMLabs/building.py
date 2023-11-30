@@ -48,6 +48,7 @@ from abstract.coordinatesystem import CoordinateSystem
 
 class Vector2:
     def __init__(self, x, y) -> None:
+        self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -108,6 +109,7 @@ class Vector2:
 
 class Point2D:
     def __init__(self, x, y) -> None:
+        self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -167,6 +169,7 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
 
 class Line2D:
     def __init__(self, pntxy1, pntxy2) -> None:
+        self.type = __class__.__name__        
         self.start: Point2D = pntxy1
         self.end: Point2D = pntxy2
         self.x = [self.start.x, self.end.x]
@@ -192,6 +195,7 @@ class Line2D:
 
 class Arc2D:
     def __init__(self,pntxy1,pntxy2,pntxy3) -> None:
+        self.type = __class__.__name__        
         self.start:Point2D = pntxy1
         self.mid: Point2D = pntxy2
         self.end: Point2D = pntxy3
@@ -282,6 +286,7 @@ class Arc2D:
 
 class PolyCurve2D:
     def __init__(self) -> None:
+        self.type = __class__.__name__        
         self.curves = [] #collect in list
         self.points2D = []
         self.id = generateID()
@@ -391,6 +396,7 @@ class Surface2D:
     def __init__(self) -> None:
         pass #PolyCurve2D
         self.id = generateID()
+        self.type = __class__.__name__        
     pass #opening(PolyCurve2D)
         
     def __id__(self):
@@ -404,6 +410,7 @@ class Profile2D:
     def __init__(self) -> None:
         pass #Surface2D, collect curves and add parameters
         self.id = generateID()
+        self.type = __class__.__name__        
     #voorzien van parameters
     #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
     pass
@@ -417,7 +424,7 @@ class Profile2D:
 
 class ParametricProfile2D:
     def __init__(self) -> None:
-        pass #iets van profile hier inladen
+        self.type = __class__.__name__
         self.id = generateID()
     # Aluminium
     # Generic

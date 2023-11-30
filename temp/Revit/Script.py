@@ -1,9 +1,3 @@
-# Load the Python Standard and DesignScript Libraries
-import sys
-#import clr
-#clr.AddReference('ProtoGeometry')
-#from Autodesk.DesignScript.Geometry import *
-
 import sys, os, math
 from pathlib import Path
 import json

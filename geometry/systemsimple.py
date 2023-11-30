@@ -42,6 +42,7 @@ from objects.panel import *
 class System:
     #Generic class for systems
     def __init__(self):
+        self.type = __class__.__name__        
         self.name = None
         self.id = generateID()
         self.polycurve = None
@@ -52,6 +53,7 @@ class DivisionSystem:
     # This class provides divisionsystems. It returns lists with floats based on a length.
 
     def __init__(self):
+        self.type = __class__.__name__        
         self.name = None
         self.id = generateID()
         self.system_length: float = 100
@@ -132,6 +134,7 @@ class DivisionSystem:
 class RectangleSystem:
     #Reclangle Left Bottom is in Local XYZ. Main direction parallel to height direction vector. Top is z=0
     def __init__(self):
+        self.type = __class__.__name__        
         self.name = None
         self.id = generateID()
         self.height = 3000
@@ -256,5 +259,3 @@ class RectangleSystem:
 
 
 #   def geom_substem:
-
-
