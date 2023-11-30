@@ -7,11 +7,11 @@ import urllib.request
 import string
 import random
 import numpy as np
-from packages.svg.path import parse_path
+# from packages.svg.path import parse_path
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import ezdxf
+# import ezdxf
 
 
 
