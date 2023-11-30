@@ -1,3 +1,6 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
+
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -39,18 +42,33 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.point import Point
 from geometry.curve import Line
 
-# from specklepy.api.client import SpeckleClient
-# from specklepy.api.credentials import get_default_account
-# from specklepy.transports.server import ServerTransport
-# from specklepy.api import operations
+# [!not included in BP singlefile - end]
 
-# from specklepy.objects import Base
-# from specklepy.objects.geometry import Point as SpecklePoint
-# from specklepy.objects.geometry import Line as SpeckleLine
+#class CurveElement:
+#class PointElement (non visible) or visible as a big cube
 
-#convert from our line class to Revit line (3d model line)
+class StructuralElement:
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float):
+        validStructuralTypes = ["Column", "Beam"]
+        if structuralType not in validStructuralTypes:
+            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
+
+        self.structuralType = structuralType
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+        self.rotation = rotation
+        self.yJustification = yJustification
+        self.yOffsetValue = yOffsetValue
+        self.zJustification = zJustification
+        self.zOffsetValue = zOffsetValue
+
+    def __str__(self) -> str:
+        return f"[StructuralElement] {self.type}"
 
 
-#draw line in revit using specklepy
-
-
+def translateObjectsToRevitObjects(Obj):
+    RevitObj = []
+    for i in Obj:
+        if i.type == "Frame":
+            print("F")

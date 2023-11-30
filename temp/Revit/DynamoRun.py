@@ -328,6 +328,7 @@ ZAxis = Vector3(0, 0, 1)
 
 class Point:
     def __init__(self, x, y, z):
+        self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
@@ -441,6 +442,7 @@ class Point:
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
     def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+        self.type = __class__.__name__        
         self.Origin = origin
         self.Xaxis = xaxis
         self.Yaxis = yaxis
@@ -701,7 +703,7 @@ class BoundingBox3d:
 
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
-        self.type = __class__.__name__
+        self.type = __class__.__name__        
         self.start: Point = start
         self.end: Point = end
         self.id = generateID()
@@ -785,6 +787,7 @@ def create_lines(points):
 
 class PolyCurve:
     def __init__(self): #isclosed?
+        self.type = __class__.__name__        
         self.curves = []
         self.points = []
         self.segmentcurves = None
@@ -1195,6 +1198,7 @@ def RectYZ(vector: Vector3, width: float, height: float):
 
 class PolyGon:
     def __init__(self, lines) -> None:
+        self.type = __class__.__name__        
         self.Lines = lines#collect in list
         self.id = generateID()
         pass #Lines
@@ -1224,6 +1228,7 @@ class PolyGon:
 class Arc:
     def __init__(self, startPoint: Point, midPoint: Point, endPoint: Point):
         self.id = generateID()
+        self.type = __class__.__name__        
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -1347,6 +1352,7 @@ def transformArc(Arcold,CSNew: CoordinateSystem):
 
 class Circle: #auto calculate length!
     def __init__(self, radius, plane, length) -> None:
+        self.type = __class__.__name__        
         self.radius = radius
         self.plane = plane
         self.length = length
@@ -1362,6 +1368,7 @@ class Circle: #auto calculate length!
 
 class Ellipse:
     def __init__(self, firstRadius, secondRadius, plane) -> None:
+        self.type = __class__.__name__        
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane
@@ -1873,6 +1880,7 @@ class Text:
 
 class Vector2:
     def __init__(self, x, y) -> None:
+        self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -1933,6 +1941,7 @@ class Vector2:
 
 class Point2D:
     def __init__(self, x, y) -> None:
+        self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -1990,6 +1999,7 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
 
 class Line2D:
     def __init__(self, pntxy1, pntxy2) -> None:
+        self.type = __class__.__name__        
         self.start: Point2D = pntxy1
         self.end: Point2D = pntxy2
         self.x = [self.start.x, self.end.x]
@@ -2015,6 +2025,7 @@ class Line2D:
 
 class Arc2D:
     def __init__(self,pntxy1,pntxy2,pntxy3) -> None:
+        self.type = __class__.__name__        
         self.start:Point2D = pntxy1
         self.mid: Point2D = pntxy2
         self.end: Point2D = pntxy3
@@ -2105,6 +2116,7 @@ class Arc2D:
 
 class PolyCurve2D:
     def __init__(self) -> None:
+        self.type = __class__.__name__        
         self.curves = [] #collect in list
         self.points2D = []
         self.id = generateID()
@@ -2214,6 +2226,7 @@ class Surface2D:
     def __init__(self) -> None:
         pass #PolyCurve2D
         self.id = generateID()
+        self.type = __class__.__name__        
     pass #opening(PolyCurve2D)
         
     def __id__(self):
@@ -2227,6 +2240,7 @@ class Profile2D:
     def __init__(self) -> None:
         pass #Surface2D, collect curves and add parameters
         self.id = generateID()
+        self.type = __class__.__name__        
     #voorzien van parameters
     #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
     pass
@@ -2240,7 +2254,7 @@ class Profile2D:
 
 class ParametricProfile2D:
     def __init__(self) -> None:
-        pass #iets van profile hier inladen
+        self.type = __class__.__name__
         self.id = generateID()
     # Aluminium
     # Generic
@@ -2506,6 +2520,7 @@ def lineToPattern(baseline, patternobj):
 class Extrusion:
     #Extrude a 2D profile to a 3D mesh or solid
     def __init__(self):
+        self.type = __class__.__name__        
         self.verts = []
         self.faces = []
         self.numberFaces = 0
@@ -2693,7 +2708,7 @@ class Surface: #Polycurves must be closed!!!!!!!
         #self.innerPolyCurves
         if isinstance(PolyCurves, PolyCurve):
             PolyCurves = [PolyCurves]
-
+        self.type = __class__.__name__
         self.mesh = []
         self.length = 0
         self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
@@ -2778,6 +2793,7 @@ class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
     def __init__(self) -> None:
         pass
         self.id = generateID()
+        self.type = __class__.__name__        
     pass
 
     def __id__(self):
@@ -2791,6 +2807,7 @@ class PolySurface:
     def __init__(self) -> None:
         pass
         self.id = generateID()
+        self.type = __class__.__name__        
     pass
 
     def __id__(self):
@@ -2803,6 +2820,7 @@ class PolySurface:
 class System:
     #Generic class for systems
     def __init__(self):
+        self.type = __class__.__name__        
         self.name = None
         self.id = generateID()
         self.polycurve = None
@@ -2813,6 +2831,7 @@ class DivisionSystem:
     # This class provides divisionsystems. It returns lists with floats based on a length.
 
     def __init__(self):
+        self.type = __class__.__name__        
         self.name = None
         self.id = generateID()
         self.system_length: float = 100
@@ -2893,6 +2912,7 @@ class DivisionSystem:
 class RectangleSystem:
     #Reclangle Left Bottom is in Local XYZ. Main direction parallel to height direction vector. Top is z=0
     def __init__(self):
+        self.type = __class__.__name__        
         self.name = None
         self.id = generateID()
         self.height = 3000
@@ -3017,9 +3037,6 @@ class RectangleSystem:
 
 
 #   def geom_substem:
-
-
-
 
 
 def rgb_to_int(rgb):
@@ -6001,15 +6018,54 @@ class LoadXML:
                                             self.unrecognizedElements.append(elementType)
                                         print(e, elementType)
 
+
+#class CurveElement:
+#class PointElement (non visible) or visible as a big cube
+
+class StructuralElement:
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float):
+        validStructuralTypes = ["Column", "Beam"]
+        if structuralType not in validStructuralTypes:
+            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
+
+        self.structuralType = structuralType
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+        self.rotation = rotation
+        self.yJustification = yJustification
+        self.yOffsetValue = yOffsetValue
+        self.zJustification = zJustification
+        self.zOffsetValue = zOffsetValue
+
+    def __str__(self) -> str:
+        return f"[StructuralElement] {self.type}"
+
+
+
+def translateObjectsToRevitObjects(Obj):
+    RevitObj = []
+    for i in Obj:
+        if i.type == "Frame":
+            element = StructuralElement()
+            RevitObj.append()
+
 outlist = []
 def run():
     project = BuildingPy("TempCommit", "0")
     # LoadXML(IN[0], project)
 
     LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
-    for obj in project.objects:
-        print(obj.type)
-    return project.objects
+    translateObjectsToRevitObjects(project.objects)
+    # for obj in project.objects:
+        
+    #     if obj.type == "Frame":
+    #         print(obj.type)
+    #         print(obj.name)
+    #         print(obj.rotation)
+    #         outlist.append(obj.name)
+    # return project.objects
 
-OUT = run()
-print(OUT)
+run()
+OUT = outlist
+print(OUT)        

@@ -63,6 +63,7 @@ class Frame:
         self.type = __class__.__name__
         self.name = "none"
         self.profileName = "none"
+        self.structuralType = None
         self.start = None
         self.end = None
         self.curve = None # 2D polycurve of the sectionprofile

@@ -43,7 +43,8 @@ pythonfiles = \
     "objects/view.py",
     "exchange/DXF.py",
     "exchange/struct4U.py",
-    "exchange/scia.py"
+    "exchange/scia.py",
+    "exchange/revit.py"
     ]
 
 BuildingPySingleFileStr = ""
