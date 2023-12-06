@@ -6022,6 +6022,10 @@ class LoadXML:
 #class CurveElement:
 #class PointElement (non visible) or visible as a big cube
 
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
+
 class StructuralElement:
     def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float):
         validStructuralTypes = ["Column", "Beam"]
@@ -6043,29 +6047,36 @@ class StructuralElement:
 
 
 
-def translateObjectsToRevitObjects(Obj):
-    RevitObj = []
-    for i in Obj:
-        if i.type == "Frame":
-            element = StructuralElement()
-            RevitObj.append()
+# def translateObjectsToRevitObjects(Obj):
+#     RevitObj = []
+#     for i in Obj:
+#         if i.type == "Frame":
+#             element = StructuralElement()
+#             RevitObj.append()
 
-outlist = []
+#converter if beam or column.
+
+objs = []
 def run():
     project = BuildingPy("TempCommit", "0")
     # LoadXML(IN[0], project)
 
     LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
-    translateObjectsToRevitObjects(project.objects)
-    # for obj in project.objects:
+    # translateObjectsToRevitObjects(project.objects)
+    for obj in project.objects:
         
-    #     if obj.type == "Frame":
-    #         print(obj.type)
-    #         print(obj.name)
-    #         print(obj.rotation)
-    #         outlist.append(obj.name)
-    # return project.objects
+        if obj.type == "Frame":
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset)
+            objs.append(element)
+    return project.objects
 
 run()
-OUT = outlist
+
+
+
+
+
+
+
+OUT = objs
 print(OUT)        

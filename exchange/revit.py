@@ -67,6 +67,11 @@ class StructuralElement:
         return f"[StructuralElement] {self.type}"
 
 
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
+
+
 def translateObjectsToRevitObjects(Obj):
     RevitObj = []
     for i in Obj:
