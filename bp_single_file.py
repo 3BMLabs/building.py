@@ -3751,7 +3751,7 @@ class Frame:
     # Frame
     def __init__(self):
         self.extrusion = None
-        self.id = id
+        self.comments = None
         self.type = __class__.__name__
         self.name = "none"
         self.profileName = "none"
@@ -3779,9 +3779,10 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material):
+    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material, comments: None):
         
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -3802,8 +3803,9 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material = None):
+    def byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -3831,9 +3833,9 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, id = None):
+    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, comments = None):
         f1 = Frame()
-        f1.id = id
+        f1.comments = comments
         f1.start = start
         f1.end = end
         f1.structuralType = structuralType
@@ -3869,9 +3871,10 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpoint(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material = None):
+    def byStartpointEndpoint(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material = None, comments=None):
         # 2D polycurve
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -3890,9 +3893,10 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_height_rotation(cls, start: Point, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material = None):
+    def by_point_height_rotation(cls, start: Point, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material = None, comments=None):
         # 2D polycurve
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = Point.translate(start,Vector3(0,0.00001,height))
         # self.curve = Line(start, end)
@@ -3911,8 +3915,9 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_profile_height_rotation(cls, start: Point, height: float, profile_name: str, rotation: float, material = None):
+    def by_point_profile_height_rotation(cls, start: Point, height: float, profile_name: str, rotation: float, material = None, comments=None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = Point.translate(start,Vector3(0,0.00001,height)) #TODO vertical column not possible
         # self.curve = Line(start, end)
@@ -3934,8 +3939,9 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpointCurveJustifiction(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None):
+    def byStartpointEndpointCurveJustifiction(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, comments=None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -5864,6 +5870,22 @@ class xmlXFEM4U:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
 
+class Scia_Params:
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str):
+        self.id = id
+        self.name = name
+        self.layer = layer
+        self.perpendicular_alignment = perpendicular_alignment
+        self.lcs_rotation = lcs_rotation
+        self.start_node = start_node
+        self.end_node = end_node
+        self.cross_section = cross_section
+        self.eem_type = eem_type
+        self.bar_system_line_on = bar_system_line_on
+        self.ey = ey
+        self.ez = ez
+        self.geometry_table = geometry_table
+
 
 class LoadXML:
     def __init__(self, filename=str, project=BuildingPy):
@@ -5950,6 +5972,7 @@ class LoadXML:
 
     def getStaaf(self):
         tableName = "EP_DSG_Elements.EP_Beam.1"
+
         h0 = "Naam"
         h0Index = None
 
@@ -5957,6 +5980,8 @@ class LoadXML:
         h1Index = None
 
         h2 = "Loodrecht uitlijning"
+        h2Index = None
+
         h3 = "LCS-rotatie"
         h3Index = None
 
@@ -5970,6 +5995,7 @@ class LoadXML:
         h6Index = None
 
         h7 = "EEM-type"
+        h7Index = None
 
         h8 = "Staafsysteemlijn op"
         h8Index = None
@@ -5981,6 +6007,7 @@ class LoadXML:
         h10Index = None
 
         h11 = "Tabel van geometrie"
+        h11Index = None
 
         removeLayers = ["dummy"]
 
@@ -6008,10 +6035,28 @@ class LoadXML:
                                     h9Index = index
                                 if header.attrib["t"] == h10:
                                     h10Index = index
+                                if header.attrib["t"] == h11:
+                                    h11Index = index
                             if h1Index == None:
                                 print("Incorrect Scia XML Export Template")
                                 sys.exit()
                         else:
+                            #define here
+                            comments = Scia_Params()
+                            comments.id = str(obj.attrib["id"])
+                            comments.name = obj[h0Index].attrib["v"]
+                            comments.layer = obj[h1Index].attrib["n"]
+                            comments.perpendicular_alignment = obj[h2Index].attrib["t"]
+                            comments.lcs_rotation = obj[h3Index].attrib["v"]
+                            comments.start_node = obj[h4Index].attrib["n"]
+                            comments.end_node = obj[h5Index].attrib["n"]
+                            comments.cross_section = obj[h6Index].attrib["n"]
+                            comments.eem_type = obj[h7Index].attrib["t"]
+                            comments.bar_system_line_on = obj[h8Index].attrib["t"]
+                            comments.ey = obj[h9Index].attrib["v"]
+                            comments.ez = obj[h10Index].attrib["v"]
+                            comments.geometry_table = obj[h11Index].attrib["t"]
+
                             rotationRAD = obj[h3Index].attrib["v"]
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
                             # print(rotationDEG)
@@ -6027,7 +6072,7 @@ class LoadXML:
                             lineSeg = Line(start=p1, end=p2)
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
-                            id = obj.attrib["id"]
+
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -6038,7 +6083,7 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, id))                                        
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)

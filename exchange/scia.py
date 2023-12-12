@@ -44,7 +44,7 @@ from project.fileformat import BuildingPy
 
 # [!not included in BP singlefile - end]
 class Scia_Params:
-    def __init__(self, id=str, name, layer, perpendicular_alignment, lcs_rotation, start_node, end_node, cross_section, eem_type, bar_system_line_on, ey, ez, geometry_table):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str):
         self.id = id
         self.name = name
         self.layer = layer
@@ -145,6 +145,7 @@ class LoadXML:
 
     def getStaaf(self):
         tableName = "EP_DSG_Elements.EP_Beam.1"
+
         h0 = "Naam"
         h0Index = None
 
@@ -152,6 +153,8 @@ class LoadXML:
         h1Index = None
 
         h2 = "Loodrecht uitlijning"
+        h2Index = None
+
         h3 = "LCS-rotatie"
         h3Index = None
 
@@ -165,6 +168,7 @@ class LoadXML:
         h6Index = None
 
         h7 = "EEM-type"
+        h7Index = None
 
         h8 = "Staafsysteemlijn op"
         h8Index = None
@@ -176,6 +180,7 @@ class LoadXML:
         h10Index = None
 
         h11 = "Tabel van geometrie"
+        h11Index = None
 
         removeLayers = ["dummy"]
 
@@ -203,10 +208,28 @@ class LoadXML:
                                     h9Index = index
                                 if header.attrib["t"] == h10:
                                     h10Index = index
+                                if header.attrib["t"] == h11:
+                                    h11Index = index
                             if h1Index == None:
                                 print("Incorrect Scia XML Export Template")
                                 sys.exit()
                         else:
+                            #define here
+                            comments = Scia_Params()
+                            comments.id = str(obj.attrib["id"])
+                            comments.name = obj[h0Index].attrib["v"]
+                            comments.layer = obj[h1Index].attrib["n"]
+                            comments.perpendicular_alignment = obj[h2Index].attrib["t"]
+                            comments.lcs_rotation = obj[h3Index].attrib["v"]
+                            comments.start_node = obj[h4Index].attrib["n"]
+                            comments.end_node = obj[h5Index].attrib["n"]
+                            comments.cross_section = obj[h6Index].attrib["n"]
+                            comments.eem_type = obj[h7Index].attrib["t"]
+                            comments.bar_system_line_on = obj[h8Index].attrib["t"]
+                            comments.ey = obj[h9Index].attrib["v"]
+                            comments.ez = obj[h10Index].attrib["v"]
+                            comments.geometry_table = obj[h11Index].attrib["t"]
+
                             rotationRAD = obj[h3Index].attrib["v"]
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
                             # print(rotationDEG)
@@ -222,10 +245,6 @@ class LoadXML:
                             lineSeg = Line(start=p1, end=p2)
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
-                            #define here
-                            comments = Scia_Params()
-                            comments.layer = "Nan"
-
 
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
