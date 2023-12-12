@@ -6108,19 +6108,19 @@ class LoadXML:
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
+                            p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
                             #TEMP
                             p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
 
                             node1 = Node()
                             node1.number = p1Number
                             node1.point = p1
-                            node1.number = 0
                             self.project.objects.append(node1)
                             # print(node1)
 
                             node2 = Node()
                             node2.point = p2
-                            node2.number = 0
+                            node2.number = p2Number
                             self.project.objects.append(node2)
 
                             ey = float(obj[h9Index].attrib["v"]) * -project.scale
