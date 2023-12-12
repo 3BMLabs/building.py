@@ -194,6 +194,8 @@ class LoadXML:
                                     h0Index = index
                                 if header.attrib["t"] == h1:
                                     h1Index = index
+                                if header.attrib["t"] == h2:
+                                    h2Index = index
                                 if header.attrib["t"] == h3:
                                     h3Index = index
                                 if header.attrib["t"] == h4:
@@ -202,6 +204,8 @@ class LoadXML:
                                     h5Index = index
                                 if header.attrib["t"] == h6:
                                     h6Index = index
+                                if header.attrib["t"] == h7:
+                                    h7Index = index
                                 if header.attrib["t"] == h8:
                                     h8Index = index
                                 if header.attrib["t"] == h9:
@@ -217,18 +221,18 @@ class LoadXML:
                             #define here
                             comments = Scia_Params()
                             comments.id = str(obj.attrib["id"])
-                            comments.name = obj[h0Index].attrib["v"]
-                            comments.layer = obj[h1Index].attrib["n"]
-                            comments.perpendicular_alignment = obj[h2Index].attrib["t"]
-                            comments.lcs_rotation = obj[h3Index].attrib["v"]
-                            comments.start_node = obj[h4Index].attrib["n"]
-                            comments.end_node = obj[h5Index].attrib["n"]
-                            comments.cross_section = obj[h6Index].attrib["n"]
-                            comments.eem_type = obj[h7Index].attrib["t"]
-                            comments.bar_system_line_on = obj[h8Index].attrib["t"]
-                            comments.ey = obj[h9Index].attrib["v"]
-                            comments.ez = obj[h10Index].attrib["v"]
-                            comments.geometry_table = obj[h11Index].attrib["t"]
+                            comments.name = str(obj[h0Index].attrib["v"])
+                            comments.layer = str(obj[h1Index].attrib["n"])
+                            comments.perpendicular_alignment = str(obj[h2Index].attrib["t"])
+                            comments.lcs_rotation = str(obj[h3Index].attrib["v"])
+                            comments.start_node = str(obj[h4Index].attrib["n"])
+                            comments.end_node = str(obj[h5Index].attrib["n"])
+                            comments.cross_section = str(obj[h6Index].attrib["n"])
+                            comments.eem_type = str(obj[h7Index].attrib["t"])
+                            comments.bar_system_line_on = str(obj[h8Index].attrib["t"])
+                            comments.ey = str(obj[h9Index].attrib["v"])
+                            comments.ez = str(obj[h10Index].attrib["v"])
+                            comments.geometry_table = str(obj[h11Index].attrib["t"])
 
                             rotationRAD = obj[h3Index].attrib["v"]
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1

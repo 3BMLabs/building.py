@@ -50,11 +50,11 @@ from exchange.scia import *
 #class PointElement (non visible) or visible as a big cube
 
 class StructuralElement:
-    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, id : None):
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, comments : None):
         validStructuralTypes = ["Column", "Beam"]
         if structuralType not in validStructuralTypes:
             raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
-        self.id = id or None
+        self.comments = comments or None
         self.structuralType = structuralType
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -82,7 +82,7 @@ def run():
     for obj in project.objects:
         
         if obj.type == "Frame":
-            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.id)
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
             objs.append(element)
     return project.objects
 
