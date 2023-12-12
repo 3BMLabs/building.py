@@ -72,6 +72,8 @@ class profiledataToShape:
     def __init__(self, name1, segmented = False):
         from geometry.curve import PolyCurve
         profile_data = searchProfile(name1)
+        if profile_data == None:
+            print(f"profile {name1} not recognised")
         shape_name = profile_data.shape_name
         self.shape_name = shape_name
         name = profile_data.name

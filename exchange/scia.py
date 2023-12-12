@@ -264,4 +264,4 @@ class LoadXML:
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        # print(e, elementType)
+                                        print(e, elementType)
