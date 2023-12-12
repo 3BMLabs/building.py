@@ -60,6 +60,7 @@ class Frame:
     # Frame
     def __init__(self):
         self.extrusion = None
+        self.comments = None
         self.type = __class__.__name__
         self.name = "none"
         self.profileName = "none"
@@ -87,11 +88,12 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material):
+    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material, comments: None):
         # [!not included in BP singlefile - start]
         from library.profile import profiledataToShape
         # [!not included in BP singlefile - end]
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -112,8 +114,9 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material = None):
+    def byStartpointEndpointProfileNameShapevector(cls, start: Point, end: Point, profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -141,8 +144,9 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str):
+    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, comments = None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         f1.structuralType = structuralType
@@ -178,9 +182,10 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpoint(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material = None):
+    def byStartpointEndpoint(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material = None, comments=None):
         # 2D polycurve
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)
@@ -199,9 +204,10 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_height_rotation(cls, start: Point, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material = None):
+    def by_point_height_rotation(cls, start: Point, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material = None, comments=None):
         # 2D polycurve
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = Point.translate(start,Vector3(0,0.00001,height))
         # self.curve = Line(start, end)
@@ -220,8 +226,9 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_profile_height_rotation(cls, start: Point, height: float, profile_name: str, rotation: float, material = None):
+    def by_point_profile_height_rotation(cls, start: Point, height: float, profile_name: str, rotation: float, material = None, comments=None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = Point.translate(start,Vector3(0,0.00001,height)) #TODO vertical column not possible
         # self.curve = Line(start, end)
@@ -243,8 +250,9 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpointCurveJustifiction(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None):
+    def byStartpointEndpointCurveJustifiction(cls, start: Point, end: Point, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, comments=None):
         f1 = Frame()
+        f1.comments = comments
         f1.start = start
         f1.end = end
         # self.curve = Line(start, end)

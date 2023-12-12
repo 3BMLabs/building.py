@@ -41,6 +41,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import Line
+from objects.frame import *
+from exchange.scia import *
 
 # [!not included in BP singlefile - end]
 
@@ -48,11 +50,11 @@ from geometry.curve import Line
 #class PointElement (non visible) or visible as a big cube
 
 class StructuralElement:
-    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float):
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, id : None):
         validStructuralTypes = ["Column", "Beam"]
         if structuralType not in validStructuralTypes:
             raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
-
+        self.id = id or None
         self.structuralType = structuralType
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -71,9 +73,19 @@ def mm_to_feet(mm_value):
     feet_value = mm_value * 0.00328084
     return feet_value
 
+objs = []
+def run():
+    project = BuildingPy("TempCommit", "0")
+    LoadXML(IN[0], project)
 
-def translateObjectsToRevitObjects(Obj):
-    RevitObj = []
-    for i in Obj:
-        if i.type == "Frame":
-            print("F")
+    # LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
+    for obj in project.objects:
+        
+        if obj.type == "Frame":
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.id)
+            objs.append(element)
+    return project.objects
+
+run()
+
+OUT = objs  

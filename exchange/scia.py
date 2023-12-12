@@ -37,11 +37,28 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
+from objects.shape3d import *
 from objects.frame import *
 from objects.analytical import *
 from project.fileformat import BuildingPy
 
 # [!not included in BP singlefile - end]
+class Scia_Params:
+    def __init__(self, id=str, name, layer, perpendicular_alignment, lcs_rotation, start_node, end_node, cross_section, eem_type, bar_system_line_on, ey, ez, geometry_table):
+        self.id = id
+        self.name = name
+        self.layer = layer
+        self.perpendicular_alignment = perpendicular_alignment
+        self.lcs_rotation = lcs_rotation
+        self.start_node = start_node
+        self.end_node = end_node
+        self.cross_section = cross_section
+        self.eem_type = eem_type
+        self.bar_system_line_on = bar_system_line_on
+        self.ey = ey
+        self.ez = ez
+        self.geometry_table = geometry_table
+
 
 class LoadXML:
     def __init__(self, filename=str, project=BuildingPy):
@@ -89,7 +106,10 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             x, y, z = float(obj[1].attrib["v"])*self.project.scale, float(obj[2].attrib["v"])*self.project.scale, float(obj[3].attrib["v"])*self.project.scale
-                            return Point(x,y,z)
+                            pt = Point(x,y,z)
+                            # sph = Sphere(pt, 50, obj.attrib["nm"], None)
+                            # project.objects.append(sph)
+                            return pt
 
     def convertJustification(self, justification):
         justification = justification.lower()
@@ -202,6 +222,10 @@ class LoadXML:
                             lineSeg = Line(start=p1, end=p2)
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
+                            #define here
+                            comments = Scia_Params()
+                            comments.layer = "Nan"
+
 
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
@@ -213,8 +237,8 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType))                                        
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
+                                        # print(e, elementType)

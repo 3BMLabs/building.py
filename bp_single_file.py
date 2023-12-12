@@ -3751,6 +3751,7 @@ class Frame:
     # Frame
     def __init__(self):
         self.extrusion = None
+        self.id = id
         self.type = __class__.__name__
         self.name = "none"
         self.profileName = "none"
@@ -3830,8 +3831,9 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str):
+    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, id = None):
         f1 = Frame()
+        f1.id = id
         f1.start = start
         f1.end = end
         f1.structuralType = structuralType
@@ -4318,8 +4320,6 @@ class Arrowshape:
 
         def __str__(self):
             return "Profile(" + f"{self.name})"
-
-
 
 
 sqrt2 = math.sqrt(2)
@@ -5911,7 +5911,10 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             x, y, z = float(obj[1].attrib["v"])*self.project.scale, float(obj[2].attrib["v"])*self.project.scale, float(obj[3].attrib["v"])*self.project.scale
-                            return Point(x,y,z)
+                            pt = Point(x,y,z)
+                            # sph = Sphere(pt, 50, obj.attrib["nm"], None)
+                            # project.objects.append(sph)
+                            return pt
 
     def convertJustification(self, justification):
         justification = justification.lower()
@@ -6024,7 +6027,7 @@ class LoadXML:
                             lineSeg = Line(start=p1, end=p2)
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
-
+                            id = obj.attrib["id"]
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -6035,22 +6038,22 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType))                                        
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, id))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
+                                        # print(e, elementType)
 
 
 #class CurveElement:
 #class PointElement (non visible) or visible as a big cube
 
 class StructuralElement:
-    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float):
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, id : None):
         validStructuralTypes = ["Column", "Beam"]
         if structuralType not in validStructuralTypes:
             raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
-
+        self.id = id or None
         self.structuralType = structuralType
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -6065,27 +6068,23 @@ class StructuralElement:
         return f"[StructuralElement] {self.type}"
 
 
-def translateObjectsToRevitObjects(Obj):
-    RevitObj = []
-    for i in Obj:
-        if i.type == "Frame":
-            ele = StructuralElement(i.structuralType, i.start, i.end, i.name, i.rotation, i.YJustification, 0, i.ZJustification, 0)
-            RevitObj.append()
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
 
-
-outlist = []
+objs = []
 def run():
     project = BuildingPy("TempCommit", "0")
-    # LoadXML(IN[0], project)
+    LoadXML(IN[0], project)
 
-    LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\_1.xml", project)
-    # for obj in project.objects:
-    RevitObj = translateObjectsToRevitObjects(project.objects)
-    #     if obj.type == "Frame":
-    #         print(obj.type)
-    #         print(obj.name)
-    #         print(obj.rotation)
-    #         print(obj.structuralType)
-    return RevitObj
+    # LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
+    for obj in project.objects:
+        
+        if obj.type == "Frame":
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.id)
+            objs.append(element)
+    return project.objects
 
-OUT = run()
+run()
+
+OUT = objs  

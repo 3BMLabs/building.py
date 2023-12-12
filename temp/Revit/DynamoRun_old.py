@@ -3754,6 +3754,7 @@ class Frame:
         self.type = __class__.__name__
         self.name = "none"
         self.profileName = "none"
+        self.structuralType = None
         self.start = None
         self.end = None
         self.curve = None # 2D polycurve of the sectionprofile
@@ -3829,10 +3830,11 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float):
+    def byStartpointEndpointProfileNameJustifiction(cls, start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str):
         f1 = Frame()
         f1.start = start
         f1.end = end
+        f1.structuralType = structuralType
         # self.curve = Line(start, end)
         f1.rotation = rotation
 
@@ -5935,10 +5937,22 @@ class LoadXML:
             print(f"Justification: [{justification}] not recognized")
             return "center", "center"
 
+    def structuralElementRecognision(self, tag):
+        columnstrings = ["kolom", "column"]
+        for columnstring in columnstrings:
+            if columnstring.lower() in tag.lower():
+                return "Column"
+        return "Beam"
+
+
     def getStaaf(self):
         tableName = "EP_DSG_Elements.EP_Beam.1"
         h0 = "Naam"
+        h0Index = None
+
         h1 = "Laag"
+        h1Index = None
+
         h2 = "Loodrecht uitlijning"
         h3 = "LCS-rotatie"
         h3Index = None
@@ -5973,20 +5987,27 @@ class LoadXML:
                     for obj in table:
                         if obj.tag == "{http://www.scia.cz}h":
                             for index, header in enumerate(obj):
+                                if header.attrib["t"] == h0:
+                                    h0Index = index
+                                if header.attrib["t"] == h1:
+                                    h1Index = index
                                 if header.attrib["t"] == h3:
                                     h3Index = index
                                 if header.attrib["t"] == h4:
                                     h4Index = index
-                                elif header.attrib["t"] == h5:
+                                if header.attrib["t"] == h5:
                                     h5Index = index
-                                elif header.attrib["t"] == h6:
+                                if header.attrib["t"] == h6:
                                     h6Index = index
-                                elif header.attrib["t"] == h8:
+                                if header.attrib["t"] == h8:
                                     h8Index = index
-                                elif header.attrib["t"] == h9:
+                                if header.attrib["t"] == h9:
                                     h9Index = index
-                                elif header.attrib["t"] == h10:
+                                if header.attrib["t"] == h10:
                                     h10Index = index
+                            if h1Index == None:
+                                print("Incorrect Scia XML Export Template")
+                                sys.exit()
                         else:
                             rotationRAD = obj[h3Index].attrib["v"]
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
@@ -6002,6 +6023,8 @@ class LoadXML:
                             
                             lineSeg = Line(start=p1, end=p2)
                             
+                            layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
+
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -6012,7 +6035,7 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez))                                        
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
@@ -6021,10 +6044,6 @@ class LoadXML:
 
 #class CurveElement:
 #class PointElement (non visible) or visible as a big cube
-
-def mm_to_feet(mm_value):
-    feet_value = mm_value * 0.00328084
-    return feet_value
 
 class StructuralElement:
     def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float):
@@ -6046,23 +6065,16 @@ class StructuralElement:
         return f"[StructuralElement] {self.type}"
 
 
-
-# def translateObjectsToRevitObjects(Obj):
-#     RevitObj = []
-#     for i in Obj:
-#         if i.type == "Frame":
-#             element = StructuralElement()
-#             RevitObj.append()
-
-#converter if beam or column.
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
 
 objs = []
 def run():
     project = BuildingPy("TempCommit", "0")
-    # LoadXML(IN[0], project)
+    LoadXML(IN[0], project)
 
-    LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
-    # translateObjectsToRevitObjects(project.objects)
+    # LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
     for obj in project.objects:
         
         if obj.type == "Frame":
@@ -6072,11 +6084,4 @@ def run():
 
 run()
 
-
-
-
-
-
-
-OUT = objs
-print(OUT)        
+OUT = objs  

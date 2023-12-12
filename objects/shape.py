@@ -240,4 +240,3 @@ class Arrowshape:
 
         def __str__(self):
             return "Profile(" + f"{self.name})"
-
