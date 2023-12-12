@@ -38,18 +38,30 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
 from geometry.point import Point
+from project.fileformat import *
 
 # [!not included in BP singlefile - end]
 
 class Node:
-    def __init__(self, id, point:None=Point, vector:None=Vector3, number:None=int, diameter:None=str, comments=None):
-        self.id = id
+    def __init__(self, point:None=Point, vector:None=Vector3, number:None=int, diameter:None=str, comments=None):
+        self.id = generateID()
         self.type = self.__class__.__name__
         self.point = point
         self.vector = vector
         self.number = number
-        self.diameter = diameter
+        self.diameter = project.node_diameter
         self.comments = comments
+    
+    #merge
+    def merge(self):
+        if project.node_merge == True:
+            pass
+        else:
+            pass
+
+    #snap
+    def snap(self):
+        pass
 
     def __str__(self) -> str:
-        return f"[StructuralElement] {self.type}"
+        return f"{self.type}"

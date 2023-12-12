@@ -65,6 +65,11 @@ class BuildingPy:
         self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
 
+        #nodes
+        self.node_merge = True #False not yet created
+        self.node_diameter = 250
+        self.node_threshold = 50
+        
         #text
         self.createdTxt = "has been created"
 

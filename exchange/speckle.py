@@ -139,6 +139,7 @@ def GridToLines(Grid):
         SpeckleLines.append(SpeckleLine(applicationId = project.applicationId, start = PointToSpecklePoint(i.start), end = PointToSpecklePoint(i.end), units = project.units))
     return SpeckleLines
 
+
 def GridSystemToLines(GridSystem):
     SpeckleLines = []
     for j in GridSystem.gridsX:
@@ -146,6 +147,7 @@ def GridSystemToLines(GridSystem):
     for k in GridSystem.gridsY:
         SpeckleLines.append(GridToLines(k))
     return SpeckleLines
+
 
 def Point2DToSpecklePoint(Point2D: Point2D):
     SpecklePnt = SpecklePoint.from_coords(Point2D.x, Point2D.y, 0)
@@ -177,7 +179,6 @@ def SpeckleMeshByImage(img):
 
 
 def ArcToSpeckleArc(arc: Arc):
-
     speckle_plane = SpecklePlane(
         origin = PointToSpecklePoint(arc.plane.Origin),
         normal = VectorToSpeckleVector(arc.plane.Normal),
@@ -299,6 +300,9 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Point':
             SpeckleObj.append(PointToSpecklePoint(i))
 
+        elif nm == 'Node':
+            SpeckleObj.append(PointToSpecklePoint(i.point))
+            
 #        elif nm == 'Text' or 'Text2':
 #            SpeckleObj.append(TextToSpeckleCurveSurface(i))
 

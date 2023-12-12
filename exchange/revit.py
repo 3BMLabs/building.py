@@ -84,6 +84,8 @@ def run():
         if obj.type == "Frame":
             element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
             objs.append(element)
+        elif obj.type == "Node":
+            objs.append(obj)
     return project.objects
 
 run()

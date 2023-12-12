@@ -546,6 +546,11 @@ class BuildingPy:
         self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
 
+        #nodes
+        self.node_merge = True #False not yet created
+        self.node_diameter = 250
+        self.node_threshold = 50
+        
         #text
         self.createdTxt = "has been created"
 
@@ -1383,6 +1388,31 @@ class Ellipse:
         return f"{__class__.__name__}({self})"
 
 
+
+
+class Node:
+    def __init__(self, point:None=Point, vector:None=Vector3, number:None=int, diameter:None=str, comments=None):
+        self.id = generateID()
+        self.type = self.__class__.__name__
+        self.point = point
+        self.vector = vector
+        self.number = number
+        self.diameter = project.node_diameter
+        self.comments = comments
+    
+    #merge
+    def merge(self):
+        if project.node_merge == True:
+            pass
+        else:
+            pass
+
+    #snap
+    def snap(self):
+        pass
+
+    def __str__(self) -> str:
+        return f"{self.type}"
 
 class Color:
 	"""Documentation: output returns [r, g, b]"""
@@ -3095,6 +3125,8 @@ class searchProfile:
 class profiledataToShape:
     def __init__(self, name1, segmented = False):
         profile_data = searchProfile(name1)
+        if profile_data == None:
+            print(f"profile {name1} not recognised")
         shape_name = profile_data.shape_name
         self.shape_name = shape_name
         name = profile_data.name
@@ -5934,9 +5966,17 @@ class LoadXML:
                         if obj.attrib["nm"] == name:
                             x, y, z = float(obj[1].attrib["v"])*self.project.scale, float(obj[2].attrib["v"])*self.project.scale, float(obj[3].attrib["v"])*self.project.scale
                             pt = Point(x,y,z)
-                            # sph = Sphere(pt, 50, obj.attrib["nm"], None)
-                            # project.objects.append(sph)
                             return pt
+
+    def findKnoopNumber(self, name):
+        tableName = "EP_DSG_Elements.EP_StructNode.1"
+        for container in self.root:
+            for table in container:
+                if table.attrib["t"] == tableName:
+                    for obj in table.iter("{http://www.scia.cz}obj"):
+                        if obj.attrib["nm"] == name:
+                            return obj.attrib["nm"]
+                        
 
     def convertJustification(self, justification):
         justification = justification.lower()
@@ -6066,9 +6106,22 @@ class LoadXML:
                             # print(rotationDEG)
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
+                            p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             #TEMP
                             p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
+
+                            node1 = Node()
+                            node1.number = p1Number
+                            node1.point = p1
+                            node1.number = 0
+                            self.project.objects.append(node1)
+                            # print(node1)
+
+                            node2 = Node()
+                            node2.point = p2
+                            node2.number = 0
+                            self.project.objects.append(node2)
 
                             ey = float(obj[h9Index].attrib["v"]) * -project.scale
                             ez = float(obj[h10Index].attrib["v"]) * project.scale
@@ -6091,7 +6144,7 @@ class LoadXML:
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        # print(e, elementType)
+                                        print(e, elementType)
 
 
 #class CurveElement:
@@ -6132,6 +6185,8 @@ def run():
         if obj.type == "Frame":
             element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
             objs.append(element)
+        elif obj.type == "Node":
+            objs.append(obj)
     return project.objects
 
 run()

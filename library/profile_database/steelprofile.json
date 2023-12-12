@@ -610,6 +610,7 @@
 {"K120/120/6.3": [{"shape_coords":[120,120,6.3,9.45,15.75],"shape_name":"Rectangle Hollow Section","synonyms":["K120/120/6.3","K120x120x6.3","K120/6.3","K120x6.3","HFRHS120X120X6.3","SHS120/120/6.3","SHS120/120/6.3"]}]},
 {"K120/120/8": [{"shape_coords":[120,120,8,12,20],"shape_name":"Rectangle Hollow Section","synonyms":["K120/120/8","K120x120x8","K120/8","K120x8","HFRHS120X120X8","SHS120/120/8","SHS120/120/8.0"]}]},
 {"K140/140/5": [{"shape_coords":[140,140,5,7.5,12.5],"shape_name":"Rectangle Hollow Section","synonyms":["K140/140/5","K140x140x5","K140/5","K140x5","HFRHS140X140X5","SHS140/140/5","SHS140/140/5.0"]}]},
+{"K140/140/6": [{"shape_coords":[140,140,6,7.5,12.5],"shape_name":"Rectangle Hollow Section","synonyms":["K140/140/6","K140x140x6","K140/6","K140x6","HFRHS140X140X6","SHS140/140/6","SHS140/140/6.0"]}]},
 {"K140/140/8": [{"shape_coords":[140,140,8,12,20],"shape_name":"Rectangle Hollow Section","synonyms":["K140/140/8","K140x140x8","K140/8","K140x8","HFRHS140X140X8","SHS140/140/8","SHS140/140/8.0"]}]},
 {"K140/140/10": [{"shape_coords":[140,140,10,15,25],"shape_name":"Rectangle Hollow Section","synonyms":["K140/140/10","K140x140x10","K140/10","K140x10","HFRHS140X140X10","SHS140/140/10","SHS140/140/10.0"]}]},
 {"K150/150/8": [{"shape_coords":[150,150,8,12,20],"shape_name":"Rectangle Hollow Section","synonyms":["K150/150/8","K150x150x8","K150/8","K150x8","HFRHS150X150X8","SHS150/150/8","SHS150/150/8.0"]}]},

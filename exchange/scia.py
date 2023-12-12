@@ -37,6 +37,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
+from abstract.node import *
 from objects.shape3d import *
 from objects.frame import *
 from objects.analytical import *
@@ -107,9 +108,17 @@ class LoadXML:
                         if obj.attrib["nm"] == name:
                             x, y, z = float(obj[1].attrib["v"])*self.project.scale, float(obj[2].attrib["v"])*self.project.scale, float(obj[3].attrib["v"])*self.project.scale
                             pt = Point(x,y,z)
-                            # sph = Sphere(pt, 50, obj.attrib["nm"], None)
-                            # project.objects.append(sph)
                             return pt
+
+    def findKnoopNumber(self, name):
+        tableName = "EP_DSG_Elements.EP_StructNode.1"
+        for container in self.root:
+            for table in container:
+                if table.attrib["t"] == tableName:
+                    for obj in table.iter("{http://www.scia.cz}obj"):
+                        if obj.attrib["nm"] == name:
+                            return obj.attrib["nm"]
+                        
 
     def convertJustification(self, justification):
         justification = justification.lower()
@@ -239,9 +248,22 @@ class LoadXML:
                             # print(rotationDEG)
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
+                            p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             #TEMP
                             p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
+
+                            node1 = Node()
+                            node1.number = p1Number
+                            node1.point = p1
+                            node1.number = 0
+                            self.project.objects.append(node1)
+                            # print(node1)
+
+                            node2 = Node()
+                            node2.point = p2
+                            node2.number = 0
+                            self.project.objects.append(node2)
 
                             ey = float(obj[h9Index].attrib["v"]) * -project.scale
                             ez = float(obj[h10Index].attrib["v"]) * project.scale
