@@ -29,7 +29,7 @@ from itertools import count
 BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
 
 #PANEL
-#project.objects.append(Panel.byBaselineHeight(Line(start= Point(1000,10800+5400,0),end=Point(5000,10800+5400,0)),2500,150,"Concrete Wall",BaseConcrete.colorint))
+project.objects.append(Panel.byBaselineHeight(Line(start= Point(1000,10800+5400,0),end=Point(5000,10800+5400,0)),2500,150,"Concrete Wall",BaseConcrete.colorint))
 
 lst = ["HEA100",
        "DIE14",
@@ -53,7 +53,7 @@ for i in lst:
     ColumnTag.by_frame(f).write(project)
 
 
-#f4 = Frame.byStartpointEndpointProfileName(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
-#tg = FrameTag.by_frame(f4).write(project)
+# f4 = Frame.byStartpointEndpointProfileName(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
+# tg = FrameTag.by_frame(f4).write(project)
 
 project.toSpeckle("e973243375")

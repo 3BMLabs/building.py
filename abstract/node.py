@@ -46,10 +46,10 @@ class Node:
     def __init__(self, point:None=Point, vector:None=Vector3, number:None=int, diameter:None=str, comments=None):
         self.id = generateID()
         self.type = self.__class__.__name__
-        self.point = point
-        self.vector = vector
-        self.number = number
-        self.diameter = project.node_diameter
+        self.point: Point = point
+        self.vector: Vector3 = vector
+        self.number: int = number
+        self.diameter: float = project.node_diameter
         self.comments = comments
     
     #merge

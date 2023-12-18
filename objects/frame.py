@@ -88,7 +88,7 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material, comments: None):
+    def byStartpointEndpointProfileName(cls, start: Point, end: Point, profile_name: str, name: str, material: None, comments = None):
         # [!not included in BP singlefile - start]
         from library.profile import profiledataToShape
         # [!not included in BP singlefile - end]

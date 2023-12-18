@@ -47,6 +47,7 @@ from helper import *
 
 class Point:
     def __init__(self, x, y, z):
+        self.id = generateID()
         self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
@@ -55,7 +56,6 @@ class Point:
         self.y = y
         self.z = z
         self.value = self.x, self.y, self.z
-        self.id = generateID()
         self.units = "mm"
         
     def __str__(self) -> str:
