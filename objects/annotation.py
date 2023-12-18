@@ -199,8 +199,9 @@ class FrameTag:
         self.text_height = 100
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'scale': self.scale,
             'cs': self.cs.serialize(),
@@ -285,8 +286,9 @@ class ColumnTag:
         #self.textobject()
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type' : self.type,
             'width': self.width,
             'height': self.height,

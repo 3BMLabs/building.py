@@ -56,8 +56,9 @@ class BoundingBox2d:
         self.z = 0
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'points': self.points,
             'corners': self.corners,
             'isClosed': self.isClosed,
@@ -116,8 +117,9 @@ class BoundingBox3d:
         self.points = points
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'points': [point.serialize() for point in self.points]
         }

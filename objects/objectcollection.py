@@ -57,8 +57,9 @@ class WurksRaster3d:
         self.lines = None
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'bottom': self.bottom.serialize() if self.bottom else None,
             'top': self.top.serialize() if self.top else None,

@@ -32,7 +32,8 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./fileformat/fileformat.py"
 
 
-import sys, os, math
+import sys, os, math, json
+from collections import defaultdict
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -100,8 +101,35 @@ class BuildingPy:
     #     return Line(start_point, end_point)
         
     def save(self):
-        print(self.objects)
-        pass #save all objects in here
+        # print(self.objects)
+        serialized_objects = []
+        for obj in self.objects:
+            try:
+                # print(obj)
+                serialized_objects.append(json.dumps(obj.serialize()))
+            except:
+                print(obj)
+
+        serialized_data = json.dumps(serialized_objects)
+        file_name = 'project/data.json'
+        with open(file_name, 'w') as file:
+            file.write(serialized_data)
+
+
+        type_count = defaultdict(int)
+        for serialized_item in serialized_objects:
+            item = json.loads(serialized_item)
+            item_type = item.get("type")
+            if item_type:
+                type_count[item_type] += 1
+
+        total_items = len(serialized_objects)
+
+        print(f"\nTotal saved items to '{file_name}': {total_items}")
+        print("Type counts:")
+        for item_type, count in type_count.items():
+            print(f"{item_type}: {count}")
+
 
     def open(self):
         pass #open data.json objects in here

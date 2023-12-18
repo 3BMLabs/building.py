@@ -56,8 +56,9 @@ class GridheadType:
         self.font_family = "calibri"
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'name': self.name,
             'curves': [curve.serialize() for curve in self.curves],
@@ -116,8 +117,9 @@ class GridHead:
         self.__geom()
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'grid_name': self.grid_name,
             'grid_head_type': self.grid_head_type.serialize(),
@@ -247,8 +249,9 @@ class GridSystem:
         self.name = None
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'gridsX': self.gridsX,
             'gridsY': self.gridsY,

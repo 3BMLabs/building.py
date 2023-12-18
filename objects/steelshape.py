@@ -58,6 +58,8 @@ class CChannelParallelFlange:
         self.ID = "C_PF"
 
         #parameters
+        self.id = generateID()
+        self.type = __class__.__name__        
         self.name = name
         self.curve = []
         self.h = h          #height
@@ -96,9 +98,43 @@ class CChannelParallelFlange:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
-    def __str__(self):
-        return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'id' : self.id,
+            'type': self.type,
+            'Description': self.Description,
+            'ID': self.ID,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            'tw': self.tw,
+            'tf': self.tf,
+            'r1': self.r1,
+            'ex': self.ex,
+            'curve': self.curve.serialize() if self.curve else None
+        }
 
+    @staticmethod
+    def deserialize(data):
+        c_channel = CChannelParallelFlange(
+            name=data.get('name'),
+            h=data.get('h'),
+            b=data.get('b'),
+            tw=data.get('tw'),
+            tf=data.get('tf'),
+            r=data.get('r1'),
+            ex=data.get('ex')
+        )
+
+        c_channel.Description = data.get('Description', "C-channel with parallel flange")
+        c_channel.ID = data.get('ID', "C_PF")
+        c_channel.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return c_channel
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class CChannelSlopedFlange:
     def __init__(self, name, h, b, tw, tf, r1, r2, tl, sa, ex):
@@ -106,6 +142,8 @@ class CChannelSlopedFlange:
         self.ID = "C_SF"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__         
         self.name = name
         self.curve = []
         self.b = b  # width
@@ -154,9 +192,53 @@ class CChannelSlopedFlange:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
-    def __str__(self):
-        return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            'tw': self.tw,
+            'tf': self.tf,
+            'r1': self.r1,
+            'r11': self.r11,
+            'r2': self.r2,
+            'r21': self.r21,
+            'tl': self.tl,
+            'sa': self.sa,
+            'ex': self.ex,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        c_channel_sf = CChannelSlopedFlange(
+            name=data.get('name'),
+            h=data.get('h'),
+            b=data.get('b'),
+            tw=data.get('tw'),
+            tf=data.get('tf'),
+            r1=data.get('r1'),
+            r2=data.get('r2'),
+            tl=data.get('tl'),
+            sa=data.get('sa'),
+            ex=data.get('ex')
+        )
 
+        c_channel_sf.Description = data.get('Description', "C-channel with sloped flange")
+        c_channel_sf.ID = data.get('ID', "C_SF")
+        c_channel_sf.id = data.get('id')
+        c_channel_sf.type = data.get('type')
+        c_channel_sf.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return c_channel_sf
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class IShapeParallelFlange:
     def __init__(self, name, h, b, tw, tf, r):
@@ -165,6 +247,8 @@ class IShapeParallelFlange:
         # HEA, IPE, HEB, HEM etc.
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__            
         self.name = name
         self.h = h  # height
         self.b = b # width
@@ -215,9 +299,45 @@ class IShapeParallelFlange:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            'tw': self.tw,
+            'tf': self.tf,
+            'r': self.r,
+            'r1': self.r1,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        i_shape_pf = IShapeParallelFlange(
+            name=data.get('name'),
+            h=data.get('h'),
+            b=data.get('b'),
+            tw=data.get('tw'),
+            tf=data.get('tf'),
+            r=data.get('r')
+        )
 
+        i_shape_pf.Description = data.get('Description', "I Shape profile with parallel flange")
+        i_shape_pf.ID = data.get('ID', "I_PF")
+        i_shape_pf.id = data.get('id')
+        i_shape_pf.type = data.get('type')
+        i_shape_pf.r1 = data.get('r1')
+        i_shape_pf.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return i_shape_pf
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class Rectangle:
     def __init__(self, name, b, h):
@@ -225,6 +345,8 @@ class Rectangle:
         self.ID = "Rec"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__        
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -244,9 +366,37 @@ class Rectangle:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        rectangle = Rectangle(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h')
+        )
 
+        rectangle.Description = data.get('Description', "Rectangle")
+        rectangle.ID = data.get('ID', "Rec")
+        rectangle.id = data.get('id')
+        rectangle.type = data.get('type')
+        rectangle.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return rectangle
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class Round:
     def __init__(self, name, r):
@@ -254,6 +404,8 @@ class Round:
         self.ID = "Rnd"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.r = r  # radius
@@ -278,15 +430,45 @@ class Round:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'r': self.r,
+            'data': self.data,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        round_shape = Round(
+            name=data.get('name'),
+            r=data.get('r')
+        )
 
+        round_shape.Description = data.get('Description', "Round")
+        round_shape.ID = data.get('ID', "Rnd")
+        round_shape.id = data.get('id')
+        round_shape.type = data.get('type')
+        round_shape.data = data.get('data', (data.get('name'), data.get('r'), "Round"))
+        round_shape.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return round_shape
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 class Roundtube:
     def __init__(self, name, d, t):
         self.Description = "Round Tube Profile"
         self.ID = "Tube"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.d = d
@@ -334,9 +516,40 @@ class Roundtube:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'd': self.d,
+            'r': self.r,
+            't': self.t,
+            'data': self.data,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        roundtube = Roundtube(
+            name=data.get('name'),
+            d=data.get('d'),
+            t=data.get('t')
+        )
 
+        roundtube.Description = data.get('Description', "Round Tube Profile")
+        roundtube.ID = data.get('ID', "Tube")
+        roundtube.id = data.get('id')
+        roundtube.type = data.get('type')
+        roundtube.data = data.get('data', (data.get('name'), data.get('d'), data.get('t'), "Round Tube Profile"))
+        roundtube.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return roundtube
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class LAngle:
     def __init__(self, name, h, b, tw, tf, r1, r2, ex, ey):
@@ -344,6 +557,8 @@ class LAngle:
         self.ID = "L"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.b = b  # width
@@ -384,9 +599,53 @@ class LAngle:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'b': self.b,
+            'h': self.h,
+            'tw': self.tw,
+            'tf': self.tf,
+            'r1': self.r1,
+            'r11': self.r11,
+            'r2': self.r2,
+            'r21': self.r21,
+            'ex': self.ex,
+            'ey': self.ey,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        langle = LAngle(
+            name=data.get('name'),
+            h=data.get('h'),
+            b=data.get('b'),
+            tw=data.get('tw'),
+            tf=data.get('tf'),
+            r1=data.get('r1'),
+            r2=data.get('r2'),
+            ex=data.get('ex'),
+            ey=data.get('ey')
+        )
 
+        langle.Description = data.get('Description', "LAngle")
+        langle.ID = data.get('ID', "L")
+        langle.id = data.get('id')
+        langle.type = data.get('type')
+        langle.r11 = data.get('r11')
+        langle.r21 = data.get('r21')
+        langle.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return langle
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 class TProfile:
     #ToDo: inner outer fillets in polycurve
     def __init__(self, name, h, b, tw, tf, r, r1, r2, ex, ey):
@@ -394,6 +653,8 @@ class TProfile:
         self.ID = "T"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.b = b  # width
@@ -452,9 +713,57 @@ class TProfile:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'b': self.b,
+            'h': self.h,
+            'tw': self.tw,
+            'tf': self.tf,
+            'r': self.r,
+            'r01': self.r01,
+            'r1': self.r1,
+            'r11': self.r11,
+            'r2': self.r2,
+            'r21': self.r21,
+            'ex': self.ex,
+            'ey': self.ey,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        t_profile = TProfile(
+            name=data.get('name'),
+            h=data.get('h'),
+            b=data.get('b'),
+            tw=data.get('tw'),
+            tf=data.get('tf'),
+            r=data.get('r'),
+            r1=data.get('r1'),
+            r2=data.get('r2'),
+            ex=data.get('ex'),
+            ey=data.get('ey')
+        )
 
+        t_profile.Description = data.get('Description', "TProfile")
+        t_profile.ID = data.get('ID', "T")
+        t_profile.id = data.get('id')
+        t_profile.type = data.get('type')
+        t_profile.r01 = data.get('r01')
+        t_profile.r11 = data.get('r11')
+        t_profile.r21 = data.get('r21')
+        t_profile.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return t_profile
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class RectangleHollowSection:
     def __init__(self, name, h, b, t, r1, r2):
@@ -462,6 +771,8 @@ class RectangleHollowSection:
         self.ID = "RHS"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -527,15 +838,51 @@ class RectangleHollowSection:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            't': self.t,
+            'r1': self.r1,
+            'r2': self.r2,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        rhs = RectangleHollowSection(
+            name=data.get('name'),
+            h=data.get('h'),
+            b=data.get('b'),
+            t=data.get('t'),
+            r1=data.get('r1'),
+            r2=data.get('r2')
+        )
 
+        rhs.Description = data.get('Description', "Rectangle Hollow Section")
+        rhs.ID = data.get('ID', "RHS")
+        rhs.id = data.get('id')
+        rhs.type = data.get('type')
+        rhs.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return rhs
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 class CProfile:
     def __init__(self, name, b, h, t, r1, ex):
         self.Description = "Cold Formed C Profile"
         self.ID = "CP"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -584,15 +931,55 @@ class CProfile:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            't': self.t,
+            'r1': self.r1,
+            'r2': self.r2,
+            'ex': self.ex,
+            'ey': self.ey,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        c_profile = CProfile(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h'),
+            t=data.get('t'),
+            r1=data.get('r1'),
+            ex=data.get('ex')
+        )
 
+        c_profile.Description = data.get('Description', "Cold Formed C Profile")
+        c_profile.ID = data.get('ID', "CP")
+        c_profile.id = data.get('id')
+        c_profile.type = data.get('type')
+        c_profile.r2 = data.get('r2')
+        c_profile.ey = data.get('ey')
+        c_profile.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return c_profile
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 class CProfileWithLips:
     def __init__(self, name, b, h, h1, t, r1, ex):
         self.Description = "Cold Formed C Profile with Lips"
         self.ID = "CPWL"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -665,8 +1052,48 @@ class CProfileWithLips:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            'h1': self.h1,
+            't': self.t,
+            'r1': self.r1,
+            'r2': self.r2,
+            'ex': self.ex,
+            'ey': self.ey,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        c_profile_with_lips = CProfileWithLips(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h'),
+            h1=data.get('h1'),
+            t=data.get('t'),
+            r1=data.get('r1'),
+            ex=data.get('ex')
+        )
+
+        c_profile_with_lips.Description = data.get('Description', "Cold Formed C Profile with Lips")
+        c_profile_with_lips.ID = data.get('ID', "CPWL")
+        c_profile_with_lips.id = data.get('id')
+        c_profile_with_lips.type = data.get('type')
+        c_profile_with_lips.r2 = data.get('r2')
+        c_profile_with_lips.ey = data.get('ey')
+        c_profile_with_lips.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return c_profile_with_lips
+
+    def __str__(self):
+        return "Profile(" + f"{self.name})"
 
 class LProfileColdFormed:
     def __init__(self, name, b, h, t, r1, ex, ey):
@@ -674,6 +1101,8 @@ class LProfileColdFormed:
         self.ID = "CF_L"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -710,15 +1139,55 @@ class LProfileColdFormed:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            't': self.t,
+            'r1': self.r1,
+            'r2': self.r2,
+            'ex': self.ex,
+            'ey': self.ey,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        l_profile_cold_formed = LProfileColdFormed(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h'),
+            t=data.get('t'),
+            r1=data.get('r1'),
+            ex=data.get('ex'),
+            ey=data.get('ey')
+        )
 
+        l_profile_cold_formed.Description = data.get('Description', "Cold Formed L Profile")
+        l_profile_cold_formed.ID = data.get('ID', "CF_L")
+        l_profile_cold_formed.id = data.get('id')
+        l_profile_cold_formed.type = data.get('type')
+        l_profile_cold_formed.r2 = data.get('r2')
+        l_profile_cold_formed.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return l_profile_cold_formed
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 class SigmaProfileWithLipsColdFormed:
     def __init__(self, name, b, h, t, r1, h1, h2, h3, b2, ex):
         self.Description = "Cold Formed Sigma Profile with Lips"
         self.ID = "CF_SWL"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -807,9 +1276,63 @@ class SigmaProfileWithLipsColdFormed:
              l24, l25,
              l26, l27, l28])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'h': self.h,
+            'b': self.b,
+            't': self.t,
+            'r1': self.r1,
+            'h1': self.h1,
+            'h2': self.h2,
+            'h3': self.h3,
+            'b2': self.b2,
+            'ex': self.ex,
+            'ey': self.ey,
+            'r2': self.r2,
+            'r11': self.r11,
+            'r21': self.r21,
+            'h4': self.h4,
+            'h5': self.h5,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        sigma_profile_with_lips = SigmaProfileWithLipsColdFormed(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h'),
+            t=data.get('t'),
+            r1=data.get('r1'),
+            h1=data.get('h1'),
+            h2=data.get('h2'),
+            h3=data.get('h3'),
+            b2=data.get('b2'),
+            ex=data.get('ex')
+        )
 
+        sigma_profile_with_lips.Description = data.get('Description', "Cold Formed Sigma Profile with Lips")
+        sigma_profile_with_lips.ID = data.get('ID', "CF_SWL")
+        sigma_profile_with_lips.id = data.get('id')
+        sigma_profile_with_lips.type = data.get('type')
+        sigma_profile_with_lips.ey = data.get('ey')
+        sigma_profile_with_lips.r2 = data.get('r2')
+        sigma_profile_with_lips.r11 = data.get('r11')
+        sigma_profile_with_lips.r21 = data.get('r21')
+        sigma_profile_with_lips.h4 = data.get('h4')
+        sigma_profile_with_lips.h5 = data.get('h5')
+        sigma_profile_with_lips.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return sigma_profile_with_lips
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 
 class ZProfileColdFormed:
     def __init__(self, name, b, h, t, r1):
@@ -817,6 +1340,8 @@ class ZProfileColdFormed:
         self.ID = "CF_Z"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.b = b  # width
@@ -861,15 +1386,59 @@ class ZProfileColdFormed:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'b': self.b,
+            'h': self.h,
+            't': self.t,
+            'r1': self.r1,
+            'r2': self.r2,
+            'ex': self.ex,
+            'ey': self.ey,
+            'r11': self.r11,
+            'r21': self.r21,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        z_profile_cold_formed = ZProfileColdFormed(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h'),
+            t=data.get('t'),
+            r1=data.get('r1')
+        )
 
+        z_profile_cold_formed.Description = data.get('Description', "Cold Formed Z Profile")
+        z_profile_cold_formed.ID = data.get('ID', "CF_Z")
+        z_profile_cold_formed.id = data.get('id')
+        z_profile_cold_formed.type = data.get('type')
+        z_profile_cold_formed.r2 = data.get('r2')
+        z_profile_cold_formed.ex = data.get('ex')
+        z_profile_cold_formed.ey = data.get('ey')
+        z_profile_cold_formed.r11 = data.get('r11')
+        z_profile_cold_formed.r21 = data.get('r21')
+        z_profile_cold_formed.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return z_profile_cold_formed
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"
+    
 class ZProfileWithLipsColdFormed:
     def __init__(self, name, b, h, t, r1, h1):
         self.Description = "Cold Formed Z Profile with Lips"
         self.ID = "CF_ZL"
 
         # parameters
+        self.id = generateID()
+        self.type = __class__.__name__          
         self.name = name
         self.curve = []
         self.b = b  # width
@@ -935,5 +1504,49 @@ class ZProfileWithLipsColdFormed:
 
         self.curve = PolyCurve2D().byJoinedCurves([l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16,l17,l18,l19,l20])
 
-        def __str__(self):
-            return "Profile(" + f"{self.name})"
+    def serialize(self):
+        return {
+            'Description': self.Description,
+            'ID': self.ID,
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'b': self.b,
+            'h': self.h,
+            't': self.t,
+            'h1': self.h1,
+            'r1': self.r1,
+            'r2': self.r2,
+            'ex': self.ex,
+            'ey': self.ey,
+            'r11': self.r11,
+            'r21': self.r21,
+            'curve': self.curve.serialize() if self.curve else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        z_profile_with_lips = ZProfileWithLipsColdFormed(
+            name=data.get('name'),
+            b=data.get('b'),
+            h=data.get('h'),
+            t=data.get('t'),
+            r1=data.get('r1'),
+            h1=data.get('h1')
+        )
+
+        z_profile_with_lips.Description = data.get('Description', "Cold Formed Z Profile with Lips")
+        z_profile_with_lips.ID = data.get('ID', "CF_ZL")
+        z_profile_with_lips.id = data.get('id')
+        z_profile_with_lips.type = data.get('type')
+        z_profile_with_lips.r2 = data.get('r2')
+        z_profile_with_lips.ex = data.get('ex')
+        z_profile_with_lips.ey = data.get('ey')
+        z_profile_with_lips.r11 = data.get('r11')
+        z_profile_with_lips.r21 = data.get('r21')
+        z_profile_with_lips.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+
+        return z_profile_with_lips
+
+    def __str__(self):
+        return f"{self.type} ({self.name})"

@@ -35,7 +35,7 @@ __url__ = "./abstract/coordinatesystem.py"
 import math
 import os
 import sys
-from pathlib import Pathz
+from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -56,7 +56,9 @@ class CoordinateSystem:
         self.Zaxis = Vector3.normalize(zaxis)
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
+            'id': id_value,
             'type': self.type,
             'Origin': self.Origin.serialize(),
             'Xaxis': self.Xaxis.serialize(),

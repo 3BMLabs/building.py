@@ -84,8 +84,9 @@ class Frame:
         self.vector_normalised = None
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'name': self.name,
             'profileName': self.profileName,

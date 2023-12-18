@@ -43,22 +43,25 @@ from project.fileformat import *
 # [!not included in BP singlefile - end]
 
 class Node:
-    def __init__(self, point:None=Point, vector:None=Vector3, number:None=int, diameter:None=str, comments=None):
+    def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
         self.id = generateID()
-        self.type = self.__class__.__name__
-        self.point: Point = point
-        self.vector: Vector3 = vector
-        self.number: int = number
-        self.diameter: float = project.node_diameter
+        self.type = __class__.__name__
+        self.point = point if isinstance(point, Point) else None
+        self.vector = vector if isinstance(vector, Vector3) else None
+        self.number = number
+        self.distance = distance
+        self.diameter = diameter
         self.comments = comments
-    
+
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'point': self.point.serialize() if self.point else None,
             'vector': self.vector.serialize() if self.vector else None,
             'number': self.number,
+            'distance': self.distance,
             'diameter': self.diameter,
             'comments': self.comments
         }
@@ -71,6 +74,7 @@ class Node:
         node.point = Point.deserialize(data['point']) if data.get('point') else None
         node.vector = Vector3.deserialize(data['vector']) if data.get('vector') else None
         node.number = data.get('number')
+        node.distance = data.get('distance')
         node.diameter = data.get('diameter')
         node.comments = data.get('comments')
 

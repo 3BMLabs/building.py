@@ -44,6 +44,7 @@ from geometry.point import *
 
 class Vector3:
     def __init__(self, x, y, z):
+        self.id = generateID()
         self.type = __class__.__name__
         self.x: float = 0.0
         self.y: float = 0.0
@@ -55,7 +56,10 @@ class Vector3:
 
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
+            'id': id_value,
+            'type': self.type,
             'x': self.x,
             'y': self.y,
             'z': self.z

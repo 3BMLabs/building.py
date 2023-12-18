@@ -41,9 +41,13 @@ from abstract.coordinatesystem import CSGlobal
 from geometry.solid import Extrusion
 from geometry.curve import *
 # [!not included in BP singlefile - end]
+
+
 class Panel:
     #Panel
     def __init__(self):
+        self.id = generateID()
+        self.type = __class__.__name__
         self.extrusion = None
         self.thickness = 0
         self.name = "none"
@@ -52,6 +56,37 @@ class Panel:
         self.color = None
         self.colorlst = []
         self.origincurve = None
+
+    def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        return {
+            'id': id_value,
+            'type': self.type,
+            'extrusion': self.extrusion,
+            'thickness': self.thickness,
+            'name': self.name,
+            'perimeter': self.perimeter,
+            'coordinatesystem': self.coordinatesystem.serialize(),
+            'color': self.color,
+            'colorlst': self.colorlst,
+            'origincurve': self.origincurve
+        }
+
+    @staticmethod
+    def deserialize(data):
+        panel = Panel()
+        panel.id = data.get('id')
+        panel.type = data.get('type')
+        panel.extrusion = data.get('extrusion')
+        panel.thickness = data.get('thickness', 0)
+        panel.name = data.get('name', "none")
+        panel.perimeter = data.get('perimeter', 0)
+        panel.coordinatesystem = CoordinateSystem.deserialize(data['coordinatesystem'])
+        panel.color = data.get('color')
+        panel.colorlst = data.get('colorlst', [])
+        panel.origincurve = data.get('origincurve')
+
+        return panel
 
     @classmethod
     def byPolyCurveThickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):

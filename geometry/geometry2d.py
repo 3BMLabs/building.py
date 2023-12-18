@@ -56,8 +56,9 @@ class Vector2:
         self.y = y
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'x': self.x,
             'y': self.y
@@ -129,8 +130,9 @@ class Point2D:
         self.y = y
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'x': self.x,
             'y': self.y
@@ -252,8 +254,9 @@ class Arc2D:
         #self.length
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'start': self.start.serialize(),
             'mid': self.mid.serialize(),
@@ -360,8 +363,9 @@ class PolyCurve2D:
         self.points2D = []
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'curves': [curve.serialize() for curve in self.curves],
             'points2D': [point.serialize() for point in self.points2D]

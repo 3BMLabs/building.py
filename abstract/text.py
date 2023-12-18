@@ -75,8 +75,9 @@ class Text:
         self.load_o_example = self.load_o()
 
     def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
-            'id': self.id,
+            'id': id_value,
             'type': self.type,
             'text': self.text,
             'font_family': self.font_family,
