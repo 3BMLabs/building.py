@@ -52,6 +52,30 @@ class Node:
         self.diameter: float = project.node_diameter
         self.comments = comments
     
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'point': self.point.serialize() if self.point else None,
+            'vector': self.vector.serialize() if self.vector else None,
+            'number': self.number,
+            'diameter': self.diameter,
+            'comments': self.comments
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        node = Node()
+        node.id = data.get('id')
+        node.type = data.get('type')
+        node.point = Point.deserialize(data['point']) if data.get('point') else None
+        node.vector = Vector3.deserialize(data['vector']) if data.get('vector') else None
+        node.number = data.get('number')
+        node.diameter = data.get('diameter')
+        node.comments = data.get('comments')
+
+        return node
+
     #merge
     def merge(self):
         if project.node_merge == True:

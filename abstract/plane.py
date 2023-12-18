@@ -49,6 +49,24 @@ class Plane:
         self.v1 = Vector3(x=1, y=0, z=0)
         self.v2 = Vector3(x=0, y=1, z=0)
 
+    def serialize(self):
+        return {
+            'Origin': self.Origin.serialize(),
+            'Normal': self.Normal.serialize(),
+            'v1': self.v1.serialize(),
+            'v2': self.v2.serialize()
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        plane = Plane()
+        plane.Origin = Point.deserialize(data['Origin'])
+        plane.Normal = Vector3.deserialize(data['Normal'])
+        plane.v1 = Vector3.deserialize(data['v1'])
+        plane.v2 = Vector3.deserialize(data['v2'])
+
+        return plane
+
     @classmethod
     def byTwoVectorsOrigin(cls, v1, v2, origin):
         p1 = Plane()

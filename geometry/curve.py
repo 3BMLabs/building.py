@@ -69,15 +69,57 @@ class Line: #add Line.bylenght (start and endpoint)
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        start_serialized = self.start.serialize() if hasattr(self.start, 'serialize') else str(self.start)
+        end_serialized = self.end.serialize() if hasattr(self.end, 'serialize') else str(self.end)
+
+        # Serialize vector if it has a serialize method, otherwise convert to string representation
+        vector_serialized = self.vector.serialize() if hasattr(self.vector, 'serialize') else str(self.vector)
+        vector_normalized_serialized = self.vector_normalised.serialize() if hasattr(self.vector_normalised, 'serialize') else str(self.vector_normalised)
+
         return {
+            'id': id_value,
             'type': self.type,
-            'start': self.start,
-            'end': self.end,
+            'start': start_serialized,
+            'end': end_serialized,
             'x': self.x,
             'y': self.y,
+            'z': self.z,
             'dx': self.dx,
-            'dy': self.dy
+            'dy': self.dy,
+            'dz': self.dz,
+            'length': self.length,
+            'vector': vector_serialized,
+            'vector_normalised': vector_normalized_serialized
         }
+
+    @staticmethod
+    def deserialize(data):
+        start_point = Point.deserialize(data['start'])
+        end_point = Point.deserialize(data['end'])
+
+        instance = Line(start_point, end_point)
+
+        instance.id = data.get('id')
+        instance.type = data.get('type')
+        instance.x = data.get('x')
+        instance.y = data.get('y')
+        instance.z = data.get('z')
+        instance.dx = data.get('dx')
+        instance.dy = data.get('dy')
+        instance.dz = data.get('dz')
+        instance.length = data.get('length')
+
+        if 'vector' in data and hasattr(Vector3, 'deserialize'):
+            instance.vector = Vector3.deserialize(data['vector'])
+        else:
+            instance.vector = data['vector']
+
+        if 'vector_normalised' in data and hasattr(Vector3, 'deserialize'):
+            instance.vector_normalised = Vector3.deserialize(data['vector_normalised'])
+        else:
+            instance.vector_normalised = data['vector_normalised']
+
+        return instance
 
     def translate(self,direction:Vector3):
         self.start = Point.translate(self.start,direction)
@@ -142,7 +184,8 @@ def create_lines(points):
 
 
 class PolyCurve:
-    def __init__(self): #isclosed?
+    def __init__(self):
+        self.id = generateID()
         self.type = __class__.__name__        
         self.curves = []
         self.points = []
@@ -155,7 +198,6 @@ class PolyCurve:
         #Properties
         self.approximateLength = None
         self.graphicsStyleId = None
-        self.id = generateID()
         self.isClosed = None
         self.isCyclic = None
         self.isElementGeometry = None
@@ -164,6 +206,61 @@ class PolyCurve:
         self.period = None
         self.reference = None
         self.visibility = None
+
+    def serialize(self):
+        curves_serialized = [curve.serialize() if hasattr(curve, 'serialize') else str(curve) for curve in self.curves]
+        points_serialized = [point.serialize() if hasattr(point, 'serialize') else str(point) for point in self.points]
+
+        return {
+            'type': self.type,
+            'curves': curves_serialized,
+            'points': points_serialized,
+            'segmentcurves': self.segmentcurves,
+            'width': self.width,
+            'height': self.height,
+            'approximateLength': self.approximateLength,
+            'graphicsStyleId': self.graphicsStyleId,
+            'id': self.id,
+            'isClosed': self.isClosed,
+            'isCyclic': self.isCyclic,
+            'isElementGeometry': self.isElementGeometry,
+            'isReadOnly': self.isReadOnly,
+            'period': self.period,
+            'reference': self.reference,
+            'visibility': self.visibility
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        polycurve = PolyCurve()
+        polycurve.segmentcurves = data.get('segmentcurves')
+        polycurve.width = data.get('width')
+        polycurve.height = data.get('height')
+        polycurve.approximateLength = data.get('approximateLength')
+        polycurve.graphicsStyleId = data.get('graphicsStyleId')
+        polycurve.id = data.get('id')
+        polycurve.isClosed = data.get('isClosed')
+        polycurve.isCyclic = data.get('isCyclic')
+        polycurve.isElementGeometry = data.get('isElementGeometry')
+        polycurve.isReadOnly = data.get('isReadOnly')
+        polycurve.period = data.get('period')
+        polycurve.reference = data.get('reference')
+        polycurve.visibility = data.get('visibility')
+
+        # Deserialize curves and points
+        if 'curves' in data:
+            for curve_data in data['curves']:
+                # Assuming a deserialize method exists for curve objects
+                curve = Line.deserialize(curve_data)
+                polycurve.curves.append(curve)
+        
+        if 'points' in data:
+            for point_data in data['points']:
+                # Assuming a deserialize method exists for point objects
+                point = Point.deserialize(point_data)
+                polycurve.points.append(point)
+
+        return polycurve
 
     def scale(self, scalefactor):
         crvs = []

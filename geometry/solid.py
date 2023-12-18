@@ -61,6 +61,44 @@ class Extrusion:
         self.bottomface = None #return polycurve -> surface
         self.polycurve_3d_translated = None
         
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'verts': self.verts,
+            'faces': self.faces,
+            'numberFaces': self.numberFaces,
+            'countVertsFaces': self.countVertsFaces,
+            'name': self.name,
+            'color': self.color,
+            'colorlst': self.colorlst,
+            'topface': self.topface.serialize() if self.topface else None,
+            'bottomface': self.bottomface.serialize() if self.bottomface else None,
+            'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        extrusion = Extrusion()
+        extrusion.id = data.get('id')
+        extrusion.verts = data.get('verts', [])
+        extrusion.faces = data.get('faces', [])
+        extrusion.numberFaces = data.get('numberFaces', 0)
+        extrusion.countVertsFaces = data.get('countVertsFaces', 0)
+        extrusion.name = data.get('name', "none")
+        extrusion.color = data.get('color', (255,255,0))
+        extrusion.colorlst = data.get('colorlst', [])
+
+        if data.get('topface'):
+            extrusion.topface = PolyCurve.deserialize(data['topface'])
+        
+        if data.get('bottomface'):
+            extrusion.bottomface = PolyCurve.deserialize(data['bottomface'])
+        
+        if data.get('polycurve_3d_translated'):
+            extrusion.polycurve_3d_translated = PolyCurve.deserialize(data['polycurve_3d_translated'])
+
+        return extrusion
 
     @classmethod
     def merge(self, extrusions:list, name=None):

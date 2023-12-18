@@ -35,7 +35,7 @@ __url__ = "./abstract/coordinatesystem.py"
 import math
 import os
 import sys
-from pathlib import Path
+from pathlib import Pathz
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -48,10 +48,29 @@ from project.fileformat import project
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
     def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+        self.id = generateID()
+        self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector3.normalize(xaxis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
+
+    def serialize(self):
+        return {
+            'type': self.type,
+            'Origin': self.Origin.serialize(),
+            'Xaxis': self.Xaxis.serialize(),
+            'Yaxis': self.Yaxis.serialize(),
+            'Zaxis': self.Zaxis.serialize()
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        origin = Point.deserialize(data['Origin'])
+        xaxis = Vector3.deserialize(data['Xaxis'])
+        yaxis = Vector3.deserialize(data['Yaxis'])
+        zaxis = Vector3.deserialize(data['Zaxis'])
+        return CoordinateSystem(origin, xaxis, yaxis, zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):

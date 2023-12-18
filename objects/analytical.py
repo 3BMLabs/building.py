@@ -38,6 +38,8 @@ class Support:
     def __init__(self):
         self.Number = None
         self.Point: Point = Point(0,0,0)
+        self.id = generateID()
+        self.type = __class__.__name__
         self.Tx: str = " " # A, P, N, S
         self.Ty: str = " " # A, P, N, S
         self.Tz: str = " " # A, P, N, S
@@ -53,6 +55,51 @@ class Support:
         self.dx: float = 0 #eccentricity in x
         self.dy: float = 0 #eccentricity in y
         self.dz: float = 0 #eccentricity in z
+
+    def serialize(self):
+        return {
+            'Number': self.Number,
+            'Point': self.Point.serialize(),
+            'type': self.type,
+            'Tx': self.Tx,
+            'Ty': self.Ty,
+            'Tz': self.Tz,
+            'Rx': self.Rx,
+            'Ry': self.Ry,
+            'Rz': self.Rz,
+            'Kx': self.Kx,
+            'Ky': self.Ky,
+            'Kz': self.Kz,
+            'Cx': self.Cx,
+            'Cy': self.Cy,
+            'Cz': self.Cz,
+            'dx': self.dx,
+            'dy': self.dy,
+            'dz': self.dz
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        support = Support()
+        support.Number = data.get('Number')
+        support.Point = Point.deserialize(data['Point'])
+        support.Tx = data.get('Tx', " ")
+        support.Ty = data.get('Ty', " ")
+        support.Tz = data.get('Tz', " ")
+        support.Rx = data.get('Rx', " ")
+        support.Ry = data.get('Ry', " ")
+        support.Rz = data.get('Rz', " ")
+        support.Kx = data.get('Kx', 0)
+        support.Ky = data.get('Ky', 0)
+        support.Kz = data.get('Kz', 0)
+        support.Cx = data.get('Cx', 0)
+        support.Cy = data.get('Cy', 0)
+        support.Cz = data.get('Cz', 0)
+        support.dx = data.get('dx', 0)
+        support.dy = data.get('dy', 0)
+        support.dz = data.get('dz', 0)
+
+        return support
 
     @staticmethod
     def pinned(PlacementPoint):

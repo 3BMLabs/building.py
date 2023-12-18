@@ -39,7 +39,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import PolyCurve
-import helper
+from helper import *
 
 
 # [!not included in BP singlefile - end]
@@ -47,12 +47,37 @@ import helper
 class BoundingBox2d:
     def __init__(self):
         self.id = generateID()
+        self.type = __class__.__name__
         self.points = []
         self.corners = []
         self.isClosed = True
         self.width = 0
         self.height = 0
         self.z = 0
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'points': self.points,
+            'corners': self.corners,
+            'isClosed': self.isClosed,
+            'width': self.width,
+            'height': self.height,
+            'z': self.z
+        }
+
+    @staticmethod
+    def deserialize(data):
+        bounding_box = BoundingBox2d()
+        bounding_box.id = data.get('id')
+        bounding_box.points = data.get('points', [])
+        bounding_box.corners = data.get('corners', [])
+        bounding_box.isClosed = data.get('isClosed', True)
+        bounding_box.width = data.get('width', 0)
+        bounding_box.height = data.get('height', 0)
+        bounding_box.z = data.get('z', 0)
+
+        return bounding_box
 
     def length(self):
         return 0
@@ -86,8 +111,21 @@ class BoundingBox2d:
 
 class BoundingBox3d:
     def __init__(self, points=Point):
+        self.id = generateID()
+        self.type = __class__.__name__        
         self.points = points
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'points': [point.serialize() for point in self.points]
+        }
+
+    @staticmethod
+    def deserialize(data):
+        points = [Point.deserialize(point_data) for point_data in data.get('points', [])]
+        return BoundingBox3d(points)
 
     def corners(self, points=Point):
         x_values = [point.x for point in self.points]

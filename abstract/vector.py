@@ -44,6 +44,7 @@ from geometry.point import *
 
 class Vector3:
     def __init__(self, x, y, z):
+        self.type = __class__.__name__
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
@@ -51,6 +52,18 @@ class Vector3:
         self.x = x
         self.y = y
         self.z = z
+
+
+    def serialize(self):
+        return {
+            'x': self.x,
+            'y': self.y,
+            'z': self.z
+        }
+
+    @staticmethod
+    def deserialize(data):
+        return Vector3(data['x'], data['y'], data['z'])
 
     @staticmethod
     def sum(v1, v2):

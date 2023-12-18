@@ -14,9 +14,6 @@ from pathlib import Path
 # import ezdxf
 
 
-
-
-
 def find_in_list_of_list(mylist, char):
     for sub_list in mylist:
         if char in sub_list:
@@ -25,6 +22,7 @@ def find_in_list_of_list(mylist, char):
 
 class generateID:
     def __init__(self) -> None:
+        self.type = __class__.__name__
         self.id = None
         self.object = None
         self.name = None

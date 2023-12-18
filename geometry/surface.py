@@ -45,7 +45,7 @@ from abstract.intersect2d import *
 # [!not included in BP singlefile - end]
 #check if there are innercurves inside the outer curve.
 
-class Surface: #Polycurves must be closed!!!!!!!
+class Surface:
     def __init__(self, PolyCurves:PolyCurve, color=None) -> None:
         #self.outerPolyCurve
         #self.innerPolyCurves
@@ -67,6 +67,39 @@ class Surface: #Polycurves must be closed!!!!!!!
 
         self.colorlst = []
         self.fill(self.PolyCurveList)
+
+    def serialize(self):
+        return {
+            'type': self.type,
+            'mesh': self.mesh,
+            'length': self.length,
+            'area': self.area,
+            'offset': self.offset,
+            'name': self.name,
+            'id': self.id,
+            'PolyCurveList': [polycurve.serialize() for polycurve in self.PolyCurveList],
+            'origincurve': self.origincurve.serialize() if self.origincurve else None,
+            'color': self.color,
+            'colorlst': self.colorlst
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        polycurves = [PolyCurve.deserialize(pc_data) for pc_data in data.get('PolyCurveList', [])]
+        surface = Surface(polycurves, data.get('color'))
+
+        surface.mesh = data.get('mesh', [])
+        surface.length = data.get('length', 0)
+        surface.area = data.get('area', 0)
+        surface.offset = data.get('offset', 0)
+        surface.name = data.get('name', "test2")
+        surface.id = data.get('id')
+        surface.colorlst = data.get('colorlst', [])
+
+        if data.get('origincurve'):
+            surface.origincurve = PolyCurve.deserialize(data['origincurve'])
+
+        return surface
 
     def fill(self, PolyCurveList):
         if isinstance(PolyCurveList, PolyCurve):

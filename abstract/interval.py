@@ -48,6 +48,21 @@ class Interval:
         self.end = end
         self.interval = None
 
+    def serialize(self):
+        return {
+            'start': self.start,
+            'end': self.end,
+            'interval': self.interval
+        }
+
+    @staticmethod
+    def deserialize(data):
+        start = data.get('start')
+        end = data.get('end')
+        interval = Interval(start, end)
+        interval.interval = data.get('interval')
+        return interval
+
     @classmethod
     def bystartendcount(self, start: float, end: float, count: int):
         intval = []

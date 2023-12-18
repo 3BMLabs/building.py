@@ -56,6 +56,8 @@ from typing import List, Tuple
 
 class Text:
     def __init__(self, text: str = None, font_family: str = None, cs= CoordinateSystem, height=None):
+        self.id = generateID()
+        self.type = __class__.__name__
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin
@@ -72,6 +74,27 @@ class Text:
         self.path_list = self.load_path()
         self.load_o_example = self.load_o()
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'text': self.text,
+            'font_family': self.font_family,
+            'xyz': self.xyz,
+            'csglobal': self.csglobal.serialize(),
+            'x': self.x,
+            'y': self.y,
+            'z': self.z,
+            'scale': self.scale,
+            'height': self.height,
+            'bbHeight': self.bbHeight,
+            'width': self.width,
+            'character_offset': self.character_offset,
+            'space': self.space,
+            'curves': [curve.serialize() for curve in self.curves],
+            'points': self.points,
+            'path_list': self.path_list,
+        }
 
     def load_path(self) -> str:
       #  with open(f'library/text/json/{self.font_family}.json', 'r') as f:

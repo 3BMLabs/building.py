@@ -48,12 +48,26 @@ from abstract.coordinatesystem import CoordinateSystem
 
 class Vector2:
     def __init__(self, x, y) -> None:
+        self.id = generateID()
         self.type = __class__.__name__        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
         self.y = y
-        self.id = generateID()
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'x': self.x,
+            'y': self.y
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        x = data['x']
+        y = data['y']
+        return Vector2(x, y)
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -108,13 +122,25 @@ class Vector2:
         return f"{__class__.__name__}({self.X},{self.Y})"
 
 class Point2D:
-    def __init__(self, x, y) -> None:
+    def __init__(self, x: float, y: float) -> None:
+        self.id = generateID()
         self.type = __class__.__name__        
-        self.x: float = 0.0
-        self.y: float = 0.0
         self.x = x
         self.y = y
-        self.id = generateID()
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'x': self.x,
+            'y': self.y
+        }
+    
+    @staticmethod
+    def deserialize(data):
+        x = data['x']
+        y = data['y']
+        return Point2D(x, y)
 
     def __id__(self):
         return f"id:{self.id}"
@@ -179,6 +205,25 @@ class Line2D:
         self.length = 0
         self.id = generateID()
 
+    def serialize(self):
+        return {
+            'type': self.type,
+            'start': self.start.serialize(),
+            'end': self.end.serialize(),
+            'x': self.x,
+            'y': self.y,
+            'dx': self.dx,
+            'dy': self.dy,
+            'length': self.length,
+            'id': self.id
+        }
+
+    @staticmethod
+    def deserialize(data):
+        start_point = Point2D.deserialize(data['start'])
+        end_point = Point2D.deserialize(data['end'])
+        return Line2D(start_point, end_point)
+
     def __id__(self):
         return f"id:{self.id}"
 
@@ -195,6 +240,7 @@ class Line2D:
 
 class Arc2D:
     def __init__(self,pntxy1,pntxy2,pntxy3) -> None:
+        self.id = generateID()
         self.type = __class__.__name__        
         self.start:Point2D = pntxy1
         self.mid: Point2D = pntxy2
@@ -205,7 +251,30 @@ class Arc2D:
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
 
-        self.id = generateID()
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'start': self.start.serialize(),
+            'mid': self.mid.serialize(),
+            'end': self.end.serialize(),
+            'origin': self.origin,
+            'angleRadian': self.angleRadian,
+            'coordinatesystem': self.coordinatesystem
+        }
+
+    @staticmethod
+    def deserialize(data):
+        start_point = Point2D.deserialize(data['start'])
+        mid_point = Point2D.deserialize(data['mid'])
+        end_point = Point2D.deserialize(data['end'])
+        arc = Arc2D(start_point, mid_point, end_point)
+        
+        arc.origin = data.get('origin')
+        arc.angleRadian = data.get('angleRadian')
+        arc.coordinatesystem = data.get('coordinatesystem')
+
+        return arc
 
     def __id__(self):
         return f"id:{self.id}"
@@ -257,7 +326,6 @@ class Arc2D:
 
     @staticmethod
     def pointsAtParameter(arc, count: int):
-        # Create points at parameter on an arc based on an interval
         d_alpha = arc.angleRadian / (count - 1)
         alpha = 0
         pnts = []
@@ -265,7 +333,7 @@ class Arc2D:
             pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha), 0))
             alpha = alpha + d_alpha
         CSNew = arc.coordinatesystem
-        pnts2 = []  # transformed points
+        pnts2 = []
         for i in pnts:
             pnts2.append(transformPoint2D(i, CSNew))
         return pnts2
@@ -286,10 +354,33 @@ class Arc2D:
 
 class PolyCurve2D:
     def __init__(self) -> None:
-        self.type = __class__.__name__        
-        self.curves = [] #collect in list
-        self.points2D = []
         self.id = generateID()
+        self.type = __class__.__name__        
+        self.curves = []
+        self.points2D = []
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'curves': [curve.serialize() for curve in self.curves],
+            'points2D': [point.serialize() for point in self.points2D]
+        }
+
+    @staticmethod
+    def deserialize(data):
+        polycurve2d = PolyCurve2D()
+        polycurve2d.id = data.get('id')
+
+        for curve_data in data.get('curves', []):
+            curve = Line2D.deserialize(curve_data)
+            polycurve2d.curves.append(curve)
+
+        for point_data in data.get('points2D', []):
+            point = Point2D.deserialize(point_data)
+            polycurve2d.points2D.append(point)
+
+        return polycurve2d
 
     def __id__(self):
         return f"id:{self.id}"

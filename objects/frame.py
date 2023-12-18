@@ -58,13 +58,13 @@ def colorlist(extrus,color):
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Frame:
-    # Frame
     def __init__(self):
-        self.extrusion = None
-        self.comments = None
+        self.id = generateID()
         self.type = __class__.__name__
         self.name = "None"
         self.profileName = "None"
+        self.extrusion = None
+        self.comments = None        
         self.structuralType = None
         self.start = None
         self.end = None
@@ -82,6 +82,63 @@ class Frame:
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'profileName': self.profileName,
+            'extrusion': self.extrusion,
+            'comments': self.comments,
+            'structuralType': self.structuralType,
+            'start': self.start,
+            'end': self.end,
+            'curve': self.curve,
+            'curve3d': self.curve3d,
+            'length': self.length,
+            'coordinateSystem': self.coordinateSystem.serialize(),
+            'YJustification': self.YJustification,
+            'ZJustification': self.ZJustification,
+            'YOffset': self.YOffset,
+            'ZOffset': self.ZOffset,
+            'rotation': self.rotation,
+            'material': self.material,
+            'color': self.color,
+            'colorlst': self.colorlst,
+            'vector': self.vector.serialize() if self.vector else None,
+            'vector_normalised': self.vector_normalised.serialize() if self.vector_normalised else None
+        }
+
+    @staticmethod
+    def deserialize(data):
+        frame = Frame()
+        frame.id = data.get('id')
+        frame.type = data.get('type')
+        frame.name = data.get('name', "None")
+        frame.profileName = data.get('profileName', "None")
+        frame.extrusion = data.get('extrusion')
+        frame.comments = data.get('comments')
+        frame.structuralType = data.get('structuralType')
+        frame.start = data.get('start')
+        frame.end = data.get('end')
+        frame.curve = data.get('curve')
+        frame.curve3d = data.get('curve3d')
+        frame.length = data.get('length', 0)
+        frame.coordinateSystem = CoordinateSystem.deserialize(data['coordinateSystem'])
+        frame.YJustification = data.get('YJustification', "Origin")
+        frame.ZJustification = data.get('ZJustification', "Origin")
+        frame.YOffset = data.get('YOffset', 0)
+        frame.ZOffset = data.get('ZOffset', 0)
+        frame.rotation = data.get('rotation', 0)
+        frame.material = data.get('material')
+        frame.color = data.get('color', BaseOther.color)
+        frame.colorlst = data.get('colorlst', [])
+        frame.vector = Vector3.deserialize(data['vector']) if 'vector' in data else None
+        frame.vector_normalised = Vector3.deserialize(data['vector_normalised']) if 'vector_normalised' in data else None
+
+        return frame
+
 
     def props(self):
         self.vector = Vector3(self.end.x-self.start.x,self.end.y-self.start.y,self.end.z-self.start.z)

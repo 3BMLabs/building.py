@@ -89,6 +89,16 @@ class BuildingPy:
     #     return "mm"
 
 # [!not included in BP singlefile - start]
+    # def deserialize_point(serialized_point):
+    #     data = json.loads(serialized_point)
+    #     return Point(data['x'], data['y'], data['z'])
+
+    # def deserialize_line(serialized_line):
+    #     data = json.loads(serialized_line)
+    #     start_point = deserialize_point(json.dumps(data['start']))
+    #     end_point = deserialize_point(json.dumps(data['end']))
+    #     return Line(start_point, end_point)
+        
     def save(self):
         print(self.objects)
         pass #save all objects in here
