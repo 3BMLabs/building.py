@@ -89,6 +89,13 @@ class BuildingPy:
     #     return "mm"
 
 # [!not included in BP singlefile - start]
+    def save(self):
+        print(self.objects)
+        pass #save all objects in here
+
+    def open(self):
+        pass #open data.json objects in here
+
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
         self.specklestream = streamid

@@ -61,6 +61,18 @@ class Point:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self.x},{self.y},{self.z})"
 
+    def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        return {
+            'id': id_value,
+            'type': self.type,
+            'x': self.x,
+            'y': self.y,
+            'z': self.z,
+            'value': self.value,
+            'units': self.units
+        }
+
     @staticmethod
     def distance(point1, point2):
         return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2 + (point1.z - point2.z)**2)
@@ -215,6 +227,7 @@ class CoordinateSystem:
             vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
         CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
         return CSNew
+    
 
 def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
     from abstract.vector import Vector3

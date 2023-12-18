@@ -105,10 +105,7 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # self.curve = Line(start, end)
         f1.curve = profiledataToShape(profile_name).polycurve2d #polycurve2d
-        #except:
-            #print(profile_name)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -139,7 +136,6 @@ class Frame:
         try:
             curv = profiledataToShape(profile_name).polycurve2d
         except:
-            # pass
             print(f"Profile does not exist: {profile_name}") #Profile does not exist
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees

@@ -47,10 +47,10 @@ from abstract.coordinatesystem import *
 
 class Line: #add Line.bylenght (start and endpoint)
     def __init__(self, start: Point, end: Point) -> None:
+        self.id = generateID()
         self.type = __class__.__name__        
         self.start: Point = start
         self.end: Point = end
-        self.id = generateID()
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         try:
@@ -66,6 +66,18 @@ class Line: #add Line.bylenght (start and endpoint)
         self.length = self.length()
         self.vector: Vector3 = Vector3.byTwoPoints(start,end)
         self.vector_normalised = Vector3.normalize(self.vector)
+
+    def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        return {
+            'type': self.type,
+            'start': self.start,
+            'end': self.end,
+            'x': self.x,
+            'y': self.y,
+            'dx': self.dx,
+            'dy': self.dy
+        }
 
     def translate(self,direction:Vector3):
         self.start = Point.translate(self.start,direction)
