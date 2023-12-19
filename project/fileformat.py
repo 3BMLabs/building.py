@@ -84,21 +84,6 @@ class BuildingPy:
         YAxis = Vector3(0, 1, 0)
         ZAxis = Vector3(0, 0, 1)
         self.CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
-
-    # @property
-    # def units(self):
-    #     return "mm"
-
-# [!not included in BP singlefile - start]
-    # def deserialize_point(serialized_point):
-    #     data = json.loads(serialized_point)
-    #     return Point(data['x'], data['y'], data['z'])
-
-    # def deserialize_line(serialized_line):
-    #     data = json.loads(serialized_line)
-    #     start_point = deserialize_point(json.dumps(data['start']))
-    #     end_point = deserialize_point(json.dumps(data['end']))
-    #     return Line(start_point, end_point)
         
     def save(self):
         # print(self.objects)

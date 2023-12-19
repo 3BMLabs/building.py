@@ -227,6 +227,7 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
+        # print(f1.start, f1.end)
         f1.structuralType = structuralType
         f1.rotation = rotation
 

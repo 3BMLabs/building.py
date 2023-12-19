@@ -3,7 +3,6 @@
 
 import sys, os
 import json
-import specklepy
 from pathlib import Path
 from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QPushButton
 
@@ -20,7 +19,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Scia2Struct4U converter")
+        self.setWindowTitle("Scia2XFEM4U converter")
         button = QPushButton("Select XML File")
         button.clicked.connect(self.select_xml_file)
         self.setCentralWidget(button)
