@@ -20,6 +20,7 @@ serialized_objects = json.loads(serialized_data)
 project.objects = []
 for serialized_obj in serialized_objects:
     obj_data = json.loads(serialized_obj)
+    print(obj_data)
     if obj_data['type'] == 'Point':
         deserialize = Point.deserialize(obj_data)
         project.objects.append(deserialize)

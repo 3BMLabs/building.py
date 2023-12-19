@@ -282,6 +282,8 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
+                                        if node1.x == node2.x:
+                                            node2 = Node(node2.x,node2.y+0.000001,node2.z)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:

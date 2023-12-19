@@ -48,7 +48,7 @@ from helper import *
 class Point:
     def __init__(self, x, y, z):
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
