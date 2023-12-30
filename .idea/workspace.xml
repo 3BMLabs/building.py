@@ -5,42 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/write_bp_single_file.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CreateBuildingPySingleFile.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/boundingbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/boundingbox.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/color.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/color.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/dimension.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/intersect2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/intersect2d.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/abstract/vector.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/vector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/CreatePatternFile.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/CreatePatternFile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/CreatePatternSendToSpeckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/CreatePatternSendToSpeckle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exchange/pat.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/pat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exchange/scia.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/scia.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exchange/speckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/speckle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exchange/struct4U.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/struct4U.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/bmesh.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/bmesh.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/curve.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/curve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/geometry2d.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/geometry2d.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/linestyle.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/linestyle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/point.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/point.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/pointcloud.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/pointcloud.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/solid.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/solid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/surface.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/surface.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/geometry/systemsimple.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/systemsimple.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/analytical.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/analytical.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/annotation.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/annotation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/datum.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/datum.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/frame.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/frame.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/objectcollection.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/objectcollection.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/panel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/shape.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/shape.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/steelshape.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/steelshape.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/objects/view.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/view.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/helper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project/fileformat.py" beforeDir="false" afterPath="$PROJECT_DIR$/project/fileformat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/Example Projects/Unit System.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Example Projects/Unit System.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/Scia/ReadXML.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp/Scia/ReadXML.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +52,28 @@
       <recent name="C:\Users\mikev\Documents\GitHub\building.py" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.CreatePatternSendToSpeckle">
+    <configuration name="CreatePatternSendToSpeckle" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="building.py" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/CreatePatternSendToSpeckle.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Joasdiv" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -119,27 +108,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp/joastemp.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="joastemp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PyBuildingSystems" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/temp" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\JoasHollander\Documents\GitHub\building.py\temp\joastemp.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -192,11 +160,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.CreatePatternSendToSpeckle" />
         <item itemvalue="Python.smalltest" />
         <item itemvalue="Python.Joasdiv" />
         <item itemvalue="Python.joastemp (1)" />
         <item itemvalue="Python.pil_img" />
-        <item itemvalue="Python.joastemp" />
       </list>
     </recent_temporary>
   </component>

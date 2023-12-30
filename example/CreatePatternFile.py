@@ -12,6 +12,8 @@ pat7 = HerringbonePattern("Visgraat",500,5,Revitmodelpattern)
 patternstrings = pat1 + pat2 + pat3 + pat4 + pat5 + pat6 + pat7
 patternstrings.insert(0, Patprefix)
 
+
+
 for i in patternstrings:
     print(i)
 

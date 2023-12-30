@@ -119,7 +119,40 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-#Old method
+    def ParallelLines(self, name: str, widths: list, patterntype: str):
+        self.name = name
+        self.patterntype = patterntype
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        width = sum(widths)
+        x = 0
+        for i in widths:
+            row = PATRow().create(90,x,0,0,width,0,0)
+            self.patrows.append(row)
+            self.patstrings.append(row.patstr)
+            x = x + i
+
+        self.patstrings.append(";")
+        return self
+
+def CreatePatFile(patternobjects: list, filepath: str):
+    patternstrings = []
+    for i in patternobjects:
+        patternstrings = patternstrings + i.patstrings
+
+    patternstrings.insert(0, Patprefix)
+
+    patn = []
+    for i in patternstrings:
+        patn.append(i + "\n")
+    # Create PAT-file
+    fp = open(filepath, 'w')
+    for i in patn:
+        fp.write(i)
+    fp.close()
+    return filepath
+
+#Old , to be removed after transition to class system
 def PatRow(angle: float, x_orig: float, y_orig: float, shift_pattern: float, offset: float, dash: float=0, space: float=0):
     #if dash and space are 0 then no pattern
     #rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
