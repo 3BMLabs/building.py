@@ -127,6 +127,12 @@ class Line: #add Line.bylenght (start and endpoint)
         return self
 
     @staticmethod
+    def translate2(line,direction:Vector3):
+        line.start = Point.translate(line.start,direction)
+        line.end = Point.translate(line.end,direction)
+        return line
+
+    @staticmethod
     def transform(line, CSNew: CoordinateSystem):
         ln = Line(start=line.start, end=line.end)
         ln.start = transformPoint2(ln.start,CSNew)

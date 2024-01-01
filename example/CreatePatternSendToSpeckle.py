@@ -1,49 +1,31 @@
 from exchange.pat import *
-from geometry.curve import Line, Point
 from project.fileformat import BuildingPy
-import sys
 
 project = BuildingPy("Test patterns","0")
 project.speckleserver = "speckle.xyz"
 
 pat1 = PAT().TilePattern("500x500", 500, 500, Revitmodelpattern)
 pat2 = PAT().BlockPattern("Blokpatroon",300,4,Revitmodelpattern)
-pat3 = PAT().ParallelLines("Bamboe",[0,150,100,100,50,150,50,100,100],Revitmodelpattern)
+pat3 = PAT().Strips("hor_200",200,0,Revitmodelpattern)
+pat4 = PAT().StretcherBondPattern("Brick700x300_100",700,300,200,Revitmodelpattern)
+pat6 = PAT().CombiPattern("Combipatroon",300,Revitmodelpattern)
+pat7 = PAT().ChevronPattern("Hongaarsepunt",500,100,Revitmodelpattern)
+pat8 = PAT().HerringbonePattern("Visgraat",500,5,Revitmodelpattern)
+pat9 = PAT().ParallelLines("Bamboe",0, [0,150,100,100,50,150,50,100,100],Revitmodelpattern)
 
-#CreatePatFile([pat1,pat2,pat3],'C:/TEMP/test3.pat')
+pat10 = PAT().Strips("hor_200",200,25,Revitmodelpattern)
+lst = [pat1,pat2,pat3,pat4,pat6,pat7,pat8,pat9]
+#lst = [pat5]
 
-# rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
+#CreatePatFile(lst,'C:/TEMP/test3.pat')
 
-test = PATRow().create(0,0,0,0,250,0,0)
-test = PATRow().create(0,0,0,0,250,0,0)
-def PatRowGeom(patrow: PATRow, width: float, height: float):
-    nlines = int(height /  patrow.offset_spacing)
-    lines = []
-    n = 0
-    for i in range(nlines):
-        if patrow.dash == 0 and patrow.space == 00:
-            x_start = patrow.x_orig + patrow.shift_pattern
-            y_start = patrow.y_orig + n * patrow.offset_spacing
-            x_end = width + patrow.shift_pattern
-            y_end = patrow.y_orig + math.tan(math.radians(patrow.angle))*width + n * patrow.offset_spacing
-            lines.append(Line(Point(x_start,y_start,0),Point(x_end,y_end,0)))
-            n = n + 1
-    return lines
+dx = 0
+spacing = 8000
 
-lines = PatRowGeom(test,2000,1000)
 
-for i in lines:
-    project.objects.append(i)
+for i in lst:
+    for j in PAT2Geom(i,2500,2500,dx,0):
+        project.objects.append(j)
+    dx = dx + spacing
 
 project.toSpeckle("3e34ec62e2")
-
-
-#self.angle = 0
-#self.x_orig = 0
-#self.y_orig = 0
-#self.shift_pattern = 0
-#self.offset = 0
-
-#self.dash = 0
-#self.space = 0
-#self.patstr = ""

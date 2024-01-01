@@ -116,6 +116,13 @@ class Vector2:
             v1.x*v2.y - v1.y*v2.x
         )
 
+    @staticmethod
+    def reverse(v1):
+        return Vector2(
+            v1.x*-1,
+            v1.y*-1
+        )
+
     def __id__(self):
         return f"id:{self.id}"
 
@@ -204,6 +211,8 @@ class Line2D:
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
+        self.vector2: Vector2 = Vector2.byTwoPoints(self.start,self.end)
+        self.vector2_normalised = Vector2.normalize(self.vector2)
         self.length = 0
         self.id = generateID()
 
@@ -228,6 +237,11 @@ class Line2D:
 
     def __id__(self):
         return f"id:{self.id}"
+
+    def mid_point(self):
+        vect = Vector2.scale(self.vector2,0.5)
+        mid = Point2D.translate(self.start,vect)
+        return mid
 
     def length(self):
         self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)

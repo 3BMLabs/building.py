@@ -32,6 +32,7 @@ __author__ = "Maarten"
 __url__ = "./exchange/pat.py"
 
 import math
+from geometry.linestyle import *
 
 Patprefix = ';%UNITS=MM' \
          ';' \
@@ -62,6 +63,7 @@ class PATRow:
     def create(self,angle: float, x_orig: float, y_orig: float, shift_pattern: float, offset_spacing: float, dash: float=0, space: float=0):
         # if dash and space are 0 then no pattern
         # rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
+        # x, y-origin is global,
         self.angle = angle
         self.x_orig = x_orig
         self.y_orig = y_orig
@@ -112,12 +114,18 @@ class PAT:
         self.patstrings.append(row2.patstr)
         n = 0
         for i in range(numbersublines):
-            row3 = PATRow().create(0, grosswidthheight, subspacing * n, grosswidthheight, grosswidthheight, grosswidthheight, -grosswidthheight)
-            row4 = PATRow().create(90, subspacing * n, 0, grosswidthheight, grosswidthheight, grosswidthheight,-grosswidthheight)
+            row3 = PATRow().create(0, 0, subspacing * n + grosswidthheight, 0, grosswidthheight*2, grosswidthheight, -grosswidthheight)
+            row4 = PATRow().create(0, grosswidthheight, subspacing * n, 0, grosswidthheight*2, grosswidthheight, -grosswidthheight)
+            row5 = PATRow().create(90, subspacing * n, 0, 0, grosswidthheight*2, grosswidthheight,-grosswidthheight)
+            row6 = PATRow().create(90, subspacing * n + grosswidthheight, grosswidthheight, 0, grosswidthheight*2, grosswidthheight,-grosswidthheight)
             self.patrows.append(row3)
             self.patrows.append(row4)
+            self.patrows.append(row5)
+            self.patrows.append(row6)
             self.patstrings.append(row3.patstr)
             self.patstrings.append(row4.patstr)
+            self.patstrings.append(row5.patstr)
+            self.patstrings.append(row6.patstr)
             n = n + 1
         self.patstrings.append(";")
         return self
@@ -252,7 +260,7 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-    def ParallelLines(self, name: str, widths: list, patterntype: str):
+    def ParallelLines(self, name: str, angle: float, widths: list, patterntype: str):
         self.name = name
         self.patterntype = patterntype
         self.patstrings.append("*" + name)
@@ -260,7 +268,7 @@ class PAT:
         width = sum(widths)
         x = 0
         for i in widths:
-            row = PATRow().create(90,x,0,0,width,0,0)
+            row = PATRow().create(angle,0,x,0,width,0,0)
             self.patrows.append(row)
             self.patstrings.append(row.patstr)
             x = x + i
@@ -284,6 +292,64 @@ def CreatePatFile(patternobjects: list, filepath: str):
         fp.write(i)
     fp.close()
     return filepath
+
+def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
+    # works for 0-90 degrees
+    nlines = int(height / patrow.offset_spacing)+1
+    lines = []
+    n = 0
+    for i in range(nlines):
+        Xn = Vector3.rotateXY(XAxis, math.radians(patrow.angle))
+        Yn = Vector3.rotateXY(YAxis, math.radians(patrow.angle))
+        CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
+        x_start = 0
+        y_start = 0
+        x_end = width
+        y_end = 0
+        l1 = Line(Point(x_start, y_start, 0), Point(x_end, y_end, 0)) # baseline
+        l2 = Line.transform(l1, CSNewLn) # rotation
+        v1 = Vector3.byTwoPoints(l2.start,l2.end)
+        v1 = Vector3.normalize(v1)
+        v2 = Vector3.scale(v1, patrow.shift_pattern * n)
+        l3 = Line.translate2(l2, v2)  # shift of line for pattern
+        #if patrow.shift_pattern == 0:
+        #    l3 = l2
+        #else:
+        #    v2 = Vector3.scale(v1, patrow.shift_pattern*(n+1))
+        #    l3 = Line.translate2(l2,v2) # shift of line for pattern
+        v3 = Vector3.normalize(Vector3.crossProduct(v1,ZAxis)) #Eenheidsvector haaks op lijn
+        if patrow.angle == 0:
+            v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
+            v4 = Vector3.reverse(v4)
+        else:
+            v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing
+        if n * patrow.offset_spacing == 0: # eerste lijn heeft geen verplaatsing
+            l4 = l3
+        else:
+            l4 = l3.translate(v4)
+        v6 = Vector3(dx + patrow.x_orig,dy + patrow.y_orig,0)
+        print(v6)
+        l5 = Line.translate2(l4,v6)
+
+        if patrow.dash == 0 and patrow.space == 0:
+            lines.append(l5)
+        else:
+            # dashed lines
+            LinePattern = ["Pat", [patrow.dash, -patrow.space],
+                           1]  # Rule: line, whitespace, line whitespace etc., scale
+            for i in lineToPattern(l5, LinePattern):
+                lines.append(i)
+        n = n + 1
+
+    return lines
+
+def PAT2Geom(Pat: PAT, width, height,dx,dy):
+    lineObjs = []
+    for i in Pat.patrows:
+        lines = PatRowGeom(i, width, height,dx,dy)
+        for i in lines:
+            lineObjs.append(i)
+    return lineObjs
 
 #reader
 #drawsection
