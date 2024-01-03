@@ -260,7 +260,8 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-    def ParallelLines(self, name: str, angle: float, widths: list, patterntype: str):
+    def ParallelLines(self, name: str, widths: list, patterntype: str):
+        # this pattern consists of parallel lines with different offset distances. Can be defined in a list.
         self.name = name
         self.patterntype = patterntype
         self.patstrings.append("*" + name)
@@ -268,7 +269,7 @@ class PAT:
         width = sum(widths)
         x = 0
         for i in widths:
-            row = PATRow().create(angle,0,x,0,width,0,0)
+            row = PATRow().create(90,x,0,0,width,0,0)
             self.patrows.append(row)
             self.patstrings.append(row.patstr)
             x = x + i
@@ -276,7 +277,68 @@ class PAT:
         self.patstrings.append(";")
         return self
 
+    def StretcherBondWithJoint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+        self.name = name
+        self.patterntype = patterntype
+        lagenmaat = brickheight + jointheight
+
+        row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
+        row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)
+        row3 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat,0,lagenmaat*2, bricklength, -jointwidth)
+        row4 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat+brickheight,0,lagenmaat*2, bricklength, -jointwidth)
+
+        row5 = PATRow().create(90,0,0,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row6 = PATRow().create(90,bricklength,0,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row7 = PATRow().create(90,(bricklength+jointwidth)/2,lagenmaat,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row8 = PATRow().create(90,(bricklength+jointwidth)/2+bricklength,lagenmaat,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+        self.patrows.append(row5)
+        self.patrows.append(row6)
+        self.patrows.append(row7)
+        self.patrows.append(row8)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(row5.patstr)
+        self.patstrings.append(row6.patstr)
+        self.patstrings.append(row7.patstr)
+        self.patstrings.append(row8.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def TilePatternWithJoint(self, name: str, width: float, height: float, jointwidth: float, jointheight: float, patterntype: str):
+        #this is rectangle tile pattern with joints between tiles
+        self.name = name
+        self.patterntype = patterntype
+        row1 = PATRow().create(0, 0, 0, 0, height+jointheight, width, -jointwidth)
+        row2 = PATRow().create(0, 0, height, 0, height + jointheight, width, -jointwidth)
+        row3 = PATRow().create(90,0,0,0,width+jointwidth,height,-jointheight)
+        row4 = PATRow().create(90,width,0,0,width+jointwidth,height,-jointheight)
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(";")
+        return self
+
 def CreatePatFile(patternobjects: list, filepath: str):
+    #Write Pattern File
     patternstrings = []
     for i in patternobjects:
         patternstrings = patternstrings + i.patstrings
@@ -294,7 +356,8 @@ def CreatePatFile(patternobjects: list, filepath: str):
     return filepath
 
 def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
-    # works for 0-90 degrees
+    # tested for 0-90 degrees
+    #Create BuildingPy Lines from PAT-objects
     nlines = int(height / patrow.offset_spacing)+1
     lines = []
     n = 0
