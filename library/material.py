@@ -67,5 +67,7 @@ BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
 BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
 BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
 BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
+BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
+BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
 
 #class Materialfinish

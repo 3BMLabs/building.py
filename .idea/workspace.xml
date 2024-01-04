@@ -8,6 +8,10 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/CreatePatternSendToSpeckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/CreatePatternSendToSpeckle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exchange/pat.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/pat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/curve.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/curve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/systemsimple.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/systemsimple.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/objects/panel.py" beforeDir="false" afterPath="$PROJECT_DIR$/objects/panel.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +55,7 @@
       <recent name="C:\Users\mikev\Documents\GitHub\building.py" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.CreatePatternSendToSpeckle">
+  <component name="RunManager">
     <configuration name="CreatePatternSendToSpeckle" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />

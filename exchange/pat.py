@@ -33,7 +33,7 @@ __url__ = "./exchange/pat.py"
 
 import math
 from geometry.linestyle import *
-
+from objects.panel import *
 Patprefix = ';%UNITS=MM' \
          ';' \
 
@@ -278,9 +278,11 @@ class PAT:
         return self
 
     def StretcherBondWithJoint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+        #This is stretcherbond(halfsteensverband) with joints
         self.name = name
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
+        self.
 
         row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
         row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)
@@ -334,6 +336,59 @@ class PAT:
         self.patstrings.append(row2.patstr)
         self.patstrings.append(row3.patstr)
         self.patstrings.append(row4.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def CrossBondWithJoint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+        #This is crossbond(kruisverband) with joints
+        self.name = name
+        self.patterntype = patterntype
+        lagenmaat = brickheight + jointheight
+
+        row1 = PATRow().create(0,0,0,0,lagenmaat*4, bricklength, -jointwidth)
+        row2 = PATRow().create(0,0,brickheight,0,lagenmaat*4,bricklength, -jointwidth)
+
+        row3 = PATRow().create(0,0.5*(brickwidth + jointwidth),lagenmaat,0,lagenmaat*2, brickwidth, -jointwidth)
+        row4 = PATRow().create(0,0.5*(brickwidth + jointwidth),lagenmaat + brickheight,0,lagenmaat*2, brickwidth, -jointwidth)
+
+        row5 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat*2,0,lagenmaat*4, bricklength, -jointwidth)
+        row6 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat*4+brickheight,0,lagenmaat*2, bricklength, -jointwidth)
+
+        row7 = PATRow().create(90,0,0,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+        row8 = PATRow().create(90,bricklength,0,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+        row9 = PATRow().create(90,0.5*(brickwidth + jointwidth),lagenmaat,0,brickwidth+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row10 = PATRow().create(90,0.5*(brickwidth + jointwidth)+brickwidth,lagenmaat,0,brickwidth+jointwidth,brickheight,-(brickheight+2*jointheight))
+
+        row11 = PATRow().create(90,(bricklength+jointwidth)/2,lagenmaat*2,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+        row12 = PATRow().create(90,(bricklength+jointwidth)/2+bricklength,lagenmaat*2,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+        self.patrows.append(row5)
+        self.patrows.append(row6)
+        self.patrows.append(row7)
+        self.patrows.append(row8)
+        self.patrows.append(row9)
+        self.patrows.append(row10)
+        self.patrows.append(row11)
+        self.patrows.append(row12)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(row5.patstr)
+        self.patstrings.append(row6.patstr)
+        self.patstrings.append(row7.patstr)
+        self.patstrings.append(row8.patstr)
+        self.patstrings.append(row9.patstr)
+        self.patstrings.append(row10.patstr)
+        self.patstrings.append(row11.patstr)
+        self.patstrings.append(row12.patstr)
         self.patstrings.append(";")
         return self
 

@@ -162,6 +162,7 @@ class Line: #add Line.bylenght (start and endpoint)
         return mid
 
     def split(self, points: Point):
+        lines = []
         if isinstance(points, list):        
             points.extend([self.start, self.end])
             sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
@@ -377,7 +378,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points:Point):
+    def byPoints(self, points: list):
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, point in enumerate(points):
@@ -556,6 +557,21 @@ class PolyCurve:
         pc.curves = crvs
         return pc
 
+    @staticmethod
+    def copyTranslate(pc, vector3d:Vector3):
+        crvs = []
+        v1 = vector3d
+        for i in pc.curves:
+            #if i.__class__.__name__ == "Arc":
+            #    crvs.append(Arc(Point.translate(i.start, v1), Point.translate(i.middle, v1), Point.translate(i.end, v1)))
+            if i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
+            else:
+                print("Curvetype not found")
+
+        PCnew = PolyCurve.byJoinedCurves(crvs)
+        return PCnew
+
     def rotate(self, angle, dz):
         #angle in degrees
         #dz = displacement in z-direction
@@ -597,7 +613,7 @@ class PolyCurve:
         return p1
 
     @staticmethod
-    def transform_from_origin(polycurve, startpoint: Point,directionvector: Vector3):
+    def transform_from_origin(polycurve, startpoint: Point, directionvector: Vector3):
         crvs = []
         for i in polycurve.curves:
             if i.__class__.__name__ == "Arc":

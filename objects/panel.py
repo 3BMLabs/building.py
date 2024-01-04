@@ -53,7 +53,7 @@ class Panel:
         self.name = "none"
         self.perimeter: float = 0
         self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
-        self.color = None
+        self.colorint = None
         self.colorlst = []
         self.origincurve = None
 
@@ -96,6 +96,7 @@ class Panel:
         p1.thickness = thickness
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, offset)
         p1.origincurve = polycurve
+        p1.colorint = colorrgbint
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
         return p1
@@ -117,3 +118,4 @@ class Panel:
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
         return p1
+
