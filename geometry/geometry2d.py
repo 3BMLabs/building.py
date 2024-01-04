@@ -197,9 +197,10 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
     from abstract.vector import Vector3
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
-    pn3 = Point2D(pn.x,pn.y)
+    #pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    pn3 = Point2D.translate(PointLocal,Vector2(CoordinateSystemNew.Origin.x,CoordinateSystemNew.Origin.y))
+    #pn3 = Point2D(pn.x,pn.y)
     return pn3
 
 class Line2D:
@@ -263,6 +264,7 @@ class Arc2D:
         self.end: Point2D = pntxy3
         self.origin = self.originarc()
         self.angleRadian = self.angleRadian()
+        self.radius = self.radiusarc()
         #self.radius = self.radiusarc()
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
@@ -343,11 +345,12 @@ class Arc2D:
 
     @staticmethod
     def pointsAtParameter(arc, count: int):
+        #ToDo can be simplified. Now based on the 3D variant
         d_alpha = arc.angleRadian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
-            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha), 0))
+            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha)))
             alpha = alpha + d_alpha
         CSNew = arc.coordinatesystem
         pnts2 = []

@@ -602,3 +602,49 @@ class xmlXFEM4U:
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
+
+def createXFEM4UXML(project: BuildingPy, filepathxml: str):
+    # Export to XFEM4U XMLK-file
+    xmlS4U = xmlXFEM4U()  # Create XML object with standard values
+    xmlS4U.addBeamsPlates(project.objects)  # Add Beams, Profiles, Plates, Beamgroups, Nodes
+    xmlS4U.addProject(project.name)
+    xmlS4U.addPanels(project.objects)  # add Load Panels
+    xmlS4U.addGrids()  # Grids
+    xmlS4U.addLoadCasesCombinations()
+    xmlS4U.XML()
+    XMLString = xmlS4U.xmlstr
+
+    filepath = filepathxml
+    file = open(filepath, "w")
+    a = file.write(XMLString)
+    file.close()
+
+    return filepath
+
+
+def writeDirectCommandsfile(xmlfilepath: str):
+    #Write Ini-file for directcommands
+    pathdirectcommands = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'DirectCommands_XFEM4U.ini')
+    row1 = '[Struct4u]\n'
+    row2 = 'Import_XML=' + xmlfilepath + '\n'
+    content = row1 + row2
+
+    file = open(pathdirectcommands, "w")
+    a = file.write(content)
+    file.close()
+
+def openXFEM4U(fileName):
+    #Open XML file in XFEM4U
+    os.system("C:/Struct4u/XFEM4U/wframe3d.exe " + fileName)
+
+def openXFrame2D(fileName):
+    #Open XML file in XFEM4U
+    os.system("C:/Program Files (x86)/Struct4u/XFrame2d/XFrame2d.exe " + fileName)
+
+def SubprocessXFEM4UThread():
+    #Run XFEM4U
+    import subprocess
+    try:
+        subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe", shell=True, check=False)
+    except:
+        print("exception")

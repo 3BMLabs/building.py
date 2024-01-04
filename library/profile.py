@@ -41,6 +41,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from objects.steelshape import *
+from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"

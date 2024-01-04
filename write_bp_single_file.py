@@ -44,6 +44,7 @@ pythonfiles = \
     "objects/steelshape.py",
     "objects/view.py",
     "exchange/DXF.py",
+    "exchange/pat.py",
     "exchange/struct4U.py",
     "exchange/scia.py",
     ]

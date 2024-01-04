@@ -921,6 +921,12 @@ class Line: #add Line.bylenght (start and endpoint)
         return self
 
     @staticmethod
+    def translate2(line,direction:Vector3):
+        line.start = Point.translate(line.start,direction)
+        line.end = Point.translate(line.end,direction)
+        return line
+
+    @staticmethod
     def transform(line, CSNew: CoordinateSystem):
         ln = Line(start=line.start, end=line.end)
         ln.start = transformPoint2(ln.start,CSNew)
@@ -950,6 +956,7 @@ class Line: #add Line.bylenght (start and endpoint)
         return mid
 
     def split(self, points: Point):
+        lines = []
         if isinstance(points, list):        
             points.extend([self.start, self.end])
             sorted_points = sorted(points, key=lambda p: p.distance(p,self.end))
@@ -1165,7 +1172,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points:Point):
+    def byPoints(self, points: list):
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, point in enumerate(points):
@@ -1343,6 +1350,21 @@ class PolyCurve:
         pc.curves = crvs
         return pc
 
+    @staticmethod
+    def copyTranslate(pc, vector3d:Vector3):
+        crvs = []
+        v1 = vector3d
+        for i in pc.curves:
+            #if i.__class__.__name__ == "Arc":
+            #    crvs.append(Arc(Point.translate(i.start, v1), Point.translate(i.middle, v1), Point.translate(i.end, v1)))
+            if i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.translate(i.start, v1), Point.translate(i.end, v1)))
+            else:
+                print("Curvetype not found")
+
+        PCnew = PolyCurve.byJoinedCurves(crvs)
+        return PCnew
+
     def rotate(self, angle, dz):
         #angle in degrees
         #dz = displacement in z-direction
@@ -1380,7 +1402,7 @@ class PolyCurve:
         return p1
 
     @staticmethod
-    def transform_from_origin(polycurve, startpoint: Point,directionvector: Vector3):
+    def transform_from_origin(polycurve, startpoint: Point, directionvector: Vector3):
         crvs = []
         for i in polycurve.curves:
             if i.__class__.__name__ == "Arc":
@@ -2305,6 +2327,13 @@ class Vector2:
             v1.x*v2.y - v1.y*v2.x
         )
 
+    @staticmethod
+    def reverse(v1):
+        return Vector2(
+            v1.x*-1,
+            v1.y*-1
+        )
+
     def __id__(self):
         return f"id:{self.id}"
 
@@ -2391,6 +2420,8 @@ class Line2D:
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
+        self.vector2: Vector2 = Vector2.byTwoPoints(self.start,self.end)
+        self.vector2_normalised = Vector2.normalize(self.vector2)
         self.length = 0
         self.id = generateID()
 
@@ -2415,6 +2446,11 @@ class Line2D:
 
     def __id__(self):
         return f"id:{self.id}"
+
+    def mid_point(self):
+        vect = Vector2.scale(self.vector2,0.5)
+        mid = Point2D.translate(self.start,vect)
+        return mid
 
     def length(self):
         self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
@@ -3560,8 +3596,130 @@ class RectangleSystem:
             pass
         return self
 
+class PatternSystem:
+    def __init__(self):
+        self.type = __class__.__name__
+        self.name = None
+        self.id = generateID()
+        self.pattern = None
+        self.basepanels = [] #contains a list with basepanels of the system
+        self.vectors = [] #contains a list sublists with Vector3 which represent the repetition of the system
 
-#   def geom_substem:
+    def StretcherBondWithJoint(self, name:str, brickwidth: float,  bricklength: float, brickheight: float, jointwidth: float, jointheight: float):
+        self.name = name
+        #Vectors of panel 1
+        V1 = Vector3(0, (brickheight + jointheight)*2,0)  #dy
+        V2 = Vector3(bricklength+jointwidth,0,0)  #dx
+        self.vectors.append([V1, V2])
+
+        # Vectors of panel 2
+        V3 = Vector3(0, (brickheight + jointheight) * 2, 0) #dy
+        V4 = Vector3(bricklength + jointwidth, 0, 0) #dx
+        self.vectors.append([V3, V4])
+
+        dx = (bricklength+jointwidth)/2
+        dy = brickheight+jointheight
+
+        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,brickheight,0),Point(bricklength,brickheight,0),Point(bricklength,0,0),Point(0,0,0)])
+        PC2 = PolyCurve().byPoints([Point(dx,dy,0),Point(dx,brickheight+dy,0),Point(bricklength+dx,brickheight+dy,0),Point(bricklength+dx,dy,0),Point(dx,dy,0)])
+        BasePanel1 = Panel.byPolyCurveThickness(PC1, brickwidth, 0, "BasePanel1", BaseBrick.colorint)
+        BasePanel2 = Panel.byPolyCurveThickness(PC2, brickwidth, 0, "BasePanel2", BaseBrick.colorint)
+
+        self.basepanels.append(BasePanel1)
+        self.basepanels.append(BasePanel2)
+        return self
+
+    def TileBondWithJoint(self, name:str, tilewidth: float,  tileheight: float, tilethickness: float, jointwidth: float, jointheight: float):
+        self.name = name
+        #Vectors of panel 1
+        V1 = Vector3(0, (tileheight + jointheight),0)  #dy
+        V2 = Vector3(tilewidth+jointwidth,0,0)  #dx
+        self.vectors.append([V1, V2])
+
+        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0),Point(0,0,0)])
+        BasePanel1 = Panel.byPolyCurveThickness(PC1, tilethickness, 0, "BasePanel1", BaseBrick.colorint)
+
+        self.basepanels.append(BasePanel1)
+        return self
+
+    def CrossBondWithJoint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float):
+        self.name = name
+        lagenmaat = brickheight + jointheight
+        #Vectors of panel 1 (strek)
+        V1 = Vector3(0, (brickheight + jointheight) * 4,0)  #dy spacing
+        V2 = Vector3(bricklength + jointwidth, 0, 0)  #dx spacing
+        self.vectors.append([V1, V2])
+
+        # Vectors of panel 2 (koppen 1)
+        V3 = Vector3(0, (brickheight + jointheight) * 2, 0) #dy spacing
+        V4 = Vector3(bricklength + jointwidth, 0, 0) #dx spacing
+        self.vectors.append([V3, V4])
+
+        dx2 = (brickwidth + jointwidth)/2  #start x offset
+        dy2 = lagenmaat #start y offset
+
+        # Vectors of panel 3 (strekken)
+        V5 = Vector3(0, (brickheight + jointheight) * 4,0)  #dy spacing
+        V6 = Vector3(bricklength + jointwidth, 0, 0)  #dx spacing
+        self.vectors.append([V5, V6])
+
+        dx3 = (bricklength + jointwidth)/2  #start x offset
+        dy3 = lagenmaat * 2 #start y offset
+
+        # Vectors of panel 4 (koppen 2)
+        V7 = Vector3(0, (brickheight + jointheight) * 2, 0) #dy spacing
+        V8 = Vector3(bricklength + jointwidth, 0, 0) #dx spacing
+        self.vectors.append([V7, V8])
+
+        dx4 = (brickwidth + jointwidth)/2 + (brickwidth + jointwidth)  #start x offset
+        dy4 = lagenmaat #start y offset
+
+
+        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,brickheight,0),Point(bricklength,brickheight,0),Point(bricklength,0,0),Point(0,0,0)])
+        PC2 = PolyCurve().byPoints([Point(dx2,dy2,0),Point(dx2,brickheight+dy2,0),Point(brickwidth+dx2,brickheight+dy2,0),Point(brickwidth+dx2,dy2,0),Point(dx2,dy2,0)])
+        PC3 = PolyCurve().byPoints([Point(dx3,dy3,0),Point(dx3,brickheight+dy3,0),Point(bricklength+dx3,brickheight+dy3,0),Point(bricklength+dx3,dy3,0),Point(dx3,dy3,0)])
+        PC4 = PolyCurve().byPoints([Point(dx4,dy4,0),Point(dx4,brickheight+dy4,0),Point(brickwidth+dx4,brickheight+dy4,0),Point(brickwidth+dx4,dy4,0),Point(dx4,dy4,0)])
+
+        BasePanel1 = Panel.byPolyCurveThickness(PC1, brickwidth, 0, "BasePanel1", BaseBrick.colorint)
+        BasePanel2 = Panel.byPolyCurveThickness(PC2, brickwidth, 0, "BasePanel2", BaseBrick.colorint)
+        BasePanel3 = Panel.byPolyCurveThickness(PC3, brickwidth, 0, "BasePanel3", BaseBrick.colorint)
+        BasePanel4 = Panel.byPolyCurveThickness(PC4, brickwidth, 0, "BasePanel4", BaseBrickYellow.colorint)
+
+        self.basepanels.append(BasePanel1)
+        self.basepanels.append(BasePanel2)
+        self.basepanels.append(BasePanel3)
+        self.basepanels.append(BasePanel4)
+
+        return self
+
+def PatternGEOM(PatternSystem,width,height):
+    test = PatternSystem
+    panels = []
+    for i,j in zip(test.basepanels,test.vectors):
+        ny = int(height / (j[0].y)) #number of panels in y-direction
+        nx = int(width / (j[1].x)) #number of panels in x-direction
+        PC = i.origincurve
+        thickness = i.thickness
+        color = i.colorint
+
+        #YX ARRAY
+        yvectdisplacement = j[0]
+        yvector = Vector3(0,0,0)
+        xvectdisplacement = j[1]
+        xvector = Vector3(0, 0, 0)
+
+        ylst = []
+        for k in range(ny):
+            yvector = Vector3.sum(yvectdisplacement, yvector)
+            for l in range(nx):
+                #Copy in x-direction
+                xvector = Vector3.sum(xvectdisplacement, xvector)
+                xyvector = Vector3.sum(yvector,xvector)
+                PCNew = PolyCurve.copyTranslate(PC,xyvector) #translate curve in x and y-direction
+                pan = Panel.byPolyCurveThickness(PCNew,thickness,0,"name",color)
+                panels.append(pan)
+            xvector = Vector3.sum(xvectdisplacement, Vector3(0, 0, 0))
+    return panels
 
 
 def rgb_to_int(rgb):
@@ -3589,6 +3747,8 @@ BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
 BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
 BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
 BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
+BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
+BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
 
 #class Materialfinish
 
@@ -5024,7 +5184,7 @@ class Panel:
         self.name = "none"
         self.perimeter: float = 0
         self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
-        self.color = None
+        self.colorint = None
         self.colorlst = []
         self.origincurve = None
 
@@ -5067,6 +5227,7 @@ class Panel:
         p1.thickness = thickness
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, offset)
         p1.origincurve = polycurve
+        p1.colorint = colorrgbint
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
         return p1
@@ -5088,6 +5249,7 @@ class Panel:
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
         return p1
+
 
 
 
@@ -7045,6 +7207,445 @@ class ReadDXF():
             for pl in self.points:
                 plList.append(PolyCurve.byPoints(pl))
             return plList
+
+
+Patprefix = ';%UNITS=MM' \
+         ';' \
+
+Revitmodelpattern = ";%TYPE=MODEL"
+
+class PATRow:
+    def __init__(self,):
+        self.angle = 0
+        self.x_orig = 0
+        self.y_orig = 0
+        self.shift_pattern = 0
+        self.offset_spacing = 0
+        self.dash = 0
+        self.space = 0
+        self.patstr = ""
+
+    def createpatstr(self):
+        patstr = str(self.angle) + ",  " + str(self.x_orig) + ",  " + str(self.y_orig) + ",  " + str(self.shift_pattern) + ",  " + str(
+            self.offset_spacing)
+        if self.dash == 0:
+            addstr = ""
+        else:
+            addstr = ",  " + str(self.dash) + ",  " + str(self.space)
+        patstr = patstr + addstr
+        return patstr
+
+    def create(self,angle: float, x_orig: float, y_orig: float, shift_pattern: float, offset_spacing: float, dash: float=0, space: float=0):
+        # if dash and space are 0 then no pattern
+        # rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
+        # x, y-origin is global,
+        self.angle = angle
+        self.x_orig = x_orig
+        self.y_orig = y_orig
+        self.shift_pattern = shift_pattern
+        self.offset_spacing = offset_spacing
+        self.dash = dash
+        self.space = space
+        self.patstr = self.createpatstr()
+        return self
+
+class PAT:
+    def __init__(self,):
+        self.patrows = []
+        self.patstrings = []
+        self.name = "None"
+        self.patterntype = "None"
+
+    def TilePattern(self, name: str, width: float, height: float, patterntype: str):
+        #this is rectangle tile pattern
+        self.name = name
+        self.patterntype = patterntype
+        row1 = PATRow().create(0,0,0,0,height,0,0)
+        row2 = PATRow().create(90,0,0,0,width,0,0)
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def BlockPattern(self, name: str, grosswidthheight: float, numbersublines: int, patterntype: str):
+        #this is a block pattern
+        subspacing = grosswidthheight / numbersublines
+        self.name = name
+        self.patterntype = patterntype
+        row1 = PATRow().create(0,0,0,0,grosswidthheight,0,0)
+        row2 = PATRow().create(90,0,0,0,grosswidthheight,0,0)
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        n = 0
+        for i in range(numbersublines):
+            row3 = PATRow().create(0, 0, subspacing * n + grosswidthheight, 0, grosswidthheight*2, grosswidthheight, -grosswidthheight)
+            row4 = PATRow().create(0, grosswidthheight, subspacing * n, 0, grosswidthheight*2, grosswidthheight, -grosswidthheight)
+            row5 = PATRow().create(90, subspacing * n, 0, 0, grosswidthheight*2, grosswidthheight,-grosswidthheight)
+            row6 = PATRow().create(90, subspacing * n + grosswidthheight, grosswidthheight, 0, grosswidthheight*2, grosswidthheight,-grosswidthheight)
+            self.patrows.append(row3)
+            self.patrows.append(row4)
+            self.patrows.append(row5)
+            self.patrows.append(row6)
+            self.patstrings.append(row3.patstr)
+            self.patstrings.append(row4.patstr)
+            self.patstrings.append(row5.patstr)
+            self.patstrings.append(row6.patstr)
+            n = n + 1
+        self.patstrings.append(";")
+        return self
+
+    def CombiPattern(self, name: str, grosswidthheight: float, patterntype: str):
+        #this is a combined pattern
+        width = (2 / 3) * grosswidthheight
+        t = grosswidthheight / 6
+        self.name = name
+        self.patterntype = patterntype
+
+        row1 = PATRow().create(0, 0, 0, 0, grosswidthheight, width, (-2 * t))
+        row2 = PATRow().create(0, 0, t, 0, grosswidthheight, width, (-2 * t))
+        row3 = PATRow().create(0, 0, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row4 = PATRow().create(0, 2 * t, width, 0, grosswidthheight, width, (-2 * t))
+        row5 = PATRow().create(0, 2 * t, width + t, 0, grosswidthheight, width, (-2 * t))
+        row6 = PATRow().create(0, 2 * t, width + 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row7 = PATRow().create(90, 0, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row8 = PATRow().create(90, t, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row9 = PATRow().create(90, 2 * t, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row10 = PATRow().create(90, width, 0, 0, grosswidthheight, width, (-2 * t))
+        row11 = PATRow().create(90, width + t, 0, 0, grosswidthheight, width, (-2 * t))
+        row12 = PATRow().create(90, width + 2 * t, 0, 0, grosswidthheight, width, (-2 * t))
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+        self.patrows.append(row5)
+        self.patrows.append(row6)
+        self.patrows.append(row7)
+        self.patrows.append(row8)
+        self.patrows.append(row9)
+        self.patrows.append(row10)
+        self.patrows.append(row11)
+        self.patrows.append(row12)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(row5.patstr)
+        self.patstrings.append(row6.patstr)
+        self.patstrings.append(row7.patstr)
+        self.patstrings.append(row8.patstr)
+        self.patstrings.append(row9.patstr)
+        self.patstrings.append(row10.patstr)
+        self.patstrings.append(row11.patstr)
+        self.patstrings.append(row12.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def ChevronPattern(self, name: str, grosswidth: float, widthtile: float, patterntype: str):
+        #this is a chevronpattern(hungarian)
+        lengthline = math.sqrt(2) * grosswidth
+        self.name = name
+        self.patterntype = patterntype
+
+        row1 = PATRow().create(90, 0, 0, 0, grosswidth, 0, 0)
+        row2 = PATRow().create(45, 0, 0, widthtile, widthtile, lengthline, -lengthline)
+        row3 = PATRow().create(-45, -grosswidth, 0, -widthtile, widthtile, lengthline, -lengthline)
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def HerringbonePattern(self, name: str, lengthtile: float, numberOfTilesInLength: float, patterntype: str):
+        # this is a herringbone pattern(visgraat)
+        width = lengthtile / numberOfTilesInLength
+        self.name = name
+        self.patterntype = patterntype
+
+        row1 = PATRow().create(45, 0, 0, width, width, lengthtile + width, -(lengthtile - width))
+        row2 = PATRow().create(135, 0, 0, -width, width, lengthtile, -lengthtile)
+        row3 = PATRow().create(-45, 0, 0, -width, width, width, -(2 * lengthtile - width))
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def Strips(self, name: str, spacing: float, angle: float, patterntype: str):
+        # these are continues lines with a certain spacing and angle
+        self.name = name
+        self.patterntype = patterntype
+
+        row1 = PATRow().create(angle, 0, 0, 0, spacing, 0, 0)
+
+        self.patrows.append(row1)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def StretcherBondPattern(self, name: str, width: float, height: float, shift: float, patterntype: str):
+        # this is a brick pattern rectangle with a shift
+        self.name = name
+        self.patterntype = patterntype
+
+        row1 = PATRow().create(0, 0, 0, 0, height, 0, 0)
+        row2 = PATRow().create(90, 0, 0, 0, width, height, -height)
+        row3 = PATRow().create(90, shift, height, 0, width, height, -height)
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def ParallelLines(self, name: str, widths: list, patterntype: str):
+        # this pattern consists of parallel lines with different offset distances. Can be defined in a list.
+        self.name = name
+        self.patterntype = patterntype
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        width = sum(widths)
+        x = 0
+        for i in widths:
+            row = PATRow().create(90,x,0,0,width,0,0)
+            self.patrows.append(row)
+            self.patstrings.append(row.patstr)
+            x = x + i
+
+        self.patstrings.append(";")
+        return self
+
+    def StretcherBondWithJoint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+        #This is stretcherbond(halfsteensverband) with joints
+        self.name = name
+        self.patterntype = patterntype
+        lagenmaat = brickheight + jointheight
+        self.
+
+        row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
+        row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)
+        row3 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat,0,lagenmaat*2, bricklength, -jointwidth)
+        row4 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat+brickheight,0,lagenmaat*2, bricklength, -jointwidth)
+
+        row5 = PATRow().create(90,0,0,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row6 = PATRow().create(90,bricklength,0,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row7 = PATRow().create(90,(bricklength+jointwidth)/2,lagenmaat,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row8 = PATRow().create(90,(bricklength+jointwidth)/2+bricklength,lagenmaat,0,bricklength+jointwidth,brickheight,-(brickheight+2*jointheight))
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+        self.patrows.append(row5)
+        self.patrows.append(row6)
+        self.patrows.append(row7)
+        self.patrows.append(row8)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(row5.patstr)
+        self.patstrings.append(row6.patstr)
+        self.patstrings.append(row7.patstr)
+        self.patstrings.append(row8.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def TilePatternWithJoint(self, name: str, width: float, height: float, jointwidth: float, jointheight: float, patterntype: str):
+        #this is rectangle tile pattern with joints between tiles
+        self.name = name
+        self.patterntype = patterntype
+        row1 = PATRow().create(0, 0, 0, 0, height+jointheight, width, -jointwidth)
+        row2 = PATRow().create(0, 0, height, 0, height + jointheight, width, -jointwidth)
+        row3 = PATRow().create(90,0,0,0,width+jointwidth,height,-jointheight)
+        row4 = PATRow().create(90,width,0,0,width+jointwidth,height,-jointheight)
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(";")
+        return self
+
+    def CrossBondWithJoint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+        #This is crossbond(kruisverband) with joints
+        self.name = name
+        self.patterntype = patterntype
+        lagenmaat = brickheight + jointheight
+
+        row1 = PATRow().create(0,0,0,0,lagenmaat*4, bricklength, -jointwidth)
+        row2 = PATRow().create(0,0,brickheight,0,lagenmaat*4,bricklength, -jointwidth)
+
+        row3 = PATRow().create(0,0.5*(brickwidth + jointwidth),lagenmaat,0,lagenmaat*2, brickwidth, -jointwidth)
+        row4 = PATRow().create(0,0.5*(brickwidth + jointwidth),lagenmaat + brickheight,0,lagenmaat*2, brickwidth, -jointwidth)
+
+        row5 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat*2,0,lagenmaat*4, bricklength, -jointwidth)
+        row6 = PATRow().create(0,0.5*(bricklength + jointwidth),lagenmaat*4+brickheight,0,lagenmaat*2, bricklength, -jointwidth)
+
+        row7 = PATRow().create(90,0,0,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+        row8 = PATRow().create(90,bricklength,0,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+        row9 = PATRow().create(90,0.5*(brickwidth + jointwidth),lagenmaat,0,brickwidth+jointwidth,brickheight,-(brickheight+2*jointheight))
+        row10 = PATRow().create(90,0.5*(brickwidth + jointwidth)+brickwidth,lagenmaat,0,brickwidth+jointwidth,brickheight,-(brickheight+2*jointheight))
+
+        row11 = PATRow().create(90,(bricklength+jointwidth)/2,lagenmaat*2,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+        row12 = PATRow().create(90,(bricklength+jointwidth)/2+bricklength,lagenmaat*2,0,bricklength+jointwidth,brickheight,-(3*lagenmaat+jointheight))
+
+        self.patrows.append(row1)
+        self.patrows.append(row2)
+        self.patrows.append(row3)
+        self.patrows.append(row4)
+        self.patrows.append(row5)
+        self.patrows.append(row6)
+        self.patrows.append(row7)
+        self.patrows.append(row8)
+        self.patrows.append(row9)
+        self.patrows.append(row10)
+        self.patrows.append(row11)
+        self.patrows.append(row12)
+
+        self.patstrings.append("*" + name)
+        self.patstrings.append(patterntype)
+        self.patstrings.append(row1.patstr)
+        self.patstrings.append(row2.patstr)
+        self.patstrings.append(row3.patstr)
+        self.patstrings.append(row4.patstr)
+        self.patstrings.append(row5.patstr)
+        self.patstrings.append(row6.patstr)
+        self.patstrings.append(row7.patstr)
+        self.patstrings.append(row8.patstr)
+        self.patstrings.append(row9.patstr)
+        self.patstrings.append(row10.patstr)
+        self.patstrings.append(row11.patstr)
+        self.patstrings.append(row12.patstr)
+        self.patstrings.append(";")
+        return self
+
+def CreatePatFile(patternobjects: list, filepath: str):
+    #Write Pattern File
+    patternstrings = []
+    for i in patternobjects:
+        patternstrings = patternstrings + i.patstrings
+
+    patternstrings.insert(0, Patprefix)
+
+    patn = []
+    for i in patternstrings:
+        patn.append(i + "\n")
+    # Create PAT-file
+    fp = open(filepath, 'w')
+    for i in patn:
+        fp.write(i)
+    fp.close()
+    return filepath
+
+def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
+    # tested for 0-90 degrees
+    #Create BuildingPy Lines from PAT-objects
+    nlines = int(height / patrow.offset_spacing)+1
+    lines = []
+    n = 0
+    for i in range(nlines):
+        Xn = Vector3.rotateXY(XAxis, math.radians(patrow.angle))
+        Yn = Vector3.rotateXY(YAxis, math.radians(patrow.angle))
+        CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
+        x_start = 0
+        y_start = 0
+        x_end = width
+        y_end = 0
+        l1 = Line(Point(x_start, y_start, 0), Point(x_end, y_end, 0)) # baseline
+        l2 = Line.transform(l1, CSNewLn) # rotation
+        v1 = Vector3.byTwoPoints(l2.start,l2.end)
+        v1 = Vector3.normalize(v1)
+        v2 = Vector3.scale(v1, patrow.shift_pattern * n)
+        l3 = Line.translate2(l2, v2)  # shift of line for pattern
+        #if patrow.shift_pattern == 0:
+        #    l3 = l2
+        #else:
+        #    v2 = Vector3.scale(v1, patrow.shift_pattern*(n+1))
+        #    l3 = Line.translate2(l2,v2) # shift of line for pattern
+        v3 = Vector3.normalize(Vector3.crossProduct(v1,ZAxis)) #Eenheidsvector haaks op lijn
+        if patrow.angle == 0:
+            v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
+            v4 = Vector3.reverse(v4)
+        else:
+            v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing
+        if n * patrow.offset_spacing == 0: # eerste lijn heeft geen verplaatsing
+            l4 = l3
+        else:
+            l4 = l3.translate(v4)
+        v6 = Vector3(dx + patrow.x_orig,dy + patrow.y_orig,0)
+        print(v6)
+        l5 = Line.translate2(l4,v6)
+
+        if patrow.dash == 0 and patrow.space == 0:
+            lines.append(l5)
+        else:
+            # dashed lines
+            LinePattern = ["Pat", [patrow.dash, -patrow.space],
+                           1]  # Rule: line, whitespace, line whitespace etc., scale
+            for i in lineToPattern(l5, LinePattern):
+                lines.append(i)
+        n = n + 1
+
+    return lines
+
+def PAT2Geom(Pat: PAT, width, height,dx,dy):
+    lineObjs = []
+    for i in Pat.patrows:
+        lines = PatRowGeom(i, width, height,dx,dy)
+        for i in lines:
+            lineObjs.append(i)
+    return lineObjs
+
+#reader
+#drawsection
 
 
 #TODO Line to Grid Object

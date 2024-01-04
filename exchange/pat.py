@@ -1,5 +1,5 @@
 # [included in BP singlefile]
-
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2023 Maarten Vroegindeweij                              *
@@ -34,6 +34,8 @@ __url__ = "./exchange/pat.py"
 import math
 from geometry.linestyle import *
 from objects.panel import *
+# [!not included in BP singlefile - end]
+
 Patprefix = ';%UNITS=MM' \
          ';' \
 

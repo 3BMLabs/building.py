@@ -128,6 +128,7 @@ class BuildingPy:
     def toFreeCAD(self):
         from exchange.freecad_bupy import translateObjectsToFreeCAD
         translateObjectsToFreeCAD(self.objects)
+
 # [!not included in BP singlefile - end]
 
 project = BuildingPy("Project","0")
