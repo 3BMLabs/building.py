@@ -200,7 +200,7 @@ class PolyCurve:
         self.width = None
         self.height = None
         #Methods ()
-        #close
+        # self.close
         #pointonperimeter
         #Properties
         self.approximateLength = None
@@ -338,6 +338,7 @@ class PolyCurve:
 
 
     def close(self) -> bool:
+        print(self)
         if self.curves[0] == self.curves[-1]:
             return self
         else:
@@ -402,6 +403,7 @@ class PolyCurve:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
+        
         return plycrv
 
     @classmethod

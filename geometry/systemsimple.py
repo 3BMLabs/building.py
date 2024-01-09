@@ -36,6 +36,7 @@ __url__ = "./geometry/systemsimple.py"
 from abstract.interval import *
 from objects.frame import *
 from objects.panel import *
+from abstract.boundingbox import *
 import copy
 
 # [!not included in BP singlefile - end]
@@ -382,3 +383,22 @@ def PatternGEOM(PatternSystem,width,height):
                 panels.append(pan)
             xvector = Vector3.sum(xvectdisplacement, Vector3(0, 0, 0))
     return panels
+
+def fillin(perimeter: PolyCurve2D, pattern: PatternGEOM) -> PatternSystem:
+    
+    bb = BoundingBox2d().byPoints(perimeter.points)
+
+    for pt in bb.corners:
+        project.objects.append(pt)
+    bb_perimeter = PolyCurve.byPoints(bb.corners)
+
+    # l = []
+
+    # for q in pattern:
+    #     l.append(q.origincurve)
+        # print(q.origincurve)
+
+    return [bb_perimeter]
+
+# polycurve perimeter, pattern
+# bbox, fill, trim

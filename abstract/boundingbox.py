@@ -95,7 +95,8 @@ class BoundingBox2d:
         max_x = max(x_values)
         min_y = min(y_values)
         max_y = max(y_values)
-        
+
+
         left_top = Point(x=min_x, y=max_y, z=self.z)
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
