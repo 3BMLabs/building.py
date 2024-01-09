@@ -136,7 +136,7 @@ class Intersect2d:
         for splittedLines in splitedLinesList:
             for line in splittedLines:
                 centerLinePoint = line.pointAtParameter(0.5)
-                if is_point_in_polygon(centerLinePoint, polycurve) == True:
+                if is_point_in_polycurve(centerLinePoint, polycurve) == True:
                     InnerGridLines.append(line)
                 else:
                     OuterGridLines.append(line)
@@ -175,12 +175,12 @@ def is_point_on_line_segment(point, line): #check!!! mogelijk dubbeling
     else:
         return False
 
-def find_polycurve_intersections(polygon1, polygon2):
+def find_polycurve_intersections(polycurve1, polycurve2):
     intersections = []
-    for i in range(len(polygon1.points) - 1):
-        line1 = Line(polygon1.points[i], polygon1.points[i+1])
-        for j in range(len(polygon2.points) - 1):
-            line2 = Line(polygon2.points[j], polygon2.points[j+1])
+    for i in range(len(polycurve1.points) - 1):
+        line1 = Line(polycurve1.points[i], polycurve1.points[i+1])
+        for j in range(len(polycurve2.points) - 1):
+            line2 = Line(polycurve2.points[j], polycurve2.points[j+1])
             intersection = Intersect2d().getLineIntersect(line1, line2)
             if intersection and is_point_on_line_segment(intersection, line1) and is_point_on_line_segment(intersection, line2):
                 intersections.append(intersection)
@@ -232,10 +232,10 @@ def split_polycurve_at_intersections(PC, intersections):
         return [created_polycurves[0]]
 
 
-def is_point_in_polygon(point, polygon):
+def is_point_in_polycurve(point, polycurve):
     x, y, z = point.x, point.y, point.z
     intersections = 0
-    for curve in polygon.curves:
+    for curve in polycurve.curves:
         p1, p2 = curve.start, curve.end
         if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
             if p1.y != p2.y:
@@ -245,13 +245,13 @@ def is_point_in_polygon(point, polygon):
     return intersections % 2 != 0
 
 
-def is_polygon_in_polygon(polygon1, polygon2):
+def is_polycurve_in_polycurve(polycurve1, polycurve2):
     booleans2 = []
     pts2 = []
-    for curve in polygon2.curves:
+    for curve in polycurve2.curves:
         pts2S, pts2E = curve.start, curve.end
-        booleans2.append(is_point_in_polygon(pts2S, polygon1))
-        booleans2.append(is_point_in_polygon(pts2E, polygon1))
+        booleans2.append(is_point_in_polycurve(pts2S, polycurve1))
+        booleans2.append(is_point_in_polycurve(pts2E, polycurve1))
     print(all_true(booleans2))
     return all_true(booleans2)
 
