@@ -53,7 +53,6 @@ class Intersect2d:
         b[1] = a[0]
         return b
     
-    #two lines intersect
     def getLineIntersect(self, line1, line2):
         if line1.start == line1.end or line2.start == line2.end:
             return None
@@ -91,7 +90,6 @@ class Intersect2d:
         return pts
 
     
-    #polycurve to line intersect
     def getIntersectLinePolyCurve(self, polycurves: Point, lines, split=None, stretch=None) -> Point:
         dict = {}
         intersectionsPointsList = []
@@ -119,7 +117,7 @@ class Intersect2d:
                                 intersectionsPointsList.append(checkIntersect)
                                 IntersectGridPoints.append(checkIntersect)
 
-                elif stretch == True: #autojoin/combine the lines if they in same direction.
+                elif stretch == True:
                     minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
                     maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
                     minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
@@ -152,7 +150,7 @@ class Intersect2d:
     
 
 
-def is_point_in_line(point, line): #check if point is in align with line (in direction)
+def is_point_in_line(point, line):
     distance = abs((line.end.y - line.start.y) * point.x
                    - (line.end.x - line.start.x) * point.y
                    + line.end.x * line.start.y
@@ -167,9 +165,7 @@ def is_point_on_line_segment(point, line):
     y_min = min(line.start.y, line.end.y)
     y_max = max(line.start.y, line.end.y)
 
-    # Check if the point is in the bounding box of the line segment
     if x_min <= point.x <= x_max and y_min <= point.y <= y_max:
-        # Check if the distance from the point to the line is within a small tolerance
         distance = abs((line.end.y - line.start.y) * point.x
                        - (line.end.x - line.start.x) * point.y
                        + line.end.x * line.start.y
@@ -190,7 +186,6 @@ def is_point_in_polygon(point, polygon):
                 x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
                 if (p1.x == p2.x) or (x <= x_inters):
                     intersections += 1
-    # print(intersections % 2 != 0)
     return intersections % 2 != 0
 
 
@@ -203,30 +198,22 @@ def is_polygon_in_polygon(polygon1, polygon2):
         booleans2.append(is_point_in_polygon(pts2E, polygon1))
     print(all_true(booleans2))
     return all_true(booleans2)
-    #is_point_in_polygon(Point5, ply1) #True
 
 
 def planelineIntersection():
-    # Define a line by its direction vector and a point on it
-    line_dir = [1, 2, 3] # direction vector of the line
-    line_pt = [0, 0, 0] # a point on the line
+    line_dir = [1, 2, 3]
+    line_pt = [0, 0, 0]
 
-    # Define a plane by its normal vector and a point on it
-    plane_norm = [4, 5, 6] # normal vector of the plane
-    plane_pt = [1, 1, 1] # a point on the plane
+    plane_norm = [4, 5, 6]
+    plane_pt = [1, 1, 1]
 
-    # Compute the dot product of the line direction and the plane normal
     dot_prod = sum([a*b for a,b in zip(line_dir, plane_norm)])
 
-    # Check if the dot product is zero, which means the line is parallel to the plane
     if dot_prod == 0:
         print("The line is parallel to the plane. No intersection point.")
     else:
-        # Compute the parameter t that gives the intersection point
         t = sum([(a-b)*c for a,b,c in zip(plane_pt, line_pt, plane_norm)]) / dot_prod
 
-        # Compute the intersection point by plugging t into the line equation
         inter_pt = [a + b*t for a,b in zip(line_pt, line_dir)]
 
-        # Print the intersection point
         print("The intersection point is", inter_pt)
