@@ -47,6 +47,7 @@ pythonfiles = \
     "exchange/pat.py",
     "exchange/struct4U.py",
     "exchange/scia.py",
+    "exchange/revit.py"
     ]
 
 #if export to revit, add this line:     "exchange/revit.py"

@@ -578,7 +578,7 @@ class BuildingPy:
         #different settings for company's?
 
         #rename this to autoclose?
-        self.closed: bool = False #auto close polygons? By default true, else overwrite
+        self.closed: bool = True #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
 
         #nodes
@@ -641,6 +641,7 @@ class BuildingPy:
 
     def toFreeCAD(self):
         translateObjectsToFreeCAD(self.objects)
+
 
 
 project = BuildingPy("Project","0")
@@ -777,7 +778,8 @@ class BoundingBox2d:
         max_x = max(x_values)
         min_y = min(y_values)
         max_y = max(y_values)
-        
+
+
         left_top = Point(x=min_x, y=max_y, z=self.z)
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
@@ -994,7 +996,7 @@ class PolyCurve:
         self.width = None
         self.height = None
         #Methods ()
-        #close
+        # self.close
         #pointonperimeter
         #Properties
         self.approximateLength = None
@@ -1132,6 +1134,7 @@ class PolyCurve:
 
 
     def close(self) -> bool:
+        print(self)
         if self.curves[0] == self.curves[-1]:
             return self
         else:
@@ -1196,6 +1199,7 @@ class PolyCurve:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
+        
         return plycrv
 
     @classmethod
@@ -2406,9 +2410,10 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
-    pn3 = Point2D(pn.x,pn.y)
+    #pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    pn3 = Point2D.translate(PointLocal,Vector2(CoordinateSystemNew.Origin.x,CoordinateSystemNew.Origin.y))
+    #pn3 = Point2D(pn.x,pn.y)
     return pn3
 
 class Line2D:
@@ -2472,6 +2477,7 @@ class Arc2D:
         self.end: Point2D = pntxy3
         self.origin = self.originarc()
         self.angleRadian = self.angleRadian()
+        self.radius = self.radiusarc()
         #self.radius = self.radiusarc()
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
@@ -2552,11 +2558,12 @@ class Arc2D:
 
     @staticmethod
     def pointsAtParameter(arc, count: int):
+        #ToDo can be simplified. Now based on the 3D variant
         d_alpha = arc.angleRadian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
-            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha), 0))
+            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha)))
             alpha = alpha + d_alpha
         CSNew = arc.coordinatesystem
         pnts2 = []
@@ -2783,7 +2790,6 @@ class Intersect2d:
         b[1] = a[0]
         return b
     
-    #two lines intersect
     def getLineIntersect(self, line1, line2):
         if line1.start == line1.end or line2.start == line2.end:
             return None
@@ -2809,7 +2815,7 @@ class Intersect2d:
         return Point(nX, nY, 0)
 
 
-    def getMultiLineIntersect(self, lines=Line) -> Point:
+    def getMultiLineIntersect(self, lines=Line) -> [Point]:
         pts = []
         for i in range(len(lines)):
             line1 = lines[i]
@@ -2821,8 +2827,7 @@ class Intersect2d:
         return pts
 
     
-    #polycurve to line intersect
-    def getIntersectLinePolyCurve(self, polycurves: Point, lines, split=None, stretch=None) -> Point:
+    def getIntersectLinePolyCurve(self, polycurve, lines, split=None, stretch=None):
         dict = {}
         intersectionsPointsList = []
         splitedLinesList = []
@@ -2832,28 +2837,29 @@ class Intersect2d:
             lines = [lines]
         for line in lines:
             IntersectGridPoints = []
-            for i in range(len(polycurves.points) - 1):
-                genLine = Line(polycurves.points[i], polycurves.points[i+1])
+            for i in range(len(polycurve.points) - 1):
+                genLine = Line(polycurve.points[i], polycurve.points[i+1])
                 checkIntersect = Intersect2d().getLineIntersect(genLine, line)
+                print(checkIntersect)
                 if stretch == False or stretch == None:
                     if checkIntersect != None:
                         if is_point_on_line_segment(checkIntersect, line) == False:
                             checkIntersect = None
                         else:
-                            minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
-                            maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
-                            minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
-                            maxY = max(polycurves.points[i].y, polycurves.points[i+1].y)
+                            minX = min(polycurve.points[i].x, polycurve.points[i+1].x)
+                            maxX = max(polycurve.points[i].x, polycurve.points[i+1].x)
+                            minY = min(polycurve.points[i].y, polycurve.points[i+1].y)
+                            maxY = max(polycurve.points[i].y, polycurve.points[i+1].y)
                         if checkIntersect != None:
                             if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
                                 intersectionsPointsList.append(checkIntersect)
                                 IntersectGridPoints.append(checkIntersect)
 
-                elif stretch == True: #autojoin/combine the lines if they in same direction.
-                    minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
-                    maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
-                    minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
-                    maxY = max(polycurves.points[i].y, polycurves.points[i+1].y)
+                elif stretch == True:
+                    minX = min(polycurve.points[i].x, polycurve.points[i+1].x)
+                    maxX = max(polycurve.points[i].x, polycurve.points[i+1].x)
+                    minY = min(polycurve.points[i].y, polycurve.points[i+1].y)
+                    maxY = max(polycurve.points[i].y, polycurve.points[i+1].y)
                     if checkIntersect != None:
                         if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
                             intersectionsPointsList.append(checkIntersect)
@@ -2867,12 +2873,12 @@ class Intersect2d:
         for splittedLines in splitedLinesList:
             for line in splittedLines:
                 centerLinePoint = line.pointAtParameter(0.5)
-                if is_point_in_polygon(centerLinePoint, polycurves) == True:
+                if is_point_in_polycurve(centerLinePoint, polycurve) == True:
                     InnerGridLines.append(line)
                 else:
                     OuterGridLines.append(line)
 
-        # dict["IntersectPolyCurve"] = polycurves
+        # dict["IntersectPolyCurve"] = polycurve
         dict["IntersectGridPoints"] = intersectionsPointsList
         dict["SplittedLines"] = flatten(splitedLinesList)
         dict["InnerGridLines"] = InnerGridLines
@@ -2881,25 +2887,22 @@ class Intersect2d:
         return dict
     
 
-
-def is_point_in_line(point, line): #check if point is in align with line (in direction)
+def is_point_on_line(point, line):
     distance = abs((line.end.y - line.start.y) * point.x
                    - (line.end.x - line.start.x) * point.y
                    + line.end.x * line.start.y
                    - line.end.y * line.start.x) \
-               / line.length()
+               / line.length
     return distance < 1e-9
 
 
-def is_point_on_line_segment(point, line):
+def is_point_on_line_segment(point, line): #check!!! mogelijk dubbeling
     x_min = min(line.start.x, line.end.x)
     x_max = max(line.start.x, line.end.x)
     y_min = min(line.start.y, line.end.y)
     y_max = max(line.start.y, line.end.y)
 
-    # Check if the point is in the bounding box of the line segment
     if x_min <= point.x <= x_max and y_min <= point.y <= y_max:
-        # Check if the distance from the point to the line is within a small tolerance
         distance = abs((line.end.y - line.start.y) * point.x
                        - (line.end.x - line.start.x) * point.y
                        + line.end.x * line.start.y
@@ -2909,56 +2912,102 @@ def is_point_on_line_segment(point, line):
     else:
         return False
 
+def find_polycurve_intersections(polycurve1, polycurve2):
+    intersections = []
+    for i in range(len(polycurve1.points) - 1):
+        line1 = Line(polycurve1.points[i], polycurve1.points[i+1])
+        for j in range(len(polycurve2.points) - 1):
+            line2 = Line(polycurve2.points[j], polycurve2.points[j+1])
+            intersection = Intersect2d().getLineIntersect(line1, line2)
+            if intersection and is_point_on_line_segment(intersection, line1) and is_point_on_line_segment(intersection, line2):
+                intersections.append(intersection)
+    return intersections
 
-def is_point_in_polygon(point, polygon):
+
+def split_polycurve_at_intersections(PC, intersections):
+    # Sorteer de intersectiepunten gebaseerd op hun afstand vanaf het startpunt
+    intersections.sort(key=lambda pt: Point.distance(PC.points[0], pt))
+
+    current_polycurve_points = [PC.points[0]]
+    created_polycurves = []
+
+    for i in range(1, len(PC.points)):
+        segment_start = PC.points[i - 1]
+        segment_end = PC.points[i]
+
+        segment_intersections = [pt for pt in intersections if is_point_on_line_segment(pt, Line(segment_start, segment_end))]
+
+        segment_intersections.sort(key=lambda pt: Point.distance(segment_start, pt))
+
+        for intersect in segment_intersections:
+            current_polycurve_points.append(intersect)
+            created_polycurves.append(PolyCurve.byPoints(current_polycurve_points))
+            current_polycurve_points = [intersect]
+            intersections.remove(intersect)
+
+        current_polycurve_points.append(segment_end)
+
+    if len(current_polycurve_points) > 1:
+        created_polycurves.append(PolyCurve.byPoints(current_polycurve_points))
+
+    ptlist = []
+    for index, pc in enumerate(created_polycurves):
+        if index == 0:
+            for pt in pc.points:
+                ptlist.append(pt)
+        elif index == 2:
+            for pt in pc.points:
+                ptlist.append(pt)
+                ptlist.append(ptlist[1])
+
+    pcurve = PolyCurve().byPoints(ptlist)
+
+    try:
+        return [created_polycurves[1], pcurve]
+    except:
+        return [created_polycurves[0]]
+
+
+def is_point_in_polycurve(point, polycurve):
     x, y, z = point.x, point.y, point.z
     intersections = 0
-    for curve in polygon.curves:
+    for curve in polycurve.curves:
         p1, p2 = curve.start, curve.end
         if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
             if p1.y != p2.y:
                 x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
                 if (p1.x == p2.x) or (x <= x_inters):
                     intersections += 1
-    # print(intersections % 2 != 0)
     return intersections % 2 != 0
 
 
-def is_polygon_in_polygon(polygon1, polygon2):
+def is_polycurve_in_polycurve(polycurve1, polycurve2):
     booleans2 = []
     pts2 = []
-    for curve in polygon2.curves:
+    for curve in polycurve2.curves:
         pts2S, pts2E = curve.start, curve.end
-        booleans2.append(is_point_in_polygon(pts2S, polygon1))
-        booleans2.append(is_point_in_polygon(pts2E, polygon1))
+        booleans2.append(is_point_in_polycurve(pts2S, polycurve1))
+        booleans2.append(is_point_in_polycurve(pts2E, polycurve1))
     print(all_true(booleans2))
     return all_true(booleans2)
-    #is_point_in_polygon(Point5, ply1) #True
 
 
 def planelineIntersection():
-    # Define a line by its direction vector and a point on it
-    line_dir = [1, 2, 3] # direction vector of the line
-    line_pt = [0, 0, 0] # a point on the line
+    line_dir = [1, 2, 3]
+    line_pt = [0, 0, 0]
 
-    # Define a plane by its normal vector and a point on it
-    plane_norm = [4, 5, 6] # normal vector of the plane
-    plane_pt = [1, 1, 1] # a point on the plane
+    plane_norm = [4, 5, 6]
+    plane_pt = [1, 1, 1]
 
-    # Compute the dot product of the line direction and the plane normal
     dot_prod = sum([a*b for a,b in zip(line_dir, plane_norm)])
 
-    # Check if the dot product is zero, which means the line is parallel to the plane
     if dot_prod == 0:
         print("The line is parallel to the plane. No intersection point.")
     else:
-        # Compute the parameter t that gives the intersection point
         t = sum([(a-b)*c for a,b,c in zip(plane_pt, line_pt, plane_norm)]) / dot_prod
 
-        # Compute the intersection point by plugging t into the line equation
         inter_pt = [a + b*t for a,b in zip(line_pt, line_dir)]
 
-        # Print the intersection point
         print("The intersection point is", inter_pt)
 
 
@@ -3720,6 +3769,26 @@ def PatternGEOM(PatternSystem,width,height):
                 panels.append(pan)
             xvector = Vector3.sum(xvectdisplacement, Vector3(0, 0, 0))
     return panels
+
+def fillin(perimeter: PolyCurve2D, pattern: PatternGEOM) -> PatternSystem:
+    
+    bb = BoundingBox2d().byPoints(perimeter.points)
+
+    for pt in bb.corners:
+        project.objects.append(pt)
+    bb_perimeter = PolyCurve.byPoints(bb.corners)
+
+    # l = []
+
+    # for q in pattern:
+    #     l.append(q.origincurve)
+        # print(q.origincurve)
+
+    return [bb_perimeter]
+
+# polycurve perimeter, pattern
+# bbox, fill, trim
+
 
 
 def rgb_to_int(rgb):
@@ -7457,7 +7526,6 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
-        self.
 
         row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
         row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)
@@ -8211,7 +8279,52 @@ class xmlXFEM4U:
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
-# [!not included in BP singlefile - end]
+
+def createXFEM4UXML(project: BuildingPy, filepathxml: str):
+    # Export to XFEM4U XMLK-file
+    xmlS4U = xmlXFEM4U()  # Create XML object with standard values
+    xmlS4U.addBeamsPlates(project.objects)  # Add Beams, Profiles, Plates, Beamgroups, Nodes
+    xmlS4U.addProject(project.name)
+    xmlS4U.addPanels(project.objects)  # add Load Panels
+    xmlS4U.addGrids()  # Grids
+    xmlS4U.addLoadCasesCombinations()
+    xmlS4U.XML()
+    XMLString = xmlS4U.xmlstr
+
+    filepath = filepathxml
+    file = open(filepath, "w")
+    a = file.write(XMLString)
+    file.close()
+
+    return filepath
+
+
+def writeDirectCommandsfile(xmlfilepath: str):
+    #Write Ini-file for directcommands
+    pathdirectcommands = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'DirectCommands_XFEM4U.ini')
+    row1 = '[Struct4u]\n'
+    row2 = 'Import_XML=' + xmlfilepath + '\n'
+    content = row1 + row2
+
+    file = open(pathdirectcommands, "w")
+    a = file.write(content)
+    file.close()
+
+def openXFEM4U(fileName):
+    #Open XML file in XFEM4U
+    os.system("C:/Struct4u/XFEM4U/wframe3d.exe " + fileName)
+
+def openXFrame2D(fileName):
+    #Open XML file in XFEM4U
+    os.system("C:/Program Files (x86)/Struct4u/XFrame2d/XFrame2d.exe " + fileName)
+
+def SubprocessXFEM4UThread():
+    #Run XFEM4U
+    try:
+        subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe", shell=True, check=False)
+    except:
+        print("exception")
+
 class Scia_Params:
     def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str):
         self.id = id
@@ -8458,3 +8571,50 @@ class LoadXML:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
                                         print(e, elementType)
+# [!not included in BP singlefile - end]
+
+#class CurveElement:
+#class PointElement (non visible) or visible as a big cube
+
+class StructuralElement:
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, comments : None):
+        validStructuralTypes = ["Column", "Beam"]
+        if structuralType not in validStructuralTypes:
+            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
+        self.comments = comments or None
+        self.structuralType = structuralType
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+        self.rotation = rotation
+        self.yJustification = yJustification
+        self.yOffsetValue = yOffsetValue
+        self.zJustification = zJustification
+        self.zOffsetValue = zOffsetValue
+
+    def __str__(self) -> str:
+        return f"[StructuralElement] {self.type}"
+
+
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
+
+objs = []
+def run():
+    project = BuildingPy("TempCommit", "0")
+    LoadXML(IN[0], project)
+
+    # LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
+    for obj in project.objects:
+        
+        if obj.type == "Frame":
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
+            objs.append(element)
+        elif obj.type == "Node":
+            objs.append(obj)
+    return project.objects
+
+run()
+
+OUT = objs  
