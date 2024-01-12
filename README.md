@@ -72,7 +72,7 @@ Versions 0.x will be subject to significant changes of the API until the release
 
 pat = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
 
-![Image](1_CrossBondWithJointYellowRed.png)
+![Image](1_crossBondWithJointYellowRed.png)
 
 ![Image](2_kruisverband.png)
 
