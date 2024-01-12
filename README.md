@@ -14,6 +14,8 @@ The goals of the building.py project are:
   * IFC using IFCOpenShell
   * Scia Engineer
 
+# Design principles
+* Create 
 # Implemented
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
@@ -66,5 +68,16 @@ Versions 0.x will be subject to significant changes of the API until the release
 
 # Examples
 
+## CrossBondWithJointYellowRed
 
+pat = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
 
+![Image](1_CrossBondWithJointYellowRed.png)
+
+![Image](2_kruisverband.png)
+
+![Image](3_columns_beams.png)
+
+![Image](4_woodframing_walls.png)
+
+![Image](5_examples_panel_beam_steel_concrete.png)
