@@ -74,6 +74,8 @@ pat = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,1
 
 ![Image](1_crossBondWithJointYellowRed.png)
 
+## Kruisverbadnd
+
 ![Image](2_kruisverband.png)
 
 ![Image](3_columns_beams.png)
