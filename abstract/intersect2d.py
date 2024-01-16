@@ -275,50 +275,145 @@ def planelineIntersection():
         print("The intersection point is", inter_pt)
 
 
+def splitCurvesInPolyCurveByPoints(polyCurve, points):
+    from abstract.intersect2d import is_point_on_line_segment
+
+    def splitCurveAtPoint(curve, point):
+        if is_point_on_line_segment(point, curve):
+            return curve.split([point])
+        return [curve]
+
+    split_curves = []
+    for curve in polyCurve.curves:
+        current_curves = [curve]
+        for point in points:
+            new_curves = []
+            for c in current_curves:
+                new_curves.extend(splitCurveAtPoint(c, point))
+            current_curves = new_curves
+        split_curves.extend(current_curves)
+
+    return split_curves
+
+
+def reorderLineSegments(segments, startpoint, endpoint):
+    if not segments:
+        return []
+
+    seg1 = []
+    seg2 = []
+
+    #seg 1
+    for index, seg in enumerate(segments):
+        if len(seg1) == 0:
+            if Point.distance(seg.start, startpoint) == 0:
+                segments.remove(seg)
+                seg1.append(seg)
+        else:
+            if Point.distance(seg.start, seg1[-1].start) == 0:
+                segments.remove(seg)
+                seg1.append(seg)
+
+    for i in seg1:
+        print(i)
+
+    return []#ordered_segments
+
+
 def splitPolyCurveByLine(polyCurve, line):
     from abstract.intersect2d import Intersect2d, is_point_on_line_segment
 
     intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
     intersect_points = intersect["IntersectGridPoints"]
-    ip = intersect_points
     if len(intersect_points) != 2:
         # print(f"Need exactly 2 intersection points to split, found {len(intersect_points)}")
         return []
 
-    split_curves = []
-    # print(polyCurve.points)
-    try:
-        for curve in polyCurve.curves:
-            if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
-                split_curves.extend(curve.split(intersect_points))
-            else:
-                split_curves.append(curve)
-    except:
-        nPC = PolyCurve.byPoints(polyCurve.points)
-        for curve in nPC.curves:
-            if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
-                split_curves.extend(curve.split(intersect_points))
-            else:
-                split_curves.append(curve)
+    splittedLines = splitCurvesInPolyCurveByPoints(polyCurve, intersect_points)
+    ordered_segments = reorderLineSegments(splittedLines, intersect_points[0], intersect_points[1])
 
-    part1, part2 = [], []
-    part1_points = set()
-    adding_to_part1 = True
-    for curve in split_curves:
-        if adding_to_part1:
-            part1.append(curve)
-            part1_points.update([curve.start, curve.end])
-            if curve.end == intersect_points[1] or curve.start == intersect_points[1]:
-                adding_to_part1 = False
-        else:
-            if curve.start not in part1_points or curve.end not in part1_points:
-                if len(part2) == 0:
-                    part2.append(ip[0])
-                    part2.append(ip[1])
-                else:
-                    part2.append(curve.end)
+    # for i in ordered_segments:
+    #     print(i)
 
-    polyCurve1 = PolyCurve.byJoinedCurves(part1)
-    polyCurve2 = PolyCurve.byPoints(part2)
+    # split_curves = []
+    # try:
+    #     for curve in polyCurve.curves:
+    #         if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
+    #             split_curves.extend(curve.split(intersect_points))
+    #         else:
+    #             split_curves.append(curve)
+    # except:
+    #     nPC = PolyCurve.byPoints(polyCurve.points)
+    #     for curve in nPC.curves:
+    #         if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
+    #             split_curves.extend(curve.split(intersect_points))
+    #             print(curve.split(intersect_points))
+    #         else:
+    #             split_curves.append(curve)
 
-    return [polyCurve1, polyCurve2]
+    # for sc in split_curves:
+    #     print(sc)
+
+    # part1, part2 = [], []
+    # part1_points = set()
+    # adding_to_part1 = True
+    # for curve in split_curves:
+    #     if adding_to_part1:
+    #         part1.append(curve)
+    #         part1_points.update([curve.start, curve.end])
+    #         if curve.end == intersect_points[1] or curve.start == intersect_points[1]:
+    #             adding_to_part1 = False
+    #     else:
+    #         if curve.start not in part1_points or curve.end not in part1_points:
+    #             if len(part2) == 0:
+    #                 part2.append(ip[0])
+    #                 part2.append(ip[1])
+    #             else:
+    #                 part2.append(curve.end)
+
+    # polyCurve1 = PolyCurve.byJoinedCurves(part1)
+    # polyCurve2 = PolyCurve.byPoints(part2)
+
+    return 0#[polyCurve1, polyCurve2]
+
+
+# def splitPolyCurveByLine(polyCurve, line):
+#     from abstract.intersect2d import Intersect2d, is_point_on_line_segment
+
+#     # Get intersections between the polycurve and the line
+#     intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
+#     intersect_points = intersect["IntersectGridPoints"]
+
+#     # Ensure there are exactly 2 intersection points
+#     if len(intersect_points) != 2:
+#         return []
+
+#     split_curves = []
+
+#     # Split curves at intersection points
+#     for curve in polyCurve.curves:
+#         if any(is_point_on_line_segment(ip, curve) for ip in intersect_points):
+#             split_curves.extend(curve.split(intersect_points))
+#         else:
+#             split_curves.append(curve)
+
+#     # Organize the split curves into two parts
+#     part1, part2 = [], []
+#     part1_points = set()
+
+#     adding_to_part1 = True
+#     for curve in split_curves:
+#         if adding_to_part1:
+#             part1.append(curve)
+#             part1_points.update([curve.start, curve.end])
+#             if curve.end in intersect_points or curve.start in intersect_points:
+#                 adding_to_part1 = False
+#         else:
+#             if not {curve.start, curve.end} & part1_points:
+#                 part2.append(curve)
+
+#     # Create new PolyCurves from the split parts
+#     polyCurve1 = PolyCurve.byJoinedCurves(part1)
+#     polyCurve2 = PolyCurve.byJoinedCurves(part2)
+
+#     return [polyCurve1, polyCurve2]

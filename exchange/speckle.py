@@ -108,9 +108,13 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
     SpecklePolyln.units = project.units
     SpecklePolyln.domain = project.domain
     SpecklePolyln.applicationId = project.applicationId
-    SpecklePolyln.area = polycurve.area()
-    SpecklePolyln.length = polycurve.length()
-    SpecklePolyln.closed = polycurve.isClosed
+    try:
+        SpecklePolyln.area = polycurve.area()
+        SpecklePolyln.length = polycurve.length()
+        SpecklePolyln.closed = polycurve.isClosed
+    except Exception as e:
+        print(e)
+
     return SpecklePolyln
 
 

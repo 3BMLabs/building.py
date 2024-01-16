@@ -299,7 +299,7 @@ class PatternSystem:
         V2 = Vector3(tilewidth+jointwidth,0,0)  #dx
         self.vectors.append([V1, V2])
 
-        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0),Point(0,0,0)])
+        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0)])
         BasePanel1 = Panel.byPolyCurveThickness(PC1, tilethickness, 0, "BasePanel1", BaseBrick.colorint)
 
         self.basepanels.append(BasePanel1)

@@ -52,9 +52,9 @@ class Point:
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
         self.value = self.x, self.y, self.z
         self.units = "mm"
         
