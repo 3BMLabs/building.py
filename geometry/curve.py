@@ -403,7 +403,8 @@ class PolyCurve:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
-        
+                plycrv.points.append(points[0])
+
         return plycrv
 
     @classmethod
@@ -863,4 +864,3 @@ class Ellipse:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
-

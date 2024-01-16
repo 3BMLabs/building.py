@@ -103,7 +103,7 @@ class Intersect2d:
             for i in range(len(polycurve.points) - 1):
                 genLine = Line(polycurve.points[i], polycurve.points[i+1])
                 checkIntersect = Intersect2d().getLineIntersect(genLine, line)
-                print(checkIntersect)
+                # print(checkIntersect)
                 if stretch == False or stretch == None:
                     if checkIntersect != None:
                         if is_point_on_line_segment(checkIntersect, line) == False:
@@ -273,3 +273,48 @@ def planelineIntersection():
         inter_pt = [a + b*t for a,b in zip(line_pt, line_dir)]
 
         print("The intersection point is", inter_pt)
+
+
+def splitPolyCurveByLine(polyCurve, line):
+    from abstract.intersect2d import Intersect2d, is_point_on_line_segment
+
+    # Find intersection points
+    intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
+    intersect_points = intersect["IntersectGridPoints"]
+    ip = intersect_points
+    # If not exactly 2 intersection points, return as cannot split
+    if len(intersect_points) != 2:
+        print(f"Need exactly 2 intersection points to split, found {len(intersect_points)}")
+        return []
+
+    # Split lines at intersection points
+    split_curves = []
+    for curve in polyCurve.curves:
+        if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
+            split_curves.extend(curve.split(intersect_points))
+        else:
+            split_curves.append(curve)
+
+    # Separate the split curves into two parts
+    part1, part2 = [], []
+    part1_points = set()
+    adding_to_part1 = True
+    for curve in split_curves:
+        if adding_to_part1:
+            part1.append(curve)
+            part1_points.update([curve.start, curve.end])
+            if curve.end == intersect_points[1] or curve.start == intersect_points[1]:
+                adding_to_part1 = False
+        else:
+            if curve.start not in part1_points or curve.end not in part1_points:
+                if len(part2) == 0:
+                    part2.append(ip[0])
+                    part2.append(ip[1])
+                else:
+                    part2.append(curve.end)
+
+
+    polyCurve1 = PolyCurve.byJoinedCurves(part1)
+    polyCurve2 = PolyCurve.byPoints(part2)
+
+    return [polyCurve1, polyCurve2]
