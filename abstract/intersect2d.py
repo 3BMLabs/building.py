@@ -278,24 +278,29 @@ def planelineIntersection():
 def splitPolyCurveByLine(polyCurve, line):
     from abstract.intersect2d import Intersect2d, is_point_on_line_segment
 
-    # Find intersection points
     intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
     intersect_points = intersect["IntersectGridPoints"]
     ip = intersect_points
-    # If not exactly 2 intersection points, return as cannot split
     if len(intersect_points) != 2:
-        print(f"Need exactly 2 intersection points to split, found {len(intersect_points)}")
+        # print(f"Need exactly 2 intersection points to split, found {len(intersect_points)}")
         return []
 
-    # Split lines at intersection points
     split_curves = []
-    for curve in polyCurve.curves:
-        if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
-            split_curves.extend(curve.split(intersect_points))
-        else:
-            split_curves.append(curve)
+    # print(polyCurve.points)
+    try:
+        for curve in polyCurve.curves:
+            if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
+                split_curves.extend(curve.split(intersect_points))
+            else:
+                split_curves.append(curve)
+    except:
+        nPC = PolyCurve.byPoints(polyCurve.points)
+        for curve in nPC.curves:
+            if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
+                split_curves.extend(curve.split(intersect_points))
+            else:
+                split_curves.append(curve)
 
-    # Separate the split curves into two parts
     part1, part2 = [], []
     part1_points = set()
     adding_to_part1 = True
@@ -312,7 +317,6 @@ def splitPolyCurveByLine(polyCurve, line):
                     part2.append(ip[1])
                 else:
                     part2.append(curve.end)
-
 
     polyCurve1 = PolyCurve.byJoinedCurves(part1)
     polyCurve2 = PolyCurve.byPoints(part2)

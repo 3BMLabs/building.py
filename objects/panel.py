@@ -111,8 +111,7 @@ class Panel:
             [baseline.start,
              baseline.end,
              Point.translate(baseline.end, Vector3(0, 0, height)),
-             Point.translate(baseline.start, Vector3(0, 0, height)),
-             baseline.start])
+             Point.translate(baseline.start, Vector3(0, 0, height))])
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):

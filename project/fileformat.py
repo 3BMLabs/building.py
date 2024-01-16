@@ -46,6 +46,7 @@ class BuildingPy:
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
+        self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet

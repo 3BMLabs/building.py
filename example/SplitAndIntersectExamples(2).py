@@ -28,8 +28,8 @@ p3 = Point(2000,6500,0)
 p4 = Point(4000,3000,0)
 p5 = Point(4000,0,0)
 
-PC1 = PolyCurve.byPoints([p1,p2,p3,p4,p5])
-project.objects.append(PC1)
+# PC1 = PolyCurve.byPoints([p1,p2,p3,p4,p5])
+# project.objects.append(PC1)
 
 window1 = [Point(-500,500,0), Point(500,750,0), Point(750,750,0), Point(750,500,0)]
 
@@ -40,7 +40,7 @@ window2 = [Point(3700,6000,0), Point(500,750,0), Point(750,750,0), Point(750,500
 # PC3 = PolyCurve.byPoints(window2)
 
 Line4 = Line(start=Point(2500, -900, 0), end=Point(2500, 6000, 0))
-# project.objects.append(Line4)
+project.objects.append(Line4)
 
 p1 = Point(650,2500,0)
 p2 = Point(1000,3000,0)
@@ -48,7 +48,7 @@ p3 = Point(6000,6500,0)
 p5 = Point(4000,2500,0)
 
 PC4 = PolyCurve.byPoints([p1,p2,p3,p5])
-# project.objects.append(PC4)
+project.objects.append(PC4)
 
 
 p1 = Point(0,-500,0)
@@ -57,10 +57,10 @@ p3 = Point(4000,500,0)
 p5 = Point(4000,-500,0)
 
 PC5 = PolyCurve.byPoints([p1,p2,p3,p5])
+project.objects.append(PC5)
 
+PC6 = PolyCurve.byPoints([p5,p3,p2,p1])
 
-
-# project.objects.append(PC5)
 
 # Line5 = Line(start=Point(1500, -750, 0), end=Point(1500, 1500, 0))
 # project.objects.append(Line5)
@@ -83,9 +83,9 @@ PC5 = PolyCurve.byPoints([p1,p2,p3,p5])
 #     project.objects.append(j)
 
 # test1 = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
-test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
+# test2 = PatternSystem().TileBondWithJoint("tegels",400,400,10,10,10)
 # test3 = PatternSystem().CrossBondWithJoint("kruisverband test",100,210,50,10,12.5)
-test_res = PatternGEOM(test2,4200,2000)
+# test_res = PatternGEOM(test3,2000,2000)
 
 # for i in test_res:
 #     project.objects.append(i)
@@ -141,48 +141,18 @@ intersect_calculator = Intersect2d()
 #     project.objects.append(sp_pc)
 
 
-PC10 = PolyCurve.byPoints([Point(410,410,0), Point(410,810,0), Point(8000,810,0), Point(8000,410,0)])
-project.objects.append(PC10)
-for index, line in enumerate(PC1.curves):
-    print(PC10, line)
-    x = splitPolyCurveByLine(PC10, line)
-    for lines in PC10.curves:
-        print(lines)
-    for points in PC10.points:
-        print(points)
 
-    for i in x:
-        project.objects.append(i)
-
-
-
-# for index, line in enumerate(PC1.curves):
-#     for p, i in enumerate(test_res):
-#         PCPanel = i.extrusion.polycurve_3d_translated
-#         project.objects.append(PCPanel)
-
-#         if index == 0 and p == 0:
-#             for lines in PCPanel.curves:
-#                 print(lines)
-#             for points in PCPanel.points:
-#                 print(points)
-
-#         print(PCPanel, line)
-#         x = splitPolyCurveByLine(PCPanel, line)
-#         for i in x:
-#             project.objects.append(i)
-
-
-# sys.exit()
-
-# x = splitPolyCurveByLine(PC4, Line4)
-# for i in x:
-#     project.objects.append(i)
-
+x = splitPolyCurveByLine(PC4, Line4)
+for i in x:
+    project.objects.append(i)
 
 # b = splitPolyCurveByLine(PC5, Line4)
 # for i in b:
 #     project.objects.append(i)
+
+b = splitPolyCurveByLine(PC6, Line4)
+for i in b:
+    project.objects.append(i)
 
 # b = splitPolyCurveByLine(PC6, Line5)
 # for i in b:
