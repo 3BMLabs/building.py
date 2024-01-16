@@ -354,8 +354,8 @@ class PolyCurve:
         for crv in curvelst:
             if crv.length == 0:
                 curvelst.remove(crv)
-                # print("Error: Curve length cannot be zero.")
-                # sys.exit()
+                print("Error: Curve length cannot be zero.")
+                sys.exit()
 
         projectClosed = project.closed
         plycrv = PolyCurve()
@@ -394,7 +394,7 @@ class PolyCurve:
             if point in seen:
                 points.remove(point)
                 print("Error: Polycurve cannot have multiple identical points.")
-                # sys.exit()
+                sys.exit()
                 
             seen.add(point)
             unique_points.append(point)

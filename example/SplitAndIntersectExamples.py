@@ -82,10 +82,8 @@ PC5 = PolyCurve.byPoints([p1,p2,p3,p5])
 # for j in window1:
 #     project.objects.append(j)
 
-test1 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,12.5)
-# test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
-# test3 = PatternSystem().CrossBondWithJoint("kruisverband test",100,210,50,10,12.5)
-test_res = PatternGEOM(test1,4200,600)
+# test1 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,12.5)
+
 
 # for i in test_res:
 #     project.objects.append(i)
@@ -153,26 +151,37 @@ intersect_calculator = Intersect2d()
 #     for i in x:
 #         project.objects.append(i)
 
-# c1 = [Line(Point(3690,410,0),Point(3690,810,0)),
-# Line(Point(3690,810,0),Point(4090,810,0)),
-# Line(Point(4090,810,0),Point(4090,410,0)),
-# Line(Point(4090,410,0),Point(3690,410,0))]
+
+
+#SINGLE PATROON
+
+# pc = PolyCurve.byPoints([
+#     Point(3690.0,410.0,0.0),
+#     Point(3690.0,810.0,0.0),
+#     Point(4090.0,810.0,0.0),
+#     Point(4090.0,410.0,0.0)
+# ])
+
+# for index, line in enumerate(PC1.curves):
+#     x = splitPolyCurveByLine(pc, line)
+#     for i in x:
+#         project.objects.append(i)
+
 
 # pc = PolyCurve.byJoinedCurves(c1)
-
 # pc = PolyCurve.byPoints([Point(3690,410,0), Point(3690,3000,0), Point(4090,3000,0), Point(4090,410,0)])
-
-pc = PolyCurve.byPoints([Point(3700,410,0), Point(3700,810,0), Point(4200,810,0), Point(4200,410,0)])
+# pc = PolyCurve.byPoints([Point(3700,410,0), Point(3700,810,0), Point(4200,810,0), Point(4200,410,0)])
 # pc = PolyCurve.byPoints([Point(3950,100,0), Point(3950,200,0), Point(4100,200,0), Point(4100,100,0)])
-pc = PolyCurve.byPoints([Point(3950,100,0), Point(3950,500,0), Point(4100,500,0), Point(4100,100,0)])
-
+# pc = PolyCurve.byPoints([Point(3950,100,0), Point(3950,500,0), Point(4100,500,0), Point(4100,100,0)])
 # print(pc.curves)
 # project.objects.append(pc)
 
-for index, line in enumerate(PC1.curves):
-    x = splitPolyCurveByLine(pc, line)
-    # for i in x:
-    #     project.objects.append(i)
+
+
+#MULTI PATROON
+
+# test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
+# test_res = PatternGEOM(test2,4200,600)
 
 # for index, line in enumerate(PC1.curves):
 #     for p, i in enumerate(test_res):

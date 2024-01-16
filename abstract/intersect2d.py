@@ -295,6 +295,11 @@ def splitCurvesInPolyCurveByPoints(polyCurve, points):
 
     return split_curves
 
+def inLine(line, point):
+    if line.start == point or line.end == point:
+        return True
+    return False
+
 
 def reorderLineSegments(segments, startpoint, endpoint):
     if not segments:
@@ -303,21 +308,99 @@ def reorderLineSegments(segments, startpoint, endpoint):
     seg1 = []
     seg2 = []
 
+    starts = []
+
     #seg 1
     for index, seg in enumerate(segments):
         if len(seg1) == 0:
-            if Point.distance(seg.start, startpoint) == 0:
-                segments.remove(seg)
-                seg1.append(seg)
+            if inLine(seg, startpoint):
+                starts.append(seg)
+                # segments.remove(seg)
+    
+    for st in starts:
+        if st in segments:
+            segments.remove(st)
+
+    seg1.append(starts[0])
+    seg2.append(starts[1])
+
+    for line in segments:
+        bl = False
+        for i in range(len(segments)):
+            if inLine(line, seg1[-1].start) and inLine(line, endpoint) == False and bl == False:
+                seg1.append(line)
+                bl = True
+                try:
+                    segments.remove(line)
+                except:
+                    pass
+
+    for line in segments:
+        bl = False
+        for i in range(len(segments)):
+            if inLine(line, seg2[-1].end) and inLine(line, endpoint) == False and bl == False:
+                seg2.append(line)
+                bl = True
+                try:
+                    segments.remove(line)
+                except:
+                    pass
+
+
+    for index, seg in enumerate(segments):
+        if inLine(seg, endpoint) and inLine(seg, seg1[-1].start):
+            seg1.append(seg)
+            segments.remove(seg)
+        elif inLine(seg, endpoint) and inLine(seg, seg1[-1].end):
+            seg1.append(seg)
+            segments.remove(seg)
+
+    seg2.append(segments[0])
+
+    endLine = Line(startpoint, endpoint)
+    seg1.append(endLine)
+    seg2.append(endLine)
+
+
+    #format these lists:
+    
+    pts1 = []
+    for index, p in enumerate(seg1):
+        # print(p.start)
+        if index == 0 and p.start == startpoint:
+            pts1.append(p.start)
+            pts1.append(p.end)
+        elif index == 0 and  p.end == startpoint:
+            pts1.append(p.end)
+            pts1.append(p.start)
         else:
-            if Point.distance(seg.start, seg1[-1].start) == 0:
-                segments.remove(seg)
-                seg1.append(seg)
+            if p.start not in pts1:
+                pts1.append(p.start)
+            elif p.end not in pts1:
+                pts1.append(p.end)
 
-    for i in seg1:
-        print(i)
+    PC1 = PolyCurve.byPoints(pts1)
 
-    return []#ordered_segments
+
+    pts2 = []
+    for index, p in enumerate(seg2):
+        # print(p.start)
+        if index == 0 and p.start == startpoint:
+            pts2.append(p.start)
+            pts2.append(p.end)
+        elif index == 0 and  p.end == startpoint:
+            pts2.append(p.end)
+            pts2.append(p.start)
+        else:
+            if p.start not in pts2:
+                pts2.append(p.start)
+            elif p.end not in pts2:
+                pts2.append(p.end)
+
+    PC2 = PolyCurve.byPoints(pts2)
+
+
+    return [PC1, PC2]#ordered_segments
 
 
 def splitPolyCurveByLine(polyCurve, line):
@@ -331,9 +414,6 @@ def splitPolyCurveByLine(polyCurve, line):
 
     splittedLines = splitCurvesInPolyCurveByPoints(polyCurve, intersect_points)
     ordered_segments = reorderLineSegments(splittedLines, intersect_points[0], intersect_points[1])
-
-    # for i in ordered_segments:
-    #     print(i)
 
     # split_curves = []
     # try:
@@ -373,8 +453,10 @@ def splitPolyCurveByLine(polyCurve, line):
 
     # polyCurve1 = PolyCurve.byJoinedCurves(part1)
     # polyCurve2 = PolyCurve.byPoints(part2)
+    for j in polyCurve.curves:
+        print(j)
 
-    return 0#[polyCurve1, polyCurve2]
+    return ordered_segments
 
 
 # def splitPolyCurveByLine(polyCurve, line):
