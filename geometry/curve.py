@@ -354,8 +354,8 @@ class PolyCurve:
         for crv in curvelst:
             if crv.length == 0:
                 curvelst.remove(crv)
-                print("Error: Curve length cannot be zero.")
-                sys.exit()
+                # print("Error: Curve length cannot be zero.")
+                # sys.exit()
 
         projectClosed = project.closed
         plycrv = PolyCurve()

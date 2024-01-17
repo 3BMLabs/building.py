@@ -29,7 +29,7 @@ project.objects.append(PC1)
 
 #MULTI PATROON
 
-# test1 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,12.5)
+# test2 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,12.5)
 test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
 test_res = PatternGEOM(test2,4200,600)
 
@@ -39,23 +39,26 @@ for index, line in enumerate(PC1.curves):
 
         x = splitPolyCurveByLine(PCPanel, line)
 
-        # pc = None
-        # if len(x["splittedPolycurve"]) == 0:
-        #     pc = [PCPanel]
-        # else:
-        #     pc = x["splittedPolycurve"]
+        pc = None
+        if len(x["splittedPolycurve"]) == 0:
+            pc = [PCPanel]
+        else:
+            pc = x["splittedPolycurve"]
 
         # print(pc)
         # for j in pc:
         #     if is_polycurve_in_polycurve(PCPanel, j):
         #         project.objects.append(j)
 
-
         if len(x["splittedPolycurve"]) == 0:
             pass
         else:
             for i in x["splittedPolycurve"]:
-                project.objects.append(i)
+                for j in is_point_in_polycurve(i.centroid(), PCPanel):
+                    project.objects.append(j)
+                # if is_polycurve_in_polycurve(PCPanel, i):
+                project.objects.append(i.centroid())
+                # project.objects.append(i)
 
 
 project.toSpeckle("bd33f3c533")

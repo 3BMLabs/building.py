@@ -232,28 +232,35 @@ def split_polycurve_at_intersections(PC, intersections):
         return [created_polycurves[0]]
 
 
+# def is_point_in_polycurve(point, polycurve):
+    # x, y, z = point.x, point.y, point.z
+    # intersections = 0
+    # for curve in polycurve.curves:
+    #     p1, p2 = curve.start, curve.end
+    #     if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
+    #         if p1.y != p2.y:
+    #             x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
+    #             if (p1.x == p2.x) or (x <= x_inters):
+    #                 intersections += 1
+    # print(intersections)
+    # return intersections % 2 != 0
+
+
 def is_point_in_polycurve(point, polycurve):
-    x, y, z = point.x, point.y, point.z
-    intersections = 0
+    lst = []
+    invline = Line(point, Point(point.x+99999, point.y+99999, point.z))
     for curve in polycurve.curves:
-        p1, p2 = curve.start, curve.end
-        if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
-            if p1.y != p2.y:
-                x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
-                if (p1.x == p2.x) or (x <= x_inters):
-                    intersections += 1
-    return intersections % 2 != 0
+        x = Intersect2d().getLineIntersect(curve, invline)
+        lst.append(x)
+    return lst
 
 
-def is_polycurve_in_polycurve(polycurve1, polycurve2):
-    booleans2 = []
-    pts2 = []
-    for curve in polycurve2.curves:
-        pts2S, pts2E = curve.start, curve.end
-        booleans2.append(is_point_in_polycurve(pts2S, polycurve1))
-        booleans2.append(is_point_in_polycurve(pts2E, polycurve1))
-    print(all_true(booleans2))
-    return all_true(booleans2)
+def is_polycurve_in_polycurve(mainpolycurve1, polycurve2):
+    cp = polycurve2.centroid()
+    pts = []
+    if is_point_in_polycurve(cp, mainpolycurve1):
+        return True
+    return is_point_in_polycurve(cp, mainpolycurve1)
 
 
 def planelineIntersection():
