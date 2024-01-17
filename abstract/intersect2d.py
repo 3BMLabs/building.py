@@ -301,201 +301,68 @@ def inLine(line, point):
     return False
 
 
-def reorderLineSegments(segments, startpoint, endpoint):
-    if not segments:
-        return []
-
-    seg1 = []
-    seg2 = []
-
-    starts = []
-
-    #seg 1
-    for index, seg in enumerate(segments):
-        if len(seg1) == 0:
-            if inLine(seg, startpoint):
-                starts.append(seg)
-                # segments.remove(seg)
-    
-    for st in starts:
-        if st in segments:
-            segments.remove(st)
-
-    seg1.append(starts[0])
-    seg2.append(starts[1])
-
-    for line in segments:
-        bl = False
-        for i in range(len(segments)):
-            if inLine(line, seg1[-1].start) and inLine(line, endpoint) == False and bl == False:
-                seg1.append(line)
-                bl = True
-                try:
-                    segments.remove(line)
-                except:
-                    pass
-
-    for line in segments:
-        bl = False
-        for i in range(len(segments)):
-            if inLine(line, seg2[-1].end) and inLine(line, endpoint) == False and bl == False:
-                seg2.append(line)
-                bl = True
-                try:
-                    segments.remove(line)
-                except:
-                    pass
-
-
-    for index, seg in enumerate(segments):
-        if inLine(seg, endpoint) and inLine(seg, seg1[-1].start):
-            seg1.append(seg)
-            segments.remove(seg)
-        elif inLine(seg, endpoint) and inLine(seg, seg1[-1].end):
-            seg1.append(seg)
-            segments.remove(seg)
-
-    seg2.append(segments[0])
-
-    endLine = Line(startpoint, endpoint)
-    seg1.append(endLine)
-    seg2.append(endLine)
-
-
-    #format these lists:
-    
-    pts1 = []
-    for index, p in enumerate(seg1):
-        # print(p.start)
-        if index == 0 and p.start == startpoint:
-            pts1.append(p.start)
-            pts1.append(p.end)
-        elif index == 0 and  p.end == startpoint:
-            pts1.append(p.end)
-            pts1.append(p.start)
-        else:
-            if p.start not in pts1:
-                pts1.append(p.start)
-            elif p.end not in pts1:
-                pts1.append(p.end)
-
-    PC1 = PolyCurve.byPoints(pts1)
-
-
-    pts2 = []
-    for index, p in enumerate(seg2):
-        # print(p.start)
-        if index == 0 and p.start == startpoint:
-            pts2.append(p.start)
-            pts2.append(p.end)
-        elif index == 0 and  p.end == startpoint:
-            pts2.append(p.end)
-            pts2.append(p.start)
-        else:
-            if p.start not in pts2:
-                pts2.append(p.start)
-            elif p.end not in pts2:
-                pts2.append(p.end)
-
-    PC2 = PolyCurve.byPoints(pts2)
-
-
-    return [PC1, PC2]#ordered_segments
-
-
 def splitPolyCurveByLine(polyCurve, line):
     from abstract.intersect2d import Intersect2d, is_point_on_line_segment
-
+    dict = {}
+    pcList = []
+    nonsplitted = []
     intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
     intersect_points = intersect["IntersectGridPoints"]
     if len(intersect_points) != 2:
         # print(f"Need exactly 2 intersection points to split, found {len(intersect_points)}")
-        return []
+        nonsplitted.append(PolyCurve)
+        dict["inputPolycurve"] = [PolyCurve]
+        dict["splittedPolycurve"] = pcList
+        dict["nonsplittedPolycurve"] = nonsplitted
+        dict["IntersectGridPoints"] = intersect_points
 
-    splittedLines = splitCurvesInPolyCurveByPoints(polyCurve, intersect_points)
-    ordered_segments = reorderLineSegments(splittedLines, intersect_points[0], intersect_points[1])
-
-    # split_curves = []
-    # try:
-    #     for curve in polyCurve.curves:
-    #         if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
-    #             split_curves.extend(curve.split(intersect_points))
-    #         else:
-    #             split_curves.append(curve)
-    # except:
-    #     nPC = PolyCurve.byPoints(polyCurve.points)
-    #     for curve in nPC.curves:
-    #         if is_point_on_line_segment(intersect_points[0], curve) or is_point_on_line_segment(intersect_points[1], curve):
-    #             split_curves.extend(curve.split(intersect_points))
-    #             print(curve.split(intersect_points))
-    #         else:
-    #             split_curves.append(curve)
-
-    # for sc in split_curves:
-    #     print(sc)
-
-    # part1, part2 = [], []
-    # part1_points = set()
-    # adding_to_part1 = True
-    # for curve in split_curves:
-    #     if adding_to_part1:
-    #         part1.append(curve)
-    #         part1_points.update([curve.start, curve.end])
-    #         if curve.end == intersect_points[1] or curve.start == intersect_points[1]:
-    #             adding_to_part1 = False
-    #     else:
-    #         if curve.start not in part1_points or curve.end not in part1_points:
-    #             if len(part2) == 0:
-    #                 part2.append(ip[0])
-    #                 part2.append(ip[1])
-    #             else:
-    #                 part2.append(curve.end)
-
-    # polyCurve1 = PolyCurve.byJoinedCurves(part1)
-    # polyCurve2 = PolyCurve.byPoints(part2)
-    for j in polyCurve.curves:
-        print(j)
-
-    return ordered_segments
+        return dict
 
 
-# def splitPolyCurveByLine(polyCurve, line):
-#     from abstract.intersect2d import Intersect2d, is_point_on_line_segment
+    SegsandPoints = []
 
-#     # Get intersections between the polycurve and the line
-#     intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
-#     intersect_points = intersect["IntersectGridPoints"]
+    for line in polyCurve.curves:
+        for intersect_point in intersect_points:
+            if is_point_on_line(intersect_point, line):
+                SegsandPoints.append(intersect_point)
+                SegsandPoints.append(intersect_point)
 
-#     # Ensure there are exactly 2 intersection points
-#     if len(intersect_points) != 2:
-#         return []
+        SegsandPoints.append(line)
 
-#     split_curves = []
+    elementen = []
+    for item in SegsandPoints:
+        elementen.append(item)
 
-#     # Split curves at intersection points
-#     for curve in polyCurve.curves:
-#         if any(is_point_on_line_segment(ip, curve) for ip in intersect_points):
-#             split_curves.extend(curve.split(intersect_points))
-#         else:
-#             split_curves.append(curve)
+    gesplitste_lijsten = []
+    huidige_lijst = []
 
-#     # Organize the split curves into two parts
-#     part1, part2 = [], []
-#     part1_points = set()
+    for element in elementen:
+        huidige_lijst.append(element)
 
-#     adding_to_part1 = True
-#     for curve in split_curves:
-#         if adding_to_part1:
-#             part1.append(curve)
-#             part1_points.update([curve.start, curve.end])
-#             if curve.end in intersect_points or curve.start in intersect_points:
-#                 adding_to_part1 = False
-#         else:
-#             if not {curve.start, curve.end} & part1_points:
-#                 part2.append(curve)
+        if len(huidige_lijst) > 1 and huidige_lijst[-1].type == huidige_lijst[-2].type == 'Point':
+            gesplitste_lijsten.append(huidige_lijst[:-1])
+            huidige_lijst = [element]
 
-#     # Create new PolyCurves from the split parts
-#     polyCurve1 = PolyCurve.byJoinedCurves(part1)
-#     polyCurve2 = PolyCurve.byJoinedCurves(part2)
+    if huidige_lijst:
+        gesplitste_lijsten.append(huidige_lijst)
 
-#     return [polyCurve1, polyCurve2]
+    samengevoegde_lijst = gesplitste_lijsten[-1] + gesplitste_lijsten[0]
+
+    lijsten = [samengevoegde_lijst, gesplitste_lijsten[1]]
+    
+    for lijst in lijsten:
+        q = []
+        for i in lijst:
+            if i.type == "Line":
+                q.append(i.end)
+            elif i.type == "Point":
+                q.append(i)
+        pc = PolyCurve.byPoints(q)
+        pcList.append(pc)
+
+    dict["inputPolycurve"] = [PolyCurve]
+    dict["splittedPolycurve"] = pcList
+    dict["nonsplittedPolycurve"] = nonsplitted
+    dict["IntersectGridPoints"] = intersect_points
+
+    return dict
