@@ -232,35 +232,37 @@ def split_polycurve_at_intersections(PC, intersections):
         return [created_polycurves[0]]
 
 
-# def is_point_in_polycurve(point, polycurve):
-    # x, y, z = point.x, point.y, point.z
-    # intersections = 0
-    # for curve in polycurve.curves:
-    #     p1, p2 = curve.start, curve.end
-    #     if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
-    #         if p1.y != p2.y:
-    #             x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
-    #             if (p1.x == p2.x) or (x <= x_inters):
-    #                 intersections += 1
-    # print(intersections)
-    # return intersections % 2 != 0
-
-
 def is_point_in_polycurve(point, polycurve):
-    lst = []
-    invline = Line(point, Point(point.x+99999, point.y+99999, point.z))
+    x, y, z = point.x, point.y, point.z
+    intersections = 0
     for curve in polycurve.curves:
-        x = Intersect2d().getLineIntersect(curve, invline)
-        lst.append(x)
-    return lst
+        p1, p2 = curve.start, curve.end
+        if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
+            if p1.y != p2.y:
+                x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
+                if (p1.x == p2.x) or (x <= x_inters):
+                    intersections += 1
+    # print(intersections)
+    return intersections % 2 != 0
+
+
+# def is_point_in_polycurve(point, polycurve):
+#     intersections = []
+#     invline = Line(point, Point(point.x+99999, point.y+99999, point.z))
+#     for curve in polycurve.curves:
+#         intersection = Intersect2d().getLineIntersect(curve, invline)
+#         if intersection and is_point_on_line_segment(intersection, curve) and is_point_on_line_segment(intersection, curve):
+#             intersections.append(intersection)
+
+#     sys.exit()
+#     return intersections
 
 
 def is_polycurve_in_polycurve(mainpolycurve1, polycurve2):
-    cp = polycurve2.centroid()
-    pts = []
-    if is_point_in_polycurve(cp, mainpolycurve1):
-        return True
-    return is_point_in_polycurve(cp, mainpolycurve1)
+    for pt in polycurve2.points:
+        if is_point_in_polycurve(pt, mainpolycurve1):
+            return True
+    return False
 
 
 def planelineIntersection():

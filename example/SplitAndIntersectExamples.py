@@ -29,14 +29,14 @@ project.objects.append(PC1)
 
 #MULTI PATROON
 
-# test2 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,12.5)
-test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
-test_res = PatternGEOM(test2,4200,600)
+test2 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,12.5)
+# test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
+test_res = PatternGEOM(test2,4200,6500)
 
 for index, line in enumerate(PC1.curves):
     for p, i in enumerate(test_res):
         PCPanel = i.extrusion.polycurve_3d_translated
-
+        got = None
         x = splitPolyCurveByLine(PCPanel, line)
 
         pc = None
@@ -45,20 +45,15 @@ for index, line in enumerate(PC1.curves):
         else:
             pc = x["splittedPolycurve"]
 
-        # print(pc)
-        # for j in pc:
-        #     if is_polycurve_in_polycurve(PCPanel, j):
-        #         project.objects.append(j)
-
         if len(x["splittedPolycurve"]) == 0:
-            pass
+            if is_polycurve_in_polycurve(PCPanel, PC1):
+                project.objects.append(PCPanel)
         else:
             for i in x["splittedPolycurve"]:
-                for j in is_point_in_polycurve(i.centroid(), PCPanel):
-                    project.objects.append(j)
-                # if is_polycurve_in_polycurve(PCPanel, i):
-                project.objects.append(i.centroid())
-                # project.objects.append(i)
-
+                try:
+                    if is_point_in_polycurve(i.centroid(), PC1):
+                        project.objects.append(i)
+                except:
+                    pass
 
 project.toSpeckle("bd33f3c533")
