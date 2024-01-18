@@ -54,6 +54,7 @@ class BuildingPy:
         self.default_font = "calibri"
         self.scale = 1000
         self.font_height = 500
+        self.repr_round = 3
         #prefix objects (name)
         #Geometry settings
 

@@ -59,7 +59,7 @@ class Point:
         self.units = "mm"
         
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.x},{self.y},{self.z})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -173,6 +173,22 @@ class Point:
             return 1
         else:
             return 0
+
+    @staticmethod
+    def to_array(self):
+        return (self.x, self.y, self.z)
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y, self.z]
+
+    @staticmethod
+    def from_matrix(self):
+        return Point(
+            self[0],
+            self[1],
+            self[2]
+        )
 
 
 from abstract import vector
