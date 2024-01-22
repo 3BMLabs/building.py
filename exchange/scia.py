@@ -129,7 +129,7 @@ class LoadXML:
                 if table.attrib["t"] == tableName:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
-                            x, y, z = float(obj[1].attrib["v"])*self.project.scale, float(obj[2].attrib["v"])*self.project.scale, float(obj[3].attrib["v"])*self.project.scale
+                            x, y, z = round(float(obj[1].attrib["v"]),0)*self.project.scale, round(float(obj[2].attrib["v"]),0)*self.project.scale, round(float(obj[3].attrib["v"]),0)*self.project.scale
                             pt = Point(x,y,z)
                             return pt
 
