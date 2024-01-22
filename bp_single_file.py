@@ -3,16 +3,19 @@ import math
 import sys
 import os
 import json
+from collections import defaultdict
+import subprocess
 import urllib
+import time
 import urllib.request
 import string
 import random
 import numpy as np
-# from packages.svg.path import parse_path
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
 # import ezdxf
+# from svg.path import parse_path
 
 
 
@@ -233,9 +236,11 @@ class Vector3:
             v1.x*v2.y - v1.y*v2.x
         )
 
-    @staticmethod #inwendig product, if zero, then vectors are perpendicular
+
+    @staticmethod
     def dotProduct(v1, v2):
         return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
+
 
     @staticmethod
     def product(n, v1): #Same as scale
@@ -291,14 +296,23 @@ class Vector3:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
 
+    # @staticmethod
+    # def normalize(v1):
+    #     length = Vector3.length(v1)
+    #     if length == 0:
+    #         scale = 1
+    #     else:
+    #         scale = 1 / length
+    #     return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
+
     @staticmethod
-    def normalize(v1):
-        length = Vector3.length(v1)
-        if length == 0:
-            scale = 1
-        else:
-            scale = 1 / length
-        return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
+    def normalize(v1, axis=-1, order=2):
+        v1 = Vector3.to_matrix(v1)
+        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
+        l2[l2==0] = 1
+        i = v1 / np.expand_dims(l2, axis)[0]
+        return Vector3(i[0],i[1],i[2])
+
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -330,8 +344,21 @@ class Vector3:
     
         return Vector3.scale(v1,scale)
 
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y, self.z]
+
+    @staticmethod
+    def from_matrix(self):
+        return Vector3(
+            self[0],
+            self[1],
+            self[2]
+        )
+
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
+        return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
 
 XAxis = Vector3(1, 0, 0)
@@ -351,14 +378,14 @@ class Point:
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
         self.value = self.x, self.y, self.z
         self.units = "mm"
         
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.x},{self.y},{self.z})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -396,22 +423,27 @@ class Point:
             pointxyz2.y - pointxyz1.y,
             pointxyz2.z - pointxyz1.z
         )
-
+    
     @staticmethod
     def translate(point, vector):
-        return Point(
-            point.x + vector.x,
-            point.y + vector.y,
-            point.z + vector.z
-        )
+        p1 = Point.to_matrix(point)
+        v1 = Vector3.to_matrix(vector)
+
+        ar1 = np.array([p1])
+        ar2 = np.array([v1])
+
+        c = np.add(ar1,ar2)[0]
+        return Point(c[0], c[1], c[2])
+
 
     @staticmethod
     def origin(point1, point2):
         return Point(
-            (point1.x + point2.x) /2,
-            (point1.y + point2.y) /2,
-            (point1.z + point2.z) /2
+            (point1.x + point2.x) / 2,
+            (point1.y + point2.y) / 2,
+            (point1.z + point2.z) / 2
         )
+
 
     @staticmethod
     def point2DTo3D(point2D):
@@ -455,7 +487,6 @@ class Point:
             p1.z + dz
         )
 
-    @staticmethod
     def product(n, p1): #Same as scale
         return Point(
             p1.x*n,
@@ -471,24 +502,37 @@ class Point:
         else:
             return 0
 
+    @staticmethod
+    def to_array(self):
+        return np.array(self.x, self.y, self.z)
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y, self.z]
+
+    @staticmethod
+    def from_matrix(self):
+        return Point(
+            self[0],
+            self[1],
+            self[2]
+        )
+
 
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
     def __init__(self, origin: Point, xaxis, yaxis, zaxis):
-        self.type = __class__.__name__        
+        self.id = generateID()
+        self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = xaxis
-        self.Yaxis = yaxis
-        self.Zaxis = zaxis
+        self.Xaxis = Vector3.normalize(xaxis)
+        self.Yaxis = Vector3.normalize(yaxis)
+        self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        self.Origin = origin
-        self.Xaxis = XAxis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
-        return self
+        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
 
     @staticmethod
     def translate(CSOld, direction):
@@ -506,7 +550,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
@@ -525,29 +569,73 @@ class CoordinateSystem:
         CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
         return CSNew
     
+    @staticmethod
+    def move_local(CSOld,x: float, y:float, z:float):
+        #move coordinatesystem by y in local coordinates(not global)
+        xloc_vect_norm = CSOld.Xaxis
+        xdisp = Vector3.scale(xloc_vect_norm,x)
+        yloc_vect_norm = CSOld.Xaxis
+        ydisp = Vector3.scale(yloc_vect_norm, y)
+        zloc_vect_norm = CSOld.Xaxis
+        zdisp = Vector3.scale(zloc_vect_norm, z)
+        disp = Vector3.sum3(xdisp,ydisp,zdisp)
+        CS = CoordinateSystem.translate(CSOld,disp)
+        return CS
+    
+    @staticmethod
+    def translate_origin(origin1, origin2):
 
-def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
-    vz = DirectionVector  # LineVector and new Z-axis
-    vz = Vector3.normalize(vz)  # NewZAxis
-    vx = Vector3.perpendicular(vz)[0]  # NewXAxis
-    try:
-        vx = Vector3.normalize(vx)  # NewXAxisnormalized
-    except:
-        vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
-    vy = Vector3.perpendicular(vz)[1]  # NewYAxis
-    try:
-        vy = Vector3.normalize(vy)  # NewYAxisnormalized
-    except:
-        vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
-    P1 = PointLocal #point to transform
-    CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
-    v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
-    v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
-    v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
-    v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
+        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
+        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+
+        new_origin_np = origin1_np + (origin2_np - origin1_np)
+        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        return v / norm if norm > 0 else v
+    
+
+def transformPoint(point_local, coordinate_system_old, new_origin, direction_vector):
+    
+    direction_vector = Vector3.to_matrix(direction_vector)
+    new_origin = Point.to_matrix(new_origin)
+    vz = direction_vector / np.linalg.norm(direction_vector)
+
+    vx = np.array([-vz[1], vz[0], 0])
+    if np.linalg.norm(vx) == 0:
+        vx = np.array([1, 0, 0])
+    else:
+        vx = vx / np.linalg.norm(vx)
+
+    vy = np.cross(vz, vx)
+    if np.linalg.norm(vy) == 0:
+        vy = np.array([0, 1, 0])
+    else:
+        vy = vy / np.linalg.norm(vy)
+
+    P1 = point_local
+    CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector3.from_matrix(vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
+    v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
+
+    v2 = Vector3.product(P1.x, CSNew.Xaxis)
+    v3 = Vector3.product(P1.y, CSNew.Yaxis)
+    v4 = Vector3.product(P1.z, CSNew.Zaxis)
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
-    pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
+    pointNew = Point.translate(Point(0, 0, 0), vtot)
+
     return pointNew
+
 
 def transformPoint2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     #Transfrom point from Global Coordinatesystem to a new Coordinatesystem
@@ -561,6 +649,7 @@ class BuildingPy:
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
+        self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet
@@ -568,6 +657,7 @@ class BuildingPy:
         self.default_font = "calibri"
         self.scale = 1000
         self.font_height = 500
+        self.repr_round = 3
         #prefix objects (name)
         #Geometry settings
 
@@ -676,20 +766,64 @@ class CoordinateSystem:
         zaxis = Vector3.deserialize(data['Zaxis'])
         return CoordinateSystem(origin, xaxis, yaxis, zaxis)
 
+    # @classmethod
+    # def by_origin(self, origin: Point):
+    #     self.Origin = origin
+    #     self.Xaxis = XAxis
+    #     self.Yaxis = YAxis
+    #     self.Zaxis = ZAxis
+    #     return self
+
     @classmethod
     def by_origin(self, origin: Point):
-        self.Origin = origin
-        self.Xaxis = XAxis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
-        return self
+        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+
+    # @staticmethod
+    # def translate(CSOld, direction):
+    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+    #     new_origin = Point.translate(CSNew.Origin, direction)
+    #     CSNew.Origin = new_origin
+    #     return CSNew
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
-        new_origin = Point.translate(CSNew.Origin, direction)
+        pt = CSOld.Origin
+        new_origin = Point.translate(pt, direction)
+        
+        XAxis = Vector3(1, 0, 0)
+
+        YAxis = Vector3(0, 1, 0)
+
+        ZAxis = Vector3(0, 0, 1)
+
+        CSNew = CoordinateSystem(new_origin,xaxis=XAxis,yaxis=YAxis,zaxis=ZAxis)
+
         CSNew.Origin = new_origin
         return CSNew
+
+
+    @staticmethod
+    def translate_origin(origin1, origin2):
+
+        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
+        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+
+        new_origin_np = origin1_np + (origin2_np - origin1_np)
+        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        return v / norm if norm > 0 else v
 
     @staticmethod
     def move_local(CSOld,x: float, y:float, z:float):
@@ -722,7 +856,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
 CSGlobal = project.CSGlobal
 
@@ -1146,7 +1280,13 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst:Line):
+    def byJoinedCurves(self, curvelst: list):
+        for crv in curvelst:
+            if crv.length == 0:
+                curvelst.remove(crv)
+                # print("Error: Curve length cannot be zero.")
+                # sys.exit()
+
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
@@ -1171,12 +1311,24 @@ class PolyCurve:
                 plycrv.isClosed = False
         if plycrv.points[-2].value == plycrv.points[0].value:
             plycrv.curves = plycrv.curves.pop(-1)
+
         return plycrv
 
 
     @classmethod
     def byPoints(self, points: list):
-        projectClosed = project.closed
+        seen = set()
+        unique_points = []
+        
+        for point in points:
+            if point in seen:
+                points.remove(point)
+                print("Error: Polycurve cannot have multiple identical points.")
+                sys.exit()
+                
+            seen.add(point)
+            unique_points.append(point)
+
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -1187,19 +1339,20 @@ class PolyCurve:
                 firstpoint = points[0]
                 plycrv.curves.append(Line(start=point, end=firstpoint))
         
-        if projectClosed:
+        if project.closed:
             if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = True
                 plycrv.points.append(points[0])
 
-        elif projectClosed == False:
+        elif project.closed == False:
             if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
-        
+                plycrv.points.append(points[0])
+
         return plycrv
 
     @classmethod
@@ -1654,8 +1807,6 @@ class Ellipse:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
-
-
 
 
 class Node:
@@ -2840,7 +2991,7 @@ class Intersect2d:
             for i in range(len(polycurve.points) - 1):
                 genLine = Line(polycurve.points[i], polycurve.points[i+1])
                 checkIntersect = Intersect2d().getLineIntersect(genLine, line)
-                print(checkIntersect)
+                # print(checkIntersect)
                 if stretch == False or stretch == None:
                     if checkIntersect != None:
                         if is_point_on_line_segment(checkIntersect, line) == False:
@@ -2978,18 +3129,27 @@ def is_point_in_polycurve(point, polycurve):
                 x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
                 if (p1.x == p2.x) or (x <= x_inters):
                     intersections += 1
+    # print(intersections)
     return intersections % 2 != 0
 
 
-def is_polycurve_in_polycurve(polycurve1, polycurve2):
-    booleans2 = []
-    pts2 = []
-    for curve in polycurve2.curves:
-        pts2S, pts2E = curve.start, curve.end
-        booleans2.append(is_point_in_polycurve(pts2S, polycurve1))
-        booleans2.append(is_point_in_polycurve(pts2E, polycurve1))
-    print(all_true(booleans2))
-    return all_true(booleans2)
+# def is_point_in_polycurve(point, polycurve):
+#     intersections = []
+#     invline = Line(point, Point(point.x+99999, point.y+99999, point.z))
+#     for curve in polycurve.curves:
+#         intersection = Intersect2d().getLineIntersect(curve, invline)
+#         if intersection and is_point_on_line_segment(intersection, curve) and is_point_on_line_segment(intersection, curve):
+#             intersections.append(intersection)
+
+#     sys.exit()
+#     return intersections
+
+
+def is_polycurve_in_polycurve(mainpolycurve1, polycurve2):
+    for pt in polycurve2.points:
+        if is_point_in_polycurve(pt, mainpolycurve1):
+            return True
+    return False
 
 
 def planelineIntersection():
@@ -3009,6 +3169,97 @@ def planelineIntersection():
         inter_pt = [a + b*t for a,b in zip(line_pt, line_dir)]
 
         print("The intersection point is", inter_pt)
+
+
+def splitCurvesInPolyCurveByPoints(polyCurve, points):
+
+    def splitCurveAtPoint(curve, point):
+        if is_point_on_line_segment(point, curve):
+            return curve.split([point])
+        return [curve]
+
+    split_curves = []
+    for curve in polyCurve.curves:
+        current_curves = [curve]
+        for point in points:
+            new_curves = []
+            for c in current_curves:
+                new_curves.extend(splitCurveAtPoint(c, point))
+            current_curves = new_curves
+        split_curves.extend(current_curves)
+
+    return split_curves
+
+def inLine(line, point):
+    if line.start == point or line.end == point:
+        return True
+    return False
+
+
+def splitPolyCurveByLine(polyCurve, line):
+    dict = {}
+    pcList = []
+    nonsplitted = []
+    intersect = Intersect2d().getIntersectLinePolyCurve(polyCurve, line, split=False, stretch=False)
+    intersect_points = intersect["IntersectGridPoints"]
+    if len(intersect_points) != 2:
+        # print(f"Need exactly 2 intersection points to split, found {len(intersect_points)}")
+        nonsplitted.append(PolyCurve)
+        dict["inputPolycurve"] = [PolyCurve]
+        dict["splittedPolycurve"] = pcList
+        dict["nonsplittedPolycurve"] = nonsplitted
+        dict["IntersectGridPoints"] = intersect_points
+
+        return dict
+
+
+    SegsandPoints = []
+
+    for line in polyCurve.curves:
+        for intersect_point in intersect_points:
+            if is_point_on_line(intersect_point, line):
+                SegsandPoints.append(intersect_point)
+                SegsandPoints.append(intersect_point)
+
+        SegsandPoints.append(line)
+
+    elementen = []
+    for item in SegsandPoints:
+        elementen.append(item)
+
+    gesplitste_lijsten = []
+    huidige_lijst = []
+
+    for element in elementen:
+        huidige_lijst.append(element)
+
+        if len(huidige_lijst) > 1 and huidige_lijst[-1].type == huidige_lijst[-2].type == 'Point':
+            gesplitste_lijsten.append(huidige_lijst[:-1])
+            huidige_lijst = [element]
+
+    if huidige_lijst:
+        gesplitste_lijsten.append(huidige_lijst)
+
+    samengevoegde_lijst = gesplitste_lijsten[-1] + gesplitste_lijsten[0]
+
+    lijsten = [samengevoegde_lijst, gesplitste_lijsten[1]]
+    
+    for lijst in lijsten:
+        q = []
+        for i in lijst:
+            if i.type == "Line":
+                q.append(i.end)
+            elif i.type == "Point":
+                q.append(i)
+        pc = PolyCurve.byPoints(q)
+        pcList.append(pc)
+
+    dict["inputPolycurve"] = [PolyCurve]
+    dict["splittedPolycurve"] = pcList
+    dict["nonsplittedPolycurve"] = nonsplitted
+    dict["IntersectGridPoints"] = intersect_points
+
+    return dict
 
 
 HiddenLine1 = ["Hidden Line 1", [1, 1], 100]  # Rule: line, whitespace, line whitespace etc., scale
@@ -3685,7 +3936,7 @@ class PatternSystem:
         V2 = Vector3(tilewidth+jointwidth,0,0)  #dx
         self.vectors.append([V1, V2])
 
-        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0),Point(0,0,0)])
+        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0)])
         BasePanel1 = Panel.byPolyCurveThickness(PC1, tilethickness, 0, "BasePanel1", BaseBrick.colorint)
 
         self.basepanels.append(BasePanel1)
@@ -3822,8 +4073,6 @@ BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147
 #class Materialfinish
 
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/DutchSailor/Project-Ocondat/master/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/joas1606/jupyter/main/jsontestfile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
@@ -5311,8 +5560,7 @@ class Panel:
             [baseline.start,
              baseline.end,
              Point.translate(baseline.end, Vector3(0, 0, height)),
-             Point.translate(baseline.start, Vector3(0, 0, height)),
-             baseline.start])
+             Point.translate(baseline.start, Vector3(0, 0, height))])
         p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):
@@ -8347,7 +8595,7 @@ class LoadXML:
         self.filename = filename
         self.project = project
         self.unrecognizedElements = []
-        
+        self.method_times = {}
         self.root = self.load()
         if self.root != None:
             self.getStaaf()
@@ -8356,6 +8604,7 @@ class LoadXML:
 
 
     def load(self):
+        start_time = time.time()
         try:
             tree = ET.parse(self.filename)
             root = tree.getroot()
@@ -8363,9 +8612,14 @@ class LoadXML:
         except Exception as e:
             print(e)
             return None
+        finally:
+            end_time = time.time()
+            self._record_time("load", end_time - start_time)
 
+        return root
 
     def getAllKnoop(self):
+        start_time = time.time()
         tableName = "EP_DSG_Elements.EP_StructNode.1"
         for container in self.root:
             for table in container:
@@ -8378,7 +8632,19 @@ class LoadXML:
                         else:
                             pass
                             # print(obj.attrib["nm"])
+        end_time = time.time()  # End time
+        self._record_time("getStaaf", end_time - start_time)
 
+
+    def _record_time(self, method_name, duration):
+        if method_name in self.method_times:
+            self.method_times[method_name] += duration
+        else:
+            self.method_times[method_name] = duration
+
+    def print_total_times(self):
+        for method, total_time in self.method_times.items():
+            print(f"Total time for {method}: {total_time} seconds")
 
     def findKnoop(self, name):
         tableName = "EP_DSG_Elements.EP_StructNode.1"
@@ -8524,16 +8790,13 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
-                            rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
-                            # print(rotationDEG)
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
                             #TEMP
-                            p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
+                            p1 = Point(p1.x, p1.y, p1.z)
 
                             node1 = Node()
                             node1.number = p1Number
@@ -8553,6 +8816,12 @@ class LoadXML:
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
 
+                            rotationRAD = obj[h3Index].attrib["v"]
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
+
+                            if layerType == "Column":
+                                rotationDEG = rotationDEG-90
+
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -8561,11 +8830,7 @@ class LoadXML:
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
-                                    # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        if node1.point.x == node2.point.x:
-                                            newPoint = Point(node2.point.x+0.0000000001,node2.point.y,node2.point.z)
-                                            node2 = Node(newPoint, Vector3(0,0,0), 0, 0, 0)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:

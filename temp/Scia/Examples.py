@@ -7,9 +7,8 @@ from objects.frame import *
 from exchange.scia import *
 
 from objects.analytical import *
-from project.fileformat import BuildingPy
 
-filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\_2.xml"
+filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\_1.xml"
 
 project = BuildingPy("TempCommit", "0")
 

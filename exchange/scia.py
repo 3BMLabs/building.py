@@ -262,9 +262,6 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
-                            rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
-
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
@@ -291,6 +288,12 @@ class LoadXML:
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
 
+                            rotationRAD = obj[h3Index].attrib["v"]
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
+
+                            if layerType == "Column":
+                                rotationDEG = rotationDEG-90
+
                             elementType = (obj[h6Index].attrib["n"])
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -299,12 +302,9 @@ class LoadXML:
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
-                                    # try:
-                                        # if node1.point.x == node2.point.x:
-                                        #     newPoint = Point(node2.point.x,node2.point.y,node2.point.z)
-                                        #     node2 = Node(newPoint, Vector3(0,0,0), 0, 0, 0)
-                                    self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
-                                    # except Exception as e:
-                                    #     if elementType not in self.unrecognizedElements:
-                                    #         self.unrecognizedElements.append(elementType)
-                                    #     print(e, elementType)
+                                    try:
+                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
+                                    except Exception as e:
+                                        if elementType not in self.unrecognizedElements:
+                                            self.unrecognizedElements.append(elementType)
+                                        print(e, elementType)

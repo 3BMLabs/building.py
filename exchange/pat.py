@@ -284,7 +284,6 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
-        self.
 
         row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
         row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)

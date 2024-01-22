@@ -291,39 +291,10 @@ class CoordinateSystem:
         return v / norm if norm > 0 else v
     
 
-# def transformPoint2(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
-#     from abstract.vector import Vector3
-
-#     vz = DirectionVector  # LineVector and new Z-axis
-#     vz = Vector3.normalize(vz)  # NewZAxis
-#     vx = Vector3.perpendicular(vz)[0]  # NewXAxis
-
-#     try:
-#         vx = Vector3.normalize(vx)  # NewXAxisnormalized
-#     except:
-#         vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
-#     vy = Vector3.perpendicular(vz)[1]  # NewYAxis
-#     try:
-#         vy = Vector3.normalize(vy)  # NewYAxisnormalized
-#     except:
-#         vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
-
-#     P1 = PointLocal #point to transform
-#     CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
-#     v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
-#     v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
-#     v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
-#     v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
-#     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
-#     pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
-#     return pointNew
-
-
 def transformPoint(point_local, coordinate_system_old, new_origin, direction_vector):
     from abstract.vector import Vector3
     
     direction_vector = Vector3.to_matrix(direction_vector)
-    coordinate_system_old_point = Point.to_matrix(coordinate_system_old.Origin)
     new_origin = Point.to_matrix(new_origin)
     vz = direction_vector / np.linalg.norm(direction_vector)
 
@@ -339,12 +310,9 @@ def transformPoint(point_local, coordinate_system_old, new_origin, direction_vec
     else:
         vy = vy / np.linalg.norm(vy)
 
-
     P1 = point_local
     CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector3.from_matrix(vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
     v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
-
-
 
     v2 = Vector3.product(P1.x, CSNew.Xaxis)
     v3 = Vector3.product(P1.y, CSNew.Yaxis)
