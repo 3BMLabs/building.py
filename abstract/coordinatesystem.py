@@ -74,23 +74,71 @@ class CoordinateSystem:
         zaxis = Vector3.deserialize(data['Zaxis'])
         return CoordinateSystem(origin, xaxis, yaxis, zaxis)
 
+    # @classmethod
+    # def by_origin(self, origin: Point):
+    #     self.Origin = origin
+    #     self.Xaxis = XAxis
+    #     self.Yaxis = YAxis
+    #     self.Zaxis = ZAxis
+    #     return self
+
     @classmethod
     def by_origin(self, origin: Point):
-        self.Origin = origin
-        self.Xaxis = XAxis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
-        return self
+        from abstract.coordinatesystem import XAxis, YAxis, ZAxis
+        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+
+    # @staticmethod
+    # def translate(CSOld, direction):
+    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+    #     new_origin = Point.translate(CSNew.Origin, direction)
+    #     CSNew.Origin = new_origin
+    #     return CSNew
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
-        new_origin = Point.translate(CSNew.Origin, direction)
+        from abstract.vector import Vector3
+        pt = CSOld.Origin
+        new_origin = Point.translate(pt, direction)
+        
+        XAxis = Vector3(1, 0, 0)
+
+        YAxis = Vector3(0, 1, 0)
+
+        ZAxis = Vector3(0, 0, 1)
+
+        CSNew = CoordinateSystem(new_origin,xaxis=XAxis,yaxis=YAxis,zaxis=ZAxis)
+
         CSNew.Origin = new_origin
         return CSNew
 
+
+    @staticmethod
+    def translate_origin(origin1, origin2):
+
+        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
+        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+
+        new_origin_np = origin1_np + (origin2_np - origin1_np)
+        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+        from abstract.vector import Vector3
+
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        return v / norm if norm > 0 else v
+
     @staticmethod
     def move_local(CSOld,x: float, y:float, z:float):
+        from abstract.vector import Vector3
         #move coordinatesystem by y in local coordinates(not global)
         xloc_vect_norm = CSOld.Xaxis
         xdisp = Vector3.scale(xloc_vect_norm,x)
@@ -120,6 +168,6 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
 CSGlobal = project.CSGlobal

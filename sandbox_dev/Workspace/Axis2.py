@@ -40,7 +40,7 @@ def normalize(arr, t_min, t_max):
 
 
 class Geometry:
-    def translate(object, v):
+    def Translate(object, v):
         if object.type == 'Point':
             p1 = Point.to_matrix(object)
             v1 = Vector3.to_matrix(v)
@@ -52,7 +52,7 @@ class Geometry:
             return Point(c[0], c[1], c[2])
 
         elif object.type == 'Line':
-            return Line(Geometry.translate(object.start, v), (Geometry.translate(object.end, v)))
+            return Line(Geometry.Translate(object.start, v), (Geometry.Translate(object.end, v)))
 
         elif object.type == "PolyCurve":
             translated_points = []
@@ -85,13 +85,13 @@ class CoordinateSystem:
         # self.ZScaleFactor = 0
 
     @classmethod
-    def by_origin(self, origin: Point):
+    def ByOrigin(self, origin: Point):
         from abstract.coordinatesystem import XAxis, YAxis, ZAxis
         return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
 
 
     @classmethod
-    def by_origin_vectors(cls, origin: Point, XAxis, YAxis, ZAxis, Length=None):
+    def ByOriginVectors(cls, origin: Point, XAxis, YAxis, ZAxis):
         XAxis = np.array([XAxis.x, XAxis.y, XAxis.z])
         YAxis = np.array([YAxis.x, YAxis.y, YAxis.z])
         ZAxis = np.array([ZAxis.x, ZAxis.y, ZAxis.z])
@@ -120,10 +120,10 @@ class CoordinateSystem:
         return cls(origin, xaxis=Vector3.from_matrix(XAxis), yaxis=Vector3.from_matrix(YAxis), zaxis=Vector3.from_matrix(ZAxis))
 
 
-    def translate(CSOld, direction):
+    def Translate(CSOld, direction):
         from abstract.vector import Vector3
         pt = CSOld.Origin
-        new_origin = Geometry.translate(pt, direction)
+        new_origin = Geometry.Translate(pt, direction)
         
         XAxis = Vector3(1, 0, 0)
 
@@ -141,15 +141,40 @@ class CoordinateSystem:
         norm = np.linalg.norm(v)
         return v / norm if norm > 0 else v
 
+    # @staticmethod
+    # def Transform(CS1, CS2):
+    #     # INCORRECT - start
+    #     origin1 = np.array(CS1.Origin)
+    #     origin2 = np.array(CS2.Origin)
+
+    #     translated_origin = Point.to_matrix(origin1) + (Point.to_matrix(origin2) - Point.to_matrix(origin1))
+
+    #     rotation_matrix = CoordinateSystem.CalculateRotationMatrix(CS1, CS2)
+
+    #     new_xaxis = CoordinateSystem.normalize(np.dot(rotation_matrix, CS1.Xaxis))
+    #     new_yaxis = CoordinateSystem.normalize(np.dot(rotation_matrix, CS1.Yaxis))
+    #     new_zaxis = CoordinateSystem.normalize(np.dot(rotation_matrix, CS1.Zaxis))
+
+    #     return CoordinateSystem(translated_origin, new_xaxis, new_yaxis, new_zaxis)
+    #     # INCORRECT - end
+
 
     @staticmethod
-    def translate_origin(origin1, origin2):
+    def TranslateOrigin(origin1, origin2):
 
         origin1_np = np.array([origin1.x, origin1.y, origin1.z])
         origin2_np = np.array([origin2.x, origin2.y, origin2.z])
 
         new_origin_np = origin1_np + (origin2_np - origin1_np)
         return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def CalculateRotationMatrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
 
     def __str__(self):
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
@@ -179,11 +204,11 @@ def scale(object, v):
 
 pt1 = Point(0,0,0)
 
-c1 = CoordinateSystem.by_origin(pt1)
+c1 = CoordinateSystem.ByOrigin(pt1)
 
-c2 = CoordinateSystem.translate(c1, Vector3(0,1000,0))
+c2 = CoordinateSystem.Translate(c1, Vector3(0,1000,0))
 
-c3 = CoordinateSystem.translate(c2, Vector3(4500,-40,80))
+c3 = CoordinateSystem.Translate(c2, Vector3(4500,-40,80))
 
 print(c3)
 
@@ -193,8 +218,10 @@ v1 = Vector3(28,291,321)
 v2 = Vector3(0,0,0)
 v3 = Vector3(-902,3,54)
 
-cs1 = CoordinateSystem.by_origin_vectors(pt2, v1, v2, v3)
+cs1 = CoordinateSystem.ByOriginVectors(pt2, v1, v2, v3)
 print(cs1)
 
-# cs2 = CoordinateSystem.transform(c3, cs1)
-# print(cs2)
+cs2 = CoordinateSystem.Transform(c3, cs1)
+print(cs2)
+# print(CSGlobal)
+project.toSpeckle("75ccb04eec")

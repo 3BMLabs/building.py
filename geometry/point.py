@@ -34,6 +34,7 @@ __url__ = "./geometry/point.py"
 
 import sys, math
 from pathlib import Path
+import numpy as np
 #from abstract.coordinatesystem import *
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -98,22 +99,28 @@ class Point:
             pointxyz2.y - pointxyz1.y,
             pointxyz2.z - pointxyz1.z
         )
-
+    
     @staticmethod
     def translate(point, vector):
-        return Point(
-            point.x + vector.x,
-            point.y + vector.y,
-            point.z + vector.z
-        )
+        from abstract.vector import Vector3
+        p1 = Point.to_matrix(point)
+        v1 = Vector3.to_matrix(vector)
+
+        ar1 = np.array([p1])
+        ar2 = np.array([v1])
+
+        c = np.add(ar1,ar2)[0]
+        return Point(c[0], c[1], c[2])
+
 
     @staticmethod
     def origin(point1, point2):
         return Point(
-            (point1.x + point2.x) /2,
-            (point1.y + point2.y) /2,
-            (point1.z + point2.z) /2
+            (point1.x + point2.x) / 2,
+            (point1.y + point2.y) / 2,
+            (point1.z + point2.z) / 2
         )
+
 
     @staticmethod
     def point2DTo3D(point2D):
@@ -158,7 +165,6 @@ class Point:
             p1.z + dz
         )
 
-    @staticmethod
     def product(n, p1): #Same as scale
         return Point(
             p1.x*n,
@@ -176,7 +182,7 @@ class Point:
 
     @staticmethod
     def to_array(self):
-        return (self.x, self.y, self.z)
+        return np.array(self.x, self.y, self.z)
 
     @staticmethod
     def to_matrix(self):
@@ -196,20 +202,18 @@ from abstract import vector
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
     def __init__(self, origin: Point, xaxis, yaxis, zaxis):
-        self.type = __class__.__name__        
+        from abstract.vector import Vector3
+        self.id = generateID()
+        self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = xaxis
-        self.Yaxis = yaxis
-        self.Zaxis = zaxis
+        self.Xaxis = Vector3.normalize(xaxis)
+        self.Yaxis = Vector3.normalize(yaxis)
+        self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
         from abstract.coordinatesystem import XAxis, YAxis, ZAxis
-        self.Origin = origin
-        self.Xaxis = XAxis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
-        return self
+        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
 
     @staticmethod
     def translate(CSOld, direction):
@@ -228,7 +232,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
@@ -248,30 +252,108 @@ class CoordinateSystem:
         CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
         return CSNew
     
+    @staticmethod
+    def move_local(CSOld,x: float, y:float, z:float):
+        from abstract.vector import Vector3
+        #move coordinatesystem by y in local coordinates(not global)
+        xloc_vect_norm = CSOld.Xaxis
+        xdisp = Vector3.scale(xloc_vect_norm,x)
+        yloc_vect_norm = CSOld.Xaxis
+        ydisp = Vector3.scale(yloc_vect_norm, y)
+        zloc_vect_norm = CSOld.Xaxis
+        zdisp = Vector3.scale(zloc_vect_norm, z)
+        disp = Vector3.sum3(xdisp,ydisp,zdisp)
+        CS = CoordinateSystem.translate(CSOld,disp)
+        return CS
+    
+    @staticmethod
+    def translate_origin(origin1, origin2):
 
-def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
+        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
+        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+
+        new_origin_np = origin1_np + (origin2_np - origin1_np)
+        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+        from abstract.vector import Vector3
+
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        return v / norm if norm > 0 else v
+    
+
+# def transformPoint2(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
+#     from abstract.vector import Vector3
+
+#     vz = DirectionVector  # LineVector and new Z-axis
+#     vz = Vector3.normalize(vz)  # NewZAxis
+#     vx = Vector3.perpendicular(vz)[0]  # NewXAxis
+
+#     try:
+#         vx = Vector3.normalize(vx)  # NewXAxisnormalized
+#     except:
+#         vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
+#     vy = Vector3.perpendicular(vz)[1]  # NewYAxis
+#     try:
+#         vy = Vector3.normalize(vy)  # NewYAxisnormalized
+#     except:
+#         vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
+
+#     P1 = PointLocal #point to transform
+#     CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
+#     v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
+#     v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
+#     v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
+#     v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
+#     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
+#     pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
+#     return pointNew
+
+
+def transformPoint(point_local, coordinate_system_old, new_origin, direction_vector):
     from abstract.vector import Vector3
-    vz = DirectionVector  # LineVector and new Z-axis
-    vz = Vector3.normalize(vz)  # NewZAxis
-    vx = Vector3.perpendicular(vz)[0]  # NewXAxis
-    try:
-        vx = Vector3.normalize(vx)  # NewXAxisnormalized
-    except:
-        vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
-    vy = Vector3.perpendicular(vz)[1]  # NewYAxis
-    try:
-        vy = Vector3.normalize(vy)  # NewYAxisnormalized
-    except:
-        vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
-    P1 = PointLocal #point to transform
-    CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
-    v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
-    v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
-    v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
-    v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
+    
+    direction_vector = Vector3.to_matrix(direction_vector)
+    coordinate_system_old_point = Point.to_matrix(coordinate_system_old.Origin)
+    new_origin = Point.to_matrix(new_origin)
+    vz = direction_vector / np.linalg.norm(direction_vector)
+
+    vx = np.array([-vz[1], vz[0], 0])
+    if np.linalg.norm(vx) == 0:
+        vx = np.array([1, 0, 0])
+    else:
+        vx = vx / np.linalg.norm(vx)
+
+    vy = np.cross(vz, vx)
+    if np.linalg.norm(vy) == 0:
+        vy = np.array([0, 1, 0])
+    else:
+        vy = vy / np.linalg.norm(vy)
+
+
+    P1 = point_local
+    CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector3.from_matrix(vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
+    v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
+
+
+
+    v2 = Vector3.product(P1.x, CSNew.Xaxis)
+    v3 = Vector3.product(P1.y, CSNew.Yaxis)
+    v4 = Vector3.product(P1.z, CSNew.Zaxis)
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
-    pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
+    pointNew = Point.translate(Point(0, 0, 0), vtot)
+
     return pointNew
+
 
 def transformPoint2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     #Transfrom point from Global Coordinatesystem to a new Coordinatesystem

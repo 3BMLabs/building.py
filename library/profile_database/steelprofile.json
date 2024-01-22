@@ -1,4 +1,5 @@
-[{"HEA100": [{"shape_coords":[96,100,5,8,12],"shape_name":"I-shape parallel flange","synonyms":["HEA100","HE100A","HEA 100","hea100","he100a","hea 100"]}]},
+[
+    {"HEA100": [{"shape_coords":[96,100,5,8,12],"shape_name":"I-shape parallel flange","synonyms":["HEA100","HE100A","HEA 100","hea100","he100a","hea 100"]}]},
 {"HEA120": [{"shape_coords":[114,120,5,8,12],"shape_name":"I-shape parallel flange","synonyms":["HEA120","HE120A","HEA 120","hea120","he120a","hea 120"]}]},
 {"HEA140": [{"shape_coords":[133,140,5.5,8.5,12],"shape_name":"I-shape parallel flange","synonyms":["HEA140","HE140A","HEA 140","hea140","he140a","hea 140"]}]},
 {"HEA160": [{"shape_coords":[152,160,6,9,15],"shape_name":"I-shape parallel flange","synonyms":["HEA160","HE160A","HEA 160","hea160","he160a","hea 160"]}]},
@@ -601,6 +602,7 @@
 {"K80/80/4": [{"shape_coords":[80,80,4,6,10],"shape_name":"Rectangle Hollow Section","synonyms":["K80/80/4","K80x80x4","K80/4","K80x4","HFRHS80X80X4","SHS80/80/4","SHS80/80/4.0"]}]},
 {"K80/80/5": [{"shape_coords":[80,80,5,7.5,12.5],"shape_name":"Rectangle Hollow Section","synonyms":["K80/80/5","K80x80x5","K80/5","K80x5","HFRHS80X80X5","SHS80/80/5","SHS80/80/5.0"]}]},
 {"K80/80/6.3": [{"shape_coords":[80,80,6.3,9.45,15.75],"shape_name":"Rectangle Hollow Section","synonyms":["K80/80/6.3","K80x80x6.3","K80/6.3","K80x6.3","HFRHS80X80X6.3","SHS80/80/6.3","SHS80/80/6.3"]}]},
+{"K90/90/4": [{"shape_coords":[90,90,4,7.5,12.5],"shape_name":"Rectangle Hollow Section","synonyms":["K90/90/4","K90x90x4","K90/4","K90x4","HFRHS90X90X4","SHS90/90/4","SHS90/90/4.0"]}]},
 {"K90/90/5": [{"shape_coords":[90,90,5,7.5,12.5],"shape_name":"Rectangle Hollow Section","synonyms":["K90/90/5","K90x90x5","K90/5","K90x5","HFRHS90X90X5","SHS90/90/5","SHS90/90/5.0"]}]},
 {"K90/90/6.3": [{"shape_coords":[90,90,6.3,9.45,15.75],"shape_name":"Rectangle Hollow Section","synonyms":["K90/90/6.3","K90x90x6.3","K90/6.3","K90x6.3","HFRHS90X90X6.3","SHS90/90/6.3","SHS90/90/6.3"]}]},
 {"K100/100/5": [{"shape_coords":[100,100,5,7.5,12.5],"shape_name":"Rectangle Hollow Section","synonyms":["K100/100/5","K100x100x5","K100/5","K100x5","HFRHS100X100X5","SHS100/100/5","SHS100/100/5.0"]}]},
@@ -1066,4 +1068,5 @@
 {"L200/100/10": [{"shape_coords":[200,100,10,10,17,8.5,50,100],"shape_name":"LAngle","synonyms":["H200/100/10","L200/100/10","L200x100x10","L200x100x10","LEQ200x100x10"]}]},
 {"L200/100/12": [{"shape_coords":[200,100,12,12,19,9.5,50,100],"shape_name":"LAngle","synonyms":["H200/100/12","L200/100/12","L200x100x12","L200x100x12","LEQ200x100x12"]}]},
 {"L200/100/14": [{"shape_coords":[200,100,14,14,21,10.5,50,100],"shape_name":"LAngle","synonyms":["H200/100/14","L200/100/14","L200x100x14","L200x100x14","LEQ200x100x14"]}]},
-{"L200/100/16": [{"shape_coords":[200,100,16,16,23,11.5,50,100],"shape_name":"LAngle","synonyms":["H200/100/16","L200/100/16","L200x100x16","L200x100x16","LEQ200x100x16"]}]}]
+{"L200/100/16": [{"shape_coords":[200,100,16,16,23,11.5,50,100],"shape_name":"LAngle","synonyms":["H200/100/16","L200/100/16","L200x100x16","L200x100x16","LEQ200x100x16"]}]}
+]

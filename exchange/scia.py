@@ -33,6 +33,7 @@ __url__ = "./exchange/scia.py"
 
 
 import sys
+import time
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
@@ -66,7 +67,7 @@ class LoadXML:
         self.filename = filename
         self.project = project
         self.unrecognizedElements = []
-        
+        self.method_times = {}
         self.root = self.load()
         if self.root != None:
             self.getStaaf()
@@ -75,6 +76,7 @@ class LoadXML:
 
 
     def load(self):
+        start_time = time.time()
         try:
             tree = ET.parse(self.filename)
             root = tree.getroot()
@@ -82,9 +84,14 @@ class LoadXML:
         except Exception as e:
             print(e)
             return None
+        finally:
+            end_time = time.time()
+            self._record_time("load", end_time - start_time)
 
+        return root
 
     def getAllKnoop(self):
+        start_time = time.time()
         tableName = "EP_DSG_Elements.EP_StructNode.1"
         for container in self.root:
             for table in container:
@@ -97,7 +104,19 @@ class LoadXML:
                         else:
                             pass
                             # print(obj.attrib["nm"])
+        end_time = time.time()  # End time
+        self._record_time("getStaaf", end_time - start_time)
 
+
+    def _record_time(self, method_name, duration):
+        if method_name in self.method_times:
+            self.method_times[method_name] += duration
+        else:
+            self.method_times[method_name] = duration
+
+    def print_total_times(self):
+        for method, total_time in self.method_times.items():
+            print(f"Total time for {method}: {total_time} seconds")
 
     def findKnoop(self, name):
         tableName = "EP_DSG_Elements.EP_StructNode.1"
@@ -245,14 +264,14 @@ class LoadXML:
 
                             rotationRAD = obj[h3Index].attrib["v"]
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
-                            # print(rotationDEG)
+
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
                             #TEMP
-                            p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
+                            p1 = Point(p1.x, p1.y, p1.z)
 
                             node1 = Node()
                             node1.number = p1Number
@@ -280,13 +299,12 @@ class LoadXML:
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
-                                    # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
-                                    try:
-                                        if node1.point.x == node2.point.x:
-                                            newPoint = Point(node2.point.x+0.0000000001,node2.point.y,node2.point.z)
-                                            node2 = Node(newPoint, Vector3(0,0,0), 0, 0, 0)
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
-                                    except Exception as e:
-                                        if elementType not in self.unrecognizedElements:
-                                            self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
+                                    # try:
+                                        # if node1.point.x == node2.point.x:
+                                        #     newPoint = Point(node2.point.x,node2.point.y,node2.point.z)
+                                        #     node2 = Node(newPoint, Vector3(0,0,0), 0, 0, 0)
+                                    self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
+                                    # except Exception as e:
+                                    #     if elementType not in self.unrecognizedElements:
+                                    #         self.unrecognizedElements.append(elementType)
+                                    #     print(e, elementType)
