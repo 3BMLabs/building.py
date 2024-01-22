@@ -46,7 +46,7 @@ from project.fileformat import BuildingPy
 
 # [!not included in BP singlefile - end]
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -62,6 +62,7 @@ class Scia_Params:
         self.ez = ez
         self.geometry_table = geometry_table
         self.revit_rot = revit_rot
+        self.layer_type = layer_type
         #add material
 
 
@@ -307,12 +308,17 @@ class LoadXML:
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
 
                             rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
+                            
 
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
                             if layerType == "Column":
-                                rotationDEG = rotationDEG-90
-                                if rotationDEG < 0:
-                                    rotationDEG = rotationDEG + 360
+                                rotationDEG = rotationDEG+90
+                                # if rotationDEG <= 0:
+                                #     rotationDEG = rotationDEG + 360
+                            # print(rotationRAD)
+                            # print(rotationDEG)
+                            # print("\n")
+                            comments.layer_type = layerType
 
                             comments.revit_rot = rotationDEG
                             elementType = (obj[h6Index].attrib["n"])

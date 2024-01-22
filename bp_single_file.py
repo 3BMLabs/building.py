@@ -8793,20 +8793,16 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
-                            # print(comments.id, "\n",
-                            #       comments.name, "\n",
-                            #       comments.layer, "\n",
-                            #       comments.perpendicular_alignment, "\n",
-                            #       comments.lcs_rotation, "\n",
-                            #       comments.start_node, "\n",
-                            #       comments.end_node, "\n",
-                            #       comments.cross_section, "\n",
-                            #       comments.eem_type, "\n",
-                            #       comments.bar_system_line_on, "\n",
-                            #       comments.ey, "\n",
-                            #       comments.ez, "\n",
-                            #       comments.geometry_table, "\n",
-                            #       )
+                            #deg rotation
+                            rotationRAD = obj[h3Index].attrib["v"]
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
+                            rotationDEG = rotationDEG-90
+                            # if rotationDEG < 0:
+                            #     rotationDEG + 360
+                            comments.revit_rot = rotationDEG
+                            print(comments.revit_rot)
+                            elementType = (obj[h6Index].attrib["n"])
+
 
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
@@ -8834,17 +8830,6 @@ class LoadXML:
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
 
-                            rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
-
-                            if layerType == "Column":
-                                rotationDEG = rotationDEG-90
-                                if rotationDEG < 0:
-                                    rotationDEG = rotationDEG + 360
-
-                            comments.revit_rot = rotationDEG
-                            elementType = (obj[h6Index].attrib["n"])
-                            # print(elementType)
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
                                     # print(f"[removeLayers]: {elementType}")
