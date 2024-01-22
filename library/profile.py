@@ -44,7 +44,7 @@ from objects.steelshape import *
 from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
+jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 

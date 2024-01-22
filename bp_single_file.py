@@ -4072,7 +4072,7 @@ BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147
 
 #class Materialfinish
 
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
+jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
@@ -8574,8 +8574,9 @@ def SubprocessXFEM4UThread():
         print("exception")
 
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None):
         self.id = id
+        self.type = __class__.__name__
         self.name = name
         self.layer = layer
         self.perpendicular_alignment = perpendicular_alignment
@@ -8588,6 +8589,8 @@ class Scia_Params:
         self.ey = ey
         self.ez = ez
         self.geometry_table = geometry_table
+        self.revit_rot = revit_rot
+        #add material
 
 
 class LoadXML:
@@ -8790,6 +8793,21 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
+                            # print(comments.id, "\n",
+                            #       comments.name, "\n",
+                            #       comments.layer, "\n",
+                            #       comments.perpendicular_alignment, "\n",
+                            #       comments.lcs_rotation, "\n",
+                            #       comments.start_node, "\n",
+                            #       comments.end_node, "\n",
+                            #       comments.cross_section, "\n",
+                            #       comments.eem_type, "\n",
+                            #       comments.bar_system_line_on, "\n",
+                            #       comments.ey, "\n",
+                            #       comments.ez, "\n",
+                            #       comments.geometry_table, "\n",
+                            #       )
+
                             Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
@@ -8821,8 +8839,12 @@ class LoadXML:
 
                             if layerType == "Column":
                                 rotationDEG = rotationDEG-90
+                                if rotationDEG < 0:
+                                    rotationDEG = rotationDEG + 360
 
+                            comments.revit_rot = rotationDEG
                             elementType = (obj[h6Index].attrib["n"])
+                            # print(elementType)
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
                                     # print(f"[removeLayers]: {elementType}")
