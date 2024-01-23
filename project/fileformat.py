@@ -67,7 +67,7 @@ class BuildingPy:
         #rename this to autoclose?
         self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
-        self.autoclose: bool = False #new self.closed
+        self.autoclose: bool = True #new self.closed
 
         #nodes
         self.node_merge = True #False not yet created

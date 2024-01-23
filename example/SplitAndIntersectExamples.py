@@ -25,7 +25,7 @@ p3 = Point(2000,6500,0)
 p4 = Point(4000,3000,0)
 p5 = Point(4000,0,0)
 
-PC1 = PolyCurve.byPoints([p1,p2,p3,p4,p5])
+PC1 = PolyCurve2D.byPoints([p1,p2,p3,p4,p5])
 project.objects.append(PC1)
 
 #MULTI PATROON
@@ -34,13 +34,15 @@ test2 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,1
 # test2 = PatternSystem().TileBondWithJoint("tegels",400,400,0,10,10)
 test_res = PatternGEOM(test2,4200,6500)
 
-for index, line in enumerate(PC1.curves):
+for index, line in enumerate(PC1.curves2D):
     for p, i in enumerate(test_res):
-        PCPanel = i.extrusion.polycurve_3d_translated
-        got = None
+
+        PCPanel = PolyCurve2D.fromPolyCurve3D(i.extrusion.polycurve_3d_translated)
+
         x = split_polycurve_by_line(PCPanel, line)
 
         pc = None
+        
         if len(x["splittedPolycurve"]) == 0:
             pc = [PCPanel]
         else:

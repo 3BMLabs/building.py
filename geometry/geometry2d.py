@@ -41,7 +41,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from helper import *
 from abstract.vector import Vector3
 from abstract.coordinatesystem import *
-from abstract.intersect2d import *
+# from abstract.intersect2d import perp, get_line_intersect, get_multi_line_intersect, get_intersect_polycurve_lines, is_point_on_line, is_point_on_line_segment, get_intersection_polycurves, split_polycurve_at_intersections, is_point_in_polycurve, is_polycurve_in_polycurve, plane_line_intersection, split_polycurve_by_points, is_on_line, split_polycurve_by_line
 # [!not included in BP singlefile - end]
 
 
@@ -202,6 +202,13 @@ class Point2D:
       ypix = ImgHeightPix-math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix) # min vanwege coord stelsel Image.Draw
       return xpix, ypix
 
+    def toPoint2D(point=Point):
+        return Point2D(
+            x=point.x,
+            y=point.y
+        )
+
+
 def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
@@ -262,6 +269,12 @@ class Line2D:
         #returns line for Folium(GIS)
         return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
     
+    @staticmethod
+    def fromLine2D(line):
+        return (
+            Line2D(Point2D.toPoint2D(line.start), Point2D.toPoint2D(line.end))
+        )
+
     def __str__(self):
         return f"{__class__.__name__}(" + f"Start: {self.start}, End: {self.end})"
 
@@ -568,7 +581,8 @@ class PolyCurve2D:
     @classmethod
     def byPoints(cls, points):
         if not points or len(points) < 2:
-            raise ValueError("At least two points are required to create a PolyCurve2D.")
+            pass
+            # raise ValueError("At least two points are required to create a PolyCurve2D.")
 
         polycurve = cls()
         for i in range(len(points)):
@@ -629,81 +643,89 @@ class PolyCurve2D:
         plycrv.curves2D = curves2D
         return plycrv
 
-
-    def split(self, line: Line2D, returnlines=None): #make sure that the lines start/stop already on the edge of the polycurve
-        # from abstract.intersect2d import Intersect2d, is_point_on_line_segment
-
-        allLines = self.curves2D.copy()
-
-        # insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
-        # for pt in insect["IntersectGridPoints"]:
-        #     for index, line in enumerate(allLines):
-        #         if is_point_on_line_segment(pt, line) == True:
-        #             cuttedLines = line.split([pt])
-        #             allLines = replace_at_index(allLines,index, cuttedLines)
-
-        insect = get_intersect_polycurve_lines(self, line, split=True, stretch=False)
-        for pt in insect["IntersectGridPoints"]:
-            for index, line in enumerate(allLines):
-                if is_point_on_line_segment(pt, line) == True:
-                    cuttedLines = line.split([pt])
-                    allLines = replace_at_index(allLines,index, cuttedLines)
-
-        if len(insect["IntersectGridPoints"]) == 2:
-            part1 = []
-            part2 = []
-
-            for j in allLines:
-                #part1
-                if j.start == insect["IntersectGridPoints"][1]:
-                    part1LineEnd = j.end
-                    part1.append(j.start)
-                if j.end == insect["IntersectGridPoints"][0]:
-                    part1LineStart = j.start
-                    part1.append(j.end)
-                #part2
-                if j.start == insect["IntersectGridPoints"][0]:
-                    part2LineEnd = j.end
-                    part2.append(j.start)
-                if j.end == insect["IntersectGridPoints"][1]:
-                    part2LineStart = j.start
-                    part2.append(j.end)
-
-            s2 = self.points2D.index(part1LineStart)
-            s1 = self.points2D.index(part1LineEnd)
-            completelist = list(range(len(self.points2D)))
-            partlist1 = flatten(completelist[s2:s1+1])
-            partlist2 = flatten([completelist[s1+1:]] + [completelist[:s2]])
-
-            SplittedPolyCurves = []
-            #part1
-            if part1LineStart != None and part1LineEnd != None:
-                for i, index in enumerate(partlist1):
-                    pts = self.points2D[index]
-                    part1.insert(i+1, pts)
-                if returnlines:
-                    SplittedPolyCurves.append(PolyCurve2D.byPoints(part1))
-                else:
-                    project.objects.append(PolyCurve2D.byPoints(part1))
-
-            #part2 -> BUGG?
-            if part2LineStart != None and part2LineEnd != None:
-                for index in partlist2:
-                    pts = self.points2D[index]
-                    part2.insert(index, pts)
-                if returnlines:
-                    SplittedPolyCurves.append(PolyCurve2D.byPoints(part2))
-                else:
-                    project.objects.append(PolyCurve2D.byPoints(part2))
-
-            if returnlines: #return lines while using multi_split
-                return SplittedPolyCurves
-
-        else:
-            print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
+    @staticmethod
+    def fromPolyCurve3D(PolyCurve):
+        points = []
+        for pt in PolyCurve.points:
+            points.append(Point2D.toPoint2D(pt))
+        plycrv = PolyCurve2D.byPoints(points)
+        return plycrv
 
 
-    def multi_split(self, lines:Line): #SOOOO SLOW, MUST INCREASE SPEAD
+    # def split(self, line: Line2D, returnlines=None): #make sure that the lines start/stop already on the edge of the polycurve
+    #     # from abstract.intersect2d import Intersect2d, is_point_on_line_segment
+
+    #     allLines = self.curves2D.copy()
+
+    #     # insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
+    #     # for pt in insect["IntersectGridPoints"]:
+    #     #     for index, line in enumerate(allLines):
+    #     #         if is_point_on_line_segment(pt, line) == True:
+    #     #             cuttedLines = line.split([pt])
+    #     #             allLines = replace_at_index(allLines,index, cuttedLines)
+
+    #     insect = get_intersect_polycurve_lines(self, line, split=True, stretch=False)
+    #     for pt in insect["IntersectGridPoints"]:
+    #         for index, line in enumerate(allLines):
+    #             if is_point_on_line_segment(pt, line) == True:
+    #                 cuttedLines = line.split([pt])
+    #                 allLines = replace_at_index(allLines,index, cuttedLines)
+
+    #     if len(insect["IntersectGridPoints"]) == 2:
+    #         part1 = []
+    #         part2 = []
+
+    #         for j in allLines:
+    #             #part1
+    #             if j.start == insect["IntersectGridPoints"][1]:
+    #                 part1LineEnd = j.end
+    #                 part1.append(j.start)
+    #             if j.end == insect["IntersectGridPoints"][0]:
+    #                 part1LineStart = j.start
+    #                 part1.append(j.end)
+    #             #part2
+    #             if j.start == insect["IntersectGridPoints"][0]:
+    #                 part2LineEnd = j.end
+    #                 part2.append(j.start)
+    #             if j.end == insect["IntersectGridPoints"][1]:
+    #                 part2LineStart = j.start
+    #                 part2.append(j.end)
+
+    #         s2 = self.points2D.index(part1LineStart)
+    #         s1 = self.points2D.index(part1LineEnd)
+    #         completelist = list(range(len(self.points2D)))
+    #         partlist1 = flatten(completelist[s2:s1+1])
+    #         partlist2 = flatten([completelist[s1+1:]] + [completelist[:s2]])
+
+    #         SplittedPolyCurves = []
+    #         #part1
+    #         if part1LineStart != None and part1LineEnd != None:
+    #             for i, index in enumerate(partlist1):
+    #                 pts = self.points2D[index]
+    #                 part1.insert(i+1, pts)
+    #             if returnlines:
+    #                 SplittedPolyCurves.append(PolyCurve2D.byPoints(part1))
+    #             else:
+    #                 project.objects.append(PolyCurve2D.byPoints(part1))
+
+    #         #part2 -> BUGG?
+    #         if part2LineStart != None and part2LineEnd != None:
+    #             for index in partlist2:
+    #                 pts = self.points2D[index]
+    #                 part2.insert(index, pts)
+    #             if returnlines:
+    #                 SplittedPolyCurves.append(PolyCurve2D.byPoints(part2))
+    #             else:
+    #                 project.objects.append(PolyCurve2D.byPoints(part2))
+
+    #         if returnlines: #return lines while using multi_split
+    #             return SplittedPolyCurves
+
+    #     else:
+    #         print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
+
+
+    def multi_split(self, lines:Line2D): #SOOOO SLOW, MUST INCREASE SPEAD
         lines = flatten(lines)
         new_polygons = []
         for index, line in enumerate(lines):
@@ -750,7 +772,7 @@ class PolyCurve2D:
             else:
                 print("Curvetype not found")
 
-        PCnew = PolyCurve.byJoinedCurves(crvs)
+        PCnew = PolyCurve2D.byJoinedCurves(crvs)
         return PCnew
 
     def rotate(self, angle, dz):
@@ -761,10 +783,10 @@ class PolyCurve2D:
             if i.__class__.__name__ == "Arc":
                 crvs.append(Arc2D(Point2D.rotateXY(i.start, angle, dz), Point2D.rotateXY(i.middle, angle, dz), Point2D.rotateXY(i.end, angle, dz)))
             elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point2D.rotateXY(i.start, angle, dz), Point2D.rotateXY(i.end, angle, dz)))
+                crvs.append(Line2D(Point2D.rotateXY(i.start, angle, dz), Point2D.rotateXY(i.end, angle, dz)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve.byJoinedCurves(crvs)
+        crv = PolyCurve2D.byJoinedCurves(crvs)
         return crv
 
     def toPolyCurve2D(self):
