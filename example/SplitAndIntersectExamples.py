@@ -13,10 +13,11 @@ from library.profile import profiledataToShape
 from objects.annotation import *
 from abstract.intersect2d import *
 from geometry.systemsimple import *
+from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
+
 
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"
-
 
 p1 = Point(0,0,0)
 p2 = Point(0,3000,0)
@@ -37,7 +38,7 @@ for index, line in enumerate(PC1.curves):
     for p, i in enumerate(test_res):
         PCPanel = i.extrusion.polycurve_3d_translated
         got = None
-        x = splitPolyCurveByLine(PCPanel, line)
+        x = split_polycurve_by_line(PCPanel, line)
 
         pc = None
         if len(x["splittedPolycurve"]) == 0:
@@ -55,5 +56,6 @@ for index, line in enumerate(PC1.curves):
                         project.objects.append(i)
                 except:
                     pass
+
 
 project.toSpeckle("bd33f3c533")

@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -65,8 +65,9 @@ class BuildingPy:
         #different settings for company's?
 
         #rename this to autoclose?
-        self.closed: bool = True #auto close polygons? By default true, else overwrite
+        self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+        self.autoclose: bool = False #new self.closed
 
         #nodes
         self.node_merge = True #False not yet created

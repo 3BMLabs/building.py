@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *

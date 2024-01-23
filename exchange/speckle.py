@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -42,6 +42,8 @@ from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from abstract.interval import Interval
+from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
+
 from helper import *
 
 from specklepy.api.client import SpeckleClient
@@ -67,10 +69,10 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point: Point):
-    try:
+def PointToSpecklePoint(point: Point or Point2D):
+    if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    except:
+    elif point.type == "Point2D":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, 0)
     SpecklePnt.id = point.id
     SpecklePnt.units = project.units
@@ -110,7 +112,24 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
     SpecklePolyln.applicationId = project.applicationId
     try:
         SpecklePolyln.area = polycurve.area()
-        SpecklePolyln.length = polycurve.length()
+        SpecklePolyln.length = PolyCurve.length(polycurve)
+        SpecklePolyln.closed = polycurve.isClosed
+    except Exception as e:
+        print(e)
+
+    return SpecklePolyln
+
+
+def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve2D):
+    SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points2D]
+    SpecklePolyln = SpecklePolyLine.from_points(SpecklePl)
+    SpecklePolyln.id = polycurve.id
+    SpecklePolyln.units = project.units
+    SpecklePolyln.domain = project.domain
+    SpecklePolyln.applicationId = project.applicationId
+    try:
+        SpecklePolyln.area = polycurve.area()
+        SpecklePolyln.length = PolyCurve2D.length(polycurve)
         SpecklePolyln.closed = polycurve.isClosed
     except Exception as e:
         print(e)
@@ -285,6 +304,9 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
+
+        elif nm == 'PolyCurve2D':
+            SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))
 
         elif nm == 'BoundingBox2d':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))

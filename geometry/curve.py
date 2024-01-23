@@ -3,7 +3,7 @@
 
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -179,7 +179,7 @@ class Line: #add Line.bylenght (start and endpoint)
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.start},{self.end})"
+        return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
 
 
 def create_lines(points):
@@ -209,7 +209,7 @@ class PolyCurve:
         self.isCyclic = None
         self.isElementGeometry = None
         self.isReadOnly = None
-        # self.length = self.calcLength()
+        self.length = self.length()
         self.period = None
         self.reference = None
         self.visibility = None
@@ -334,11 +334,14 @@ class PolyCurve:
 
 
     def length(self) -> float:
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
         return sum(i.length for i in self.curves)
 
 
     def close(self) -> bool:
-        print(self)
         if self.curves[0] == self.curves[-1]:
             return self
         else:
@@ -350,7 +353,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst: list):
+    def byJoinedCurves(self, curvelst: list[Line]):
         for crv in curvelst:
             if crv.length == 0:
                 curvelst.remove(crv)
@@ -386,7 +389,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points: list):
+    def byPoints(self, points: list[Point]):
         seen = set()
         unique_points = []
         
@@ -426,7 +429,7 @@ class PolyCurve:
         return plycrv
 
     @classmethod
-    def unclosed_by_points(self, points: Point):
+    def unclosed_by_points(self, points: list[Point]):
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
