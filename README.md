@@ -1,19 +1,19 @@
-# building.py 
-Python Library for creating building, building systems, object and export to any program like Blender, Revit and Speckle.
+# building.py
+A Python library for creating buildings, building systems, objects, and exporting them to various programs such as Blender, Revit, and Speckle.
 
 # Why?
-Almost everything in a building is a frame or a panel. Windows, Curtainwalls, Floorsystems. The aim of the building.py project is automate the creation of these systems.
+In the realm of building design, almost everything can be categorized as a frame or a panel – from windows and curtain walls to floor systems. The aim of the building.py project is to automate the creation of these systems.
 
-The goals of the building.py project are:
-* Create a Pythonlibrary for geometry without dependencies.
-* Exportoptions to:
+Goals of the building.py Project:
+* Develop a Python library for geometry creation without dependencies.
+* Provide export options to:
   * Speckle
   * FreeCAD
   * Revit
   * XFEM4U
   * IFC using IFCOpenShell
   * Scia Engineer
-
+ 
 # Design principles
 * Create 
 # Implemented
