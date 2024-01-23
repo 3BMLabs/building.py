@@ -41,7 +41,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from helper import *
 from abstract.vector import Vector3
 from abstract.coordinatesystem import *
-# from abstract.intersect2d import perp, get_line_intersect, get_multi_line_intersect, get_intersect_polycurve_lines, is_point_on_line, is_point_on_line_segment, get_intersection_polycurves, split_polycurve_at_intersections, is_point_in_polycurve, is_polycurve_in_polycurve, plane_line_intersection, split_polycurve_by_points, is_on_line, split_polycurve_by_line
 # [!not included in BP singlefile - end]
 
 
@@ -103,7 +102,7 @@ class Vector2:
     def from_matrix(self):
         return Vector2(self[0],self[1])
 
-    @staticmethod #inwendig product, if zero, then vectors are perpendicular
+    @staticmethod
     def dotProduct(v1, v2):
         return v1.x*v2.x+v1.y*v2.y
 
@@ -115,7 +114,7 @@ class Vector2:
     def angleRadianBetween(v1, v2):
         return math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2))))
 
-    @staticmethod #Returns vector perpendicular on the two vectors
+    @staticmethod
     def crossProduct(v1, v2):
         return Vector3(
             v1.y - v2.y,
@@ -195,11 +194,10 @@ class Point2D:
 
     @staticmethod
     def toPixel(point1, Xmin, Ymin, TotalWidth, TotalHeight, ImgWidthPix: int, ImgHeightPix: int):
-      # Convert Point to pixel on a image given a deltaX, deltaY, Width of the image etc.
       x = point1.x
       y = point1.y
       xpix = math.floor(((x - Xmin) / TotalWidth) * ImgWidthPix)
-      ypix = ImgHeightPix-math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix) # min vanwege coord stelsel Image.Draw
+      ypix = ImgHeightPix-math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix)
       return xpix, ypix
 
     def toPoint2D(point=Point):
@@ -208,17 +206,11 @@ class Point2D:
             y=point.y
         )
 
-
 def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
-    # Transform point from Global Coordinatesystem to a new Coordinatesystem
-    # CSold = CSGlobal
     from abstract.vector import Vector3
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    #pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
     pn3 = Point2D.translate(PointLocal,Vector2(CoordinateSystemNew.Origin.x,CoordinateSystemNew.Origin.y))
-    #pn3 = Point2D(pn.x,pn.y)
     return pn3
 
 class Line2D:
@@ -266,9 +258,20 @@ class Line2D:
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy))
 
     def fline(self):
-        #returns line for Folium(GIS)
         return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
     
+    # @classmethod
+    def pointAtParameter(self, interval=None):
+        if interval == None:
+            interval = 0.0
+        x1, y1 = self.start.x, self.start.y
+        x2, y2 = self.end.x, self.end.y
+        if float(interval) == 0.0:
+            return self.start
+        else:
+            devBy = 1/interval
+            return Point((x1 + x2) / devBy, (y1 + y2) / devBy)
+
     @staticmethod
     def fromLine2D(line):
         return (
@@ -289,9 +292,7 @@ class Arc2D:
         self.origin = self.originarc()
         self.angleRadian = self.angleRadian()
         self.radius = self.radiusarc()
-        #self.radius = self.radiusarc()
         self.coordinatesystem = self.coordinatesystemarc()
-        #self.length
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -327,7 +328,7 @@ class Arc2D:
         return (self.start, self.mid, self.end)
 
     def coordinatesystemarc(self):
-        vx2d = Vector2.byTwoPoints(self.origin, self.start)  # Local X-axe
+        vx2d = Vector2.byTwoPoints(self.origin, self.start)
         vx = Vector3(vx2d.x, vx2d.y, 0)
         vy = Vector3(vx.y, vx.x * -1,0)
         vz = Vector3(0,0,1)
@@ -341,12 +342,11 @@ class Arc2D:
         return angle
 
     def originarc(self):
-        #calculation of origin of arc #Todo can be simplified for sure
         Vstartend = Vector2.byTwoPoints(self.start, self.end)
         halfVstartend = Vector2.scale(Vstartend,0.5)
-        b = 0.5 * Vector2.length(Vstartend) #half distance between start and end
+        b = 0.5 * Vector2.length(Vstartend)
         try:
-            x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
+            x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b)
         except:
             x = 0
         mid = Point2D.translate(self.start, halfVstartend)
@@ -369,7 +369,6 @@ class Arc2D:
 
     @staticmethod
     def pointsAtParameter(arc, count: int):
-        #ToDo can be simplified. Now based on the 3D variant
         d_alpha = arc.angleRadian / (count - 1)
         alpha = 0
         pnts = []
@@ -405,10 +404,6 @@ class PolyCurve2D:
         self.segmentcurves = None
         self.width = None
         self.height = None
-        #Methods ()
-        # self.close
-        #pointonperimeter
-        #Properties
         self.approximateLength = None
         self.graphicsStyleId = None
         self.isClosed = None
@@ -460,16 +455,13 @@ class PolyCurve2D:
         polycurve.reference = data.get('reference')
         polycurve.visibility = data.get('visibility')
 
-        # Deserialize curves2D and points2D
         if 'curves2D' in data:
             for curve_data in data['curves2D']:
-                # Assuming a deserialize method exists for curve objects
                 curve = Line2D.deserialize(curve_data)
                 polycurve.curves2D.append(curve)
         
         if 'points2D' in data:
             for point_data in data['points2D']:
-                # Assuming a deserialize method exists for point objects
                 point = Point2D.deserialize(point_data)
                 polycurve.points2D.append(point)
 
@@ -535,7 +527,6 @@ class PolyCurve2D:
             area = .5*np.absolute(S1 - S2)
             return area
         else:
-            # print("Polycurve is not closed, no area!")
             return None
 
 
@@ -582,7 +573,6 @@ class PolyCurve2D:
     def byPoints(cls, points):
         if not points or len(points) < 2:
             pass
-            # raise ValueError("At least two points are required to create a PolyCurve2D.")
 
         polycurve = cls()
         for i in range(len(points)):
@@ -591,7 +581,7 @@ class PolyCurve2D:
                 polycurve.curves2D.append(Line2D(start=points[i], end=points[i+1]))
         
         polycurve.isClosed = points[0] == points[-1]
-        if project.autoclose == True: # and polycurve.isClosed == False
+        if project.autoclose == True:
             polycurve.curves2D.append(Line2D(start=points[-1], end=points[0]))
             polycurve.points2D.append(points[0])
             polycurve.isClosed = True
@@ -612,8 +602,8 @@ class PolyCurve2D:
         return plycrv
 
     @staticmethod
-    def segment(self, count): #Create segmented polycurve. Arcs, elips will be translated to straight lines
-        crvs = [] #add isClosed
+    def segment(self, count):
+        crvs = []
         for i in self.curves2D:
             if i.__class__.__name__ == "Arc":
                 crvs.append(Arc2D.segmentedarc(i, count))
@@ -625,7 +615,6 @@ class PolyCurve2D:
 
     @staticmethod
     def byPolyCurve2D(PolyCurve2D):
-        # by points,
         plycrv = PolyCurve2D()
         curves2D = []
         for i in PolyCurve2D.curves2D:
@@ -725,7 +714,7 @@ class PolyCurve2D:
     #         print(f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
 
 
-    def multi_split(self, lines:Line2D): #SOOOO SLOW, MUST INCREASE SPEAD
+    def multi_split(self, lines:Line2D):
         lines = flatten(lines)
         new_polygons = []
         for index, line in enumerate(lines):
@@ -765,8 +754,6 @@ class PolyCurve2D:
         crvs = []
         v1 = vector3d
         for i in pc.curves2D:
-            #if i.__class__.__name__ == "Arc":
-            #    crvs.append(Arc(Point.translate(i.start, v1), Point.translate(i.middle, v1), Point.translate(i.end, v1)))
             if i.__class__.__name__ == "Line":
                 crvs.append(Line2D(Point2D.translate(i.start, v1), Point2D.translate(i.end, v1)))
             else:
@@ -776,8 +763,6 @@ class PolyCurve2D:
         return PCnew
 
     def rotate(self, angle, dz):
-        #angle in degrees
-        #dz = displacement in z-direction
         crvs = []
         for i in self.curves2D:
             if i.__class__.__name__ == "Arc":
@@ -790,7 +775,6 @@ class PolyCurve2D:
         return crv
 
     def toPolyCurve2D(self):
-        # by points,
         from geometry.geometry2d import PolyCurve2D
         from geometry.geometry2d import Point2D
         from geometry.geometry2d import Line2D
@@ -855,9 +839,7 @@ class Profile2D:
     def __init__(self) -> None:
         pass #Surface2D, collect curves and add parameters
         self.id = generateID()
-        self.type = __class__.__name__        
-    #voorzien van parameters
-    #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
+        self.type = __class__.__name__
     pass
 
     def __id__(self):

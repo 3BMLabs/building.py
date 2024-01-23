@@ -37,9 +37,7 @@ import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-# from geometry.point import Point
-# from geometry.curve import Line, PolyCurve
-from geometry.geometry2d import * #Point2D, Line2D, PolyCurve2D
+from geometry.geometry2d import *
 from helper import *
 
 # [!not included in BP singlefile - end]
@@ -50,16 +48,16 @@ def perp(a):
     b[1] = a[0]
     return b
 
-#getLineIntersect
-def get_line_intersect(Line_1=Line2D, Line_2=Line2D) -> Point2D:
-    if Line_1.start == Line_1.end or Line_2.start == Line_2.end:
+
+def get_line_intersect(line_1: Line2D, line_2: Line2D) -> Point2D:
+    if line_1.start == line_1.end or line_2.start == line_2.end:
         return None
 
-    p1, p2 = Line_1.start, Line_1.end
+    p1, p2 = line_1.start, line_1.end
     p1X, p1Y = p1.x, p1.y
     p2X, p2Y = p2.x, p2.y
 
-    p3, p4 = Line_2.start, Line_2.end
+    p3, p4 = line_2.start, line_2.end
     p3X, p3Y = p3.x, p3.y
     p4X, p4Y = p4.x, p4.y
 
@@ -76,57 +74,55 @@ def get_line_intersect(Line_1=Line2D, Line_2=Line2D) -> Point2D:
     return Point2D(nX, nY)
 
 
-#getMultiLineIntersect
-def get_multi_line_intersect(Lines=Line2D) -> list[Point2D]:
+def get_multi_lines_intersect(lines: list[Line2D]) -> list[Point2D]:
     pts = []
-    for i in range(len(Lines)):
-        line1 = Lines[i]
-        for j in range(i+1, len(Lines)):
-            line2 = Lines[j]
+    for i in range(len(lines)):
+        line1 = lines[i]
+        for j in range(i+1, len(lines)):
+            line2 = lines[j]
             intersection = get_line_intersect(line1, line2)
             if intersection not in pts and intersection != None and is_point_on_line_segment(intersection, line2) == True:
                 pts.append(intersection)
     return pts
 
 
-#getIntersectLinePolyCurve
-def get_intersect_polycurve_lines(PolyCurve=PolyCurve2D, Lines=list[Line2D], split: bool = False, stretch: bool = False):
+def get_intersect_polycurve_lines(polycurve: PolyCurve2D, lines: list[Line2D], split: bool = False, stretch: bool = False):
     dict = {}
     intersectionsPointsList = []
     splitedLinesList = []
     InnerGridLines = []
     OuterGridLines = []
-    if isinstance(Lines, Line2D):
-        Lines = [Lines]
-    elif Lines.type == "Line":
+    if isinstance(lines, Line2D):
+        lines = [lines]
+    elif lines.type == "Line":
         print("Convert Line(s) to Line2D")
         sys.exit()
     else:
-        print(f"Incorrect input: {Lines}")
-    for line in Lines:
+        print(f"Incorrect input: {lines}")
+    for line in lines:
         IntersectGridPoints = []
-        for i in range(len(PolyCurve.points2D) - 1):
-            genLine = Line2D(PolyCurve.points2D[i], PolyCurve.points2D[i+1])
+        for i in range(len(polycurve.points2D) - 1):
+            genLine = Line2D(polycurve.points2D[i], polycurve.points2D[i+1])
             checkIntersect = get_line_intersect(genLine, line)
-            if stretch == False or stretch == None:
+            if stretch == False:
                 if checkIntersect != None:
                     if is_point_on_line_segment(checkIntersect, line) == False:
                         checkIntersect = None
                     else:
-                        minX = min(PolyCurve.points2D[i].x, PolyCurve.points2D[i+1].x)
-                        maxX = max(PolyCurve.points2D[i].x, PolyCurve.points2D[i+1].x)
-                        minY = min(PolyCurve.points2D[i].y, PolyCurve.points2D[i+1].y)
-                        maxY = max(PolyCurve.points2D[i].y, PolyCurve.points2D[i+1].y)
+                        minX = min(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                        maxX = max(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                        minY = min(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                        maxY = max(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
                     if checkIntersect != None:
                         if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
                             intersectionsPointsList.append(checkIntersect)
                             IntersectGridPoints.append(checkIntersect)
 
             elif stretch == True:
-                minX = min(PolyCurve.points2D[i].x, PolyCurve.points2D[i+1].x)
-                maxX = max(PolyCurve.points2D[i].x, PolyCurve.points2D[i+1].x)
-                minY = min(PolyCurve.points2D[i].y, PolyCurve.points2D[i+1].y)
-                maxY = max(PolyCurve.points2D[i].y, PolyCurve.points2D[i+1].y)
+                minX = min(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                maxX = max(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                minY = min(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                maxY = max(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
                 if checkIntersect != None:
                     if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
                         intersectionsPointsList.append(checkIntersect)
@@ -136,11 +132,10 @@ def get_intersect_polycurve_lines(PolyCurve=PolyCurve2D, Lines=list[Line2D], spl
             if len(IntersectGridPoints) > 0:
                 splitedLinesList.append(line.split(IntersectGridPoints))
 
-
     for splittedLines in splitedLinesList:
         for line in splittedLines:
             centerLinePoint = line.pointAtParameter(0.5)
-            if is_point_in_polycurve(centerLinePoint, PolyCurve) == True:
+            if is_point_in_polycurve(centerLinePoint, polycurve) == True:
                 InnerGridLines.append(line)
             else:
                 OuterGridLines.append(line)
@@ -152,73 +147,62 @@ def get_intersect_polycurve_lines(PolyCurve=PolyCurve2D, Lines=list[Line2D], spl
 
     return dict
 
-#is_point_on_line
-def is_point_on_line(Point:Point2D, Line:Line2D) -> bool:
-    try:
-        distance = abs((Line.end.y - Line.start.y) * Point.x
-                    - (Line.end.x - Line.start.x) * Point.y
-                    + Line.end.x * Line.start.y
-                    - Line.end.y * Line.start.x) \
-                / Line.length
-        return distance < 1e-9
-    except:
-        return False
 
-#is_point_on_line_segment
-def is_point_on_line_segment(Point:Point2D, Line:Line2D) -> bool: #check!!! mogelijk dubbeling
-    x_min = min(Line.start.x, Line.end.x)
-    x_max = max(Line.start.x, Line.end.x)
-    y_min = min(Line.start.y, Line.end.y)
-    y_max = max(Line.start.y, Line.end.y)
+def is_point_on_line_segment(point: Point2D, line: Line2D) -> bool:
+    x_min = min(line.start.x, line.end.x)
+    x_max = max(line.start.x, line.end.x)
+    y_min = min(line.start.y, line.end.y)
+    y_max = max(line.start.y, line.end.y)
 
-    if x_min <= Point.x <= x_max and y_min <= Point.y <= y_max:
-        distance = abs((Line.end.y - Line.start.y) * Point.x
-                       - (Line.end.x - Line.start.x) * Point.y
-                       + Line.end.x * Line.start.y
-                       - Line.end.y * Line.start.x) \
-                   / Line.length
-        return distance < 1e-9
-    else:
-        return False
+    if x_min <= point.x <= x_max and y_min <= point.y <= y_max:
+        try:
+            distance = abs((line.end.y - line.start.y) * point.x
+                        - (line.end.x - line.start.x) * point.y
+                        + line.end.x * line.start.y
+                        - line.end.y * line.start.x) \
+                    / line.length
+            return distance < 1e-9
+        except:
+            return False
+    return False
 
-#find_polycurve_intersections
-def get_intersection_polycurves(PolyCurve_1:PolyCurve2D, PolyCurve_2:PolyCurve2D) -> list[Point2D]:
+
+def get_intersection_polycurve_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D) -> list[Point2D]:
     points = []
-    for i in range(len(PolyCurve_1.points2D) - 1):
-        line1 = Line2D(PolyCurve_1.points2D[i], PolyCurve_1.points2D[i+1])
-        for j in range(len(PolyCurve_2.points2D) - 1):
-            line2 = Line2D(PolyCurve_2.points2D[j], PolyCurve_2.points2D[j+1])
+    for i in range(len(polycurve_1.points2D) - 1):
+        line1 = Line2D(polycurve_1.points2D[i], polycurve_1.points2D[i+1])
+        for j in range(len(polycurve_2.points2D) - 1):
+            line2 = Line2D(polycurve_2.points2D[j], polycurve_2.points2D[j+1])
             intersection = get_line_intersect(line1, line2)
             if intersection and is_point_on_line_segment(intersection, line1) and is_point_on_line_segment(intersection, line2):
                 points.append(intersection)
     return points
 
 
-#split_polycurve_at_intersections
-def split_polycurve_at_intersections(PolyCurve:PolyCurve2D, Points:list[Point2D]) -> list[PolyCurve2D]:
-    Points.sort(key=lambda pt: Point2D.distance(PolyCurve.points2D[0], pt))
+def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2D]) -> list[PolyCurve2D]:
+    points.sort(key=lambda pt: Point2D.distance(polycurve.points2D[0], pt))
 
-    current_polycurve_points = [PolyCurve.points2D[0]]
+    current_polycurve_points = [polycurve.points2D[0]]
     created_polycurves = []
 
-    for i in range(1, len(PolyCurve.points2D)):
-        segment_start = PolyCurve.points2D[i - 1]
-        segment_end = PolyCurve.points2D[i]
+    for i in range(1, len(polycurve.points2D)):
+        segment_start = polycurve.points2D[i - 1]
+        segment_end = polycurve.points2D[i]
 
-        segment_intersections = [pt for pt in Points if is_point_on_line_segment(pt, Line2D(segment_start, segment_end))]
+        segment_intersections = [pt for pt in points if is_point_on_line_segment(pt, Line2D(segment_start, segment_end))]
 
         segment_intersections.sort(key=lambda pt: Point2D.distance(segment_start, pt))
 
         for intersect in segment_intersections:
             current_polycurve_points.append(intersect)
-            created_polycurves.append(PolyCurve.byPoints(current_polycurve_points))
+            created_polycurves.append(polycurve.byPoints(current_polycurve_points))
             current_polycurve_points = [intersect]
-            Points.remove(intersect)
+            points.remove(intersect)
 
         current_polycurve_points.append(segment_end)
 
     if len(current_polycurve_points) > 1:
-        created_polycurves.append(PolyCurve.byPoints(current_polycurve_points))
+        created_polycurves.append(polycurve.byPoints(current_polycurve_points))
 
     ptlist = []
     for index, pc in enumerate(created_polycurves):
@@ -230,37 +214,42 @@ def split_polycurve_at_intersections(PolyCurve:PolyCurve2D, Points:list[Point2D]
                 ptlist.append(pt)
                 ptlist.append(ptlist[1])
 
-    pcurve = PolyCurve().byPoints(ptlist)
+    pcurve = polycurve().byPoints(ptlist)
 
     try:
         return [created_polycurves[1], pcurve]
     except:
         return [created_polycurves[0]]
 
-#is_point_in_polycurve
-def is_point_in_polycurve(Point:Point2D, PolyCurve:PolyCurve2D) -> bool:
-    x, y = Point.x, Point.y
+
+#extend to if on edge, then accept
+def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
+    x, y = point.x, point.y
     intersections = 0
-    for curve in PolyCurve.curves2D:
+    for curve in polycurve.curves2D:
         p1, p2 = curve.start, curve.end
         if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
             if p1.y != p2.y:
                 x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
                 if (p1.x == p2.x) or (x <= x_inters):
                     intersections += 1
-    # print(intersections)
     return intersections % 2 != 0
 
 
-#is_polycurve_in_polycurve
-def is_polycurve_in_polycurve(PolyCurve_1:PolyCurve2D, PolyCurve_2:PolyCurve2D) -> bool:
-    for pt in PolyCurve_2.points2D:
-        if is_point_in_polycurve(pt, PolyCurve_1):
-            return True
-    return False
+def is_polycurve_in_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D) -> bool:
+    colList = []
+    for pt in polycurve_1.points2D:
+        if is_point_in_polycurve(pt, polycurve_2):
+            colList.append(True)
+        else:
+            colList.append(False)
+
+    if all_true(colList):
+        return True
+    else:
+        return False
 
 
-#planelineIntersection
 def plane_line_intersection():
     line_dir = [1, 2, 3]
     line_pt = [0, 0, 0]
@@ -280,8 +269,7 @@ def plane_line_intersection():
         print("The intersection point is", inter_pt)
 
 
-#splitCurvesInPolyCurveByPoints
-def split_polycurve_by_points(PolyCurve:PolyCurve2D, Points:list[Point2D]) -> list[PolyCurve2D]:
+def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> list[PolyCurve2D]:
     from abstract.intersect2d import is_point_on_line_segment
 
     def splitCurveAtPoint(curve, point):
@@ -290,9 +278,9 @@ def split_polycurve_by_points(PolyCurve:PolyCurve2D, Points:list[Point2D]) -> li
         return [curve]
 
     split_curves = []
-    for curve in PolyCurve.curves:
+    for curve in polycurve.curves2D:
         current_curves = [curve]
-        for point in Points:
+        for point in points:
             new_curves = []
             for c in current_curves:
                 new_curves.extend(splitCurveAtPoint(c, point))
@@ -302,23 +290,21 @@ def split_polycurve_by_points(PolyCurve:PolyCurve2D, Points:list[Point2D]) -> li
     return split_curves
 
 
-#inLine
-def is_on_line(Line:Line2D, Point:Point2D) -> bool:
-    if Line.start == Point or Line.end == Point:
+def is_on_line(line: Line2D, point: Point2D) -> bool:
+    if line.start == Point or line.end == Point:
         return True
     return False
 
 
-#splitPolyCurveByLine
-def split_polycurve_by_line(PolyCurve:PolyCurve2D, Line:Line2D) -> dict[PolyCurve2D]:
+def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCurve2D]:
     dict = {}
     pcList = []
     nonsplitted = []
-    intersect = get_intersect_polycurve_lines(PolyCurve, Line, split=False, stretch=False)
+    intersect = get_intersect_polycurve_lines(polycurve, line, split=False, stretch=False)
     intersect_points = intersect["IntersectGridPoints"]
     if len(intersect_points) != 2:
-        nonsplitted.append(PolyCurve)
-        dict["inputPolycurve"] = [PolyCurve]
+        nonsplitted.append(polycurve)
+        dict["inputPolycurve"] = [polycurve]
         dict["splittedPolycurve"] = pcList
         dict["nonsplittedPolycurve"] = nonsplitted
         dict["IntersectGridPoints"] = intersect_points
@@ -326,9 +312,9 @@ def split_polycurve_by_line(PolyCurve:PolyCurve2D, Line:Line2D) -> dict[PolyCurv
 
     SegsandPoints = []
 
-    for Line in PolyCurve.curves2D:
+    for Line in polycurve.curves2D:
         for intersect_point in intersect_points:
-            if is_point_on_line(intersect_point, Line):
+            if is_point_on_line_segment(intersect_point, Line):
                 SegsandPoints.append(intersect_point)
                 SegsandPoints.append(intersect_point)
 
@@ -338,22 +324,22 @@ def split_polycurve_by_line(PolyCurve:PolyCurve2D, Line:Line2D) -> dict[PolyCurv
     for item in SegsandPoints:
         elementen.append(item)
 
-    gesplitste_lijsten = []
-    huidige_lijst = []
+    split_lists = []
+    current_list = []
 
     for element in elementen:
-        huidige_lijst.append(element)
+        current_list.append(element)
 
-        if len(huidige_lijst) > 1 and huidige_lijst[-1].type == huidige_lijst[-2].type == 'Point2D':
-            gesplitste_lijsten.append(huidige_lijst[:-1])
-            huidige_lijst = [element]
+        if len(current_list) > 1 and current_list[-1].type == current_list[-2].type == 'Point2D':
+            split_lists.append(current_list[:-1])
+            current_list = [element]
 
-    if huidige_lijst:
-        gesplitste_lijsten.append(huidige_lijst)
+    if current_list:
+        split_lists.append(current_list)
     
-    samengevoegde_lijst = gesplitste_lijsten[-1] + gesplitste_lijsten[0]
+    merged_list = split_lists[-1] + split_lists[0]
 
-    lijsten = [samengevoegde_lijst, gesplitste_lijsten[1]]
+    lijsten = [merged_list, split_lists[1]]
     
     for lijst in lijsten:
         q = []
@@ -365,7 +351,7 @@ def split_polycurve_by_line(PolyCurve:PolyCurve2D, Line:Line2D) -> dict[PolyCurv
         pc = PolyCurve2D.byPoints(q)
         pcList.append(pc)
 
-    dict["inputPolycurve"] = [PolyCurve]
+    dict["inputPolycurve"] = [polycurve]
     dict["splittedPolycurve"] = pcList
     dict["nonsplittedPolycurve"] = nonsplitted
     dict["IntersectGridPoints"] = intersect_points

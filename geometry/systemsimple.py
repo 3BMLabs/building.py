@@ -355,9 +355,11 @@ class PatternSystem:
 
         return self
 
-def PatternGEOM(PatternSystem,width,height):
+def PatternGEOM(PatternSystem, width, height, startpoint:Point=None) -> list[Panel]:
+    startpoint = startpoint or Point(0,0,0)
     test = PatternSystem
     panels = []
+
     for i,j in zip(test.basepanels,test.vectors):
         ny = int(height / (j[0].y)) #number of panels in y-direction
         nx = int(width / (j[1].x)) #number of panels in x-direction
@@ -367,7 +369,7 @@ def PatternGEOM(PatternSystem,width,height):
 
         #YX ARRAY
         yvectdisplacement = j[0]
-        yvector = Vector3(0,0,0)
+        yvector = Point.toVector(startpoint)
         xvectdisplacement = j[1]
         xvector = Vector3(0, 0, 0)
 
@@ -381,7 +383,7 @@ def PatternGEOM(PatternSystem,width,height):
                 PCNew = PolyCurve.copyTranslate(PC,xyvector) #translate curve in x and y-direction
                 pan = Panel.byPolyCurveThickness(PCNew,thickness,0,"name",color)
                 panels.append(pan)
-            xvector = Vector3.sum(xvectdisplacement, Vector3(0, 0, 0))
+            xvector = Vector3.sum(xvectdisplacement, Vector3(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
     return panels
 
 def fillin(perimeter: PolyCurve2D, pattern: PatternGEOM) -> PatternSystem:
