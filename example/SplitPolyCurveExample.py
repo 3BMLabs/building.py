@@ -35,7 +35,7 @@ contour = PolyCurve.byPoints([p1,p2,p3,p4,p5,p6])
 project.objects.append(contour)
 
 
-polycurves = splitPolyCurveByLine(contour, Line2)
+polycurves = split_polycurve_by_line(contour, Line2)
 
 for polycurve in polycurves["splittedPolycurve"]:
     project.objects.append(polycurve)
