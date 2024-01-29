@@ -195,6 +195,7 @@ class Frame:
             curv = profiledataToShape(profile_name).polycurve2d
         except:
             print(f"Profile does not exist: {profile_name}") #Profile does not exist
+
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.curve = curvrot.translate(vector2d)
@@ -231,16 +232,19 @@ class Frame:
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curv = profiledataToShape(profile_name).polycurve2d
-        curv = curv.translate(Vector2(ey, ez))
-
-        # print(rotation)
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-
-        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        curve = profiledataToShape(profile_name).polycurve2d
+        
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #3
         f1.XOffset = v1.x
         f1.YOffset = v1.y
-        f1.curve = curvrot.translate(v1)
+        curve = curve.translate(v1)
+
+        curve = curve.translate(Vector2(ey, ez)) #1
+
+        curve = curve.rotate(rotation)  #2
+
+        f1.curve = curve
+
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -326,7 +330,7 @@ class Frame:
             f1.start = start
         elif start.type == 'Node':
             f1.start = start.point
-        f1.end = Point.translate(f1.start,Vector3(0,0.00001,height)) #TODO vertical column not possible
+        f1.end = Point.translate(f1.start,Vector3(0,height)) #TODO vertical column not possible
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)

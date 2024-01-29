@@ -132,8 +132,6 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             x, y, z = round(float(obj[1].attrib["v"])*self.project.scale,0), round(float(obj[2].attrib["v"])*self.project.scale,0), round(float(obj[3].attrib["v"])*self.project.scale,0)
-
-                            # x, y, z = round(float(obj[1].attrib["v"]),0)*self.project.scale, round(float(obj[2].attrib["v"]),0)*self.project.scale, round(float(obj[3].attrib["v"]),0)*self.project.scale
                             pt = Point(x,y,z)
                             return pt
 
@@ -147,37 +145,12 @@ class LoadXML:
                             return obj.attrib["nm"]
 
 
-    def column_convertJustification(self, justification):
+    def convertJustification(self, justification):
         justification = justification.lower()
         if justification == "left" or justification == "links":
-            return "center", "right"
-        elif justification == "right" or justification == "rechts":
             return "center", "left"
-        elif justification == "top" or justification == "boven":
-            return "bottom", "center"
-        elif justification == "bottom" or justification == "onder":
-            return "bottom", "center"
-        elif justification == "top left" or justification == "linksboven":
-            return "top", "right"
-        elif justification == "top right" or justification == "rechtsboven":
-            return "bottom", "right"
-        elif justification == "bottom left" or justification == "linksonder":
-            return "top", "right"
-        elif justification == "bottom right" or justification == "rechtsonder":
-            return "top", "left"
-        elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
-            return "center", "center"
-        else:
-            print(f"Justification: [{justification}] not recognized")
-            return "center", "center"
-
-
-    def beam_convertJustification(self, justification):
-        justification = justification.lower()
-        if justification == "left" or justification == "links":
-            return "center", "right"
         elif justification == "right" or justification == "rechts":
-            return "center", "left"
+            return "center", "right"
         elif justification == "top" or justification == "boven":
             return "top", "center"
         elif justification == "bottom" or justification == "onder":
@@ -185,11 +158,11 @@ class LoadXML:
         elif justification == "top left" or justification == "linksboven":
             return "top", "left"
         elif justification == "top right" or justification == "rechtsboven":
-            return "top", "left"
+            return "top", "right"
         elif justification == "bottom left" or justification == "linksonder":
-            return "top", "right"
+            return "bottom", "left"
         elif justification == "bottom right" or justification == "rechtsonder":
-            return "top", "right"
+            return "bottom", "right"
         elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
             return "center", "center"
         else:
@@ -339,19 +312,19 @@ class LoadXML:
                             rotationRAD = obj[h3Index].attrib["v"]
                             
 
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi)
                             if layerType == "Column":
                                 rotationDEG = rotationDEG+90
-                                Yjustification, Xjustification = self.column_convertJustification(comments.perpendicular_alignment)
+                                Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
                                 comments.Yjustification = Yjustification
                                 comments.Xjustification = Xjustification
 
 
-                            elif layerType == "Beam":
-                                rotationDEG = rotationDEG+180
-                                Yjustification, Xjustification = self.beam_convertJustification(comments.perpendicular_alignment)
-                                comments.Yjustification = Yjustification
-                                comments.Xjustification = Xjustification
+                            # elif layerType == "Beam":
+                                # rotationDEG = rotationDEG+180
+                            Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                            comments.Yjustification = Yjustification
+                            comments.Xjustification = Xjustification
                                 # if rotationDEG <= 0:
                                 #     rotationDEG = rotationDEG + 360
                             # print(rotationRAD)
