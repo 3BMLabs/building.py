@@ -144,28 +144,29 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     dyorigin = 0
 
     if XJustifiction == "center":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     elif XJustifiction == "left":
         dx = dxleft
     elif XJustifiction == "right":
         dx = dxright
     elif XJustifiction == "origin":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     else:
         dx = 0
 
     if Yjustification == "center":
-        dy = 0   #TODO
+        dy = dyorigin   #TODO
     elif Yjustification == "top":
         dy = dytop
     elif Yjustification == "bottom":
         dy = dybottom
     elif Yjustification == "origin":
-        dy = 0 #TODO
+        dy = dyorigin #TODO
     else:
         dy = 0
 
     # print(dx, dy)
     v1 = Vector2(dx, dy)
+    # v1 = Vector2(0, 0)
 
     return v1

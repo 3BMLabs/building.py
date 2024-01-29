@@ -46,7 +46,7 @@ from project.fileformat import BuildingPy
 
 # [!not included in BP singlefile - end]
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -63,6 +63,8 @@ class Scia_Params:
         self.geometry_table = geometry_table
         self.revit_rot = revit_rot
         self.layer_type = layer_type
+        self.Yjustification = Yjustification
+        self.Xjustification = Xjustification
         #add material
 
 
@@ -129,7 +131,9 @@ class LoadXML:
                 if table.attrib["t"] == tableName:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
-                            x, y, z = round(float(obj[1].attrib["v"]),0)*self.project.scale, round(float(obj[2].attrib["v"]),0)*self.project.scale, round(float(obj[3].attrib["v"]),0)*self.project.scale
+                            x, y, z = round(float(obj[1].attrib["v"])*self.project.scale,0), round(float(obj[2].attrib["v"])*self.project.scale,0), round(float(obj[3].attrib["v"])*self.project.scale,0)
+
+                            # x, y, z = round(float(obj[1].attrib["v"]),0)*self.project.scale, round(float(obj[2].attrib["v"]),0)*self.project.scale, round(float(obj[3].attrib["v"]),0)*self.project.scale
                             pt = Point(x,y,z)
                             return pt
 
@@ -141,9 +145,34 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             return obj.attrib["nm"]
-                        
 
-    def convertJustification(self, justification):
+
+    def column_convertJustification(self, justification):
+        justification = justification.lower()
+        if justification == "left" or justification == "links":
+            return "center", "right"
+        elif justification == "right" or justification == "rechts":
+            return "center", "left"
+        elif justification == "top" or justification == "boven":
+            return "bottom", "center"
+        elif justification == "bottom" or justification == "onder":
+            return "bottom", "center"
+        elif justification == "top left" or justification == "linksboven":
+            return "top", "right"
+        elif justification == "top right" or justification == "rechtsboven":
+            return "bottom", "right"
+        elif justification == "bottom left" or justification == "linksonder":
+            return "top", "right"
+        elif justification == "bottom right" or justification == "rechtsonder":
+            return "top", "left"
+        elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
+            return "center", "center"
+        else:
+            print(f"Justification: [{justification}] not recognized")
+            return "center", "center"
+
+
+    def beam_convertJustification(self, justification):
         justification = justification.lower()
         if justification == "left" or justification == "links":
             return "center", "right"
@@ -154,18 +183,19 @@ class LoadXML:
         elif justification == "bottom" or justification == "onder":
             return "bottom", "center"
         elif justification == "top left" or justification == "linksboven":
-            return "top", "right"
+            return "top", "left"
         elif justification == "top right" or justification == "rechtsboven":
             return "top", "left"
         elif justification == "bottom left" or justification == "linksonder":
-            return "bottom", "right"
+            return "top", "right"
         elif justification == "bottom right" or justification == "rechtsonder":
-            return "bottom", "left"
-        elif justification == "center" or justification == "midden" or justification == "centre":
+            return "top", "right"
+        elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
             return "center", "center"
         else:
             print(f"Justification: [{justification}] not recognized")
             return "center", "center"
+
 
     def structuralElementRecognision(self, tag):
         columnstrings = ["kolom", "column"]
@@ -281,7 +311,6 @@ class LoadXML:
                             #       comments.geometry_table, "\n",
                             #       )
 
-                            Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
@@ -313,6 +342,16 @@ class LoadXML:
                             rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
                             if layerType == "Column":
                                 rotationDEG = rotationDEG+90
+                                Yjustification, Xjustification = self.column_convertJustification(comments.perpendicular_alignment)
+                                comments.Yjustification = Yjustification
+                                comments.Xjustification = Xjustification
+
+
+                            elif layerType == "Beam":
+                                rotationDEG = rotationDEG+180
+                                Yjustification, Xjustification = self.beam_convertJustification(comments.perpendicular_alignment)
+                                comments.Yjustification = Yjustification
+                                comments.Xjustification = Xjustification
                                 # if rotationDEG <= 0:
                                 #     rotationDEG = rotationDEG + 360
                             # print(rotationRAD)
@@ -331,6 +370,7 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
+                                        print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
