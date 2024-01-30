@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 #*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
@@ -40,6 +40,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from geometry.curve import *
+from geometry.geometry2d import PolyCurve2D
 from abstract.plane import *
 import helper
 
@@ -60,7 +61,9 @@ class Extrusion:
         self.topface = None #return polycurve -> surface
         self.bottomface = None #return polycurve -> surface
         self.polycurve_3d_translated = None
-        
+        self.bottomshape = []
+
+
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
@@ -77,7 +80,8 @@ class Extrusion:
             'bottomface': self.bottomface.serialize() if self.bottomface else None,
             'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
         }
-    
+
+
     @staticmethod
     def deserialize(data):
         extrusion = Extrusion()
@@ -100,6 +104,7 @@ class Extrusion:
             extrusion.polycurve_3d_translated = PolyCurve.deserialize(data['polycurve_3d_translated'])
 
         return extrusion
+
 
     @classmethod
     def merge(self, extrusions:list, name=None):
@@ -157,19 +162,16 @@ class Extrusion:
             Extrus.faces.append(count)
             count += 1
             Extrus.numberFaces = Extrus.numberFaces + 1
-            #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
-            # list structure of verts is x y z x y z x y z
-            #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
-            # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
-            # first number is number of vertices.
-            # then
 
         #bottomface
         Extrus.faces.append(len(polycurve2d.curves))
+
         count = 0
         for i in polycurve2d.curves:
             Extrus.faces.append(count)
+            Extrus.bottomshape.append(i)
             count = count + 4
+        
 
         # topface
         Extrus.faces.append(len(polycurve2d.curves))
@@ -178,7 +180,7 @@ class Extrusion:
             Extrus.faces.append(count)
             count = count + 4
 
-        Extrus.countVertsFaces = (4 * Extrus.numberFaces) #aantal zonder bovenzijde/onderzijde
+        Extrus.countVertsFaces = (4 * Extrus.numberFaces)
 
         Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
@@ -186,16 +188,16 @@ class Extrusion:
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
 
-
         return Extrus
+
 
     @classmethod
     def byPolyCurveHeight(self, polycurve: PolyCurve, height, dzloc: float):
         #global len
         Extrus = Extrusion()
         Points = polycurve.points
-        V1 = Vector3.byTwoPoints(Points[0], Points[1])  # Vector op basis van punt 0 en 1
-        V2 = Vector3.byTwoPoints(Points[-2], Points[-1])  # Vector op basis van laatste punt en een na laatste punt
+        V1 = Vector3.byTwoPoints(Points[0], Points[1])
+        V2 = Vector3.byTwoPoints(Points[-2], Points[-1])
 
         p1 = Plane.byTwoVectorsOrigin(V1, V2, Points[0]) #Workplane of PolyCurve
         norm = p1.Normal

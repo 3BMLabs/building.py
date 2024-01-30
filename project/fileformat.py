@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -46,6 +46,7 @@ class BuildingPy:
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
+        self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet
@@ -53,6 +54,7 @@ class BuildingPy:
         self.default_font = "calibri"
         self.scale = 1000
         self.font_height = 500
+        self.repr_round = 3
         #prefix objects (name)
         #Geometry settings
 
@@ -63,8 +65,11 @@ class BuildingPy:
         #different settings for company's?
 
         #rename this to autoclose?
-        self.closed: bool = True #auto close polygons? By default true, else overwrite
+        self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+
+        #functie polycurve of iets van een class/def
+        self.autoclose: bool = True #new self.closed
 
         #nodes
         self.node_merge = True #False not yet created

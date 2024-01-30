@@ -3,16 +3,19 @@ import math
 import sys
 import os
 import json
+from collections import defaultdict
+import subprocess
 import urllib
+import time
 import urllib.request
 import string
 import random
 import numpy as np
-# from packages.svg.path import parse_path
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
 # import ezdxf
+# from svg.path import parse_path
 
 
 
@@ -233,9 +236,11 @@ class Vector3:
             v1.x*v2.y - v1.y*v2.x
         )
 
-    @staticmethod #inwendig product, if zero, then vectors are perpendicular
+
+    @staticmethod
     def dotProduct(v1, v2):
         return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
+
 
     @staticmethod
     def product(n, v1): #Same as scale
@@ -291,14 +296,23 @@ class Vector3:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
 
+    # @staticmethod
+    # def normalize(v1):
+    #     length = Vector3.length(v1)
+    #     if length == 0:
+    #         scale = 1
+    #     else:
+    #         scale = 1 / length
+    #     return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
+
     @staticmethod
-    def normalize(v1):
-        length = Vector3.length(v1)
-        if length == 0:
-            scale = 1
-        else:
-            scale = 1 / length
-        return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
+    def normalize(v1, axis=-1, order=2):
+        v1 = Vector3.to_matrix(v1)
+        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
+        l2[l2==0] = 1
+        i = v1 / np.expand_dims(l2, axis)[0]
+        return Vector3(i[0],i[1],i[2])
+
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -330,8 +344,21 @@ class Vector3:
     
         return Vector3.scale(v1,scale)
 
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y, self.z]
+
+    @staticmethod
+    def from_matrix(self):
+        return Vector3(
+            self[0],
+            self[1],
+            self[2]
+        )
+
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
+        return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
 
 XAxis = Vector3(1, 0, 0)
@@ -351,14 +378,14 @@ class Point:
         self.x: float = 0.0
         self.y: float = 0.0
         self.z: float = 0.0
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
         self.value = self.x, self.y, self.z
         self.units = "mm"
         
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.x},{self.y},{self.z})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -396,22 +423,27 @@ class Point:
             pointxyz2.y - pointxyz1.y,
             pointxyz2.z - pointxyz1.z
         )
-
+    
     @staticmethod
     def translate(point, vector):
-        return Point(
-            point.x + vector.x,
-            point.y + vector.y,
-            point.z + vector.z
-        )
+        p1 = Point.to_matrix(point)
+        v1 = Vector3.to_matrix(vector)
+
+        ar1 = np.array([p1])
+        ar2 = np.array([v1])
+
+        c = np.add(ar1,ar2)[0]
+        return Point(c[0], c[1], c[2])
+
 
     @staticmethod
     def origin(point1, point2):
         return Point(
-            (point1.x + point2.x) /2,
-            (point1.y + point2.y) /2,
-            (point1.z + point2.z) /2
+            (point1.x + point2.x) / 2,
+            (point1.y + point2.y) / 2,
+            (point1.z + point2.z) / 2
         )
+
 
     @staticmethod
     def point2DTo3D(point2D):
@@ -455,7 +487,6 @@ class Point:
             p1.z + dz
         )
 
-    @staticmethod
     def product(n, p1): #Same as scale
         return Point(
             p1.x*n,
@@ -471,24 +502,37 @@ class Point:
         else:
             return 0
 
+    @staticmethod
+    def to_array(self):
+        return np.array(self.x, self.y, self.z)
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y, self.z]
+
+    @staticmethod
+    def from_matrix(self):
+        return Point(
+            self[0],
+            self[1],
+            self[2]
+        )
+
 
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
     def __init__(self, origin: Point, xaxis, yaxis, zaxis):
-        self.type = __class__.__name__        
+        self.id = generateID()
+        self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = xaxis
-        self.Yaxis = yaxis
-        self.Zaxis = zaxis
+        self.Xaxis = Vector3.normalize(xaxis)
+        self.Yaxis = Vector3.normalize(yaxis)
+        self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        self.Origin = origin
-        self.Xaxis = XAxis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
-        return self
+        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
 
     @staticmethod
     def translate(CSOld, direction):
@@ -506,7 +550,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
@@ -525,29 +569,73 @@ class CoordinateSystem:
         CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
         return CSNew
     
+    @staticmethod
+    def move_local(CSOld,x: float, y:float, z:float):
+        #move coordinatesystem by y in local coordinates(not global)
+        xloc_vect_norm = CSOld.Xaxis
+        xdisp = Vector3.scale(xloc_vect_norm,x)
+        yloc_vect_norm = CSOld.Xaxis
+        ydisp = Vector3.scale(yloc_vect_norm, y)
+        zloc_vect_norm = CSOld.Xaxis
+        zdisp = Vector3.scale(zloc_vect_norm, z)
+        disp = Vector3.sum3(xdisp,ydisp,zdisp)
+        CS = CoordinateSystem.translate(CSOld,disp)
+        return CS
+    
+    @staticmethod
+    def translate_origin(origin1, origin2):
 
-def transformPoint(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point, DirectionVector):
-    vz = DirectionVector  # LineVector and new Z-axis
-    vz = Vector3.normalize(vz)  # NewZAxis
-    vx = Vector3.perpendicular(vz)[0]  # NewXAxis
-    try:
-        vx = Vector3.normalize(vx)  # NewXAxisnormalized
-    except:
-        vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
-    vy = Vector3.perpendicular(vz)[1]  # NewYAxis
-    try:
-        vy = Vector3.normalize(vy)  # NewYAxisnormalized
-    except:
-        vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
-    P1 = PointLocal #point to transform
-    CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
-    v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
-    v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
-    v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
-    v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
+        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
+        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+
+        new_origin_np = origin1_np + (origin2_np - origin1_np)
+        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        return v / norm if norm > 0 else v
+    
+
+def transformPoint(point_local, coordinate_system_old, new_origin, direction_vector):
+    
+    direction_vector = Vector3.to_matrix(direction_vector)
+    new_origin = Point.to_matrix(new_origin)
+    vz = direction_vector / np.linalg.norm(direction_vector)
+
+    vx = np.array([-vz[1], vz[0], 0])
+    if np.linalg.norm(vx) == 0:
+        vx = np.array([1, 0, 0])
+    else:
+        vx = vx / np.linalg.norm(vx)
+
+    vy = np.cross(vz, vx)
+    if np.linalg.norm(vy) == 0:
+        vy = np.array([0, 1, 0])
+    else:
+        vy = vy / np.linalg.norm(vy)
+
+    P1 = point_local
+    CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector3.from_matrix(vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
+    v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
+
+    v2 = Vector3.product(P1.x, CSNew.Xaxis)
+    v3 = Vector3.product(P1.y, CSNew.Yaxis)
+    v4 = Vector3.product(P1.z, CSNew.Zaxis)
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
-    pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
+    pointNew = Point.translate(Point(0, 0, 0), vtot)
+
     return pointNew
+
 
 def transformPoint2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     #Transfrom point from Global Coordinatesystem to a new Coordinatesystem
@@ -561,6 +649,7 @@ class BuildingPy:
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
+        self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet
@@ -568,6 +657,7 @@ class BuildingPy:
         self.default_font = "calibri"
         self.scale = 1000
         self.font_height = 500
+        self.repr_round = 3
         #prefix objects (name)
         #Geometry settings
 
@@ -580,6 +670,9 @@ class BuildingPy:
         #rename this to autoclose?
         self.closed: bool = False #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+
+        #functie polycurve of iets van een class/def
+        self.autoclose: bool = True #new self.closed
 
         #nodes
         self.node_merge = True #False not yet created
@@ -643,6 +736,7 @@ class BuildingPy:
         translateObjectsToFreeCAD(self.objects)
 
 
+
 project = BuildingPy("Project","0")
 
 
@@ -675,20 +769,64 @@ class CoordinateSystem:
         zaxis = Vector3.deserialize(data['Zaxis'])
         return CoordinateSystem(origin, xaxis, yaxis, zaxis)
 
+    # @classmethod
+    # def by_origin(self, origin: Point):
+    #     self.Origin = origin
+    #     self.Xaxis = XAxis
+    #     self.Yaxis = YAxis
+    #     self.Zaxis = ZAxis
+    #     return self
+
     @classmethod
     def by_origin(self, origin: Point):
-        self.Origin = origin
-        self.Xaxis = XAxis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
-        return self
+        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+
+    # @staticmethod
+    # def translate(CSOld, direction):
+    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+    #     new_origin = Point.translate(CSNew.Origin, direction)
+    #     CSNew.Origin = new_origin
+    #     return CSNew
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
-        new_origin = Point.translate(CSNew.Origin, direction)
+        pt = CSOld.Origin
+        new_origin = Point.translate(pt, direction)
+        
+        XAxis = Vector3(1, 0, 0)
+
+        YAxis = Vector3(0, 1, 0)
+
+        ZAxis = Vector3(0, 0, 1)
+
+        CSNew = CoordinateSystem(new_origin,xaxis=XAxis,yaxis=YAxis,zaxis=ZAxis)
+
         CSNew.Origin = new_origin
         return CSNew
+
+
+    @staticmethod
+    def translate_origin(origin1, origin2):
+
+        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
+        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+
+        new_origin_np = origin1_np + (origin2_np - origin1_np)
+        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+
+    @staticmethod
+    def calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2):
+
+        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)]).T
+        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)]).T
+
+        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
+        return rotation_matrix
+
+    @staticmethod
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        return v / norm if norm > 0 else v
 
     @staticmethod
     def move_local(CSOld,x: float, y:float, z:float):
@@ -721,7 +859,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
 CSGlobal = project.CSGlobal
 
@@ -777,7 +915,8 @@ class BoundingBox2d:
         max_x = max(x_values)
         min_y = min(y_values)
         max_y = max(y_values)
-        
+
+
         left_top = Point(x=min_x, y=max_y, z=self.z)
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
@@ -973,7 +1112,7 @@ class Line: #add Line.bylenght (start and endpoint)
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.start},{self.end})"
+        return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
 
 
 def create_lines(points):
@@ -994,7 +1133,7 @@ class PolyCurve:
         self.width = None
         self.height = None
         #Methods ()
-        #close
+        # self.close
         #pointonperimeter
         #Properties
         self.approximateLength = None
@@ -1003,7 +1142,7 @@ class PolyCurve:
         self.isCyclic = None
         self.isElementGeometry = None
         self.isReadOnly = None
-        # self.length = self.calcLength()
+        self.length = self.length()
         self.period = None
         self.reference = None
         self.visibility = None
@@ -1128,6 +1267,10 @@ class PolyCurve:
 
 
     def length(self) -> float:
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
         return sum(i.length for i in self.curves)
 
 
@@ -1143,7 +1286,13 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst:Line):
+    def byJoinedCurves(self, curvelst: list[Line]):
+        for crv in curvelst:
+            if crv.length == 0:
+                curvelst.remove(crv)
+                # print("Error: Curve length cannot be zero.")
+                # sys.exit()
+
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
@@ -1168,12 +1317,24 @@ class PolyCurve:
                 plycrv.isClosed = False
         if plycrv.points[-2].value == plycrv.points[0].value:
             plycrv.curves = plycrv.curves.pop(-1)
+
         return plycrv
 
 
     @classmethod
-    def byPoints(self, points: list):
-        projectClosed = project.closed
+    def byPoints(self, points: list[Point]):
+        seen = set()
+        unique_points = []
+        
+        for point in points:
+            if point in seen:
+                points.remove(point)
+                print("Error: Polycurve cannot have multiple identical points.")
+                sys.exit()
+                
+            seen.add(point)
+            unique_points.append(point)
+
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -1184,22 +1345,24 @@ class PolyCurve:
                 firstpoint = points[0]
                 plycrv.curves.append(Line(start=point, end=firstpoint))
         
-        if projectClosed:
+        if project.closed:
             if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = True
                 plycrv.points.append(points[0])
 
-        elif projectClosed == False:
+        elif project.closed == False:
             if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
+                plycrv.points.append(points[0])
+
         return plycrv
 
     @classmethod
-    def unclosed_by_points(self, points: Point):
+    def unclosed_by_points(self, points: list[Point]):
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -1650,8 +1813,6 @@ class Ellipse:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
-
-
 
 
 class Node:
@@ -2300,12 +2461,20 @@ class Vector2:
         )
 
     @staticmethod
-    def normalize(v1):
-        scale = 1/Vector2.length(v1)
-        return Vector2(
-            v1.x*scale,
-            v1.y*scale
-        )
+    def normalize(v1, axis=-1, order=2):
+        v1 = Vector2.to_matrix(v1)
+        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
+        l2[l2==0] = 1
+        i = v1 / np.expand_dims(l2, axis)[0]
+        return Vector2(i[0],i[1])
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y]
+
+    @staticmethod
+    def from_matrix(self):
+        return Vector2(self[0],self[1])
 
     @staticmethod #inwendig product, if zero, then vectors are perpendicular
     def dotProduct(v1, v2):
@@ -2338,7 +2507,7 @@ class Vector2:
         return f"id:{self.id}"
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.X},{self.Y})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f})"
 
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
@@ -2346,6 +2515,10 @@ class Point2D:
         self.type = __class__.__name__        
         self.x = x
         self.y = y
+        self.x = float(x)
+        self.y = float(y)
+        self.value = self.x, self.y
+        self.units = "mm"
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -2383,7 +2556,7 @@ class Point2D:
         return p1
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.x},{self.y})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f})"
 
     @staticmethod
     def distance(point1, point2):
@@ -2406,23 +2579,24 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
-    pn3 = Point2D(pn.x,pn.y)
+    #pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    pn3 = Point2D.translate(PointLocal,Vector2(CoordinateSystemNew.Origin.x,CoordinateSystemNew.Origin.y))
+    #pn3 = Point2D(pn.x,pn.y)
     return pn3
 
 class Line2D:
-    def __init__(self, pntxy1, pntxy2) -> None:
+    def __init__(self, start, end) -> None:
         self.type = __class__.__name__        
-        self.start: Point2D = pntxy1
-        self.end: Point2D = pntxy2
+        self.start: Point2D = start
+        self.end: Point2D = end
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
         self.vector2: Vector2 = Vector2.byTwoPoints(self.start,self.end)
         self.vector2_normalised = Vector2.normalize(self.vector2)
-        self.length = 0
+        self.length = self.length()
         self.id = generateID()
 
     def serialize(self):
@@ -2453,14 +2627,14 @@ class Line2D:
         return mid
 
     def length(self):
-        self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
-        return self.length
+        return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy))
 
     def fline(self):
         #returns line for Folium(GIS)
         return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self.start},{self.end})"
+    
+    def __str__(self):
+        return f"{__class__.__name__}(" + f"Start: {self.start}, End: {self.end})"
 
 
 class Arc2D:
@@ -2472,6 +2646,7 @@ class Arc2D:
         self.end: Point2D = pntxy3
         self.origin = self.originarc()
         self.angleRadian = self.angleRadian()
+        self.radius = self.radiusarc()
         #self.radius = self.radiusarc()
         self.coordinatesystem = self.coordinatesystemarc()
         #self.length
@@ -2552,11 +2727,12 @@ class Arc2D:
 
     @staticmethod
     def pointsAtParameter(arc, count: int):
+        #ToDo can be simplified. Now based on the 3D variant
         d_alpha = arc.angleRadian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
-            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha), 0))
+            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha)))
             alpha = alpha + d_alpha
         CSNew = arc.coordinatesystem
         pnts2 = []
@@ -2584,42 +2760,97 @@ class PolyCurve2D:
         self.type = __class__.__name__        
         self.curves = []
         self.points2D = []
+        self.segmentcurves = None
+        self.width = None
+        self.height = None
+        self.approximateLength = None
+        self.graphicsStyleId = None
+        self.isClosed = None
+        self.isCyclic = None
+        self.isElementGeometry = None
+        self.isReadOnly = None
+        self.length = self.length()
+        self.period = None
+        self.reference = None
+        self.visibility = None
+        
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'curves': [curve.serialize() for curve in self.curves],
-            'points2D': [point.serialize() for point in self.points2D]
-        }
+        curves_serialized = [curve.serialize() if hasattr(curve, 'serialize') else str(curve) for curve in self.curves2D]
+        points_serialized = [point.serialize() if hasattr(point, 'serialize') else str(point) for point in self.points2D]
 
+        return {
+            'type': self.type,
+            'curves2D': curves_serialized,
+            'points2D': points_serialized,
+            'segmentcurves': self.segmentcurves,
+            'width': self.width,
+            'height': self.height,
+            'approximateLength': self.approximateLength,
+            'graphicsStyleId': self.graphicsStyleId,
+            'id': self.id,
+            'isClosed': self.isClosed,
+            'isCyclic': self.isCyclic,
+            'isElementGeometry': self.isElementGeometry,
+            'isReadOnly': self.isReadOnly,
+            'period': self.period,
+            'reference': self.reference,
+            'visibility': self.visibility
+        }
+    
     @staticmethod
     def deserialize(data):
-        polycurve2d = PolyCurve2D()
-        polycurve2d.id = data.get('id')
+        polycurve = PolyCurve2D()
+        polycurve.segmentcurves = data.get('segmentcurves')
+        polycurve.width = data.get('width')
+        polycurve.height = data.get('height')
+        polycurve.approximateLength = data.get('approximateLength')
+        polycurve.graphicsStyleId = data.get('graphicsStyleId')
+        polycurve.id = data.get('id')
+        polycurve.isClosed = data.get('isClosed')
+        polycurve.isCyclic = data.get('isCyclic')
+        polycurve.isElementGeometry = data.get('isElementGeometry')
+        polycurve.isReadOnly = data.get('isReadOnly')
+        polycurve.period = data.get('period')
+        polycurve.reference = data.get('reference')
+        polycurve.visibility = data.get('visibility')
 
-        for curve_data in data.get('curves', []):
-            curve = Line2D.deserialize(curve_data)
-            polycurve2d.curves.append(curve)
+        if 'curves2D' in data:
+            for curve_data in data['curves2D']:
+                curve = Line2D.deserialize(curve_data)
+                polycurve.curves2D.append(curve)
+        
+        if 'points2D' in data:
+            for point_data in data['points2D']:
+                point = Point2D.deserialize(point_data)
+                polycurve.points2D.append(point)
 
-        for point_data in data.get('points2D', []):
-            point = Point2D.deserialize(point_data)
-            polycurve2d.points2D.append(point)
+        return polycurve
 
-        return polycurve2d
 
     def __id__(self):
         return f"id:{self.id}"
 
-    @classmethod
+
+    @classmethod #curves or curves2D?
     def byJoinedCurves(cls, curves):
-        pc = PolyCurve2D()
-        for i in curves:
-            pc.curves.append(i)
-            pc.points2D.append(i.start)
-            pc.points2D.append(i.end)
-        return pc
+        if not curves or len(curves) < 1:
+            raise ValueError("At least one curve is required to create a PolyCurve2D.")
+
+        polycurve = cls()
+        for curve in curves:
+            if not polycurve.points2D or polycurve.points2D[-1] != curve.start:
+                polycurve.points2D.append(curve.start)
+            polycurve.curves.append(curve)
+            polycurve.points2D.append(curve.end)
+
+        polycurve.isClosed = polycurve.points2D[0].value == polycurve.points2D[-1].value
+        if project.autoclose == True and polycurve.isClosed == False:
+            polycurve.curves.append(Line2D(start=curves[-1].end, end=curves[0].start))
+            polycurve.points2D.append(curves[0].start)
+            polycurve.isClosed = True
+        return polycurve
+
 
     def points(self):
         for i in self.curves:
@@ -2627,18 +2858,157 @@ class PolyCurve2D:
             self.points2D.append(i.end)
         return self.points2D
 
-    @classmethod
-    def byPoints(self, points: list):
-        plycrv = PolyCurve2D()
-        for index, point2D in enumerate(points):
-            plycrv.points2D.append(point2D)
-            try:
-                nextpoint = points[index + 1]
-                plycrv.curves.append(Line2D(point2D, nextpoint))
-            except:
-                firstpoint = points[0]
-                plycrv.curves.append(Line2D(point2D, firstpoint))
+
+    def centroid(self) -> Point2D:
+        if self.isClosed:
+            if len(self.points2D) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points2D)
+            polygon = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)],dtype=np.float64)
+            polygon2 = np.roll(polygon, -1, axis=0)
+            signed_areas = 0.5 * np.cross(polygon, polygon2)
+            centroids = (polygon + polygon2) / 3.0
+            centroid = np.average(centroids, axis=0, weights=signed_areas)
+            return Point2D(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals))
+
+    @staticmethod
+    def fromPolyCurve3D(PolyCurve):
+        points = []
+        for pt in PolyCurve.points:
+            points.append(Point2D.toPoint2D(pt))
+        plycrv = PolyCurve2D.byPoints(points)
         return plycrv
+
+
+    def area(self) -> float: #shoelace formula
+        if self.isClosed:
+            if len(self.points2D) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points2D)
+            x_y = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)])
+            x_y = x_y.reshape(-1,2)
+            x = x_y[:,0]
+            y = x_y[:,1]
+            S1 = np.sum(x*np.roll(y,-1))
+            S2 = np.sum(y*np.roll(x,-1))
+
+            area = .5*np.absolute(S1 - S2)
+            return area
+        else:
+            return None
+
+
+    def close(self) -> bool:
+        if self.curves2D[0] == self.curves2D[-1]:
+            return self
+        else:
+            self.curves2D.append(self.curves2D[0])
+            plycrv = PolyCurve2D()
+            for curve in self.curves2D:
+                plycrv.curves2D.append(curve)
+        return plycrv
+
+
+    def scale(self, scalefactor):
+        crvs = []
+        for i in self.curves2D:
+            if i.__class__.__name__ == "Arc":
+                arcie = Arc2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end))
+                arcie.mid = Point2D.product(scalefactor,i.mid)
+                crvs.append(arcie)
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve2D.byJoinedCurves(crvs)
+        return crv
+    
+
+    @classmethod
+    def byPoints(cls, points):
+        if not points or len(points) < 2:
+            pass
+
+        polycurve = cls()
+        for i in range(len(points)):
+            polycurve.points2D.append(points[i])
+            if i < len(points) - 1:
+                polycurve.curves2D.append(Line2D(start=points[i], end=points[i+1]))
+        
+        polycurve.isClosed = points[0] == points[-1]
+        if project.autoclose == True:
+            polycurve.curves2D.append(Line2D(start=points[-1], end=points[0]))
+            polycurve.points2D.append(points[0])
+            polycurve.isClosed = True
+        return polycurve
+
+
+    def get_width(self) -> float:
+        x_values = [point.x for point in self.points2D]
+        y_values = [point.y for point in self.points2D]
+
+        min_x = min(x_values)
+        max_x = max(x_values)
+        min_y = min(y_values)
+        max_y = max(y_values)
+        
+        left_top = Point2D(x=min_x, y=max_y)
+        left_bottom = Point2D(x=min_x, y=min_y)
+        right_top = Point2D(x=max_x, y=max_y)
+        right_bottom = Point2D(x=max_x, y=min_y)
+        self.width = abs(Point2D.distance(left_top, right_top))
+        self.height = abs(Point2D.distance(left_top, left_bottom))
+        return self.width
+    
+
+    def length(self) -> float:
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
+        return sum(i.length for i in self.curves)
+
+
+    @staticmethod
+    def byPolyCurve2D(PolyCurve2D):
+        plycrv = PolyCurve2D()
+        curves2D = []
+        for i in PolyCurve2D.curves2D:
+            if i.__class__.__name__ == "Arc2D":
+                curves2D.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.mid.x, i.mid.y), Point2D(i.end.x,i.end.y)))
+            elif i.__class__.__name__ == "Line2D":
+                curves2D.append(Line2D(Point2D(i.start.x, i.start.y),Point2D(i.end.x, i.end.y)))
+            else:
+                print("Curvetype not found")
+        pnts = []
+        for i in curves2D:
+            pnts.append(i.start)
+        pnts.append(curves2D[0].start)
+        plycrv.points = pnts
+        plycrv.curves2D = curves2D
+        return plycrv
+
+
+    def multi_split(self, lines:Line2D):
+        lines = flatten(lines)
+        new_polygons = []
+        for index, line in enumerate(lines):
+            if index == 0:
+                n_p = self.split(line, returnlines=True)
+                if n_p != None:
+                    for np in n_p:
+                        if np != None:
+                            new_polygons.append(n_p)
+            else:
+                for new_poly in flatten(new_polygons):
+                    n_p = new_poly.split(line, returnlines=True)
+                    if n_p != None:
+                        for np in n_p:
+                            if np != None:
+                                new_polygons.append(n_p)
+        project.objects.append(flatten(new_polygons))
+        return flatten(new_polygons)
+
 
     def translate(self, vector2d:Vector2):
         crvs = []
@@ -2653,6 +3023,20 @@ class PolyCurve2D:
         crv = PolyCurve2D.byJoinedCurves(crvs)
         return crv
 
+
+    @staticmethod
+    def copyTranslate(pc, vector3d:Vector3):
+        crvs = []
+        v1 = vector3d
+        for i in pc.curves2D:
+            if i.__class__.__name__ == "Line":
+                crvs.append(Line2D(Point2D.translate(i.start, v1), Point2D.translate(i.end, v1)))
+            else:
+                print("Curvetype not found")
+
+        PCnew = PolyCurve2D.byJoinedCurves(crvs)
+        return PCnew
+
     def rotate(self, rotation):
         crvs = []
         for i in self.curves:
@@ -2664,6 +3048,7 @@ class PolyCurve2D:
                 print("Curvetype not found")
         crv = PolyCurve2D.byJoinedCurves(crvs)
         return crv
+
 
     @staticmethod
     def boundingboxGlobalCS(PC):
@@ -2695,6 +3080,20 @@ class PolyCurve2D:
         height = ymax-ymin
         return xmin,xmax,ymin,ymax,width,height
 
+
+    @classmethod
+    def unclosed_by_points(self, points: Point2D):
+        plycrv = PolyCurve2D()
+        for index, point in enumerate(points):
+            plycrv.points2D.append(point)
+            try:
+                nextpoint = points[index + 1]
+                plycrv.curves2D.append(Line2D(start=point, end=nextpoint))
+            except:
+                pass
+        return plycrv
+    
+
     @staticmethod
     def polygon(self):
         points = []
@@ -2706,6 +3105,61 @@ class PolyCurve2D:
         points.append(points[0])
         return points
 
+
+    @staticmethod
+    def segment(self, count):
+        crvs = []
+        for i in self.curves2D:
+            if i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc2D.segmentedarc(i, count))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(i)
+        crv = flatten(crvs)
+        pc = PolyCurve2D.byJoinedCurves(crv)
+        return pc
+
+    def toPolyCurve2D(self):
+
+        p1 = PolyCurve2D()
+        curves2D = []
+        for i in self.curves2D:
+            if i.__class__.__name__ == "Arc":
+                curves2D.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
+                                  Point2D(i.end.x, i.end.y)))
+            elif i.__class__.__name__ == "Line":
+                curves2D.append(Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
+            else:
+                print("Curvetype not found")
+        pnts = []
+        for i in curves2D:
+            pnts.append(i.start)
+        pnts.append(curves2D[0].start)
+        p1.points2D = pnts
+        p1.curves2D = curves2D
+        return p1
+
+    @staticmethod
+    def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector3):
+        crvs = []
+        for i in polycurve.curves2D:
+            if i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc2D(transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
+                                transformPoint2D(i.mid, project.CSGlobal, startpoint, directionvector),
+                                transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
+                                ))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(Line2D(start = transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
+                                end = transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
+                                ))
+            else:
+                print(i.__class__.__name__ + "Curvetype not found")
+        pc = PolyCurve2D()
+        pc.curves2D = crvs
+        return pc
+
+    def __str__(self):
+        l = len(self.points2D)
+        return f"{__class__.__name__}, ({l} points)"
  #   def __str__(self) -> str:
 #        return f"{__class__.__name__}({self})"
 
@@ -2773,193 +3227,320 @@ class Intersect:
         print(p1X, p1Y, P1Z)
 
 
-class Intersect2d:
-    def __init__(self):
-        pass
-
-    def perp(self, a):
-        b = np.empty_like(a)
-        b[0] = -a[1]
-        b[1] = a[0]
-        return b
-    
-    #two lines intersect
-    def getLineIntersect(self, line1, line2):
-        if line1.start == line1.end or line2.start == line2.end:
-            return None
-
-        p1, p2 = line1.start, line1.end
-        p1X, p1Y, p1Z = p1.x, p1.y, p1.z
-        p2X, p2Y, p2Z = p2.x, p2.y, p2.z
-
-        p3, p4 = line2.start, line2.end
-        p3X, p3Y, p3Z = p3.x, p3.y, p3.z
-        p4X, p4Y, p4Z = p4.x, p4.y, p4.z
-
-        da = np.array([p2X, p2Y]) - np.array([p1X, p1Y])
-        db = np.array([p4X, p4Y]) - np.array([p3X, p3Y])
-        dp = np.array([p1X, p1Y]) - np.array([p3X, p3Y])
-        dap = self.perp(da)
-        denom = np.dot(dap, db)
-        if abs(denom) < 1e-6:
-            return None
-        num = np.dot(dap, dp)
-        t = num / denom
-        nX, nY = np.array([p3X, p3Y]) + t * db
-        return Point(nX, nY, 0)
+def perp(a):
+    b = np.empty_like(a)
+    b[0] = -a[1]
+    b[1] = a[0]
+    return b
 
 
-    def getMultiLineIntersect(self, lines=Line) -> Point:
-        pts = []
-        for i in range(len(lines)):
-            line1 = lines[i]
-            for j in range(i+1, len(lines)):
-                line2 = lines[j]
-                intersection = Intersect2d().getLineIntersect(line1, line2)
-                if intersection not in pts and intersection != None and is_point_on_line_segment(intersection, line2) == True:
-                    pts.append(intersection)
-        return pts
+def get_line_intersect(line_1: Line2D, line_2: Line2D) -> Point2D:
+    if line_1.start == line_1.end or line_2.start == line_2.end:
+        return None
 
-    
-    #polycurve to line intersect
-    def getIntersectLinePolyCurve(self, polycurves: Point, lines, split=None, stretch=None) -> Point:
-        dict = {}
-        intersectionsPointsList = []
-        splitedLinesList = []
-        InnerGridLines = []
-        OuterGridLines = []
-        if isinstance(lines, Line):
-            lines = [lines]
-        for line in lines:
-            IntersectGridPoints = []
-            for i in range(len(polycurves.points) - 1):
-                genLine = Line(polycurves.points[i], polycurves.points[i+1])
-                checkIntersect = Intersect2d().getLineIntersect(genLine, line)
-                if stretch == False or stretch == None:
-                    if checkIntersect != None:
-                        if is_point_on_line_segment(checkIntersect, line) == False:
-                            checkIntersect = None
-                        else:
-                            minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
-                            maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
-                            minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
-                            maxY = max(polycurves.points[i].y, polycurves.points[i+1].y)
-                        if checkIntersect != None:
-                            if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
-                                intersectionsPointsList.append(checkIntersect)
-                                IntersectGridPoints.append(checkIntersect)
+    p1, p2 = line_1.start, line_1.end
+    p1X, p1Y = p1.x, p1.y
+    p2X, p2Y = p2.x, p2.y
 
-                elif stretch == True: #autojoin/combine the lines if they in same direction.
-                    minX = min(polycurves.points[i].x, polycurves.points[i+1].x)
-                    maxX = max(polycurves.points[i].x, polycurves.points[i+1].x)
-                    minY = min(polycurves.points[i].y, polycurves.points[i+1].y)
-                    maxY = max(polycurves.points[i].y, polycurves.points[i+1].y)
+    p3, p4 = line_2.start, line_2.end
+    p3X, p3Y = p3.x, p3.y
+    p4X, p4Y = p4.x, p4.y
+
+    da = np.array([p2X, p2Y]) - np.array([p1X, p1Y])
+    db = np.array([p4X, p4Y]) - np.array([p3X, p3Y])
+    dp = np.array([p1X, p1Y]) - np.array([p3X, p3Y])
+    dap = perp(da)
+    denom = np.dot(dap, db)
+    if abs(denom) < 1e-6:
+        return None
+    num = np.dot(dap, dp)
+    t = num / denom
+    nX, nY = np.array([p3X, p3Y]) + t * db
+    return Point2D(nX, nY)
+
+
+def get_multi_lines_intersect(lines: list[Line2D]) -> list[Point2D]:
+    pts = []
+    for i in range(len(lines)):
+        line1 = lines[i]
+        for j in range(i+1, len(lines)):
+            line2 = lines[j]
+            intersection = get_line_intersect(line1, line2)
+            if intersection not in pts and intersection != None and is_point_on_line_segment(intersection, line2) == True:
+                pts.append(intersection)
+    return pts
+
+
+def get_intersect_polycurve_lines(polycurve: PolyCurve2D, lines: list[Line2D], split: bool = False, stretch: bool = False):
+    dict = {}
+    intersectionsPointsList = []
+    splitedLinesList = []
+    InnerGridLines = []
+    OuterGridLines = []
+    if isinstance(lines, Line2D):
+        lines = [lines]
+    elif lines.type == "Line":
+        print("Convert Line(s) to Line2D")
+        sys.exit()
+    else:
+        print(f"Incorrect input: {lines}")
+    for line in lines:
+        IntersectGridPoints = []
+        for i in range(len(polycurve.points2D) - 1):
+            genLine = Line2D(polycurve.points2D[i], polycurve.points2D[i+1])
+            checkIntersect = get_line_intersect(genLine, line)
+            if stretch == False:
+                if checkIntersect != None:
+                    if is_point_on_line_segment(checkIntersect, line) == False:
+                        checkIntersect = None
+                    else:
+                        minX = min(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                        maxX = max(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                        minY = min(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                        maxY = max(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
                     if checkIntersect != None:
                         if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
                             intersectionsPointsList.append(checkIntersect)
                             IntersectGridPoints.append(checkIntersect)
 
-            if split == True:
-                if len(IntersectGridPoints) > 0:
-                    splitedLinesList.append(line.split(IntersectGridPoints))
+            elif stretch == True:
+                minX = min(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                maxX = max(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                minY = min(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                maxY = max(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                if checkIntersect != None:
+                    if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
+                        intersectionsPointsList.append(checkIntersect)
+                        IntersectGridPoints.append(checkIntersect)
+
+        if split == True:
+            if len(IntersectGridPoints) > 0:
+                splitedLinesList.append(line.split(IntersectGridPoints))
+
+    for splittedLines in splitedLinesList:
+        for line in splittedLines:
+            centerLinePoint = line.pointAtParameter(0.5)
+            if is_point_in_polycurve(centerLinePoint, polycurve) == True:
+                InnerGridLines.append(line)
+            else:
+                OuterGridLines.append(line)
+
+    dict["IntersectGridPoints"] = intersectionsPointsList
+    dict["SplittedLines"] = flatten(splitedLinesList)
+    dict["InnerGridLines"] = InnerGridLines
+    dict["OuterGridLines"] = OuterGridLines
+
+    return dict
 
 
-        for splittedLines in splitedLinesList:
-            for line in splittedLines:
-                centerLinePoint = line.pointAtParameter(0.5)
-                if is_point_in_polygon(centerLinePoint, polycurves) == True:
-                    InnerGridLines.append(line)
-                else:
-                    OuterGridLines.append(line)
-
-        # dict["IntersectPolyCurve"] = polycurves
-        dict["IntersectGridPoints"] = intersectionsPointsList
-        dict["SplittedLines"] = flatten(splitedLinesList)
-        dict["InnerGridLines"] = InnerGridLines
-        dict["OuterGridLines"] = OuterGridLines
-
-        return dict
-    
-
-
-def is_point_in_line(point, line): #check if point is in align with line (in direction)
-    distance = abs((line.end.y - line.start.y) * point.x
-                   - (line.end.x - line.start.x) * point.y
-                   + line.end.x * line.start.y
-                   - line.end.y * line.start.x) \
-               / line.length()
-    return distance < 1e-9
-
-
-def is_point_on_line_segment(point, line):
+def is_point_on_line_segment(point: Point2D, line: Line2D) -> bool:
     x_min = min(line.start.x, line.end.x)
     x_max = max(line.start.x, line.end.x)
     y_min = min(line.start.y, line.end.y)
     y_max = max(line.start.y, line.end.y)
 
-    # Check if the point is in the bounding box of the line segment
     if x_min <= point.x <= x_max and y_min <= point.y <= y_max:
-        # Check if the distance from the point to the line is within a small tolerance
-        distance = abs((line.end.y - line.start.y) * point.x
-                       - (line.end.x - line.start.x) * point.y
-                       + line.end.x * line.start.y
-                       - line.end.y * line.start.x) \
-                   / line.length
-        return distance < 1e-9
-    else:
-        return False
+        try:
+            distance = abs((line.end.y - line.start.y) * point.x
+                        - (line.end.x - line.start.x) * point.y
+                        + line.end.x * line.start.y
+                        - line.end.y * line.start.x) \
+                    / line.length
+            return distance < 1e-9
+        except:
+            return False
+    return False
 
 
-def is_point_in_polygon(point, polygon):
-    x, y, z = point.x, point.y, point.z
+def get_intersection_polycurve_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D) -> list[Point2D]:
+    points = []
+    for i in range(len(polycurve_1.points2D) - 1):
+        line1 = Line2D(polycurve_1.points2D[i], polycurve_1.points2D[i+1])
+        for j in range(len(polycurve_2.points2D) - 1):
+            line2 = Line2D(polycurve_2.points2D[j], polycurve_2.points2D[j+1])
+            intersection = get_line_intersect(line1, line2)
+            if intersection and is_point_on_line_segment(intersection, line1) and is_point_on_line_segment(intersection, line2):
+                points.append(intersection)
+    return points
+
+
+def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2D]) -> list[PolyCurve2D]:
+    points.sort(key=lambda pt: Point2D.distance(polycurve.points2D[0], pt))
+
+    current_polycurve_points = [polycurve.points2D[0]]
+    created_polycurves = []
+
+    for i in range(1, len(polycurve.points2D)):
+        segment_start = polycurve.points2D[i - 1]
+        segment_end = polycurve.points2D[i]
+
+        segment_intersections = [pt for pt in points if is_point_on_line_segment(pt, Line2D(segment_start, segment_end))]
+
+        segment_intersections.sort(key=lambda pt: Point2D.distance(segment_start, pt))
+
+        for intersect in segment_intersections:
+            current_polycurve_points.append(intersect)
+            created_polycurves.append(polycurve.byPoints(current_polycurve_points))
+            current_polycurve_points = [intersect]
+            points.remove(intersect)
+
+        current_polycurve_points.append(segment_end)
+
+    if len(current_polycurve_points) > 1:
+        created_polycurves.append(polycurve.byPoints(current_polycurve_points))
+
+    ptlist = []
+    for index, pc in enumerate(created_polycurves):
+        if index == 0:
+            for pt in pc.points2D:
+                ptlist.append(pt)
+        elif index == 2:
+            for pt in pc.points2D:
+                ptlist.append(pt)
+                ptlist.append(ptlist[1])
+
+    pcurve = polycurve().byPoints(ptlist)
+
+    try:
+        return [created_polycurves[1], pcurve]
+    except:
+        return [created_polycurves[0]]
+
+
+#extend to if on edge, then accept
+def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
+    x, y = point.x, point.y
     intersections = 0
-    for curve in polygon.curves:
+    for curve in polycurve.curves2D:
         p1, p2 = curve.start, curve.end
         if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
             if p1.y != p2.y:
                 x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
                 if (p1.x == p2.x) or (x <= x_inters):
                     intersections += 1
-    # print(intersections % 2 != 0)
     return intersections % 2 != 0
 
 
-def is_polygon_in_polygon(polygon1, polygon2):
-    booleans2 = []
-    pts2 = []
-    for curve in polygon2.curves:
-        pts2S, pts2E = curve.start, curve.end
-        booleans2.append(is_point_in_polygon(pts2S, polygon1))
-        booleans2.append(is_point_in_polygon(pts2E, polygon1))
-    print(all_true(booleans2))
-    return all_true(booleans2)
-    #is_point_in_polygon(Point5, ply1) #True
+def is_polycurve_in_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D) -> bool:
+    colList = []
+    for pt in polycurve_1.points2D:
+        if is_point_in_polycurve(pt, polycurve_2):
+            colList.append(True)
+        else:
+            colList.append(False)
+
+    if all_true(colList):
+        return True
+    else:
+        return False
 
 
-def planelineIntersection():
-    # Define a line by its direction vector and a point on it
-    line_dir = [1, 2, 3] # direction vector of the line
-    line_pt = [0, 0, 0] # a point on the line
+def plane_line_intersection():
+    line_dir = [1, 2, 3]
+    line_pt = [0, 0, 0]
 
-    # Define a plane by its normal vector and a point on it
-    plane_norm = [4, 5, 6] # normal vector of the plane
-    plane_pt = [1, 1, 1] # a point on the plane
+    plane_norm = [4, 5, 6]
+    plane_pt = [1, 1, 1]
 
-    # Compute the dot product of the line direction and the plane normal
     dot_prod = sum([a*b for a,b in zip(line_dir, plane_norm)])
 
-    # Check if the dot product is zero, which means the line is parallel to the plane
     if dot_prod == 0:
         print("The line is parallel to the plane. No intersection point.")
     else:
-        # Compute the parameter t that gives the intersection point
         t = sum([(a-b)*c for a,b,c in zip(plane_pt, line_pt, plane_norm)]) / dot_prod
 
-        # Compute the intersection point by plugging t into the line equation
         inter_pt = [a + b*t for a,b in zip(line_pt, line_dir)]
 
-        # Print the intersection point
         print("The intersection point is", inter_pt)
+
+
+def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> list[PolyCurve2D]:
+
+    def splitCurveAtPoint(curve, point):
+        if is_point_on_line_segment(point, curve):
+            return curve.split([point])
+        return [curve]
+
+    split_curves = []
+    for curve in polycurve.curves2D:
+        current_curves = [curve]
+        for point in points:
+            new_curves = []
+            for c in current_curves:
+                new_curves.extend(splitCurveAtPoint(c, point))
+            current_curves = new_curves
+        split_curves.extend(current_curves)
+
+    return split_curves
+
+
+def is_on_line(line: Line2D, point: Point2D) -> bool:
+    if line.start == Point or line.end == Point:
+        return True
+    return False
+
+
+def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCurve2D]:
+    dict = {}
+    pcList = []
+    nonsplitted = []
+    intersect = get_intersect_polycurve_lines(polycurve, line, split=False, stretch=False)
+    intersect_points = intersect["IntersectGridPoints"]
+    if len(intersect_points) != 2:
+        nonsplitted.append(polycurve)
+        dict["inputPolycurve"] = [polycurve]
+        dict["splittedPolycurve"] = pcList
+        dict["nonsplittedPolycurve"] = nonsplitted
+        dict["IntersectGridPoints"] = intersect_points
+        return dict
+
+    SegsandPoints = []
+
+    for Line in polycurve.curves2D:
+        for intersect_point in intersect_points:
+            if is_point_on_line_segment(intersect_point, Line):
+                SegsandPoints.append(intersect_point)
+                SegsandPoints.append(intersect_point)
+
+        SegsandPoints.append(Line)
+
+    elementen = []
+    for item in SegsandPoints:
+        elementen.append(item)
+
+    split_lists = []
+    current_list = []
+
+    for element in elementen:
+        current_list.append(element)
+
+        if len(current_list) > 1 and current_list[-1].type == current_list[-2].type == 'Point2D':
+            split_lists.append(current_list[:-1])
+            current_list = [element]
+
+    if current_list:
+        split_lists.append(current_list)
+    
+    merged_list = split_lists[-1] + split_lists[0]
+
+    lijsten = [merged_list, split_lists[1]]
+    
+    for lijst in lijsten:
+        q = []
+        for i in lijst:
+            if i.type == "Line2D":
+                q.append(i.end)
+            elif i.type == "Point2D":
+                q.append(i)
+        pc = PolyCurve2D.byPoints(q)
+        pcList.append(pc)
+
+    dict["inputPolycurve"] = [polycurve]
+    dict["splittedPolycurve"] = pcList
+    dict["nonsplittedPolycurve"] = nonsplitted
+    dict["IntersectGridPoints"] = intersect_points
+
+    return dict
 
 
 HiddenLine1 = ["Hidden Line 1", [1, 1], 100]  # Rule: line, whitespace, line whitespace etc., scale
@@ -3020,7 +3601,8 @@ class Extrusion:
         self.topface = None #return polycurve -> surface
         self.bottomface = None #return polycurve -> surface
         self.polycurve_3d_translated = None
-        
+
+
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
         return {
@@ -3037,7 +3619,8 @@ class Extrusion:
             'bottomface': self.bottomface.serialize() if self.bottomface else None,
             'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
         }
-    
+
+
     @staticmethod
     def deserialize(data):
         extrusion = Extrusion()
@@ -3060,6 +3643,7 @@ class Extrusion:
             extrusion.polycurve_3d_translated = PolyCurve.deserialize(data['polycurve_3d_translated'])
 
         return extrusion
+
 
     @classmethod
     def merge(self, extrusions:list, name=None):
@@ -3117,12 +3701,6 @@ class Extrusion:
             Extrus.faces.append(count)
             count += 1
             Extrus.numberFaces = Extrus.numberFaces + 1
-            #    vert = [0, 0, 0, 1000, 0, 0, 1000, 2000, 0, 0, 1000, 0, 0, 2000, 2000, 3000, 2000, 1000]
-            # list structure of verts is x y z x y z x y z
-            #    faces = [3, 0, 1, 2, 3, 2, 3, 5]
-            # list structure of faces is [number of verts], vert.index, vert.index, vert.index, vert2.index. enz.
-            # first number is number of vertices.
-            # then
 
         #bottomface
         Extrus.faces.append(len(polycurve2d.curves))
@@ -3138,7 +3716,7 @@ class Extrusion:
             Extrus.faces.append(count)
             count = count + 4
 
-        Extrus.countVertsFaces = (4 * Extrus.numberFaces) #aantal zonder bovenzijde/onderzijde
+        Extrus.countVertsFaces = (4 * Extrus.numberFaces)
 
         Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
@@ -3146,16 +3724,16 @@ class Extrusion:
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
 
-
         return Extrus
+
 
     @classmethod
     def byPolyCurveHeight(self, polycurve: PolyCurve, height, dzloc: float):
         #global len
         Extrus = Extrusion()
         Points = polycurve.points
-        V1 = Vector3.byTwoPoints(Points[0], Points[1])  # Vector op basis van punt 0 en 1
-        V2 = Vector3.byTwoPoints(Points[-2], Points[-1])  # Vector op basis van laatste punt en een na laatste punt
+        V1 = Vector3.byTwoPoints(Points[0], Points[1])
+        V2 = Vector3.byTwoPoints(Points[-2], Points[-1])
 
         p1 = Plane.byTwoVectorsOrigin(V1, V2, Points[0]) #Workplane of PolyCurve
         norm = p1.Normal
@@ -3376,6 +3954,85 @@ class PolySurface:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
+
+
+
+class Panel:
+    #Panel
+    def __init__(self):
+        self.id = generateID()
+        self.type = __class__.__name__
+        self.extrusion = None
+        self.thickness = 0
+        self.name = "none"
+        self.perimeter: float = 0
+        self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
+        self.colorint = None
+        self.colorlst = []
+        self.origincurve = None
+
+    def serialize(self):
+        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        return {
+            'id': id_value,
+            'type': self.type,
+            'extrusion': self.extrusion,
+            'thickness': self.thickness,
+            'name': self.name,
+            'perimeter': self.perimeter,
+            'coordinatesystem': self.coordinatesystem.serialize(),
+            'color': self.color,
+            'colorlst': self.colorlst,
+            'origincurve': self.origincurve
+        }
+
+    @staticmethod
+    def deserialize(data):
+        panel = Panel()
+        panel.id = data.get('id')
+        panel.type = data.get('type')
+        panel.extrusion = data.get('extrusion')
+        panel.thickness = data.get('thickness', 0)
+        panel.name = data.get('name', "none")
+        panel.perimeter = data.get('perimeter', 0)
+        panel.coordinatesystem = CoordinateSystem.deserialize(data['coordinatesystem'])
+        panel.color = data.get('color')
+        panel.colorlst = data.get('colorlst', [])
+        panel.origincurve = data.get('origincurve')
+
+        return panel
+
+    @classmethod
+    def byPolyCurveThickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
+        #Create panel by polycurve
+        p1 = Panel()
+        p1.name = name
+        p1.thickness = thickness
+        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, offset)
+        p1.origincurve = polycurve
+        p1.colorint = colorrgbint
+        for j in range(int(len(p1.extrusion.verts) / 3)):
+            p1.colorlst.append(colorrgbint)
+        return p1
+
+    @classmethod
+    def byBaselineHeight(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
+        #place panel vertical from baseline
+        p1 = Panel()
+        p1.name = name
+        p1.thickness = thickness
+        polycurve = PolyCurve.byPoints(
+            [baseline.start,
+             baseline.end,
+             Point.translate(baseline.end, Vector3(0, 0, height)),
+             Point.translate(baseline.start, Vector3(0, 0, height))])
+        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
+        p1.origincurve = polycurve
+        for j in range(int(len(p1.extrusion.verts) / 3)):
+            p1.colorlst.append(colorrgbint)
+        return p1
+
+
 
 
 class System:
@@ -3636,7 +4293,7 @@ class PatternSystem:
         V2 = Vector3(tilewidth+jointwidth,0,0)  #dx
         self.vectors.append([V1, V2])
 
-        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0),Point(0,0,0)])
+        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0)])
         BasePanel1 = Panel.byPolyCurveThickness(PC1, tilethickness, 0, "BasePanel1", BaseBrick.colorint)
 
         self.basepanels.append(BasePanel1)
@@ -3692,9 +4349,11 @@ class PatternSystem:
 
         return self
 
-def PatternGEOM(PatternSystem,width,height):
+def PatternGEOM(PatternSystem, width, height, startpoint:Point=None) -> list[Panel]:
+    startpoint = startpoint or Point(0,0,0)
     test = PatternSystem
     panels = []
+
     for i,j in zip(test.basepanels,test.vectors):
         ny = int(height / (j[0].y)) #number of panels in y-direction
         nx = int(width / (j[1].x)) #number of panels in x-direction
@@ -3704,7 +4363,7 @@ def PatternGEOM(PatternSystem,width,height):
 
         #YX ARRAY
         yvectdisplacement = j[0]
-        yvector = Vector3(0,0,0)
+        yvector = Point.toVector(startpoint)
         xvectdisplacement = j[1]
         xvector = Vector3(0, 0, 0)
 
@@ -3718,8 +4377,28 @@ def PatternGEOM(PatternSystem,width,height):
                 PCNew = PolyCurve.copyTranslate(PC,xyvector) #translate curve in x and y-direction
                 pan = Panel.byPolyCurveThickness(PCNew,thickness,0,"name",color)
                 panels.append(pan)
-            xvector = Vector3.sum(xvectdisplacement, Vector3(0, 0, 0))
+            xvector = Vector3.sum(xvectdisplacement, Vector3(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
     return panels
+
+def fillin(perimeter: PolyCurve2D, pattern: PatternGEOM) -> PatternSystem:
+    
+    bb = BoundingBox2d().byPoints(perimeter.points)
+
+    for pt in bb.corners:
+        project.objects.append(pt)
+    bb_perimeter = PolyCurve.byPoints(bb.corners)
+
+    # l = []
+
+    # for q in pattern:
+    #     l.append(q.origincurve)
+        # print(q.origincurve)
+
+    return [bb_perimeter]
+
+# polycurve perimeter, pattern
+# bbox, fill, trim
+
 
 
 def rgb_to_int(rgb):
@@ -3752,9 +4431,7 @@ BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147
 
 #class Materialfinish
 
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/DutchSailor/Project-Ocondat/master/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/joas1606/jupyter/main/jsontestfile.json"
+jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
@@ -3853,29 +4530,30 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     dyorigin = 0
 
     if XJustifiction == "center":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     elif XJustifiction == "left":
         dx = dxleft
     elif XJustifiction == "right":
         dx = dxright
     elif XJustifiction == "origin":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     else:
         dx = 0
 
     if Yjustification == "center":
-        dy = 0   #TODO
+        dy = dyorigin   #TODO
     elif Yjustification == "top":
         dy = dytop
     elif Yjustification == "bottom":
         dy = dybottom
     elif Yjustification == "origin":
-        dy = 0 #TODO
+        dy = dyorigin #TODO
     else:
         dy = 0
 
     # print(dx, dy)
     v1 = Vector2(dx, dy)
+    # v1 = Vector2(0, 0)
 
     return v1
 
@@ -4837,6 +5515,7 @@ class Frame:
             curv = profiledataToShape(profile_name).polycurve2d
         except:
             print(f"Profile does not exist: {profile_name}") #Profile does not exist
+
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.curve = curvrot.translate(vector2d)
@@ -4869,20 +5548,21 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # print(f1.start, f1.end)
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curv = profiledataToShape(profile_name).polycurve2d
-        curv = curv.translate(Vector2(ey, ez))
-
-        # print(rotation)
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-
-        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        curve = profiledataToShape(profile_name).polycurve2d
+        
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
-        f1.curve = curvrot.translate(v1)
+        curve = curve.translate(v1)
+
+        curve = curve.translate(Vector2(ey, ez)) #2
+        curve = curve.rotate(rotation)  #3
+
+        f1.curve = curve
+
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -4895,10 +5575,6 @@ class Frame:
         f1.colorlst = colorlist(f1.extrusion, f1.color)
         f1.props()
         return f1
-
-            # print(profile_name) #Profile does not exist
-        # curv = profiledataToShape(profile_name).prof.curve
-
 
 
     @classmethod
@@ -4916,11 +5592,10 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # self.curve = Line(start, end)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        curvrot = polycurve.rotate(rotation)  # rotation in degrees
+        curvrot = polycurve.rotate(rotation)
         f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = curvrot
@@ -4968,7 +5643,7 @@ class Frame:
             f1.start = start
         elif start.type == 'Node':
             f1.start = start.point
-        f1.end = Point.translate(f1.start,Vector3(0,0.00001,height)) #TODO vertical column not possible
+        f1.end = Point.translate(f1.start,Vector3(0,height)) #TODO vertical column not possible
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
@@ -5171,86 +5846,6 @@ class WorkPlane():
 
 WorkPlane = WorkPlane()
 #rotation(Vector3)/#volume/#scale
-
-
-
-class Panel:
-    #Panel
-    def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
-        self.extrusion = None
-        self.thickness = 0
-        self.name = "none"
-        self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
-        self.colorint = None
-        self.colorlst = []
-        self.origincurve = None
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'extrusion': self.extrusion,
-            'thickness': self.thickness,
-            'name': self.name,
-            'perimeter': self.perimeter,
-            'coordinatesystem': self.coordinatesystem.serialize(),
-            'color': self.color,
-            'colorlst': self.colorlst,
-            'origincurve': self.origincurve
-        }
-
-    @staticmethod
-    def deserialize(data):
-        panel = Panel()
-        panel.id = data.get('id')
-        panel.type = data.get('type')
-        panel.extrusion = data.get('extrusion')
-        panel.thickness = data.get('thickness', 0)
-        panel.name = data.get('name', "none")
-        panel.perimeter = data.get('perimeter', 0)
-        panel.coordinatesystem = CoordinateSystem.deserialize(data['coordinatesystem'])
-        panel.color = data.get('color')
-        panel.colorlst = data.get('colorlst', [])
-        panel.origincurve = data.get('origincurve')
-
-        return panel
-
-    @classmethod
-    def byPolyCurveThickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
-        #Create panel by polycurve
-        p1 = Panel()
-        p1.name = name
-        p1.thickness = thickness
-        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, offset)
-        p1.origincurve = polycurve
-        p1.colorint = colorrgbint
-        for j in range(int(len(p1.extrusion.verts) / 3)):
-            p1.colorlst.append(colorrgbint)
-        return p1
-
-    @classmethod
-    def byBaselineHeight(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
-        #place panel vertical from baseline
-        p1 = Panel()
-        p1.name = name
-        p1.thickness = thickness
-        polycurve = PolyCurve.byPoints(
-            [baseline.start,
-             baseline.end,
-             Point.translate(baseline.end, Vector3(0, 0, height)),
-             Point.translate(baseline.start, Vector3(0, 0, height)),
-             baseline.start])
-        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
-        p1.origincurve = polycurve
-        for j in range(int(len(p1.extrusion.verts) / 3)):
-            p1.colorlst.append(colorrgbint)
-        return p1
-
-
 
 
 sqrt2 = math.sqrt(2)
@@ -7457,7 +8052,6 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
-        self.
 
         row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
         row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)
@@ -8211,10 +8805,56 @@ class xmlXFEM4U:
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
-# [!not included in BP singlefile - end]
+
+def createXFEM4UXML(project: BuildingPy, filepathxml: str):
+    # Export to XFEM4U XMLK-file
+    xmlS4U = xmlXFEM4U()  # Create XML object with standard values
+    xmlS4U.addBeamsPlates(project.objects)  # Add Beams, Profiles, Plates, Beamgroups, Nodes
+    xmlS4U.addProject(project.name)
+    xmlS4U.addPanels(project.objects)  # add Load Panels
+    xmlS4U.addGrids()  # Grids
+    xmlS4U.addLoadCasesCombinations()
+    xmlS4U.XML()
+    XMLString = xmlS4U.xmlstr
+
+    filepath = filepathxml
+    file = open(filepath, "w")
+    a = file.write(XMLString)
+    file.close()
+
+    return filepath
+
+
+def writeDirectCommandsfile(xmlfilepath: str):
+    #Write Ini-file for directcommands
+    pathdirectcommands = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'DirectCommands_XFEM4U.ini')
+    row1 = '[Struct4u]\n'
+    row2 = 'Import_XML=' + xmlfilepath + '\n'
+    content = row1 + row2
+
+    file = open(pathdirectcommands, "w")
+    a = file.write(content)
+    file.close()
+
+def openXFEM4U(fileName):
+    #Open XML file in XFEM4U
+    os.system("C:/Struct4u/XFEM4U/wframe3d.exe " + fileName)
+
+def openXFrame2D(fileName):
+    #Open XML file in XFEM4U
+    os.system("C:/Program Files (x86)/Struct4u/XFrame2d/XFrame2d.exe " + fileName)
+
+def SubprocessXFEM4UThread():
+    #Run XFEM4U
+    try:
+        subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe", shell=True, check=False)
+    except:
+        print("exception")
+
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str):
         self.id = id
+        self.type = __class__.__name__
         self.name = name
         self.layer = layer
         self.perpendicular_alignment = perpendicular_alignment
@@ -8227,6 +8867,11 @@ class Scia_Params:
         self.ey = ey
         self.ez = ez
         self.geometry_table = geometry_table
+        self.revit_rot = revit_rot
+        self.layer_type = layer_type
+        self.Yjustification = Yjustification
+        self.Xjustification = Xjustification
+        #add material
 
 
 class LoadXML:
@@ -8234,7 +8879,7 @@ class LoadXML:
         self.filename = filename
         self.project = project
         self.unrecognizedElements = []
-        
+        self.method_times = {}
         self.root = self.load()
         if self.root != None:
             self.getStaaf()
@@ -8243,6 +8888,7 @@ class LoadXML:
 
 
     def load(self):
+        start_time = time.time()
         try:
             tree = ET.parse(self.filename)
             root = tree.getroot()
@@ -8250,9 +8896,14 @@ class LoadXML:
         except Exception as e:
             print(e)
             return None
+        finally:
+            end_time = time.time()
+            self._record_time("load", end_time - start_time)
 
+        return root
 
     def getAllKnoop(self):
+        start_time = time.time()
         tableName = "EP_DSG_Elements.EP_StructNode.1"
         for container in self.root:
             for table in container:
@@ -8265,7 +8916,19 @@ class LoadXML:
                         else:
                             pass
                             # print(obj.attrib["nm"])
+        end_time = time.time()  # End time
+        self._record_time("getStaaf", end_time - start_time)
 
+
+    def _record_time(self, method_name, duration):
+        if method_name in self.method_times:
+            self.method_times[method_name] += duration
+        else:
+            self.method_times[method_name] = duration
+
+    def print_total_times(self):
+        for method, total_time in self.method_times.items():
+            print(f"Total time for {method}: {total_time} seconds")
 
     def findKnoop(self, name):
         tableName = "EP_DSG_Elements.EP_StructNode.1"
@@ -8274,7 +8937,7 @@ class LoadXML:
                 if table.attrib["t"] == tableName:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
-                            x, y, z = float(obj[1].attrib["v"])*self.project.scale, float(obj[2].attrib["v"])*self.project.scale, float(obj[3].attrib["v"])*self.project.scale
+                            x, y, z = round(float(obj[1].attrib["v"])*self.project.scale,0), round(float(obj[2].attrib["v"])*self.project.scale,0), round(float(obj[3].attrib["v"])*self.project.scale,0)
                             pt = Point(x,y,z)
                             return pt
 
@@ -8286,31 +8949,32 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             return obj.attrib["nm"]
-                        
+
 
     def convertJustification(self, justification):
         justification = justification.lower()
         if justification == "left" or justification == "links":
-            return "center", "right"
-        elif justification == "right" or justification == "rechts":
             return "center", "left"
+        elif justification == "right" or justification == "rechts":
+            return "center", "right"
         elif justification == "top" or justification == "boven":
             return "top", "center"
         elif justification == "bottom" or justification == "onder":
             return "bottom", "center"
         elif justification == "top left" or justification == "linksboven":
-            return "top", "right"
-        elif justification == "top right" or justification == "rechtsboven":
             return "top", "left"
+        elif justification == "top right" or justification == "rechtsboven":
+            return "top", "right"
         elif justification == "bottom left" or justification == "linksonder":
-            return "bottom", "right"
-        elif justification == "bottom right" or justification == "rechtsonder":
             return "bottom", "left"
-        elif justification == "center" or justification == "midden" or justification == "centre":
+        elif justification == "bottom right" or justification == "rechtsonder":
+            return "bottom", "right"
+        elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
             return "center", "center"
         else:
             print(f"Justification: [{justification}] not recognized")
             return "center", "center"
+
 
     def structuralElementRecognision(self, tag):
         columnstrings = ["kolom", "column"]
@@ -8411,16 +9075,27 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
-                            rotationRAD = obj[h3Index].attrib["v"]
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
-                            # print(rotationDEG)
-                            Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
+                            # print(comments.id, "\n",
+                            #       comments.name, "\n",
+                            #       comments.layer, "\n",
+                            #       comments.perpendicular_alignment, "\n",
+                            #       comments.lcs_rotation, "\n",
+                            #       comments.start_node, "\n",
+                            #       comments.end_node, "\n",
+                            #       comments.cross_section, "\n",
+                            #       comments.eem_type, "\n",
+                            #       comments.bar_system_line_on, "\n",
+                            #       comments.ey, "\n",
+                            #       comments.ez, "\n",
+                            #       comments.geometry_table, "\n",
+                            #       )
+
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
                             #TEMP
-                            p1 = Point(p1.x-0.00000000001, p1.y, p1.z)
+                            p1 = Point(p1.x, p1.y, p1.z)
 
                             node1 = Node()
                             node1.number = p1Number
@@ -8440,7 +9115,32 @@ class LoadXML:
                             
                             layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
 
+                            rotationRAD = obj[h3Index].attrib["v"]
+                            
+
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi)
+                            if layerType == "Column":
+                                rotationDEG = rotationDEG+90
+                                Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                                comments.Yjustification = Yjustification
+                                comments.Xjustification = Xjustification
+
+
+                            # elif layerType == "Beam":
+                                # rotationDEG = rotationDEG+180
+                            Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                            comments.Yjustification = Yjustification
+                            comments.Xjustification = Xjustification
+                                # if rotationDEG <= 0:
+                                #     rotationDEG = rotationDEG + 360
+                            # print(rotationRAD)
+                            # print(rotationDEG)
+                            # print("\n")
+                            comments.layer_type = layerType
+
+                            comments.revit_rot = rotationDEG
                             elementType = (obj[h6Index].attrib["n"])
+                            # print(elementType)
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
                                     # print(f"[removeLayers]: {elementType}")
@@ -8448,13 +9148,56 @@ class LoadXML:
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
-                                    # self.project.objects.append(Frame.byStartpointEndpointProfileName(p1, p2, elementType, elementType, BaseSteel))
                                     try:
-                                        if node1.point.x == node2.point.x:
-                                            newPoint = Point(node2.point.x+0.0000000001,node2.point.y,node2.point.z)
-                                            node2 = Node(newPoint, Vector3(0,0,0), 0, 0, 0)
+                                        print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
                                         print(e, elementType)
+# [!not included in BP singlefile - end]
+
+#class CurveElement:
+#class PointElement (non visible) or visible as a big cube
+
+class StructuralElement:
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, comments : None):
+        validStructuralTypes = ["Column", "Beam"]
+        if structuralType not in validStructuralTypes:
+            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
+        self.comments = comments or None
+        self.structuralType = structuralType
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+        self.rotation = rotation
+        self.yJustification = yJustification
+        self.yOffsetValue = yOffsetValue
+        self.zJustification = zJustification
+        self.zOffsetValue = zOffsetValue
+
+    def __str__(self) -> str:
+        return f"[StructuralElement] {self.type}"
+
+
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
+
+objs = []
+def run():
+    project = BuildingPy("TempCommit", "0")
+    LoadXML(IN[0], project)
+
+    for obj in project.objects:
+        
+        if obj.type == "Frame":
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
+            objs.append(element)
+        elif obj.type == "Node":
+            objs.append(obj)
+    return project.objects
+
+run()
+
+OUT = objs

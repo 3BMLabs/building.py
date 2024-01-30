@@ -3,7 +3,7 @@
 
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -78,7 +78,6 @@ def run():
     project = BuildingPy("TempCommit", "0")
     LoadXML(IN[0], project)
 
-    # LoadXML(r"C:\Users\Jonathan\Documents\GitHub\building.py\temp\Scia\Examples buildingpy\scia_temp.xml", project)
     for obj in project.objects:
         
         if obj.type == "Frame":
@@ -90,4 +89,4 @@ def run():
 
 run()
 
-OUT = objs  
+OUT = objs

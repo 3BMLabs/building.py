@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 #*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
@@ -33,6 +33,7 @@ __url__ = "./abstract/vector.py"
 
 import sys
 from pathlib import Path
+import numpy as np
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
@@ -139,9 +140,11 @@ class Vector3:
             v1.x*v2.y - v1.y*v2.x
         )
 
-    @staticmethod #inwendig product, if zero, then vectors are perpendicular
+
+    @staticmethod
     def dotProduct(v1, v2):
         return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
+
 
     @staticmethod
     def product(n, v1): #Same as scale
@@ -197,14 +200,23 @@ class Vector3:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
 
+    # @staticmethod
+    # def normalize(v1):
+    #     length = Vector3.length(v1)
+    #     if length == 0:
+    #         scale = 1
+    #     else:
+    #         scale = 1 / length
+    #     return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
+
     @staticmethod
-    def normalize(v1):
-        length = Vector3.length(v1)
-        if length == 0:
-            scale = 1
-        else:
-            scale = 1 / length
-        return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
+    def normalize(v1, axis=-1, order=2):
+        v1 = Vector3.to_matrix(v1)
+        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
+        l2[l2==0] = 1
+        i = v1 / np.expand_dims(l2, axis)[0]
+        return Vector3(i[0],i[1],i[2])
+
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -236,8 +248,21 @@ class Vector3:
     
         return Vector3.scale(v1,scale)
 
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y, self.z]
+
+    @staticmethod
+    def from_matrix(self):
+        return Vector3(
+            self[0],
+            self[1],
+            self[2]
+        )
+
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
+        return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
 
 XAxis = Vector3(1, 0, 0)

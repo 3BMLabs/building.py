@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -42,6 +42,8 @@ from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from abstract.interval import Interval
+from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
+
 from helper import *
 
 from specklepy.api.client import SpeckleClient
@@ -67,10 +69,10 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point: Point):
-    try:
+def PointToSpecklePoint(point: Point or Point2D):
+    if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    except:
+    elif point.type == "Point2D":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, 0)
     SpecklePnt.id = point.id
     SpecklePnt.units = project.units
@@ -108,9 +110,30 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
     SpecklePolyln.units = project.units
     SpecklePolyln.domain = project.domain
     SpecklePolyln.applicationId = project.applicationId
-    SpecklePolyln.area = polycurve.area()
-    SpecklePolyln.length = polycurve.length()
-    SpecklePolyln.closed = polycurve.isClosed
+    try:
+        SpecklePolyln.area = polycurve.area()
+        SpecklePolyln.length = PolyCurve.length(polycurve)
+        SpecklePolyln.closed = polycurve.isClosed
+    except Exception as e:
+        print(e)
+
+    return SpecklePolyln
+
+
+def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve2D):
+    SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points2D]
+    SpecklePolyln = SpecklePolyLine.from_points(SpecklePl)
+    SpecklePolyln.id = polycurve.id
+    SpecklePolyln.units = project.units
+    SpecklePolyln.domain = project.domain
+    SpecklePolyln.applicationId = project.applicationId
+    try:
+        SpecklePolyln.area = polycurve.area()
+        SpecklePolyln.length = PolyCurve2D.length(polycurve)
+        SpecklePolyln.closed = polycurve.isClosed
+    except Exception as e:
+        print(e)
+
     return SpecklePolyln
 
 
@@ -266,7 +289,10 @@ def translateObjectsToSpeckleObjects(Obj):
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units= project.units))
 
         elif nm == 'Frame':
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
+            if i.comments.type == "Scia_Params":
+                SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units, Scia_Id=i.comments.id, Scia_Justification=i.comments.perpendicular_alignment, Scia_Layer=i.comments.layer, Scia_Rotation=i.comments.lcs_rotation, Scia_Staaf=i.comments.name, Scia_Type=i.comments.cross_section, Scia_Node_Start = i.comments.start_node, Scia_Node_End = i.comments.end_node, Revit_Rotation=str(i.comments.revit_rot), Scia_Layer_Type=i.comments.layer_type, Scia_XJustification=i.comments.Xjustification, Scia_YJustification=i.comments.Yjustification))
+            else:
+                SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
 
         elif nm == "Extrusion":
             clrs = [] #i.colorlst
@@ -274,6 +300,9 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
+
+        elif nm == 'PolyCurve2D':
+            SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))
 
         elif nm == 'BoundingBox2d':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))

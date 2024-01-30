@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij                              *
+#*   Copyright (c) 2024 Maarten Vroegindeweij                              *
 #*   maarten@3bm.co.nl                                                     *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
@@ -284,7 +284,6 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
-        self.
 
         row1 = PATRow().create(0,0,0,0,lagenmaat*2, bricklength, -jointwidth)
         row2 = PATRow().create(0,0,brickheight,0,lagenmaat*2,bricklength, -jointwidth)

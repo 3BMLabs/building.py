@@ -1,19 +1,21 @@
-# building.py 
-Python Library for creating building, building systems, object and export to any program like Blender, Revit and Speckle.
+# building.py
+A Python library for creating buildings, building systems, objects, and exporting them to various programs such as Blender, Revit, and Speckle.
 
 # Why?
-Almost everything in a building is a frame or a panel. Windows, Curtainwalls, Floorsystems. The aim of the building.py project is automate the creation of these systems.
+In the realm of building design, almost everything can be categorized as a frame or a panel – from windows and curtain walls to floor systems. The aim of the building.py project is to automate the creation of these systems.
 
-The goals of the building.py project are:
-* Create a Pythonlibrary for geometry without dependencies.
-* Exportoptions to:
+Goals of the building.py Project:
+* Develop a Python library for geometry creation without dependencies.
+* Provide export options to:
   * Speckle
   * FreeCAD
   * Revit
   * XFEM4U
   * IFC using IFCOpenShell
   * Scia Engineer
-
+ 
+# Design principles
+* Create 
 # Implemented
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
@@ -66,5 +68,18 @@ Versions 0.x will be subject to significant changes of the API until the release
 
 # Examples
 
+## CrossBondWithJointYellowRed
 
+pat = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
 
+![Image](1_crossBondWithJointYellowRed.png)
+
+## Kruisverbadnd
+
+![Image](2_kruisverband.png)
+
+![Image](3_columns_beams.png)
+
+![Image](4_woodframing_walls.png)
+
+![Image](5_examples_panel_beam_steel_concrete.png)

@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 #*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
@@ -44,9 +44,7 @@ from objects.steelshape import *
 from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/building.py/main/library/profile_database/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/DutchSailor/Project-Ocondat/master/steelprofile.json"
-# jsonFile = "https://raw.githubusercontent.com/joas1606/jupyter/main/jsontestfile.json"
+jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
@@ -146,28 +144,29 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     dyorigin = 0
 
     if XJustifiction == "center":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     elif XJustifiction == "left":
         dx = dxleft
     elif XJustifiction == "right":
         dx = dxright
     elif XJustifiction == "origin":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     else:
         dx = 0
 
     if Yjustification == "center":
-        dy = 0   #TODO
+        dy = dyorigin   #TODO
     elif Yjustification == "top":
         dy = dytop
     elif Yjustification == "bottom":
         dy = dybottom
     elif Yjustification == "origin":
-        dy = 0 #TODO
+        dy = dyorigin #TODO
     else:
         dy = 0
 
     # print(dx, dy)
     v1 = Vector2(dx, dy)
+    # v1 = Vector2(0, 0)
 
     return v1

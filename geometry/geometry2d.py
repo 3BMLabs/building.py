@@ -2,7 +2,7 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 #***************************************************************************
-#*   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 #*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 #*                                                                         *
 #*   This program is free software; you can redistribute it and/or modify  *
@@ -34,6 +34,7 @@ __url__ = "./geometry/geometry2d.py"
 
 import sys, math
 from pathlib import Path
+import numpy as np
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -42,6 +43,7 @@ sys.path.append(str(package_root_directory))
 from helper import *
 from abstract.vector import Vector3
 from abstract.coordinatesystem import CoordinateSystem
+from project.fileformat import project
 
 # [!not included in BP singlefile - end]
 
@@ -89,12 +91,20 @@ class Vector2:
         )
 
     @staticmethod
-    def normalize(v1):
-        scale = 1/Vector2.length(v1)
-        return Vector2(
-            v1.x*scale,
-            v1.y*scale
-        )
+    def normalize(v1, axis=-1, order=2):
+        v1 = Vector2.to_matrix(v1)
+        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
+        l2[l2==0] = 1
+        i = v1 / np.expand_dims(l2, axis)[0]
+        return Vector2(i[0],i[1])
+
+    @staticmethod
+    def to_matrix(self):
+        return [self.x, self.y]
+
+    @staticmethod
+    def from_matrix(self):
+        return Vector2(self[0],self[1])
 
     @staticmethod #inwendig product, if zero, then vectors are perpendicular
     def dotProduct(v1, v2):
@@ -127,7 +137,7 @@ class Vector2:
         return f"id:{self.id}"
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.X},{self.Y})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f})"
 
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
@@ -135,6 +145,10 @@ class Point2D:
         self.type = __class__.__name__        
         self.x = x
         self.y = y
+        self.x = float(x)
+        self.y = float(y)
+        self.value = self.x, self.y
+        self.units = "mm"
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -172,7 +186,7 @@ class Point2D:
         return p1
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}({self.x},{self.y})"
+        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f})"
 
     @staticmethod
     def distance(point1, point2):
@@ -204,17 +218,17 @@ def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem
     return pn3
 
 class Line2D:
-    def __init__(self, pntxy1, pntxy2) -> None:
+    def __init__(self, start, end) -> None:
         self.type = __class__.__name__        
-        self.start: Point2D = pntxy1
-        self.end: Point2D = pntxy2
+        self.start: Point2D = start
+        self.end: Point2D = end
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
         self.vector2: Vector2 = Vector2.byTwoPoints(self.start,self.end)
         self.vector2_normalised = Vector2.normalize(self.vector2)
-        self.length = 0
+        self.length = self.length()
         self.id = generateID()
 
     def serialize(self):
@@ -245,14 +259,14 @@ class Line2D:
         return mid
 
     def length(self):
-        self.length = math.sqrt(self.dx*self.dx+self.dy*self.dy)
-        return self.length
+        return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy))
 
     def fline(self):
         #returns line for Folium(GIS)
         return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
-    def __str__(self) -> str:
-        return f"{__class__.__name__}({self.start},{self.end})"
+    
+    def __str__(self):
+        return f"{__class__.__name__}(" + f"Start: {self.start}, End: {self.end})"
 
 
 class Arc2D:
@@ -378,42 +392,97 @@ class PolyCurve2D:
         self.type = __class__.__name__        
         self.curves = []
         self.points2D = []
+        self.segmentcurves = None
+        self.width = None
+        self.height = None
+        self.approximateLength = None
+        self.graphicsStyleId = None
+        self.isClosed = None
+        self.isCyclic = None
+        self.isElementGeometry = None
+        self.isReadOnly = None
+        self.length = self.length()
+        self.period = None
+        self.reference = None
+        self.visibility = None
+        
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'curves': [curve.serialize() for curve in self.curves],
-            'points2D': [point.serialize() for point in self.points2D]
-        }
+        curves_serialized = [curve.serialize() if hasattr(curve, 'serialize') else str(curve) for curve in self.curves2D]
+        points_serialized = [point.serialize() if hasattr(point, 'serialize') else str(point) for point in self.points2D]
 
+        return {
+            'type': self.type,
+            'curves2D': curves_serialized,
+            'points2D': points_serialized,
+            'segmentcurves': self.segmentcurves,
+            'width': self.width,
+            'height': self.height,
+            'approximateLength': self.approximateLength,
+            'graphicsStyleId': self.graphicsStyleId,
+            'id': self.id,
+            'isClosed': self.isClosed,
+            'isCyclic': self.isCyclic,
+            'isElementGeometry': self.isElementGeometry,
+            'isReadOnly': self.isReadOnly,
+            'period': self.period,
+            'reference': self.reference,
+            'visibility': self.visibility
+        }
+    
     @staticmethod
     def deserialize(data):
-        polycurve2d = PolyCurve2D()
-        polycurve2d.id = data.get('id')
+        polycurve = PolyCurve2D()
+        polycurve.segmentcurves = data.get('segmentcurves')
+        polycurve.width = data.get('width')
+        polycurve.height = data.get('height')
+        polycurve.approximateLength = data.get('approximateLength')
+        polycurve.graphicsStyleId = data.get('graphicsStyleId')
+        polycurve.id = data.get('id')
+        polycurve.isClosed = data.get('isClosed')
+        polycurve.isCyclic = data.get('isCyclic')
+        polycurve.isElementGeometry = data.get('isElementGeometry')
+        polycurve.isReadOnly = data.get('isReadOnly')
+        polycurve.period = data.get('period')
+        polycurve.reference = data.get('reference')
+        polycurve.visibility = data.get('visibility')
 
-        for curve_data in data.get('curves', []):
-            curve = Line2D.deserialize(curve_data)
-            polycurve2d.curves.append(curve)
+        if 'curves2D' in data:
+            for curve_data in data['curves2D']:
+                curve = Line2D.deserialize(curve_data)
+                polycurve.curves2D.append(curve)
+        
+        if 'points2D' in data:
+            for point_data in data['points2D']:
+                point = Point2D.deserialize(point_data)
+                polycurve.points2D.append(point)
 
-        for point_data in data.get('points2D', []):
-            point = Point2D.deserialize(point_data)
-            polycurve2d.points2D.append(point)
+        return polycurve
 
-        return polycurve2d
 
     def __id__(self):
         return f"id:{self.id}"
 
-    @classmethod
+
+    @classmethod #curves or curves2D?
     def byJoinedCurves(cls, curves):
-        pc = PolyCurve2D()
-        for i in curves:
-            pc.curves.append(i)
-            pc.points2D.append(i.start)
-            pc.points2D.append(i.end)
-        return pc
+        if not curves or len(curves) < 1:
+            raise ValueError("At least one curve is required to create a PolyCurve2D.")
+
+        polycurve = cls()
+        for curve in curves:
+            if not polycurve.points2D or polycurve.points2D[-1] != curve.start:
+                polycurve.points2D.append(curve.start)
+            polycurve.curves.append(curve)
+            polycurve.points2D.append(curve.end)
+
+        polycurve.isClosed = polycurve.points2D[0].value == polycurve.points2D[-1].value
+        if project.autoclose == True and polycurve.isClosed == False:
+            polycurve.curves.append(Line2D(start=curves[-1].end, end=curves[0].start))
+            polycurve.points2D.append(curves[0].start)
+            polycurve.isClosed = True
+        return polycurve
+
 
     def points(self):
         for i in self.curves:
@@ -421,18 +490,157 @@ class PolyCurve2D:
             self.points2D.append(i.end)
         return self.points2D
 
-    @classmethod
-    def byPoints(self, points: list):
-        plycrv = PolyCurve2D()
-        for index, point2D in enumerate(points):
-            plycrv.points2D.append(point2D)
-            try:
-                nextpoint = points[index + 1]
-                plycrv.curves.append(Line2D(point2D, nextpoint))
-            except:
-                firstpoint = points[0]
-                plycrv.curves.append(Line2D(point2D, firstpoint))
+
+    def centroid(self) -> Point2D:
+        if self.isClosed:
+            if len(self.points2D) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points2D)
+            polygon = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)],dtype=np.float64)
+            polygon2 = np.roll(polygon, -1, axis=0)
+            signed_areas = 0.5 * np.cross(polygon, polygon2)
+            centroids = (polygon + polygon2) / 3.0
+            centroid = np.average(centroids, axis=0, weights=signed_areas)
+            return Point2D(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals))
+
+    @staticmethod
+    def fromPolyCurve3D(PolyCurve):
+        points = []
+        for pt in PolyCurve.points:
+            points.append(Point2D.toPoint2D(pt))
+        plycrv = PolyCurve2D.byPoints(points)
         return plycrv
+
+
+    def area(self) -> float: #shoelace formula
+        if self.isClosed:
+            if len(self.points2D) < 3:
+                return "Polygon has less than 3 points!"
+            num_points = len(self.points2D)
+            x_y = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)])
+            x_y = x_y.reshape(-1,2)
+            x = x_y[:,0]
+            y = x_y[:,1]
+            S1 = np.sum(x*np.roll(y,-1))
+            S2 = np.sum(y*np.roll(x,-1))
+
+            area = .5*np.absolute(S1 - S2)
+            return area
+        else:
+            return None
+
+
+    def close(self) -> bool:
+        if self.curves2D[0] == self.curves2D[-1]:
+            return self
+        else:
+            self.curves2D.append(self.curves2D[0])
+            plycrv = PolyCurve2D()
+            for curve in self.curves2D:
+                plycrv.curves2D.append(curve)
+        return plycrv
+
+
+    def scale(self, scalefactor):
+        crvs = []
+        for i in self.curves2D:
+            if i.__class__.__name__ == "Arc":
+                arcie = Arc2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end))
+                arcie.mid = Point2D.product(scalefactor,i.mid)
+                crvs.append(arcie)
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve2D.byJoinedCurves(crvs)
+        return crv
+    
+
+    @classmethod
+    def byPoints(cls, points):
+        if not points or len(points) < 2:
+            pass
+
+        polycurve = cls()
+        for i in range(len(points)):
+            polycurve.points2D.append(points[i])
+            if i < len(points) - 1:
+                polycurve.curves2D.append(Line2D(start=points[i], end=points[i+1]))
+        
+        polycurve.isClosed = points[0] == points[-1]
+        if project.autoclose == True:
+            polycurve.curves2D.append(Line2D(start=points[-1], end=points[0]))
+            polycurve.points2D.append(points[0])
+            polycurve.isClosed = True
+        return polycurve
+
+
+    def get_width(self) -> float:
+        x_values = [point.x for point in self.points2D]
+        y_values = [point.y for point in self.points2D]
+
+        min_x = min(x_values)
+        max_x = max(x_values)
+        min_y = min(y_values)
+        max_y = max(y_values)
+        
+        left_top = Point2D(x=min_x, y=max_y)
+        left_bottom = Point2D(x=min_x, y=min_y)
+        right_top = Point2D(x=max_x, y=max_y)
+        right_bottom = Point2D(x=max_x, y=min_y)
+        self.width = abs(Point2D.distance(left_top, right_top))
+        self.height = abs(Point2D.distance(left_top, left_bottom))
+        return self.width
+    
+
+    def length(self) -> float:
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
+        return sum(i.length for i in self.curves)
+
+
+    @staticmethod
+    def byPolyCurve2D(PolyCurve2D):
+        plycrv = PolyCurve2D()
+        curves2D = []
+        for i in PolyCurve2D.curves2D:
+            if i.__class__.__name__ == "Arc2D":
+                curves2D.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.mid.x, i.mid.y), Point2D(i.end.x,i.end.y)))
+            elif i.__class__.__name__ == "Line2D":
+                curves2D.append(Line2D(Point2D(i.start.x, i.start.y),Point2D(i.end.x, i.end.y)))
+            else:
+                print("Curvetype not found")
+        pnts = []
+        for i in curves2D:
+            pnts.append(i.start)
+        pnts.append(curves2D[0].start)
+        plycrv.points = pnts
+        plycrv.curves2D = curves2D
+        return plycrv
+
+
+    def multi_split(self, lines:Line2D):
+        lines = flatten(lines)
+        new_polygons = []
+        for index, line in enumerate(lines):
+            if index == 0:
+                n_p = self.split(line, returnlines=True)
+                if n_p != None:
+                    for np in n_p:
+                        if np != None:
+                            new_polygons.append(n_p)
+            else:
+                for new_poly in flatten(new_polygons):
+                    n_p = new_poly.split(line, returnlines=True)
+                    if n_p != None:
+                        for np in n_p:
+                            if np != None:
+                                new_polygons.append(n_p)
+        project.objects.append(flatten(new_polygons))
+        return flatten(new_polygons)
+
 
     def translate(self, vector2d:Vector2):
         crvs = []
@@ -447,6 +655,20 @@ class PolyCurve2D:
         crv = PolyCurve2D.byJoinedCurves(crvs)
         return crv
 
+
+    @staticmethod
+    def copyTranslate(pc, vector3d:Vector3):
+        crvs = []
+        v1 = vector3d
+        for i in pc.curves2D:
+            if i.__class__.__name__ == "Line":
+                crvs.append(Line2D(Point2D.translate(i.start, v1), Point2D.translate(i.end, v1)))
+            else:
+                print("Curvetype not found")
+
+        PCnew = PolyCurve2D.byJoinedCurves(crvs)
+        return PCnew
+
     def rotate(self, rotation):
         crvs = []
         for i in self.curves:
@@ -458,6 +680,7 @@ class PolyCurve2D:
                 print("Curvetype not found")
         crv = PolyCurve2D.byJoinedCurves(crvs)
         return crv
+
 
     @staticmethod
     def boundingboxGlobalCS(PC):
@@ -489,6 +712,20 @@ class PolyCurve2D:
         height = ymax-ymin
         return xmin,xmax,ymin,ymax,width,height
 
+
+    @classmethod
+    def unclosed_by_points(self, points: Point2D):
+        plycrv = PolyCurve2D()
+        for index, point in enumerate(points):
+            plycrv.points2D.append(point)
+            try:
+                nextpoint = points[index + 1]
+                plycrv.curves2D.append(Line2D(start=point, end=nextpoint))
+            except:
+                pass
+        return plycrv
+    
+
     @staticmethod
     def polygon(self):
         points = []
@@ -500,6 +737,65 @@ class PolyCurve2D:
         points.append(points[0])
         return points
 
+
+    @staticmethod
+    def segment(self, count):
+        crvs = []
+        for i in self.curves2D:
+            if i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc2D.segmentedarc(i, count))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(i)
+        crv = flatten(crvs)
+        pc = PolyCurve2D.byJoinedCurves(crv)
+        return pc
+
+    def toPolyCurve2D(self):
+        from geometry.geometry2d import PolyCurve2D
+        from geometry.geometry2d import Point2D
+        from geometry.geometry2d import Line2D
+        from geometry.geometry2d import Arc2D
+
+        p1 = PolyCurve2D()
+        curves2D = []
+        for i in self.curves2D:
+            if i.__class__.__name__ == "Arc":
+                curves2D.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
+                                  Point2D(i.end.x, i.end.y)))
+            elif i.__class__.__name__ == "Line":
+                curves2D.append(Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
+            else:
+                print("Curvetype not found")
+        pnts = []
+        for i in curves2D:
+            pnts.append(i.start)
+        pnts.append(curves2D[0].start)
+        p1.points2D = pnts
+        p1.curves2D = curves2D
+        return p1
+
+    @staticmethod
+    def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector3):
+        crvs = []
+        for i in polycurve.curves2D:
+            if i.__class__.__name__ == "Arc2D":
+                crvs.append(Arc2D(transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
+                                transformPoint2D(i.mid, project.CSGlobal, startpoint, directionvector),
+                                transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
+                                ))
+            elif i.__class__.__name__ == "Line2D":
+                crvs.append(Line2D(start = transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
+                                end = transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
+                                ))
+            else:
+                print(i.__class__.__name__ + "Curvetype not found")
+        pc = PolyCurve2D()
+        pc.curves2D = crvs
+        return pc
+
+    def __str__(self):
+        l = len(self.points2D)
+        return f"{__class__.__name__}, ({l} points)"
  #   def __str__(self) -> str:
 #        return f"{__class__.__name__}({self})"
 

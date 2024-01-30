@@ -3,7 +3,7 @@
 
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2023 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
 # *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
 # *                                                                         *
 # *   This program is free software; you can redistribute it and/or modify  *
@@ -179,7 +179,7 @@ class Line: #add Line.bylenght (start and endpoint)
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.start},{self.end})"
+        return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
 
 
 def create_lines(points):
@@ -209,7 +209,7 @@ class PolyCurve:
         self.isCyclic = None
         self.isElementGeometry = None
         self.isReadOnly = None
-        # self.length = self.calcLength()
+        self.length = self.length()
         self.period = None
         self.reference = None
         self.visibility = None
@@ -334,11 +334,14 @@ class PolyCurve:
 
 
     def length(self) -> float:
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
         return sum(i.length for i in self.curves)
 
 
     def close(self) -> bool:
-        print(self)
         if self.curves[0] == self.curves[-1]:
             return self
         else:
@@ -350,7 +353,13 @@ class PolyCurve:
 
 
     @classmethod
-    def byJoinedCurves(self, curvelst:Line):
+    def byJoinedCurves(self, curvelst: list[Line]):
+        for crv in curvelst:
+            if crv.length == 0:
+                curvelst.remove(crv)
+                # print("Error: Curve length cannot be zero.")
+                # sys.exit()
+
         projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
@@ -375,12 +384,24 @@ class PolyCurve:
                 plycrv.isClosed = False
         if plycrv.points[-2].value == plycrv.points[0].value:
             plycrv.curves = plycrv.curves.pop(-1)
+
         return plycrv
 
 
     @classmethod
-    def byPoints(self, points: list):
-        projectClosed = project.closed
+    def byPoints(self, points: list[Point]):
+        seen = set()
+        unique_points = []
+        
+        for point in points:
+            if point in seen:
+                points.remove(point)
+                print("Error: Polycurve cannot have multiple identical points.")
+                sys.exit()
+                
+            seen.add(point)
+            unique_points.append(point)
+
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -391,23 +412,24 @@ class PolyCurve:
                 firstpoint = points[0]
                 plycrv.curves.append(Line(start=point, end=firstpoint))
         
-        if projectClosed:
+        if project.closed:
             if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = True
                 plycrv.points.append(points[0])
 
-        elif projectClosed == False:
+        elif project.closed == False:
             if plycrv.points[0].value == plycrv.points[-1].value:
                 plycrv.isClosed = True
             else:
                 plycrv.isClosed = False
-        
+                plycrv.points.append(points[0])
+
         return plycrv
 
     @classmethod
-    def unclosed_by_points(self, points: Point):
+    def unclosed_by_points(self, points: list[Point]):
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
@@ -863,4 +885,3 @@ class Ellipse:
 
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
-
