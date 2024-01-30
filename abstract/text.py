@@ -99,7 +99,7 @@ class Text:
 
     def load_path(self) -> str:
       #  with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
+        with open(f'C:/Users/Jonathan/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
             glyph_data = json.load(f)
             output = []
             for letter in self.text:
@@ -112,7 +112,7 @@ class Text:
 
     def load_o(self) -> str:
        # with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
+        with open(f'C:/Users/Jonathan/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
             glyph_data = json.load(f)
             load_o = []
             letter = "o"

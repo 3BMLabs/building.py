@@ -268,25 +268,12 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
-                            # print(comments.id, "\n",
-                            #       comments.name, "\n",
-                            #       comments.layer, "\n",
-                            #       comments.perpendicular_alignment, "\n",
-                            #       comments.lcs_rotation, "\n",
-                            #       comments.start_node, "\n",
-                            #       comments.end_node, "\n",
-                            #       comments.cross_section, "\n",
-                            #       comments.eem_type, "\n",
-                            #       comments.bar_system_line_on, "\n",
-                            #       comments.ey, "\n",
-                            #       comments.ez, "\n",
-                            #       comments.geometry_table, "\n",
-                            #       )
 
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
+                            
                             #TEMP
                             p1 = Point(p1.x, p1.y, p1.z)
 
@@ -294,7 +281,6 @@ class LoadXML:
                             node1.number = p1Number
                             node1.point = p1
                             self.project.objects.append(node1)
-                            # print(node1)
 
                             node2 = Node()
                             node2.point = p2
@@ -318,31 +304,22 @@ class LoadXML:
                                 comments.Yjustification = Yjustification
                                 comments.Xjustification = Xjustification
 
-
-                            # elif layerType == "Beam":
-                                # rotationDEG = rotationDEG+180
                             Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
                             comments.Yjustification = Yjustification
                             comments.Xjustification = Xjustification
-                                # if rotationDEG <= 0:
-                                #     rotationDEG = rotationDEG + 360
-                            # print(rotationRAD)
-                            # print(rotationDEG)
-                            # print("\n")
+
                             comments.layer_type = layerType
 
                             comments.revit_rot = rotationDEG
                             elementType = (obj[h6Index].attrib["n"])
-                            # print(elementType)
+
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
-                                    # print(f"[removeLayers]: {elementType}")
                                     pass
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
-                                        # print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:

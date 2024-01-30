@@ -82,6 +82,7 @@ class Frame:
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
+        self.centerline = None
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -193,8 +194,8 @@ class Frame:
 
         try:
             curv = profiledataToShape(profile_name).polycurve2d
-        except:
-            print(f"Profile does not exist: {profile_name}") #Profile does not exist
+        except Exception as e:
+            print(f"Profile does not exist: {profile_name}\nError: {e}") #Profile does not exist
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
@@ -233,15 +234,18 @@ class Frame:
 
         curve = profiledataToShape(profile_name).polycurve2d
         
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction, f1.centerline) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
-
         curve = curve.translate(Vector2(ey, ez)) #2
         curve = curve.rotate(rotation)  #3
-
         f1.curve = curve
+
+        centerline = Line(f1.start, f1.end)
+        # centerline = centerline.translate(Vector2(v1.x, v1.y))
+        # centerline = centerline.translate(Vector2(ey, ez))
+        # f1.centerline = centerline
 
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)

@@ -8,24 +8,30 @@ from exchange.scia import *
 
 from objects.analytical import *
 
-filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\2.xml"
+filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\single.xml"
 
 project = BuildingPy("TempCommit", "0")
 
 LoadXML(filepath, project)
 
-for j in project.objects:
+tmp = []
+
+# for j in project.objects:
     # print(j.type)
-    if j.type == "Frame":
+    # if j.type == "Frame":
     #     pass
         # print(j.curve)
         
 
         # in the extrusion
-        if isinstance(j, list):
-            for i in j:
-                i = PolyCurve2D.byJoinedCurves(j.extrusion.bottomshape)
-                project.objects.append(i)
+        # project.objects.append(j.extrusion.centerline)
+        # for x in j.extrusion.polycurve_3d_translated.curves:
+        #     project.objects.append(x)
+        # print()
+        # if isinstance(j, list):
+            # for i in j:
+            #     i = PolyCurve2D.byJoinedCurves(j.extrusion.bottomshape)
+            #     project.objects.append(i)
         # print(j.start, j.end)
         # project.objects.append(j.extrusion.bottomshape)
         # try:

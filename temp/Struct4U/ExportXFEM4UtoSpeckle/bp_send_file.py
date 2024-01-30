@@ -1,56 +1,4 @@
-# [included in BP singlefile]
-# [!not included in BP singlefile - start]
-# -*- coding: utf8 -*-
-# ***************************************************************************
-# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-# *                                                                         *
-# *   This program is free software; you can redistribute it and/or modify  *
-# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
-# *   as published by the Free Software Foundation; either version 2 of     *
-# *   the License, or (at your option) any later version.                   *
-# *   for detail see the LICENCE text file.                                 *
-# *                                                                         *
-# *   This program is distributed in the hope that it will be useful,       *
-# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-# *   GNU Library General Public License for more details.                  *
-# *                                                                         *
-# *   You should have received a copy of the GNU Library General Public     *
-# *   License along with this program; if not, write to the Free Software   *
-# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-# *   USA                                                                   *
-# *                                                                         *
-# ***************************************************************************
-
-
-"""This module provides tools for exporting geometry to Speckle
-"""
-
-__title__ = "speckle"
-__author__ = "Maarten & Jonathan"
-__url__ = "./exchange/speckle.py"
-
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-from geometry.point import Point
-from geometry.curve import Line
-from geometry.curve import PolyCurve
-from geometry.curve import Arc
-from geometry.geometry2d import Point2D
-from abstract.vector import Vector3
-from abstract.plane import Plane
-from abstract.interval import Interval
-from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
-
-from helper import *
-from project.fileformat import project
-
-# [!not included in BP singlefile - end]
-
+from bp_single_file import *
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
@@ -248,28 +196,44 @@ def ArcToSpeckleArc(arc: Arc):
     spArc.units = project.units
     return spArc
 
+def TransportToSpeckle(credential_data: str, SpeckleObjects: list):
+    new_streamid = None
+    try:
+        host = credential_data["speckle_server"]
+        client = SpeckleClient(host=host)
+        client.authenticate_with_token(credential_data["api_token"])
+    except Exception as e:
+        return False, f"Incorrect credentials, Error: {e}."
 
-def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
-    client = SpeckleClient(host=host)
-    account = get_default_account()
-    client.authenticate_with_account(account)
-    streamid = streamid
+    if credential_data["stream_id"] == "":
+        streamid = client.stream.create(name="Export from Struct4U") #credential_data["stream_name"]
+        new_streamid = streamid
+    else:
+        streamid = credential_data["stream_id"]
+    
+    messageCommit = credential_data["message_commit"]
 
     class SpeckleExport(Base):
         objects = None
 
-    obj = SpeckleExport(objects = SpeckleObjects)
-    transport = ServerTransport(client=client, stream_id=streamid)
-    hash = operations.send(base=obj, transports=[transport])
+    try:
+        obj = SpeckleExport(objects = SpeckleObjects)
+        transport = ServerTransport(client=client, stream_id=streamid)
+        hash = operations.send(base=obj, transports=[transport])
+    except Exception as e:
+        return False, f"Failed to transport items to Speckle, Error: {e}."
 
-    commit_id = client.commit.create(
-        stream_id = streamid,
-        object_id = hash,
-        message = messageCommit,
-    )
+    try:
+        commit_id = client.commit.create(
+            stream_id = streamid,
+            object_id = hash,
+            message = messageCommit,
+        )
+    except Exception as e:
+        return False, f"Failed to create Speckle commit_id, Error: {e}."
 
-    print(f"View commit: https://{host}/streams/{streamid}/commits/{commit_id}")
-    return commit_id
+    url = f"{host}/streams/{streamid}/commits/{commit_id}"
+    return [True, url, new_streamid]
 
 
 def translateObjectsToSpeckleObjects(Obj):
