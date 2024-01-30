@@ -14,8 +14,8 @@ import numpy as np
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-# import ezdxf
-# from svg.path import parse_path
+import ezdxf
+from svg.path import parse_path
 
 
 
