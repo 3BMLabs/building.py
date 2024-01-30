@@ -4530,29 +4530,30 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     dyorigin = 0
 
     if XJustifiction == "center":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     elif XJustifiction == "left":
         dx = dxleft
     elif XJustifiction == "right":
         dx = dxright
     elif XJustifiction == "origin":
-        dx = 0 #TODO
+        dx = dxorigin #TODO
     else:
         dx = 0
 
     if Yjustification == "center":
-        dy = 0   #TODO
+        dy = dyorigin   #TODO
     elif Yjustification == "top":
         dy = dytop
     elif Yjustification == "bottom":
         dy = dybottom
     elif Yjustification == "origin":
-        dy = 0 #TODO
+        dy = dyorigin #TODO
     else:
         dy = 0
 
     # print(dx, dy)
     v1 = Vector2(dx, dy)
+    # v1 = Vector2(0, 0)
 
     return v1
 
@@ -5514,6 +5515,7 @@ class Frame:
             curv = profiledataToShape(profile_name).polycurve2d
         except:
             print(f"Profile does not exist: {profile_name}") #Profile does not exist
+
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.curve = curvrot.translate(vector2d)
@@ -5546,20 +5548,21 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # print(f1.start, f1.end)
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curv = profiledataToShape(profile_name).polycurve2d
-        curv = curv.translate(Vector2(ey, ez))
-
-        # print(rotation)
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-
-        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        curve = profiledataToShape(profile_name).polycurve2d
+        
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
-        f1.curve = curvrot.translate(v1)
+        curve = curve.translate(v1)
+
+        curve = curve.translate(Vector2(ey, ez)) #2
+        curve = curve.rotate(rotation)  #3
+
+        f1.curve = curve
+
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -5572,10 +5575,6 @@ class Frame:
         f1.colorlst = colorlist(f1.extrusion, f1.color)
         f1.props()
         return f1
-
-            # print(profile_name) #Profile does not exist
-        # curv = profiledataToShape(profile_name).prof.curve
-
 
 
     @classmethod
@@ -5593,11 +5592,10 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # self.curve = Line(start, end)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        curvrot = polycurve.rotate(rotation)  # rotation in degrees
+        curvrot = polycurve.rotate(rotation)
         f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = curvrot
@@ -5645,7 +5643,7 @@ class Frame:
             f1.start = start
         elif start.type == 'Node':
             f1.start = start.point
-        f1.end = Point.translate(f1.start,Vector3(0,0.00001,height)) #TODO vertical column not possible
+        f1.end = Point.translate(f1.start,Vector3(0,height)) #TODO vertical column not possible
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
@@ -8854,7 +8852,7 @@ def SubprocessXFEM4UThread():
         print("exception")
 
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -8871,6 +8869,8 @@ class Scia_Params:
         self.geometry_table = geometry_table
         self.revit_rot = revit_rot
         self.layer_type = layer_type
+        self.Yjustification = Yjustification
+        self.Xjustification = Xjustification
         #add material
 
 
@@ -8937,7 +8937,7 @@ class LoadXML:
                 if table.attrib["t"] == tableName:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
-                            x, y, z = round(float(obj[1].attrib["v"]),0)*self.project.scale, round(float(obj[2].attrib["v"]),0)*self.project.scale, round(float(obj[3].attrib["v"]),0)*self.project.scale
+                            x, y, z = round(float(obj[1].attrib["v"])*self.project.scale,0), round(float(obj[2].attrib["v"])*self.project.scale,0), round(float(obj[3].attrib["v"])*self.project.scale,0)
                             pt = Point(x,y,z)
                             return pt
 
@@ -8949,31 +8949,32 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             return obj.attrib["nm"]
-                        
+
 
     def convertJustification(self, justification):
         justification = justification.lower()
         if justification == "left" or justification == "links":
-            return "center", "right"
-        elif justification == "right" or justification == "rechts":
             return "center", "left"
+        elif justification == "right" or justification == "rechts":
+            return "center", "right"
         elif justification == "top" or justification == "boven":
             return "top", "center"
         elif justification == "bottom" or justification == "onder":
             return "bottom", "center"
         elif justification == "top left" or justification == "linksboven":
-            return "top", "right"
-        elif justification == "top right" or justification == "rechtsboven":
             return "top", "left"
+        elif justification == "top right" or justification == "rechtsboven":
+            return "top", "right"
         elif justification == "bottom left" or justification == "linksonder":
-            return "bottom", "right"
-        elif justification == "bottom right" or justification == "rechtsonder":
             return "bottom", "left"
-        elif justification == "center" or justification == "midden" or justification == "centre":
+        elif justification == "bottom right" or justification == "rechtsonder":
+            return "bottom", "right"
+        elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
             return "center", "center"
         else:
             print(f"Justification: [{justification}] not recognized")
             return "center", "center"
+
 
     def structuralElementRecognision(self, tag):
         columnstrings = ["kolom", "column"]
@@ -9089,7 +9090,6 @@ class LoadXML:
                             #       comments.geometry_table, "\n",
                             #       )
 
-                            Yjustification, Xjustification = self.convertJustification(obj[h8Index].attrib["t"])
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
@@ -9118,9 +9118,19 @@ class LoadXML:
                             rotationRAD = obj[h3Index].attrib["v"]
                             
 
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi) * -1
+                            rotationDEG = (float(rotationRAD)*float(180) / math.pi)
                             if layerType == "Column":
                                 rotationDEG = rotationDEG+90
+                                Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                                comments.Yjustification = Yjustification
+                                comments.Xjustification = Xjustification
+
+
+                            # elif layerType == "Beam":
+                                # rotationDEG = rotationDEG+180
+                            Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                            comments.Yjustification = Yjustification
+                            comments.Xjustification = Xjustification
                                 # if rotationDEG <= 0:
                                 #     rotationDEG = rotationDEG + 360
                             # print(rotationRAD)
@@ -9139,6 +9149,7 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
+                                        print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:

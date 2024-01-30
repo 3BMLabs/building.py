@@ -93,8 +93,7 @@ class LoadXML:
         finally:
             end_time = time.time()
             self._record_time("load", end_time - start_time)
-
-        return root
+            return root
 
     def getAllKnoop(self):
         start_time = time.time()
@@ -343,7 +342,7 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
-                                        print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
+                                        # print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
                                         self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:

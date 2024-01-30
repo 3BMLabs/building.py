@@ -290,10 +290,6 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'Frame':
             if i.comments.type == "Scia_Params":
-                # print(i.comments.revit_rot)
-                # print(i.comments.layer_type)
-                # print(i.comments.lcs_rotation)
-                # print("\n")
                 SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units, Scia_Id=i.comments.id, Scia_Justification=i.comments.perpendicular_alignment, Scia_Layer=i.comments.layer, Scia_Rotation=i.comments.lcs_rotation, Scia_Staaf=i.comments.name, Scia_Type=i.comments.cross_section, Scia_Node_Start = i.comments.start_node, Scia_Node_End = i.comments.end_node, Revit_Rotation=str(i.comments.revit_rot), Scia_Layer_Type=i.comments.layer_type, Scia_XJustification=i.comments.Xjustification, Scia_YJustification=i.comments.Yjustification))
             else:
                 SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))

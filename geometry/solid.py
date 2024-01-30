@@ -40,6 +40,7 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from geometry.curve import *
+from geometry.geometry2d import PolyCurve2D
 from abstract.plane import *
 import helper
 
@@ -60,6 +61,7 @@ class Extrusion:
         self.topface = None #return polycurve -> surface
         self.bottomface = None #return polycurve -> surface
         self.polycurve_3d_translated = None
+        self.bottomshape = []
 
 
     def serialize(self):
@@ -163,10 +165,13 @@ class Extrusion:
 
         #bottomface
         Extrus.faces.append(len(polycurve2d.curves))
+
         count = 0
         for i in polycurve2d.curves:
             Extrus.faces.append(count)
+            Extrus.bottomshape.append(i)
             count = count + 4
+        
 
         # topface
         Extrus.faces.append(len(polycurve2d.curves))

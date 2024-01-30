@@ -228,20 +228,18 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # print(f1.start, f1.end)
         f1.structuralType = structuralType
         f1.rotation = rotation
 
         curve = profiledataToShape(profile_name).polycurve2d
         
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #3
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
 
-        curve = curve.translate(Vector2(ey, ez)) #1
-
-        curve = curve.rotate(rotation)  #2
+        curve = curve.translate(Vector2(ey, ez)) #2
+        curve = curve.rotate(rotation)  #3
 
         f1.curve = curve
 
@@ -251,16 +249,13 @@ class Frame:
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
+        # print(f1.curve)
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint
         f1.colorlst = colorlist(f1.extrusion, f1.color)
         f1.props()
         return f1
-
-            # print(profile_name) #Profile does not exist
-        # curv = profiledataToShape(profile_name).prof.curve
-
 
 
     @classmethod
@@ -278,11 +273,10 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        # self.curve = Line(start, end)
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        curvrot = polycurve.rotate(rotation)  # rotation in degrees
+        curvrot = polycurve.rotate(rotation)
         f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = curvrot
