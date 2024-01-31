@@ -8,13 +8,13 @@ from exchange.scia import *
 
 from objects.analytical import *
 
-filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\single.xml"
+filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\2.xml"
 
 project = BuildingPy("TempCommit", "0")
 
 LoadXML(filepath, project)
 
-tmp = []
+# tmp = []
 
 # for j in project.objects:
     # print(j.type)

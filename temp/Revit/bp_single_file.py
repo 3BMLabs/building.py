@@ -2,7 +2,7 @@
 import math
 import sys
 import os
-import requests
+# import requests
 import json
 from collections import defaultdict
 import subprocess
@@ -15,8 +15,8 @@ import numpy as np
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import ezdxf
-from svg.path import parse_path
+# import ezdxf
+# from svg.path import parse_path
 
 
 
@@ -8912,7 +8912,7 @@ def SubprocessXFEM4UThread():
     except:
         print("exception")
 
-# [!not included in BP singlefile - end]
+
 class Scia_Params:
     def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str):
         self.id = id
@@ -9193,3 +9193,49 @@ class LoadXML:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
                                         print(e, elementType)
+# [!not included in BP singlefile - end]
+
+#class CurveElement:
+#class PointElement (non visible) or visible as a big cube
+
+class StructuralElement:
+    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, comments : None):
+        validStructuralTypes = ["Column", "Beam"]
+        if structuralType not in validStructuralTypes:
+            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
+        self.comments = comments or None
+        self.structuralType = structuralType
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.type = type
+        self.rotation = rotation
+        self.yJustification = yJustification
+        self.yOffsetValue = yOffsetValue
+        self.zJustification = zJustification
+        self.zOffsetValue = zOffsetValue
+
+    def __str__(self) -> str:
+        return f"[StructuralElement] {self.type}"
+
+
+def mm_to_feet(mm_value):
+    feet_value = mm_value * 0.00328084
+    return feet_value
+
+objs = []
+def run():
+    project = BuildingPy("TempCommit", "0")
+    LoadXML(IN[0], project)
+
+    for obj in project.objects:
+        
+        if obj.type == "Frame":
+            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
+            objs.append(element)
+        elif obj.type == "Node":
+            objs.append(obj)
+    return project.objects
+
+run()
+
+OUT = objs
