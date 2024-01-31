@@ -16,27 +16,12 @@ LoadXML(filepath, project)
 
 # tmp = []
 
-# for j in project.objects:
-    # print(j.type)
-    # if j.type == "Frame":
-    #     pass
-        # print(j.curve)
-        
+for j in project.objects:
+    
+    if j.type == "Frame":
+        print(j.comments.id, j.profile_data.shape_name)
+    #     print(j.profile_data.shape_name)
+        # if j.comments.centerbottom != None:
+        #     project.objects.append(j.comments.centerbottom)
 
-        # in the extrusion
-        # project.objects.append(j.extrusion.centerline)
-        # for x in j.extrusion.polycurve_3d_translated.curves:
-        #     project.objects.append(x)
-        # print()
-        # if isinstance(j, list):
-            # for i in j:
-            #     i = PolyCurve2D.byJoinedCurves(j.extrusion.bottomshape)
-            #     project.objects.append(i)
-        # print(j.start, j.end)
-        # project.objects.append(j.extrusion.bottomshape)
-        # try:
-        #     project.objects.append(j.curve3d)
-        # except Exception as e:
-        #     pass
-
-project.toSpeckle("c6e11e74cb")
+# project.toSpeckle("c6e11e74cb")

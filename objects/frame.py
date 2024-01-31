@@ -79,10 +79,11 @@ class Frame:
         self.rotation = 0
         self.material = None
         self.color = BaseOther.color
+        self.profile_data = None
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
-        self.centerline = None
+        self.centerbottom = None
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -232,20 +233,16 @@ class Frame:
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curve = profiledataToShape(profile_name).polycurve2d
+        f1.profile_data = profiledataToShape(profile_name)
+        curve = f1.profile_data.polycurve2d
         
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction, f1.centerline) #1
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
         curve = curve.translate(Vector2(ey, ez)) #2
-        curve = curve.rotate(rotation)  #3
+        curve = curve.rotate(f1.rotation)  #3
         f1.curve = curve
-
-        centerline = Line(f1.start, f1.end)
-        # centerline = centerline.translate(Vector2(v1.x, v1.y))
-        # centerline = centerline.translate(Vector2(ey, ez))
-        # f1.centerline = centerline
 
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
@@ -253,7 +250,13 @@ class Frame:
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
-        # print(f1.curve)
+
+        try:
+            pnew = PolyCurve.byJoinedCurves(f1.curve3d.curves)
+            f1.centerbottom = PolyCurve.centroid(pnew)
+        except:
+            pass
+
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint

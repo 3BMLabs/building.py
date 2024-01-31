@@ -2,7 +2,7 @@
 import math
 import sys
 import os
-# import requests
+#import requests
 import json
 from collections import defaultdict
 import subprocess
@@ -15,8 +15,8 @@ import numpy as np
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-# import ezdxf
-# from svg.path import parse_path
+#import ezdxf
+#from svg.path import parse_path
 
 
 
@@ -5408,10 +5408,11 @@ class Frame:
         self.rotation = 0
         self.material = None
         self.color = BaseOther.color
+        self.profile_data = None
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
-        self.centerline = None
+        self.centerbottom = None
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -5559,20 +5560,16 @@ class Frame:
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curve = profiledataToShape(profile_name).polycurve2d
+        f1.profile_data = profiledataToShape(profile_name)
+        curve = f1.profile_data.polycurve2d
         
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction, f1.centerline) #1
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
         curve = curve.translate(Vector2(ey, ez)) #2
-        curve = curve.rotate(rotation)  #3
+        curve = curve.rotate(f1.rotation)  #3
         f1.curve = curve
-
-        centerline = Line(f1.start, f1.end)
-        # centerline = centerline.translate(Vector2(v1.x, v1.y))
-        # centerline = centerline.translate(Vector2(ey, ez))
-        # f1.centerline = centerline
 
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
@@ -5580,7 +5577,13 @@ class Frame:
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
-        # print(f1.curve)
+
+        try:
+            pnew = PolyCurve.byJoinedCurves(f1.curve3d.curves)
+            f1.centerbottom = PolyCurve.centroid(pnew)
+        except:
+            pass
+
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint
@@ -8914,7 +8917,7 @@ def SubprocessXFEM4UThread():
 
 
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -8933,6 +8936,7 @@ class Scia_Params:
         self.layer_type = layer_type
         self.Yjustification = Yjustification
         self.Xjustification = Xjustification
+        self.centerbottom = centerbottom
         #add material
 
 
@@ -9188,7 +9192,9 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
+                                        el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                        self.project.objects.append(el)
+                                        comments.centerbottom = el.centerbottom
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
@@ -9230,6 +9236,8 @@ def run():
     for obj in project.objects:
         
         if obj.type == "Frame":
+            if obj.profile_data.shape_name == "LAngle":
+                obj.rotation = obj.rotation+180
             element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
             objs.append(element)
         elif obj.type == "Node":
