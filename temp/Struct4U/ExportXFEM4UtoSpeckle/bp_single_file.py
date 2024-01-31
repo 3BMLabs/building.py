@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 import ezdxf
 from svg.path import parse_path
-
+import requests
 
 
 
@@ -2267,9 +2267,10 @@ class Text:
         }
 
     def load_path(self) -> str:
-      #  with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-        with open(f'C:/Users/Jonathan/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
-            glyph_data = json.load(f)
+        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
+        response = requests.get(url)
+        if response.status_code == 200:
+            glyph_data = json.loads(response.text)
             output = []
             for letter in self.text:
                 if letter in glyph_data:
@@ -2280,9 +2281,10 @@ class Text:
 
 
     def load_o(self) -> str:
-       # with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-        with open(f'C:/Users/Jonathan/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
-            glyph_data = json.load(f)
+        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
+        response = requests.get(url)
+        if response.status_code == 200:
+            glyph_data = json.loads(response.text)
             load_o = []
             letter = "o"
             if letter in glyph_data:
