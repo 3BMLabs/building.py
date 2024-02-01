@@ -683,6 +683,9 @@ class BuildingPy:
         #text
         self.createdTxt = "has been created"
 
+        #structural elements
+        self.structural_fallback_element = "HEA100"
+
         #Speckle settings
         self.speckleserver = "speckle.xyz"
         self.specklestream = None
@@ -4467,6 +4470,13 @@ class profiledataToShape:
         if profile_data == None:
             print(f"profile {name1} not recognised")
         shape_name = profile_data.shape_name
+
+        if shape_name == None:
+            profile_data = searchProfile(project.structural_fallback_element)
+            err = f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'"
+            print(err)
+            shape_name = profile_data.shape_name
+        self.profile_data = profile_data
         self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
@@ -4493,8 +4503,7 @@ class profiledataToShape:
             prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
         elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        else:
-            prof = "error, profile not created"
+
         self.prof = prof
         self.data = d1
         pc2d = self.prof.curve  # 2D polycurve
@@ -8917,7 +8926,7 @@ def SubprocessXFEM4UThread():
 
 
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None, profile_data=None):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -8937,6 +8946,7 @@ class Scia_Params:
         self.Yjustification = Yjustification
         self.Xjustification = Xjustification
         self.centerbottom = centerbottom
+        self.profile_data = profile_data
         #add material
 
 
@@ -9193,12 +9203,13 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     try:
                                         el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                        comments.profile_data = el.profile_data
                                         self.project.objects.append(el)
                                         comments.centerbottom = el.centerbottom
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
+                                        # print(e, elementType)
 # [!not included in BP singlefile - end]
 
 #class CurveElement:
@@ -9231,13 +9242,22 @@ def mm_to_feet(mm_value):
 objs = []
 def run():
     project = BuildingPy("TempCommit", "0")
-    LoadXML(IN[0], project)
+    try:
+        LoadXML(IN[0], project)
+    except:
+        pass
 
     for obj in project.objects:
         
         if obj.type == "Frame":
             if obj.profile_data.shape_name == "LAngle":
                 obj.rotation = obj.rotation+180
+            
+            #Revit problem solved (Please enter a value between -360 and 360)
+            if obj.rotation < -360:
+                obj.rotation = obj.rotation + 360
+            elif obj.rotation > 360:
+                obj.rotation = obj.rotation - 360
             element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
             objs.append(element)
         elif obj.type == "Node":

@@ -46,7 +46,7 @@ from project.fileformat import BuildingPy
 
 # [!not included in BP singlefile - end]
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None, profile_data=None):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -66,6 +66,7 @@ class Scia_Params:
         self.Yjustification = Yjustification
         self.Xjustification = Xjustification
         self.centerbottom = centerbottom
+        self.profile_data = profile_data
         #add material
 
 
@@ -322,9 +323,10 @@ class LoadXML:
                                     self.project.objects.append(lineSeg)
                                     try:
                                         el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                        comments.profile_data = el.profile_data
                                         self.project.objects.append(el)
                                         comments.centerbottom = el.centerbottom
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
+                                        # print(e, elementType)

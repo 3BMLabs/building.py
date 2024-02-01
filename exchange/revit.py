@@ -76,13 +76,22 @@ def mm_to_feet(mm_value):
 objs = []
 def run():
     project = BuildingPy("TempCommit", "0")
-    LoadXML(IN[0], project)
+    try:
+        LoadXML(IN[0], project)
+    except:
+        pass
 
     for obj in project.objects:
         
         if obj.type == "Frame":
             if obj.profile_data.shape_name == "LAngle":
                 obj.rotation = obj.rotation+180
+            
+            #Revit problem solved (Please enter a value between -360 and 360)
+            if obj.rotation < -360:
+                obj.rotation = obj.rotation + 360
+            elif obj.rotation > 360:
+                obj.rotation = obj.rotation - 360
             element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
             objs.append(element)
         elif obj.type == "Node":

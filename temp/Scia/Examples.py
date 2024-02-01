@@ -8,20 +8,14 @@ from exchange.scia import *
 
 from objects.analytical import *
 
-filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\2.xml"
+filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\25608-test vakwerkspanten uitgekleed.xml"
 
 project = BuildingPy("TempCommit", "0")
 
 LoadXML(filepath, project)
 
-# tmp = []
-
 for j in project.objects:
-    
     if j.type == "Frame":
-        print(j.comments.id, j.profile_data.shape_name)
-    #     print(j.profile_data.shape_name)
-        # if j.comments.centerbottom != None:
-        #     project.objects.append(j.comments.centerbottom)
+        print(j.profile_data.profile_data.synonyms)
 
 # project.toSpeckle("c6e11e74cb")
