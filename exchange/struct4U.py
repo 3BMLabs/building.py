@@ -64,23 +64,14 @@ def getXYZ(XMLtree, nodenumber):
 
 def XMLImportNodes(XMLtree):
     root = XMLtree.getroot()
-    # POINTS
-    n = root.findall(".//Nodes/Number")
-    nodenumbers = []
-
-    for i in n:
-        nodenumbers.append(i.text)
-    X = root.findall(".//Nodes/X")
-    Y = root.findall(".//Nodes/Y")
-    Z = root.findall(".//Nodes/Z")
-
-    XYZ = []
-    # Put points in 3D
-    for h, i, j, k in zip(n, X, Y, Z):
-        Pnt = Point(float(i.text.replace(",", ".")), float(
-            j.text.replace(",", ".")), float(k.text.replace(",", ".")))
-        # Pnt.id = int(h.text)
-        XYZ.append(Pnt)
+    
+    nodenumbers = [node.text for node in root.findall(".//Nodes/Number")]
+    X = [float(x.text.replace(",", ".")) for x in root.findall(".//Nodes/X")]
+    Y = [float(y.text.replace(",", ".")) for y in root.findall(".//Nodes/Y")]
+    Z = [float(z.text.replace(",", ".")) for z in root.findall(".//Nodes/Z")]
+    
+    XYZ = [Point(x, y, z) for x, y, z in zip(X, Y, Z)]
+    
     return nodenumbers, XYZ
 
 
@@ -94,8 +85,7 @@ def XMLImportgetGridDistances(Grids):
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
-            w1 = spl[1].replace(",", ".")
-            width = float(w1)
+            width = float(spl[1].replace(",", "."))
             for i in range(count):
                 distance = distance + width
                 GridsNew.append(distance)

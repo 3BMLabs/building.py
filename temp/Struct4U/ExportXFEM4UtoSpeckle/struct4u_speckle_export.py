@@ -1,24 +1,22 @@
-#create executable file (using pyinstaller)
-#send rob and maarten file (exe), set .ini file in appdata local struct4u under name {SpeckleExport.ini}
-#send {SpeckleExport.ini} example with it.
-
-
 import os
 import sys
 import subprocess
 import webbrowser
-import specklepy
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
-
+import specklepy
 from specklepy.api.client import SpeckleClient
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line
 
-
 from bp_single_file import *
 import bp_send_file
+
+
+def timestamp(rec):
+    print(f"[Timestamp] {rec} - {datetime.now()}")
+    return datetime.now()
 
 
 def clear_log_file(log_file_path):
@@ -50,7 +48,6 @@ ini_file_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'SpeckleExpo
 documents_dir = os.path.expanduser('~/Documents')
 os.chdir(documents_dir)
 log_filename = os.path.join(documents_dir, "Struct4U_Speckle_Export.log")
-
 clear_log_file(log_filename)
 
 
@@ -97,6 +94,7 @@ if validate_credentials(credential_data)[0] == False:
 #load .xml file to buildingpy objects
 tree = ET.parse(credential_data['filepath'])
 root = tree.getroot()
+write_to_log(log_filename, f"Reading {credential_data['filepath']}.")
 
 #convert .xml to buildingpy objects.
 obj = []
@@ -133,12 +131,11 @@ for i, j, k, l, m in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber, BeamsRotati
                 obj.append(pf)
         except Exception as e:
             write_to_log(log_filename, f"Could not translate '{profile_name}'.")
-
+write_to_log(log_filename, f"Generated BuildingPy Objects.")
 
 # convert the buildingpy objects to speckle objects
 SpeckleObj = bp_send_file.translateObjectsToSpeckleObjects(obj)
 write_to_log(log_filename, f"Translated BuildingPy objects to Speckle Objects.")
-
 
 # convert to speckle objects and return browser link
 commit = bp_send_file.TransportToSpeckle(credential_data, SpeckleObj)
@@ -160,7 +157,6 @@ else:
     fail_log()
     open_log()
     sys.exit()
-
 
 # open generated link in the browser
 try:

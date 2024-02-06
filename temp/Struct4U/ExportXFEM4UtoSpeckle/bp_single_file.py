@@ -2,7 +2,7 @@
 import math
 import sys
 import os
-import requests
+#import requests
 import json
 from collections import defaultdict
 import subprocess
@@ -15,8 +15,8 @@ import numpy as np
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import ezdxf
-from svg.path import parse_path
+#import ezdxf
+#from svg.path import parse_path
 
 
 
@@ -5249,7 +5249,7 @@ class Grid:
         g1.name = name
         g1.__cs(line)
         g1.line = lineToPattern(line, Centerline)
-        g1.__grid_heads()
+        # g1.__grid_heads()
         return g1
 
     def __grid_heads(self):
@@ -8291,23 +8291,14 @@ def getXYZ(XMLtree, nodenumber):
 
 def XMLImportNodes(XMLtree):
     root = XMLtree.getroot()
-    # POINTS
-    n = root.findall(".//Nodes/Number")
-    nodenumbers = []
-
-    for i in n:
-        nodenumbers.append(i.text)
-    X = root.findall(".//Nodes/X")
-    Y = root.findall(".//Nodes/Y")
-    Z = root.findall(".//Nodes/Z")
-
-    XYZ = []
-    # Put points in 3D
-    for h, i, j, k in zip(n, X, Y, Z):
-        Pnt = Point(float(i.text.replace(",", ".")), float(
-            j.text.replace(",", ".")), float(k.text.replace(",", ".")))
-        # Pnt.id = int(h.text)
-        XYZ.append(Pnt)
+    
+    nodenumbers = [node.text for node in root.findall(".//Nodes/Number")]
+    X = [float(x.text.replace(",", ".")) for x in root.findall(".//Nodes/X")]
+    Y = [float(y.text.replace(",", ".")) for y in root.findall(".//Nodes/Y")]
+    Z = [float(z.text.replace(",", ".")) for z in root.findall(".//Nodes/Z")]
+    
+    XYZ = [Point(x, y, z) for x, y, z in zip(X, Y, Z)]
+    
     return nodenumbers, XYZ
 
 
@@ -8321,8 +8312,7 @@ def XMLImportgetGridDistances(Grids):
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
-            w1 = spl[1].replace(",", ".")
-            width = float(w1)
+            width = float(spl[1].replace(",", "."))
             for i in range(count):
                 distance = distance + width
                 GridsNew.append(distance)
@@ -8335,7 +8325,6 @@ def XMLImportgetGridDistances(Grids):
 def XMLImportGrids(XMLtree, gridExtension):
     # create building.py Grids from the grids of XFEM4U
     root = XMLtree.getroot()
-    gridlines = []
 
     # GRIDS
     GridEx = gridExtension
@@ -8368,8 +8357,29 @@ def XMLImportGrids(XMLtree, gridExtension):
     obj = []
     for i in grids:
         obj.append(Grid.byStartpointEndpoint(i, "Grid"))
-     #   gridlines.append(line)
     return obj
+
+
+# def XMLImportGrids(XMLtree, gridExtension):
+#     root = XMLtree.getroot()
+
+#     def get_grid_values_and_max(path):
+#         values = [float(value) for value in root.find(f".//Grids/{path}").text.split()]
+#         values = XMLImportgetGridDistances(values)
+#         return values, max(values)
+
+#     GridsX, Xmax = get_grid_values_and_max("X")
+#     GridsY, Ymax = get_grid_values_and_max("Y")
+#     GridsZ, Zmax = get_grid_values_and_max("Z")
+
+#     grids = [Line(start=Point(i, -gridExtension, 0), end=Point(i, Ymax + gridExtension, 0)) for i in GridsX] + \
+#             [Line(start=Point(-gridExtension, i, 0), end=Point(Xmax + gridExtension, i, 0)) for i in GridsY] + \
+#             [Line(start=Point(0, 0, i), end=Point(0, Xmax, i)) for i in GridsZ]
+
+#     obj = [Grid.byStartpointEndpoint(i, "Grid") for i in grids]
+
+#     return obj
+
 
 # def findMaterial(material):
 
