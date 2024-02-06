@@ -8924,7 +8924,7 @@ def SubprocessXFEM4UThread():
     except:
         print("exception")
 
-
+# [!not included in BP singlefile - end]
 class Scia_Params:
     def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None, profile_data=None):
         self.id = id
@@ -9210,60 +9210,3 @@ class LoadXML:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
                                         # print(e, elementType)
-# [!not included in BP singlefile - end]
-
-#class CurveElement:
-#class PointElement (non visible) or visible as a big cube
-
-class StructuralElement:
-    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, comments : None):
-        validStructuralTypes = ["Column", "Beam"]
-        if structuralType not in validStructuralTypes:
-            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
-        self.comments = comments or None
-        self.structuralType = structuralType
-        self.startPoint = startPoint
-        self.endPoint = endPoint
-        self.type = type
-        self.rotation = rotation
-        self.yJustification = yJustification
-        self.yOffsetValue = yOffsetValue
-        self.zJustification = zJustification
-        self.zOffsetValue = zOffsetValue
-
-    def __str__(self) -> str:
-        return f"[StructuralElement] {self.type}"
-
-
-def mm_to_feet(mm_value):
-    feet_value = mm_value * 0.00328084
-    return feet_value
-
-objs = []
-def run():
-    project = BuildingPy("TempCommit", "0")
-    try:
-        LoadXML(IN[0], project)
-    except:
-        pass
-
-    for obj in project.objects:
-        
-        if obj.type == "Frame":
-            if obj.profile_data.shape_name == "LAngle":
-                obj.rotation = obj.rotation+180
-            
-            #Revit problem solved (Please enter a value between -360 and 360)
-            if obj.rotation < -360:
-                obj.rotation = obj.rotation + 360
-            elif obj.rotation > 360:
-                obj.rotation = obj.rotation - 360
-            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
-            objs.append(element)
-        elif obj.type == "Node":
-            objs.append(obj)
-    return project.objects
-
-run()
-
-OUT = objs

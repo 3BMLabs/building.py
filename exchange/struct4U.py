@@ -94,7 +94,8 @@ def XMLImportgetGridDistances(Grids):
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
-            width = float(spl[1])
+            w1 = spl[1].replace(",", ".")
+            width = float(w1)
             for i in range(count):
                 distance = distance + width
                 GridsNew.append(distance)
