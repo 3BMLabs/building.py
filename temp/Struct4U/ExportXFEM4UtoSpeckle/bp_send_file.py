@@ -206,7 +206,7 @@ def TransportToSpeckle(credential_data: str, SpeckleObjects: list):
         return False, f"Incorrect credentials, Error: {e}."
 
     if credential_data["stream_id"] == "":
-        streamid = client.stream.create(name="Export from Struct4U") #credential_data["stream_name"]
+        streamid = client.stream.create(name="Export from Struct4U", is_public=True) #credential_data["stream_name"]
         new_streamid = streamid
     else:
         streamid = credential_data["stream_id"]

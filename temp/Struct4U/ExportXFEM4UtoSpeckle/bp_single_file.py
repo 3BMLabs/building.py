@@ -5530,7 +5530,7 @@ class Frame:
             f1.end = end.point
 
         try:
-            curv = profiledataToShape(profile_name).polycurve2d
+            curv = profiledataToShape(profile_name, True).polycurve2d
         except Exception as e:
             print(f"Profile does not exist: {profile_name}\nError: {e}") #Profile does not exist
 

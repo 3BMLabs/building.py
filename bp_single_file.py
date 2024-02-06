@@ -8289,43 +8289,15 @@ def getXYZ(XMLtree, nodenumber):
     return (rest)
 
 
-# def XMLImportNodes(XMLtree):
-#     root = XMLtree.getroot()
-#     # POINTS
-#     n = root.findall(".//Nodes/Number")
-#     nodenumbers = []
-
-#     for i in n:
-#         nodenumbers.append(i.text)
-#     X = root.findall(".//Nodes/X")
-#     Y = root.findall(".//Nodes/Y")
-#     Z = root.findall(".//Nodes/Z")
-
-#     XYZ = []
-#     # Put points in 3D
-#     for h, i, j, k in zip(n, X, Y, Z):
-#         Pnt = Point(float(i.text.replace(",", ".")), float(
-#             j.text.replace(",", ".")), float(k.text.replace(",", ".")))
-#         XYZ.append(Pnt)
-#     return nodenumbers, XYZ
-
 def XMLImportNodes(XMLtree):
-    print(20)
     root = XMLtree.getroot()
-    nodes = root.findall(".//Nodes/*")
-    nodenumbers = []
-    XYZ = []
-
-    for node in nodes:
-        num = node.find('Number')
-        x = node.find('X')
-        y = node.find('Y')
-        z = node.find('Z')
-
-        if num is not None and x is not None and y is not None and z is not None:
-            nodenumbers.append(num.text)
-            Pnt = Point(float(x.text.replace(",", ".")), float(y.text.replace(",", ".")), float(z.text.replace(",", ".")))
-            XYZ.append(Pnt)
+    
+    nodenumbers = [node.text for node in root.findall(".//Nodes/Number")]
+    X = [float(x.text.replace(",", ".")) for x in root.findall(".//Nodes/X")]
+    Y = [float(y.text.replace(",", ".")) for y in root.findall(".//Nodes/Y")]
+    Z = [float(z.text.replace(",", ".")) for z in root.findall(".//Nodes/Z")]
+    
+    XYZ = [Point(x, y, z) for x, y, z in zip(X, Y, Z)]
     
     return nodenumbers, XYZ
 
@@ -8340,7 +8312,7 @@ def XMLImportgetGridDistances(Grids):
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
-            width = float(spl[1])
+            width = float(spl[1].replace(",", "."))
             for i in range(count):
                 distance = distance + width
                 GridsNew.append(distance)
@@ -8350,64 +8322,44 @@ def XMLImportgetGridDistances(Grids):
     return GridsNew
 
 
-# def XMLImportGrids(XMLtree, gridExtension):
-#     # create building.py Grids from the grids of XFEM4U
-#     root = XMLtree.getroot()
-
-#     # GRIDS
-#     GridEx = gridExtension
-
-#     GridsX = root.findall(".//Grids/X")[0].text.split()
-#     GridsX = XMLImportgetGridDistances(GridsX)
-#     Xmax = max(GridsX)
-#     GridsXLable = root.findall(".//Grids/X_Lable")[0].text.split()
-#     GridsY = root.findall(".//Grids/Y")[0].text.split()
-#     GridsY = XMLImportgetGridDistances(GridsY)
-#     Ymax = max(GridsY)
-#     GridsYLable = root.findall(".//Grids/Y_Lable")[0].text.split()
-#     GridsZ = root.findall(".//Grids/Z")[0].text.split()
-#     GridsZ = XMLImportgetGridDistances(GridsZ)
-#     GridsZLable = root.findall(".//Grids/Z_Lable")[0].text.split()
-#     Zmax = max(GridsZ)
-
-#     grids = []
-#     for i in GridsX:
-#         grids.append(Line(start=Point(i, -GridEx, 0),
-#                      end=Point(i, Ymax+GridEx, 0)))
-
-#     for i in GridsY:
-#         grids.append(Line(start=Point(-GridEx, i, 0),
-#                      end=Point(Xmax+GridEx, i, 0)))
-
-#     for i in GridsZ:
-#         grids.append(Line(start=Point(0, 0, i), end=Point(0, Xmax, i)))
-
-#     obj = []
-#     for i in grids:
-#         obj.append(Grid.byStartpointEndpoint(i, "Grid"))
-#     return obj
-
 def XMLImportGrids(XMLtree, gridExtension):
+    # create building.py Grids from the grids of XFEM4U
     root = XMLtree.getroot()
-    return root
-    # def get_grid_values_and_max(path):
-    #     values = [float(value) for value in root.find(f".//Grids/{path}").text.split()]
-    #     values = XMLImportgetGridDistances(values)
-    #     return values, max(values)
+    gridlines = []
 
-    # GridsX, Xmax = get_grid_values_and_max("X")
-    # GridsY, Ymax = get_grid_values_and_max("Y")
-    # GridsZ, Zmax = get_grid_values_and_max("Z")
+    # GRIDS
+    GridEx = gridExtension
 
-    # grids = [Line(start=Point(i, -gridExtension, 0), end=Point(i, Ymax + gridExtension, 0)) for i in GridsX] + \
-    #         [Line(start=Point(-gridExtension, i, 0), end=Point(Xmax + gridExtension, i, 0)) for i in GridsY] + \
-    #         [Line(start=Point(0, 0, i), end=Point(0, Xmax, i)) for i in GridsZ]
+    GridsX = root.findall(".//Grids/X")[0].text.split()
+    GridsX = XMLImportgetGridDistances(GridsX)
+    Xmax = max(GridsX)
+    GridsXLable = root.findall(".//Grids/X_Lable")[0].text.split()
+    GridsY = root.findall(".//Grids/Y")[0].text.split()
+    GridsY = XMLImportgetGridDistances(GridsY)
+    Ymax = max(GridsY)
+    GridsYLable = root.findall(".//Grids/Y_Lable")[0].text.split()
+    GridsZ = root.findall(".//Grids/Z")[0].text.split()
+    GridsZ = XMLImportgetGridDistances(GridsZ)
+    GridsZLable = root.findall(".//Grids/Z_Lable")[0].text.split()
+    Zmax = max(GridsZ)
 
-    # obj = [Grid.byStartpointEndpoint(i, "Grid") for i in grids]
+    grids = []
+    for i in GridsX:
+        grids.append(Line(start=Point(i, -GridEx, 0),
+                     end=Point(i, Ymax+GridEx, 0)))
 
-    # return obj
+    for i in GridsY:
+        grids.append(Line(start=Point(-GridEx, i, 0),
+                     end=Point(Xmax+GridEx, i, 0)))
 
+    for i in GridsZ:
+        grids.append(Line(start=Point(0, 0, i), end=Point(0, Xmax, i)))
 
+    obj = []
+    for i in grids:
+        obj.append(Grid.byStartpointEndpoint(i, "Grid"))
+     #   gridlines.append(line)
+    return obj
 
 # def findMaterial(material):
 

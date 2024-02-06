@@ -168,4 +168,4 @@ except:
 
 
 #open .log file
-open_log()
+# open_log()
