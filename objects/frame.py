@@ -79,9 +79,11 @@ class Frame:
         self.rotation = 0
         self.material = None
         self.color = BaseOther.color
+        self.profile_data = None
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
+        self.centerbottom = None
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -193,8 +195,8 @@ class Frame:
 
         try:
             curv = profiledataToShape(profile_name).polycurve2d
-        except:
-            print(f"Profile does not exist: {profile_name}") #Profile does not exist
+        except Exception as e:
+            print(f"Profile does not exist: {profile_name}\nError: {e}") #Profile does not exist
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
@@ -231,16 +233,15 @@ class Frame:
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curve = profiledataToShape(profile_name).polycurve2d
+        f1.profile_data = profiledataToShape(profile_name)
+        curve = f1.profile_data.polycurve2d
         
         v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
-
         curve = curve.translate(Vector2(ey, ez)) #2
-        curve = curve.rotate(rotation)  #3
-
+        curve = curve.rotate(f1.rotation)  #3
         f1.curve = curve
 
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
@@ -249,7 +250,13 @@ class Frame:
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
-        # print(f1.curve)
+
+        try:
+            pnew = PolyCurve.byJoinedCurves(f1.curve3d.curves)
+            f1.centerbottom = PolyCurve.centroid(pnew)
+        except:
+            pass
+
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint

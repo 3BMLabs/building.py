@@ -2,6 +2,7 @@
 import math
 import sys
 import os
+#import requests
 import json
 from collections import defaultdict
 import subprocess
@@ -14,8 +15,8 @@ import numpy as np
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-# import ezdxf
-# from svg.path import parse_path
+#import ezdxf
+#from svg.path import parse_path
 
 
 
@@ -681,6 +682,9 @@ class BuildingPy:
         
         #text
         self.createdTxt = "has been created"
+
+        #structural elements
+        self.structural_fallback_element = "HEA100"
 
         #Speckle settings
         self.speckleserver = "speckle.xyz"
@@ -2267,9 +2271,10 @@ class Text:
         }
 
     def load_path(self) -> str:
-      #  with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
-            glyph_data = json.load(f)
+        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
+        response = requests.get(url)
+        if response.status_code == 200:
+            glyph_data = json.loads(response.text)
             output = []
             for letter in self.text:
                 if letter in glyph_data:
@@ -2280,9 +2285,10 @@ class Text:
 
 
     def load_o(self) -> str:
-       # with open(f'library/text/json/{self.font_family}.json', 'r') as f:
-        with open(f'C:/Users/mikev/Documents/GitHub/building.py/library/text/json/{self.font_family}.json','r') as f:
-            glyph_data = json.load(f)
+        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
+        response = requests.get(url)
+        if response.status_code == 200:
+            glyph_data = json.loads(response.text)
             load_o = []
             letter = "o"
             if letter in glyph_data:
@@ -3601,6 +3607,7 @@ class Extrusion:
         self.topface = None #return polycurve -> surface
         self.bottomface = None #return polycurve -> surface
         self.polycurve_3d_translated = None
+        self.bottomshape = []
 
 
     def serialize(self):
@@ -3704,10 +3711,13 @@ class Extrusion:
 
         #bottomface
         Extrus.faces.append(len(polycurve2d.curves))
+
         count = 0
         for i in polycurve2d.curves:
             Extrus.faces.append(count)
+            Extrus.bottomshape.append(i)
             count = count + 4
+        
 
         # topface
         Extrus.faces.append(len(polycurve2d.curves))
@@ -4460,6 +4470,13 @@ class profiledataToShape:
         if profile_data == None:
             print(f"profile {name1} not recognised")
         shape_name = profile_data.shape_name
+
+        if shape_name == None:
+            profile_data = searchProfile(project.structural_fallback_element)
+            err = f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'"
+            print(err)
+            shape_name = profile_data.shape_name
+        self.profile_data = profile_data
         self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
@@ -4486,8 +4503,7 @@ class profiledataToShape:
             prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
         elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        else:
-            prof = "error, profile not created"
+
         self.prof = prof
         self.data = d1
         pc2d = self.prof.curve  # 2D polycurve
@@ -5233,7 +5249,7 @@ class Grid:
         g1.name = name
         g1.__cs(line)
         g1.line = lineToPattern(line, Centerline)
-        g1.__grid_heads()
+        # g1.__grid_heads()
         return g1
 
     def __grid_heads(self):
@@ -5401,9 +5417,11 @@ class Frame:
         self.rotation = 0
         self.material = None
         self.color = BaseOther.color
+        self.profile_data = None
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
+        self.centerbottom = None
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -5513,8 +5531,8 @@ class Frame:
 
         try:
             curv = profiledataToShape(profile_name).polycurve2d
-        except:
-            print(f"Profile does not exist: {profile_name}") #Profile does not exist
+        except Exception as e:
+            print(f"Profile does not exist: {profile_name}\nError: {e}") #Profile does not exist
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
@@ -5551,16 +5569,15 @@ class Frame:
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        curve = profiledataToShape(profile_name).polycurve2d
+        f1.profile_data = profiledataToShape(profile_name)
+        curve = f1.profile_data.polycurve2d
         
         v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
-
         curve = curve.translate(Vector2(ey, ez)) #2
-        curve = curve.rotate(rotation)  #3
-
+        curve = curve.rotate(f1.rotation)  #3
         f1.curve = curve
 
         f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
@@ -5569,6 +5586,13 @@ class Frame:
         f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
+
+        try:
+            pnew = PolyCurve.byJoinedCurves(f1.curve3d.curves)
+            f1.centerbottom = PolyCurve.centroid(pnew)
+        except:
+            pass
+
         f1.profileName = profile_name
         f1.material = material
         f1.color = material.colorint
@@ -8242,13 +8266,15 @@ def PAT2Geom(Pat: PAT, width, height,dx,dy):
 #drawsection
 
 
-#TODO Line to Grid Object
-#TODO Grid Object with building.py line --> convert to Speckle Line with pattern
+# TODO Line to Grid Object
+# TODO Grid Object with building.py line --> convert to Speckle Line with pattern
+
 
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]
 
     return (255 << 24) | (r << 16) | (g << 8) | b
+
 
 def getXYZ(XMLtree, nodenumber):
     root = XMLtree.getroot()
@@ -8258,41 +8284,35 @@ def getXYZ(XMLtree, nodenumber):
 
     for i in n:
         nodenumbers.append(i.text)
-    #Search
+    # Search
     rest = nodenumbers.index(nodenumber)
-    return(rest)
+    return (rest)
+
 
 def XMLImportNodes(XMLtree):
     root = XMLtree.getroot()
-    # POINTS
-    n = root.findall(".//Nodes/Number")
-    nodenumbers = []
+    
+    nodenumbers = [node.text for node in root.findall(".//Nodes/Number")]
+    X = [float(x.text.replace(",", ".")) for x in root.findall(".//Nodes/X")]
+    Y = [float(y.text.replace(",", ".")) for y in root.findall(".//Nodes/Y")]
+    Z = [float(z.text.replace(",", ".")) for z in root.findall(".//Nodes/Z")]
+    
+    XYZ = [Point(x, y, z) for x, y, z in zip(X, Y, Z)]
+    
+    return nodenumbers, XYZ
 
-    for i in n:
-        nodenumbers.append(i.text)
-    X = root.findall(".//Nodes/X")
-    Y = root.findall(".//Nodes/Y")
-    Z = root.findall(".//Nodes/Z")
-
-    XYZ = []
-    # Put points in 3D
-    for h, i, j, k in zip(n, X, Y, Z):
-        Pnt = Point(float(i.text.replace(",", ".")), float(j.text.replace(",", ".")), float(k.text.replace(",", ".")))
-        # Pnt.id = int(h.text)
-        XYZ.append(Pnt)
-    return nodenumbers,XYZ
 
 def XMLImportgetGridDistances(Grids):
-    #Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
+    # Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
     GridsNew = []
     distance = 0.0
-    #GridsNew.append(distance)
+    # GridsNew.append(distance)
     for i in Grids:
-        #del Grids[0]
+        # del Grids[0]
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
-            width = float(spl[1])
+            width = float(spl[1].replace(",", "."))
             for i in range(count):
                 distance = distance + width
                 GridsNew.append(distance)
@@ -8301,12 +8321,13 @@ def XMLImportgetGridDistances(Grids):
             GridsNew.append(distance)
     return GridsNew
 
+
 def XMLImportGrids(XMLtree, gridExtension):
-    #create building.py Grids from the grids of XFEM4U
+    # create building.py Grids from the grids of XFEM4U
     root = XMLtree.getroot()
     gridlines = []
 
-    #GRIDS
+    # GRIDS
     GridEx = gridExtension
 
     GridsX = root.findall(".//Grids/X")[0].text.split()
@@ -8324,27 +8345,29 @@ def XMLImportGrids(XMLtree, gridExtension):
 
     grids = []
     for i in GridsX:
-        grids.append(Line(start=Point(i, -GridEx, 0),end=Point(i, Ymax+GridEx, 0)))
+        grids.append(Line(start=Point(i, -GridEx, 0),
+                     end=Point(i, Ymax+GridEx, 0)))
 
     for i in GridsY:
-        grids.append(Line(start=Point(-GridEx, i, 0),end=Point(Xmax+GridEx, i, 0)))
+        grids.append(Line(start=Point(-GridEx, i, 0),
+                     end=Point(Xmax+GridEx, i, 0)))
 
     for i in GridsZ:
-        grids.append(Line(start=Point(0, 0, i) , end=Point(0, Xmax, i)))
+        grids.append(Line(start=Point(0, 0, i), end=Point(0, Xmax, i)))
 
     obj = []
     for i in grids:
-        obj.append(Grid.byStartpointEndpoint(i,"Grid"))
+        obj.append(Grid.byStartpointEndpoint(i, "Grid"))
      #   gridlines.append(line)
     return obj
 
-#def findMaterial(material):
+# def findMaterial(material):
 
 
 def XMLImportPlates(XMLtree):
-    #Get platedata from XML
+    # Get platedata from XML
     root = XMLtree.getroot()
-    #PLATES
+    # PLATES
 
     platesNumbersElem = root.findall(".//Plates/Number")
     PlatesNodesElem = root.findall(".//Plates/Node")
@@ -8354,55 +8377,62 @@ def XMLImportPlates(XMLtree):
     platesTop_Center_BottomElem = root.findall(".//Plates/Top_Center_Bottom")
 
     platesNumbers = []
-    for i in platesNumbersElem: platesNumbers.append(i.text)
+    for i in platesNumbersElem:
+        platesNumbers.append(i.text)
     PlatesNodes = []
-    for i in PlatesNodesElem: PlatesNodes.append(i.text)
+    for i in PlatesNodesElem:
+        PlatesNodes.append(i.text)
     platesMaterialQuality = []
     for i in platesMaterialElem:
         platesMaterialQuality.append(i.text)
     platesMaterial = []
-    lstConcrete = ["C20/25","C25/30","C30/37","C35/45","C40/50","C45/55","C50/60","C53/65"]
-    lstTimber = ["C14","C16","C18","C20","C22","C24","C27","C30","C35","C40","C50","D18","D24","D30","D35","D40","D50","D60","D70"]
+    lstConcrete = ["C20/25", "C25/30", "C30/37",
+                   "C35/45", "C40/50", "C45/55", "C50/60", "C53/65"]
+    lstTimber = ["C14", "C16", "C18", "C20", "C22", "C24", "C27", "C30", "C35",
+                 "C40", "C50", "D18", "D24", "D30", "D35", "D40", "D50", "D60", "D70"]
     lstSteel = ["S235,S275,S355"]
     lstColor = []
     for i in platesMaterialQuality:
         if i in lstConcrete:
             platesMaterial.append("Concrete")
-            lstColor.append(rgb_to_int([192,192,192]))
+            lstColor.append(rgb_to_int([192, 192, 192]))
         elif i in lstTimber:
             platesMaterial.append("Timber")
-            lstColor.append(rgb_to_int([191,159,116]))
+            lstColor.append(rgb_to_int([191, 159, 116]))
         elif i in lstSteel:
             platesMaterial.append("Steel")
-            lstColor.append(rgb_to_int([237,28,36]))
+            lstColor.append(rgb_to_int([237, 28, 36]))
         else:
             platesMaterial.append("Other")
             lstColor.append(rgb_to_int([150, 150, 150]))
     platesZ = []
-    for i in platesZElem: platesZ.append(float(i.text))
+    for i in platesZElem:
+        platesZ.append(float(i.text))
     platesThickness = []
-    for i in platesThicknessElem: platesThickness.append(float(i.text))
+    for i in platesThicknessElem:
+        platesThickness.append(float(i.text))
     platesTop_Center_Bottom = []
-    for i in platesTop_Center_BottomElem: platesTop_Center_Bottom.append(i.text)
-
+    for i in platesTop_Center_BottomElem:
+        platesTop_Center_Bottom.append(i.text)
 
     # for loop to get each element in an array
     plateOffsets = []
-    #Plate ligt standaard in de hartlijn. In het onderstaande is dit aangepast.
-    for i,j,k in zip(platesZ, platesThickness, platesTop_Center_Bottom):
+    # Plate ligt standaard in de hartlijn. In het onderstaande is dit aangepast.
+    for i, j, k in zip(platesZ, platesThickness, platesTop_Center_Bottom):
         if k == "Top":
             offset = -0.5 * j
         elif k == "Center":
             offset = 0
         elif k == "Bottom":
             offset = 0.5 * j
-        else: offset = 0
+        else:
+            offset = 0
         offset = offset + j
         plateOffsets.append(offset)
 
     rootPlates = root.findall(".//Plates")
 
-    #XMLImportPlates(root):
+    # XMLImportPlates(root):
     PlatesTags = []
     PlatesValues = []
     for elements in root:
@@ -8411,11 +8441,12 @@ def XMLImportPlates(XMLtree):
                 PlatesTags.append(element.tag)
                 PlatesValues.append(element.text)
 
-    #Iedere plate met nodes in een sublijst stoppen
-        #plate
-            #nodes
+    # Iedere plate met nodes in een sublijst stoppen
+        # plate
+            # nodes
 
-    ind = [i for i, x in enumerate(PlatesTags) if x == "Number"] # indices where a new plate starts.
+    # indices where a new plate starts.
+    ind = [i for i, x in enumerate(PlatesTags) if x == "Number"]
 
     platesIndices = []
     platesValues = []
@@ -8428,31 +8459,34 @@ def XMLImportPlates(XMLtree):
             platesValues.append(PlatesValues[x:ind[count]])
             platesNodes.append(PlatesValues[x+1:ind[count]-5])
         except:
-            platesIndices.append(PlatesTags[x::]) # voor de laatste item uit de lijst, anders out of range
-            platesValues.append(PlatesValues[x::]) # voor de laatste item uit de lijst, anders out of range
+            # voor de laatste item uit de lijst, anders out of range
+            platesIndices.append(PlatesTags[x::])
+            # voor de laatste item uit de lijst, anders out of range
+            platesValues.append(PlatesValues[x::])
             platesNodes.append(PlatesValues[x+1:-5])
 
     obj = []
-    XYZ = XMLImportNodes(XMLtree)[1] #Knopen
+    XYZ = XMLImportNodes(XMLtree)[1]  # Knopen
 
     platesPolyCurves = []
     for i in platesNodes:
         PlatePoints = []
         for j in i:
-            Point = XYZ[getXYZ(XMLtree,j)]
+            Point = XYZ[getXYZ(XMLtree, j)]
             PlatePoints.append(Point)
         PlatePoints.append(PlatePoints[0])
         ply = PolyCurve.byPoints(PlatePoints)
-        #obj.append(ply)
+        # obj.append(ply)
         platesPolyCurves.append(ply)
 
     # Panels maken Building.py
     Panels = []
 
-    for i, j, k, l, m, n in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers,lstColor):
+    for i, j, k, l, m, n in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers, lstColor):
         Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m, n))
 
     return Panels
+
 
 class xmlXFEM4U:
     def __init__(self):
@@ -8460,7 +8494,7 @@ class xmlXFEM4U:
         self.Project = "<ProjectName>" + "Building.py" + "</ProjectName>\n"
         self.ProjectNumber = "<ProjectNumber>0</ProjectNumber>\n"
         self.ExportDate = "<ExportDateTime>2023-04-08 19:55:39Z</ExportDateTime>\n"
-        self.XMLVersion = "<XMLExportVersion>v4.0.30319</XMLExportVersion>\n" #
+        self.XMLVersion = "<XMLExportVersion>v4.0.30319</XMLExportVersion>\n"
         self.Nodes = "<Nodes></Nodes>\n"
         self.Supports = "<Supports></Supports>\n"
         self.Grids = "<Grids><X>0 5000</X><X_Lable>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC</X_Lable><Y>0 5000</Y><Y_Lable>1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24</Y_Lable><Z>0</Z><Z_Lable>+0</Z_Lable></Grids>\n"
@@ -8489,13 +8523,13 @@ class xmlXFEM4U:
         Beams = []
         Beamgroup = []
         Profiles = []
-        Supports= []
+        Supports = []
         Points = []
         plateN = 0  # Numbering plates
         beamsN = 0  # Numbering beams
         beamsGN = 0  # Numbering beamgroup
         profN = 0  # Numbering profiles
-        supportN = 0 # Numbering of supports
+        supportN = 0  # Numbering of supports
         Nodes.append("<Nodes>\n")
         Plates.append("<Plates>\n")
         Beams.append("<Beams>\n")
@@ -8516,7 +8550,7 @@ class xmlXFEM4U:
                 ProfileNamesUnique.append(item[1])
                 ItemsOfUniqueProfileName.append(item[0])
 
-        for i,j in zip(ProfileNamesUnique,ItemsOfUniqueProfileName):
+        for i, j in zip(ProfileNamesUnique, ItemsOfUniqueProfileName):
             profN = profN + 1
             Profiles.append("<Number>" + str(profN) + "</Number>\n")
             if j.material.name == "Steel":
@@ -8524,8 +8558,9 @@ class xmlXFEM4U:
                 Profiles.append("<Material_type>" + "0" + "</Material_type>\n")
                 Profiles.append("<Material>" + "S235" + "</Material>\n")
                 Profiles.append("<Angle>" + "0" + "</Angle>\n")
-            elif j.material.name == "Concrete":  #nu simpel al het andere is beton
-                Profiles.append("<Profile_name>" + "Profile " + str(profN) + "</Profile_name>\n")
+            elif j.material.name == "Concrete":  # nu simpel al het andere is beton
+                Profiles.append("<Profile_name>" + "Profile " +
+                                str(profN) + "</Profile_name>\n")
                 Profiles.append("<Material_type>" + "1" + "</Material_type>\n")
                 Profiles.append("<Material>" + "C20/25" + "</Material>\n")
                 Profiles.append("<Angle>" + "0" + "</Angle>\n")
@@ -8541,13 +8576,12 @@ class xmlXFEM4U:
                 Profiles.append("<h4>50</h4>\n")
                 Profiles.append("<b4>50</b4>\n")
 
-
         for i in obj:
             nm = i.__class__.__name__
             if nm == 'Panel':
                 plateN = plateN + 1
                 Plates.append("<Number>" + str(plateN) + "</Number>\n")
-                PlatePoints = i.origincurve.points[ : -1]
+                PlatePoints = i.origincurve.points[: -1]
                 for j in PlatePoints:
                     n = n + 1
                     Nodes.append("<Number>" + str(n) + "</Number>\n")
@@ -8558,9 +8592,11 @@ class xmlXFEM4U:
                 Plates.append("<h>" + str(i.thickness) + "</h>\n")
                 Plates.append(
                     "<Material_type>" + "c4aeb39b3f8d45cf9613e8377bdf73624" + "</Material_type>\n")  # material nog uitlezen #Concrete: c9a5876f475cefab7cc11281b017914a1 # Steel: c4aeb39b3f8d45cf9613e8377bdf73624
-                Plates.append("<Material>" + "S235" + "</Material>\n")  # material nog uitlezen
+                # material nog uitlezen
+                Plates.append("<Material>" + "S235" + "</Material>\n")
                 Plates.append("<Z>" + "0" + "</Z>\n")
-                Plates.append("<Top_Center_Bottom>" + "Center" + "</Top_Center_Bottom>\n")
+                Plates.append("<Top_Center_Bottom>" +
+                              "Center" + "</Top_Center_Bottom>\n")
 
             elif nm == 'Frame':
                 ProfN = ProfileNamesUnique.index(i.profileName) + 1
@@ -8578,8 +8614,10 @@ class xmlXFEM4U:
 
                 beamsN = beamsN + 1
                 Beams.append("<Number>" + str(beamsN) + "</Number>")
-                Beams.append("<Beamgroupnumber>" + str(beamsGN) + "</Beamgroupnumber>\n")
-                Beams.append("<From_node_number>" + str(n) + "</From_node_number>\n")
+                Beams.append("<Beamgroupnumber>" +
+                             str(beamsGN) + "</Beamgroupnumber>\n")
+                Beams.append("<From_node_number>" +
+                             str(n) + "</From_node_number>\n")
 
                 n = n + 1
                 Nodes.append("<Number>" + str(n) + "</Number>\n")
@@ -8591,13 +8629,16 @@ class xmlXFEM4U:
 
                 Points.append([i.end, n])
 
-                Beams.append("<To_node_number>" + str(n) + "</To_node_number>\n")
+                Beams.append("<To_node_number>" +
+                             str(n) + "</To_node_number>\n")
                 Beams.append("<Angle>" + str(i.rotation) + "</Angle>\n")
                 Beams.append("<Angle_profile>" + "0" + "</Angle_profile>\n")
                 ProfNstr = str(ProfN)
-                Beams.append("<Profile_number>" + ProfNstr + "</Profile_number>\n")
+                Beams.append("<Profile_number>" + ProfNstr +
+                             "</Profile_number>\n")
                 Beams.append("<Z>" + str(i.ZOffset) + "</Z>\n")
-                Beams.append("<Top_Center_Bottom>" + i.YJustification + "</Top_Center_Bottom>\n")
+                Beams.append("<Top_Center_Bottom>" +
+                             i.YJustification + "</Top_Center_Bottom>\n")
             elif nm == 'Grid':
                 pass
         for i in obj:
@@ -8608,9 +8649,9 @@ class xmlXFEM4U:
                 bools = []
                 for j in Points:
                     bools.append(Point.intersect(i.Point, j[0]))
-                if sum(bools) > 0: #Means intersection with existing point/node
+                if sum(bools) > 0:  # Means intersection with existing point/node
                     no = bools.index(1)+1
-                else: #No intersection, so new node is required
+                else:  # No intersection, so new node is required
                     n = n + 1
                     Nodes.append("<Number>" + str(n) + "</Number>\n")
                     Nodes.append("<X>" + str(round(i.Point.x)) + "</X>\n")
@@ -8637,7 +8678,6 @@ class xmlXFEM4U:
 
             else:
                 pass
-
 
         Nodes.append("</Nodes>\n")
         Plates.append("</Plates>\n")
@@ -8679,11 +8719,11 @@ class xmlXFEM4U:
         LoadCases.append("<psi2>0,3</psi2>\n")
         LoadCases.append("</LoadCases>\n")
 
-
         # Load Combinations
         Combinations = []
         Combinations.append("<Combinations>\n")
-        Combinations.append("<LoadCombinationNumber>1</LoadCombinationNumber>\n")
+        Combinations.append(
+            "<LoadCombinationNumber>1</LoadCombinationNumber>\n")
         Combinations.append("<Description>Dead load</Description>\n")
         Combinations.append("<CombTyp>0</CombTyp>\n")
         Combinations.append("<Case>1</Case>\n")
@@ -8692,7 +8732,8 @@ class xmlXFEM4U:
         Combinations.append("<Case>2</Case>\n")
         Combinations.append("<Psi>1</Psi>\n")
         Combinations.append("<Gamma>1, 5</Gamma>\n")
-        Combinations.append("<LoadCombinationNumber>2</LoadCombinationNumber>\n")
+        Combinations.append(
+            "<LoadCombinationNumber>2</LoadCombinationNumber>\n")
         Combinations.append("<Description>Live load</Description>\n")
         Combinations.append("<CombTyp>0</CombTyp>\n")
         Combinations.append("<Case>1</Case>\n")
@@ -8701,7 +8742,8 @@ class xmlXFEM4U:
         Combinations.append("<Case>2</Case>\n")
         Combinations.append("<Psi>1</Psi>\n")
         Combinations.append("<Gamma>1, 5</Gamma>\n")
-        Combinations.append("<LoadCombinationNumber>3</LoadCombinationNumber>\n")
+        Combinations.append(
+            "<LoadCombinationNumber>3</LoadCombinationNumber>\n")
         Combinations.append("<Description>Dead load</Description>\n")
         Combinations.append("<CombTyp>3</CombTyp>")
         Combinations.append("<Case>1</Case>")
@@ -8741,7 +8783,7 @@ class xmlXFEM4U:
         self.LoadCases = ''.join(str(LCa) for LCa in LoadCases)
         self.Combinations = ''.join(str(LC) for LC in Combinations)
 
-    def addSurfaceLoad(self,obj=None):
+    def addSurfaceLoad(self, obj=None):
         SurfaceLoads = []
         SurfaceLoads.append("<SurfaceLoads>\n")
         if obj != None:
@@ -8751,19 +8793,28 @@ class xmlXFEM4U:
                 if nm == "SurfaceLoad":
                     slN = slN + 1
                     SurfaceLoads.append("<Number>" + str(slN) + "</Number>\n")
-                    SurfaceLoads.append("<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>\n")
-                    SurfaceLoads.append("<Description>" + i.Description + "</Description>\n")
+                    SurfaceLoads.append(
+                        "<LoadCaseNumber>" + str(i.LoadCase) + "</LoadCaseNumber>\n")
+                    SurfaceLoads.append(
+                        "<Description>" + i.Description + "</Description>\n")
                     for j in i.PolyCurve.points:
-                        SurfaceLoads.append("<NodeX>" + str(j.x) + "</NodeX>\n")
-                        SurfaceLoads.append("<NodeY>" + str(j.y) + "</NodeY>\n")
-                        SurfaceLoads.append("<NodeZ>" + str(j.z) + "</NodeZ>\n")
-                    SurfaceLoads.append("<Coordinate_system>" + i.crs + "</Coordinate_system>\n")
-                    SurfaceLoads.append("<Direction>" + i.direction + "</Direction>\n")
-                    SurfaceLoads.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
+                        SurfaceLoads.append(
+                            "<NodeX>" + str(j.x) + "</NodeX>\n")
+                        SurfaceLoads.append(
+                            "<NodeY>" + str(j.y) + "</NodeY>\n")
+                        SurfaceLoads.append(
+                            "<NodeZ>" + str(j.z) + "</NodeZ>\n")
+                    SurfaceLoads.append(
+                        "<Coordinate_system>" + i.crs + "</Coordinate_system>\n")
+                    SurfaceLoads.append(
+                        "<Direction>" + i.direction + "</Direction>\n")
+                    SurfaceLoads.append(
+                        "<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
                     SurfaceLoads.append("<q1>" + str(i.q1) + "</q1>\n")
                     SurfaceLoads.append("<q2>" + str(i.q2) + "</q2>\n")
                     SurfaceLoads.append("<q3>" + str(i.q3) + "</q3>\n")
-                    SurfaceLoads.append("<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>\n")
+                    SurfaceLoads.append(
+                        "<LoadConstantOrLinear>" + i.LoadConstantOrLinear + "</LoadConstantOrLinear>\n")
                     SurfaceLoads.append("<iq1>" + str(i.iq1) + "</iq1>\n")
                     SurfaceLoads.append("<iq2>" + str(i.iq2) + "</iq2>\n")
                     SurfaceLoads.append("<iq3>" + str(i.iq3) + "</iq3>\n")
@@ -8772,7 +8823,7 @@ class xmlXFEM4U:
         SurfaceLoads.append("</SurfaceLoads>\n")
         self.SurfaceLoads = ''.join(str(SL) for SL in SurfaceLoads)
 
-    def addPanels(self,obj=None):
+    def addPanels(self, obj=None):
         Panels = []
         Panels.append("<Panels>\n")
         if obj != None:
@@ -8782,34 +8833,42 @@ class xmlXFEM4U:
                 if nm == "LoadPanel":
                     slN = slN + 1
                     Panels.append("<Number>" + str(slN) + "</Number>\n")
-                    Panels.append("<Description>" + i.Description + "</Description>\n")
+                    Panels.append("<Description>" +
+                                  i.Description + "</Description>\n")
                     for j in i.PolyCurve.points:
                         Panels.append("<NodeX>" + str(j.x) + "</NodeX>\n")
                         Panels.append("<NodeY>" + str(j.y) + "</NodeY>\n")
                         Panels.append("<NodeZ>" + str(j.z) + "</NodeZ>\n")
-                    Panels.append("<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
-                    Panels.append("<SurfaceType>" + i.LoadBearingDirection + "</SurfaceType>\n")
+                    Panels.append(
+                        "<LoadBearingDirection>" + i.LoadBearingDirection + "</LoadBearingDirection>\n")
+                    Panels.append("<SurfaceType>" +
+                                  i.LoadBearingDirection + "</SurfaceType>\n")
                 else:
                     pass
         Panels.append("</Panels>\n")
         self.Panels = ''.join(str(pan) for pan in Panels)
 
-    def addProject(self,projectname):
+    def addProject(self, projectname):
         self.Project = "<ProjectName>" + projectname + "</ProjectName>"
 
-    def addprojectnumber(self,ProjectNumber):
+    def addprojectnumber(self, ProjectNumber):
         self.ProjectNumber = "<ProjectNumber>" + ProjectNumber + "</ProjectNumber>\n"
 
     def XML(self):
-        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles + self.Beamgroup + self.Beams + self.Plates + self.Panels + self.LoadCases + self.BeamLoads + self.NodeLoads + self.SurfaceLoads + self.Combinations + self.RebarLongitudinal + self.RebarStirrup + self.Layers + self.Frame2
+        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles + self.Beamgroup + self.Beams + \
+            self.Plates + self.Panels + self.LoadCases + self.BeamLoads + self.NodeLoads + self.SurfaceLoads + \
+            self.Combinations + self.RebarLongitudinal + \
+            self.RebarStirrup + self.Layers + self.Frame2
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
 
+
 def createXFEM4UXML(project: BuildingPy, filepathxml: str):
     # Export to XFEM4U XMLK-file
     xmlS4U = xmlXFEM4U()  # Create XML object with standard values
-    xmlS4U.addBeamsPlates(project.objects)  # Add Beams, Profiles, Plates, Beamgroups, Nodes
+    # Add Beams, Profiles, Plates, Beamgroups, Nodes
+    xmlS4U.addBeamsPlates(project.objects)
     xmlS4U.addProject(project.name)
     xmlS4U.addPanels(project.objects)  # add Load Panels
     xmlS4U.addGrids()  # Grids
@@ -8826,8 +8885,9 @@ def createXFEM4UXML(project: BuildingPy, filepathxml: str):
 
 
 def writeDirectCommandsfile(xmlfilepath: str):
-    #Write Ini-file for directcommands
-    pathdirectcommands = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'DirectCommands_XFEM4U.ini')
+    # Write Ini-file for directcommands
+    pathdirectcommands = os.path.join(
+        os.getenv('LOCALAPPDATA'), 'Struct4u', 'DirectCommands_XFEM4U.ini')
     row1 = '[Struct4u]\n'
     row2 = 'Import_XML=' + xmlfilepath + '\n'
     content = row1 + row2
@@ -8836,23 +8896,28 @@ def writeDirectCommandsfile(xmlfilepath: str):
     a = file.write(content)
     file.close()
 
+
 def openXFEM4U(fileName):
-    #Open XML file in XFEM4U
+    # Open XML file in XFEM4U
     os.system("C:/Struct4u/XFEM4U/wframe3d.exe " + fileName)
 
+
 def openXFrame2D(fileName):
-    #Open XML file in XFEM4U
+    # Open XML file in XFEM4U
     os.system("C:/Program Files (x86)/Struct4u/XFrame2d/XFrame2d.exe " + fileName)
 
+
 def SubprocessXFEM4UThread():
-    #Run XFEM4U
+    # Run XFEM4U
     try:
-        subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe", shell=True, check=False)
+        subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe",
+                       shell=True, check=False)
     except:
         print("exception")
 
+# [!not included in BP singlefile - end]
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str):
+    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None, profile_data=None):
         self.id = id
         self.type = __class__.__name__
         self.name = name
@@ -8871,6 +8936,8 @@ class Scia_Params:
         self.layer_type = layer_type
         self.Yjustification = Yjustification
         self.Xjustification = Xjustification
+        self.centerbottom = centerbottom
+        self.profile_data = profile_data
         #add material
 
 
@@ -8899,8 +8966,7 @@ class LoadXML:
         finally:
             end_time = time.time()
             self._record_time("load", end_time - start_time)
-
-        return root
+            return root
 
     def getAllKnoop(self):
         start_time = time.time()
@@ -9075,25 +9141,12 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
-                            # print(comments.id, "\n",
-                            #       comments.name, "\n",
-                            #       comments.layer, "\n",
-                            #       comments.perpendicular_alignment, "\n",
-                            #       comments.lcs_rotation, "\n",
-                            #       comments.start_node, "\n",
-                            #       comments.end_node, "\n",
-                            #       comments.cross_section, "\n",
-                            #       comments.eem_type, "\n",
-                            #       comments.bar_system_line_on, "\n",
-                            #       comments.ey, "\n",
-                            #       comments.ez, "\n",
-                            #       comments.geometry_table, "\n",
-                            #       )
 
                             p1 = self.findKnoop(obj[h4Index].attrib["n"])
                             p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
                             p2 = self.findKnoop(obj[h5Index].attrib["n"])
                             p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
+                            
                             #TEMP
                             p1 = Point(p1.x, p1.y, p1.z)
 
@@ -9101,7 +9154,6 @@ class LoadXML:
                             node1.number = p1Number
                             node1.point = p1
                             self.project.objects.append(node1)
-                            # print(node1)
 
                             node2 = Node()
                             node2.point = p2
@@ -9125,79 +9177,27 @@ class LoadXML:
                                 comments.Yjustification = Yjustification
                                 comments.Xjustification = Xjustification
 
-
-                            # elif layerType == "Beam":
-                                # rotationDEG = rotationDEG+180
                             Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
                             comments.Yjustification = Yjustification
                             comments.Xjustification = Xjustification
-                                # if rotationDEG <= 0:
-                                #     rotationDEG = rotationDEG + 360
-                            # print(rotationRAD)
-                            # print(rotationDEG)
-                            # print("\n")
+
                             comments.layer_type = layerType
 
                             comments.revit_rot = rotationDEG
                             elementType = (obj[h6Index].attrib["n"])
-                            # print(elementType)
+
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
-                                    # print(f"[removeLayers]: {elementType}")
                                     pass
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
-                                        print(comments.id, Xjustification, Yjustification, " - ", comments.perpendicular_alignment)
-                                        self.project.objects.append(Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments))                                        
+                                        el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                        comments.profile_data = el.profile_data
+                                        self.project.objects.append(el)
+                                        comments.centerbottom = el.centerbottom
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
-# [!not included in BP singlefile - end]
-
-#class CurveElement:
-#class PointElement (non visible) or visible as a big cube
-
-class StructuralElement:
-    def __init__(self, structuralType: str, startPoint: list, endPoint: list, type: str, rotation: float, yJustification: int, yOffsetValue: float, zJustification: int, zOffsetValue: float, comments : None):
-        validStructuralTypes = ["Column", "Beam"]
-        if structuralType not in validStructuralTypes:
-            raise ValueError(f"Invalid structuralType: {structuralType}. Valid options are: {validStructuralTypes}")
-        self.comments = comments or None
-        self.structuralType = structuralType
-        self.startPoint = startPoint
-        self.endPoint = endPoint
-        self.type = type
-        self.rotation = rotation
-        self.yJustification = yJustification
-        self.yOffsetValue = yOffsetValue
-        self.zJustification = zJustification
-        self.zOffsetValue = zOffsetValue
-
-    def __str__(self) -> str:
-        return f"[StructuralElement] {self.type}"
-
-
-def mm_to_feet(mm_value):
-    feet_value = mm_value * 0.00328084
-    return feet_value
-
-objs = []
-def run():
-    project = BuildingPy("TempCommit", "0")
-    LoadXML(IN[0], project)
-
-    for obj in project.objects:
-        
-        if obj.type == "Frame":
-            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
-            objs.append(element)
-        elif obj.type == "Node":
-            objs.append(obj)
-    return project.objects
-
-run()
-
-OUT = objs
+                                        # print(e, elementType)

@@ -74,6 +74,13 @@ class profiledataToShape:
         if profile_data == None:
             print(f"profile {name1} not recognised")
         shape_name = profile_data.shape_name
+
+        if shape_name == None:
+            profile_data = searchProfile(project.structural_fallback_element)
+            err = f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'"
+            print(err)
+            shape_name = profile_data.shape_name
+        self.profile_data = profile_data
         self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
@@ -100,8 +107,7 @@ class profiledataToShape:
             prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
         elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        else:
-            prof = "error, profile not created"
+
         self.prof = prof
         self.data = d1
         pc2d = self.prof.curve  # 2D polycurve

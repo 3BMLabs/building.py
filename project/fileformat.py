@@ -79,6 +79,9 @@ class BuildingPy:
         #text
         self.createdTxt = "has been created"
 
+        #structural elements
+        self.structural_fallback_element = "HEA100"
+
         #Speckle settings
         self.speckleserver = "speckle.xyz"
         self.specklestream = None

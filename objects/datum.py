@@ -203,7 +203,7 @@ class Grid:
         g1.name = name
         g1.__cs(line)
         g1.line = lineToPattern(line, Centerline)
-        g1.__grid_heads()
+        # g1.__grid_heads()
         return g1
 
     def __grid_heads(self):

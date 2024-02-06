@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -45,6 +47,10 @@ from abstract.interval import Interval
 from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
 
 from helper import *
+from project.fileformat import project
+
+# [!not included in BP singlefile - end]
+
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
@@ -60,7 +66,6 @@ from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.primitive import Interval as SpeckleInterval
-from project.fileformat import project
 
 
 def IntervalToSpeckleInterval(interval: Interval):
@@ -271,7 +276,11 @@ def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
     for i in Obj:
         nm = i.__class__.__name__
-        if nm == 'Panel':
+        if nm == "list":
+            if i == []:
+                pass
+
+        elif nm == 'Panel':
             colrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))
         
@@ -289,9 +298,12 @@ def translateObjectsToSpeckleObjects(Obj):
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units= project.units))
 
         elif nm == 'Frame':
-            if i.comments.type == "Scia_Params":
-                SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units, Scia_Id=i.comments.id, Scia_Justification=i.comments.perpendicular_alignment, Scia_Layer=i.comments.layer, Scia_Rotation=i.comments.lcs_rotation, Scia_Staaf=i.comments.name, Scia_Type=i.comments.cross_section, Scia_Node_Start = i.comments.start_node, Scia_Node_End = i.comments.end_node, Revit_Rotation=str(i.comments.revit_rot), Scia_Layer_Type=i.comments.layer_type, Scia_XJustification=i.comments.Xjustification, Scia_YJustification=i.comments.Yjustification))
-            else:
+            try:
+                if i.comments.type == "Scia_Params":
+                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units, Scia_Id=i.comments.id, Scia_Justification=i.comments.perpendicular_alignment, Scia_Layer=i.comments.layer, Scia_Rotation=i.comments.lcs_rotation, Scia_Staaf=i.comments.name, Scia_Type=i.comments.cross_section, Scia_Node_Start = i.comments.start_node, Scia_Node_End = i.comments.end_node, Revit_Rotation=str(i.comments.revit_rot), Scia_Layer_Type=i.comments.layer_type, BuildingPy_XJustification=i.comments.Xjustification, BuildingPy_YJustification=i.comments.Yjustification))
+                else:
+                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
+            except:
                 SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
 
         elif nm == "Extrusion":
