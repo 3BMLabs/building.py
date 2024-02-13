@@ -41,7 +41,10 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.plane import Plane
 from helper import *
-from abstract.coordinatesystem import *
+from abstract.vector import *
+from geometry.point import Point
+from project.fileformat import project
+from abstract.coordinatesystem import CoordinateSystem, CSGlobal
 
 # [!not included in BP singlefile - end]
 

@@ -55,7 +55,7 @@ class Extrusion:
         self.faces = []
         self.numberFaces = 0
         self.countVertsFaces = 0 # total number of verts per face (not the same as total verts)
-        self.name = "none"
+        self.name = None
         self.color = (255,255,0)
         self.colorlst = []
         self.topface = None #return polycurve -> surface

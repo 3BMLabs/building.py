@@ -128,6 +128,8 @@ def clean_list(input_list, preserve_indices=True):
     return culled_list
 
 def flatten(lst):
+    if type(lst) != list:
+        lst = [lst]
     flat_list = []
     for sublist in lst:
         try:
