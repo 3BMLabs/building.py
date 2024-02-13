@@ -7,7 +7,7 @@
   },
   {
    "optionDest": "filenames",
-   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/temp/Struct4U/ExportXFEM4UtoSpeckle/struct4u_speckle_export.py"
+   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/apps/Struct4U/struct4u_speckle_export.py"
   },
   {
    "optionDest": "onefile",
@@ -19,7 +19,7 @@
   },
   {
    "optionDest": "icon_file",
-   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/temp/Struct4U/ExportXFEM4UtoSpeckle/icon.ico"
+   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/apps/Struct4U/icon.ico"
   },
   {
    "optionDest": "clean_build",
@@ -55,11 +55,11 @@
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/temp/Struct4U/ExportXFEM4UtoSpeckle/bp_send_file.py;."
+   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/apps/Struct4U/bp_send_file.py;."
   },
   {
    "optionDest": "datas",
-   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/temp/Struct4U/ExportXFEM4UtoSpeckle/bp_single_file.py;."
+   "value": "C:/Users/Jonathan/Documents/GitHub/building.py/apps/Struct4U/bp_single_file.py;."
   }
  ],
  "nonPyinstallerOptions": {

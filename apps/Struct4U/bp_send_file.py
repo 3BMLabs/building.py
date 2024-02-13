@@ -197,6 +197,7 @@ def ArcToSpeckleArc(arc: Arc):
     return spArc
 
 def TransportToSpeckle(credential_data: str, SpeckleObjects: list):
+    print(credential_data)
     new_streamid = None
     try:
         host = credential_data["speckle_server"]
@@ -207,7 +208,6 @@ def TransportToSpeckle(credential_data: str, SpeckleObjects: list):
 
     if credential_data["stream_id"] == "":
         streamid = client.stream.create(name="Export from Struct4U", is_public=True) #credential_data["stream_name"]
-        new_streamid = streamid
     else:
         streamid = credential_data["stream_id"]
     
@@ -233,7 +233,7 @@ def TransportToSpeckle(credential_data: str, SpeckleObjects: list):
         return False, f"Failed to create Speckle commit_id, Error: {e}."
 
     url = f"{host}/streams/{streamid}/commits/{commit_id}"
-    return [True, url, new_streamid]
+    return [True, url, streamid, commit_id]
 
 
 def translateObjectsToSpeckleObjects(Obj):

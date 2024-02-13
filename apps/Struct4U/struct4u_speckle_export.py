@@ -44,10 +44,8 @@ def fail_log():
     write_to_log(log_filename, f"Failed to create Speckle model.")
 
 
-ini_file_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'SpeckleExport.ini')
-documents_dir = os.path.expanduser('~/Documents')
-os.chdir(documents_dir)
-log_filename = os.path.join(documents_dir, "Struct4U_Speckle_Export.log")
+ini_file_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'PythonExport.ini')
+log_filename = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', "Struct4USpeckleExport.log")
 clear_log_file(log_filename)
 
 
@@ -58,7 +56,10 @@ if os.path.exists(ini_file_path):
         for j in config_file:
             j = j.replace("\n", "")
             c = j.split("=")
-            credential_data[c[0]] = c[1]
+            try:
+                credential_data[c[0]] = c[1]
+            except:
+                pass
 
 
 def validate_credentials(credential_data):
@@ -144,6 +145,7 @@ if commit[0] == True:
     if commit[2] != None:
         write_to_log(log_filename, f"Created new Speckle Stream, ID: {commit[2]}")
         credential_data["stream_id"] = commit[2]
+        credential_data["commit_id"] = commit[3]
 
         #update the ini file
         with open(ini_file_path, 'w', encoding="utf-8") as config_file:
@@ -165,7 +167,3 @@ try:
 except:
     write_to_log(log_filename, f"Could not open {commit[1]} in browser.")
     fail_log()
-
-
-#open .log file
-# open_log()

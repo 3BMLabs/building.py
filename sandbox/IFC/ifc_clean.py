@@ -10,5 +10,3 @@ project = new_ifc_file.createIfcProject(global_id=new_ifc_file.create_guid(), ow
 building = new_ifc_file.createIfcBuilding(global_id=new_ifc_file.create_guid(), owner_history=None, name='Nieuw Gebouw', composition_type='ELEMENT', container=project)
 
 context = new_ifc_file.createIfcGeometricRepresentationContext(context_identifier='Context3D', context_type='Model', coordinate_space_dimension=3)
-
-
