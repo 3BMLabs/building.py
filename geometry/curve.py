@@ -689,7 +689,7 @@ def RectXY(vector: Vector3, width: float, height: float):
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, 0, height), vector)
     p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.byPoints([p1, p2, p3, p4])
     return crv
 
 def RectYZ(vector: Vector3, width: float, height: float):

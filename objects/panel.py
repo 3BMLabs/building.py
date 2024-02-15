@@ -50,9 +50,9 @@ class Panel:
         self.type = __class__.__name__
         self.extrusion = None
         self.thickness = 0
-        self.name = "none"
+        self.name = None
         self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
+        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorint = None
         self.colorlst = []
         self.origincurve = None

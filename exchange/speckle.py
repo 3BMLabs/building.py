@@ -309,6 +309,15 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == "Extrusion":
             clrs = []
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
+            print(i.verts)
+
+
+        elif nm == "Wall":
+            clrs = []
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
+            print(i.faces)
+            # print("ya")
+            sys.exit()
 
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))

@@ -1,14 +1,10 @@
 import sys, os
 from pathlib import Path
 
-# import ifcopenshell
-from ifcopenshell import *
 import ifcopenshell.geom
 import ifcopenshell.api
 import ifcopenshell.util.element as util
 import ifcopenshell.util.shape as shape
-
-import time
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
@@ -16,88 +12,11 @@ from exchange.speckle import *
 from geometry.curve import *
 from geometry.solid import *
 from project.fileformat import BuildingPy
-
-
-# CREATE PROJECT FILE & LIBRARY
-# class CreateIfcProject:
-#     def __init__(self, project_name, library_name,organisation_name,person_name):
-#         ifcopenshell.api.pre_listeners = {}
-#         ifcopenshell.api.post_listeners = {}
-
-#         self.file = ifcopenshell.api.run("project.create_file")
-#         self.project = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcProject", name= project_name)
-#         self.library = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcProjectLibrary",name=library_name)
-#         library = ifcopenshell.api.run("project.assign_declaration", self.file, definition=self.library,relating_context=self.project)
-#         units = ifcopenshell.api.run("unit.assign_unit", self.file,length={"is_metric": True, "raw": "MILLIMETERS"})
-
-#         # ORGANISATION DETAILS
-#         organisation = self.file.createIfcOrganization()
-#         organisation.Name = organisation_name
-#         person = self.file.createIfcPerson()
-#         person.FamilyName = person_name
-
-#         # APPLICATION
-#         app = self.file.createIfcApplication()
-#         app.ApplicationDeveloper = organisation
-#         app.Version = "0.7"
-#         app.ApplicationFullName = "IfcOpenShell v0.7.0-1b1fd1e6"
-
-#         # OWNER HISTORY
-#         self.owner_history = self.file.createIfcOwnerHistory()
-#         self.owner_history.OwningUser = person
-#         self.owner_history.OwningApplication = app
-#         self.owner_history.ChangeAction = "NOCHANGE"
-#         self.owner_history.CreationDate = int(time.time())
-
-#         # CREATE THE SITE
-#         site_placement = self.create_ifclocalplacement()
-
-#         # CREATE THE BUILDING
-#         building_placement = self.create_ifclocalplacement(O, Z, X, site_placement)
-#         # building = self.file.createIfcBuilding(create_guid(), self.owner_history, 'Bouwwerk', None, None,building_placement, None, None, "ELEMENT", None, None, None)
-
-#         self.site = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcSite", name="Site")
-#         self.building = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcBuilding", name=project_name)
-
-#         # Since the site is our top level location, assign it to the project
-#         # Then place our building on the site, and our storey in the building
-#         ifcopenshell.api.run("aggregate.assign_object", self.file, relating_object=self.project, product=self.site)
-#         ifcopenshell.api.run("aggregate.assign_object", self.file, relating_object=self.site, product=self.building)
-
-#         # CREATE BUILDING STOREYS
-#         self.storey_placement = self.create_ifclocalplacement(O, Z, X, relative_to=building_placement)
-#         storeys_obj = self.create_building_storeys(building_storeys_lst)
-#         storey = storeys_obj[2]
-#         # storey = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcBuildingStorey", name="peil=0")
-#         ifcopenshell.api.run("aggregate.assign_object", self.file, relating_object=self.building, product=storey)
-
-#     def create_ifcaxis2placement(self, point=O, dir1=Z, dir2=X):
-#         point = self.file.createIfcCartesianPoint(point)
-#         dir1 = self.file.createIfcDirection(dir1)
-#         dir2 = self.file.createIfcDirection(dir2)
-#         axis2placement = self.file.createIfcAxis2Placement3D(point, dir1, dir2)
-#         return axis2placement
-
-#     def create_ifclocalplacement(self, point=O, dir1=Z, dir2=X, relative_to=None):
-#         axis2placement = self.create_ifcaxis2placement(point, dir1, dir2)
-#         ifclocalplacement = self.file.createIfcLocalPlacement(relative_to, axis2placement)
-#         return ifclocalplacement
-
-#     def create_building_storeys(self, building_storeys):
-#         building_storeys_obj = []
-#         for i in building_storeys:
-#             name = i[0]
-#             elevation = i[1]
-#             building_storey_obj = self.file.createIfcBuildingStorey(create_guid(),
-#                                                                     self.owner_history,                                                     float(elevation))
-#             container_storey = self.file.createIfcRelAggregates(create_guid(), self.owner_history,
-#                                                                 "Building Container", None, self.building,
-#                                                                 [building_storey_obj])
-#             building_storeys_obj.append(building_storey_obj)
-#         return building_storeys_obj
-
-# IfcProject = CreateIfcProject().file
-
+from objects.level import Level
+from objects.wall import Wall
+from objects.door import Door
+from objects.room import Room
+from geometry.surface import Surface
 
 
 class LoadIFC:
@@ -126,13 +45,56 @@ class LoadIFC:
             fetched_objects.append(objs)
         return fetched_objects
 
+
+    def get_storey_height_by_name(ifc_file_path, storey_name):
+        ifc_file = ifcopenshell.open(ifc_file_path)
+        building_storeys = ifc_file.by_type('IfcBuildingStorey')
+        storey_height = None
+
+        for storey in building_storeys:
+            if storey.Name == storey_name:
+                for definition in storey.IsDefinedBy:
+                    if definition.is_a('IfcRelDefinesByProperties'):
+                        property_set = definition.RelatingPropertyDefinition
+                        if property_set.is_a('IfcPropertySet'):
+                            for property in property_set.HasProperties:
+                                if property.Name in ["StoreyHeight", "Height"]:
+                                    if property.is_a('IfcPropertySingleValue'):
+                                        storey_height = property.NominalValue.wrappedValue
+                                        break
+                if storey_height is not None:
+                    break
+        
+        return storey_height
+
+
+
     def convertobject(self):
         objs = []
         settings = ifcopenshell.geom.settings()
         for index, eachlist in enumerate(self.IFCObjects):
-            if index < 20:
-                for object in eachlist:
+            for object in eachlist:
+                if object.is_a('IfcBuildingStorey'):
+                    object
+                    storey_height = None
+                    for relDefines in object.IsDefinedBy:
+                        if relDefines.is_a('IfcRelDefinesByProperties'):
+                            property_set = relDefines.RelatingPropertyDefinition
+                            if property_set.is_a('IfcPropertySet'):
+                                for prop in property_set.HasProperties:
+                                    if prop.Name in ["Height", "StoreyHeight", "Elevation"]:
+                                        if prop.is_a('IfcPropertySingleValue'):
+                                            storey_height = prop.NominalValue.wrappedValue
+                                            break
+                                if storey_height is not None:
+                                    break
+                    j = Level.byPoint(Point(0,0,storey_height), "temp")
+                    objs.append(j)
+
+
+                elif object.is_a('IfcSpace'):
                     try:
+
                         points_list = []
                         z_values = []
 
@@ -142,11 +104,23 @@ class LoadIFC:
                         min_z = float("inf")
                         max_z = float("inf")
 
+                        data = elementName = util.get_psets(object)
                         elementName = util.get_psets(object)["Pset_ProductRequirements"]["Name"]
-                        shape = ifcopenshell.geom.create_shape(settings, object)
-                        mesh = shape.geometry
-                        vertices = mesh.verts
 
+                        bottom_elevation = None
+                        a = object.get_info()
+                        print(a["Name"])
+                        print(a["ObjectPlacement"])
+                        b = object.id
+                        c = object.is_a()
+
+
+                        shape = ifcopenshell.geom.create_shape(settings, object)
+                        print(shape)
+                        mesh = shape.geometry
+                        print(mesh)
+                        vertices = mesh.verts
+                        print(vertices)
                         for i in range(0, len(vertices), 3):
                             point = Point(vertices[i] * project.scale, vertices[i+1] * project.scale, vertices[i+2] * project.scale)
                             points_list.append(point)
@@ -168,13 +142,173 @@ class LoadIFC:
                         top = max(z_values)
                         bottom = min(z_values)
 
-                        ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, 0)
+                        print(top, bottom)
+
+                        ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, bottom)
                         ex.name = elementName
                         objs.append(ex)
+                        objs.append(ex.polycurve_3d_translated)
                     except:
                         pass
-        return objs
+                elif object.is_a('IfcWall') or object.is_a('IfcDoor'):
 
+                    # def process_geometric_representation_item(item):
+                    #     vertices = []
+                    #     if item.is_a('IfcExtrudedAreaSolid'):
+                    #         # Extract the 2D profile points
+                    #         profile = item.SweptArea
+                    #         if profile.is_a('IfcArbitraryClosedProfileDef'):
+                    #             outer_curve = profile.OuterCurve
+                    #             if outer_curve.is_a('IfcPolyline'):
+                    #                 for point in outer_curve.Points:
+                    #                     vertices.append(point.Coordinates)
+
+                    #         direction = item.ExtrudedDirection.DirectionRatios
+                    #         depth = item.Depth
+
+                    #         extruded_vertices = []
+                    #         for vert in vertices:
+                    #             extruded_vert = [vert[0] + direction[0] * depth, vert[1] + direction[1] * depth, direction[2] * depth]
+                    #             extruded_vertices.append(extruded_vert)
+
+                    #         vertices += extruded_vertices
+
+
+                    #     elif item.is_a('IfcFacetedBrep'):
+                    #         for face in item.Outer.CfsFaces:
+                    #             for loop in face.Bounds:
+                    #                 for point in loop.PolyLoop.Polygon:
+                    #                     coordinates = point.Coordinates
+                    #                     vertices.append(coordinates)
+                    #     return vertices
+
+
+                    # def extract_wall_geometry(ifc_wall):
+                    #     vertices = []
+                    #     materials = []
+
+                    #     representation = ifc_wall.Representation
+
+                    #     for rep in representation.Representations:
+                    #         if rep.RepresentationType == 'SolidModel' or rep.RepresentationType == 'SurfaceModel' or rep.RepresentationType == 'SweptSolid':
+                    #             for item in rep.Items:
+                    #                 print(item)
+                    #                 vertices.extend(process_geometric_representation_item(item))
+                                    
+                    #     return vertices
+
+                    # vertices = extract_wall_geometry(object)
+                    # print(vertices)
+
+                    settings = ifcopenshell.geom.settings()
+                    shape = ifcopenshell.geom.create_shape(settings, object)
+                    faces = shape.geometry.faces
+                    verts = shape.geometry.verts
+                    materials = shape.geometry.materials
+                    material_ids = shape.geometry.material_ids
+
+                    grouped_verts = [[verts[i], verts[i + 1], verts[i + 2]] for i in range(0, len(verts), 3)]
+                    grouped_faces = [[faces[i], faces[i + 1], faces[i + 2]] for i in range(0, len(faces), 3)]
+
+                    points = []
+                    pcurves = []
+                    for pt in grouped_verts:
+                        p1 = Point(pt[0]*project.scale, pt[1]*project.scale, pt[2]*project.scale)
+                        points.append(p1)
+                    return points
+                
+                    # points_list = []
+                    # z_values = []
+
+                    # min_z_points = []
+                    # max_z_points = []
+
+                    # min_z = float("inf")
+                    # max_z = float("inf")
+
+                    # shape = ifcopenshell.geom.create_shape(settings, object)
+                    # mesh = shape.geometry
+                    # edges = shape.geometry.edges
+                    # verticesX = shape.geometry.verts
+                    # faces = shape.geometry.faces
+                    # vertices = mesh.verts
+
+                    # for i in range(0, len(vertices), 3):
+                    #     point = Point(vertices[i] * project.scale, vertices[i+1] * project.scale, vertices[i+2] * project.scale)
+                    #     points_list.append(point)
+                    #     print(point)
+                    #     if point.z < min_z:
+                    #         min_z = point.z
+                    #         min_z_points = [point]
+                    #     elif point.z == min_z:
+                    #         min_z_points.append(point)
+
+                    #     if point.z > max_z:
+                    #         max_z = point.z
+                    #         max_z_points = [point]
+                    #     elif point.z == max_z:
+                    #         max_z_points.append(point)
+
+                    # for pt in points_list:
+                    #     z_values.append(pt.z)
+                    # top = max(z_values)
+                    # bottom = min(z_values)
+
+                    # wall = Wall.byMesh(verticesX, faces)
+                    # # ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, 0)
+                    # # objs.append(ex)
+                    # objs.append(wall)
+
+
+
+                    # points_list = []
+                    # for i in range(0, len(vertices), 3):
+                    #     point = Point(vertices[i] * project.scale, vertices[i+1] * project.scale, vertices[i+2] * project.scale)
+                    #     points_list.append(point)
+
+                        # if point.z < min_z:
+                        #     min_z = point.z
+                        #     min_z_points = [point]
+                        # elif point.z == min_z:
+                        #     min_z_points.append(point)
+
+                        # if point.z > max_z:
+                        #     max_z = point.z
+                        #     max_z_points = [point]
+                        # elif point.z == max_z:
+                        #     max_z_points.append(point)
+
+                    # print(points_list)
+                    # for point_list in points_list:
+                    # pc = PolyCurve.byPoints(points_list)
+                    # objs.append(pc)
+                    # representation = object.Representation
+                    # for rep in representation.Representations:
+                    #     if rep.RepresentationType == 'SweptSolid':
+                    #         solid = rep.Items[0]
+                    #         print(solid)
+                            # if hasattr(solid, 'SweptArea') and solid.SweptArea.ProfileType == 'AREA':
+                            #     for profile in solid.SweptArea.Profiles:
+                            #         if hasattr(profile, 'Width'):
+                            #             details['thickness'] = profile.Width
+                            # extrusion = solid.ExtrudedDirection
+                            # if extrusion.DirectionRatios:
+                            #     details['height'] = solid.Depth
+                    
+                    # for representation in object.Representation.Representations:
+                    #     if representation.RepresentationIdentifier == "Axis":
+                    #         if hasattr(representation.Items[0], 'Points'):
+                    #             points = representation.Items[0].Points
+                    #             if len(points) >= 2:
+                    #                 # Start and end coordinates (simplified, actual extraction may vary)
+                    #                 details['start_coordinate'] = (points[0].Coordinates[0], points[0].Coordinates[1], points[0].Coordinates[2])
+                    #                 details['end_coordinate'] = (points[-1].Coordinates[0], points[-1].Coordinates[1], points[-1].Coordinates[2])
+                    # print(details)
+                    # objs.append(details)
+                    # except:
+                    #     pass
+
+        return objs
 
                 # shape = ifcopenshell.geom.create_shape(settings, object)
                 # pass

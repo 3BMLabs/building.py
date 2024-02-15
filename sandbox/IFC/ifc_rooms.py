@@ -7,4 +7,3 @@ model = ifcopenshell.open('C:/Users/Jonathan/Documents/GitHub/building.py/sandbo
 
 rooms = model.by_type("IfcSpace")
 print(rooms)
-
