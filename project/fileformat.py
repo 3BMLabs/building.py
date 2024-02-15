@@ -137,6 +137,10 @@ class BuildingPy:
         from exchange.freecad_bupy import translateObjectsToFreeCAD
         translateObjectsToFreeCAD(self.objects)
 
+    def toIFC(self):
+        from exchange.IFC import translateObjectsToIFC
+        translateObjectsToIFC(self.objects)
+
 # [!not included in BP singlefile - end]
 
 project = BuildingPy("Project","0")

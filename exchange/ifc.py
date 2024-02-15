@@ -334,3 +334,62 @@ class LoadIFC:
     def sendToSpeckle(self):
         for obj in flatten(self.convertedObjects):
             self.project.objects.append(obj)
+
+
+def translateObjectsToIFC(Obj):
+    FreeCADObj = []
+    for i in Obj:
+        nm = i.__class__.__name__
+        if nm == 'Panel':
+            test = "test"
+
+        elif nm == 'Surface' or nm == 'Face':
+            test = "test"
+
+        elif nm == 'Frame':
+            #convert this to a .ifc object
+            FreeCADObj.append(FrameToFreeCAD(i))
+
+        elif nm == "Extrusion":
+            test = "test"
+
+        elif nm == 'PolyCurve':
+            test = "test"
+
+        elif nm == 'BoundingBox2d':
+            test = "test"
+
+        elif nm == 'ImagePyB':
+            test = "test"
+
+        elif nm == 'Interval':
+            test = "test"
+
+        elif nm == 'Line':
+            test = "test"
+
+        elif nm == 'Plane':
+            test = "test"
+
+        elif nm == 'Arc':
+            test = "test"
+
+        elif nm == 'Line2D':
+            test = "test"
+
+        elif nm == 'Point':
+            test = "test"
+
+        elif nm == 'Point2D':
+            test = "test"
+
+        elif nm == 'Grid':
+            test = "test"
+
+        elif nm == 'GridSystem':
+            test = "test"
+
+        else:
+            print(f"{nm} Object not yet added to translateFreeCADObj")
+
+    return FreeCADObj
