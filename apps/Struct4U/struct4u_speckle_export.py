@@ -1,7 +1,6 @@
 import os
 import sys
 import subprocess
-import webbrowser
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -162,7 +161,7 @@ else:
 
 # open generated link in the browser
 try:
-    webbrowser.open(commit[1])
+    # webbrowser.open(commit[1])
     write_to_log(log_filename, f"Succesfully created Speckle model.")
 except:
     write_to_log(log_filename, f"Could not open {commit[1]} in browser.")

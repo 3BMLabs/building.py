@@ -110,6 +110,8 @@ def clean_list(input_list, preserve_indices=True):
     return culled_list
 
 def flatten(lst):
+    if type(lst) != list:
+        lst = [lst]
     flat_list = []
     for sublist in lst:
         try:
@@ -669,7 +671,7 @@ class BuildingPy:
         #different settings for company's?
 
         #rename this to autoclose?
-        self.closed: bool = False #auto close polygons? By default true, else overwrite
+        self.closed: bool = True #auto close polygons? By default true, else overwrite
         self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
 
         #functie polycurve of iets van een class/def
@@ -738,6 +740,9 @@ class BuildingPy:
 
     def toFreeCAD(self):
         translateObjectsToFreeCAD(self.objects)
+
+    def toIFC(self):
+        translateObjectsToIFC(self.objects)
 
 
 
@@ -1571,28 +1576,52 @@ class PolyCurve:
     @staticmethod
     def transform_from_origin(polycurve, startpoint: Point, directionvector: Vector3):
         crvs = []
-        for i in polycurve.curves:
-            if i.__class__.__name__ == "Arc":
-                crvs.append(Arc(transformPoint(i.start,CSGlobal,startpoint,directionvector),
-                                transformPoint(i.mid, CSGlobal, startpoint, directionvector),
-                                transformPoint(i.end, CSGlobal, startpoint, directionvector)
-                                ))
-            elif i.__class__.__name__ == "Line":
-                crvs.append(Line(start = transformPoint(i.start,CSGlobal,startpoint,directionvector),
-                                end = transformPoint(i.end, CSGlobal, startpoint, directionvector)
-                                ))
-            elif i.__class__.__name__ == "Arc2D":
-                # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
-                crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
-                                transformPoint(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
-                                transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
-                                ))
-            elif i.__class__.__name__ == "Line2D":
-                crvs.append(Line(start = transformPoint(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
-                                end = transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
-                                ))
-            else:
-                print(i.__class__.__name__ + "Curvetype not found")
+        try:
+            for i in polycurve.curves:
+                if i.__class__.__name__ == "Arc":
+                    crvs.append(Arc(transformPoint(i.start,CSGlobal,startpoint,directionvector),
+                                    transformPoint(i.mid, CSGlobal, startpoint, directionvector),
+                                    transformPoint(i.end, CSGlobal, startpoint, directionvector)
+                                    ))
+                elif i.__class__.__name__ == "Line":
+                    crvs.append(Line(start = transformPoint(i.start,CSGlobal,startpoint,directionvector),
+                                    end = transformPoint(i.end, CSGlobal, startpoint, directionvector)
+                                    ))
+                elif i.__class__.__name__ == "Arc2D":
+                    # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
+                    crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
+                                    transformPoint(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
+                                    transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                                    ))
+                elif i.__class__.__name__ == "Line2D":
+                    crvs.append(Line(start = transformPoint(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
+                                    end = transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                                    ))
+                else:
+                    print(i.__class__.__name__ + "Curvetype not found")
+        except:
+            for i in polycurve.curves2D:
+                if i.__class__.__name__ == "Arc":
+                    crvs.append(Arc(transformPoint(i.start,CSGlobal,startpoint,directionvector),
+                                    transformPoint(i.mid, CSGlobal, startpoint, directionvector),
+                                    transformPoint(i.end, CSGlobal, startpoint, directionvector)
+                                    ))
+                elif i.__class__.__name__ == "Line":
+                    crvs.append(Line(start = transformPoint(i.start,CSGlobal,startpoint,directionvector),
+                                    end = transformPoint(i.end, CSGlobal, startpoint, directionvector)
+                                    ))
+                elif i.__class__.__name__ == "Arc2D":
+                    # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
+                    crvs.append(Arc(transformPoint(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
+                                    transformPoint(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
+                                    transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                                    ))
+                elif i.__class__.__name__ == "Line2D":
+                    crvs.append(Line(start = transformPoint(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
+                                    end = transformPoint(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                                    ))
+                else:
+                    print(i.__class__.__name__ + "Curvetype not found")
         pc = PolyCurve()
         pc.curves = crvs
         return pc
@@ -1618,7 +1647,7 @@ def RectXY(vector: Vector3, width: float, height: float):
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, 0, height), vector)
     p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.byPoints([p1, p2, p3, p4])
     return crv
 
 def RectYZ(vector: Vector3, width: float, height: float):
@@ -2764,7 +2793,7 @@ class PolyCurve2D:
     def __init__(self) -> None:
         self.id = generateID()
         self.type = __class__.__name__        
-        self.curves = []
+        self.curves2D = []
         self.points2D = []
         self.segmentcurves = None
         self.width = None
@@ -2839,27 +2868,27 @@ class PolyCurve2D:
 
 
     @classmethod #curves or curves2D?
-    def byJoinedCurves(cls, curves):
-        if not curves or len(curves) < 1:
+    def byJoinedCurves(cls, curves2D):
+        if not curves2D or len(curves2D) < 1:
             raise ValueError("At least one curve is required to create a PolyCurve2D.")
 
         polycurve = cls()
-        for curve in curves:
+        for curve in curves2D:
             if not polycurve.points2D or polycurve.points2D[-1] != curve.start:
                 polycurve.points2D.append(curve.start)
-            polycurve.curves.append(curve)
+            polycurve.curves2D.append(curve)
             polycurve.points2D.append(curve.end)
 
         polycurve.isClosed = polycurve.points2D[0].value == polycurve.points2D[-1].value
         if project.autoclose == True and polycurve.isClosed == False:
-            polycurve.curves.append(Line2D(start=curves[-1].end, end=curves[0].start))
-            polycurve.points2D.append(curves[0].start)
+            polycurve.curves2D.append(Line2D(start=curves2D[-1].end, end=curves2D[0].start))
+            polycurve.points2D.append(curves2D[0].start)
             polycurve.isClosed = True
         return polycurve
 
 
     def points(self):
-        for i in self.curves:
+        for i in self.curves2D:
             self.points2D.append(i.start)
             self.points2D.append(i.end)
         return self.points2D
@@ -2969,10 +2998,10 @@ class PolyCurve2D:
 
     def length(self) -> float:
         lst = []
-        for line in self.curves:
+        for line in self.curves2D:
             lst.append(line.length)
 
-        return sum(i.length for i in self.curves)
+        return sum(i.length for i in self.curves2D)
 
 
     @staticmethod
@@ -3019,7 +3048,7 @@ class PolyCurve2D:
     def translate(self, vector2d:Vector2):
         crvs = []
         v1 = vector2d
-        for i in self.curves:
+        for i in self.curves2D:
             if i.__class__.__name__ == "Arc2D":
                 crvs.append(Arc2D(i.start.translate(v1), i.mid.translate(v1), i.end.translate(v1)))
             elif i.__class__.__name__ == "Line2D":
@@ -3045,7 +3074,7 @@ class PolyCurve2D:
 
     def rotate(self, rotation):
         crvs = []
-        for i in self.curves:
+        for i in self.curves2D:
             if i.__class__.__name__ == "Arc2D":
                 crvs.append(Arc2D(i.start.rotate(rotation), i.mid.rotate(rotation), i.end.rotate(rotation)))
             elif i.__class__.__name__ == "Line2D":
@@ -3060,7 +3089,7 @@ class PolyCurve2D:
     def boundingboxGlobalCS(PC):
         x =[]
         y =[]
-        for i in PC.curves():
+        for i in PC.curves2D():
             x.append(i.start.x)
             y.append(i.start.y)
         xmin = min(x)
@@ -3075,7 +3104,7 @@ class PolyCurve2D:
         #returns xmin,xmax,ymin,ymax,width,height of polycurve 2D
         x =[]
         y =[]
-        for i in PC.curves:
+        for i in PC.curves2D:
             x.append(i.start.x)
             y.append(i.start.y)
         xmin = min(x)
@@ -3103,7 +3132,7 @@ class PolyCurve2D:
     @staticmethod
     def polygon(self):
         points = []
-        for i in self.curves:
+        for i in self.curves2D:
             if i == Arc2D:
                 points.append(i.start, i.mid) #
             else:
@@ -3601,7 +3630,7 @@ class Extrusion:
         self.faces = []
         self.numberFaces = 0
         self.countVertsFaces = 0 # total number of verts per face (not the same as total verts)
-        self.name = "none"
+        self.name = None
         self.color = (255,255,0)
         self.colorlst = []
         self.topface = None #return polycurve -> surface
@@ -3679,56 +3708,105 @@ class Extrusion:
         count = 0
         
         Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(polycurve2d,startpoint,DirectionVector)
-        for i in polycurve2d.curves:
-            startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
-            endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
-            endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
-            startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
-
-            #Construct faces perpendicular on polycurve
-            Extrus.faces.append(4)
-            Extrus.verts.append(startpointLow.x)
-            Extrus.verts.append(startpointLow.y)
-            Extrus.verts.append(startpointLow.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.verts.append(endpointLow.x)
-            Extrus.verts.append(endpointLow.y)
-            Extrus.verts.append(endpointLow.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.verts.append(endpointHigh.x)
-            Extrus.verts.append(endpointHigh.y)
-            Extrus.verts.append(endpointHigh.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.verts.append(startpointHigh.x)
-            Extrus.verts.append(startpointHigh.y)
-            Extrus.verts.append(startpointHigh.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.numberFaces = Extrus.numberFaces + 1
-
-        #bottomface
-        Extrus.faces.append(len(polycurve2d.curves))
-
-        count = 0
-        for i in polycurve2d.curves:
-            Extrus.faces.append(count)
-            Extrus.bottomshape.append(i)
-            count = count + 4
         
+        try:
+            for i in polycurve2d.curves:
+                startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
+                endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
 
-        # topface
-        Extrus.faces.append(len(polycurve2d.curves))
-        count = 3
-        for i in polycurve2d.curves:
-            Extrus.faces.append(count)
-            count = count + 4
+                #Construct faces perpendicular on polycurve
+                Extrus.faces.append(4)
+                Extrus.verts.append(startpointLow.x)
+                Extrus.verts.append(startpointLow.y)
+                Extrus.verts.append(startpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointLow.x)
+                Extrus.verts.append(endpointLow.y)
+                Extrus.verts.append(endpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointHigh.x)
+                Extrus.verts.append(endpointHigh.y)
+                Extrus.verts.append(endpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(startpointHigh.x)
+                Extrus.verts.append(startpointHigh.y)
+                Extrus.verts.append(startpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.numberFaces = Extrus.numberFaces + 1
+
+            #bottomface
+            Extrus.faces.append(len(polycurve2d.curves))
+
+            count = 0
+            for i in polycurve2d.curves:
+                Extrus.faces.append(count)
+                Extrus.bottomshape.append(i)
+                count = count + 4
+            
+
+            # topface
+            Extrus.faces.append(len(polycurve2d.curves))
+            count = 3
+            for i in polycurve2d.curves:
+                Extrus.faces.append(count)
+                count = count + 4
+        except:
+            for i in polycurve2d.curves2D:
+                startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
+                endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
+
+                #Construct faces perpendicular on polycurve
+                Extrus.faces.append(4)
+                Extrus.verts.append(startpointLow.x)
+                Extrus.verts.append(startpointLow.y)
+                Extrus.verts.append(startpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointLow.x)
+                Extrus.verts.append(endpointLow.y)
+                Extrus.verts.append(endpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointHigh.x)
+                Extrus.verts.append(endpointHigh.y)
+                Extrus.verts.append(endpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(startpointHigh.x)
+                Extrus.verts.append(startpointHigh.y)
+                Extrus.verts.append(startpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.numberFaces = Extrus.numberFaces + 1
+
+            #bottomface
+            Extrus.faces.append(len(polycurve2d.curves2D))
+
+            count = 0
+            for i in polycurve2d.curves2D:
+                Extrus.faces.append(count)
+                Extrus.bottomshape.append(i)
+                count = count + 4
+            
+
+            # topface
+            Extrus.faces.append(len(polycurve2d.curves2D))
+            count = 3
+            for i in polycurve2d.curves2D:
+                Extrus.faces.append(count)
+                count = count + 4
 
         Extrus.countVertsFaces = (4 * Extrus.numberFaces)
 
-        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
+        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves2D)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
 
         for j in range(int(len(Extrus.verts) / 3)):
@@ -3974,9 +4052,9 @@ class Panel:
         self.type = __class__.__name__
         self.extrusion = None
         self.thickness = 0
-        self.name = "none"
+        self.name = None
         self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal #TODO: implementend real coordinatesystem based on first curve and/or overruled by user
+        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorint = None
         self.colorlst = []
         self.origincurve = None
@@ -4520,7 +4598,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     # print(XJustifiction)
     xval = []
     yval = []
-    for i in plycrv2D.curves:
+    for i in plycrv2D.curves2D:
         xval.append(i.start.x)
         yval.append(i.start.y)
 
@@ -5530,7 +5608,7 @@ class Frame:
             f1.end = end.point
 
         try:
-            curv = profiledataToShape(profile_name, True).polycurve2d
+            curv = profiledataToShape(profile_name).polycurve2d
         except Exception as e:
             print(f"Profile does not exist: {profile_name}\nError: {e}") #Profile does not exist
 
@@ -8325,6 +8403,7 @@ def XMLImportgetGridDistances(Grids):
 def XMLImportGrids(XMLtree, gridExtension):
     # create building.py Grids from the grids of XFEM4U
     root = XMLtree.getroot()
+    gridlines = []
 
     # GRIDS
     GridEx = gridExtension
@@ -8357,29 +8436,8 @@ def XMLImportGrids(XMLtree, gridExtension):
     obj = []
     for i in grids:
         obj.append(Grid.byStartpointEndpoint(i, "Grid"))
+     #   gridlines.append(line)
     return obj
-
-
-# def XMLImportGrids(XMLtree, gridExtension):
-#     root = XMLtree.getroot()
-
-#     def get_grid_values_and_max(path):
-#         values = [float(value) for value in root.find(f".//Grids/{path}").text.split()]
-#         values = XMLImportgetGridDistances(values)
-#         return values, max(values)
-
-#     GridsX, Xmax = get_grid_values_and_max("X")
-#     GridsY, Ymax = get_grid_values_and_max("Y")
-#     GridsZ, Zmax = get_grid_values_and_max("Z")
-
-#     grids = [Line(start=Point(i, -gridExtension, 0), end=Point(i, Ymax + gridExtension, 0)) for i in GridsX] + \
-#             [Line(start=Point(-gridExtension, i, 0), end=Point(Xmax + gridExtension, i, 0)) for i in GridsY] + \
-#             [Line(start=Point(0, 0, i), end=Point(0, Xmax, i)) for i in GridsZ]
-
-#     obj = [Grid.byStartpointEndpoint(i, "Grid") for i in grids]
-
-#     return obj
-
 
 # def findMaterial(material):
 
@@ -9220,4 +9278,4 @@ class LoadXML:
                                     except Exception as e:
                                         if elementType not in self.unrecognizedElements:
                                             self.unrecognizedElements.append(elementType)
-                                        # print(e, elementType)
+                                        print(e, elementType)

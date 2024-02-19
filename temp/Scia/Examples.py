@@ -14,8 +14,4 @@ project = BuildingPy("TempCommit", "0")
 
 LoadXML(filepath, project)
 
-# for j in project.objects:
-#     if j.type == "Frame":
-#         print(j.profile_data.profile_data.synonyms)
-
 project.toSpeckle("c6e11e74cb")
