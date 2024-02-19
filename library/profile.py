@@ -124,7 +124,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     # print(XJustifiction)
     xval = []
     yval = []
-    for i in plycrv2D.curves:
+    for i in plycrv2D.curves2D:
         xval.append(i.start.x)
         yval.append(i.start.y)
 

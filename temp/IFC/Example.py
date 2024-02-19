@@ -15,6 +15,6 @@ model = LoadIFC(filepath, project, ["IfcDoor"])
 # model = LoadIFC(filepath, project, ["IfcSpace", "IfcBuildingStorey", "IfcWall"])
 # model = LoadIFC(filepath, project, ["IfcWall"])
 
-# print(project.objects)
+print(project.objects)
 
 project.toSpeckle("c6e11e74cb")

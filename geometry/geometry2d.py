@@ -390,7 +390,7 @@ class PolyCurve2D:
     def __init__(self) -> None:
         self.id = generateID()
         self.type = __class__.__name__        
-        self.curves = []
+        self.curves2D = []
         self.points2D = []
         self.segmentcurves = None
         self.width = None
@@ -465,27 +465,27 @@ class PolyCurve2D:
 
 
     @classmethod #curves or curves2D?
-    def byJoinedCurves(cls, curves):
-        if not curves or len(curves) < 1:
+    def byJoinedCurves(cls, curves2D):
+        if not curves2D or len(curves2D) < 1:
             raise ValueError("At least one curve is required to create a PolyCurve2D.")
 
         polycurve = cls()
-        for curve in curves:
+        for curve in curves2D:
             if not polycurve.points2D or polycurve.points2D[-1] != curve.start:
                 polycurve.points2D.append(curve.start)
-            polycurve.curves.append(curve)
+            polycurve.curves2D.append(curve)
             polycurve.points2D.append(curve.end)
 
         polycurve.isClosed = polycurve.points2D[0].value == polycurve.points2D[-1].value
         if project.autoclose == True and polycurve.isClosed == False:
-            polycurve.curves.append(Line2D(start=curves[-1].end, end=curves[0].start))
-            polycurve.points2D.append(curves[0].start)
+            polycurve.curves2D.append(Line2D(start=curves2D[-1].end, end=curves2D[0].start))
+            polycurve.points2D.append(curves2D[0].start)
             polycurve.isClosed = True
         return polycurve
 
 
     def points(self):
-        for i in self.curves:
+        for i in self.curves2D:
             self.points2D.append(i.start)
             self.points2D.append(i.end)
         return self.points2D
@@ -595,10 +595,10 @@ class PolyCurve2D:
 
     def length(self) -> float:
         lst = []
-        for line in self.curves:
+        for line in self.curves2D:
             lst.append(line.length)
 
-        return sum(i.length for i in self.curves)
+        return sum(i.length for i in self.curves2D)
 
 
     @staticmethod
@@ -645,7 +645,7 @@ class PolyCurve2D:
     def translate(self, vector2d:Vector2):
         crvs = []
         v1 = vector2d
-        for i in self.curves:
+        for i in self.curves2D:
             if i.__class__.__name__ == "Arc2D":
                 crvs.append(Arc2D(i.start.translate(v1), i.mid.translate(v1), i.end.translate(v1)))
             elif i.__class__.__name__ == "Line2D":
@@ -671,7 +671,7 @@ class PolyCurve2D:
 
     def rotate(self, rotation):
         crvs = []
-        for i in self.curves:
+        for i in self.curves2D:
             if i.__class__.__name__ == "Arc2D":
                 crvs.append(Arc2D(i.start.rotate(rotation), i.mid.rotate(rotation), i.end.rotate(rotation)))
             elif i.__class__.__name__ == "Line2D":
@@ -686,7 +686,7 @@ class PolyCurve2D:
     def boundingboxGlobalCS(PC):
         x =[]
         y =[]
-        for i in PC.curves():
+        for i in PC.curves2D():
             x.append(i.start.x)
             y.append(i.start.y)
         xmin = min(x)
@@ -701,7 +701,7 @@ class PolyCurve2D:
         #returns xmin,xmax,ymin,ymax,width,height of polycurve 2D
         x =[]
         y =[]
-        for i in PC.curves:
+        for i in PC.curves2D:
             x.append(i.start.x)
             y.append(i.start.y)
         xmin = min(x)
@@ -729,7 +729,7 @@ class PolyCurve2D:
     @staticmethod
     def polygon(self):
         points = []
-        for i in self.curves:
+        for i in self.curves2D:
             if i == Arc2D:
                 points.append(i.start, i.mid) #
             else:

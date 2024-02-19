@@ -133,56 +133,105 @@ class Extrusion:
         count = 0
         
         Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(polycurve2d,startpoint,DirectionVector)
-        for i in polycurve2d.curves:
-            startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
-            endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
-            endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
-            startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
-
-            #Construct faces perpendicular on polycurve
-            Extrus.faces.append(4)
-            Extrus.verts.append(startpointLow.x)
-            Extrus.verts.append(startpointLow.y)
-            Extrus.verts.append(startpointLow.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.verts.append(endpointLow.x)
-            Extrus.verts.append(endpointLow.y)
-            Extrus.verts.append(endpointLow.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.verts.append(endpointHigh.x)
-            Extrus.verts.append(endpointHigh.y)
-            Extrus.verts.append(endpointHigh.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.verts.append(startpointHigh.x)
-            Extrus.verts.append(startpointHigh.y)
-            Extrus.verts.append(startpointHigh.z)
-            Extrus.faces.append(count)
-            count += 1
-            Extrus.numberFaces = Extrus.numberFaces + 1
-
-        #bottomface
-        Extrus.faces.append(len(polycurve2d.curves))
-
-        count = 0
-        for i in polycurve2d.curves:
-            Extrus.faces.append(count)
-            Extrus.bottomshape.append(i)
-            count = count + 4
         
+        try:
+            for i in polycurve2d.curves:
+                startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
+                endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
 
-        # topface
-        Extrus.faces.append(len(polycurve2d.curves))
-        count = 3
-        for i in polycurve2d.curves:
-            Extrus.faces.append(count)
-            count = count + 4
+                #Construct faces perpendicular on polycurve
+                Extrus.faces.append(4)
+                Extrus.verts.append(startpointLow.x)
+                Extrus.verts.append(startpointLow.y)
+                Extrus.verts.append(startpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointLow.x)
+                Extrus.verts.append(endpointLow.y)
+                Extrus.verts.append(endpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointHigh.x)
+                Extrus.verts.append(endpointHigh.y)
+                Extrus.verts.append(endpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(startpointHigh.x)
+                Extrus.verts.append(startpointHigh.y)
+                Extrus.verts.append(startpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.numberFaces = Extrus.numberFaces + 1
+
+            #bottomface
+            Extrus.faces.append(len(polycurve2d.curves))
+
+            count = 0
+            for i in polycurve2d.curves:
+                Extrus.faces.append(count)
+                Extrus.bottomshape.append(i)
+                count = count + 4
+            
+
+            # topface
+            Extrus.faces.append(len(polycurve2d.curves))
+            count = 3
+            for i in polycurve2d.curves:
+                Extrus.faces.append(count)
+                count = count + 4
+        except:
+            for i in polycurve2d.curves2D:
+                startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
+                endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
+
+                #Construct faces perpendicular on polycurve
+                Extrus.faces.append(4)
+                Extrus.verts.append(startpointLow.x)
+                Extrus.verts.append(startpointLow.y)
+                Extrus.verts.append(startpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointLow.x)
+                Extrus.verts.append(endpointLow.y)
+                Extrus.verts.append(endpointLow.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(endpointHigh.x)
+                Extrus.verts.append(endpointHigh.y)
+                Extrus.verts.append(endpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.verts.append(startpointHigh.x)
+                Extrus.verts.append(startpointHigh.y)
+                Extrus.verts.append(startpointHigh.z)
+                Extrus.faces.append(count)
+                count += 1
+                Extrus.numberFaces = Extrus.numberFaces + 1
+
+            #bottomface
+            Extrus.faces.append(len(polycurve2d.curves2D))
+
+            count = 0
+            for i in polycurve2d.curves2D:
+                Extrus.faces.append(count)
+                Extrus.bottomshape.append(i)
+                count = count + 4
+            
+
+            # topface
+            Extrus.faces.append(len(polycurve2d.curves2D))
+            count = 3
+            for i in polycurve2d.curves2D:
+                Extrus.faces.append(count)
+                count = count + 4
 
         Extrus.countVertsFaces = (4 * Extrus.numberFaces)
 
-        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
+        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves2D)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
 
         for j in range(int(len(Extrus.verts) / 3)):

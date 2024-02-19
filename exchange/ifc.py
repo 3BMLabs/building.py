@@ -151,6 +151,27 @@ class LoadIFC:
                     except:
                         pass
                 elif object.is_a('IfcWall') or object.is_a('IfcDoor'):
+                    object
+                    a = object.Representation.Representations[1].Items[0].MappingSource.MappedRepresentation.Items[0].Elements
+                    c = object.Representation.Representations[1]
+                    
+                    for obj in a:
+                        if obj.is_a("IfcPolyline"):
+                            pts = []
+                            for pt in obj.Points:
+                                pts.append(Point2D(pt.Coordinates[0], pt.Coordinates[1]))
+                                # print(pt.Coordinates)
+                            pc = PolyCurve2D.byPoints(pts)
+                            objs.append(pc)
+
+                    # b = 
+                    # for obj in b:
+
+
+                        # print()
+                        # print(obj)
+                    # print(a)
+
 
                     # def process_geometric_representation_item(item):
                     #     vertices = []
@@ -197,26 +218,30 @@ class LoadIFC:
                                     
                     #     return vertices
 
+                #temp
+                            
                     # vertices = extract_wall_geometry(object)
                     # print(vertices)
 
-                    settings = ifcopenshell.geom.settings()
-                    shape = ifcopenshell.geom.create_shape(settings, object)
-                    faces = shape.geometry.faces
-                    verts = shape.geometry.verts
-                    materials = shape.geometry.materials
-                    material_ids = shape.geometry.material_ids
+                    # settings = ifcopenshell.geom.settings()
+                    # shape = ifcopenshell.geom.create_shape(settings, object)
+                    # faces = shape.geometry.faces
+                    # verts = shape.geometry.verts
+                    # materials = shape.geometry.materials
+                    # material_ids = shape.geometry.material_ids
 
-                    grouped_verts = [[verts[i], verts[i + 1], verts[i + 2]] for i in range(0, len(verts), 3)]
-                    grouped_faces = [[faces[i], faces[i + 1], faces[i + 2]] for i in range(0, len(faces), 3)]
+                    # grouped_verts = [[verts[i], verts[i + 1], verts[i + 2]] for i in range(0, len(verts), 3)]
+                    # grouped_faces = [[faces[i], faces[i + 1], faces[i + 2]] for i in range(0, len(faces), 3)]
 
-                    points = []
-                    pcurves = []
-                    for pt in grouped_verts:
-                        p1 = Point(pt[0]*project.scale, pt[1]*project.scale, pt[2]*project.scale)
-                        points.append(p1)
-                    return points
+                    # points = []
+                    # pcurves = []
+                    # for pt in grouped_verts:
+                    #     p1 = Point(pt[0]*project.scale, pt[1]*project.scale, pt[2]*project.scale)
+                    #     points.append(p1)
+                    # return points
                 
+
+                #temp
                     # points_list = []
                     # z_values = []
 
@@ -348,7 +373,8 @@ def translateObjectsToIFC(Obj):
 
         elif nm == 'Frame':
             #convert this to a .ifc object
-            FreeCADObj.append(FrameToFreeCAD(i))
+            # FreeCADObj.append(FrameToFreeCAD(i))
+            pass
 
         elif nm == "Extrusion":
             test = "test"
