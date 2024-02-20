@@ -68,7 +68,7 @@ class CChannelParallelFlange:
         self.tf = tf        #flange thickness
         self.r1 = r        #web fillet
         self.ex = ex        #centroid horizontal
-
+        self.IfcProfileDef = "IfcUShapeProfileDef"
 
         #describe points
         p1 = Point2D(-ex, -h / 2)  # left bottom
@@ -157,6 +157,7 @@ class CChannelSlopedFlange:
         self.tl = tl  # flange thickness location from right
         self.sa = math.radians(sa)  # the angle of sloped flange in degrees
         self.ex = ex  # centroid horizontal
+        self.IfcProfileDef = "IfcUShapeProfileDef"
 
         # describe points
         p1 = Point2D(-ex, -h / 2)  # left bottom
@@ -256,6 +257,7 @@ class IShapeParallelFlange:
         self.tf = tf  # flange thickness
         self.r = r  # web fillet
         self.r1 = r1 = r / sqrt2
+        self.IfcProfileDef = "IfcIShapeProfileDef"
 
         # describe points
         p1 = Point2D(b / 2, -h / 2)  # right bottom
@@ -351,6 +353,7 @@ class Rectangle:
         self.curve = []
         self.h = h  # height
         self.b = b  # width
+        self.IfcProfileDef = "IfcRectangleProfileDef"
 
         # describe points
         p1 = Point2D(b / 2, -h / 2)  # right bottom
@@ -411,6 +414,7 @@ class Round:
         self.r = r  # radius
         self.data = (name, r, "Round")
         dr = r / sqrt2 #grootste deel
+        self.IfcProfileDef = "IfcCircleProfileDef"
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
@@ -479,6 +483,7 @@ class Roundtube:
         r = self.r
         ri = r-t
         dri = ri / sqrt2
+        self.IfcProfileDef = "IfcCircleHollowProfileDef"
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
@@ -571,6 +576,7 @@ class LAngle:
         self.r21 = r2 / sqrt2
         self.ex = ex  # from left
         self.ey = ey  # from bottom
+        self.IfcProfileDef = "IfcLShapeProfileDef"
 
         # describe points
         p1 = Point2D(-ex, -ey)  # left bottom
@@ -669,6 +675,8 @@ class TProfile:
         self.r21 = r2 / sqrt2
         self.ex = ex  # from left
         self.ey = ey  # from bottom
+        self.IfcProfileDef = "IfcTShapeProfileDef"
+
 
         # describe points
         p1 = Point2D(-ex, -ey)  # left bottom
@@ -784,6 +792,7 @@ class RectangleHollowSection:
         dri = r2 - r2 / sqrt2
         bi = b-t
         hi = h-t
+        self.IfcProfileDef = "IfcRectangleHollowProfileDef"
 
         # describe points
         p1 = Point2D(-b / 2 + r1, - h / 2)  #left bottom end arc
@@ -897,6 +906,7 @@ class CProfile:
         dr = r1 - r1/sqrt2
         dri = r2 - r2/sqrt2
         hi = h-t
+        self.IfcProfileDef = "Unknown"
 
         # describe points
         p1 = Point2D(b-ex , -h/2) # right bottom
@@ -995,6 +1005,7 @@ class CProfileWithLips:
         dr = r1 - r1/sqrt2
         dri = r2 - r2/sqrt2
         hi = h-t
+        self.IfcProfileDef = "Unknown"
 
         # describe points
         p1 = Point2D(b-ex-r1 , -h/2) # right bottom  before fillet
@@ -1115,6 +1126,7 @@ class LProfileColdFormed:
         r11 = r1/math.sqrt(2)
         r2 = r1+t
         r21 = r2/math.sqrt(2)
+        self.IfcProfileDef = "Unknown"
 
         # describe points
         p1 = Point2D(-ex, -ey + r2)  # start arc left bottom
@@ -1205,6 +1217,7 @@ class SigmaProfileWithLipsColdFormed:
         self.ey = ey = h/2
         self.r11 = r11 = r1/math.sqrt(2)
         self.r21 = r21 = r2/math.sqrt(2)
+        self.IfcProfileDef = "Unknown"
 
         p1 = Point2D(-ex + b2, -h2 / 2)
         p2 = Point2D(-ex, -ey + h3)
@@ -1353,6 +1366,7 @@ class ZProfileColdFormed:
         self.ey = ey = h/2
         self.r11 = r11 = r1 / math.sqrt(2)
         self.r21 = r21 = r2 / math.sqrt(2)
+        self.IfcProfileDef = "Unknown"
 
         p1 = Point2D(-0.5 * t, -ey + t + r1)  # start arc
         p2 = Point2D(-0.5 * t - r1 + r11, -ey + t + r1 - r11)  # second point arc
@@ -1451,6 +1465,7 @@ class ZProfileWithLipsColdFormed:
         self.ey = ey = h/2
         self.r11 = r11 = r1 / math.sqrt(2)
         self.r21 = r21 = r2 / math.sqrt(2)
+        self.IfcProfileDef = "Unknown"
 
         p1 = Point2D(-0.5*t,-ey+t+r1) #start arc
         p2 = Point2D(-0.5*t-r1+r11,-ey+t+r1-r11) #second point arc
