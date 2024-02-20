@@ -37,7 +37,7 @@ import urllib.request
 import json
 
 file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
+package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
 from objects.steelshape import *

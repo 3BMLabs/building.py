@@ -166,13 +166,80 @@ class Vector3:
             v1.y*math.sin(angle) + v1.z*math.cos(angle)
         )
 
+    # @staticmethod
+    # def angleBetween(v1, v2):
+    #     return math.degrees(math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2)))))
+    
+    def to_numpy(self):
+        return np.array([self.x, self.y, self.z])
+
     @staticmethod
     def angleBetween(v1, v2):
-        return math.degrees(math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2)))))
-    
+        np_v1 = v1.to_numpy()
+        np_v2 = v2.to_numpy()
+        dot_product = np.dot(np_v1, np_v2)
+        length_v1 = np.linalg.norm(np_v1)
+        length_v2 = np.linalg.norm(np_v2)
+
+        if length_v1 == 0 or length_v2 == 0:
+            return 0
+
+        cos_angle = dot_product / (length_v1 * length_v2)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        angle = math.acos(cos_angle)
+        return math.degrees(angle)
+
     @staticmethod
     def angleRadianBetween(v1, v2):
         return math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2))))
+
+    @staticmethod
+    def angleBetweenYZ(v1, v2):  # X Axis degrees
+        proj_v1 = Vector3(0, v1.y, v1.z).to_numpy()
+        proj_v2 = Vector3(0, v2.y, v2.z).to_numpy()
+        dot = np.dot(proj_v1, proj_v2)
+        mag_v1 = np.linalg.norm(proj_v1)
+        mag_v2 = np.linalg.norm(proj_v2)
+
+        if mag_v1 == 0 or mag_v2 == 0:
+            return 0  # or return None
+
+        cos_angle = dot / (mag_v1 * mag_v2)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        angle = math.acos(cos_angle)
+        return math.degrees(angle)
+
+    @staticmethod
+    def angleBetweenXZ(v1, v2):  # Y Axis degrees
+        proj_v1 = Vector3(v1.x, 0, v1.z).to_numpy()
+        proj_v2 = Vector3(v2.x, 0, v2.z).to_numpy()
+        dot = np.dot(proj_v1, proj_v2)
+        mag_v1 = np.linalg.norm(proj_v1)
+        mag_v2 = np.linalg.norm(proj_v2)
+
+        if mag_v1 == 0 or mag_v2 == 0:
+            return 0  # or return None
+
+        cos_angle = dot / (mag_v1 * mag_v2)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        angle = math.acos(cos_angle)
+        return math.degrees(angle)
+
+    @staticmethod
+    def angleBetweenXY(v1, v2):  # Z Axis degrees
+        proj_v1 = Vector3(v1.x, v1.y, 0).to_numpy()
+        proj_v2 = Vector3(v2.x, v2.y, 0).to_numpy()
+        dot = np.dot(proj_v1, proj_v2)
+        mag_v1 = np.linalg.norm(proj_v1)
+        mag_v2 = np.linalg.norm(proj_v2)
+
+        if mag_v1 == 0 or mag_v2 == 0:
+            return 0  # or return None
+
+        cos_angle = dot / (mag_v1 * mag_v2)
+        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        angle = math.acos(cos_angle)
+        return math.degrees(angle)
 
     @staticmethod
     def value(v1):
