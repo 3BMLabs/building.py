@@ -71,7 +71,10 @@ class LoadIFC:
 
     def convertobject(self):
         objs = []
+        # settings = ifcopenshell.geom.settings()
         settings = ifcopenshell.geom.settings()
+        settings.set(settings.SEW_SHELLS, True)  # Attempt to sew shells into solids
+
         for index, eachlist in enumerate(self.IFCObjects):
             for object in eachlist:
                 if object.is_a('IfcBuildingStorey'):
@@ -93,76 +96,95 @@ class LoadIFC:
 
 
                 elif object.is_a('IfcSpace'):
-                    try:
+                    points_list = []
+                    z_values = []
 
-                        points_list = []
-                        z_values = []
+                    min_z_points = []
+                    max_z_points = []
 
-                        min_z_points = []
-                        max_z_points = []
+                    min_z = float("inf")
+                    max_z = float("inf")
 
-                        min_z = float("inf")
-                        max_z = float("inf")
+                    data = elementName = util.get_psets(object)
+                    elementName = util.get_psets(object)["Pset_ProductRequirements"]["Name"]
 
-                        data = elementName = util.get_psets(object)
-                        elementName = util.get_psets(object)["Pset_ProductRequirements"]["Name"]
+                    bottom_elevation = None
+                    a = object.get_info()
+                    print(a["Name"])
+                    print(a["ObjectPlacement"])
+                    b = object.id
+                    c = object.is_a()
 
-                        bottom_elevation = None
-                        a = object.get_info()
-                        print(a["Name"])
-                        print(a["ObjectPlacement"])
-                        b = object.id
-                        c = object.is_a()
+                    shape = ifcopenshell.geom.create_shape(settings, object)
+                    print(shape)
+                    mesh = shape.geometry
+                    print(mesh)
+                    vertices = mesh.verts
+                    print(vertices)
+                    for i in range(0, len(vertices), 3):
+                        point = Point(vertices[i] * project.scale, vertices[i+1] * project.scale, vertices[i+2] * project.scale)
+                        points_list.append(point)
+
+                        if point.z < min_z:
+                            min_z = point.z
+                            min_z_points = [point]
+                        elif point.z == min_z:
+                            min_z_points.append(point)
+
+                        if point.z > max_z:
+                            max_z = point.z
+                            max_z_points = [point]
+                        elif point.z == max_z:
+                            max_z_points.append(point)
+
+                    for pt in points_list:
+                        z_values.append(pt.z)
+                    top = max(z_values)
+                    bottom = min(z_values)
+
+                    print(top, bottom)
+
+                    ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, bottom)
+                    ex.name = elementName
+                    objs.append(ex)
+                    objs.append(ex.polycurve_3d_translated)
 
 
-                        shape = ifcopenshell.geom.create_shape(settings, object)
-                        print(shape)
-                        mesh = shape.geometry
-                        print(mesh)
-                        vertices = mesh.verts
-                        print(vertices)
-                        for i in range(0, len(vertices), 3):
-                            point = Point(vertices[i] * project.scale, vertices[i+1] * project.scale, vertices[i+2] * project.scale)
-                            points_list.append(point)
-
-                            if point.z < min_z:
-                                min_z = point.z
-                                min_z_points = [point]
-                            elif point.z == min_z:
-                                min_z_points.append(point)
-
-                            if point.z > max_z:
-                                max_z = point.z
-                                max_z_points = [point]
-                            elif point.z == max_z:
-                                max_z_points.append(point)
-
-                        for pt in points_list:
-                            z_values.append(pt.z)
-                        top = max(z_values)
-                        bottom = min(z_values)
-
-                        print(top, bottom)
-
-                        ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, bottom)
-                        ex.name = elementName
-                        objs.append(ex)
-                        objs.append(ex.polycurve_3d_translated)
-                    except:
-                        pass
                 elif object.is_a('IfcWall') or object.is_a('IfcDoor'):
-                    object
-                    a = object.Representation.Representations[1].Items[0].MappingSource.MappedRepresentation.Items[0].Elements
-                    c = object.Representation.Representations[1]
-                    
-                    for obj in a:
-                        if obj.is_a("IfcPolyline"):
-                            pts = []
-                            for pt in obj.Points:
-                                pts.append(Point2D(pt.Coordinates[0], pt.Coordinates[1]))
-                                # print(pt.Coordinates)
-                            pc = PolyCurve2D.byPoints(pts)
-                            objs.append(pc)
+                    shape = ifcopenshell.geom.create_shape(settings, object)
+                    verts = shape.geometry.verts
+                    edges = shape.geometry.edges
+                    faces = shape.geometry.faces
+
+                    grouped_verts = ifcopenshell.util.shape.get_vertices(shape.geometry)
+                    # A nested numpy array e.g. [[e1v1, e1v2], [e2v1, e2v2], ...]
+                    grouped_edges = ifcopenshell.util.shape.get_edges(shape.geometry)
+                    # A nested numpy array e.g. [[f1v1, f1v2, f1v3], [f2v1, f2v2, f2v3], ...]
+                    grouped_faces = ifcopenshell.util.shape.get_faces(shape.geometry)
+
+                    # print(shape)
+
+                    # print(grouped_faces[0])
+                    # print(grouped_faces[1])
+
+                    sys.exit()
+                    # shape = ifcopenshell.geom.create_shape(settings, object)
+                    # print(shape)
+                    # x = object.get_geometry()
+                    # print(x)
+                    # object
+                    # a = object.Representation.Representations[1].Items[0].MappingSource.MappedRepresentation.Items[0].Elements
+                    # c = object.Representation.Representations[1]
+                    # print(a)
+                    # print(c)
+                    # for obj in a:
+                    #     if obj.is_a("IfcPolyline"):
+                    #         pts = []
+                    #         for pt in obj.Points:
+                    #             pts.append(Point2D(pt.Coordinates[0], pt.Coordinates[1]))
+                    #             # print(pt.Coordinates)
+                    #         pc = PolyCurve2D.byPoints(pts)
+                    #         objs.append(pc)
 
                     # b = 
                     # for obj in b:

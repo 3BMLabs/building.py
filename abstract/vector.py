@@ -158,10 +158,6 @@ class Vector3:
     def length(v1):
         return math.sqrt(v1.x*v1.x+v1.y*v1.y+v1.z*v1.z)
     
-    # @staticmethod
-    # def length(v1):
-    #     return (v1.x ** 2 + v1.y ** 2 + v1.z ** 2) ** 0.5
-    
     @staticmethod
     def pitch(v1, angle):
         return Vector3(

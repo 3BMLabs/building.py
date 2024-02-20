@@ -17,4 +17,4 @@ model = LoadIFC(filepath, project, ["IfcDoor"])
 
 print(project.objects)
 
-project.toSpeckle("c6e11e74cb")
+# project.toSpeckle("c6e11e74cb")
