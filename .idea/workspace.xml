@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exchange/ifc2.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/ifc2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstract/coordinatesystem.py" beforeDir="false" afterPath="$PROJECT_DIR$/abstract/coordinatesystem.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +39,7 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/mikev/Documents/GitHub/FOSS-BIM-Experiments/GIS2BIM",
+    "last_opened_file_path": "C:/Users/mikev/Documents/GitHub/building.py",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
@@ -50,7 +51,7 @@
       <recent name="C:\Users\mikev\Documents\GitHub\building.py" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.CreatePatternSendToSpeckle">
+  <component name="RunManager">
     <configuration name="CreatePatternSendToSpeckle" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />

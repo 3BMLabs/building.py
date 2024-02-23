@@ -41,7 +41,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.vector import *
 from geometry.point import Point
-from project.fileformat import project
+#from project.fileformat import project
 
 # [!not included in BP singlefile - end]
 
@@ -170,4 +170,7 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
-CSGlobal = project.CSGlobal
+XAxis = Vector3(1, 0, 0)
+Vector3(0, 1, 0)
+Vector3(0, 0, 1)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
