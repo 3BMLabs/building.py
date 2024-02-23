@@ -45,7 +45,7 @@ class IfcBp:
         self.file.createIfcCartesianPoint(O)
         return self
 
-    def organisation_application(self, organisation_name):
+    def organisation_application(self, organisation_name, person_name):
         organisation = self.file.createIfcOrganization()
         organisation.Name = organisation_name
         app = self.file.createIfcApplication()
@@ -54,10 +54,11 @@ class IfcBp:
         app.ApplicationFullName = "IfcOpenShell v0.7.0-1b1fd1e6"
         self.app = app
         person = self.file.createIfcPerson()
-        person.FamilyName = "M.D. Vroegindeweij"
+        person.FamilyName = person_name
+        self.person = person
         return self
 
-    def ownerhistory(self, person: str):
+    def ownerhistory(self):
         self.owner_history = self.file.createIfcOwnerHistory()
         self.owner_history.OwningUser = self.person
         self.owner_history.OwningApplication = self.app
@@ -65,13 +66,13 @@ class IfcBp:
         self.owner_history.CreationDate = int(time.time())
         return self
 
-    def site_building(self, sitename, building_name):
-        site_placement = self.create_ifclocalplacement()
-        building_placement = self.create_ifclocalplacement(O, Z, X, site_placement)
-        site = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcSite", name=sitename)
+    def site_building(self, site_name, building_name):
+        #site_placement = self.create_ifclocalplacement()
+        site = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcSite", name=site_name)
         building = ifcopenshell.api.run("root.create_entity", self.file, ifc_class="IfcBuilding", name=building_name)
-        ifcopenshell.api.run("aggregate.assign_object", self.file, relating_object=self.file.project, product=site)
+        ifcopenshell.api.run("aggregate.assign_object", self.file, relating_object=self.project, product=site)
         ifcopenshell.api.run("aggregate.assign_object", self.file, relating_object=site, product=building)
+        return self
 
     def create_ifcaxis2placement(self, point=O, dir1=Z, dir2=X):
         point = self.file.createIfcCartesianPoint(point)
@@ -85,11 +86,16 @@ class IfcBp:
         ifclocalplacement = self.file.createIfcLocalPlacement(relative_to, axis2placement)
         return ifclocalplacement
 
+    def write(self,path):
+        self.file.write(path)
+
 
 ifc = IfcBp().create("testproject","testlibrary")
-ifc.organisation_application("3BM")
-ifc.ownerhistory("Maarten")
+ifc.organisation_application("3BM", "Maarten")
+ifc.ownerhistory()
+ifc.site_building("Site","Building")
 
+ifc.write("C:/TEMP/test.ifc")
 
 print(ifc.app)
 
