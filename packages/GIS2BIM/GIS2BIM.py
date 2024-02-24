@@ -260,16 +260,16 @@ def DataFromWFS(serverName,boundingBoxString,xPathStringCoord,xPathStrings,dx,dy
     return xPathResults
 
 def checkIfCoordIsInsideBoundingBox(coord, min_x, min_y, max_x, max_y):
-	if re.match(r'^-?\d+(?:\.\d+)$', coord[0]) is None or re.match(r'^-?\d+(?:\.\d+)$', coord[1]) is None:
-		return False
-	else:
-		if min_x <= float(coord[0]) <= max_x and min_y <= float(coord[1]) <= max_y:
-			return True
-		else:
-		    return False
-	
+    if re.match(r'^-?\d+(?:\.\d+)$', coord[0]) is None or re.match(r'^-?\d+(?:\.\d+)$', coord[1]) is None:
+        return False
+    else:
+        if min_x <= float(coord[0]) <= max_x and min_y <= float(coord[1]) <= max_y:
+            return True
+        else:
+            return False
+
 def filterGMLbbox(tree,xPathString,bbx,bby,BoxWidth,BoxHeight,scale):
-	
+
     # Bounding box definition
     bounding_box = [bbx, bby, BoxWidth,BoxHeight]
     min_x = bounding_box[0] - (bounding_box[2]/2)
@@ -327,52 +327,52 @@ def WMSRequest(serverName,boundingBoxString,fileLocation,pixWidth,pixHeight):
     return fileLocation, resource, myrequestURL
 
 def MortonCode(X,Y,Xmod,Ymod,TileDimension):
-	# convert a x and y coordinate to a mortoncode
-	x = bin(int(math.floor(((X - Xmod)/TileDimension))))
-	y = bin(int(math.floor(((Y - Ymod)/TileDimension))))
-	x = str(x[2:])
-	y = str(y[2:])
-	res = "".join(i + j for i, j in zip(y, x))
-	z=(res)
-	z = int(z, 2)
-	return z
+    # convert a x and y coordinate to a mortoncode
+    x = bin(int(math.floor(((X - Xmod)/TileDimension))))
+    y = bin(int(math.floor(((Y - Ymod)/TileDimension))))
+    x = str(x[2:])
+    y = str(y[2:])
+    res = "".join(i + j for i, j in zip(y, x))
+    z=(res)
+    z = int(z, 2)
+    return z
 
 def NominatimAPI(inputlist):
     #get lat/lon via an adress using Nominatim API
-	URLpart1 = "https://nominatim.openstreetmap.org/search/"
-	URLpart2 = "%20".join(inputlist)
-	URLpart3 = "?format=xml&addressdetails=1&limit=1&polygon_svg=1"
-	URL = URLpart1 + URLpart2 + URLpart3
-	req = urllib.request.Request(URL)
-	resp = urllib.request.urlopen(req)
-	content = resp.read().decode('utf8')
-	try:
-		lst = re.split('lat=| lon=| display_name=',content)
-		lat = lst[1][1:-1]
-		lon = lst[2][1:-1]
-	except:
-		lat = None
-		lon = None	
-	return lat, lon
+    URLpart1 = "https://nominatim.openstreetmap.org/search/"
+    URLpart2 = "%20".join(inputlist)
+    URLpart3 = "?format=xml&addressdetails=1&limit=1&polygon_svg=1"
+    URL = URLpart1 + URLpart2 + URLpart3
+    req = urllib.request.Request(URL)
+    resp = urllib.request.urlopen(req)
+    content = resp.read().decode('utf8')
+    try:
+        lst = re.split('lat=| lon=| display_name=',content)
+        lat = lst[1][1:-1]
+        lon = lst[2][1:-1]
+    except:
+        lat = None
+        lon = None
+    return lat, lon
 
 def LatLonZoomToTileXY(lat,lon,zoom):
-	lat_rad = math.radians(lat)
-	n = 2.0 ** zoom
-	TileX = int((lon + 180.0) / 360.0 * n)
-	TileY = int((1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n)
+    lat_rad = math.radians(lat)
+    n = 2.0 ** zoom
+    TileX = int((lon + 180.0) / 360.0 * n)
+    TileY = int((1.0 - math.log(math.tan(lat_rad) + (1 / math.cos(lat_rad))) / math.pi) / 2.0 * n)
 
-	return TileX, TileY
+    return TileX, TileY
 
 def TMSBboxFromTileXY(TileX,TileY,zoom):
-	n = 2.0 ** zoom
-	W_deg = TileX / n * 360.0 - 180.0
-	N_rad = math.atan(math.sinh(math.pi * (1 - 2 * TileY / n)))
-	N_deg = math.degrees(N_rad)
-	E_deg = (TileX+1) / n * 360.0 - 180.0
-	S_rad = math.atan(math.sinh(math.pi * (1 - 2 * (TileY+1) / n)))
-	S_deg = math.degrees(S_rad)
+    n = 2.0 ** zoom
+    W_deg = TileX / n * 360.0 - 180.0
+    N_rad = math.atan(math.sinh(math.pi * (1 - 2 * TileY / n)))
+    N_deg = math.degrees(N_rad)
+    E_deg = (TileX+1) / n * 360.0 - 180.0
+    S_rad = math.atan(math.sinh(math.pi * (1 - 2 * (TileY+1) / n)))
+    S_deg = math.degrees(S_rad)
 
-	return S_deg,W_deg,N_deg,E_deg
+    return S_deg,W_deg,N_deg,E_deg
 
 def TMS_WMTSCombinedMapFromLatLonBbox(lat,lon,bboxWidth,bboxHeight,zoomL,pixels,TMS_WMTS,ServerName):
 	#With lat/lon and bbox tilenumbers are calculated then downloaded from given server and merged into 1 images and cropped afterwards to given boundingbox

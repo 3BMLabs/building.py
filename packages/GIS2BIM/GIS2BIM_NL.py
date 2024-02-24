@@ -160,29 +160,22 @@ def bgtDownloadURL(X,Y,bboxWidth,bboxHeight,timeout):
 	return downloadURL
 
 def BAG3DDownload(bboxString, tempFolder):
+	#Download 3D BAG as CityJSON
+	import requests
 	url = NLTUDelftBAG3D
 	xPathString1 = xPathStrings3DBAG2[0]
-	xPathString2 = xPathStrings3DBAG2[1]
-	xPathString3 = xPathStrings3DBAG2[2]
 
 	# Webrequest to obtain tilenumbers based on bbox
 	urlreq = url + bboxString
-	urlFile = urllib.request.urlopen(urlreq)
-	tree = ET.parse(urlFile)
-
-	urlDownloadPrefix = NLTUDelftBAG3DDownloadPrefix
-
-	# Collect result of webrequest
-	res = []
-	for i, j, k in zip(tree.findall(xPathString1), tree.findall(xPathString2), tree.findall(xPathString3)):
-		LBcoords = j.text.split()[2], j.text.split()[3]
-		res.append((i.text, LBcoords, k.text, urlDownloadPrefix + i.text + ".json"))
-
-	#Download files
-	jsonFileNames = []
+	response = requests.get(urlreq)
+	tree = ET.fromstring(response.text)
+	res = tree.findall(xPathString1)
 	for i in res:
-		fileNme = tempFolder + '3dbag_v21031_7425c21b_' + i[0]+ '.json' 	
-		r = PyPackages.requests.get(i[3])
-		open(fileNme, 'wb').write(r.content)	
-		jsonFileNames.append(fileNme)
-	return jsonFileNames
+		tile_id = i.text
+		tile_id2 = tile_id.replace("/","-")
+		url = NLTUDelftBAG3DDownloadPrefix + tile_id + "/" + tile_id2 + ".city.json"
+		path = tempFolder + tile_id2 + ".city.json"
+		r = requests.get(url)
+		with open(path, 'wb') as f:
+			f.write(r.content)
+	return res
