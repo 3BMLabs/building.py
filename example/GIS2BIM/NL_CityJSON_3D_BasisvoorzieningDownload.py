@@ -2,8 +2,9 @@ from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from packages.GIS2BIM.GIS2BIM_NL_helpers import *
-import json
-import os
+
+
+#Download CityJSON Files of 3D Basisvoorziening
 
 #SETTINGS
 GISProject = BuildingPy("test")
@@ -22,7 +23,6 @@ print(kaartbladenres)
 #CITYJSON DOWNLOAD
 folderCityJSON = tempfolder + "cityJSON/"
 CreateDirectory(folderCityJSON)
-
 for i in kaartbladenres:
     downloadlink = NLPDOKKadasterBasisvoorziening3DCityJSONVolledig + i[0] + "_2020_volledig.zip"
     print(downloadlink)

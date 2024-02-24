@@ -66,3 +66,29 @@ class MeshPB:
         self.material = material
         self.colorlst = [material.colorint]
         return self
+
+    def byThreeCoords(self, lsts, name, material, doublenest: bool):
+        #Example list structure
+        #[[[[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]], [[[-6735, 1188, 1520], [-6234, -6796, 1520], [8753, -5855, 1520]]], [[[8252, 2129, 870], [8753, -5855, 1520], [8753, -5855, 870]]], [[[8252, 2129, 870], [8252, 2129, 1520], [8753, -5855, 1520]]], [[[8753, -5855, 870], [-6234, -6796, 1520], [-6234, -6796, 870]]], [[[8753, -5855, 870], [8753, -5855, 1520], [-6234, -6796, 1520]]], [[[-6234, -6796, 870], [-6735, 1188, 1520], [-6735, 1188, 870]]], [[[-6234, -6796, 870], [-6234, -6796, 1520], [-6735, 1188, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 1520], [8252, 2129, 870]]], [[[-6735, 1188, 870], [-6735, 1188, 1520], [8252, 2129, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 870], [8753, -5855, 870]]], [[[-6234, -6796, 870], [-6735, 1188, 870], [8753, -5855, 870]]]]
+        verts = []
+        faces = []
+        count = 0
+        for lst in lsts: # lst is [[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]
+            if doublenest:
+                lst = lst[0] # lst is [8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]
+            else:
+                lst = lst
+            faces.append(3)
+            for coord in lst: #[8252, 2129, 1520]
+                faces.append(count)
+                verts.append(coord[0]) #x
+                verts.append(coord[1]) #y
+                verts.append(coord[2]) #z
+                count += 1
+            self.colorlst.append(material.colorint)
+            self.numberFaces = + 1
+        self.verts = verts
+        self.faces = faces
+        self.name = name
+        self.material = material
+        return self

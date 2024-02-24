@@ -7,8 +7,10 @@
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_Cadaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_Cadaster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSON_3D_Basisvoorziening.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSON_3D_BasisvoorzieningDownload.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/mesh.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/mesh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_parser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -117,7 +119,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="NL_CityJSON_3D_Basisvoorziening" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="NL_CityJSON_3D_BasisvoorzieningDownload" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -129,7 +131,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSON_3D_Basisvoorziening.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\mikev\Documents\GitHub\building.py\example\GIS2BIM\NL_CityJSON_3D_BasisvoorzieningDownload.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -161,7 +163,7 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.NL_CityJSON_3D_Basisvoorziening" />
+        <item itemvalue="Python.NL_CityJSON_3D_BasisvoorzieningDownload" />
         <item itemvalue="Python.NL_Cadaster" />
         <item itemvalue="Python.CreatePatternSendToSpeckle" />
         <item itemvalue="Python.smalltest" />

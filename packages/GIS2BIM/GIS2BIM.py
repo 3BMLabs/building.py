@@ -200,6 +200,7 @@ class GisRectBoundingBox:
         self.height = 0
         self.boundingBoxString = ""
         self.boundingBoxStringPolygon = ""
+        self.boundingBoxXY = []
         self.z = 0
 
     def Create(self,CoordinateX,CoordinateY,Width,Height,DecimalNumbers):
@@ -216,6 +217,7 @@ class GisRectBoundingBox:
         self.boundingBoxStringPolygon = "(" + str(self.XLeft) + ' ' + str(self.YTop) + ',' + str(self.XRight) + ' ' + str(self.YTop) + ',' + str(
             self.XRight) + ' ' + str(self.YBottom) + ',' + str(self.XLeft) + ' ' + str(self.YBottom) + ',' + str(self.XLeft) + ' ' + str(
             self.YTop) + ')'
+        self.boundingBoxXY = [self.XLeft,self.YBottom,self.XRight,self.YTop]
         return self
 
 def CreateBoundingBoxPolygon(CoordinateX,CoordinateY,BoxWidth,BoxHeight,DecimalNumbers):

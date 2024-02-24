@@ -5,6 +5,10 @@ from geometry.mesh import MeshPB
 from library.material import *
 from abstract.image import *
 
+#Description
+#This script creates lines for the cadastral parcels and a mesh for a building footprint for any building in the Netherlands based on a address.
+#And send it to Speckle
+
 #SETTINGS
 GISProject = BuildingPy("test")
 tempfolder = "C:/TEMP/GIS/"
