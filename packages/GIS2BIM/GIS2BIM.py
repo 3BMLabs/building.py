@@ -48,6 +48,15 @@ from zipfile import ZipFile
 #from PIL import Image
 	
 #Common functions
+
+def CreateDirectory(Directory):
+    import os
+    try:
+        os.mkdir(Directory)
+    except:
+        pass
+    return Directory
+
 def GetWebServerData(servertitle, category, parameter):
 	#Get webserverdata from github repository of GIS2BIM(up to date list of GIS-servers & requests)
 	Serverlocation = "https://raw.githubusercontent.com/DutchSailor/GIS2BIM/master/GIS2BIM_Data.json"
@@ -169,8 +178,6 @@ def GML_poslistData(tree,xPathString,dx,dy,scale,DecimalNumbers):
         xyPosList.append(coordSplitXY)
     return xyPosList
 
-
-
 def CreateBoundingBox(CoordinateX,CoordinateY,BoxWidth,BoxHeight,DecimalNumbers):
 #Create Boundingboxstring for use in webrequests.
     XLeft = round(CoordinateX-0.5*BoxWidth,DecimalNumbers)
@@ -179,6 +186,37 @@ def CreateBoundingBox(CoordinateX,CoordinateY,BoxWidth,BoxHeight,DecimalNumbers)
     YTop = round(CoordinateY+0.5*BoxHeight,DecimalNumbers)
     boundingBoxString = str(XLeft) + "," + str(YBottom) + "," + str(XRight) + "," + str(YTop)
     return boundingBoxString
+
+class GisRectBoundingBox:
+    def __init__(self):
+        self.type = __class__.__name__
+        self.origX = 0
+        self.origY = 0
+        self.XLeft = 0
+        self.XRight = 0
+        self.YBottom = 0
+        self.YTop = 0
+        self.width = 0
+        self.height = 0
+        self.boundingBoxString = ""
+        self.boundingBoxStringPolygon = ""
+        self.z = 0
+
+    def Create(self,CoordinateX,CoordinateY,Width,Height,DecimalNumbers):
+        #Create boundingbox object based on a center point
+        self.origX = CoordinateX
+        self.origY = CoordinateY
+        self.XLeft = round(CoordinateX - 0.5 * Width, DecimalNumbers)
+        self.XRight = round(CoordinateX + 0.5 * Width, DecimalNumbers)
+        self.YBottom = round(CoordinateY - 0.5 * Height, DecimalNumbers)
+        self.YTop = round(CoordinateY + 0.5 * Height, DecimalNumbers)
+        self.width = Width
+        self.height = Height
+        self.boundingBoxString = str(self.XLeft) + "," + str(self.YBottom) + "," + str(self.XRight) + "," + str(self.YTop)
+        self.boundingBoxStringPolygon = "(" + str(self.XLeft) + ' ' + str(self.YTop) + ',' + str(self.XRight) + ' ' + str(self.YTop) + ',' + str(
+            self.XRight) + ' ' + str(self.YBottom) + ',' + str(self.XLeft) + ' ' + str(self.YBottom) + ',' + str(self.XLeft) + ' ' + str(
+            self.YTop) + ')'
+        return self
 
 def CreateBoundingBoxPolygon(CoordinateX,CoordinateY,BoxWidth,BoxHeight,DecimalNumbers):
 #Create Boundingboxstring for use in webrequests.

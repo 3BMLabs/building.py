@@ -7,10 +7,9 @@
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_Cadaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_Cadaster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exchange/GIS2BIM.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/GIS2BIM.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exchange/speckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/exchange/speckle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/material.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/material.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp/Example Projects/GIS_POC.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_parser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,19 +117,19 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="joastemp (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="PyBuildingSystems" />
+    <configuration name="NL_CityJSON_3D_Basisvoorziening" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/temp" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example/GIS2BIM" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/temp/joastemp.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSON_3D_Basisvoorziening.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -162,11 +161,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.NL_CityJSON_3D_Basisvoorziening" />
         <item itemvalue="Python.NL_Cadaster" />
         <item itemvalue="Python.CreatePatternSendToSpeckle" />
         <item itemvalue="Python.smalltest" />
         <item itemvalue="Python.Joasdiv" />
-        <item itemvalue="Python.joastemp (1)" />
       </list>
     </recent_temporary>
   </component>

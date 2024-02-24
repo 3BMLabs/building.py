@@ -22,7 +22,7 @@ Bbox = GIS2BIM.CreateBoundingBox(RdX,RdY,Bboxwidth,Bboxwidth,0)
 #Aerialphoto
 fileLocationWMS = tempfolder + "luchtfoto_2020_2.png"
 a = GIS2BIM.WMSRequest(GIS2BIM.GetWebServerData("NL_PDOK_Luchtfoto_2020_28992", "webserverRequests", "serverrequestprefix"),Bbox,fileLocationWMS,1500,1500)
-img = imagePyB().byFile(fileLocationWMS,Bboxwidth*1000,Bboxwidth*1000,0,0,0)
+#img = imagePyB().byFile(fileLocationWMS,Bboxwidth*1000,Bboxwidth*1000,0,0,0)
 #GISProject.objects.append(img)
 
 #KADASTRALE GRENZEN
