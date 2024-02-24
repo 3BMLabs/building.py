@@ -370,6 +370,10 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))
 
+        elif nm == 'MeshPB':
+            clrs = i.colorlst
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
+
         else:
             print(f"{nm} Object not yet added to translateObjectsToSpeckleObjects")
 

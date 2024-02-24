@@ -24,36 +24,45 @@
 #***************************************************************************
 
 
-"""This module provides conversion from and to GIS2BIM to BuildingPy Objects
+"""This module provides tools to create solids
 """
 
-__title__= "GIS2BIM"
+__title__= "mesh"
 __author__ = "Maarten"
-__url__ = "./exchange/GIS2BIM.py"
+__url__ = "./geometry/solid.py"
 
-from geometry.curve import Point, PolyCurve, Line
-from geometry.linestyle import *
+class MeshPB:
+    def __init__(self):
+        self.type = __class__.__name__
+        self.verts = []
+        self.faces = []
+        self.numberFaces = 0
+        self.name = None
+        self.material = None
+        self.colorlst = []
 
-def WFSCurvesToBPCurves(curves):
-    BPyPolyCurves = []
-    for i in curves:
-        pointlist = []
-        for j in i:
-            pointlist.append(Point(j[0], j[1], 0))
-        PC = PolyCurve().byPoints(pointlist)
-        BPyPolyCurves.append(PC)
-    return BPyPolyCurves
+    def byVertsFaces(self, verts, faces):
+        self.verts = verts
+        self.faces = faces
 
-def WFSCurvesToBPCurvesLinePattern(curves, pattern):
-    Lines = []
-    for i in curves:
-        n = 0
-        for j in range(len(i)-1):
-            PntStart = Point(i[n][0],i[n][1],0)
+    def byPolyCurve(self, PC, name, material):
+        #Mesh of single face
+        verts = []
+        faces = []
+        # numberFaces = 0
+        n = 0  # number of vert. Every vert has a unique number in the list
+        pnts = PC.points  # points in every polycurve
+        faces.append(len(pnts))  # number of verts in face
+        for j in pnts:
+            faces.append(n)
+            verts.append(j.x)
+            verts.append(j.y)
+            verts.append(j.z)
             n = n + 1
-            PntEnd = Point(i[n][0], i[n][1], 0)
-            ln = lineToPattern(Line(PntStart, PntEnd),pattern)
-            #print(ln)
-            for x in ln:
-                Lines.append(x)
-    return Lines
+        self.verts = verts
+        self.faces = faces
+        # ex.numberFaces = numberFaces
+        self.name = name
+        self.material = material
+        self.colorlst = [material.colorint]
+        return self
