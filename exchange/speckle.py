@@ -315,30 +315,16 @@ def translateObjectsToSpeckleObjects(Obj):
                             name=i.name,
                             units=project.units)
             
-            for param in i.parameters:
-                if isinstance(param, dict):
-                    for key, value in param.items():
-                        setattr(mesh, str(key), value)
-                        print(key, value)
-                    # for param_name, value in param.items():
-                    #     print(param_name, value)
-                    #     try:
-                    #         param_name = int(param)
-                    #     except ValueError:
-                    #         param_name = param
-                elif isinstance(param, set):
-                    for single_param in param:
-                        print(single_param)
-                    # for key, value in param.items():
-                    #     setattr(mesh, str(key), value)
-                    #     print(key, value)
-                #     for param_name, value in param.items():
-                #         print(param_name, value)
-                #         try:
-                #             param_name = int(param)
-                #         except ValueError:
-                #             param_name = param
+            if isinstance(i.parameters, dict):
+                i.parameters = [i.parameters]
                 
+            for param in i.parameters:
+                for param, value in param.items():
+                    try:
+                        param_name = int(param)
+                    except ValueError:
+                        param_name = param
+                    setattr(mesh, str(param_name), value)
             SpeckleObj.append(mesh)
 
         elif nm == "Wall":

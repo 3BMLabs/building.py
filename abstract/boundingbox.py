@@ -114,18 +114,18 @@ class BoundingBox2d:
         return self
     
     def byDimensions(self, length:float, width:float):
-        startpoint = Point2D(0,0)
-        widthpoint = Point2D(0,width)
-        widthlengthpoint = Point2D(length,width)
-        lengthpoint = Point2D(length,0)
+        # startpoint = Point2D(0,0)
+        # widthpoint = Point2D(0,width)
+        # widthlengthpoint = Point2D(length,width)
+        # lengthpoint = Point2D(length,0)
 
-        # half_length = length / 2
-        # half_width = width / 2
+        half_length = length / 2
+        half_width = width / 2
 
-        # startpoint = Point2D(-half_length, -half_width)
-        # widthpoint = Point2D(-half_length, half_width)
-        # widthlengthpoint = Point2D(half_length, half_width)
-        # lengthpoint = Point2D(half_length, -half_width)
+        startpoint = Point2D(-half_length, -half_width)
+        widthpoint = Point2D(-half_length, half_width)
+        widthlengthpoint = Point2D(half_length, half_width)
+        lengthpoint = Point2D(half_length, -half_width)
 
         self.points.append(startpoint)
         self.corners.append(startpoint)
@@ -199,19 +199,15 @@ class BoundingBox3d:
     def toCuboid(self) -> Extrusion:
         pts = self.boundingbox2d.corners
         pc = PolyCurve2D.byPoints(pts)
-        pc_3d = PolyCurve.byPolyCurve2D(pc)
-
-        # print(pc_3d.points)
 
         height = self.height
         cs = self.coordinatesystem
+        print(cs)
+        print(cs.normalize)
 
-        dirXvector = Vector3.angleBetween(CSGlobal.Xaxis, cs.Xaxis)
-        pcrot = pc.rotate(dirXvector)
-
-        pc_3d = PolyCurve.transform_from_origin(pc_3d, Point(0,0,0), cs.Xaxis)
-
-        # print(dirXvector)
+        dirXvector = Vector3.angleBetween(CSGlobal.Yaxis, cs.Yaxis)
+        
+        pcrot = pc.rotate(dirXvector) #bug multi direction
 
         cuboid = Extrusion.byPolyCurveHeightVector(pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
 
@@ -219,5 +215,4 @@ class BoundingBox3d:
         lnY = Line.ByStartPointDirectionLength(cs.Origin, cs.Yaxis, 5000)
         lnZ = Line.ByStartPointDirectionLength(cs.Origin, cs.Zaxis, 5000)
 
-        # Extrusion.byPolyCurveHeightCoordinatesystem
         return [cuboid, lnX, lnY, lnZ]

@@ -113,6 +113,37 @@ class CoordinateSystem:
         CSNew.Origin = new_origin
         return CSNew
 
+
+    @staticmethod
+    def transform(CS1, CS2): #incorrect output
+        """
+        Transforms CS1 into the coordinate system defined by CS2.
+        :param CS1: The original CoordinateSystem instance.
+        :param CS2: The target CoordinateSystem instance.
+        :return: A new CoordinateSystem instance aligned with CS2.
+        """
+        from abstract.vector import Vector3
+        import numpy as np
+
+        translation_vector = Vector3.subtract(CS2.Origin, CS1.Origin)
+
+        rotation_matrix = CoordinateSystem.calculate_rotation_matrix(
+            CS1.Xaxis, CS1.Yaxis, CS1.Zaxis, CS2.Xaxis, CS2.Yaxis, CS2.Zaxis)
+
+        xaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Xaxis))
+        yaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Yaxis))
+        zaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Zaxis))
+
+        xaxis_normalized = Vector3.normalize(Vector3.from_matrix(xaxis_transformed))
+        yaxis_normalized = Vector3.normalize(Vector3.from_matrix(yaxis_transformed))
+        zaxis_normalized = Vector3.normalize(Vector3.from_matrix(zaxis_transformed))
+
+        new_origin = Point.translate(CS1.Origin, translation_vector)
+        new_CS = CoordinateSystem(new_origin, xaxis_normalized, yaxis_normalized, zaxis_normalized)
+
+        return new_CS
+
+
     @staticmethod
     def translate_origin(origin1: Point, origin2: Point):
 
@@ -135,9 +166,18 @@ class CoordinateSystem:
         return rotation_matrix
 
     @staticmethod
-    def normalize(v):
-        norm = np.linalg.norm(v)
-        return v / norm if norm > 0 else v
+    def normalize(self):
+        """
+        Normalizes the axes of the coordinate system to make them unit vectors.
+        """
+        self.Xaxis = Vector3.normalize(self.Xaxis)
+        self.Yaxis = Vector3.normalize(self.Yaxis)
+        self.Zaxis = Vector3.normalize(self.Zaxis)
+
+    #     norm = np.linalg.norm(v)
+    #     return v / norm if norm > 0 else v
+
+
 
     @staticmethod
     def move_local(CSOld, x: float, y: float, z: float):
@@ -152,6 +192,12 @@ class CoordinateSystem:
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
         CS = CoordinateSystem.translate(CSOld, disp)
         return CS
+
+
+
+
+
+
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ: Vector3):
