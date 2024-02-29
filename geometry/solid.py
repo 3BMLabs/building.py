@@ -50,7 +50,8 @@ class Extrusion:
     #Extrude a 2D profile to a 3D mesh or solid
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
+        self.parameters = []
         self.verts = []
         self.faces = []
         self.numberFaces = 0
@@ -106,6 +107,11 @@ class Extrusion:
         return extrusion
 
 
+    def setParameter(self, data):
+        self.parameters = data
+        return self
+
+
     @classmethod
     def merge(self, extrusions:list, name=None):
         Outrus = Extrusion()
@@ -127,7 +133,7 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeightVector(self, polycurve2d: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    def byPolyCurveHeightVector(self, polycurve2d: PolyCurve2D, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
@@ -182,7 +188,7 @@ class Extrusion:
                 Extrus.faces.append(count)
                 count = count + 4
         except:
-            for i in polycurve2d.curves2D:
+            for i in polycurve2d.curves:
                 startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
                 endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
                 endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
@@ -213,25 +219,25 @@ class Extrusion:
                 Extrus.numberFaces = Extrus.numberFaces + 1
 
             #bottomface
-            Extrus.faces.append(len(polycurve2d.curves2D))
+            Extrus.faces.append(len(polycurve2d.curves))
 
             count = 0
-            for i in polycurve2d.curves2D:
+            for i in polycurve2d.curves:
                 Extrus.faces.append(count)
                 Extrus.bottomshape.append(i)
                 count = count + 4
             
 
             # topface
-            Extrus.faces.append(len(polycurve2d.curves2D))
+            Extrus.faces.append(len(polycurve2d.curves))
             count = 3
-            for i in polycurve2d.curves2D:
+            for i in polycurve2d.curves:
                 Extrus.faces.append(count)
                 count = count + 4
 
         Extrus.countVertsFaces = (4 * Extrus.numberFaces)
 
-        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves2D)*2
+        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
 
         for j in range(int(len(Extrus.verts) / 3)):

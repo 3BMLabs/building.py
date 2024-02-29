@@ -226,7 +226,7 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
 def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
     x, y = point.x, point.y
     intersections = 0
-    for curve in polycurve.curves2D:
+    for curve in polycurve.curves:
         p1, p2 = curve.start, curve.end
         if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
             if p1.y != p2.y:
@@ -278,7 +278,7 @@ def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> 
         return [curve]
 
     split_curves = []
-    for curve in polycurve.curves2D:
+    for curve in polycurve.curves:
         current_curves = [curve]
         for point in points:
             new_curves = []
@@ -312,7 +312,7 @@ def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCu
 
     SegsandPoints = []
 
-    for Line in polycurve.curves2D:
+    for Line in polycurve.curves:
         for intersect_point in intersect_points:
             if is_point_on_line_segment(intersect_point, Line):
                 SegsandPoints.append(intersect_point)

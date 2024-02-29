@@ -35,7 +35,7 @@ test2 = PatternSystem().StretcherBondWithJoint("halfsteensverband",0,210,50,10,1
 test_res = PatternGEOM(test2, 5400, 7500, Point(-1000, -1000, 0))
 
 
-for index, line in enumerate(PC1.curves2D):
+for index, line in enumerate(PC1.curves):
     for p, i in enumerate(test_res):
 
         PCPanel = PolyCurve2D.fromPolyCurve3D(i.extrusion.polycurve_3d_translated)
