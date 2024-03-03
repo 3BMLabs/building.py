@@ -108,14 +108,17 @@ def GetDataFiles(folder):
 	return result
 
 def downloadUnzip(downloadURL,filepathZIP,folderUNZIP):
-	zipresp = urlopen(downloadURL)
-	tempzip = open(filepathZIP, "wb")
-	tempzip.write(zipresp.read())
-	tempzip.close()
-	zf = ZipFile(filepathZIP)
-	zf.extractall(path = folderUNZIP)
-	zf.close()
-	return folderUNZIP
+    import ssl
+    context = ssl._create_unverified_context()
+    zipresp = urlopen(downloadURL, context=context)
+    zipresp = urlopen(downloadURL)
+    tempzip = open(filepathZIP, "wb")
+    tempzip.write(zipresp.read())
+    tempzip.close()
+    zf = ZipFile(filepathZIP)
+    zf.extractall(path = folderUNZIP)
+    zf.close()
+    return folderUNZIP
 	
 #GIS2BIM functions
 
