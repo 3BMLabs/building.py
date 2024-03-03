@@ -95,6 +95,14 @@ class Vector3:
         )
 
     @staticmethod
+    def subtract(v1, v2):
+        return Vector3(
+            v1.x - v2.x,
+            v1.y - v2.y,
+            v1.z - v2.z
+        )
+
+    @staticmethod
     def divide(v1, v2):
         return Vector3(
             v1.x / v2.x,

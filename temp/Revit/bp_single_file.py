@@ -2782,12 +2782,12 @@ class PolyCurve2D:
         
 
     def serialize(self):
-        curves_serialized = [curve.serialize() if hasattr(curve, 'serialize') else str(curve) for curve in self.curves2D]
+        curves_serialized = [curve.serialize() if hasattr(curve, 'serialize') else str(curve) for curve in self.curves]
         points_serialized = [point.serialize() if hasattr(point, 'serialize') else str(point) for point in self.points2D]
 
         return {
             'type': self.type,
-            'curves2D': curves_serialized,
+            'curves': curves_serialized,
             'points2D': points_serialized,
             'segmentcurves': self.segmentcurves,
             'width': self.width,
@@ -2821,10 +2821,10 @@ class PolyCurve2D:
         polycurve.reference = data.get('reference')
         polycurve.visibility = data.get('visibility')
 
-        if 'curves2D' in data:
-            for curve_data in data['curves2D']:
+        if 'curves' in data:
+            for curve_data in data['curves']:
                 curve = Line2D.deserialize(curve_data)
-                polycurve.curves2D.append(curve)
+                polycurve.curves.append(curve)
         
         if 'points2D' in data:
             for point_data in data['points2D']:
@@ -2838,7 +2838,7 @@ class PolyCurve2D:
         return f"id:{self.id}"
 
 
-    @classmethod #curves or curves2D?
+    @classmethod #curves or curves?
     def byJoinedCurves(cls, curves):
         if not curves or len(curves) < 1:
             raise ValueError("At least one curve is required to create a PolyCurve2D.")
@@ -2905,19 +2905,19 @@ class PolyCurve2D:
 
 
     def close(self) -> bool:
-        if self.curves2D[0] == self.curves2D[-1]:
+        if self.curves[0] == self.curves[-1]:
             return self
         else:
-            self.curves2D.append(self.curves2D[0])
+            self.curves.append(self.curves[0])
             plycrv = PolyCurve2D()
-            for curve in self.curves2D:
-                plycrv.curves2D.append(curve)
+            for curve in self.curves:
+                plycrv.curves.append(curve)
         return plycrv
 
 
     def scale(self, scalefactor):
         crvs = []
-        for i in self.curves2D:
+        for i in self.curves:
             if i.__class__.__name__ == "Arc":
                 arcie = Arc2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end))
                 arcie.mid = Point2D.product(scalefactor,i.mid)
@@ -2939,11 +2939,11 @@ class PolyCurve2D:
         for i in range(len(points)):
             polycurve.points2D.append(points[i])
             if i < len(points) - 1:
-                polycurve.curves2D.append(Line2D(start=points[i], end=points[i+1]))
+                polycurve.curves.append(Line2D(start=points[i], end=points[i+1]))
         
         polycurve.isClosed = points[0] == points[-1]
         if project.autoclose == True:
-            polycurve.curves2D.append(Line2D(start=points[-1], end=points[0]))
+            polycurve.curves.append(Line2D(start=points[-1], end=points[0]))
             polycurve.points2D.append(points[0])
             polycurve.isClosed = True
         return polycurve
@@ -2978,20 +2978,20 @@ class PolyCurve2D:
     @staticmethod
     def byPolyCurve2D(PolyCurve2D):
         plycrv = PolyCurve2D()
-        curves2D = []
-        for i in PolyCurve2D.curves2D:
+        curves = []
+        for i in PolyCurve2D.curves:
             if i.__class__.__name__ == "Arc2D":
-                curves2D.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.mid.x, i.mid.y), Point2D(i.end.x,i.end.y)))
+                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.mid.x, i.mid.y), Point2D(i.end.x,i.end.y)))
             elif i.__class__.__name__ == "Line2D":
-                curves2D.append(Line2D(Point2D(i.start.x, i.start.y),Point2D(i.end.x, i.end.y)))
+                curves.append(Line2D(Point2D(i.start.x, i.start.y),Point2D(i.end.x, i.end.y)))
             else:
                 print("Curvetype not found")
         pnts = []
-        for i in curves2D:
+        for i in curves:
             pnts.append(i.start)
-        pnts.append(curves2D[0].start)
+        pnts.append(curves[0].start)
         plycrv.points = pnts
-        plycrv.curves2D = curves2D
+        plycrv.curves = curves
         return plycrv
 
 
@@ -3034,7 +3034,7 @@ class PolyCurve2D:
     def copyTranslate(pc, vector3d:Vector3):
         crvs = []
         v1 = vector3d
-        for i in pc.curves2D:
+        for i in pc.curves:
             if i.__class__.__name__ == "Line":
                 crvs.append(Line2D(Point2D.translate(i.start, v1), Point2D.translate(i.end, v1)))
             else:
@@ -3094,7 +3094,7 @@ class PolyCurve2D:
             plycrv.points2D.append(point)
             try:
                 nextpoint = points[index + 1]
-                plycrv.curves2D.append(Line2D(start=point, end=nextpoint))
+                plycrv.curves.append(Line2D(start=point, end=nextpoint))
             except:
                 pass
         return plycrv
@@ -3115,7 +3115,7 @@ class PolyCurve2D:
     @staticmethod
     def segment(self, count):
         crvs = []
-        for i in self.curves2D:
+        for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
                 crvs.append(Arc2D.segmentedarc(i, count))
             elif i.__class__.__name__ == "Line2D":
@@ -3127,27 +3127,27 @@ class PolyCurve2D:
     def toPolyCurve2D(self):
 
         p1 = PolyCurve2D()
-        curves2D = []
-        for i in self.curves2D:
+        curves = []
+        for i in self.curves:
             if i.__class__.__name__ == "Arc":
-                curves2D.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
+                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
                                   Point2D(i.end.x, i.end.y)))
             elif i.__class__.__name__ == "Line":
-                curves2D.append(Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
+                curves.append(Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
             else:
                 print("Curvetype not found")
         pnts = []
-        for i in curves2D:
+        for i in curves:
             pnts.append(i.start)
-        pnts.append(curves2D[0].start)
+        pnts.append(curves[0].start)
         p1.points2D = pnts
-        p1.curves2D = curves2D
+        p1.curves = curves
         return p1
 
     @staticmethod
     def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector3):
         crvs = []
-        for i in polycurve.curves2D:
+        for i in polycurve.curves:
             if i.__class__.__name__ == "Arc2D":
                 crvs.append(Arc2D(transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
                                 transformPoint2D(i.mid, project.CSGlobal, startpoint, directionvector),
@@ -3160,7 +3160,7 @@ class PolyCurve2D:
             else:
                 print(i.__class__.__name__ + "Curvetype not found")
         pc = PolyCurve2D()
-        pc.curves2D = crvs
+        pc.curves = crvs
         return pc
 
     def __str__(self):
@@ -3417,7 +3417,7 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
 def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
     x, y = point.x, point.y
     intersections = 0
-    for curve in polycurve.curves2D:
+    for curve in polycurve.curves:
         p1, p2 = curve.start, curve.end
         if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
             if p1.y != p2.y:
@@ -3468,7 +3468,7 @@ def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> 
         return [curve]
 
     split_curves = []
-    for curve in polycurve.curves2D:
+    for curve in polycurve.curves:
         current_curves = [curve]
         for point in points:
             new_curves = []
@@ -3502,7 +3502,7 @@ def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCu
 
     SegsandPoints = []
 
-    for Line in polycurve.curves2D:
+    for Line in polycurve.curves:
         for intersect_point in intersect_points:
             if is_point_on_line_segment(intersect_point, Line):
                 SegsandPoints.append(intersect_point)

@@ -156,19 +156,20 @@ class LoadIFC:
                     edges = shape.geometry.edges
                     faces = shape.geometry.faces
 
-                    grouped_verts = ifcopenshell.util.shape.get_vertices(shape.geometry)
-                    # A nested numpy array e.g. [[e1v1, e1v2], [e2v1, e2v2], ...]
-                    grouped_edges = ifcopenshell.util.shape.get_edges(shape.geometry)
-                    # A nested numpy array e.g. [[f1v1, f1v2, f1v3], [f2v1, f2v2, f2v3], ...]
-                    grouped_faces = ifcopenshell.util.shape.get_faces(shape.geometry)
+                    # 2_door.ifc -> object.Representation.Representations[1].ContextOfItems.RepresentationsInContext[0]
+                    
+
+                    # grouped_verts = ifcopenshell.util.shape.get_vertices(shape.geometry)
+                    # # A nested numpy array e.g. [[e1v1, e1v2], [e2v1, e2v2], ...]
+                    # grouped_edges = ifcopenshell.util.shape.get_edges(shape.geometry)
+                    # # A nested numpy array e.g. [[f1v1, f1v2, f1v3], [f2v1, f2v2, f2v3], ...]
+                    # grouped_faces = ifcopenshell.util.shape.get_faces(shape.geometry)
 
                     # print(shape)
 
                     # print(grouped_faces[0])
                     # print(grouped_faces[1])
 
-                    sys.exit()
-                    # shape = ifcopenshell.geom.create_shape(settings, object)
                     # print(shape)
                     # x = object.get_geometry()
                     # print(x)
@@ -252,9 +253,20 @@ class LoadIFC:
                     # materials = shape.geometry.materials
                     # material_ids = shape.geometry.material_ids
 
-                    # grouped_verts = [[verts[i], verts[i + 1], verts[i + 2]] for i in range(0, len(verts), 3)]
-                    # grouped_faces = [[faces[i], faces[i + 1], faces[i + 2]] for i in range(0, len(faces), 3)]
+                    grouped_verts = [[verts[i], verts[i + 1], verts[i + 2]] for i in range(0, len(verts), 3)]
+                    grouped_verts_scaled = [Point(verts[i]*project.scale, verts[i + 1]*project.scale, verts[i + 2]*project.scale) for i in range(0, len(verts), 3)]
 
+                    grouped_faces = [[faces[i], faces[i + 1], faces[i + 2]] for i in range(0, len(faces), 3)]
+
+                    for g_faces in grouped_faces:
+                        pts = []
+                        for index in g_faces:
+                            pts.append(grouped_verts_scaled[index])
+                        pc = PolyCurve.byPoints(pts)
+                        objs.append(pc)
+                        objs.append(Extrusion.byPolyCurveHeight(pc, 0, 0))
+
+                    # sys.exit()
                     # points = []
                     # pcurves = []
                     # for pt in grouped_verts:
