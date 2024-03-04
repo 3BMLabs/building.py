@@ -108,9 +108,6 @@ def GetDataFiles(folder):
 	return result
 
 def downloadUnzip(downloadURL,filepathZIP,folderUNZIP):
-    import ssl
-    context = ssl._create_unverified_context()
-    zipresp = urlopen(downloadURL, context=context)
     zipresp = urlopen(downloadURL)
     tempzip = open(filepathZIP, "wb")
     tempzip.write(zipresp.read())
