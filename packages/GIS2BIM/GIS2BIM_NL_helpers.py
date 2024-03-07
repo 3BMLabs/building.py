@@ -1,5 +1,5 @@
 from geometry.geometry2d import *
-from abstract.intersect2d import *
+# from abstract.intersect2d import * WEGGEHAALD
 from packages.GIS2BIM.GIS2BIM import GisRectBoundingBox
 lstkaartbladenpolygons = \
     [[[175000, 600000], [175000, 606250], [180000, 606250], [180000, 600000], [175000, 600000]],
