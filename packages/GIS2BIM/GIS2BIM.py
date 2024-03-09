@@ -199,6 +199,7 @@ class GisRectBoundingBox:
         self.width = 0
         self.height = 0
         self.boundingBoxString = ""
+        self.boundingBoxString2 = ""
         self.boundingBoxStringPolygon = ""
         self.boundingBoxXY = []
         self.z = 0
@@ -214,6 +215,7 @@ class GisRectBoundingBox:
         self.width = Width
         self.height = Height
         self.boundingBoxString = str(self.XLeft) + "," + str(self.YBottom) + "," + str(self.XRight) + "," + str(self.YTop)
+        self.boundingBoxString2 = str(self.XLeft) + "%2C" + str(self.YBottom) + "%2C" + str(self.XRight) + "%2C" + str(self.YTop)
         self.boundingBoxStringPolygon = "(" + str(self.XLeft) + ' ' + str(self.YTop) + ',' + str(self.XRight) + ' ' + str(self.YTop) + ',' + str(
             self.XRight) + ' ' + str(self.YBottom) + ',' + str(self.XLeft) + ' ' + str(self.YBottom) + ',' + str(self.XLeft) + ' ' + str(
             self.YTop) + ')'

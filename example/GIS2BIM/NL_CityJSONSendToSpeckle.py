@@ -12,8 +12,8 @@ from geometry.mesh import *
 
 # SETTINGS
 GISProject = BuildingPy("test")
-lst = NL_GetLocationData(NLPDOKServerURL,"Dordrecht", "werf van schouten", "501")
-Bboxwidth = 250 #m
+lst = NL_GetLocationData(NLPDOKServerURL,"Dordrecht", "lange geldersekade", "2")
+Bboxwidth = 200 #m
 cityJSONFolder = "C:/TEMP/GIS/cityJSON/"
 maximumLoD = 2.2
 
@@ -352,7 +352,7 @@ for i in example[0]:
     #print(m.faces)
     #print(m.verts)
     #print(m.numberFaces)
-    GISProject.objects.append(m)
+    #GISProject.objects.append(m)
 
 #1 bridges
 for i in example[1]:
