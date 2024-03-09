@@ -30,7 +30,7 @@ PC1 = PolyCurve2D.byPoints([p1,p2,p3,p4,p5])
 i = PolyCurve2D.length(PC1)
 print(i)
 
-for j in PC1.curves2D:
+for j in PC1.curves:
     print(j)
 
 project.objects.append(PC1)

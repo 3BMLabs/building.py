@@ -37,8 +37,12 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from geometry.geometry2d import Point2D, PolyCurve2D
 from geometry.point import Point
-from geometry.curve import PolyCurve
+from geometry.curve import PolyCurve, Line
+from abstract.coordinatesystem import CoordinateSystem, CSGlobal
+from abstract.vector import Vector3
+from geometry.solid import Extrusion
 from helper import *
 
 
@@ -51,8 +55,8 @@ class BoundingBox2d:
         self.points = []
         self.corners = []
         self.isClosed = True
+        self.length = 0
         self.width = 0
-        self.height = 0
         self.z = 0
 
     def serialize(self):
@@ -62,8 +66,8 @@ class BoundingBox2d:
             'points': self.points,
             'corners': self.corners,
             'isClosed': self.isClosed,
+            'length': self.length,
             'width': self.width,
-            'height': self.height,
             'z': self.z
         }
 
@@ -74,13 +78,13 @@ class BoundingBox2d:
         bounding_box.points = data.get('points', [])
         bounding_box.corners = data.get('corners', [])
         bounding_box.isClosed = data.get('isClosed', True)
+        bounding_box.length = data.get('length', 0)
         bounding_box.width = data.get('width', 0)
-        bounding_box.height = data.get('height', 0)
         bounding_box.z = data.get('z', 0)
 
         return bounding_box
 
-    def length(self):
+    def _length(self):
         return 0
     
     def area(self):
@@ -101,13 +105,39 @@ class BoundingBox2d:
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
         right_bottom = Point(x=max_x, y=min_y, z=self.z)
+        self.length = abs(Point.distance(left_top, left_bottom))
         self.width = abs(Point.distance(left_top, right_top))
-        self.height = abs(Point.distance(left_top, left_bottom))
         self.corners.append(left_top) 
         self.corners.append(left_bottom) 
         self.corners.append(right_bottom)
         self.corners.append(right_top)
-        # print(self.height)
+        return self
+    
+    def byDimensions(self, length:float, width:float):
+        # startpoint = Point2D(0,0)
+        # widthpoint = Point2D(0,width)
+        # widthlengthpoint = Point2D(length,width)
+        # lengthpoint = Point2D(length,0)
+
+        half_length = length / 2
+        half_width = width / 2
+
+        startpoint = Point2D(-half_length, -half_width)
+        widthpoint = Point2D(-half_length, half_width)
+        widthlengthpoint = Point2D(half_length, half_width)
+        lengthpoint = Point2D(half_length, -half_width)
+
+        self.points.append(startpoint)
+        self.corners.append(startpoint)
+        self.points.append(widthpoint)
+        self.corners.append(widthpoint)
+        self.points.append(widthlengthpoint)
+        self.corners.append(widthlengthpoint)
+        self.points.append(lengthpoint)
+        self.corners.append(lengthpoint)
+
+        self.length = length
+        self.width = width
         return self
 
 
@@ -116,6 +146,9 @@ class BoundingBox3d:
         self.id = generateID()
         self.type = __class__.__name__        
         self.points = points
+        self.boundingbox2d = None
+        self.coordinatesystem = None
+        self.height = None
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -156,3 +189,30 @@ class BoundingBox3d:
 
     def perimeter(self):
         return PolyCurve.byPoints(self.corners(self.points))
+    
+    def convertBoundingbox2d(self, boundingbox2d:BoundingBox2d, coordinatesystem: CoordinateSystem, height=float):
+        self.boundingbox2d = boundingbox2d
+        self.coordinatesystem = coordinatesystem
+        self.height = height
+        return self
+    
+    def toCuboid(self) -> Extrusion:
+        pts = self.boundingbox2d.corners
+        pc = PolyCurve2D.byPoints(pts)
+
+        height = self.height
+        cs = self.coordinatesystem
+        print(cs)
+        print(cs.normalize)
+
+        dirXvector = Vector3.angleBetween(CSGlobal.Yaxis, cs.Yaxis)
+        
+        pcrot = pc.rotate(dirXvector) #bug multi direction
+
+        cuboid = Extrusion.byPolyCurveHeightVector(pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
+
+        lnX = Line.ByStartPointDirectionLength(cs.Origin, cs.Xaxis, 5000)
+        lnY = Line.ByStartPointDirectionLength(cs.Origin, cs.Yaxis, 5000)
+        lnZ = Line.ByStartPointDirectionLength(cs.Origin, cs.Zaxis, 5000)
+
+        return [cuboid, lnX, lnY, lnZ]

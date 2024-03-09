@@ -45,6 +45,7 @@ from abstract.vector import *
 from geometry.point import Point
 from project.fileformat import project
 from abstract.coordinatesystem import CoordinateSystem, CSGlobal
+from geometry.point import transformPoint
 
 # [!not included in BP singlefile - end]
 
@@ -123,6 +124,18 @@ class Line: #add Line.bylenght (start and endpoint)
             instance.vector_normalised = data['vector_normalised']
 
         return instance
+
+    @staticmethod
+    def ByStartPointDirectionLength(start:Point, direction:Vector3, length:float):
+        norm = math.sqrt(direction.x ** 2 + direction.y ** 2 + direction.z ** 2)
+        normalized_direction = Vector3(direction.x / norm, direction.y / norm, direction.z / norm)
+        
+        end_x = start.x + normalized_direction.x * length
+        end_y = start.y + normalized_direction.y * length
+        end_z = start.z + normalized_direction.z * length
+        end_point = Point(end_x, end_y, end_z)
+        
+        return Line(start, end_point)
 
     def translate(self,direction:Vector3):
         self.start = Point.translate(self.start,direction)
@@ -642,7 +655,7 @@ class PolyCurve:
     @staticmethod
     def transform_from_origin(polycurve, startpoint: Point, directionvector: Vector3):
         crvs = []
-        try:
+        if polycurve.type == "PolyCurve2D":
             for i in polycurve.curves:
                 if i.__class__.__name__ == "Arc":
                     crvs.append(Arc(transformPoint(i.start,CSGlobal,startpoint,directionvector),
@@ -665,8 +678,8 @@ class PolyCurve:
                                     ))
                 else:
                     print(i.__class__.__name__ + "Curvetype not found")
-        except:
-            for i in polycurve.curves2D:
+        elif polycurve.type == "PolyCurve":
+            for i in polycurve.curves:
                 if i.__class__.__name__ == "Arc":
                     crvs.append(Arc(transformPoint(i.start,CSGlobal,startpoint,directionvector),
                                     transformPoint(i.mid, CSGlobal, startpoint, directionvector),
@@ -688,6 +701,7 @@ class PolyCurve:
                                     ))
                 else:
                     print(i.__class__.__name__ + "Curvetype not found")
+  
         pc = PolyCurve()
         pc.curves = crvs
         return pc
