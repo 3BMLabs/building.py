@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSONSendToSpeckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSONSendToSpeckle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSON_3D_BasisvoorzieningDownload.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSON_3D_BasisvoorzieningDownload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +50,7 @@
       <recent name="C:\Users\mikev\Documents\GitHub\building.py" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.CreatePatternSendToSpeckle">
+  <component name="RunManager">
     <configuration name="CreatePatternSendToSpeckle" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
