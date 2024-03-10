@@ -5,6 +5,7 @@ from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from packages.GIS2BIM.GIS2BIM_NL_helpers import *
+import ssl
 
 #SETTINGS BASIS
 GISProject = BuildingPy("test")
@@ -20,6 +21,7 @@ Bboxwidth = 200#m
 RdX = lst[0]
 RdY = lst[1]
 Bbox = GIS2BIM.CreateBoundingBox(RdX,RdY,Bboxwidth,Bboxwidth,0)
+print(Bbox)
 
 def CreateFolder(Folder):
     if not os.path.isdir(Folder):
@@ -42,19 +44,24 @@ CreateFolder(FolderAHN )
 
 #CITYJSON DOWNLOAD
 def DownloadCityJSON():
-    kaartbladenres = kaartbladenBbox(GISBbox, FolderCityJSON)
+    kaartbladenres = kaartbladenBbox(Bbox, FolderCityJSON)
     print(kaartbladenres)
     for i in kaartbladenres:
         downloadlink = NLPDOKKadasterBasisvoorziening3DCityJSONVolledig + i[0] + "_2020_volledig.zip"
         print(downloadlink)
         downloadUnzip(downloadlink, FolderCityJSON + i[0] +".zip", FolderCityJSON)
 
-def GetWebServerDataCategorised():
-	#Get webserverdata from github repository of GIS2BIM(up to date list of GIS-servers & requests)
-	Serverlocation = "https://raw.githubusercontent.com/DutchSailor/GIS2BIM/master/GIS2BIM_Data_Categorised.json"
-	url = urllib.request.urlopen(Serverlocation)
-	jsonData = json.loads(url.read())['GIS2BIMserversRequests']["NLwebserverRequests"]["NLWMS"]
-	return jsonData
+def WMSRequestNew(serverName,boundingBoxString,fileLocation,pixWidth,pixHeight):
+    # perform a WMS OGC webrequest( Web Map Service). This is loading images.
+    context = ssl._create_unverified_context()
+    myrequestURL = serverName + boundingBoxString
+    myrequestURL = myrequestURL.replace("width=3000", "width=" + str(pixWidth))
+    myrequestURL = myrequestURL.replace("height=3000", "height=" + str(pixHeight))
+    resource = urllib.request.urlopen(myrequestURL, context=context)
+    output1 = open(fileLocation, "wb")
+    output1.write(resource.read())
+    output1.close()
+    return fileLocation, resource, myrequestURL
 
 def extract_values(obj, key):
     """Pull all values of specified key from nested JSON."""
@@ -74,38 +81,21 @@ def extract_values(obj, key):
     results = extract(obj, arr, key)
     return results
 
-def item_generator(json_input, lookup_key):
-    if isinstance(json_input, dict):
-        for k, v in json_input.items():
-            if k == lookup_key:
-                yield v
-            else:
-                yield from item_generator(v, lookup_key)
-    elif isinstance(json_input, list):
-        for item in json_input:
-            yield from item_generator(item, lookup_key)
-
-def GetWebServerDataCategorisedService(category,service):
-	#Get a list with webserverdata from github repository of GIS2BIM(up to date list of GIS-servers & requests)
-	Serverlocation = "https://raw.githubusercontent.com/DutchSailor/GIS2BIM/master/GIS2BIM_Data.json"
+def GetWebServerDataCategorised(obj1, obj2, obj3):
+	#Get webserverdata from github repository of GIS2BIM(up to date list of GIS-servers & requests)
+	Serverlocation = "https://raw.githubusercontent.com/DutchSailor/GIS2BIM/master/GIS2BIM_Data_Categorised.json"
 	url = urllib.request.urlopen(Serverlocation)
-	data = json.loads(url.read())['GIS2BIMserversRequests']
-	listOfData = []
-	for i in data:
-		if i["service"] == service:
-			listOfData.append(i)
-	return listOfData
+	jsonData = json.loads(url.read())[obj1][obj2][obj3]
+	return jsonData
 
 #WMS
-jsonobj=GetWebServerDataCategorised()
+jsonobj=GetWebServerDataCategorised("GIS2BIMserversRequests", "NLwebserverRequests", "NLWMS")
 serverrequestprefix= extract_values(jsonobj, 'serverrequestprefix')
 title = extract_values(jsonobj, 'title')
-print("itemstodownload: " + str(len(serverrequestprefix)))
+print("ItemsToDownload: " + str(len(serverrequestprefix)))
+print(FolderImages)
 for i in range(len(serverrequestprefix)):
     itemserverrequestprefix=serverrequestprefix[i]
     itemtitle=title[i]
-    #print(itemtitle + " : " + itemserverrequestprefix + Bbox)
-    #def WMSRequest(serverName,boundingBoxString,fileLocation,pixWidth,pixHeight):
-
-    print(FolderImages + "/"+ itemtitle +".png")
-    #GIS2BIM.WMSRequest(itemserverrequestprefix, Bbox, FolderImages + "/"+ itemtitle +".png", 2000, 2000)
+    print(itemtitle)
+    WMSRequestNew(itemserverrequestprefix, Bbox, FolderImages + "/"+ itemtitle +".png", 1500, 1500)
