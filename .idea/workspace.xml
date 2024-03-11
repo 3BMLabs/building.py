@@ -6,10 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_3DBAGDownload.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_3DBAGDownload.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSONSendToSpeckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSONSendToSpeckle.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/geometry/curve.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/curve.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/project/fileformat.py" beforeDir="false" afterPath="$PROJECT_DIR$/project/fileformat.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL.py" afterDir="false" />
+>>>>>>> 00f14078dcbeffbb0b145fe3163421feffe9920d
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,12 +33,6 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 4
-}</component>
   <component name="ProjectId" id="2M00QJi6s9Uq1iE3LvesOQA2mbN" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -47,9 +45,13 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+<<<<<<< HEAD
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/jahol/OneDrive/Documenten/GitHub/building.py&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+=======
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mikev/Documents/GitHub/building.py&quot;,
+>>>>>>> 00f14078dcbeffbb0b145fe3163421feffe9920d
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
@@ -104,6 +106,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+<<<<<<< HEAD
     <configuration name="NL_3DBAGDownload" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -125,6 +128,8 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+=======
+>>>>>>> 00f14078dcbeffbb0b145fe3163421feffe9920d
     <configuration name="NL_Cadaster" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="building.py" />
       <option name="INTERPRETER_OPTIONS" value="" />
