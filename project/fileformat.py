@@ -123,9 +123,8 @@ class BuildingPy:
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
 
-
     def open(self):
-        pass #open data.json objects in here
+        pass  # open data.json objects in here
 
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
@@ -143,4 +142,5 @@ class BuildingPy:
 
 # [!not included in BP singlefile - end]
 
-project = BuildingPy("Project","0")
+
+project = BuildingPy("Project", "0")

@@ -367,7 +367,6 @@ class PolyCurve:
                 plycrv.curves.append(curve)
         return plycrv
 
-
     @classmethod
     def byJoinedCurves(self, curvelst: list[Line]):
         for crv in curvelst:

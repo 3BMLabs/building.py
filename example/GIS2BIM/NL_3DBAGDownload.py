@@ -1,7 +1,7 @@
 from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
-# from packages.GIS2BIM.GIS2BIM_NL_helpers import *
+from packages.GIS2BIM.GIS2BIM_NL_helpers import *
 import requests
 import xml.etree.ElementTree as ET
 
@@ -22,4 +22,4 @@ GISBbox = GisRectBoundingBox().Create(RdX, RdY, Bboxwidth, Bboxwidth, 0)
 folderBAG3D = tempfolder + "BAG3D/"
 CreateDirectory(folderBAG3D)
 
-res = BAG3DDownload(GISBbox.boundingBoxString,folderBAG3D)
+res = BAG3DDownload(GISBbox.boundingBoxString, folderBAG3D)

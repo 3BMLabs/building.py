@@ -5,13 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1a61c2a-3eda-426f-804f-edcc423022a1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_3DBAGDownload.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_3DBAGDownload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_Cadaster.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_Cadaster.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSONSendToSpeckle.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/GIS2BIM/NL_CityJSONSendToSpeckle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/packages/GIS2BIM/GIS2BIM_NL_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/geometry/curve.py" beforeDir="false" afterPath="$PROJECT_DIR$/geometry/curve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project/fileformat.py" beforeDir="false" afterPath="$PROJECT_DIR$/project/fileformat.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,15 +43,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/jahol/OneDrive/Documenten/GitHub/building.py",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/jahol/OneDrive/Documenten/GitHub/building.py&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;aDefault&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\JoasHollander\Documents\GitHub\building.py\temp" />
@@ -112,7 +111,6 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="Python 3.11 (Python311)" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example/GIS2BIM" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
