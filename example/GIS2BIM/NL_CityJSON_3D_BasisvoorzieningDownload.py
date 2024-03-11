@@ -8,8 +8,8 @@ from packages.GIS2BIM.GIS2BIM_NL_helpers import *
 #SETTINGS
 GISProject = BuildingPy("test")
 tempfolder = "C:/TEMP/GIS/"
-lst = NL_GetLocationData(NLPDOKServerURL,"Dordrecht", "werf van schouten", "501")
-Bboxwidth = 2000 #m
+lst = NL_GetLocationData(NLPDOKServerURL,"Dordrecht", "lange geldersekade", "2")
+Bboxwidth = 200 #m
 
 #BOUNDINGBOX
 RdX = lst[0]
