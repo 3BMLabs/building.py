@@ -199,20 +199,19 @@ class BoundingBox3d:
     def toCuboid(self) -> Extrusion:
         pts = self.boundingbox2d.corners
         pc = PolyCurve2D.byPoints(pts)
-
         height = self.height
         cs = self.coordinatesystem
-        print(cs)
-        print(cs.normalize)
-
         dirXvector = Vector3.angleBetween(CSGlobal.Yaxis, cs.Yaxis)
-        
         pcrot = pc.rotate(dirXvector) #bug multi direction
-
         cuboid = Extrusion.byPolyCurveHeightVector(pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
-
-        lnX = Line.ByStartPointDirectionLength(cs.Origin, cs.Xaxis, 5000)
-        lnY = Line.ByStartPointDirectionLength(cs.Origin, cs.Yaxis, 5000)
-        lnZ = Line.ByStartPointDirectionLength(cs.Origin, cs.Zaxis, 5000)
-
-        return [cuboid, lnX, lnY, lnZ]
+        return cuboid
+    
+    def toAxis(self, length:int=None) -> Line:
+        if length == None:
+            length = 1000
+        cs = self.coordinatesystem
+        lnX = Line.ByStartPointDirectionLength(cs.Origin, cs.Xaxis, length)
+        lnY = Line.ByStartPointDirectionLength(cs.Origin, cs.Yaxis, length)
+        lnZ = Line.ByStartPointDirectionLength(cs.Origin, cs.Zaxis, length)
+        return [lnX, lnY, lnZ]
+    
