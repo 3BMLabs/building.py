@@ -27,19 +27,19 @@
 """This module provides tools for vectors
 """
 
-from geometry.point import *
-from pathlib import Path
-import sys
 __title__ = "vector"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/vector.py"
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+import sys
+from pathlib import Path
 
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from geometry.point import *
 
 # [!not included in BP singlefile - end]
+
 
 class Vector3:
     def __init__(self, x, y, z):

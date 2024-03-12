@@ -1,33 +1,33 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools for intersects
 """
 
-__title__= "intersect"
+__title__ = "intersect"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/intersect.py"
 
@@ -36,10 +36,11 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.geometry2d import *
 from helper import *
+from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
+
 
 def perp(a):
     b = [None] * len(a)
@@ -109,10 +110,14 @@ def get_intersect_polycurve_lines(polycurve: PolyCurve2D, lines: list[Line2D], s
                     if is_point_on_line_segment(checkIntersect, line) == False:
                         checkIntersect = None
                     else:
-                        minX = min(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
-                        maxX = max(polycurve.points2D[i].x, polycurve.points2D[i+1].x)
-                        minY = min(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
-                        maxY = max(polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                        minX = min(
+                            polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                        maxX = max(
+                            polycurve.points2D[i].x, polycurve.points2D[i+1].x)
+                        minY = min(
+                            polycurve.points2D[i].y, polycurve.points2D[i+1].y)
+                        maxY = max(
+                            polycurve.points2D[i].y, polycurve.points2D[i+1].y)
                     if checkIntersect != None:
                         if minX <= checkIntersect.x <= maxX and minY <= checkIntersect.y <= maxY:
                             intersectionsPointsList.append(checkIntersect)
@@ -157,10 +162,10 @@ def is_point_on_line_segment(point: Point2D, line: Line2D) -> bool:
     if x_min <= point.x <= x_max and y_min <= point.y <= y_max:
         try:
             distance = abs((line.end.y - line.start.y) * point.x
-                        - (line.end.x - line.start.x) * point.y
-                        + line.end.x * line.start.y
-                        - line.end.y * line.start.x) \
-                    / line.length
+                           - (line.end.x - line.start.x) * point.y
+                           + line.end.x * line.start.y
+                           - line.end.y * line.start.x) \
+                / line.length
             return distance < 1e-9
         except:
             return False
@@ -189,20 +194,24 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
         segment_start = polycurve.points2D[i - 1]
         segment_end = polycurve.points2D[i]
 
-        segment_intersections = [pt for pt in points if is_point_on_line_segment(pt, Line2D(segment_start, segment_end))]
+        segment_intersections = [pt for pt in points if is_point_on_line_segment(
+            pt, Line2D(segment_start, segment_end))]
 
-        segment_intersections.sort(key=lambda pt: Point2D.distance(segment_start, pt))
+        segment_intersections.sort(
+            key=lambda pt: Point2D.distance(segment_start, pt))
 
         for intersect in segment_intersections:
             current_polycurve_points.append(intersect)
-            created_polycurves.append(polycurve.by_points(current_polycurve_points))
+            created_polycurves.append(
+                polycurve.by_points(current_polycurve_points))
             current_polycurve_points = [intersect]
             points.remove(intersect)
 
         current_polycurve_points.append(segment_end)
 
     if len(current_polycurve_points) > 1:
-        created_polycurves.append(polycurve.by_points(current_polycurve_points))
+        created_polycurves.append(
+            polycurve.by_points(current_polycurve_points))
 
     ptlist = []
     for index, pc in enumerate(created_polycurves):
@@ -222,7 +231,7 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
         return [created_polycurves[0]]
 
 
-#extend to if on edge, then accept
+# extend to if on edge, then accept
 def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
     x, y = point.x, point.y
     intersections = 0
@@ -257,14 +266,15 @@ def plane_line_intersection():
     plane_norm = [4, 5, 6]
     plane_pt = [1, 1, 1]
 
-    dot_prod = sum([a*b for a,b in zip(line_dir, plane_norm)])
+    dot_prod = sum([a*b for a, b in zip(line_dir, plane_norm)])
 
     if dot_prod == 0:
         print("The line is parallel to the plane. No intersection point.")
     else:
-        t = sum([(a-b)*c for a,b,c in zip(plane_pt, line_pt, plane_norm)]) / dot_prod
+        t = sum([(a-b)*c for a, b, c in zip(plane_pt,
+                line_pt, plane_norm)]) / dot_prod
 
-        inter_pt = [a + b*t for a,b in zip(line_pt, line_dir)]
+        inter_pt = [a + b*t for a, b in zip(line_pt, line_dir)]
 
         print("The intersection point is", inter_pt)
 
@@ -300,7 +310,8 @@ def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCu
     dict = {}
     pcList = []
     nonsplitted = []
-    intersect = get_intersect_polycurve_lines(polycurve, line, split=False, stretch=False)
+    intersect = get_intersect_polycurve_lines(
+        polycurve, line, split=False, stretch=False)
     intersect_points = intersect["IntersectGridPoints"]
     if len(intersect_points) != 2:
         nonsplitted.append(polycurve)
@@ -336,11 +347,11 @@ def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCu
 
     if current_list:
         split_lists.append(current_list)
-    
+
     merged_list = split_lists[-1] + split_lists[0]
 
     lijsten = [merged_list, split_lists[1]]
-    
+
     for lijst in lijsten:
         q = []
         for i in lijst:

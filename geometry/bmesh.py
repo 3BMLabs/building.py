@@ -25,22 +25,17 @@
 """This module provides tools to create curves
 """
 
-__title__= "curve"
-__author__ = "Maarten & Jonathan"
-__url__ = "./geometry/curve.py"
-
-
 import sys
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # from temp.EXPORTER import send_to_speckle
 from specklepy.objects.geometry import BrepEdge, Point, Vector
 
-#Brep start
+# from temp.EXPORTER import send_to_speckle
+
+# Brep start
 # pt1 = Point(x=0, y=0, z=0)
 # pt2 = Point(x=1, y=0, z=0)
 # pt3 = Point(x=0, y=1, z=0)
@@ -49,14 +44,15 @@ from specklepy.objects.geometry import BrepEdge, Point, Vector
 # obj1 = [brep]
 
 # send_to_speckle(INhost="https://3bm.exchange", INstream_id="fa4e56aed4", INobjects=obj1)
-#Brep end
+# Brep end
 
 
 # #BrepEdge start
 start_point = Point.from_coords(0, 0, 0)
 end_point = Point.from_coords(1, 1, 1)
 tangent_vector = Vector.from_coords(1, 0, 0)
-brep_edge = BrepEdge(start_point=start_point, end_point=end_point, tangent_vector=tangent_vector)
+brep_edge = BrepEdge(start_point=start_point,
+                     end_point=end_point, tangent_vector=tangent_vector)
 brep_edge._displayValue = True
 obj1 = [brep_edge]
 # send_to_speckle(INhost="https://3bm.exchange", INstream_id="5ab2faedba", INobjects=obj1)

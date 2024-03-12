@@ -34,15 +34,16 @@ import FreeCAD
 from geometry.geometry2d import *
 from geometry.curve import *
 
+
 def CreateLayer(layerName):
-	layerName = layerName.replace(" ","_")
-	lstObjects = []
-	for obj in FreeCAD.ActiveDocument.Objects: #Check is layername already exists
-		lstObjects.append(obj.Label)
-	if not layerName in lstObjects:
-		FreeCAD.activeDocument().addObject("App::DocumentObjectGroupPython", layerName)
-	obj2 = FreeCAD.activeDocument().getObject(layerName)
-	return obj2
+    layerName = layerName.replace(" ", "_")
+    lstObjects = []
+    for obj in FreeCAD.ActiveDocument.Objects:  # Check is layername already exists
+        lstObjects.append(obj.Label)
+    if not layerName in lstObjects:
+        FreeCAD.activeDocument().addObject("App::DocumentObjectGroupPython", layerName)
+    obj2 = FreeCAD.activeDocument().getObject(layerName)
+    return obj2
 
 
 def ArchSiteCreateCheck(SiteName):
@@ -51,63 +52,76 @@ def ArchSiteCreateCheck(SiteName):
     for obj in FreeCAD.ActiveDocument.Objects:  # Check is SiteObject already exists and fill parameters
         lstObjects.append(obj.Label)
     if SiteName in lstObjects:
-        ArchSiteObject = FreeCAD.ActiveDocument.Objects[lstObjects.index(SiteName)]
+        ArchSiteObject = FreeCAD.ActiveDocument.Objects[lstObjects.index(
+            SiteName)]
     else:  # Create Siteobject and add parameters
         ArchSiteObject = Arch.makeSite([], [], SiteName)
         ArchSiteAddparameters(ArchSiteObject)
 
     return ArchSiteObject
 
-def PlaceText(textData,fontSize, upper):
+
+def PlaceText(textData, fontSize, upper):
     Texts = []
     for i, j, k in zip(textData[0], textData[1], textData[2]):
         ZAxis = FreeCAD.Vector(0, 0, 1)
         p1 = FreeCAD.Vector(i[0][0], i[0][1], 0)
         Place1 = FreeCAD.Placement(p1, FreeCAD.Rotation(ZAxis, -float(j)))
         if upper:
-           k = k.upper()
-        else: k
+            k = k.upper()
+        else:
+            k
         Text1 = Draft.makeText(k, point=p1)
         Text1.ViewObject.FontSize = fontSize
         Text1.Placement = Place1
         Texts.append(Text1)
     return Texts
 
+
 def polycurve2d_to_part_wire(poly_curve_2d: PolyCurve2D):
     PartCurves = []
     for i in poly_curve_2d.curves:
         if i.__class__.__name__ == "Arc2D":
-            curve = Part.Arc(Vector(i.start.x,i.start.y,0),Vector(i.mid.x,i.mid.y,0),Vector(i.end.x,i.end.y,0))
+            curve = Part.Arc(Vector(i.start.x, i.start.y, 0), Vector(
+                i.mid.x, i.mid.y, 0), Vector(i.end.x, i.end.y, 0))
             PartCurves.append(curve.toShape())
         elif i.__class__.__name__ == "Line2D":
-            PartCurves.append(Part.makeLine(Vector(i.start.x,i.start.y,0),Vector(i.end.x,i.end.y,0)))
+            PartCurves.append(Part.makeLine(
+                Vector(i.start.x, i.start.y, 0), Vector(i.end.x, i.end.y, 0)))
     aWire = Part.Wire(PartCurves)
     return aWire
+
 
 def polycurve3d_to_part_wire(poly_curve_3d: PolyCurve):
     PartCurves = []
     for i in poly_curve_3d.curves:
         if i.__class__.__name__ == "Arc":
-            curve = Part.Arc(Vector(i.start.x,i.start.y,i.start.z),Vector(i.mid.x,i.mid.y,i.mid.z),Vector(i.end.x,i.end.y,i.end.z))
+            curve = Part.Arc(Vector(i.start.x, i.start.y, i.start.z), Vector(
+                i.mid.x, i.mid.y, i.mid.z), Vector(i.end.x, i.end.y, i.end.z))
             PartCurves.append(curve.toShape())
         elif i.__class__.__name__ == "Line":
-            PartCurves.append(Part.makeLine(Vector(i.start.x,i.start.y,i.start.z),Vector(i.end.x,i.end.y,i.end.z)))
+            PartCurves.append(Part.makeLine(
+                Vector(i.start.x, i.start.y, i.start.z), Vector(i.end.x, i.end.y, i.end.z)))
     aWire = Part.Wire(PartCurves)
     return aWire
 
-def wire_to_solid(wire,FCVector):
+
+def wire_to_solid(wire, FCVector):
     p = Part.Face(wire)
     solid = p.extrude(FCVector)
     sld = Part.show(solid)
 
+
 def Vector3ToFreeCADVector(vector3):
-    vect = FreeCAD.Vector(vector3.x,vector3.y,vector3.z)
+    vect = FreeCAD.Vector(vector3.x, vector3.y, vector3.z)
     return vect
+
 
 def FrameToFreeCAD(frame):
     test2 = frame.curve3d
     vect = Vector3ToFreeCADVector(frame.directionVector)
-    wire_to_solid(polycurve3d_to_part_wire(test2),vect)
+    wire_to_solid(polycurve3d_to_part_wire(test2), vect)
+
 
 def translateObjectsToFreeCAD(Obj):
     FreeCADObj = []

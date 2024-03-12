@@ -1,33 +1,33 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools to create surfaces
 """
 
-__title__= "surface"
+__title__ = "surface"
 __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/surface.py"
 
@@ -42,19 +42,21 @@ from geometry.solid import Extrusion
 from abstract.color import Color
 from abstract.intersect2d import *
 
+
 # [!not included in BP singlefile - end]
-#check if there are innercurves inside the outer curve.
+# check if there are innercurves inside the outer curve.
+
 
 class Surface:
-    def __init__(self, PolyCurves:PolyCurve, color=None) -> None:
-        #self.outerPolyCurve
-        #self.innerPolyCurves
+    def __init__(self, PolyCurves: PolyCurve, color=None) -> None:
+        # self.outerPolyCurve
+        # self.innerPolyCurves
         if isinstance(PolyCurves, PolyCurve):
             PolyCurves = [PolyCurves]
         self.type = __class__.__name__
         self.mesh = []
         self.length = 0
-        self.area = 0 #return the same area of the polyCurve but remove the innerpolycurves
+        self.area = 0  # return the same area of the polyCurve but remove the innerpolycurves
         self.offset = 0
         self.name = "test2"
         self.id = generateID()
@@ -82,10 +84,11 @@ class Surface:
             'color': self.color,
             'colorlst': self.colorlst
         }
-    
+
     @staticmethod
     def deserialize(data):
-        polycurves = [PolyCurve.deserialize(pc_data) for pc_data in data.get('PolyCurveList', [])]
+        polycurves = [PolyCurve.deserialize(
+            pc_data) for pc_data in data.get('PolyCurveList', [])]
         surface = Surface(polycurves, data.get('color'))
 
         surface.mesh = data.get('mesh', [])
@@ -148,7 +151,8 @@ class Surface:
             self.mesh.append(hole_extrusion)
 
             # Add the hole colors to the colorlst list
-            hole_colors = [Color.rgb_to_int(Color().Components("red"))] * int(len(hole_extrusion.verts) / 3)
+            hole_colors = [Color.rgb_to_int(Color().Components(
+                "red"))] * int(len(hole_extrusion.verts) / 3)
             self.colorlst.append(hole_colors)
 
             # Add the remaining colors to the colorlst list
@@ -157,7 +161,6 @@ class Surface:
             # Update the origin curve
             self.origincurve = self.PolyCurveList[0]
 
-
     def __id__(self):
         return f"id:{self.id}"
 
@@ -165,11 +168,11 @@ class Surface:
     #     return f"{__class__.__name__}({self})"
 
 
-class NurbsSurface: #based on point data / degreeU&countU / degreeV&countV?
+class NurbsSurface:  # based on point data / degreeU&countU / degreeV&countV?
     def __init__(self) -> None:
         pass
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
     pass
 
     def __id__(self):
@@ -183,7 +186,7 @@ class PolySurface:
     def __init__(self) -> None:
         pass
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
     pass
 
     def __id__(self):

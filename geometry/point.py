@@ -27,20 +27,20 @@
 """This module provides tools to create points
 """
 
-from abstract import vector
-from helper import *
-from pathlib import Path
 __title__ = "point"
 __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/point.py"
 
 
 import sys
+from pathlib import Path
 import math
-# from abstract.coordinatesystem import *
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from abstract import vector
+from helper import *
+
 
 # [!not included in BP singlefile - end]
 

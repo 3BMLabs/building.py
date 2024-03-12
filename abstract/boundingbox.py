@@ -1,50 +1,48 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools for boundingbox
 """
 
-__title__= "coordinatesystem"
+__title__ = "coordinatesystem"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/boundingbox.py"
-
 
 import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.geometry2d import Point2D, PolyCurve2D
-from geometry.point import Point
-from geometry.curve import PolyCurve, Line
-from abstract.coordinatesystem import CoordinateSystem, CSGlobal
-from abstract.vector import Vector3
-from geometry.solid import Extrusion
 from helper import *
-
+from geometry.solid import Extrusion
+from abstract.vector import Vector3
+from abstract.coordinatesystem import CoordinateSystem, CSGlobal
+from geometry.curve import PolyCurve, Line
+from geometry.point import Point
+from geometry.geometry2d import Point2D, PolyCurve2D
 
 # [!not included in BP singlefile - end]
 
@@ -60,7 +58,8 @@ class BoundingBox2d:
         self.z = 0
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'points': self.points,
@@ -86,7 +85,7 @@ class BoundingBox2d:
 
     def _length(self):
         return 0
-    
+
     def area(self):
         return 0
 
@@ -100,20 +99,19 @@ class BoundingBox2d:
         min_y = min(y_values)
         max_y = max(y_values)
 
-
         left_top = Point(x=min_x, y=max_y, z=self.z)
         left_bottom = Point(x=min_x, y=min_y, z=self.z)
         right_top = Point(x=max_x, y=max_y, z=self.z)
         right_bottom = Point(x=max_x, y=min_y, z=self.z)
         self.length = abs(Point.distance(left_top, left_bottom))
         self.width = abs(Point.distance(left_top, right_top))
-        self.corners.append(left_top) 
-        self.corners.append(left_bottom) 
+        self.corners.append(left_top)
+        self.corners.append(left_bottom)
         self.corners.append(right_bottom)
         self.corners.append(right_top)
         return self
-    
-    def by_dimensions(self, length:float, width:float):
+
+    def by_dimensions(self, length: float, width: float):
         # startpoint = Point2D(0,0)
         # widthpoint = Point2D(0,width)
         # widthlengthpoint = Point2D(length,width)
@@ -144,14 +142,15 @@ class BoundingBox2d:
 class BoundingBox3d:
     def __init__(self, points=Point):
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.points = points
         self.boundingbox2d = None
         self.coordinatesystem = None
         self.height = None
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -160,7 +159,8 @@ class BoundingBox3d:
 
     @staticmethod
     def deserialize(data):
-        points = [Point.deserialize(point_data) for point_data in data.get('points', [])]
+        points = [Point.deserialize(point_data)
+                  for point_data in data.get('points', [])]
         return BoundingBox3d(points)
 
     def corners(self):
@@ -179,7 +179,7 @@ class BoundingBox3d:
         left_bottom_bottom = Point(x=min_x, y=min_y, z=min_z)
         right_top_bottom = Point(x=max_x, y=max_y, z=min_z)
         right_bottom_bottom = Point(x=max_x, y=min_y, z=min_z)
-        
+
         left_top_top = Point(x=min_x, y=max_y, z=max_z)
         left_bottom_top = Point(x=min_x, y=min_y, z=max_z)
         right_top_top = Point(x=max_x, y=max_y, z=max_z)
@@ -189,24 +189,25 @@ class BoundingBox3d:
 
     def perimeter(self):
         return PolyCurve.by_points(self.corners(self.points))
-    
-    def convert_boundingbox_2d(self, boundingbox2d:BoundingBox2d, coordinatesystem: CoordinateSystem, height=float):
+
+    def convert_boundingbox_2d(self, boundingbox2d: BoundingBox2d, coordinatesystem: CoordinateSystem, height=float):
         self.boundingbox2d = boundingbox2d
         self.coordinatesystem = coordinatesystem
         self.height = height
         return self
-    
+
     def to_cuboid(self) -> Extrusion:
         pts = self.boundingbox2d.corners
         pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem
         dirXvector = Vector3.angle_between(CSGlobal.Yaxis, cs.Yaxis)
-        pcrot = pc.rotate(dirXvector) #bug multi direction
-        cuboid = Extrusion.by_polycurve_height_vector(pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
+        pcrot = pc.rotate(dirXvector)  # bug multi direction
+        cuboid = Extrusion.by_polycurve_height_vector(
+            pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
         return cuboid
-    
-    def to_axis(self, length:int=None) -> Line:
+
+    def to_axis(self, length: int = None) -> Line:
         if length == None:
             length = 1000
         cs = self.coordinatesystem
@@ -214,4 +215,3 @@ class BoundingBox3d:
         lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Yaxis, length)
         lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Zaxis, length)
         return [lnX, lnY, lnZ]
-    

@@ -1,33 +1,33 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools to create solids
 """
 
-__title__= "solid"
+__title__ = "solid"
 __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/solid.py"
 
@@ -44,10 +44,12 @@ from geometry.geometry2d import PolyCurve2D
 from abstract.plane import *
 import helper
 
+
 # [!not included in BP singlefile - end]
 
+
 class Extrusion:
-    #Extrude a 2D profile to a 3D mesh or solid
+    # Extrude a 2D profile to a 3D mesh or solid
     def __init__(self):
         self.id = generateID()
         self.type = __class__.__name__
@@ -55,18 +57,19 @@ class Extrusion:
         self.verts = []
         self.faces = []
         self.numberFaces = 0
-        self.countVertsFaces = 0 # total number of verts per face (not the same as total verts)
+        # total number of verts per face (not the same as total verts)
+        self.countVertsFaces = 0
         self.name = None
-        self.color = (255,255,0)
+        self.color = (255, 255, 0)
         self.colorlst = []
-        self.topface = None #return polycurve -> surface
-        self.bottomface = None #return polycurve -> surface
+        self.topface = None  # return polycurve -> surface
+        self.bottomface = None  # return polycurve -> surface
         self.polycurve_3d_translated = None
         self.bottomshape = []
 
-
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -82,7 +85,6 @@ class Extrusion:
             'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
         }
 
-
     @staticmethod
     def deserialize(data):
         extrusion = Extrusion()
@@ -92,28 +94,27 @@ class Extrusion:
         extrusion.numberFaces = data.get('numberFaces', 0)
         extrusion.countVertsFaces = data.get('countVertsFaces', 0)
         extrusion.name = data.get('name', "none")
-        extrusion.color = data.get('color', (255,255,0))
+        extrusion.color = data.get('color', (255, 255, 0))
         extrusion.colorlst = data.get('colorlst', [])
 
         if data.get('topface'):
             extrusion.topface = PolyCurve.deserialize(data['topface'])
-        
+
         if data.get('bottomface'):
             extrusion.bottomface = PolyCurve.deserialize(data['bottomface'])
-        
+
         if data.get('polycurve_3d_translated'):
-            extrusion.polycurve_3d_translated = PolyCurve.deserialize(data['polycurve_3d_translated'])
+            extrusion.polycurve_3d_translated = PolyCurve.deserialize(
+                data['polycurve_3d_translated'])
 
         return extrusion
-
 
     def set_parameter(self, data):
         self.parameters = data
         return self
 
-
     @classmethod
-    def merge(self, extrusions:list, name=None):
+    def merge(self, extrusions: list, name=None):
         Outrus = Extrusion()
         if isinstance(extrusions, list):
             Outrus.verts = []
@@ -131,23 +132,27 @@ class Extrusion:
         elif isinstance(extrusions, Extrusion):
             return extrusions
 
-
     @classmethod
     def by_polycurve_height_vector(self, polycurve2d: PolyCurve2D, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
-        #2D PolyCurve @ Global origin
+        # 2D PolyCurve @ Global origin
         count = 0
-        
-        Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(polycurve2d,startpoint,DirectionVector)
-        
+
+        Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(
+            polycurve2d, startpoint, DirectionVector)
+
         try:
             for i in polycurve2d.curves:
-                startpointLow = transform_point(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
-                endpointLow = transform_point(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
-                endpointHigh = transform_point(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
-                startpointHigh = transform_point(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
+                startpointLow = transform_point(
+                    Point(i.start.x, i.start.y, 0), CSOld, startpoint, DirectionVector)
+                endpointLow = transform_point(
+                    Point(i.end.x, i.end.y, 0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transform_point(
+                    Point(i.end.x, i.end.y, height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transform_point(
+                    Point(i.start.x, i.start.y, height), CSOld, startpoint, DirectionVector)
 
-                #Construct faces perpendicular on polycurve
+                # Construct faces perpendicular on polycurve
                 Extrus.faces.append(4)
                 Extrus.verts.append(startpointLow.x)
                 Extrus.verts.append(startpointLow.y)
@@ -171,7 +176,7 @@ class Extrusion:
                 count += 1
                 Extrus.numberFaces = Extrus.numberFaces + 1
 
-            #bottomface
+            # bottomface
             Extrus.faces.append(len(polycurve2d.curves))
 
             count = 0
@@ -179,7 +184,6 @@ class Extrusion:
                 Extrus.faces.append(count)
                 Extrus.bottomshape.append(i)
                 count = count + 4
-            
 
             # topface
             Extrus.faces.append(len(polycurve2d.curves))
@@ -189,12 +193,16 @@ class Extrusion:
                 count = count + 4
         except:
             for i in polycurve2d.curves:
-                startpointLow = transform_point(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
-                endpointLow = transform_point(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
-                endpointHigh = transform_point(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
-                startpointHigh = transform_point(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
+                startpointLow = transform_point(
+                    Point(i.start.x, i.start.y, 0), CSOld, startpoint, DirectionVector)
+                endpointLow = transform_point(
+                    Point(i.end.x, i.end.y, 0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transform_point(
+                    Point(i.end.x, i.end.y, height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transform_point(
+                    Point(i.start.x, i.start.y, height), CSOld, startpoint, DirectionVector)
 
-                #Construct faces perpendicular on polycurve
+                # Construct faces perpendicular on polycurve
                 Extrus.faces.append(4)
                 Extrus.verts.append(startpointLow.x)
                 Extrus.verts.append(startpointLow.y)
@@ -218,7 +226,7 @@ class Extrusion:
                 count += 1
                 Extrus.numberFaces = Extrus.numberFaces + 1
 
-            #bottomface
+            # bottomface
             Extrus.faces.append(len(polycurve2d.curves))
 
             count = 0
@@ -226,7 +234,6 @@ class Extrusion:
                 Extrus.faces.append(count)
                 Extrus.bottomshape.append(i)
                 count = count + 4
-            
 
             # topface
             Extrus.faces.append(len(polycurve2d.curves))
@@ -237,7 +244,8 @@ class Extrusion:
 
         Extrus.countVertsFaces = (4 * Extrus.numberFaces)
 
-        Extrus.countVertsFaces = Extrus.countVertsFaces + len(polycurve2d.curves)*2
+        Extrus.countVertsFaces = Extrus.countVertsFaces + \
+            len(polycurve2d.curves)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
 
         for j in range(int(len(Extrus.verts) / 3)):
@@ -245,16 +253,16 @@ class Extrusion:
 
         return Extrus
 
-
     @classmethod
     def by_polycurve_height(self, polycurve: PolyCurve, height, dzloc: float):
-        #global len
+        # global len
         Extrus = Extrusion()
         Points = polycurve.points
         V1 = Vector3.by_two_points(Points[0], Points[1])
         V2 = Vector3.by_two_points(Points[-2], Points[-1])
 
-        p1 = Plane.by_two_vectors_origin(V1, V2, Points[0]) #Workplane of PolyCurve
+        p1 = Plane.by_two_vectors_origin(
+            V1, V2, Points[0])  # Workplane of PolyCurve
         norm = p1.Normal
 
         pnts = []
@@ -262,15 +270,18 @@ class Extrusion:
 
         Extrus.polycurve_3d_translated = polycurve
 
-        #allverts
+        # allverts
         for pnt in Points:
-            pnts.append(Point.translate(pnt, Vector3.product(dzloc, norm))) # Onderzijde verplaatst met dzloc
+            # Onderzijde verplaatst met dzloc
+            pnts.append(Point.translate(pnt, Vector3.product(dzloc, norm)))
         for pnt in Points:
-            pnts.append(Point.translate(pnt, Vector3.product((dzloc+height), norm)))  # Bovenzijde verplaatst met dzloc
+            # Bovenzijde verplaatst met dzloc
+            pnts.append(Point.translate(
+                pnt, Vector3.product((dzloc+height), norm)))
 
         numPoints = len(Points)
 
-        #Bottomface
+        # Bottomface
         count = 0
         face = []
         for x in range(numPoints):
@@ -289,7 +300,7 @@ class Extrusion:
         # Sides
         count = 0
         length = len(faces[0])
-        for i,j in zip(faces[0],faces[1]):
+        for i, j in zip(faces[0], faces[1]):
             face = []
             face.append(i)
             face.append(faces[0][count + 1])
@@ -307,14 +318,14 @@ class Extrusion:
                 pass
             faces.append(face)
 
-        #toMeshStructure
+        # toMeshStructure
         for i in pnts:
             Extrus.verts.append(i.x)
             Extrus.verts.append(i.y)
             Extrus.verts.append(i.z)
 
         for x in faces:
-            Extrus.faces.append(len(x)) #Number of verts in face
+            Extrus.faces.append(len(x))  # Number of verts in face
             for y in x:
                 Extrus.faces.append(y)
 

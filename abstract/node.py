@@ -1,46 +1,47 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools for planes
 """
 
-__title__= "plane"
+__title__ = "plane"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/plane.py"
 
-import sys, os, math
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.vector import *
-from geometry.point import Point
 from project.fileformat import *
+from geometry.point import Point
+from abstract.vector import *
 
 # [!not included in BP singlefile - end]
+
 
 class Node:
     def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
@@ -54,7 +55,8 @@ class Node:
         self.comments = comments
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -65,14 +67,16 @@ class Node:
             'diameter': self.diameter,
             'comments': self.comments
         }
-    
+
     @staticmethod
     def deserialize(data):
         node = Node()
         node.id = data.get('id')
         node.type = data.get('type')
-        node.point = Point.deserialize(data['point']) if data.get('point') else None
-        node.vector = Vector3.deserialize(data['vector']) if data.get('vector') else None
+        node.point = Point.deserialize(
+            data['point']) if data.get('point') else None
+        node.vector = Vector3.deserialize(
+            data['vector']) if data.get('vector') else None
         node.number = data.get('number')
         node.distance = data.get('distance')
         node.diameter = data.get('diameter')
@@ -80,14 +84,14 @@ class Node:
 
         return node
 
-    #merge
+    # merge
     def merge(self):
         if project.node_merge == True:
             pass
         else:
             pass
 
-    #snap
+    # snap
     def snap(self):
         pass
 

@@ -27,18 +27,17 @@
 """This module provides tools for coordinatesystems
 """
 
-from geometry.point import Point
-from abstract.vector import *
-from pathlib import Path
-import sys
-import os
-import math
 __title__ = "coordinatesystem"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/coordinatesystem.py"
 
+import sys
+from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from geometry.point import Point
+from abstract.vector import *
 
 # from project.fileformat import project
 

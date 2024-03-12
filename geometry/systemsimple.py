@@ -29,15 +29,20 @@
 -one direction
 """
 
-import copy
-from abstract.boundingbox import *
-from objects.panel import *
-from objects.frame import *
-from abstract.interval import *
 __title__ = "systemsimple"
 __author__ = "Maarten"
 __url__ = "./geometry/systemsimple.py"
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from abstract.boundingbox import *
+from objects.panel import *
+from objects.frame import *
+from objects.steelshape import *
+from abstract.interval import *
 
 # [!not included in BP singlefile - end]
 

@@ -133,7 +133,7 @@ class BuildingPy:
         TransportToSpeckle(self.speckleserver,streamid,speckleobj,commitstring)
 
     def toFreeCAD(self):
-        from exchange.freecad_bupy import translateObjectsToFreeCAD
+        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
         translateObjectsToFreeCAD(self.objects)
 
     def toIFC(self):

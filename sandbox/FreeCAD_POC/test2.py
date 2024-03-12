@@ -20,7 +20,7 @@ from objects.frame import *
 from objects.steelshape import *
 from project.fileformat import *
 from objects.datum import *
-# from exchange.freecad_bupy import *
+# from exchange.Freecad_Bupy import *
 # importlib.reload(GIS2BIM_GUI)
 # importlib.reload(GIS2BIM_FreeCAD)
 
