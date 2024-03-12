@@ -41,7 +41,7 @@ for i in lst:
     try:
         prof = i[:3]
         shape = i[:3]
-        fram = Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
+        fram = Frame.by_startpoint_endpoint_profile_name(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
         ColumnTag.by_frame(fram).write(project)
 
         x = x + spacing

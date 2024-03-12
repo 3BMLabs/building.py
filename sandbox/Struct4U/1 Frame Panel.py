@@ -9,11 +9,11 @@ sys.path.append(str(package_root_directory))
 obj = []
 
 #BEAMS
-obj.append(Frame.byStartpointEndpoint(Point(0,0,0), Point(2000,0,0), Rectangle("400x600", 400,600).curve,"400x600",0,BaseConcrete))  #Concrete Beam
-obj.append(Frame.byStartpointEndpointProfileNameShapevector(Point(0,1000,0),Point(2000,1000,0),"HEA400","HEA400",Vector2(0,0),0,BaseSteel)) #Steel Beam
+obj.append(Frame.by_startpoint_endpoint(Point(0,0,0), Point(2000,0,0), Rectangle("400x600", 400,600).curve,"400x600",0,BaseConcrete))  #Concrete Beam
+obj.append(Frame.by_startpoint_endpoint_profile_name_shapevector(Point(0,1000,0),Point(2000,1000,0),"HEA400","HEA400",Vector2(0,0),0,BaseSteel)) #Steel Beam
 
 obj.append( #List with elements to Speckle
-    Frame.byStartpointEndpointProfileNameShapevector(  #Function to create a Frame/Beam
+    Frame.by_startpoint_endpoint_profile_name_shapevector(  #Function to create a Frame/Beam
         Point(0,2000,0), #Startpoint
         Point(2000,2000,0), #Endpoint
         "UNP400", #Steel profile name, can be hea400, he400a, HEA400, HEA 400 etc.
@@ -24,8 +24,8 @@ obj.append( #List with elements to Speckle
 
 
 #PANELS/ PLATES IN XFEM4U
-obj.append(Panel.byPolyCurveThickness(
-    PolyCurve.byPoints(
+obj.append(Panel.by_polycurve_thickness(
+    PolyCurve.by_points(
         [Point(4000,0,0),
          Point(6000,0,0),
          Point(6000,2000,0),

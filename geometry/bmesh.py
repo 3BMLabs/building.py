@@ -37,7 +37,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from temp.EXPORTER import send_to_speckle
+# from temp.EXPORTER import send_to_speckle
 from specklepy.objects.geometry import BrepEdge, Point, Vector
 
 #Brep start
@@ -59,7 +59,7 @@ tangent_vector = Vector.from_coords(1, 0, 0)
 brep_edge = BrepEdge(start_point=start_point, end_point=end_point, tangent_vector=tangent_vector)
 brep_edge._displayValue = True
 obj1 = [brep_edge]
-send_to_speckle(INhost="https://3bm.exchange", INstream_id="5ab2faedba", INobjects=obj1)
+# send_to_speckle(INhost="https://3bm.exchange", INstream_id="5ab2faedba", INobjects=obj1)
 
 # #BrepEdge end
 

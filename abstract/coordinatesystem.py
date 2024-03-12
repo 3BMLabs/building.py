@@ -128,9 +128,9 @@ class CoordinateSystem:
         rotation_matrix = CoordinateSystem.calculate_rotation_matrix(
             CS1.Xaxis, CS1.Yaxis, CS1.Zaxis, CS2.Xaxis, CS2.Yaxis, CS2.Zaxis)
 
-        xaxis_transformed = Vector3.dotProduct(rotation_matrix, CS1.Xaxis)
-        yaxis_transformed = Vector3.dotProduct(rotation_matrix, CS1.Yaxis)
-        zaxis_transformed = Vector3.dotProduct(rotation_matrix, CS1.Zaxis)
+        xaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Xaxis)
+        yaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Yaxis)
+        zaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Zaxis)
 
         xaxis_normalized = Vector3.normalize(
             Vector3.from_matrix(xaxis_transformed))

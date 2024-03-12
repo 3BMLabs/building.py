@@ -40,8 +40,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from PIL import Image
 import urllib.request
 
-#example 1 = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/bugatti-chiron.jpg", 100, 100, dx=10, dy=10)
-#example 2 = imagePyB().byStream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
+#example 1 = imagePyB().by_file("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/bugatti-chiron.jpg", 100, 100, dx=10, dy=10)
+#example 2 = imagePyB().by_stream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
 
 class imagePyB:
 #Image to Mesh with colors of pixels
@@ -73,7 +73,7 @@ class imagePyB:
         r, g, b = [max(0, min(255, c)) for c in rgb]
         return (255 << 24) | (r << 16) | (g << 8) | b
 
-    def byFile(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
+    def by_file(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
         self.imgpath = imgpath
         self.dx = dx
         self.dy = dy
@@ -151,7 +151,7 @@ class imagePyB:
             # self.colorlst = None
         return self
 
-    def byStream(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
+    def by_stream(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
         self.imgpath = imgpath
         urllib.request.urlretrieve(
             self.imgpath, "img.png")
@@ -229,4 +229,3 @@ class imagePyB:
             self.colorlst.append(argbint_color)
             self.colorlst.append(argbint_color)
         return self
-

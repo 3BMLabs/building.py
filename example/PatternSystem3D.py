@@ -9,9 +9,9 @@ import sys
 project = BuildingPy("Test patterns 3D","0")
 project.speckleserver = "speckle.xyz"
 
-test1 = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
-test2 = PatternSystem().TileBondWithJoint("tegels",400,400,10,10,10)
-test3 = PatternSystem().CrossBondWithJoint("kruisverband test",100,210,50,10,12.5)
+test1 = PatternSystem().stretcher_bond_with_joint("halfsteensverband",100,210,50,10,12.5)
+test2 = PatternSystem().tile_bond_with_joint("tegels",400,400,10,10,10)
+test3 = PatternSystem().cross_bond_with_joint("kruisverband test",100,210,50,10,12.5)
 
 
 def PatternGEOM2(PatternSystem,width,height):
@@ -38,18 +38,18 @@ def PatternGEOM2(PatternSystem,width,height):
                 xvector = Vector3.sum(xvectdisplacement, xvector)
                 print(xvector)
                 xyvector = Vector3.sum(yvector,xvector)
-                PCNew = PolyCurve.copyTranslate(PC,xyvector) #translate curve in x and y-direction
-                pan = Panel.byPolyCurveThickness(PCNew,thickness,0,"name",color)
+                PCNew = PolyCurve.copy_translate(PC,xyvector) #translate curve in x and y-direction
+                pan = Panel.by_polycurve_thickness(PCNew,thickness,0,"name",color)
                 panels.append(PCNew)
             xvector = Vector3.sum(xvectdisplacement, Vector3(0, 0, 0))
     return panels
 
 paneelcontouren = PatternGEOM2(test2,4000,4000) # polycurves van panelen
 
-contour = PolyCurve.byPoints([Point(1000,1000,0),Point(3000,1000,0),Point(3500,3500,0),Point(2000,3500,0),Point(1000,1000,0)])
+contour = PolyCurve.by_points([Point(1000,1000,0),Point(3000,1000,0),Point(3500,3500,0),Point(2000,3500,0),Point(1000,1000,0)])
 contour2d = contour.to_polycurve_2D()
 
-contour_panel = Panel.byPolyCurveThickness(contour,5,0,"name",BaseBrickYellow.colorint)
+contour_panel = Panel.by_polycurve_thickness(contour,5,0,"name",BaseBrickYellow.colorint)
 
 project.objects.append(contour_panel)
 
@@ -70,7 +70,7 @@ sys.exit()
 #    project.objects.append(sp_pc)
 
 for i in test_res:
-    j = Panel.byPolyCurveThickness(i,20,0,"name",BaseBrick.colorint)
+    j = Panel.by_polycurve_thickness(i,20,0,"name",BaseBrick.colorint)
     project.objects.append(j)
 
 project.toSpeckle("3e34ec62e2")

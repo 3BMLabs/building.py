@@ -2762,7 +2762,7 @@ def kaartbladnummer(RdX,RdY):
         pnts = []
         for j in i:
             pnts.append(Point2D(j[0],j[1]))
-        pc = PolyCurve2D().byPoints(pnts)
+        pc = PolyCurve2D().by_points(pnts)
         res = is_point_in_polycurve(orig,pc)
         if res is True:
             kaartbladen.append(k)

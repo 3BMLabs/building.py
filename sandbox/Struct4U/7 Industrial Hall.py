@@ -84,47 +84,47 @@ obj1 = grids[0] + grids[1]
 #obj1 = []
 #SPANTEN
 for i in range(n):
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, 0, z), Point(x, y*0.5, z+afschot), HOOFDLIGGER, "Hoofdligger deel 1", BaseSteel))
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y*0.5, z+afschot), Point(x, y, z), HOOFDLIGGER,"Hoofdligger deel 2", BaseSteel))
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, 0, 0), Point(x, 0, z), GEVELKOLOM, "Kolom 1", BaseSteel))
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, z), GEVELKOLOM, "Kolom 2", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, 0, z), Point(x, y*0.5, z+afschot), HOOFDLIGGER, "Hoofdligger deel 1", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, y*0.5, z+afschot), Point(x, y, z), HOOFDLIGGER,"Hoofdligger deel 2", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, 0, 0), Point(x, 0, z), GEVELKOLOM, "Kolom 1", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, y, 0), Point(x, y, z), GEVELKOLOM, "Kolom 2", BaseSteel))
     obj1.append(Support.pinned(Point(x, y, 0)))
     obj1.append(Support.pinned(Point(x, 0, 0)))
     x = x + spac
 
 #FOUNDATION BEAM
-obj1.append(Frame.byStartpointEndpoint(Point(0,0,0), Point(0,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
-obj1.append(Frame.byStartpointEndpoint(Point(l,0,0), Point(l,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
-obj1.append(Frame.byStartpointEndpoint(Point(0,0,0), Point(l,0,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
-obj1.append(Frame.byStartpointEndpoint(Point(0,y,0), Point(l,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.by_startpoint_endpoint(Point(0,0,0), Point(0,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.by_startpoint_endpoint(Point(l,0,0), Point(l,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.by_startpoint_endpoint(Point(0,0,0), Point(l,0,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
+obj1.append(Frame.by_startpoint_endpoint(Point(0,y,0), Point(l,y,0), FOUNDATIONBEAM,"FB 1",0,BaseConcrete))
 
 
 #RANDLIGGERS & KOPPELKOKERS
 x = 0
 for i in range(n+1): #elk stramienvak + 1
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, 0, z), Point(x+spac, 0, z), RANDLIGGER, "Randligger 1", BaseSteel))
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, z), Point(x+spac, y, z), RANDLIGGER, "Randligger 2", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, 0, z), Point(x+spac, 0, z), RANDLIGGER, "Randligger 1", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, y, z), Point(x+spac, y, z), RANDLIGGER, "Randligger 2", BaseSteel))
     ys = spac_y
     for i in range(nw-1):
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x+spac, ys, z), KOPPELLIGGER,"Koppelkoker", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, ys, z), Point(x+spac, ys, z), KOPPELLIGGER,"Koppelkoker", BaseSteel))
         ys = ys + spac_y
     x = x + spac
 
 #KOPGEVEL
 x = 0
 for i in range(2): #VOORZIJDE EN ACHTERZIJDE
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, 0, 0), Point(x, 0, z), HOEKKOLOM, "HOEKKOLOM 1", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, 0, 0), Point(x, 0, z), HOEKKOLOM, "HOEKKOLOM 1", BaseSteel))
     obj1.append(Support.pinned(Point(x, 0, 0)))
-    obj1.append(Frame.byStartpointEndpointProfileName(Point(x, y, 0), Point(x, y, z), HOEKKOLOM, "HOEKKOLOM 2", BaseSteel))
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, y, 0), Point(x, y, z), HOEKKOLOM, "HOEKKOLOM 2", BaseSteel))
     obj1.append(Support.pinned(Point(x, y, 0)))
     ys = spac_y
     for i in range(nw-1):
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, 0), Point(x, ys, z), KOPGEVELKOLOM,"KOPGEVELKOLOM", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, ys, 0), Point(x, ys, z), KOPGEVELKOLOM,"KOPGEVELKOLOM", BaseSteel))
         obj1.append(Support.pinned(Point(x, ys, 0)))
         ys = ys + spac_y
     ys = 0
     for i in range(nw):
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, ys, z), Point(x, ys+spac_y, z), RANDLIGGER_KOPGEVEL, "RANDLIGGER KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, ys, z), Point(x, ys+spac_y, z), RANDLIGGER_KOPGEVEL, "RANDLIGGER KOPGEVEL", BaseSteel))
         ys = ys + spac_y
     x = l
 
@@ -135,18 +135,18 @@ for i in range(2): #VOORZIJDE EN ACHTERZIJDE
 
 for i in wvb: #For loop for vertical bracing
     if i[0] == "K1": #kopgevel 1
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(0, (i[1]-1) * spac_y, 0), Point(0, (i[1]) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(0, (i[1]) * spac_y, 0), Point(0, (i[1]-1) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(0, (i[1]-1) * spac_y, 0), Point(0, (i[1]) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(0, (i[1]) * spac_y, 0), Point(0, (i[1]-1) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
     elif i[0] == "K2":
         x = l
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, (i[1]-1) * spac_y, 0), Point(x, (i[1]) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
-        obj1.append(Frame.byStartpointEndpointProfileName(Point(x, (i[1]) * spac_y, 0), Point(x, (i[1]-1) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, (i[1]-1) * spac_y, 0), Point(x, (i[1]) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point(x, (i[1]) * spac_y, 0), Point(x, (i[1]-1) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
     elif i[0] == "L1":
-        obj1.append(Frame.byStartpointEndpointProfileName(Point((i[1]-1) * spac, 0, 0), Point((i[1]) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
-        obj1.append(Frame.byStartpointEndpointProfileName(Point((i[1]) * spac, 0, 0), Point((i[1]-1) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point((i[1]-1) * spac, 0, 0), Point((i[1]) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point((i[1]) * spac, 0, 0), Point((i[1]-1) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
     elif i[0] == "L2":
-        obj1.append(Frame.byStartpointEndpointProfileName(Point((i[1] - 1) * spac, y, 0), Point((i[1]) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
-        obj1.append(Frame.byStartpointEndpointProfileName(Point((i[1]) * spac, y, 0), Point((i[1] - 1) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point((i[1] - 1) * spac, y, 0), Point((i[1]) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
+        obj1.append(Frame.by_startpoint_endpoint_profile_name(Point((i[1]) * spac, y, 0), Point((i[1] - 1) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel))
     else:
         pass
 
@@ -163,7 +163,7 @@ for i in wvbDak:
         x2 = x1t
     else:
         x1 = x1
-    obj1.append(Frame.byStartpointEndpointProfileName(
+    obj1.append(Frame.by_startpoint_endpoint_profile_name(
         Point(x1, y1, z),
         Point(x2, y2, z),
         WVB_DAK,"WVB DAK", BaseSteel))
@@ -179,25 +179,25 @@ def LoadPanels(width,length,z):
     LPWall1 = LoadPanel()
     LPWall1.Description = "Kopgevel 1"
     LPWall1.LoadBearingDirection = "X"
-    LPWall1.PolyCurve = RectXY(Vector3(0,0,0),width,z)
+    LPWall1.PolyCurve = Rect_XY(Vector3(0,0,0),width,z)
     obj1.append(LPWall1)
 
     LPWall2 = LoadPanel()
     LPWall2.Description = "Kopgevel 2"
     LPWall2.LoadBearingDirection = "X"
-    LPWall2.PolyCurve = RectXY(Vector3(0,length,0),width,z)
+    LPWall2.PolyCurve = Rect_XY(Vector3(0,length,0),width,z)
     obj1.append(LPWall2)
 
     LPWall3 = LoadPanel()
     LPWall3.Description = "Langsgevel 1"
     LPWall3.LoadBearingDirection = "X"
-    LPWall3.PolyCurve = RectYZ(Vector3(0,0,0),length,z)
+    LPWall3.PolyCurve = Rect_YZ(Vector3(0,0,0),length,z)
     obj1.append(LPWall3)
 
     LPWall4 = LoadPanel()
     LPWall4.Description = "Langsgevel 1"
     LPWall4.LoadBearingDirection = "X"
-    LPWall4.PolyCurve = RectYZ(Vector3(width,0,0),length,z)
+    LPWall4.PolyCurve = Rect_YZ(Vector3(width,0,0),length,z)
 
     obj1.append(LPWall4)
 

@@ -111,7 +111,7 @@ class Support:
         return(sup)
 
     @staticmethod
-    def xRoller(PlacementPoint):
+    def x_roller(PlacementPoint):
         sup = Support()
         sup.Point = PlacementPoint
         sup.Ty = "A"
@@ -119,7 +119,7 @@ class Support:
         return(sup)
 
     @staticmethod
-    def yRoller(PlacementPoint):
+    def y_roller(PlacementPoint):
         sup = Support()
         sup.Point = PlacementPoint
         sup.Tx = "A"
@@ -127,7 +127,7 @@ class Support:
         return(sup)
 
     @staticmethod
-    def zRoller(PlacementPoint):
+    def z_roller(PlacementPoint):
         sup = Support()
         sup.Point = PlacementPoint
         sup.Tx = "A"
@@ -172,7 +172,7 @@ class SurfaceLoad:
         self.iq3 = -1
 
     @staticmethod
-    def byLoadCasePolyCurveQ(LoadCase, PolyCurve, q):
+    def by_load_case_polycurve_q(LoadCase, PolyCurve, q):
         SL = SurfaceLoad()
         SL.LoadCase = LoadCase
         SL.PolyCurve = PolyCurve
@@ -189,7 +189,7 @@ class LoadPanel:
         self.LoadBearingDirection = "X"
         self.SurfaceType = "" #Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
 
-def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
+def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
     SurfaceLoads = []
     x = startx
     y = starty
@@ -198,7 +198,7 @@ def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, heigh
             SL = SurfaceLoad()
             SL.Description = description
             SL.LoadCase = LoadCase
-            SL.PolyCurve = PolyCurve.byPoints(
+            SL.PolyCurve = PolyCurve.by_points(
                 [Point(x, y, 0),
                 Point(x + width, y, 0),
                 Point(x, y + height, 0),

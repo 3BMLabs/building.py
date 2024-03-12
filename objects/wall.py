@@ -56,7 +56,7 @@ class Wall:
 
 
     @classmethod
-    def byMesh(self, verts=list, faces=list):
+    def by_mesh(self, verts=list, faces=list):
         wall = Wall()
         wall.verts = [vertex * project.scale for vertex in verts]
         wall.faces = list(faces)

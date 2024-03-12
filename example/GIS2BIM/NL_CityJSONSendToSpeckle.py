@@ -6205,7 +6205,7 @@ sys.exit()
 # for i in example[0]:
 #     geom = i["geometry"]
 #     name = i["attributes"]["cadastre_id"]
-#     m = MeshPB().byThreeCoords(geom, name, BaseBuilding, True)
+#     m = MeshPB().by_three_coords(geom, name, BaseBuilding, True)
 # <<<<<<< HEAD
 #     # print(m.colorlst)
 #     # print(m.faces)
@@ -6224,14 +6224,14 @@ sys.exit()
 # for i in example[1]:
 #     geom = i
 #     name = "bridge"
-#     m = MeshPB().byThreeCoords(geom, name, BaseInfra, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseInfra, False)
 #     GISProject.objects.append(m)
 #
 # # 2 roads
 # for i in example[2]:
 #     geom = i
 #     name = "roads"
-#     m = MeshPB().byThreeCoords(geom, name, BaseRoads, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseRoads, False)
 #     print(m.colorlst)
 #     GISProject.objects.append(m)
 #
@@ -6239,49 +6239,49 @@ sys.exit()
 # for i in example[3]:
 #     geom = i
 #     name = "roads"
-#     m = MeshPB().byThreeCoords(geom, name, BaseInfra, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseInfra, False)
 #     GISProject.objects.append(m)
 #
 # # 4 landuses
 # for i in example[4]:
 #     geom = i
 #     name = "landuses"
-#     m = MeshPB().byThreeCoords(geom, name, BaseInfra, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseInfra, False)
 #     GISProject.objects.append(m)
 #
 # # 5 plantcovers
 # for i in example[5]:
 #     geom = i
 #     name = "plantcovers"
-#     m = MeshPB().byThreeCoords(geom, name, BaseGreen, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseGreen, False)
 #     GISProject.objects.append(m)
 #
 # # 6 waterways
 # for i in example[6]:
 #     geom = i
 #     name = "waterways"
-#     m = MeshPB().byThreeCoords(geom, name, BaseWater, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseWater, False)
 #     GISProject.objects.append(m)
 #
 # # 7 waterbodies
 # for i in example[7]:
 #     geom = i
 #     name = "waterbodies"
-#     m = MeshPB().byThreeCoords(geom, name, BaseWater, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseWater, False)
 #     GISProject.objects.append(m)
 #
 # # 8 generics
 # for i in example[8]:
 #     geom = i
 #     name = "generics"
-#     m = MeshPB().byThreeCoords(geom, name, BaseOther, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseOther, False)
 #     GISProject.objects.append(m)
 #
 # # 9 reliefs
 # for i in example[9]:
 #     geom = i
 #     name = "generics"
-#     m = MeshPB().byThreeCoords(geom, name, BaseOther, False)
+#     m = MeshPB().by_three_coords(geom, name, BaseOther, False)
 #     GISProject.objects.append(m)
 #
 # <<<<<<< HEAD

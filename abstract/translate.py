@@ -76,6 +76,6 @@ class Geometry:
 
                 translated_points.append(Point(c[0], c[1], c[2]))
 
-            return PolyCurve.byPoints(translated_points)
+            return PolyCurve.by_points(translated_points)
         else:
             print(f"[translate] '{object.type}' object is not added yet")

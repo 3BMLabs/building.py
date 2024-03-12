@@ -35,7 +35,7 @@ __url__ = "./objects/annotation.py"
 
 class TickMark:
     #Dimension Tick Mark
-    def __init(self):
+    def __init__(self):
         self.name = None
         self.id = generateID()
         self.curves = []
@@ -163,7 +163,7 @@ class Dimension:
         tick_mark_extension_point_1 = Point.translate(self.start,Vector3.reverse(Vector3.scale(direction,self.dimension_type.line_extension)))
         tick_mark_extension_point_2 = Point.translate(self.end,Vector3.scale(direction,self.dimension_type.line_extension))
         x = direction
-        y = Vector3.rotateXY(x, math.radians(90))
+        y = Vector3.rotate_XY(x, math.radians(90))
         z = ZAxis
         cs_new_start = CoordinateSystem(self.start,x,y,z)
         cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
@@ -248,7 +248,7 @@ class FrameTag:
         tag = FrameTag()
         frame_vector = frame.vector_normalised
         x = frame_vector
-        y = Vector3.rotateXY(x,math.radians(90))
+        y = Vector3.rotate_XY(x,math.radians(90))
         z = ZAxis
         vx = Vector3.scale(frame_vector,tag.offset_x)
         frame_width = PolyCurve2D.bounds(frame.curve)[4]
@@ -362,7 +362,6 @@ class ColumnTag:
         tag.__leadercurves()
         tag.__textobject()
         return tag
-
 
 #class Label:
 #class LabelType:

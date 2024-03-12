@@ -47,7 +47,7 @@ class Intersect:
     def __init__(self):
         pass
     
-    def getLineIntersect(line1: Line, line2: Line) -> Point:
+    def get_line_intersect(line1: Line, line2: Line) -> Point:
         p1, p2 = line1.start, line1.end
         p1X, p1Y, P1Z = p1.x, p1.y, p1.z
         p2X, p2Y, P2Z = p2.x, p2.y, p2.z

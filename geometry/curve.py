@@ -67,7 +67,7 @@ class Line: #add Line.bylenght (start and endpoint)
         except:
             self.dz = 0
         self.length = self.length()
-        self.vector: Vector3 = Vector3.byTwoPoints(start,end)
+        self.vector: Vector3 = Vector3.by_two_points(start,end)
         self.vector_normalised = Vector3.normalize(self.vector)
 
     def serialize(self):
@@ -150,8 +150,8 @@ class Line: #add Line.bylenght (start and endpoint)
     @staticmethod
     def transform(line, CSNew: CoordinateSystem):
         ln = Line(start=line.start, end=line.end)
-        ln.start = transformPoint2(ln.start,CSNew)
-        ln.end = transformPoint2(ln.end,CSNew)
+        ln.start = transform_point_2(ln.start,CSNew)
+        ln.end = transform_point_2(ln.end,CSNew)
         return ln
 
     def offset(line, vector):
@@ -424,7 +424,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points: list[Point]):
+    def by_points(self, points: list[Point]):
         seen = set()
         unique_points = []
         
@@ -488,7 +488,7 @@ class PolyCurve:
         return pc
 
     @staticmethod
-    def byPolyCurve2D(PolyCurve2D):
+    def by_polycurve_2D(PolyCurve2D):
         # by points,
         plycrv = PolyCurve()
         curves = []
@@ -560,9 +560,9 @@ class PolyCurve:
                     pts = self.points[index]
                     part1.insert(i+1, pts)
                 if returnlines:
-                    SplittedPolyCurves.append(PolyCurve.byPoints(part1))
+                    SplittedPolyCurves.append(PolyCurve.by_points(part1))
                 else:
-                    project.objects.append(PolyCurve.byPoints(part1))
+                    project.objects.append(PolyCurve.by_points(part1))
 
             #part2 -> BUGG?
             if part2LineStart != None and part2LineEnd != None:
@@ -570,9 +570,9 @@ class PolyCurve:
                     pts = self.points[index]
                     part2.insert(index, pts)
                 if returnlines:
-                    SplittedPolyCurves.append(PolyCurve.byPoints(part2))
+                    SplittedPolyCurves.append(PolyCurve.by_points(part2))
                 else:
-                    project.objects.append(PolyCurve.byPoints(part2))
+                    project.objects.append(PolyCurve.by_points(part2))
 
             if returnlines: #return lines while using multi_split
                 return SplittedPolyCurves
@@ -617,7 +617,7 @@ class PolyCurve:
         return pc
 
     @staticmethod
-    def copyTranslate(pc, vector3d:Vector3):
+    def copy_translate(pc, vector3d:Vector3):
         crvs = []
         v1 = vector3d
         for i in pc.curves:
@@ -637,9 +637,9 @@ class PolyCurve:
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
-                crvs.append(Arc(Point.rotateXY(i.start, angle, dz), Point.rotateXY(i.middle, angle, dz), Point.rotateXY(i.end, angle, dz)))
+                crvs.append(Arc(Point.rotate_XY(i.start, angle, dz), Point.rotate_XY(i.middle, angle, dz), Point.rotate_XY(i.end, angle, dz)))
             elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.rotateXY(i.start, angle, dz), Point.rotateXY(i.end, angle, dz)))
+                crvs.append(Line(Point.rotate_XY(i.start, angle, dz), Point.rotate_XY(i.end, angle, dz)))
             else:
                 print("Curvetype not found")
         crv = PolyCurve.by_joined_curves(crvs)
@@ -686,14 +686,14 @@ class PolyCurve:
                                     end = transform_point(i.end, CSGlobal, startpoint, directionvector)
                                     ))
                 elif i.__class__.__name__ == "Arc2D":
-                    # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
-                    crvs.append(Arc(transform_point(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                    # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
+                    crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector),
+                                    transform_point(Point.point_2D_to_3D(i.mid), CSGlobal, startpoint, directionvector),
+                                    transform_point(Point.point_2D_to_3D(i.end), CSGlobal, startpoint, directionvector)
                                     ))
                 elif i.__class__.__name__ == "Line2D":
-                    crvs.append(Line(start = transform_point(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
-                                    end = transform_point(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                    crvs.append(Line(start = transform_point(Point.point_2D_to_3D(i.start),CSGlobal,startpoint,directionvector),
+                                    end = transform_point(Point.point_2D_to_3D(i.end), CSGlobal, startpoint, directionvector)
                                     ))
                 else:
                     print(i.__class__.__name__ + "Curvetype not found")
@@ -709,14 +709,14 @@ class PolyCurve:
                                     end = transform_point(i.end, CSGlobal, startpoint, directionvector)
                                     ))
                 elif i.__class__.__name__ == "Arc2D":
-                    # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
-                    crvs.append(Arc(transform_point(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                    # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
+                    crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector),
+                                    transform_point(Point.point_2D_to_3D(i.mid), CSGlobal, startpoint, directionvector),
+                                    transform_point(Point.point_2D_to_3D(i.end), CSGlobal, startpoint, directionvector)
                                     ))
                 elif i.__class__.__name__ == "Line2D":
-                    crvs.append(Line(start = transform_point(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
-                                    end = transform_point(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                    crvs.append(Line(start = transform_point(Point.point_2D_to_3D(i.start),CSGlobal,startpoint,directionvector),
+                                    end = transform_point(Point.point_2D_to_3D(i.end), CSGlobal, startpoint, directionvector)
                                     ))
                 else:
                     print(i.__class__.__name__ + "Curvetype not found")
@@ -737,25 +737,25 @@ def Rect(vector: Vector3, width: float, height: float):
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, height, 0), vector)
     p4 = Point(0,0,0).translate(Point(0, height, 0), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.by_points([p1, p2, p3, p4, p1])
     return crv
 
-def RectXY(vector: Vector3, width: float, height: float):
+def Rect_XY(vector: Vector3, width: float, height: float):
     #Rectangle in XY-plane
     p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, 0, height), vector)
     p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4])
+    crv = PolyCurve.by_points([p1, p2, p3, p4])
     return crv
 
-def RectYZ(vector: Vector3, width: float, height: float):
+def Rect_YZ(vector: Vector3, width: float, height: float):
     #Rectangle in XY-plane
     p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
     p2 = Point(0,0,0).translate(Point(0, width, 0), vector)
     p3 = Point(0,0,0).translate(Point(0, width, height), vector)
     p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.by_points([p1, p2, p3, p4, p1])
     return crv
 
 
@@ -779,7 +779,7 @@ class PolyGon:
         points.append(points[0])
         points3D = []
         for i in points:
-            points3D.append(Point.point2DTo3D(i))
+            points3D.append(Point.point_2D_to_3D(i))
         return points3D
 
     def __id__(self):
@@ -799,33 +799,33 @@ class Arc:
         self.origin = self.origin_arc()
         v1 = Vector3(x=1, y=0, z=0)
         v2 = Vector3(x=0, y=1, z=0)
-        self.plane = Plane.byTwoVectorsOrigin(
+        self.plane = Plane.by_two_vectors_origin(
             v1,
             v2,
             self.origin
         )
-        self.radius = self.radiusarc()
+        self.radius = self.radius_arc()
         self.startAngle = 0
         self.endAngle = 0
-        self.angleRadian = self.angleRadian()
+        self.angle_radian = self.angle_radian()
         self.area = 0
         self.length = self.length()
         self.units = project.units
-        self.coordinatesystem = self.coordinatesystemarc()
+        self.coordinatesystem = self.coordinatesystem_arc()
 
     def distance(self, p1, p2):
         return math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2 + (p2.z - p1.z) ** 2)
 
-    def coordinatesystemarc(self):
-        vx = Vector3.byTwoPoints(self.origin, self.start)  # Local X-axe
-        v2 = Vector3.byTwoPoints(self.end, self.origin)
-        vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
-        vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
+    def coordinatesystem_arc(self):
+        vx = Vector3.by_two_points(self.origin, self.start)  # Local X-axe
+        v2 = Vector3.by_two_points(self.end, self.origin)
+        vz = Vector3.cross_product(vx, v2)  # Local Z-axe
+        vy = Vector3.cross_product(vx, vz)  # Local Y-axe
         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy),
                                                  Vector3.normalize(vz))
         return self.coordinatesystem
 
-    def radiusarc(self):
+    def radius_arc(self):
         a = self.distance(self.start, self.mid)
         b = self.distance(self.mid, self.end)
         c = self.distance(self.end, self.start)
@@ -836,31 +836,31 @@ class Arc:
 
     def origin_arc(self):
         # calculation of origin of arc #Todo can be simplified for sure
-        Vstartend = Vector3.byTwoPoints(self.start, self.end)
+        Vstartend = Vector3.by_two_points(self.start, self.end)
         halfVstartend = Vector3.scale(Vstartend, 0.5)
         b = 0.5 * Vector3.length(Vstartend)  # half distance between start and end
-        x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b)  # distance from start-end line to origin
+        x = math.sqrt(Arc.radius_arc(self) * Arc.radius_arc(self) - b * b)  # distance from start-end line to origin
         mid = Point.translate(self.start, halfVstartend)
-        v2 = Vector3.byTwoPoints(self.mid, mid)
+        v2 = Vector3.by_two_points(self.mid, mid)
         v3 = Vector3.normalize(v2)
         tocenter = Vector3.scale(v3, x)
         center = Point.translate(mid, tocenter)
         return center
 
-    def angleRadian(self):
-        v1 = Vector3.byTwoPoints(self.origin, self.end)
-        v2 = Vector3.byTwoPoints(self.origin, self.start)
-        v3 = Vector3.byTwoPoints(self.origin, self.mid)
+    def angle_radian(self):
+        v1 = Vector3.by_two_points(self.origin, self.end)
+        v2 = Vector3.by_two_points(self.origin, self.start)
+        v3 = Vector3.by_two_points(self.origin, self.mid)
         v4 = Vector3.sum(v1,v2)
         try:
             v4b = Vector3.new_length(v4,self.radius)
             if Vector3.value(v3) == Vector3.value(v4b):
-                angle = Vector3.angleRadianBetween(v1, v2)
+                angle = Vector3.angle_radian_between(v1, v2)
             else:
-                angle = 2*math.pi-Vector3.angleRadianBetween(v1, v2)
+                angle = 2*math.pi-Vector3.angle_radian_between(v1, v2)
             return angle
         except:
-            angle = 2*math.pi-Vector3.angleRadianBetween(v1, v2)
+            angle = 2*math.pi-Vector3.angle_radian_between(v1, v2)
             return angle
 
     def length(self):
@@ -881,7 +881,7 @@ class Arc:
     @staticmethod
     def points_at_parameter(arc, count: int):
         # Create points at parameter on an arc based on an interval
-        d_alpha = arc.angleRadian / (count - 1)
+        d_alpha = arc.angle_radian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
@@ -890,7 +890,7 @@ class Arc:
         CSNew = arc.coordinatesystem
         pnts2 = []  # transformed points
         for i in pnts:
-            pnts2.append(transformPoint2(i, CSNew))
+            pnts2.append(transform_point_2(i, CSNew))
         return pnts2
 
     @staticmethod
@@ -907,9 +907,9 @@ class Arc:
         return f"{__class__.__name__}()"
 
 def transform_arc(Arcold,CSNew: CoordinateSystem):
-    start = transformPoint2(Arcold.start,CSNew)
-    mid = transformPoint2(Arcold.mid,CSNew)
-    end = transformPoint2(Arcold.end,CSNew)
+    start = transform_point_2(Arcold.start,CSNew)
+    mid = transform_point_2(Arcold.mid,CSNew)
+    end = transform_point_2(Arcold.end,CSNew)
     Arcnew = Arc(startPoint=start,midPoint=mid,endPoint=end)
 
     return Arcnew

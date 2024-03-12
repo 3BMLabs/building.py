@@ -41,11 +41,11 @@ class MeshPB:
         self.material = None
         self.colorlst = []
 
-    def byVertsFaces(self, verts, faces):
+    def by_verts_faces(self, verts, faces):
         self.verts = verts
         self.faces = faces
 
-    def byPolyCurve(self, PC, name, material):
+    def by_polycurve(self, PC, name, material):
         #Mesh of single face
         verts = []
         faces = []
@@ -67,7 +67,7 @@ class MeshPB:
         self.colorlst = [material.colorint]
         return self
 
-    def byThreeCoords(self, lsts, name, material, doublenest: bool):
+    def by_three_coords(self, lsts, name, material, doublenest: bool):
         #Example list structure
         #[[[[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]], [[[-6735, 1188, 1520], [-6234, -6796, 1520], [8753, -5855, 1520]]], [[[8252, 2129, 870], [8753, -5855, 1520], [8753, -5855, 870]]], [[[8252, 2129, 870], [8252, 2129, 1520], [8753, -5855, 1520]]], [[[8753, -5855, 870], [-6234, -6796, 1520], [-6234, -6796, 870]]], [[[8753, -5855, 870], [8753, -5855, 1520], [-6234, -6796, 1520]]], [[[-6234, -6796, 870], [-6735, 1188, 1520], [-6735, 1188, 870]]], [[[-6234, -6796, 870], [-6234, -6796, 1520], [-6735, 1188, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 1520], [8252, 2129, 870]]], [[[-6735, 1188, 870], [-6735, 1188, 1520], [8252, 2129, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 870], [8753, -5855, 870]]], [[[-6234, -6796, 870], [-6735, 1188, 870], [8753, -5855, 870]]]]
         verts = []

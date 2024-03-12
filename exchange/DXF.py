@@ -116,9 +116,9 @@ class ReadDXF():
     
     def create_polycurve(self):
         if len(self.points) == 1:
-            return PolyCurve.byPoints(self.points)
+            return PolyCurve.by_points(self.points)
         elif len(self.points) > 1:
             plList = []
             for pl in self.points:
-                plList.append(PolyCurve.byPoints(pl))
+                plList.append(PolyCurve.by_points(pl))
             return plList

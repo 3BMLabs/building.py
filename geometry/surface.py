@@ -104,7 +104,7 @@ class Surface:
     def fill(self, PolyCurveList):
         if isinstance(PolyCurveList, PolyCurve):
             plycColorList = []
-            p = Extrusion.byPolyCurveHeight(PolyCurveList, 0, self.offset)
+            p = Extrusion.by_polycurve_height(PolyCurveList, 0, self.offset)
             self.mesh.append(p)
             for j in range(int(len(p.verts) / 3)):
                 plycColorList.append(self.color)
@@ -113,7 +113,7 @@ class Surface:
         elif isinstance(PolyCurveList, list):
             for polyCurve in PolyCurveList:
                 plycColorList = []
-                p = Extrusion.byPolyCurveHeight(polyCurve, 0, self.offset)
+                p = Extrusion.by_polycurve_height(polyCurve, 0, self.offset)
                 self.mesh.append(p)
                 for j in range(int(len(p.verts) / 3)):
                     plycColorList.append(self.color)

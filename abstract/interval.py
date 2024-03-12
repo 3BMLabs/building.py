@@ -64,7 +64,7 @@ class Interval:
         return interval
 
     @classmethod
-    def bystartendcount(self, start: float, end: float, count: int):
+    def by_start_end_count(self, start: float, end: float, count: int):
         intval = []
         numb = start
         delta = end-start

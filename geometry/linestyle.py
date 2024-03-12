@@ -40,16 +40,16 @@ HiddenLine1 = ["Hidden Line 1", [1, 1], 100]  # Rule: line, whitespace, line whi
 HiddenLine2 = ["Hidden Line 2", [2, 1], 100]  # Rule: line, whitespace, line whitespace etc., scale
 Centerline = ["Center Line 1", [8, 2, 2, 2], 100]  # Rule: line, whitespace, line whitespace etc., scale
 
-def lineToPattern(baseline, patternobj):
-    #This converts a line to list of lines based on a pattern
+def line_to_pattern(baseline, patternobj):
+    # this converts a line to list of lines based on a pattern
     origin = baseline.start
-    dir = Vector3.byTwoPoints(baseline.start, baseline.end)
+    dir = Vector3.by_two_points(baseline.start, baseline.end)
     unityvect = Vector3.normalize(dir)
 
     Pattern = patternobj
     l = baseline.length
     patternlength = sum(Pattern[1]) * Pattern[2]
-    count = math.floor(l / patternlength)  # aantal hele lengtes van het patroon
+    count = math.floor(l / patternlength)  # number of whole lengths of the pattern
     lines = []
 
     startpoint = origin
@@ -60,7 +60,7 @@ def lineToPattern(baseline, patternobj):
         for i in Pattern[1]:
             deltaV = Vector3.product(i * Pattern[2], unityvect)
             dl = Vector3.length(deltaV)
-            if rl < dl:  # dit is het laatste lijnstuk op de lijn waarbij het patroon in stukje geknipt gaat worden.
+            if rl < dl:  # this is the last line segment on the line where the pattern is going to be cut into pieces.
                 endpoint = baseline.end
             else:
                 endpoint = Point.translate(startpoint, deltaV)
@@ -69,10 +69,10 @@ def lineToPattern(baseline, patternobj):
             else:
                 lines.append(Line(start=startpoint, end=endpoint))
             if rl < dl:
-                break  # Einde lijn bereikt
+                break  # end of line reached
             startpoint = endpoint
             n = n + 1
-            ll = ll + dl  # totale lengte
-            rl = l - ll  # resterende lengte binnen het patroon
+            ll = ll + dl  # total length
+            rl = l - ll  # remaining length within the pattern
         startpoint = startpoint
     return lines

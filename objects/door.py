@@ -58,7 +58,7 @@ class Door:
 
 
     @classmethod
-    def byMesh(self, verts=list, faces=list):
+    def by_mesh(self, verts=list, faces=list):
         door = Door()
         door.verts = verts
         door.faces = faces

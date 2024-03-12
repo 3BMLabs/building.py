@@ -125,7 +125,7 @@ class Point:
         )
 
     @staticmethod
-    def point2DTo3D(point2D):
+    def point_2D_to_3D(point2D):
         return Point(
             point2D.x,
             point2D.y,
@@ -133,7 +133,7 @@ class Point:
         )
 
     @staticmethod
-    def toVector(point1):
+    def to_vector(point1):
         from abstract.vector import Vector3
         return Vector3(
             point1.x,
@@ -158,7 +158,7 @@ class Point:
         )
 
     @staticmethod
-    def rotateXY(p1, Beta, dz):
+    def rotate_XY(p1, Beta, dz):
         return Point(
             math.cos(math.radians(Beta))*p1.x -
             math.sin(math.radians(Beta))*p1.y,
@@ -287,7 +287,7 @@ class CoordinateSystem:
         R1_transposed = list(map(list, zip(*R1)))
         R2_transposed = list(map(list, zip(*R2)))
 
-        rotation_matrix = Vector3.dotProduct(Vector3.from_matrix(
+        rotation_matrix = Vector3.dot_product(Vector3.from_matrix(
             R2_transposed), Vector3.length(Vector3.from_matrix(R1_transposed)))
         return rotation_matrix
 
@@ -314,7 +314,7 @@ def transform_point(point_local, coordinate_system_old, new_origin, direction_ve
     else:
         vx = [vx[0] / vx_norm, vx[1] / vx_norm, vx[2] / vx_norm]
 
-    vy = Vector3.crossProduct(Vector3(*vz), Vector3(*vx))
+    vy = Vector3.cross_product(Vector3(*vz), Vector3(*vx))
     vy_norm = Vector3.length(vy)
     if vy_norm != 0:
         vy = [vy.x / vy_norm, vy.y / vy_norm, vy.z / vy_norm]
@@ -336,7 +336,7 @@ def transform_point(point_local, coordinate_system_old, new_origin, direction_ve
     return pointNew
 
 
-def transformPoint2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
+def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     from abstract.vector import Vector3
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(
         CoordinateSystemNew.Xaxis, PointLocal.x))

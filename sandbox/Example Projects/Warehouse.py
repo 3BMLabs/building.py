@@ -141,9 +141,9 @@ for pallet in pallets:
         p2 = Point(pallet[1] * grid_width + grid_width, pallet[2] * grid_length * -1, z)
         p3 = Point(pallet[1] * grid_width + grid_width, pallet[2] * grid_length * -1-grid_length, z)
         p4 = Point(pallet[1] * grid_width, pallet[2] * grid_length * -1 - grid_length, z)
-        PC = PolyCurve.byPoints([p1,p2,p3,p4,p1])
+        PC = PolyCurve.by_points([p1,p2,p3,p4,p1])
         name = pallet[0] + "_level" + str(n)
-        palletgeom = Panel.byPolyCurveThickness(PC,grid_height,0,name,rgb_to_int([237, 28, 36]))
+        palletgeom = Panel.by_polycurve_thickness(PC,grid_height,0,name,rgb_to_int([237, 28, 36]))
         project.objects.append(palletgeom)
         z = z + grid_height
         n = n + 1

@@ -171,7 +171,7 @@ def ArcToSpeckleArc(arc: Arc):
     radius = arc.radius
     start_angle = arc.startAngle
     end_angle = arc.endAngle
-    angle_radians = arc.angleRadian
+    angle_radians = arc.angle_radian
     area = arc.area
     length = arc.length
     speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))

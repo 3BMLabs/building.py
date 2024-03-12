@@ -190,19 +190,19 @@ class Grid:
 
     def __cs(self,line):
         self.direction = line.vector_normalised
-        vect3 = Vector3.rotateXY(self.direction,math.radians(-90))
+        vect3 = Vector3.rotate_XY(self.direction,math.radians(-90))
         self.cs_end = CoordinateSystem(line.end,vect3,self.direction,ZAxis)
 
 
     @classmethod
-    def byStartpointEndpoint(cls, line, name):
+    def by_startpoint_endpoint(cls, line, name):
         #Create panel by polycurve
         g1 = Grid()
         g1.start = line.start
         g1.end = line.start
         g1.name = name
         g1.__cs(line)
-        g1.line = lineToPattern(line, Centerline)
+        g1.line = line_to_pattern(line, Centerline)
         # g1.__grid_heads()
         return g1
 
@@ -218,7 +218,7 @@ class Grid:
             y.write(project)
         return self
 
-def getGridDistances(Grids):
+def get_grid_distances(Grids):
     #Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
     GridsNew = []
     GridsNew.append(0)
@@ -272,18 +272,18 @@ class GridSystem:
         return grid_system
 
     @classmethod
-    def bySpacingLabels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
+    def by_spacing_labels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
         gs = GridSystem()
         # Create gridsystem
         #spacingXformat = "0 3000 3000 3000"
         GridEx = gridExtension
 
         GridsX = spacingX.split()
-        GridsX = getGridDistances(GridsX)
+        GridsX = get_grid_distances(GridsX)
         Xmax = max(GridsX)
         GridsXLable = labelsX.split()
         GridsY = spacingY.split()
-        GridsY = getGridDistances(GridsY)
+        GridsY = get_grid_distances(GridsY)
         Ymax = max(GridsY)
         GridsYLable = labelsY.split()
 
@@ -295,7 +295,7 @@ class GridSystem:
         xmaxdim1 = Xmax+GridEx-300
         xmaxdim2 = Xmax+GridEx-0
         for i in GridsX:
-            gridsX.append(Grid.byStartpointEndpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
+            gridsX.append(Grid.by_startpoint_endpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
             try:
                 dim = Dimension(Point(i,ymaxdim1,0),Point(GridsX[count+1],ymaxdim1,0),DT2_5_mm)
                 gs.dimensions.append(dim)
@@ -314,7 +314,7 @@ class GridSystem:
         gridsY = []
         count = 0
         for i in GridsY:
-            gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
+            gridsY.append(Grid.by_startpoint_endpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
             try:
                 dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0))#,DT3_5_mm)
                 gs.dimensions.append(dim)
@@ -337,4 +337,3 @@ class GridSystem:
         for z in self.dimensions:
             z.write(project)
         return self
-

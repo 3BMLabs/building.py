@@ -126,7 +126,7 @@ for i, j, k, l, m in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber, BeamsRotati
         start = XYZ[1][XYZ[0].index(i.text)]
         end = XYZ[1][XYZ[0].index(j.text)]
         try:
-            pf = Frame.byStartpointEndpointProfileNameShapevector(start, end, profile_name, profile_name + "-" + l.text, Vector2(0,0), float(m.text), BaseSteel, None)
+            pf = Frame.by_startpoint_endpoint_profile_name_shapevector(start, end, profile_name, profile_name + "-" + l.text, Vector2(0,0), float(m.text), BaseSteel, None)
             if pf != None:
                 obj.append(pf)
         except Exception as e:

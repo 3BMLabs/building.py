@@ -30,7 +30,7 @@ grids = GridSystem(spacX, seqX, spacY, seqY, ext)
 obj = grids[0] + grids[1] #list with objects
 
 #Concretefloor
-obj.append(Panel.byPolyCurveThickness(
+obj.append(Panel.by_polycurve_thickness(
     Rect(Vector3(0,0,0),width,height),
     floorthickness,
     0,
@@ -87,7 +87,7 @@ obj.append(LC3)
 
 #Surfaceload
 
-obj.append(ChessBoardSurfaceLoadsRectangle(0,0,spac_x*2,spac_y*2,6,6,spac_x,spac_y,1,-20,obj))
+obj.append(chess_board_surface_loads_rectangle(0,0,spac_x*2,spac_y*2,6,6,spac_x,spac_y,1,-20,obj))
 
 print(obj)
 #sys.exit()

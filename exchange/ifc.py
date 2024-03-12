@@ -91,7 +91,7 @@ class LoadIFC:
                                             break
                                 if storey_height is not None:
                                     break
-                    j = Level.byPoint(Point(0,0,storey_height), "temp")
+                    j = Level.by_point(Point(0,0,storey_height), "temp")
                     objs.append(j)
 
 
@@ -144,7 +144,7 @@ class LoadIFC:
 
                     print(top, bottom)
 
-                    ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, bottom)
+                    ex = Extrusion.by_polycurve_height(PolyCurve.by_points(min_z_points), top, bottom)
                     ex.name = elementName
                     objs.append(ex)
                     objs.append(ex.polycurve_3d_translated)
@@ -184,7 +184,7 @@ class LoadIFC:
                     #         for pt in obj.Points:
                     #             pts.append(Point2D(pt.Coordinates[0], pt.Coordinates[1]))
                     #             # print(pt.Coordinates)
-                    #         pc = PolyCurve2D.byPoints(pts)
+                    #         pc = PolyCurve2D.by_points(pts)
                     #         objs.append(pc)
 
                     # b = 
@@ -262,9 +262,9 @@ class LoadIFC:
                         pts = []
                         for index in g_faces:
                             pts.append(grouped_verts_scaled[index])
-                        pc = PolyCurve.byPoints(pts)
+                        pc = PolyCurve.by_points(pts)
                         objs.append(pc)
-                        objs.append(Extrusion.byPolyCurveHeight(pc, 0, 0))
+                        objs.append(Extrusion.by_polycurve_height(pc, 0, 0))
 
                     # sys.exit()
                     # points = []
@@ -313,8 +313,8 @@ class LoadIFC:
                     # top = max(z_values)
                     # bottom = min(z_values)
 
-                    # wall = Wall.byMesh(verticesX, faces)
-                    # # ex = Extrusion.byPolyCurveHeight(PolyCurve.byPoints(min_z_points), top, 0)
+                    # wall = Wall.by_mesh(verticesX, faces)
+                    # # ex = Extrusion.by_polycurve_height(PolyCurve.by_points(min_z_points), top, 0)
                     # # objs.append(ex)
                     # objs.append(wall)
 
@@ -339,7 +339,7 @@ class LoadIFC:
 
                     # print(points_list)
                     # for point_list in points_list:
-                    # pc = PolyCurve.byPoints(points_list)
+                    # pc = PolyCurve.by_points(points_list)
                     # objs.append(pc)
                     # representation = object.Representation
                     # for rep in representation.Representations:

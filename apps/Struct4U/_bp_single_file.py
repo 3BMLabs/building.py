@@ -210,26 +210,26 @@ class Vector3:
         )
 
     @staticmethod
-    def toPoint(v1):
+    def to_point(v1):
         return Point(x=v1.x,y=v1.y,z=v1.z)
 
 
     @staticmethod
-    def toLine(v1, v2):
+    def to_line(v1, v2):
         return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
 
     @staticmethod
-    def byLine(l1):
+    def by_line(l1):
         return Vector3(l1.dx,l1.dy,l1.dz)
 
     @staticmethod
-    def lineByLength(v1, length:float):
+    def line_by_length(v1, length:float):
         return None
         # return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
     
 
     @staticmethod #Returns vector perpendicular on the two vectors
-    def crossProduct(v1, v2):
+    def cross_product(v1, v2):
         return Vector3(
             v1.y*v2.z - v1.z*v2.y,
             v1.z*v2.x - v1.x*v2.z,
@@ -238,7 +238,7 @@ class Vector3:
 
 
     @staticmethod
-    def dotProduct(v1, v2):
+    def dot_product(v1, v2):
         return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
 
 
@@ -267,12 +267,12 @@ class Vector3:
         )
 
     @staticmethod
-    def angleBetween(v1, v2):
-        return math.degrees(math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2)))))
+    def angle_between(v1, v2):
+        return math.degrees(math.acos((Vector3.dot_product(v1, v2)/(Vector3.length(v1)*Vector3.length(v2)))))
     
     @staticmethod
-    def angleRadianBetween(v1, v2):
-        return math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2))))
+    def angle_radian_between(v1, v2):
+        return math.acos((Vector3.dot_product(v1, v2)/(Vector3.length(v1)*Vector3.length(v2))))
 
     @staticmethod
     def value(v1):
@@ -291,7 +291,7 @@ class Vector3:
     def perpendicular(v1):
         #Vector Lokale x en Lokale y haaks op gegeven vector en in globale z-richting.
         lokX = Vector3(v1.y, -v1.x, 0)
-        lokZ = Vector3.crossProduct(v1, lokX)
+        lokZ = Vector3.cross_product(v1, lokX)
         if lokZ.z<0:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
@@ -315,7 +315,7 @@ class Vector3:
 
 
     @staticmethod
-    def byTwoPoints(p1, p2):
+    def by_two_points(p1, p2):
         return Vector3(
             p2.x-p1.x,
             p2.y-p1.y,
@@ -323,7 +323,7 @@ class Vector3:
         )
 
     @staticmethod
-    def rotateXY(v1, Beta):
+    def rotate_XY(v1, Beta):
         return Vector3(
             math.cos(Beta)*v1.x - math.sin(Beta)*v1.y,
             math.sin(Beta)*v1.x + math.cos(Beta)*v1.y,
@@ -446,7 +446,7 @@ class Point:
 
 
     @staticmethod
-    def point2DTo3D(point2D):
+    def point_2D_to_3D(point2D):
         return Point(
             point2D.x,
             point2D.y,
@@ -454,7 +454,7 @@ class Point:
         )
 
     @staticmethod
-    def toVector(point1):
+    def to_vector(point1):
         return Vector3(
             point1.x,
             point1.y,
@@ -480,7 +480,7 @@ class Point:
 
 
     @staticmethod
-    def rotateXY(p1, Beta, dz):
+    def rotate_XY(p1, Beta, dz):
         return Point(
             math.cos(math.radians(Beta))*p1.x - math.sin(math.radians(Beta))*p1.y,
             math.sin(math.radians(Beta))*p1.x + math.cos(math.radians(Beta))*p1.y,
@@ -637,7 +637,7 @@ def transform_point(point_local, coordinate_system_old, new_origin, direction_ve
     return pointNew
 
 
-def transformPoint2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
+def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     #Transfrom point from Global Coordinatesystem to a new Coordinatesystem
     #CSold = CSGlobal
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
@@ -909,7 +909,7 @@ class BoundingBox2d:
     def area(self):
         return 0
 
-    def byPoints(self, points=Point):
+    def by_points(self, points=Point):
         self.points = points
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
@@ -978,7 +978,7 @@ class BoundingBox3d:
         return [left_top_bottom, left_top_top, right_top_top, right_top_bottom, left_top_bottom, left_bottom_bottom, left_bottom_top, left_top_top, left_bottom_top, right_bottom_top, right_bottom_bottom, left_bottom_bottom, right_bottom_bottom, right_top_bottom, right_top_top, right_bottom_top]
 
     def perimeter(self):
-        return PolyCurve.byPoints(self.corners(self.points))
+        return PolyCurve.by_points(self.corners(self.points))
 
 
 class Line: #add Line.bylenght (start and endpoint)
@@ -1000,7 +1000,7 @@ class Line: #add Line.bylenght (start and endpoint)
         except:
             self.dz = 0
         self.length = self.length()
-        self.vector: Vector3 = Vector3.byTwoPoints(start,end)
+        self.vector: Vector3 = Vector3.by_two_points(start,end)
         self.vector_normalised = Vector3.normalize(self.vector)
 
     def serialize(self):
@@ -1071,8 +1071,8 @@ class Line: #add Line.bylenght (start and endpoint)
     @staticmethod
     def transform(line, CSNew: CoordinateSystem):
         ln = Line(start=line.start, end=line.end)
-        ln.start = transformPoint2(ln.start,CSNew)
-        ln.end = transformPoint2(ln.end,CSNew)
+        ln.start = transform_point_2(ln.start,CSNew)
+        ln.end = transform_point_2(ln.end,CSNew)
         return ln
 
     def offset(line, vector):
@@ -1325,7 +1325,7 @@ class PolyCurve:
 
 
     @classmethod
-    def byPoints(self, points: list[Point]):
+    def by_points(self, points: list[Point]):
         seen = set()
         unique_points = []
         
@@ -1389,7 +1389,7 @@ class PolyCurve:
         return pc
 
     @staticmethod
-    def byPolyCurve2D(PolyCurve2D):
+    def by_polycurve_2D(PolyCurve2D):
         # by points,
         plycrv = PolyCurve()
         curves = []
@@ -1460,9 +1460,9 @@ class PolyCurve:
                     pts = self.points[index]
                     part1.insert(i+1, pts)
                 if returnlines:
-                    SplittedPolyCurves.append(PolyCurve.byPoints(part1))
+                    SplittedPolyCurves.append(PolyCurve.by_points(part1))
                 else:
-                    project.objects.append(PolyCurve.byPoints(part1))
+                    project.objects.append(PolyCurve.by_points(part1))
 
             #part2 -> BUGG?
             if part2LineStart != None and part2LineEnd != None:
@@ -1470,9 +1470,9 @@ class PolyCurve:
                     pts = self.points[index]
                     part2.insert(index, pts)
                 if returnlines:
-                    SplittedPolyCurves.append(PolyCurve.byPoints(part2))
+                    SplittedPolyCurves.append(PolyCurve.by_points(part2))
                 else:
-                    project.objects.append(PolyCurve.byPoints(part2))
+                    project.objects.append(PolyCurve.by_points(part2))
 
             if returnlines: #return lines while using multi_split
                 return SplittedPolyCurves
@@ -1517,7 +1517,7 @@ class PolyCurve:
         return pc
 
     @staticmethod
-    def copyTranslate(pc, vector3d:Vector3):
+    def copy_translate(pc, vector3d:Vector3):
         crvs = []
         v1 = vector3d
         for i in pc.curves:
@@ -1537,9 +1537,9 @@ class PolyCurve:
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
-                crvs.append(Arc(Point.rotateXY(i.start, angle, dz), Point.rotateXY(i.middle, angle, dz), Point.rotateXY(i.end, angle, dz)))
+                crvs.append(Arc(Point.rotate_XY(i.start, angle, dz), Point.rotate_XY(i.middle, angle, dz), Point.rotate_XY(i.end, angle, dz)))
             elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.rotateXY(i.start, angle, dz), Point.rotateXY(i.end, angle, dz)))
+                crvs.append(Line(Point.rotate_XY(i.start, angle, dz), Point.rotate_XY(i.end, angle, dz)))
             else:
                 print("Curvetype not found")
         crv = PolyCurve.by_joined_curves(crvs)
@@ -1581,14 +1581,14 @@ class PolyCurve:
                                 end = transform_point(i.end, CSGlobal, startpoint, directionvector)
                                 ))
             elif i.__class__.__name__ == "Arc2D":
-                # print(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector)
-                crvs.append(Arc(transform_point(Point.point2DTo3D(i.start),CSGlobal, startpoint, directionvector),
-                                transform_point(Point.point2DTo3D(i.mid), CSGlobal, startpoint, directionvector),
-                                transform_point(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
+                crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector),
+                                transform_point(Point.point_2D_to_3D(i.mid), CSGlobal, startpoint, directionvector),
+                                transform_point(Point.point_2D_to_3D(i.end), CSGlobal, startpoint, directionvector)
                                 ))
             elif i.__class__.__name__ == "Line2D":
-                crvs.append(Line(start = transform_point(Point.point2DTo3D(i.start),CSGlobal,startpoint,directionvector),
-                                end = transform_point(Point.point2DTo3D(i.end), CSGlobal, startpoint, directionvector)
+                crvs.append(Line(start = transform_point(Point.point_2D_to_3D(i.start),CSGlobal,startpoint,directionvector),
+                                end = transform_point(Point.point_2D_to_3D(i.end), CSGlobal, startpoint, directionvector)
                                 ))
             else:
                 print(i.__class__.__name__ + "Curvetype not found")
@@ -1608,25 +1608,25 @@ def Rect(vector: Vector3, width: float, height: float):
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, height, 0), vector)
     p4 = Point(0,0,0).translate(Point(0, height, 0), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.by_points([p1, p2, p3, p4, p1])
     return crv
 
-def RectXY(vector: Vector3, width: float, height: float):
+def Rect_XY(vector: Vector3, width: float, height: float):
     #Rectangle in XY-plane
     p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
     p2 = Point(0,0,0).translate(Point(width, 0, 0), vector)
     p3 = Point(0,0,0).translate(Point(width, 0, height), vector)
     p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.by_points([p1, p2, p3, p4, p1])
     return crv
 
-def RectYZ(vector: Vector3, width: float, height: float):
+def Rect_YZ(vector: Vector3, width: float, height: float):
     #Rectangle in XY-plane
     p1 = Point(0,0,0).translate(Point(0, 0, 0), vector)
     p2 = Point(0,0,0).translate(Point(0, width, 0), vector)
     p3 = Point(0,0,0).translate(Point(0, width, height), vector)
     p4 = Point(0,0,0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.byPoints([p1, p2, p3, p4, p1])
+    crv = PolyCurve.by_points([p1, p2, p3, p4, p1])
     return crv
 
 
@@ -1650,7 +1650,7 @@ class PolyGon:
         points.append(points[0])
         points3D = []
         for i in points:
-            points3D.append(Point.point2DTo3D(i))
+            points3D.append(Point.point_2D_to_3D(i))
         return points3D
 
     def __id__(self):
@@ -1670,33 +1670,33 @@ class Arc:
         self.origin = self.origin_arc()
         v1 = Vector3(x=1, y=0, z=0)
         v2 = Vector3(x=0, y=1, z=0)
-        self.plane = Plane.byTwoVectorsOrigin(
+        self.plane = Plane.by_two_vectors_origin(
             v1,
             v2,
             self.origin
         )
-        self.radius = self.radiusarc()
+        self.radius = self.radius_arc()
         self.startAngle = 0
         self.endAngle = 0
-        self.angleRadian = self.angleRadian()
+        self.angle_radian = self.angle_radian()
         self.area = 0
         self.length = self.length()
         self.units = project.units
-        self.coordinatesystem = self.coordinatesystemarc()
+        self.coordinatesystem = self.coordinatesystem_arc()
 
     def distance(self, p1, p2):
         return math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2 + (p2.z - p1.z) ** 2)
 
-    def coordinatesystemarc(self):
-        vx = Vector3.byTwoPoints(self.origin, self.start)  # Local X-axe
-        v2 = Vector3.byTwoPoints(self.end, self.origin)
-        vz = Vector3.crossProduct(vx, v2)  # Local Z-axe
-        vy = Vector3.crossProduct(vx, vz)  # Local Y-axe
+    def coordinatesystem_arc(self):
+        vx = Vector3.by_two_points(self.origin, self.start)  # Local X-axe
+        v2 = Vector3.by_two_points(self.end, self.origin)
+        vz = Vector3.cross_product(vx, v2)  # Local Z-axe
+        vy = Vector3.cross_product(vx, vz)  # Local Y-axe
         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy),
                                                  Vector3.normalize(vz))
         return self.coordinatesystem
 
-    def radiusarc(self):
+    def radius_arc(self):
         a = self.distance(self.start, self.mid)
         b = self.distance(self.mid, self.end)
         c = self.distance(self.end, self.start)
@@ -1707,31 +1707,31 @@ class Arc:
 
     def origin_arc(self):
         # calculation of origin of arc #Todo can be simplified for sure
-        Vstartend = Vector3.byTwoPoints(self.start, self.end)
+        Vstartend = Vector3.by_two_points(self.start, self.end)
         halfVstartend = Vector3.scale(Vstartend, 0.5)
         b = 0.5 * Vector3.length(Vstartend)  # half distance between start and end
-        x = math.sqrt(Arc.radiusarc(self) * Arc.radiusarc(self) - b * b)  # distance from start-end line to origin
+        x = math.sqrt(Arc.radius_arc(self) * Arc.radius_arc(self) - b * b)  # distance from start-end line to origin
         mid = Point.translate(self.start, halfVstartend)
-        v2 = Vector3.byTwoPoints(self.mid, mid)
+        v2 = Vector3.by_two_points(self.mid, mid)
         v3 = Vector3.normalize(v2)
         tocenter = Vector3.scale(v3, x)
         center = Point.translate(mid, tocenter)
         return center
 
-    def angleRadian(self):
-        v1 = Vector3.byTwoPoints(self.origin, self.end)
-        v2 = Vector3.byTwoPoints(self.origin, self.start)
-        v3 = Vector3.byTwoPoints(self.origin, self.mid)
+    def angle_radian(self):
+        v1 = Vector3.by_two_points(self.origin, self.end)
+        v2 = Vector3.by_two_points(self.origin, self.start)
+        v3 = Vector3.by_two_points(self.origin, self.mid)
         v4 = Vector3.sum(v1,v2)
         try:
             v4b = Vector3.new_length(v4,self.radius)
             if Vector3.value(v3) == Vector3.value(v4b):
-                angle = Vector3.angleRadianBetween(v1, v2)
+                angle = Vector3.angle_radian_between(v1, v2)
             else:
-                angle = 2*math.pi-Vector3.angleRadianBetween(v1, v2)
+                angle = 2*math.pi-Vector3.angle_radian_between(v1, v2)
             return angle
         except:
-            angle = 2*math.pi-Vector3.angleRadianBetween(v1, v2)
+            angle = 2*math.pi-Vector3.angle_radian_between(v1, v2)
             return angle
 
     def length(self):
@@ -1752,7 +1752,7 @@ class Arc:
     @staticmethod
     def points_at_parameter(arc, count: int):
         # Create points at parameter on an arc based on an interval
-        d_alpha = arc.angleRadian / (count - 1)
+        d_alpha = arc.angle_radian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
@@ -1761,7 +1761,7 @@ class Arc:
         CSNew = arc.coordinatesystem
         pnts2 = []  # transformed points
         for i in pnts:
-            pnts2.append(transformPoint2(i, CSNew))
+            pnts2.append(transform_point_2(i, CSNew))
         return pnts2
 
     @staticmethod
@@ -1778,9 +1778,9 @@ class Arc:
         return f"{__class__.__name__}()"
 
 def transform_arc(Arcold,CSNew: CoordinateSystem):
-    start = transformPoint2(Arcold.start,CSNew)
-    mid = transformPoint2(Arcold.mid,CSNew)
-    end = transformPoint2(Arcold.end,CSNew)
+    start = transform_point_2(Arcold.start,CSNew)
+    mid = transform_point_2(Arcold.mid,CSNew)
+    end = transform_point_2(Arcold.end,CSNew)
     Arcnew = Arc(startPoint=start,midPoint=mid,endPoint=end)
 
     return Arcnew
@@ -2166,7 +2166,7 @@ class Interval:
         return interval
 
     @classmethod
-    def bystartendcount(self, start: float, end: float, count: int):
+    def by_start_end_count(self, start: float, end: float, count: int):
         intval = []
         numb = start
         delta = end-start
@@ -2209,9 +2209,9 @@ class Plane:
         return plane
 
     @classmethod
-    def byTwoVectorsOrigin(cls, v1, v2, origin):
+    def by_two_vectors_origin(cls, v1, v2, origin):
         p1 = Plane()
-        p1.Normal = Vector3.normalize(Vector3.crossProduct(v1, v2))
+        p1.Normal = Vector3.normalize(Vector3.cross_product(v1, v2))
         p1.Origin = origin
         p1.v1 = v1
         p1.v2 = v2
@@ -2380,16 +2380,16 @@ class Text:
         trans = []
         for pt in polyCurve.points:
             pscale = Point.product(self.scale, pt)
-            pNew = transformPoint2(pscale, self.csglobal)
+            pNew = transform_point_2(pscale, self.csglobal)
             trans.append(pNew)
-        return polyCurve.byPoints(trans)
+        return polyCurve.by_points(trans)
 
 
 
     def calculate_bounding_box(self, points):
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = BoundingBox2d().byPoints(ptList)
+        bounding_box_polyline = BoundingBox2d().by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
 
 
@@ -2415,7 +2415,7 @@ class Text:
         output_list = [[Point(point[0], point[1], self.xyz.z) for point in element] for element in sub_lists]
 
         polyline_list = [
-            PolyCurve.byPoints([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
+            PolyCurve.by_points([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
             for pts in output_list
         ]
         return polyline_list
@@ -2448,7 +2448,7 @@ class Vector2:
         return Vector2(x, y)
 
     @staticmethod
-    def byTwoPoints(p1, p2):
+    def by_two_points(p1, p2):
         return Vector2(
             p2.x-p1.x,
             p2.y-p1.y
@@ -2482,19 +2482,19 @@ class Vector2:
         return Vector2(self[0],self[1])
 
     @staticmethod #inwendig product, if zero, then vectors are perpendicular
-    def dotProduct(v1, v2):
+    def dot_product(v1, v2):
         return v1.x*v2.x+v1.y*v2.y
 
     @staticmethod
-    def angleBetween(v1, v2):
-        return math.degrees(math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2)))))
+    def angle_between(v1, v2):
+        return math.degrees(math.acos((Vector2.dot_product(v1, v2)/(Vector2.length(v1) * Vector2.length(v2)))))
 
     @staticmethod
-    def angleRadianBetween(v1, v2):
-        return math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2))))
+    def angle_radian_between(v1, v2):
+        return math.acos((Vector2.dot_product(v1, v2)/(Vector2.length(v1) * Vector2.length(v2))))
 
     @staticmethod #Returns vector perpendicular on the two vectors
-    def crossProduct(v1, v2):
+    def cross_product(v1, v2):
         return Vector3(
             v1.y - v2.y,
             v2.x - v1.x,
@@ -2572,7 +2572,7 @@ class Point2D:
         return Point2D((point2.x-point1.x)/2, (point2.y-point1.y)/2)
 
     @staticmethod
-    def toPixel(point1, Xmin, Ymin, TotalWidth, TotalHeight, ImgWidthPix: int, ImgHeightPix: int):
+    def to_pixel(point1, Xmin, Ymin, TotalWidth, TotalHeight, ImgWidthPix: int, ImgHeightPix: int):
       # Convert Point to pixel on a image given a deltaX, deltaY, Width of the image etc.
       x = point1.x
       y = point1.y
@@ -2580,7 +2580,7 @@ class Point2D:
       ypix = ImgHeightPix-math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix) # min vanwege coord stelsel Image.Draw
       return xpix, ypix
 
-def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
+def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
@@ -2599,7 +2599,7 @@ class Line2D:
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
-        self.vector2: Vector2 = Vector2.byTwoPoints(self.start,self.end)
+        self.vector2: Vector2 = Vector2.by_two_points(self.start,self.end)
         self.vector2_normalised = Vector2.normalize(self.vector2)
         self.length = self.length()
         self.id = generateID()
@@ -2634,7 +2634,7 @@ class Line2D:
     def length(self):
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy))
 
-    def fline(self):
+    def f_line(self):
         #returns line for Folium(GIS)
         return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
     
@@ -2650,10 +2650,10 @@ class Arc2D:
         self.mid: Point2D = pntxy2
         self.end: Point2D = pntxy3
         self.origin = self.origin_arc()
-        self.angleRadian = self.angleRadian()
-        self.radius = self.radiusarc()
-        #self.radius = self.radiusarc()
-        self.coordinatesystem = self.coordinatesystemarc()
+        self.angle_radian = self.angle_radian()
+        self.radius = self.radius_arc()
+        #self.radius = self.radius_arc()
+        self.coordinatesystem = self.coordinatesystem_arc()
         #self.length
 
     def serialize(self):
@@ -2665,7 +2665,7 @@ class Arc2D:
             'mid': self.mid.serialize(),
             'end': self.end.serialize(),
             'origin': self.origin,
-            'angleRadian': self.angleRadian,
+            'angle_radian': self.angle_radian,
             'coordinatesystem': self.coordinatesystem
         }
 
@@ -2677,7 +2677,7 @@ class Arc2D:
         arc = Arc2D(start_point, mid_point, end_point)
         
         arc.origin = data.get('origin')
-        arc.angleRadian = data.get('angleRadian')
+        arc.angle_radian = data.get('angle_radian')
         arc.coordinatesystem = data.get('coordinatesystem')
 
         return arc
@@ -2689,41 +2689,41 @@ class Arc2D:
         #returns point on the curve
         return (self.start, self.mid, self.end)
 
-    def coordinatesystemarc(self):
-        vx2d = Vector2.byTwoPoints(self.origin, self.start)  # Local X-axe
+    def coordinatesystem_arc(self):
+        vx2d = Vector2.by_two_points(self.origin, self.start)  # Local X-axe
         vx = Vector3(vx2d.x, vx2d.y, 0)
         vy = Vector3(vx.y, vx.x * -1,0)
         vz = Vector3(0,0,1)
         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy), Vector3.normalize(vz))
         return self.coordinatesystem
 
-    def angleRadian(self):
-        v1 = Vector2.byTwoPoints(self.origin, self.end)
-        v2 = Vector2.byTwoPoints(self.origin, self.start)
-        angle = Vector2.angleRadianBetween(v1,v2)
+    def angle_radian(self):
+        v1 = Vector2.by_two_points(self.origin, self.end)
+        v2 = Vector2.by_two_points(self.origin, self.start)
+        angle = Vector2.angle_radian_between(v1,v2)
         return angle
 
     def origin_arc(self):
         #calculation of origin of arc #Todo can be simplified for sure
-        Vstartend = Vector2.byTwoPoints(self.start, self.end)
+        Vstartend = Vector2.by_two_points(self.start, self.end)
         halfVstartend = Vector2.scale(Vstartend,0.5)
         b = 0.5 * Vector2.length(Vstartend) #half distance between start and end
         try:
-            x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
+            x = math.sqrt(Arc2D.radius_arc(self) * Arc2D.radius_arc(self) - b * b) #distance from start-end line to origin
         except:
             x = 0
         mid = Point2D.translate(self.start, halfVstartend)
-        v2 = Vector2.byTwoPoints(self.mid, mid)
+        v2 = Vector2.by_two_points(self.mid, mid)
         v3 = Vector2.normalize(v2)
         tocenter = Vector2.scale(v3, x)
         center = Point2D.translate(mid, tocenter)
         self.origin = center
         return center
 
-    def radiusarc(self):
-        a = Vector2.length(Vector2.byTwoPoints(self.start, self.mid))
-        b = Vector2.length(Vector2.byTwoPoints(self.mid, self.end))
-        c = Vector2.length(Vector2.byTwoPoints(self.end, self.start))
+    def radius_arc(self):
+        a = Vector2.length(Vector2.by_two_points(self.start, self.mid))
+        b = Vector2.length(Vector2.by_two_points(self.mid, self.end))
+        c = Vector2.length(Vector2.by_two_points(self.end, self.start))
         s = (a + b + c) / 2
         A = math.sqrt(s * (s-a) * (s-b) * (s-c))
         R = (a * b * c) / (4 * A)
@@ -2733,7 +2733,7 @@ class Arc2D:
     @staticmethod
     def points_at_parameter(arc, count: int):
         #ToDo can be simplified. Now based on the 3D variant
-        d_alpha = arc.angleRadian / (count - 1)
+        d_alpha = arc.angle_radian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
@@ -2742,7 +2742,7 @@ class Arc2D:
         CSNew = arc.coordinatesystem
         pnts2 = []
         for i in pnts:
-            pnts2.append(transformPoint2D(i, CSNew))
+            pnts2.append(transform_point_2D(i, CSNew))
         return pnts2
 
     @staticmethod
@@ -2877,11 +2877,11 @@ class PolyCurve2D:
             return Point2D(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals))
 
     @staticmethod
-    def fromPolyCurve3D(PolyCurve):
+    def from_polycurve_3D(PolyCurve):
         points = []
         for pt in PolyCurve.points:
             points.append(Point2D.toPoint2D(pt))
-        plycrv = PolyCurve2D.byPoints(points)
+        plycrv = PolyCurve2D.by_points(points)
         return plycrv
 
 
@@ -2930,7 +2930,7 @@ class PolyCurve2D:
     
 
     @classmethod
-    def byPoints(cls, points):
+    def by_points(cls, points):
         if not points or len(points) < 2:
             pass
 
@@ -2975,7 +2975,7 @@ class PolyCurve2D:
 
 
     @staticmethod
-    def byPolyCurve2D(PolyCurve2D):
+    def by_polycurve_2D(PolyCurve2D):
         plycrv = PolyCurve2D()
         curves = []
         for i in PolyCurve2D.curves:
@@ -3030,7 +3030,7 @@ class PolyCurve2D:
 
 
     @staticmethod
-    def copyTranslate(pc, vector3d:Vector3):
+    def copy_translate(pc, vector3d:Vector3):
         crvs = []
         v1 = vector3d
         for i in pc.curves:
@@ -3056,7 +3056,7 @@ class PolyCurve2D:
 
 
     @staticmethod
-    def boundingboxGlobalCS(PC):
+    def boundingbox_global_CS(PC):
         x =[]
         y =[]
         for i in PC.curves():
@@ -3066,7 +3066,7 @@ class PolyCurve2D:
         xmax = max(x)
         ymin = min(y)
         ymax = max(y)
-        bbox = PolyCurve2D.byPoints([Point2D(xmin,ymin),Point2D(xmax,ymin),Point2D(xmax,ymax),Point2D(xmin,ymax),Point2D(xmin,ymin)])
+        bbox = PolyCurve2D.by_points([Point2D(xmin,ymin),Point2D(xmax,ymin),Point2D(xmax,ymax),Point2D(xmin,ymax),Point2D(xmin,ymin)])
         return bbox
 
     @staticmethod
@@ -3148,13 +3148,13 @@ class PolyCurve2D:
         crvs = []
         for i in polycurve.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D(transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
-                                transformPoint2D(i.mid, project.CSGlobal, startpoint, directionvector),
-                                transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
+                crvs.append(Arc2D(transform_point_2D(i.start,project.CSGlobal,startpoint,directionvector),
+                                transform_point_2D(i.mid, project.CSGlobal, startpoint, directionvector),
+                                transform_point_2D(i.end, project.CSGlobal, startpoint, directionvector)
                                 ))
             elif i.__class__.__name__ == "Line2D":
-                crvs.append(Line2D(start = transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
-                                end = transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
+                crvs.append(Line2D(start = transform_point_2D(i.start,project.CSGlobal,startpoint,directionvector),
+                                end = transform_point_2D(i.end, project.CSGlobal, startpoint, directionvector)
                                 ))
             else:
                 print(i.__class__.__name__ + "Curvetype not found")
@@ -3385,14 +3385,14 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
 
         for intersect in segment_intersections:
             current_polycurve_points.append(intersect)
-            created_polycurves.append(polycurve.byPoints(current_polycurve_points))
+            created_polycurves.append(polycurve.by_points(current_polycurve_points))
             current_polycurve_points = [intersect]
             points.remove(intersect)
 
         current_polycurve_points.append(segment_end)
 
     if len(current_polycurve_points) > 1:
-        created_polycurves.append(polycurve.byPoints(current_polycurve_points))
+        created_polycurves.append(polycurve.by_points(current_polycurve_points))
 
     ptlist = []
     for index, pc in enumerate(created_polycurves):
@@ -3404,7 +3404,7 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
                 ptlist.append(pt)
                 ptlist.append(ptlist[1])
 
-    pcurve = polycurve().byPoints(ptlist)
+    pcurve = polycurve().by_points(ptlist)
 
     try:
         return [created_polycurves[1], pcurve]
@@ -3537,7 +3537,7 @@ def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCu
                 q.append(i.end)
             elif i.type == "Point2D":
                 q.append(i)
-        pc = PolyCurve2D.byPoints(q)
+        pc = PolyCurve2D.by_points(q)
         pcList.append(pc)
 
     dict["inputPolycurve"] = [polycurve]
@@ -3552,10 +3552,10 @@ HiddenLine1 = ["Hidden Line 1", [1, 1], 100]  # Rule: line, whitespace, line whi
 HiddenLine2 = ["Hidden Line 2", [2, 1], 100]  # Rule: line, whitespace, line whitespace etc., scale
 Centerline = ["Center Line 1", [8, 2, 2, 2], 100]  # Rule: line, whitespace, line whitespace etc., scale
 
-def lineToPattern(baseline, patternobj):
+def line_to_pattern(baseline, patternobj):
     #This converts a line to list of lines based on a pattern
     origin = baseline.start
-    dir = Vector3.byTwoPoints(baseline.start, baseline.end)
+    dir = Vector3.by_two_points(baseline.start, baseline.end)
     unityvect = Vector3.normalize(dir)
 
     Pattern = patternobj
@@ -3672,7 +3672,7 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeightVector(self, polycurve2d: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
+    def by_polycurve_height_vector(self, polycurve2d: PolyCurve, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
@@ -3737,14 +3737,14 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeight(self, polycurve: PolyCurve, height, dzloc: float):
+    def by_polycurve_height(self, polycurve: PolyCurve, height, dzloc: float):
         #global len
         Extrus = Extrusion()
         Points = polycurve.points
-        V1 = Vector3.byTwoPoints(Points[0], Points[1])
-        V2 = Vector3.byTwoPoints(Points[-2], Points[-1])
+        V1 = Vector3.by_two_points(Points[0], Points[1])
+        V2 = Vector3.by_two_points(Points[-2], Points[-1])
 
-        p1 = Plane.byTwoVectorsOrigin(V1, V2, Points[0]) #Workplane of PolyCurve
+        p1 = Plane.by_two_vectors_origin(V1, V2, Points[0]) #Workplane of PolyCurve
         norm = p1.Normal
 
         pnts = []
@@ -3876,7 +3876,7 @@ class Surface:
     def fill(self, PolyCurveList):
         if isinstance(PolyCurveList, PolyCurve):
             plycColorList = []
-            p = Extrusion.byPolyCurveHeight(PolyCurveList, 0, self.offset)
+            p = Extrusion.by_polycurve_height(PolyCurveList, 0, self.offset)
             self.mesh.append(p)
             for j in range(int(len(p.verts) / 3)):
                 plycColorList.append(self.color)
@@ -3885,7 +3885,7 @@ class Surface:
         elif isinstance(PolyCurveList, list):
             for polyCurve in PolyCurveList:
                 plycColorList = []
-                p = Extrusion.byPolyCurveHeight(polyCurve, 0, self.offset)
+                p = Extrusion.by_polycurve_height(polyCurve, 0, self.offset)
                 self.mesh.append(p)
                 for j in range(int(len(p.verts) / 3)):
                     plycColorList.append(self.color)
@@ -4012,12 +4012,12 @@ class Panel:
         return panel
 
     @classmethod
-    def byPolyCurveThickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
+    def by_polycurve_thickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
         #Create panel by polycurve
         p1 = Panel()
         p1.name = name
         p1.thickness = thickness
-        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, offset)
+        p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, offset)
         p1.origincurve = polycurve
         p1.colorint = colorrgbint
         for j in range(int(len(p1.extrusion.verts) / 3)):
@@ -4025,17 +4025,17 @@ class Panel:
         return p1
 
     @classmethod
-    def byBaselineHeight(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
+    def by_baseline_height(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
         #place panel vertical from baseline
         p1 = Panel()
         p1.name = name
         p1.thickness = thickness
-        polycurve = PolyCurve.byPoints(
+        polycurve = PolyCurve.by_points(
             [baseline.start,
              baseline.end,
              Point.translate(baseline.end, Vector3(0, 0, height)),
              Point.translate(baseline.start, Vector3(0, 0, height))])
-        p1.extrusion = Extrusion.byPolyCurveHeight(polycurve, thickness, 0)
+        p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
@@ -4073,7 +4073,7 @@ class DivisionSystem:
 
     def __fixed_number_equal_spacing(self):
         self.name = "fixed_number_equal_spacing"
-        self.distances = Interval.bystartendcount(0, self.system_length, self.fixed_number)
+        self.distances = Interval.by_start_end_count(0, self.system_length, self.fixed_number)
         self.spacing = self.system_length / self.fixed_number
         self.modifier = 0
         self.distance_first = self.spacing
@@ -4175,8 +4175,8 @@ class RectangleSystem:
                                  Vector3(i - self.inner_frame_type.b * 0.5, self.inner_height, 0))
         point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(0, self.inner_height, 0))
         self.panel_objects.append(
-            Panel.byPolyCurveThickness(
-                PolyCurve.byPoints([point1, point2, point3, point4, point1]), 184, 0, "innerpanel",
+            Panel.by_polycurve_thickness(
+                PolyCurve.by_points([point1, point2, point3, point4, point1]), 184, 0, "innerpanel",
                 rgb_to_int([255, 240, 160]))
         )
         count = 0
@@ -4188,8 +4188,8 @@ class RectangleSystem:
                 point3 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count+1]-self.inner_frame_type.b*0.5,self.inner_height,0))
                 point4 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
                 self.panel_objects.append(
-                    Panel.byPolyCurveThickness(
-                        PolyCurve.byPoints([point1,point2,point3,point4,point1]),184,0,"innerpanel",rgb_to_int([255,240,160]))
+                    Panel.by_polycurve_thickness(
+                        PolyCurve.by_points([point1,point2,point3,point4,point1]),184,0,"innerpanel",rgb_to_int([255,240,160]))
                     )
                 count = count + 1
             except:
@@ -4199,8 +4199,8 @@ class RectangleSystem:
                 point3 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.inner_width+self.left_frame_type.b,self.inner_height,0))
                 point4 = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
                 self.panel_objects.append(
-                    Panel.byPolyCurveThickness(
-                        PolyCurve.byPoints([point1,point2,point3,point4,point1]),184,0,"innerpanel",rgb_to_int([255,240,160]))
+                    Panel.by_polycurve_thickness(
+                        PolyCurve.by_points([point1,point2,point3,point4,point1]),184,0,"innerpanel",rgb_to_int([255,240,160]))
                     )
                 count = count + 1
 
@@ -4210,7 +4210,7 @@ class RectangleSystem:
         self.inner_height = self.height-self.top_frame_type.b-self.bottom_frame_type.b
         self.mother_surface_origin_point = Point(self.left_frame_type.b,self.bottom_frame_type.b,0)
         self.mother_surface_origin_point_x_zero = Point(0,self.bottom_frame_type.b,0)
-        self.symbolic_inner_mother_surface = PolyCurve.byPoints(
+        self.symbolic_inner_mother_surface = PolyCurve.by_points(
             [self.mother_surface_origin_point,
              Point.translate(self.mother_surface_origin_point,Vector3(self.inner_width,0,0)),
              Point.translate(self.mother_surface_origin_point,Vector3(self.inner_width,self.inner_height,0)),
@@ -4223,21 +4223,21 @@ class RectangleSystem:
             start_point = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(i,0,0))
             end_point = Point.translate(self.mother_surface_origin_point_x_zero,Vector3(i,self.inner_height,0))
             self.inner_frame_objects.append(
-                Frame.byStartpointEndpointCurveJustifiction(start_point,end_point, self.inner_frame_type.curve, "innerframe","center","top", 0,self.material)
+                Frame.by_startpoint_endpoint_curve_justifiction(start_point,end_point, self.inner_frame_type.curve, "innerframe","center","top", 0,self.material)
             )
             self.symbolic_inner_grids.append(Line(start=start_point,end=end_point))
 
     def __outer_frames(self):
-        bottomframe = Frame.byStartpointEndpointCurveJustifiction(Point(0,0,0),Point(self.width,0,0), self.bottom_frame_type.curve, "bottomframe","left","top", 0,self.material)
+        bottomframe = Frame.by_startpoint_endpoint_curve_justifiction(Point(0,0,0),Point(self.width,0,0), self.bottom_frame_type.curve, "bottomframe","left","top", 0,self.material)
         self.symbolic_outer_grids.append(Line(start=Point(0,0,0), end=Point(self.width,0,0)))
 
-        topframe = Frame.byStartpointEndpointCurveJustifiction(Point(0,self.height,0),Point(self.width,self.height,0), self.top_frame_type.curve, "bottomframe","right","top", 0,self.material)
+        topframe = Frame.by_startpoint_endpoint_curve_justifiction(Point(0,self.height,0),Point(self.width,self.height,0), self.top_frame_type.curve, "bottomframe","right","top", 0,self.material)
         self.symbolic_outer_grids.append(Line(start=Point(0,self.height,0), end=Point(self.width,self.height,0)))
 
-        leftframe = Frame.byStartpointEndpointCurveJustifiction(Point(0,self.bottom_frame_type.b,0),Point(0,self.height-self.top_frame_type.b,0), self.left_frame_type.curve, "leftframe","right","top", 0,self.material)
+        leftframe = Frame.by_startpoint_endpoint_curve_justifiction(Point(0,self.bottom_frame_type.b,0),Point(0,self.height-self.top_frame_type.b,0), self.left_frame_type.curve, "leftframe","right","top", 0,self.material)
         self.symbolic_outer_grids.append(Line(start=Point(0,self.bottom_frame_type.b,0), end=Point(0,self.height-self.top_frame_type.b,0)))
 
-        rightframe = Frame.byStartpointEndpointCurveJustifiction(Point(self.width,self.bottom_frame_type.b,0),Point(self.width,self.height-self.top_frame_type.b,0), self.right_frame_type.curve, "leftframe","left","top", 0,self.material)
+        rightframe = Frame.by_startpoint_endpoint_curve_justifiction(Point(self.width,self.bottom_frame_type.b,0),Point(self.width,self.height-self.top_frame_type.b,0), self.right_frame_type.curve, "leftframe","left","top", 0,self.material)
         self.symbolic_outer_grids.append(Line(start=Point(self.width,self.bottom_frame_type.b,0), end=Point(self.width,self.height-self.top_frame_type.b,0)))
 
         self.outer_frame_objects.append(bottomframe)
@@ -4271,7 +4271,7 @@ class PatternSystem:
         self.basepanels = [] #contains a list with basepanels of the system
         self.vectors = [] #contains a list sublists with Vector3 which represent the repetition of the system
 
-    def StretcherBondWithJoint(self, name:str, brickwidth: float,  bricklength: float, brickheight: float, jointwidth: float, jointheight: float):
+    def stretcher_bond_with_joint(self, name:str, brickwidth: float,  bricklength: float, brickheight: float, jointwidth: float, jointheight: float):
         self.name = name
         #Vectors of panel 1
         V1 = Vector3(0, (brickheight + jointheight)*2,0)  #dy
@@ -4286,29 +4286,29 @@ class PatternSystem:
         dx = (bricklength+jointwidth)/2
         dy = brickheight+jointheight
 
-        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,brickheight,0),Point(bricklength,brickheight,0),Point(bricklength,0,0),Point(0,0,0)])
-        PC2 = PolyCurve().byPoints([Point(dx,dy,0),Point(dx,brickheight+dy,0),Point(bricklength+dx,brickheight+dy,0),Point(bricklength+dx,dy,0),Point(dx,dy,0)])
-        BasePanel1 = Panel.byPolyCurveThickness(PC1, brickwidth, 0, "BasePanel1", BaseBrick.colorint)
-        BasePanel2 = Panel.byPolyCurveThickness(PC2, brickwidth, 0, "BasePanel2", BaseBrick.colorint)
+        PC1 = PolyCurve().by_points([Point(0,0,0),Point(0,brickheight,0),Point(bricklength,brickheight,0),Point(bricklength,0,0),Point(0,0,0)])
+        PC2 = PolyCurve().by_points([Point(dx,dy,0),Point(dx,brickheight+dy,0),Point(bricklength+dx,brickheight+dy,0),Point(bricklength+dx,dy,0),Point(dx,dy,0)])
+        BasePanel1 = Panel.by_polycurve_thickness(PC1, brickwidth, 0, "BasePanel1", BaseBrick.colorint)
+        BasePanel2 = Panel.by_polycurve_thickness(PC2, brickwidth, 0, "BasePanel2", BaseBrick.colorint)
 
         self.basepanels.append(BasePanel1)
         self.basepanels.append(BasePanel2)
         return self
 
-    def TileBondWithJoint(self, name:str, tilewidth: float,  tileheight: float, tilethickness: float, jointwidth: float, jointheight: float):
+    def tile_bond_with_joint(self, name:str, tilewidth: float,  tileheight: float, tilethickness: float, jointwidth: float, jointheight: float):
         self.name = name
         #Vectors of panel 1
         V1 = Vector3(0, (tileheight + jointheight),0)  #dy
         V2 = Vector3(tilewidth+jointwidth,0,0)  #dx
         self.vectors.append([V1, V2])
 
-        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0)])
-        BasePanel1 = Panel.byPolyCurveThickness(PC1, tilethickness, 0, "BasePanel1", BaseBrick.colorint)
+        PC1 = PolyCurve().by_points([Point(0,0,0),Point(0,tileheight,0),Point(tilewidth,tileheight,0),Point(tilewidth,0,0)])
+        BasePanel1 = Panel.by_polycurve_thickness(PC1, tilethickness, 0, "BasePanel1", BaseBrick.colorint)
 
         self.basepanels.append(BasePanel1)
         return self
 
-    def CrossBondWithJoint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float):
+    def cross_bond_with_joint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float):
         self.name = name
         lagenmaat = brickheight + jointheight
         #Vectors of panel 1 (strek)
@@ -4341,15 +4341,15 @@ class PatternSystem:
         dy4 = lagenmaat #start y offset
 
 
-        PC1 = PolyCurve().byPoints([Point(0,0,0),Point(0,brickheight,0),Point(bricklength,brickheight,0),Point(bricklength,0,0),Point(0,0,0)])
-        PC2 = PolyCurve().byPoints([Point(dx2,dy2,0),Point(dx2,brickheight+dy2,0),Point(brickwidth+dx2,brickheight+dy2,0),Point(brickwidth+dx2,dy2,0),Point(dx2,dy2,0)])
-        PC3 = PolyCurve().byPoints([Point(dx3,dy3,0),Point(dx3,brickheight+dy3,0),Point(bricklength+dx3,brickheight+dy3,0),Point(bricklength+dx3,dy3,0),Point(dx3,dy3,0)])
-        PC4 = PolyCurve().byPoints([Point(dx4,dy4,0),Point(dx4,brickheight+dy4,0),Point(brickwidth+dx4,brickheight+dy4,0),Point(brickwidth+dx4,dy4,0),Point(dx4,dy4,0)])
+        PC1 = PolyCurve().by_points([Point(0,0,0),Point(0,brickheight,0),Point(bricklength,brickheight,0),Point(bricklength,0,0),Point(0,0,0)])
+        PC2 = PolyCurve().by_points([Point(dx2,dy2,0),Point(dx2,brickheight+dy2,0),Point(brickwidth+dx2,brickheight+dy2,0),Point(brickwidth+dx2,dy2,0),Point(dx2,dy2,0)])
+        PC3 = PolyCurve().by_points([Point(dx3,dy3,0),Point(dx3,brickheight+dy3,0),Point(bricklength+dx3,brickheight+dy3,0),Point(bricklength+dx3,dy3,0),Point(dx3,dy3,0)])
+        PC4 = PolyCurve().by_points([Point(dx4,dy4,0),Point(dx4,brickheight+dy4,0),Point(brickwidth+dx4,brickheight+dy4,0),Point(brickwidth+dx4,dy4,0),Point(dx4,dy4,0)])
 
-        BasePanel1 = Panel.byPolyCurveThickness(PC1, brickwidth, 0, "BasePanel1", BaseBrick.colorint)
-        BasePanel2 = Panel.byPolyCurveThickness(PC2, brickwidth, 0, "BasePanel2", BaseBrick.colorint)
-        BasePanel3 = Panel.byPolyCurveThickness(PC3, brickwidth, 0, "BasePanel3", BaseBrick.colorint)
-        BasePanel4 = Panel.byPolyCurveThickness(PC4, brickwidth, 0, "BasePanel4", BaseBrickYellow.colorint)
+        BasePanel1 = Panel.by_polycurve_thickness(PC1, brickwidth, 0, "BasePanel1", BaseBrick.colorint)
+        BasePanel2 = Panel.by_polycurve_thickness(PC2, brickwidth, 0, "BasePanel2", BaseBrick.colorint)
+        BasePanel3 = Panel.by_polycurve_thickness(PC3, brickwidth, 0, "BasePanel3", BaseBrick.colorint)
+        BasePanel4 = Panel.by_polycurve_thickness(PC4, brickwidth, 0, "BasePanel4", BaseBrickYellow.colorint)
 
         self.basepanels.append(BasePanel1)
         self.basepanels.append(BasePanel2)
@@ -4358,7 +4358,7 @@ class PatternSystem:
 
         return self
 
-def PatternGEOM(PatternSystem, width, height, startpoint:Point=None) -> list[Panel]:
+def pattern_geom(PatternSystem, width, height, startpoint:Point=None) -> list[Panel]:
     startpoint = startpoint or Point(0,0,0)
     test = PatternSystem
     panels = []
@@ -4372,7 +4372,7 @@ def PatternGEOM(PatternSystem, width, height, startpoint:Point=None) -> list[Pan
 
         #YX ARRAY
         yvectdisplacement = j[0]
-        yvector = Point.toVector(startpoint)
+        yvector = Point.to_vector(startpoint)
         xvectdisplacement = j[1]
         xvector = Vector3(0, 0, 0)
 
@@ -4383,19 +4383,19 @@ def PatternGEOM(PatternSystem, width, height, startpoint:Point=None) -> list[Pan
                 #Copy in x-direction
                 xvector = Vector3.sum(xvectdisplacement, xvector)
                 xyvector = Vector3.sum(yvector,xvector)
-                PCNew = PolyCurve.copyTranslate(PC,xyvector) #translate curve in x and y-direction
-                pan = Panel.byPolyCurveThickness(PCNew,thickness,0,"name",color)
+                PCNew = PolyCurve.copy_translate(PC,xyvector) #translate curve in x and y-direction
+                pan = Panel.by_polycurve_thickness(PCNew,thickness,0,"name",color)
                 panels.append(pan)
             xvector = Vector3.sum(xvectdisplacement, Vector3(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
     return panels
 
-def fillin(perimeter: PolyCurve2D, pattern: PatternGEOM) -> PatternSystem:
+def fillin(perimeter: PolyCurve2D, pattern: pattern_geom) -> PatternSystem:
     
-    bb = BoundingBox2d().byPoints(perimeter.points)
+    bb = BoundingBox2d().by_points(perimeter.points)
 
     for pt in bb.corners:
         project.objects.append(pt)
-    bb_perimeter = PolyCurve.byPoints(bb.corners)
+    bb_perimeter = PolyCurve.by_points(bb.corners)
 
     # l = []
 
@@ -4507,7 +4507,7 @@ class profiledataToShape:
         self.data = d1
         pc2d = self.prof.curve  # 2D polycurve
         if segmented == True:
-            pc3d = PolyCurve.byPolyCurve2D(pc2d)
+            pc3d = PolyCurve.by_polycurve_2D(pc2d)
             pcsegment = PolyCurve.segment(pc3d, 10)
             pc2d2 = pcsegment.to_polycurve_2D()
         else:
@@ -4650,7 +4650,7 @@ class Support:
         return(sup)
 
     @staticmethod
-    def xRoller(PlacementPoint):
+    def x_roller(PlacementPoint):
         sup = Support()
         sup.Point = PlacementPoint
         sup.Ty = "A"
@@ -4658,7 +4658,7 @@ class Support:
         return(sup)
 
     @staticmethod
-    def yRoller(PlacementPoint):
+    def y_roller(PlacementPoint):
         sup = Support()
         sup.Point = PlacementPoint
         sup.Tx = "A"
@@ -4666,7 +4666,7 @@ class Support:
         return(sup)
 
     @staticmethod
-    def zRoller(PlacementPoint):
+    def z_roller(PlacementPoint):
         sup = Support()
         sup.Point = PlacementPoint
         sup.Tx = "A"
@@ -4711,7 +4711,7 @@ class SurfaceLoad:
         self.iq3 = -1
 
     @staticmethod
-    def byLoadCasePolyCurveQ(LoadCase, PolyCurve, q):
+    def by_load_case_polycurve_q(LoadCase, PolyCurve, q):
         SL = SurfaceLoad()
         SL.LoadCase = LoadCase
         SL.PolyCurve = PolyCurve
@@ -4728,7 +4728,7 @@ class LoadPanel:
         self.LoadBearingDirection = "X"
         self.SurfaceType = "" #Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
 
-def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
+def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
     SurfaceLoads = []
     x = startx
     y = starty
@@ -4737,7 +4737,7 @@ def ChessBoardSurfaceLoadsRectangle(startx, starty, dx, dy, nx, ny, width, heigh
             SL = SurfaceLoad()
             SL.Description = description
             SL.LoadCase = LoadCase
-            SL.PolyCurve = PolyCurve.byPoints(
+            SL.PolyCurve = PolyCurve.by_points(
                 [Point(x, y, 0),
                 Point(x + width, y, 0),
                 Point(x, y + height, 0),
@@ -4881,7 +4881,7 @@ class Dimension:
         tick_mark_extension_point_1 = Point.translate(self.start,Vector3.reverse(Vector3.scale(direction,self.dimension_type.line_extension)))
         tick_mark_extension_point_2 = Point.translate(self.end,Vector3.scale(direction,self.dimension_type.line_extension))
         x = direction
-        y = Vector3.rotateXY(x, math.radians(90))
+        y = Vector3.rotate_XY(x, math.radians(90))
         z = ZAxis
         cs_new_start = CoordinateSystem(self.start,x,y,z)
         cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
@@ -4966,7 +4966,7 @@ class FrameTag:
         tag = FrameTag()
         frame_vector = frame.vector_normalised
         x = frame_vector
-        y = Vector3.rotateXY(x,math.radians(90))
+        y = Vector3.rotate_XY(x,math.radians(90))
         z = ZAxis
         vx = Vector3.scale(frame_vector,tag.offset_x)
         frame_width = PolyCurve2D.bounds(frame.curve)[4]
@@ -5235,19 +5235,19 @@ class Grid:
 
     def __cs(self,line):
         self.direction = line.vector_normalised
-        vect3 = Vector3.rotateXY(self.direction,math.radians(-90))
+        vect3 = Vector3.rotate_XY(self.direction,math.radians(-90))
         self.cs_end = CoordinateSystem(line.end,vect3,self.direction,ZAxis)
 
 
     @classmethod
-    def byStartpointEndpoint(cls, line, name):
+    def by_startpoint_endpoint(cls, line, name):
         #Create panel by polycurve
         g1 = Grid()
         g1.start = line.start
         g1.end = line.start
         g1.name = name
         g1.__cs(line)
-        g1.line = lineToPattern(line, Centerline)
+        g1.line = line_to_pattern(line, Centerline)
         # g1.__grid_heads()
         return g1
 
@@ -5263,7 +5263,7 @@ class Grid:
             y.write(project)
         return self
 
-def getGridDistances(Grids):
+def get_grid_distances(Grids):
     #Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
     GridsNew = []
     GridsNew.append(0)
@@ -5317,18 +5317,18 @@ class GridSystem:
         return grid_system
 
     @classmethod
-    def bySpacingLabels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
+    def by_spacing_labels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
         gs = GridSystem()
         # Create gridsystem
         #spacingXformat = "0 3000 3000 3000"
         GridEx = gridExtension
 
         GridsX = spacingX.split()
-        GridsX = getGridDistances(GridsX)
+        GridsX = get_grid_distances(GridsX)
         Xmax = max(GridsX)
         GridsXLable = labelsX.split()
         GridsY = spacingY.split()
-        GridsY = getGridDistances(GridsY)
+        GridsY = get_grid_distances(GridsY)
         Ymax = max(GridsY)
         GridsYLable = labelsY.split()
 
@@ -5340,7 +5340,7 @@ class GridSystem:
         xmaxdim1 = Xmax+GridEx-300
         xmaxdim2 = Xmax+GridEx-0
         for i in GridsX:
-            gridsX.append(Grid.byStartpointEndpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
+            gridsX.append(Grid.by_startpoint_endpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
             try:
                 dim = Dimension(Point(i,ymaxdim1,0),Point(GridsX[count+1],ymaxdim1,0),DT2_5_mm)
                 gs.dimensions.append(dim)
@@ -5359,7 +5359,7 @@ class GridSystem:
         gridsY = []
         count = 0
         for i in GridsY:
-            gridsY.append(Grid.byStartpointEndpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
+            gridsY.append(Grid.by_startpoint_endpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
             try:
                 dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0))#,DT3_5_mm)
                 gs.dimensions.append(dim)
@@ -5486,7 +5486,7 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def byStartpointEndpointProfileName(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, material: None, comments = None):
+    def by_startpoint_endpoint_profile_name(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, material: None, comments = None):
         
         f1 = Frame()
         f1.comments = comments
@@ -5501,10 +5501,10 @@ class Frame:
             f1.end = end.point
 
         f1.curve = profiledataToShape(profile_name).polycurve2d #polycurve2d
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
@@ -5515,7 +5515,7 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameShapevector(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+    def by_startpoint_endpoint_profile_name_shapevector(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
         f1 = Frame()
         f1.comments = comments
 
@@ -5538,10 +5538,10 @@ class Frame:
         f1.curve = curvrot.translate(vector2d)
         f1.XOffset = vector2d.x
         f1.YOffset = vector2d.y
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
@@ -5552,7 +5552,7 @@ class Frame:
         return f1
 
     @classmethod
-    def byStartpointEndpointProfileNameJustifiction(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, comments = None):
+    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, comments = None):
         f1 = Frame()
         f1.comments = comments
 
@@ -5579,10 +5579,10 @@ class Frame:
         curve = curve.rotate(f1.rotation)  #3
         f1.curve = curve
 
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
 
@@ -5601,7 +5601,7 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpoint(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, rotation: float, material = None, comments=None):
+    def by_startpoint_endpoint(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, rotation: float, material = None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -5615,11 +5615,11 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
         curvrot = polycurve.rotate(rotation)
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = curvrot
         f1.profileName = name
@@ -5643,12 +5643,12 @@ class Frame:
         f1.end = Point.translate(f1.start,Vector3(0,0.00001,height))
 
         # self.curve = Line(start, end)
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = frame_name
         f1.profileName = frame_name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = frame_name
         f1.curve3d = curvrot
         f1.material = material
@@ -5669,13 +5669,13 @@ class Frame:
         f1.end = Point.translate(f1.start,Vector3(0,height)) #TODO vertical column not possible
 
         # self.curve = Line(start, end)
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = profile_name
         f1.profileName = profile_name
         curv = profiledataToShape(profile_name).polycurve2d
         curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = profile_name
         f1.curve3d = curvrot
         f1.profileName = profile_name
@@ -5687,7 +5687,7 @@ class Frame:
 
 
     @classmethod
-    def byStartpointEndpointCurveJustifiction(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, comments=None):
+    def by_startpoint_endpoint_curve_justifiction(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -5709,10 +5709,10 @@ class Frame:
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         f1.curve = curv.translate(v1)
-        f1.directionVector = Vector3.byTwoPoints(f1.start, f1.end)
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.byPolyCurveHeightVector(f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.profileName = "none"
         f1.material = material
@@ -5765,7 +5765,7 @@ class WurksRaster3d:
         return wurks_raster3d
 
 
-    def byLine(self, lines: Line, bottom: float, top: float):
+    def by_line(self, lines: Line, bottom: float, top: float):
         self.bottom = Vector3(0, 0, bottom)
         self.top = Vector3(0, 0, top)
         self.lines = lines
@@ -5777,8 +5777,8 @@ class WurksRaster3d:
             pts.append(Point.translate(line.end, self.bottom))
             pts.append(Point.translate(line.end, self.top))
             pts.append(Point.translate(line.start, self.top))
-            project.objects.append(Surface(PolyCurve.byPoints(pts)))
-            surfList.append(Surface(PolyCurve.byPoints(pts)))
+            project.objects.append(Surface(PolyCurve.by_points(pts)))
+            surfList.append(Surface(PolyCurve.by_points(pts)))
 
         print(f"{len(surfList)}* {self.__class__.__name__} {project.createdTxt}")
 
@@ -5812,7 +5812,7 @@ class WurksPedestal:
             self.base_dxf = self.load_dxf(self.basefilename)
         return self.base_dxf
 
-    def byPoint(self, points, height, rotation=None):
+    def by_point(self, points, height, rotation=None):
         if isinstance(points, Point):
             points = [points]
 
@@ -5821,8 +5821,8 @@ class WurksPedestal:
 
         for point in points:
             topcenter = Point.difference(top.centroid(), point)
-            translated_top = top.translate(Point.toVector(topcenter))
-            project.objects.append(Extrusion.byPolyCurveHeight(translated_top, self.topheight, 0))
+            translated_top = top.translate(Point.to_vector(topcenter))
+            project.objects.append(Extrusion.by_polycurve_height(translated_top, self.topheight, 0))
 
             frame = Rect(
                 Vector3(x=(translated_top.centroid().x) - (self.diameter / 2),
@@ -5830,11 +5830,11 @@ class WurksPedestal:
                         z=point.z - self.topheight),
                 self.diameter, self.diameter
             )
-            project.objects.append(Extrusion.byPolyCurveHeight(frame, height - self.baseheight - self.topheight, 0))
+            project.objects.append(Extrusion.by_polycurve_height(frame, height - self.baseheight - self.topheight, 0))
 
             basecenter = Point.difference(base.centroid(), point)
-            translated_base = base.translate(Point.toVector(basecenter))
-            project.objects.append(Extrusion.byPolyCurveHeight(translated_base, self.baseheight, -height))
+            translated_base = base.translate(Point.to_vector(basecenter))
+            project.objects.append(Extrusion.by_polycurve_height(translated_base, self.baseheight, -height))
 
         print(f"{len(points)}* {self.__class__.__name__} {project.createdTxt}")
 
@@ -7819,11 +7819,11 @@ class ReadDXF():
     
     def create_polycurve(self):
         if len(self.points) == 1:
-            return PolyCurve.byPoints(self.points)
+            return PolyCurve.by_points(self.points)
         elif len(self.points) > 1:
             plList = []
             for pl in self.points:
-                plList.append(PolyCurve.byPoints(pl))
+                plList.append(PolyCurve.by_points(pl))
             return plList
 
 
@@ -8070,7 +8070,7 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-    def StretcherBondWithJoint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+    def stretcher_bond_with_joint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
         #This is stretcherbond(halfsteensverband) with joints
         self.name = name
         self.patterntype = patterntype
@@ -8131,7 +8131,7 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-    def CrossBondWithJoint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+    def cross_bond_with_joint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
         #This is crossbond(kruisverband) with joints
         self.name = name
         self.patterntype = patterntype
@@ -8209,8 +8209,8 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
     lines = []
     n = 0
     for i in range(nlines):
-        Xn = Vector3.rotateXY(XAxis, math.radians(patrow.angle))
-        Yn = Vector3.rotateXY(YAxis, math.radians(patrow.angle))
+        Xn = Vector3.rotate_XY(XAxis, math.radians(patrow.angle))
+        Yn = Vector3.rotate_XY(YAxis, math.radians(patrow.angle))
         CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
         x_start = 0
         y_start = 0
@@ -8218,7 +8218,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
         y_end = 0
         l1 = Line(Point(x_start, y_start, 0), Point(x_end, y_end, 0)) # baseline
         l2 = Line.transform(l1, CSNewLn) # rotation
-        v1 = Vector3.byTwoPoints(l2.start,l2.end)
+        v1 = Vector3.by_two_points(l2.start,l2.end)
         v1 = Vector3.normalize(v1)
         v2 = Vector3.scale(v1, patrow.shift_pattern * n)
         l3 = Line.translate_2(l2, v2)  # shift of line for pattern
@@ -8227,7 +8227,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
         #else:
         #    v2 = Vector3.scale(v1, patrow.shift_pattern*(n+1))
         #    l3 = Line.translate_2(l2,v2) # shift of line for pattern
-        v3 = Vector3.normalize(Vector3.crossProduct(v1,ZAxis)) #Eenheidsvector haaks op lijn
+        v3 = Vector3.normalize(Vector3.cross_product(v1,ZAxis)) #Eenheidsvector haaks op lijn
         if patrow.angle == 0:
             v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
             v4 = Vector3.reverse(v4)
@@ -8247,7 +8247,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
             # dashed lines
             LinePattern = ["Pat", [patrow.dash, -patrow.space],
                            1]  # Rule: line, whitespace, line whitespace etc., scale
-            for i in lineToPattern(l5, LinePattern):
+            for i in line_to_pattern(l5, LinePattern):
                 lines.append(i)
         n = n + 1
 
@@ -8355,7 +8355,7 @@ def XMLImportGrids(XMLtree, gridExtension):
 
     obj = []
     for i in grids:
-        obj.append(Grid.byStartpointEndpoint(i, "Grid"))
+        obj.append(Grid.by_startpoint_endpoint(i, "Grid"))
     return obj
 
 
@@ -8375,7 +8375,7 @@ def XMLImportGrids(XMLtree, gridExtension):
 #             [Line(start=Point(-gridExtension, i, 0), end=Point(Xmax + gridExtension, i, 0)) for i in GridsY] + \
 #             [Line(start=Point(0, 0, i), end=Point(0, Xmax, i)) for i in GridsZ]
 
-#     obj = [Grid.byStartpointEndpoint(i, "Grid") for i in grids]
+#     obj = [Grid.by_startpoint_endpoint(i, "Grid") for i in grids]
 
 #     return obj
 
@@ -8494,7 +8494,7 @@ def XMLImportPlates(XMLtree):
             Point = XYZ[getXYZ(XMLtree, j)]
             PlatePoints.append(Point)
         PlatePoints.append(PlatePoints[0])
-        ply = PolyCurve.byPoints(PlatePoints)
+        ply = PolyCurve.by_points(PlatePoints)
         # obj.append(ply)
         platesPolyCurves.append(ply)
 
@@ -8502,7 +8502,7 @@ def XMLImportPlates(XMLtree):
     Panels = []
 
     for i, j, k, l, m, n in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers, lstColor):
-        Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m, n))
+        Panels.append(Panel.by_polycurve_thickness(i, j, k, l + m, n))
 
     return Panels
 
@@ -9212,7 +9212,7 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     try:
-                                        el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                        el = Frame.by_startpoint_endpoint_profile_name_justifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
                                         comments.profile_data = el.profile_data
                                         self.project.objects.append(el)
                                         comments.centerbottom = el.centerbottom

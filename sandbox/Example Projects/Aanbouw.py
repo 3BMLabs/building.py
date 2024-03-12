@@ -16,7 +16,7 @@ mw = 100
 spouw = 30
 
 #1 GRIDS
-grids = GridSystem.bySpacingLabels("0 " + str(lengte),seqChar,"0" + str(breedte),seqNumber,1000)
+grids = GridSystem.by_spacing_labels("0 " + str(lengte),seqChar,"0" + str(breedte),seqNumber,1000)
 
 project.objects.append(grids)
 
@@ -52,7 +52,7 @@ for i in wall.inner_frame_objects:
 for i in wall.panel_objects:
     project.objects.append(i)
 
-#project.objects.append(Panel.byBaselineHeight(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand",BaseConcrete.colorint))
+#project.objects.append(Panel.by_baseline_height(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand",BaseConcrete.colorint))
 
 project.toSpeckle("92cf563acc")
 

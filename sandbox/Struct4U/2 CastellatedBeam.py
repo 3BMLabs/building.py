@@ -59,11 +59,11 @@ def CastellatedBeam(b,h,h1,b1,b2,spac,l):
     pnts2.append(Point(0, 0, h / 2))
 
     pnts3 = pnts2.reverse()
-    crv = PolyCurve.byPoints(pnts)
-    crv2 = PolyCurve.byPoints(pnts2)
+    crv = PolyCurve.by_points(pnts)
+    crv2 = PolyCurve.by_points(pnts2)
 
     #Topplate
-    top = PolyCurve.byPoints([
+    top = PolyCurve.by_points([
         Point(0, -b/2, h),
         Point(0, b/2, h),
         Point(xval, b/2, h),
@@ -78,10 +78,10 @@ CB = CastellatedBeam(b,h,h1,b1,b2,spac,l)
 
 obj = []
 
-obj.append(Panel.byPolyCurveThickness(CB[0],tf,-tf,"top",rgb_to_int([192, 192, 192])))
-obj.append(Panel.byPolyCurveThickness(CB[1],tf,0,"bottom",rgb_to_int([192, 192, 192])))
-obj.append(Panel.byPolyCurveThickness(CB[2],tw,0,"middle",rgb_to_int([192, 192, 192])))
-obj.append(Panel.byPolyCurveThickness(CB[3],tw,0,"middle",rgb_to_int([192, 192, 192])))
+obj.append(Panel.by_polycurve_thickness(CB[0],tf,-tf,"top",rgb_to_int([192, 192, 192])))
+obj.append(Panel.by_polycurve_thickness(CB[1],tf,0,"bottom",rgb_to_int([192, 192, 192])))
+obj.append(Panel.by_polycurve_thickness(CB[2],tw,0,"middle",rgb_to_int([192, 192, 192])))
+obj.append(Panel.by_polycurve_thickness(CB[3],tw,0,"middle",rgb_to_int([192, 192, 192])))
 
 SpeckleObj = translateObjectsToSpeckleObjects(obj)
 

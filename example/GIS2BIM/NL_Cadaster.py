@@ -30,7 +30,7 @@ a = GIS2BIM.WMSRequest(GIS2BIM.GetWebServerData("NL_PDOK_Luchtfoto_2020_28992", 
                                                 "serverrequestprefix"), Bbox, fileLocationWMS,
                        1500, 1500)
 
-# img = imagePyB().byFile(fileLocationWMS,Bboxwidth*1000,Bboxwidth*1000,0,0,0)
+# img = imagePyB().by_file(fileLocationWMS,Bboxwidth*1000,Bboxwidth*1000,0,0,0)
 # GISProject.objects.append(img)
 
 # KADASTRALE GRENZEN
@@ -48,7 +48,7 @@ BPCurvesBAG = WFSCurvesToBPCurves(curvesBAG)
 #     GISProject.objects.append(i)
 
 for i in BPCurvesBAG:
-    m = MeshPB().byPolyCurve(i, "BAG:pand", BaseBuilding)
+    m = MeshPB().by_polycurve(i, "BAG:pand", BaseBuilding)
     GISProject.objects.append(m)
 
 GISProject.toSpeckle("30185b86c3", "Kadaster")

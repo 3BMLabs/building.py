@@ -107,7 +107,7 @@ class Extrusion:
         return extrusion
 
 
-    def setParameter(self, data):
+    def set_parameter(self, data):
         self.parameters = data
         return self
 
@@ -133,7 +133,7 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeightVector(self, polycurve2d: PolyCurve2D, height, CSOld, startpoint, DirectionVector: Vector3):
+    def by_polycurve_height_vector(self, polycurve2d: PolyCurve2D, height, CSOld, startpoint, DirectionVector: Vector3):
         Extrus = Extrusion()
         #2D PolyCurve @ Global origin
         count = 0
@@ -247,14 +247,14 @@ class Extrusion:
 
 
     @classmethod
-    def byPolyCurveHeight(self, polycurve: PolyCurve, height, dzloc: float):
+    def by_polycurve_height(self, polycurve: PolyCurve, height, dzloc: float):
         #global len
         Extrus = Extrusion()
         Points = polycurve.points
-        V1 = Vector3.byTwoPoints(Points[0], Points[1])
-        V2 = Vector3.byTwoPoints(Points[-2], Points[-1])
+        V1 = Vector3.by_two_points(Points[0], Points[1])
+        V2 = Vector3.by_two_points(Points[-2], Points[-1])
 
-        p1 = Plane.byTwoVectorsOrigin(V1, V2, Points[0]) #Workplane of PolyCurve
+        p1 = Plane.by_two_vectors_origin(V1, V2, Points[0]) #Workplane of PolyCurve
         norm = p1.Normal
 
         pnts = []

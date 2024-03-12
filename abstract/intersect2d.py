@@ -195,14 +195,14 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
 
         for intersect in segment_intersections:
             current_polycurve_points.append(intersect)
-            created_polycurves.append(polycurve.byPoints(current_polycurve_points))
+            created_polycurves.append(polycurve.by_points(current_polycurve_points))
             current_polycurve_points = [intersect]
             points.remove(intersect)
 
         current_polycurve_points.append(segment_end)
 
     if len(current_polycurve_points) > 1:
-        created_polycurves.append(polycurve.byPoints(current_polycurve_points))
+        created_polycurves.append(polycurve.by_points(current_polycurve_points))
 
     ptlist = []
     for index, pc in enumerate(created_polycurves):
@@ -214,7 +214,7 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
                 ptlist.append(pt)
                 ptlist.append(ptlist[1])
 
-    pcurve = polycurve().byPoints(ptlist)
+    pcurve = polycurve().by_points(ptlist)
 
     try:
         return [created_polycurves[1], pcurve]
@@ -348,7 +348,7 @@ def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCu
                 q.append(i.end)
             elif i.type == "Point2D":
                 q.append(i)
-        pc = PolyCurve2D.byPoints(q)
+        pc = PolyCurve2D.by_points(q)
         pcList.append(pc)
 
     dict["inputPolycurve"] = [polycurve]

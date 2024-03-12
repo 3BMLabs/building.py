@@ -84,7 +84,7 @@ class WurksRaster3d:
         return wurks_raster3d
 
 
-    def byLine(self, lines: Line, bottom: float, top: float):
+    def by_line(self, lines: Line, bottom: float, top: float):
         self.bottom = Vector3(0, 0, bottom)
         self.top = Vector3(0, 0, top)
         self.lines = lines
@@ -96,8 +96,8 @@ class WurksRaster3d:
             pts.append(Point.translate(line.end, self.bottom))
             pts.append(Point.translate(line.end, self.top))
             pts.append(Point.translate(line.start, self.top))
-            project.objects.append(Surface(PolyCurve.byPoints(pts)))
-            surfList.append(Surface(PolyCurve.byPoints(pts)))
+            project.objects.append(Surface(PolyCurve.by_points(pts)))
+            surfList.append(Surface(PolyCurve.by_points(pts)))
 
         print(f"{len(surfList)}* {self.__class__.__name__} {project.createdTxt}")
 
@@ -131,7 +131,7 @@ class WurksPedestal:
             self.base_dxf = self.load_dxf(self.basefilename)
         return self.base_dxf
 
-    def byPoint(self, points, height, rotation=None):
+    def by_point(self, points, height, rotation=None):
         if isinstance(points, Point):
             points = [points]
 
@@ -140,8 +140,8 @@ class WurksPedestal:
 
         for point in points:
             topcenter = Point.difference(top.centroid(), point)
-            translated_top = top.translate(Point.toVector(topcenter))
-            project.objects.append(Extrusion.byPolyCurveHeight(translated_top, self.topheight, 0))
+            translated_top = top.translate(Point.to_vector(topcenter))
+            project.objects.append(Extrusion.by_polycurve_height(translated_top, self.topheight, 0))
 
             frame = Rect(
                 Vector3(x=(translated_top.centroid().x) - (self.diameter / 2),
@@ -149,11 +149,11 @@ class WurksPedestal:
                         z=point.z - self.topheight),
                 self.diameter, self.diameter
             )
-            project.objects.append(Extrusion.byPolyCurveHeight(frame, height - self.baseheight - self.topheight, 0))
+            project.objects.append(Extrusion.by_polycurve_height(frame, height - self.baseheight - self.topheight, 0))
 
             basecenter = Point.difference(base.centroid(), point)
-            translated_base = base.translate(Point.toVector(basecenter))
-            project.objects.append(Extrusion.byPolyCurveHeight(translated_base, self.baseheight, -height))
+            translated_base = base.translate(Point.to_vector(basecenter))
+            project.objects.append(Extrusion.by_polycurve_height(translated_base, self.baseheight, -height))
 
         print(f"{len(points)}* {self.__class__.__name__} {project.createdTxt}")
 

@@ -24,12 +24,12 @@ from itertools import count
 #INPUT
 
 #GRIDS
-#grids = GridSystem.bySpacingLabels("6x5400",seqChar,"4x5400",seqNumber,2000).write(project)
-#Grid.byStartpointEndpoint(Line(Point(100,100,0),Point(-5000,10000,0)),"Q").write(project)
+#grids = GridSystem.by_spacing_labels("6x5400",seqChar,"4x5400",seqNumber,2000).write(project)
+#Grid.by_startpoint_endpoint(Line(Point(100,100,0),Point(-5000,10000,0)),"Q").write(project)
 BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
 
 #PANEL
-project.objects.append(Panel.byBaselineHeight(Line(start= Point(1000,10800+5400,0),end=Point(5000,10800+5400,0)),2500,150,"Concrete Wall",BaseConcrete.colorint))
+project.objects.append(Panel.by_baseline_height(Line(start= Point(1000,10800+5400,0),end=Point(5000,10800+5400,0)),2500,150,"Concrete Wall",BaseConcrete.colorint))
 
 lst = ["HEA100",
        "DIE14",
@@ -53,7 +53,7 @@ for i in lst:
     ColumnTag.by_frame(f).write(project)
 
 
-# f4 = Frame.byStartpointEndpointProfileName(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
+# f4 = Frame.by_startpoint_endpoint_profile_name(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
 # tg = FrameTag.by_frame(f4).write(project)
 
 project.toSpeckle("e973243375")

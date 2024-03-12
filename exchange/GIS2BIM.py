@@ -40,7 +40,7 @@ def WFSCurvesToBPCurves(curves):
         pointlist = []
         for j in i:
             pointlist.append(Point(j[0], j[1], 0))
-        PC = PolyCurve().byPoints(pointlist)
+        PC = PolyCurve().by_points(pointlist)
         BPyPolyCurves.append(PC)
     return BPyPolyCurves
 
@@ -52,7 +52,7 @@ def WFSCurvesToBPCurvesLinePattern(curves, pattern):
             PntStart = Point(i[n][0],i[n][1],0)
             n = n + 1
             PntEnd = Point(i[n][0], i[n][1], 0)
-            ln = lineToPattern(Line(PntStart, PntEnd),pattern)
+            ln = line_to_pattern(Line(PntStart, PntEnd),pattern)
             #print(ln)
             for x in ln:
                 Lines.append(x)

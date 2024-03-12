@@ -208,16 +208,16 @@ class Text:
         trans = []
         for pt in polyCurve.points:
             pscale = Point.product(self.scale, pt)
-            pNew = transformPoint2(pscale, self.csglobal)
+            pNew = transform_point_2(pscale, self.csglobal)
             trans.append(pNew)
-        return polyCurve.byPoints(trans)
+        return polyCurve.by_points(trans)
 
 
 
     def calculate_bounding_box(self, points):
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = BoundingBox2d().byPoints(ptList)
+        bounding_box_polyline = BoundingBox2d().by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
 
 
@@ -243,7 +243,7 @@ class Text:
         output_list = [[Point(point[0], point[1], self.xyz.z) for point in element] for element in sub_lists]
 
         polyline_list = [
-            PolyCurve.byPoints([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
+            PolyCurve.by_points([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
             for pts in output_list
         ]
         return polyline_list

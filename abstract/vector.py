@@ -117,27 +117,27 @@ class Vector3:
         )
 
     @staticmethod
-    def toPoint(vector_1):
+    def to_point(vector_1):
         from geometry.point import Point
         return Point(x=vector_1.x, y=vector_1.y, z=vector_1.z)
 
     @staticmethod
-    def toLine(vector_1, vector_2):
+    def to_line(vector_1, vector_2):
         from geometry.point import Point
         from geometry.curve import Line
         return Line(start=Point(x=vector_1.x, y=vector_1.y, z=vector_1.z), end=Point(x=vector_2.x, y=vector_2.y, z=vector_2.z))
 
     @staticmethod
-    def byLine(line_1):
+    def by_line(line_1):
         return Vector3(line_1.dx, line_1.dy, line_1.dz)
 
     @staticmethod
-    def lineByLength(vector_1, length: float):
+    def line_by_length(vector_1, length: float):
         return None
         # return Line(start = Point(x=vector_1.x,y=vector_1.y,z=vector_1.z), end = Point(x=vector_2.x,y=vector_2.y,z=vector_2.z))
 
     @staticmethod
-    def crossProduct(vector_1, vector_2):
+    def cross_product(vector_1, vector_2):
         return Vector3(
             vector_1.y*vector_2.z - vector_1.z*vector_2.y,
             vector_1.z*vector_2.x - vector_1.x*vector_2.z,
@@ -145,7 +145,7 @@ class Vector3:
         )
 
     @staticmethod
-    def dotProduct(vector_1, vector_2):
+    def dot_product(vector_1, vector_2):
         return vector_1.x*vector_2.x+vector_1.y*vector_2.y+vector_1.z*vector_2.z
 
     @staticmethod
@@ -169,10 +169,10 @@ class Vector3:
         )
 
     @staticmethod
-    def angleBetween(vector_1, vector_2):
+    def angle_between(vector_1, vector_2):
         proj_vector_1 = Vector3.to_matrix(vector_1)
         proj_vector_2 = Vector3.to_matrix(vector_2)
-        dot_product = Vector3.dotProduct(vector_1, vector_2)
+        dot_product = Vector3.dot_product(vector_1, vector_2)
         length_vector_1 = Vector3.length(vector_1)
         length_vector_2 = Vector3.length(vector_2)
 
@@ -185,12 +185,12 @@ class Vector3:
         return math.degrees(angle)
 
     @staticmethod
-    def angleRadianBetween(vector_1, vector_2):
-        return math.acos((Vector3.dotProduct(vector_1, vector_2)/(Vector3.length(vector_1)*Vector3.length(vector_2))))
+    def angle_radian_between(vector_1, vector_2):
+        return math.acos((Vector3.dot_product(vector_1, vector_2)/(Vector3.length(vector_1)*Vector3.length(vector_2))))
 
     @staticmethod
-    def angleBetweenYZ(vector_1, vector_2):  # X Axis degrees
-        dot_product = Vector3.dotProduct(vector_1, vector_2)
+    def angle_between_YZ(vector_1, vector_2):  # X Axis degrees
+        dot_product = Vector3.dot_product(vector_1, vector_2)
         length_vector_1 = Vector3.length(Vector3(0, vector_1.y, vector_1.z))
         length_vector_2 = Vector3.length(Vector3(0, vector_2.y, vector_2.z))
         if length_vector_1 == 0 or length_vector_2 == 0:
@@ -202,8 +202,8 @@ class Vector3:
         return math.degrees(angle)
 
     @staticmethod
-    def angleBetweenXZ(vector_1, vector_2):  # Y Axis degrees
-        dot_product = Vector3.dotProduct(vector_1, vector_2)
+    def angle_between_XZ(vector_1, vector_2):  # Y Axis degrees
+        dot_product = Vector3.dot_product(vector_1, vector_2)
         length_vector_1 = Vector3.length(Vector3(vector_1.x, 0, vector_1.z))
         length_vector_2 = Vector3.length(Vector3(vector_2.x, 0, vector_2.z))
 
@@ -216,8 +216,8 @@ class Vector3:
         return math.degrees(angle)
 
     @staticmethod
-    def angleBetweenXY(vector_1, vector_2):  # Z Axis degrees
-        dot_product = Vector3.dotProduct(vector_1, vector_2)
+    def angle_between_XY(vector_1, vector_2):  # Z Axis degrees
+        dot_product = Vector3.dot_product(vector_1, vector_2)
         length_vector_1 = Vector3.length(Vector3(vector_1.x, vector_1.y, 0))
         length_vector_2 = Vector3.length(Vector3(vector_2.x, vector_2.y, 0))
 
@@ -245,7 +245,7 @@ class Vector3:
     @staticmethod
     def perpendicular(vector_1):
         lokX = Vector3(vector_1.y, -vector_1.x, 0)
-        lokZ = Vector3.crossProduct(vector_1, lokX)
+        lokZ = Vector3.cross_product(vector_1, lokX)
         if lokZ.z < 0:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
@@ -265,7 +265,7 @@ class Vector3:
         return normalized_vector
 
     @staticmethod
-    def byTwoPoints(p1, p2):
+    def by_two_points(p1, p2):
         return Vector3(
             p2.x-p1.x,
             p2.y-p1.y,
@@ -273,7 +273,7 @@ class Vector3:
         )
 
     @staticmethod
-    def rotateXY(vector_1, Beta):
+    def rotate_XY(vector_1, Beta):
         return Vector3(
             math.cos(Beta)*vector_1.x - math.sin(Beta)*vector_1.y,
             math.sin(Beta)*vector_1.x + math.cos(Beta)*vector_1.y,

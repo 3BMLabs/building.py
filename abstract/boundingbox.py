@@ -90,7 +90,7 @@ class BoundingBox2d:
     def area(self):
         return 0
 
-    def byPoints(self, points=Point):
+    def by_points(self, points=Point):
         self.points = points
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
@@ -113,7 +113,7 @@ class BoundingBox2d:
         self.corners.append(right_top)
         return self
     
-    def byDimensions(self, length:float, width:float):
+    def by_dimensions(self, length:float, width:float):
         # startpoint = Point2D(0,0)
         # widthpoint = Point2D(0,width)
         # widthlengthpoint = Point2D(length,width)
@@ -163,7 +163,7 @@ class BoundingBox3d:
         points = [Point.deserialize(point_data) for point_data in data.get('points', [])]
         return BoundingBox3d(points)
 
-    def corners(self, points=Point):
+    def corners(self):
         x_values = [point.x for point in self.points]
         y_values = [point.y for point in self.points]
         z_values = [point.z for point in self.points]
@@ -188,25 +188,25 @@ class BoundingBox3d:
         return [left_top_bottom, left_top_top, right_top_top, right_top_bottom, left_top_bottom, left_bottom_bottom, left_bottom_top, left_top_top, left_bottom_top, right_bottom_top, right_bottom_bottom, left_bottom_bottom, right_bottom_bottom, right_top_bottom, right_top_top, right_bottom_top]
 
     def perimeter(self):
-        return PolyCurve.byPoints(self.corners(self.points))
+        return PolyCurve.by_points(self.corners(self.points))
     
-    def convertBoundingbox2d(self, boundingbox2d:BoundingBox2d, coordinatesystem: CoordinateSystem, height=float):
+    def convert_boundingbox_2d(self, boundingbox2d:BoundingBox2d, coordinatesystem: CoordinateSystem, height=float):
         self.boundingbox2d = boundingbox2d
         self.coordinatesystem = coordinatesystem
         self.height = height
         return self
     
-    def toCuboid(self) -> Extrusion:
+    def to_cuboid(self) -> Extrusion:
         pts = self.boundingbox2d.corners
-        pc = PolyCurve2D.byPoints(pts)
+        pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem
-        dirXvector = Vector3.angleBetween(CSGlobal.Yaxis, cs.Yaxis)
+        dirXvector = Vector3.angle_between(CSGlobal.Yaxis, cs.Yaxis)
         pcrot = pc.rotate(dirXvector) #bug multi direction
-        cuboid = Extrusion.byPolyCurveHeightVector(pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
+        cuboid = Extrusion.by_polycurve_height_vector(pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
         return cuboid
     
-    def toAxis(self, length:int=None) -> Line:
+    def to_axis(self, length:int=None) -> Line:
         if length == None:
             length = 1000
         cs = self.coordinatesystem

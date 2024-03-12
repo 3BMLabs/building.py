@@ -112,7 +112,7 @@ class profiledataToShape:
         self.data = d1
         pc2d = self.prof.curve  # 2D polycurve
         if segmented == True:
-            pc3d = PolyCurve.byPolyCurve2D(pc2d)
+            pc3d = PolyCurve.by_polycurve_2D(pc2d)
             pcsegment = PolyCurve.segment(pc3d, 10)
             pc2d2 = pcsegment.to_polycurve_2D()
         else:

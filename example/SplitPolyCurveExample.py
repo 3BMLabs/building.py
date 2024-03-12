@@ -31,7 +31,7 @@ p4 = Point(1500,2500,0)
 p5 = Point(2500,2500,0)
 p6 = Point(2500,0,0)
 
-contour = PolyCurve.byPoints([p1,p2,p3,p4,p5,p6])
+contour = PolyCurve.by_points([p1,p2,p3,p4,p5,p6])
 project.objects.append(contour)
 
 
