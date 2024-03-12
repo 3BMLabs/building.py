@@ -31,8 +31,16 @@ __title__= "image"
 __author__ = "Maarten"
 __url__ = "./exchange/image.py"
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from PIL import Image, ImageDraw
 from objects.steelshape import *
+from geometry.point import Point
+from geometry.curve import Arc
+
 # [!not included in BP singlefile - end]
 
 def img(width,height,scalefactor):
