@@ -1,39 +1,40 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools grids, levels and other datums
 """
 
-__title__= "datum"
+__title__ = "datum"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/datum.py"
 
 import sys
 from pathlib import Path
 from abstract.text import *
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.linestyle import *
@@ -43,6 +44,7 @@ from objects.annotation import *
 # [!not included in BP singlefile - end]
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
+
 
 class GridheadType:
     def __init__(self):
@@ -56,7 +58,8 @@ class GridheadType:
         self.font_family = "calibri"
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -67,14 +70,15 @@ class GridheadType:
             'radius': self.radius,
             'font_family': self.font_family
         }
-    
+
     @staticmethod
     def deserialize(data):
         gridhead_type = GridheadType()
         gridhead_type.id = data.get('id')
         gridhead_type.type = data.get('type')
         gridhead_type.name = data.get('name')
-        gridhead_type.curves = [Line.deserialize(curve_data) for curve_data in data.get('curves', [])]  # Adjust for your Curve class
+        gridhead_type.curves = [Line.deserialize(curve_data) for curve_data in data.get(
+            'curves', [])]  # Adjust for your Curve class
         gridhead_type.diameter = data.get('diameter', 150)
         gridhead_type.text_height = data.get('text_height', 200)
         gridhead_type.radius = data.get('radius', gridhead_type.diameter / 2)
@@ -82,7 +86,7 @@ class GridheadType:
 
         return gridhead_type
 
-    def by_diam(self,name, diameter: float, font_family,text_height):
+    def by_diam(self, name, diameter: float, font_family, text_height):
         self.name = name
         self.diameter = diameter
         self.radius = self.diameter / 2
@@ -93,13 +97,17 @@ class GridheadType:
 
     def geom(self):
         radius = self.radius
-        self.curves.append(Arc(startPoint=Point(-radius,radius,0),midPoint=Point(0,radius*2,0),endPoint=Point(radius,radius,0)))
-        self.curves.append(Arc(startPoint=Point(-radius,radius,0),midPoint=Point(0,0,0),endPoint=Point(radius,radius,0)))
-        #origin is at center of circle
+        self.curves.append(Arc(startPoint=Point(-radius, radius, 0),
+                           midPoint=Point(0, radius*2, 0), endPoint=Point(radius, radius, 0)))
+        self.curves.append(Arc(startPoint=Point(-radius, radius, 0),
+                           midPoint=Point(0, 0, 0), endPoint=Point(radius, radius, 0)))
+        # origin is at center of circle
 
-GHT30 = GridheadType().by_diam("2.5 mm",400,"calibri",200)
 
-GHT50 = GridheadType().by_diam("GHT50",600,"calibri",350)
+GHT30 = GridheadType().by_diam("2.5 mm", 400, "calibri", 200)
+
+GHT50 = GridheadType().by_diam("GHT50", 600, "calibri", 350)
+
 
 class GridHead:
     def __init__(self):
@@ -117,7 +125,8 @@ class GridHead:
         self.__geom()
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -128,7 +137,7 @@ class GridHead:
             'x': self.x,
             'y': self.y,
             'text_curves': [curve.serialize() for curve in self.text_curves],
-            'curves': [curve.serialize() for curve in self.curves] 
+            'curves': [curve.serialize() for curve in self.curves]
         }
 
     @staticmethod
@@ -137,28 +146,33 @@ class GridHead:
         grid_head.id = data.get('id')
         grid_head.type = data.get('type')
         grid_head.grid_name = data.get('grid_name')
-        grid_head.grid_head_type = GridheadType.deserialize(data['grid_head_type'])
+        grid_head.grid_head_type = GridheadType.deserialize(
+            data['grid_head_type'])
         grid_head.radius = data.get('radius', GHT50.radius)
         grid_head.CS = CoordinateSystem.deserialize(data['CS'])
         grid_head.x = data.get('x', 0.5)
         grid_head.y = data.get('y', 0)
-        grid_head.text_curves = [Line.deserialize(curve_data) for curve_data in data.get('text_curves', [])]
-        grid_head.curves = [Line.deserialize(curve_data) for curve_data in data.get('curves', [])]
+        grid_head.text_curves = [Line.deserialize(
+            curve_data) for curve_data in data.get('text_curves', [])]
+        grid_head.curves = [Line.deserialize(
+            curve_data) for curve_data in data.get('curves', [])]
 
         return grid_head
 
     def __geom(self):
-        #CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
+        # CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
         for i in self.grid_head_type.curves:
-            self.curves.append(transform_arc(i,(self.CS)))
+            self.curves.append(transform_arc(i, (self.CS)))
 
     def __textobject(self):
         cs_text = self.CS
-        cs_text_new = CoordinateSystem.move_local(cs_text,-100,40,0) #to change after center text function is implemented
-        self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family, height=self.grid_head_type.text_height, cs=cs_text_new).write()
+        # to change after center text function is implemented
+        cs_text_new = CoordinateSystem.move_local(cs_text, -100, 40, 0)
+        self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
+                                height=self.grid_head_type.text_height, cs=cs_text_new).write()
 
     @staticmethod
-    def by_name_gridheadtype_y(name,cs: CoordinateSystem, gridhead_type,y: float):
+    def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
         GH = GridHead()
         GH.grid_name = name
         GH.grid_head_type = gridhead_type
@@ -175,12 +189,13 @@ class GridHead:
         for y in self.curves:
             project.objects.append(y)
 
+
 class Grid:
     def __init__(self):
         self.line = None
         self.start = None
         self.end = None
-        self.direction: Vector3 = Vector3(0,1,0)
+        self.direction: Vector3 = Vector3(0, 1, 0)
         self.grid_head_type = GHT50
         self.name = None
         self.bulbStart = False
@@ -188,15 +203,14 @@ class Grid:
         self.cs_end: CoordinateSystem = CSGlobal
         self.grid_heads = []
 
-    def __cs(self,line):
+    def __cs(self, line):
         self.direction = line.vector_normalised
-        vect3 = Vector3.rotate_XY(self.direction,math.radians(-90))
-        self.cs_end = CoordinateSystem(line.end,vect3,self.direction,ZAxis)
-
+        vect3 = Vector3.rotate_XY(self.direction, math.radians(-90))
+        self.cs_end = CoordinateSystem(line.end, vect3, self.direction, ZAxis)
 
     @classmethod
     def by_startpoint_endpoint(cls, line, name):
-        #Create panel by polycurve
+        # Create panel by polycurve
         g1 = Grid()
         g1.start = line.start
         g1.end = line.start
@@ -209,7 +223,7 @@ class Grid:
     def __grid_heads(self):
         if self.bulbEnd == True:
             self.grid_heads.append(
-                GridHead.by_name_gridheadtype_y(self.name,self.cs_end,self.grid_head_type,0))
+                GridHead.by_name_gridheadtype_y(self.name, self.cs_end, self.grid_head_type, 0))
 
     def write(self, project):
         for x in self.line:
@@ -218,14 +232,15 @@ class Grid:
             y.write(project)
         return self
 
+
 def get_grid_distances(Grids):
-    #Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
+    # Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
     GridsNew = []
     GridsNew.append(0)
     distance = 0.0
-    #GridsNew.append(distance)
+    # GridsNew.append(distance)
     for i in Grids:
-        #del Grids[0]
+        # del Grids[0]
         if "x" in i:
             spl = i.split("x")
             count = int(spl[0])
@@ -238,8 +253,9 @@ def get_grid_distances(Grids):
             GridsNew.append(distance)
     return GridsNew
 
+
 class GridSystem:
-    #rectangle Gridsystem
+    # rectangle Gridsystem
     def __init__(self):
         self.id = generateID()
         self.type = __class__.__name__
@@ -249,7 +265,8 @@ class GridSystem:
         self.name = None
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -258,7 +275,7 @@ class GridSystem:
             'dimensions': [dimension.serialize() for dimension in self.dimensions],
             'name': self.name
         }
-    
+
     @staticmethod
     def deserialize(data):
         grid_system = GridSystem()
@@ -266,7 +283,8 @@ class GridSystem:
         grid_system.type = data.get('type')
         grid_system.gridsX = data.get('gridsX')
         grid_system.gridsY = data.get('gridsY')
-        grid_system.dimensions = [Dimension.deserialize(dim_data) for dim_data in data.get('dimensions', [])]  # Adjust for your Dimension class
+        grid_system.dimensions = [Dimension.deserialize(dim_data) for dim_data in data.get(
+            'dimensions', [])]  # Adjust for your Dimension class
         grid_system.name = data.get('name')
 
         return grid_system
@@ -275,7 +293,7 @@ class GridSystem:
     def by_spacing_labels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
         gs = GridSystem()
         # Create gridsystem
-        #spacingXformat = "0 3000 3000 3000"
+        # spacingXformat = "0 3000 3000 3000"
         GridEx = gridExtension
 
         GridsX = spacingX.split()
@@ -295,28 +313,34 @@ class GridSystem:
         xmaxdim1 = Xmax+GridEx-300
         xmaxdim2 = Xmax+GridEx-0
         for i in GridsX:
-            gridsX.append(Grid.by_startpoint_endpoint(Line(Point(i, -GridEx, 0),Point(i, Ymax+GridEx, 0)),GridsXLable[count]))
+            gridsX.append(Grid.by_startpoint_endpoint(
+                Line(Point(i, -GridEx, 0), Point(i, Ymax+GridEx, 0)), GridsXLable[count]))
             try:
-                dim = Dimension(Point(i,ymaxdim1,0),Point(GridsX[count+1],ymaxdim1,0),DT2_5_mm)
+                dim = Dimension(Point(i, ymaxdim1, 0), Point(
+                    GridsX[count+1], ymaxdim1, 0), DT2_5_mm)
                 gs.dimensions.append(dim)
             except:
                 pass
             count = count + 1
 
-        #Totaal maatvoering 1
-        dim = Dimension(Point(GridsX[0], ymaxdim2, 0), Point(Xmax, ymaxdim2, 0), DT2_5_mm)
+        # Totaal maatvoering 1
+        dim = Dimension(Point(GridsX[0], ymaxdim2, 0), Point(
+            Xmax, ymaxdim2, 0), DT2_5_mm)
         gs.dimensions.append(dim)
 
-        #Totaal maatvoering 2
-        dim = Dimension(Point(xmaxdim2, GridsY[0], 0), Point(xmaxdim2,Ymax,0), DT2_5_mm)
+        # Totaal maatvoering 2
+        dim = Dimension(Point(xmaxdim2, GridsY[0], 0), Point(
+            xmaxdim2, Ymax, 0), DT2_5_mm)
         gs.dimensions.append(dim)
 
         gridsY = []
         count = 0
         for i in GridsY:
-            gridsY.append(Grid.by_startpoint_endpoint(Line(Point(-GridEx, i, 0),Point(Xmax+GridEx, i, 0)),GridsYLable[count]))
+            gridsY.append(Grid.by_startpoint_endpoint(
+                Line(Point(-GridEx, i, 0), Point(Xmax+GridEx, i, 0)), GridsYLable[count]))
             try:
-                dim = Dimension(Point(xmaxdim1,i,0),Point(xmaxdim1,GridsY[count+1],0))#,DT3_5_mm)
+                dim = Dimension(Point(xmaxdim1, i, 0), Point(
+                    xmaxdim1, GridsY[count+1], 0))  # ,DT3_5_mm)
                 gs.dimensions.append(dim)
             except:
                 pass

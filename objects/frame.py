@@ -27,16 +27,14 @@
 """This module provides tools for the modelling of framing components. Almost every object in a building is a frame
 """
 
-__title__= "shape"
+__title__ = "shape"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/frame.py"
-
 
 import sys, os, math
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-
 
 from library.profile import *
 from library.profile import profiledataToShape, justifictionToVector
@@ -49,11 +47,11 @@ from geometry.solid import *
 
 # [!not included in BP singlefile - end]
 
-def colorlist(extrus,color):
+def colorlist(extrus, color):
     colorlst = []
     for j in range(int(len(extrus.verts) / 3)):
         colorlst.append(color)
-    return(colorlst)
+    return (colorlst)
 
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
@@ -64,16 +62,16 @@ class Frame:
         self.name = "None"
         self.profileName = "None"
         self.extrusion = None
-        self.comments = None        
+        self.comments = None
         self.structuralType = None
         self.start = None
         self.end = None
-        self.curve = None # 2D polycurve of the sectionprofile
-        self.curve3d = None # Translated 3D polycurve of the sectionprofile
+        self.curve = None  # 2D polycurve of the sectionprofile
+        self.curve3d = None  # Translated 3D polycurve of the sectionprofile
         self.length = 0
         self.coordinateSystem: CoordinateSystem = CSGlobal
-        self.YJustification = "Origin"  #Top, Center, Origin, Bottom
-        self.ZJustification = "Origin" #Left, Center, Origin, Right
+        self.YJustification = "Origin"  # Top, Center, Origin, Bottom
+        self.ZJustification = "Origin"  # Left, Center, Origin, Right
         self.YOffset = 0
         self.ZOffset = 0
         self.rotation = 0
@@ -86,7 +84,8 @@ class Frame:
         self.centerbottom = None
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -128,7 +127,8 @@ class Frame:
         frame.curve = data.get('curve')
         frame.curve3d = data.get('curve3d')
         frame.length = data.get('length', 0)
-        frame.coordinateSystem = CoordinateSystem.deserialize(data['coordinateSystem'])
+        frame.coordinateSystem = CoordinateSystem.deserialize(
+            data['coordinateSystem'])
         frame.YJustification = data.get('YJustification', "Origin")
         frame.ZJustification = data.get('ZJustification', "Origin")
         frame.YOffset = data.get('YOffset', 0)
@@ -137,19 +137,21 @@ class Frame:
         frame.material = data.get('material')
         frame.color = data.get('color', BaseOther.color)
         frame.colorlst = data.get('colorlst', [])
-        frame.vector = Vector3.deserialize(data['vector']) if 'vector' in data else None
-        frame.vector_normalised = Vector3.deserialize(data['vector_normalised']) if 'vector_normalised' in data else None
+        frame.vector = Vector3.deserialize(
+            data['vector']) if 'vector' in data else None
+        frame.vector_normalised = Vector3.deserialize(
+            data['vector_normalised']) if 'vector_normalised' in data else None
 
         return frame
 
-
     def props(self):
-        self.vector = Vector3(self.end.x-self.start.x,self.end.y-self.start.y,self.end.z-self.start.z)
+        self.vector = Vector3(self.end.x-self.start.x,
+                              self.end.y-self.start.y, self.end.z-self.start.z)
         self.vector_normalised = Vector3.normalize(self.vector)
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def by_startpoint_endpoint_profile_name(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, material: None, comments = None):
+    def by_startpoint_endpoint_profile_name(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, material: None, comments=None):
         # [!not included in BP singlefile - start]
         from library.profile import profiledataToShape
         # [!not included in BP singlefile - end]
@@ -165,11 +167,12 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        f1.curve = profiledataToShape(profile_name).polycurve2d #polycurve2d
+        f1.curve = profiledataToShape(profile_name).polycurve2d  # polycurve2d
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
@@ -196,7 +199,8 @@ class Frame:
         try:
             curv = profiledataToShape(profile_name).polycurve2d
         except Exception as e:
-            print(f"Profile does not exist: {profile_name}\nError: {e}") #Profile does not exist
+            # Profile does not exist
+            print(f"Profile does not exist: {profile_name}\nError: {e}")
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
@@ -206,7 +210,8 @@ class Frame:
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name
@@ -217,7 +222,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, ey: None = float, ez: None = float, structuralType: None = str, comments = None):
+    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Point or Node, end: Point or Node, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -235,19 +240,20 @@ class Frame:
 
         f1.profile_data = profiledataToShape(profile_name)
         curve = f1.profile_data.polycurve2d
-        
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction) #1
+
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
-        curve = curve.translate(Vector2(ey, ez)) #2
-        curve = curve.rotate(f1.rotation)  #3
+        curve = curve.translate(Vector2(ey, ez))  # 2
+        curve = curve.rotate(f1.rotation)  # 3
         f1.curve = curve
 
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
 
@@ -264,9 +270,8 @@ class Frame:
         f1.props()
         return f1
 
-
     @classmethod
-    def by_startpoint_endpoint(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, rotation: float, material = None, comments=None):
+    def by_startpoint_endpoint(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -284,7 +289,8 @@ class Frame:
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
         curvrot = polycurve.rotate(rotation)
-        f1.extrusion = Extrusion.by_polycurve_height_vector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = curvrot
         f1.profileName = name
@@ -295,7 +301,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_height_rotation(cls, start: Point or Node, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material = None, comments=None):
+    def by_point_height_rotation(cls, start: Point or Node, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -305,7 +311,7 @@ class Frame:
         elif start.type == 'Node':
             f1.start = start.point
 
-        f1.end = Point.translate(f1.start,Vector3(0,0.00001,height))
+        f1.end = Point.translate(f1.start, Vector3(0, 0.00001, height))
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
@@ -313,7 +319,8 @@ class Frame:
         f1.name = frame_name
         f1.profileName = frame_name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_polycurve_height_vector(curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = frame_name
         f1.curve3d = curvrot
         f1.material = material
@@ -323,7 +330,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_profile_height_rotation(cls, start: Point or Node, height: float, profile_name: str, rotation: float, material = None, comments=None):
+    def by_point_profile_height_rotation(cls, start: Point or Node, height: float, profile_name: str, rotation: float, material=None, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -331,7 +338,8 @@ class Frame:
             f1.start = start
         elif start.type == 'Node':
             f1.start = start.point
-        f1.end = Point.translate(f1.start,Vector3(0,height)) #TODO vertical column not possible
+        # TODO vertical column not possible
+        f1.end = Point.translate(f1.start, Vector3(0, height))
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
@@ -340,7 +348,8 @@ class Frame:
         f1.profileName = profile_name
         curv = profiledataToShape(profile_name).polycurve2d
         curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_polycurve_height_vector(curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = profile_name
         f1.curve3d = curvrot
         f1.profileName = profile_name
@@ -350,9 +359,8 @@ class Frame:
         f1.props()
         return f1
 
-
     @classmethod
-    def by_startpoint_endpoint_curve_justifiction(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material = None, comments=None):
+    def by_startpoint_endpoint_curve_justifiction(cls, start: Point or Node, end: Point or Node, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -368,14 +376,16 @@ class Frame:
         f1.rotation = rotation
         curv = polycurve
         curvrot = curv.rotate(rotation)  # rotation in degrees
-        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction) #center, left, right, origin / center, top bottom, origin
+        # center, left, right, origin / center, top bottom, origin
+        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         f1.curve = curv.translate(v1)
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.profileName = "none"
         f1.material = material
@@ -384,6 +394,6 @@ class Frame:
         f1.props()
         return f1
 
-    def write(self,project):
+    def write(self, project):
         project.objects.append(self)
         return self

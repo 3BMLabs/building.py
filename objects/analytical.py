@@ -1,60 +1,68 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
-from geometry.point import *
-from geometry.curve import *
+
 """This module provides tools for analytical element like supports, loads
 """
 
-__title__= "analytical"
+__title__ = "analytical"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/analytical.py"
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from geometry.point import *
+from geometry.curve import *
+
 # [!not included in BP singlefile - end]
+
 
 class Support:
     def __init__(self):
         self.Number = None
-        self.Point: Point = Point(0,0,0)
+        self.Point: Point = Point(0, 0, 0)
         self.id = generateID()
         self.type = __class__.__name__
-        self.Tx: str = " " # A, P, N, S
-        self.Ty: str = " " # A, P, N, S
-        self.Tz: str = " " # A, P, N, S
-        self.Rx: str = " " # A, P, N, S
-        self.Ry: str = " " # A, P, N, S
-        self.Rz: str = " " # A, P, N, S
-        self.Kx: float = 0 # kN/m
-        self.Ky: float = 0 # kN/m
-        self.Kz: float = 0 # kN/m
-        self.Cx: float = 0 # kNm/rad
-        self.Cy: float = 0 # kNm/rad
-        self.Cz: float = 0 # kNm/rad
-        self.dx: float = 0 #eccentricity in x
-        self.dy: float = 0 #eccentricity in y
-        self.dz: float = 0 #eccentricity in z
+        self.Tx: str = " "  # A, P, N, S
+        self.Ty: str = " "  # A, P, N, S
+        self.Tz: str = " "  # A, P, N, S
+        self.Rx: str = " "  # A, P, N, S
+        self.Ry: str = " "  # A, P, N, S
+        self.Rz: str = " "  # A, P, N, S
+        self.Kx: float = 0  # kN/m
+        self.Ky: float = 0  # kN/m
+        self.Kz: float = 0  # kN/m
+        self.Cx: float = 0  # kNm/rad
+        self.Cy: float = 0  # kNm/rad
+        self.Cz: float = 0  # kNm/rad
+        self.dx: float = 0  # eccentricity in x
+        self.dy: float = 0  # eccentricity in y
+        self.dz: float = 0  # eccentricity in z
 
     def serialize(self):
         return {
@@ -77,7 +85,7 @@ class Support:
             'dy': self.dy,
             'dz': self.dz
         }
-    
+
     @staticmethod
     def deserialize(data):
         support = Support()
@@ -108,7 +116,7 @@ class Support:
         sup.Tx = "A"
         sup.Ty = "A"
         sup.Tz = "A"
-        return(sup)
+        return (sup)
 
     @staticmethod
     def x_roller(PlacementPoint):
@@ -116,7 +124,7 @@ class Support:
         sup.Point = PlacementPoint
         sup.Ty = "A"
         sup.Tz = "A"
-        return(sup)
+        return (sup)
 
     @staticmethod
     def y_roller(PlacementPoint):
@@ -124,7 +132,7 @@ class Support:
         sup.Point = PlacementPoint
         sup.Tx = "A"
         sup.Tz = "A"
-        return(sup)
+        return (sup)
 
     @staticmethod
     def z_roller(PlacementPoint):
@@ -132,7 +140,7 @@ class Support:
         sup.Point = PlacementPoint
         sup.Tx = "A"
         sup.Ty = "A"
-        return(sup)
+        return (sup)
 
     @staticmethod
     def fixed(PlacementPoint):
@@ -144,7 +152,8 @@ class Support:
         sup.Rx = "A"
         sup.Ry = "A"
         sup.Rz = "A"
-        return(sup)
+        return (sup)
+
 
 class LoadCase:
     def __init__(self):
@@ -153,7 +162,8 @@ class LoadCase:
         self.psi0 = 1
         self.psi1 = 1
         self.psi2 = 1
-        self.Type = 0   #0 = permanent, 1 = variabel
+        self.Type = 0  # 0 = permanent, 1 = variabel
+
 
 class SurfaceLoad:
     def __init__(self):
@@ -187,9 +197,11 @@ class LoadPanel:
         self.PolyCurve: PolyCurve = None
         self.Description: str = ""
         self.LoadBearingDirection = "X"
-        self.SurfaceType = "" #Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+        # Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+        self.SurfaceType = ""
 
-def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description:str):
+
+def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description: str):
     SurfaceLoads = []
     x = startx
     y = starty
@@ -200,11 +212,11 @@ def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, h
             SL.LoadCase = LoadCase
             SL.PolyCurve = PolyCurve.by_points(
                 [Point(x, y, 0),
-                Point(x + width, y, 0),
-                Point(x, y + height, 0),
-                Point(x, y, 0)]
+                 Point(x + width, y, 0),
+                 Point(x, y + height, 0),
+                 Point(x, y, 0)]
             )
-            SL.q1 = SL.q2 = SL.q3 = q123 #[kN/m2]
+            SL.q1 = SL.q2 = SL.q3 = q123  # [kN/m2]
             SurfaceLoads.append(SL)
             x = x + dx
         y = y + dy
