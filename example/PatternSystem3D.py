@@ -47,14 +47,14 @@ def PatternGEOM2(PatternSystem,width,height):
 paneelcontouren = PatternGEOM2(test2,4000,4000) # polycurves van panelen
 
 contour = PolyCurve.byPoints([Point(1000,1000,0),Point(3000,1000,0),Point(3500,3500,0),Point(2000,3500,0),Point(1000,1000,0)])
-contour2d = contour.toPolyCurve2D()
+contour2d = contour.to_polycurve_2D()
 
 contour_panel = Panel.byPolyCurveThickness(contour,5,0,"name",BaseBrickYellow.colorint)
 
 project.objects.append(contour_panel)
 
 for i in paneelcontouren:
-    i2d = i.toPolyCurve2D()
+    i2d = i.to_polycurve_2D()
     test = is_polycurve_in_polycurve(contour2d,i2d)
     print(test)
 

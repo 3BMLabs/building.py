@@ -34,7 +34,6 @@ __url__ = "./geometry/geometry2d.py"
 
 import sys, math
 from pathlib import Path
-import numpy as np
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
@@ -92,11 +91,14 @@ class Vector2:
 
     @staticmethod
     def normalize(v1, axis=-1, order=2):
-        v1 = Vector2.to_matrix(v1)
-        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
-        l2[l2==0] = 1
-        i = v1 / np.expand_dims(l2, axis)[0]
-        return Vector2(i[0],i[1])
+        v1_mat = Vector2.to_matrix(v1)
+        l2_norm = math.sqrt(v1_mat[0]**2 + v1_mat[1]**2)
+        if l2_norm == 0:
+            l2_norm = 1
+
+        normalized_v = [v1_mat[0] / l2_norm, v1_mat[1] / l2_norm]
+
+        return Vector2(normalized_v[0], normalized_v[1])
 
     @staticmethod
     def to_matrix(self):
@@ -173,6 +175,10 @@ class Point2D:
         y = self.y + vector.y
         p1 = Point2D(x, y)
         return p1
+
+    @staticmethod
+    def dotProduct(p1, p2):
+        return p1.x*p2.x+p1.y*p2.y
 
     def rotate(self, rotation):
         x = self.x
@@ -276,7 +282,7 @@ class Arc2D:
         self.start:Point2D = pntxy1
         self.mid: Point2D = pntxy2
         self.end: Point2D = pntxy3
-        self.origin = self.originarc()
+        self.origin = self.origin_arc()
         self.angleRadian = self.angleRadian()
         self.radius = self.radiusarc()
         #self.radius = self.radiusarc()
@@ -330,7 +336,7 @@ class Arc2D:
         angle = Vector2.angleRadianBetween(v1,v2)
         return angle
 
-    def originarc(self):
+    def origin_arc(self):
         #calculation of origin of arc #Todo can be simplified for sure
         Vstartend = Vector2.byTwoPoints(self.start, self.end)
         halfVstartend = Vector2.scale(Vstartend,0.5)
@@ -358,7 +364,7 @@ class Arc2D:
 
 
     @staticmethod
-    def pointsAtParameter(arc, count: int):
+    def points_at_parameter(arc, count: int):
         #ToDo can be simplified. Now based on the 3D variant
         d_alpha = arc.angleRadian / (count - 1)
         alpha = 0
@@ -373,8 +379,8 @@ class Arc2D:
         return pnts2
 
     @staticmethod
-    def segmentedarc(arc, count):
-        pnts = Arc2D.pointsAtParameter(arc,count)
+    def segmented_arc(arc, count):
+        pnts = Arc2D.points_at_parameter(arc,count)
         i = 0
         lines = []
         for j in range(len(pnts)-1):
@@ -465,7 +471,7 @@ class PolyCurve2D:
 
 
     @classmethod #curves or curves?
-    def byJoinedCurves(cls, curves):
+    def by_joined_curves(cls, curves):
         if not curves or len(curves) < 1:
             raise ValueError("At least one curve is required to create a PolyCurve2D.")
 
@@ -492,16 +498,31 @@ class PolyCurve2D:
 
 
     def centroid(self) -> Point2D:
-        if self.isClosed:
-            if len(self.points2D) < 3:
-                return "Polygon has less than 3 points!"
-            num_points = len(self.points2D)
-            polygon = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)],dtype=np.float64)
-            polygon2 = np.roll(polygon, -1, axis=0)
-            signed_areas = 0.5 * np.cross(polygon, polygon2)
-            centroids = (polygon + polygon2) / 3.0
-            centroid = np.average(centroids, axis=0, weights=signed_areas)
-            return Point2D(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals))
+        if not self.isClosed or len(self.points2D) < 3:
+            return "Polygon has less than 3 points or is not closed!"
+
+        num_points = len(self.points2D)
+        signed_area = 0
+        centroid_x = 0
+        centroid_y = 0
+
+        for i in range(num_points):
+            x0, y0 = self.points2D[i].x, self.points2D[i].y
+            if i == num_points - 1:
+                x1, y1 = self.points2D[0].x, self.points2D[0].y
+            else:
+                x1, y1 = self.points2D[i + 1].x, self.points2D[i + 1].y
+
+            cross = x0 * y1 - x1 * y0
+            signed_area += cross
+            centroid_x += (x0 + x1) * cross
+            centroid_y += (y0 + y1) * cross
+
+        signed_area *= 0.5
+        centroid_x /= (6.0 * signed_area)
+        centroid_y /= (6.0 * signed_area)
+
+        return Point2D(x=round(centroid_x, project.decimals), y=round(centroid_y, project.decimals))
 
     @staticmethod
     def fromPolyCurve3D(PolyCurve):
@@ -512,22 +533,24 @@ class PolyCurve2D:
         return plycrv
 
 
-    def area(self) -> float: #shoelace formula
-        if self.isClosed:
-            if len(self.points2D) < 3:
-                return "Polygon has less than 3 points!"
-            num_points = len(self.points2D)
-            x_y = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)])
-            x_y = x_y.reshape(-1,2)
-            x = x_y[:,0]
-            y = x_y[:,1]
-            S1 = np.sum(x*np.roll(y,-1))
-            S2 = np.sum(y*np.roll(x,-1))
+    def area(self) -> float:  # shoelace formula
+        if not self.isClosed or len(self.points2D) < 3:
+            return "Polygon has less than 3 points or is not closed!"
 
-            area = .5*np.absolute(S1 - S2)
-            return area
-        else:
-            return None
+        num_points = len(self.points2D)
+        area = 0
+
+        for i in range(num_points):
+            x0, y0 = self.points2D[i].x, self.points2D[i].y
+            if i == num_points - 1:
+                x1, y1 = self.points2D[0].x, self.points2D[0].y
+            else:
+                x1, y1 = self.points2D[i + 1].x, self.points2D[i + 1].y
+
+            area += x0 * y1 - x1 * y0
+
+        area = abs(area) / 2.0
+        return area
 
 
     def close(self) -> bool:
@@ -552,7 +575,7 @@ class PolyCurve2D:
                 crvs.append(Line2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve2D.byJoinedCurves(crvs)
+        crv = PolyCurve2D.by_joined_curves(crvs)
         return crv
     
 
@@ -628,15 +651,15 @@ class PolyCurve2D:
             if index == 0:
                 n_p = self.split(line, returnlines=True)
                 if n_p != None:
-                    for np in n_p:
-                        if np != None:
+                    for nxp in n_p:
+                        if nxp != None:
                             new_polygons.append(n_p)
             else:
                 for new_poly in flatten(new_polygons):
                     n_p = new_poly.split(line, returnlines=True)
                     if n_p != None:
-                        for np in n_p:
-                            if np != None:
+                        for nxp in n_p:
+                            if nxp != None:
                                 new_polygons.append(n_p)
         project.objects.append(flatten(new_polygons))
         return flatten(new_polygons)
@@ -652,7 +675,7 @@ class PolyCurve2D:
                 crvs.append(Line2D(i.start.translate(v1), i.end.translate(v1)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve2D.byJoinedCurves(crvs)
+        crv = PolyCurve2D.by_joined_curves(crvs)
         return crv
 
 
@@ -666,7 +689,7 @@ class PolyCurve2D:
             else:
                 print("Curvetype not found")
 
-        PCnew = PolyCurve2D.byJoinedCurves(crvs)
+        PCnew = PolyCurve2D.by_joined_curves(crvs)
         return PCnew
 
     def rotate(self, rotation):
@@ -678,7 +701,7 @@ class PolyCurve2D:
                 crvs.append(Line2D(i.start.rotate(rotation), i.end.rotate(rotation)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve2D.byJoinedCurves(crvs)
+        crv = PolyCurve2D.by_joined_curves(crvs)
         return crv
 
 
@@ -743,14 +766,14 @@ class PolyCurve2D:
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D.segmentedarc(i, count))
+                crvs.append(Arc2D.segmented_arc(i, count))
             elif i.__class__.__name__ == "Line2D":
                 crvs.append(i)
         crv = flatten(crvs)
-        pc = PolyCurve2D.byJoinedCurves(crv)
+        pc = PolyCurve2D.by_joined_curves(crv)
         return pc
 
-    def toPolyCurve2D(self):
+    def to_polycurve_2D(self):
         from geometry.geometry2d import PolyCurve2D
         from geometry.geometry2d import Point2D
         from geometry.geometry2d import Line2D

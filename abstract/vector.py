@@ -1,44 +1,42 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools for vectors
 """
 
-__title__= "vector"
+from geometry.point import *
+from pathlib import Path
+import sys
+__title__ = "vector"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/vector.py"
 
-import sys
-from pathlib import Path
-import numpy as np
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
-
-from geometry.point import *
 
 
 # [!not included in BP singlefile - end]
@@ -55,9 +53,9 @@ class Vector3:
         self.y = y
         self.z = z
 
-
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -71,223 +69,200 @@ class Vector3:
         return Vector3(data['x'], data['y'], data['z'])
 
     @staticmethod
-    def sum(v1, v2):
+    def sum(vector_1, vector_2):
         return Vector3(
-            v1.x + v2.x,
-            v1.y + v2.y,
-            v1.z + v2.z
+            vector_1.x + vector_2.x,
+            vector_1.y + vector_2.y,
+            vector_1.z + vector_2.z
         )
 
     @staticmethod
-    def sum3(v1, v2, v3):
+    def sum3(vector_1, vector_2, vector_3):
         return Vector3(
-            v1.x + v2.x + v3.x,
-            v1.y + v2.y + v3.y,
-            v1.z + v2.z + v3.z
+            vector_1.x + vector_2.x + vector_3.x,
+            vector_1.y + vector_2.y + vector_3.y,
+            vector_1.z + vector_2.z + vector_3.z
         )
 
     @staticmethod
-    def diff(v1, v2):
+    def diff(vector_1, vector_2):
         return Vector3(
-            v1.x - v2.x,
-            v1.y - v2.y,
-            v1.z - v2.z
+            vector_1.x - vector_2.x,
+            vector_1.y - vector_2.y,
+            vector_1.z - vector_2.z
         )
 
     @staticmethod
-    def subtract(v1, v2):
+    def subtract(vector_1, vector_2):
         return Vector3(
-            v1.x - v2.x,
-            v1.y - v2.y,
-            v1.z - v2.z
+            vector_1.x - vector_2.x,
+            vector_1.y - vector_2.y,
+            vector_1.z - vector_2.z
         )
 
     @staticmethod
-    def divide(v1, v2):
+    def divide(vector_1, vector_2):
         return Vector3(
-            v1.x / v2.x,
-            v1.y / v2.y,
-            v1.z / v2.z
+            vector_1.x / vector_2.x,
+            vector_1.y / vector_2.y,
+            vector_1.z / vector_2.z
         )
 
     @staticmethod
-    def square(v1):
+    def square(vector_1):
         return Vector3(
-            v1.x **2,
-            v1.y **2,
-            v1.z **2
+            vector_1.x ** 2,
+            vector_1.y ** 2,
+            vector_1.z ** 2
         )
 
     @staticmethod
-    def toPoint(v1):
+    def toPoint(vector_1):
         from geometry.point import Point
-        return Point(x=v1.x,y=v1.y,z=v1.z)
-
+        return Point(x=vector_1.x, y=vector_1.y, z=vector_1.z)
 
     @staticmethod
-    def toLine(v1, v2):
+    def toLine(vector_1, vector_2):
         from geometry.point import Point
         from geometry.curve import Line
-        return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
+        return Line(start=Point(x=vector_1.x, y=vector_1.y, z=vector_1.z), end=Point(x=vector_2.x, y=vector_2.y, z=vector_2.z))
 
     @staticmethod
-    def byLine(l1):
-        return Vector3(l1.dx,l1.dy,l1.dz)
+    def byLine(line_1):
+        return Vector3(line_1.dx, line_1.dy, line_1.dz)
 
     @staticmethod
-    def lineByLength(v1, length:float):
+    def lineByLength(vector_1, length: float):
         return None
-        # return Line(start = Point(x=v1.x,y=v1.y,z=v1.z), end = Point(x=v2.x,y=v2.y,z=v2.z))
-    
-
-    @staticmethod #Returns vector perpendicular on the two vectors
-    def crossProduct(v1, v2):
-        return Vector3(
-            v1.y*v2.z - v1.z*v2.y,
-            v1.z*v2.x - v1.x*v2.z,
-            v1.x*v2.y - v1.y*v2.x
-        )
-
+        # return Line(start = Point(x=vector_1.x,y=vector_1.y,z=vector_1.z), end = Point(x=vector_2.x,y=vector_2.y,z=vector_2.z))
 
     @staticmethod
-    def dotProduct(v1, v2):
-        return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z
-
-
-    @staticmethod
-    def product(n, v1): #Same as scale
+    def crossProduct(vector_1, vector_2):
         return Vector3(
-            v1.x*n,
-            v1.y*n,
-            v1.z*n
+            vector_1.y*vector_2.z - vector_1.z*vector_2.y,
+            vector_1.z*vector_2.x - vector_1.x*vector_2.z,
+            vector_1.x*vector_2.y - vector_1.y*vector_2.x
         )
 
     @staticmethod
-    def length(v1):
-        return math.sqrt(v1.x*v1.x+v1.y*v1.y+v1.z*v1.z)
-    
+    def dotProduct(vector_1, vector_2):
+        return vector_1.x*vector_2.x+vector_1.y*vector_2.y+vector_1.z*vector_2.z
+
     @staticmethod
-    def pitch(v1, angle):
+    def product(number, vector_1):
         return Vector3(
-            v1.x,
-            v1.y*math.cos(angle) - v1.z*math.sin(angle),
-            v1.y*math.sin(angle) + v1.z*math.cos(angle)
+            vector_1.x*number,
+            vector_1.y*number,
+            vector_1.z*number
         )
 
-    # @staticmethod
-    # def angleBetween(v1, v2):
-    #     return math.degrees(math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2)))))
-    
-    def to_numpy(self):
-        return np.array([self.x, self.y, self.z])
+    @staticmethod
+    def length(vector_1):
+        return math.sqrt(vector_1.x*vector_1.x+vector_1.y*vector_1.y+vector_1.z*vector_1.z)
 
     @staticmethod
-    def angleBetween(v1, v2):
-        np_v1 = v1.to_numpy()
-        np_v2 = v2.to_numpy()
-        dot_product = np.dot(np_v1, np_v2)
-        length_v1 = np.linalg.norm(np_v1)
-        length_v2 = np.linalg.norm(np_v2)
+    def pitch(vector_1, angle):
+        return Vector3(
+            vector_1.x,
+            vector_1.y*math.cos(angle) - vector_1.z*math.sin(angle),
+            vector_1.y*math.sin(angle) + vector_1.z*math.cos(angle)
+        )
 
-        if length_v1 == 0 or length_v2 == 0:
+    @staticmethod
+    def angleBetween(vector_1, vector_2):
+        proj_vector_1 = Vector3.to_matrix(vector_1)
+        proj_vector_2 = Vector3.to_matrix(vector_2)
+        dot_product = Vector3.dotProduct(vector_1, vector_2)
+        length_vector_1 = Vector3.length(vector_1)
+        length_vector_2 = Vector3.length(vector_2)
+
+        if length_vector_1 == 0 or length_vector_2 == 0:
             return 0
 
-        cos_angle = dot_product / (length_v1 * length_v2)
-        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
         angle = math.acos(cos_angle)
         return math.degrees(angle)
 
     @staticmethod
-    def angleRadianBetween(v1, v2):
-        return math.acos((Vector3.dotProduct(v1, v2)/(Vector3.length(v1)*Vector3.length(v2))))
+    def angleRadianBetween(vector_1, vector_2):
+        return math.acos((Vector3.dotProduct(vector_1, vector_2)/(Vector3.length(vector_1)*Vector3.length(vector_2))))
 
     @staticmethod
-    def angleBetweenYZ(v1, v2):  # X Axis degrees
-        proj_v1 = Vector3(0, v1.y, v1.z).to_numpy()
-        proj_v2 = Vector3(0, v2.y, v2.z).to_numpy()
-        dot = np.dot(proj_v1, proj_v2)
-        mag_v1 = np.linalg.norm(proj_v1)
-        mag_v2 = np.linalg.norm(proj_v2)
+    def angleBetweenYZ(vector_1, vector_2):  # X Axis degrees
+        dot_product = Vector3.dotProduct(vector_1, vector_2)
+        length_vector_1 = Vector3.length(Vector3(0, vector_1.y, vector_1.z))
+        length_vector_2 = Vector3.length(Vector3(0, vector_2.y, vector_2.z))
+        if length_vector_1 == 0 or length_vector_2 == 0:
+            return 0
 
-        if mag_v1 == 0 or mag_v2 == 0:
-            return 0  # or return None
-
-        cos_angle = dot / (mag_v1 * mag_v2)
-        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
         angle = math.acos(cos_angle)
         return math.degrees(angle)
 
     @staticmethod
-    def angleBetweenXZ(v1, v2):  # Y Axis degrees
-        proj_v1 = Vector3(v1.x, 0, v1.z).to_numpy()
-        proj_v2 = Vector3(v2.x, 0, v2.z).to_numpy()
-        dot = np.dot(proj_v1, proj_v2)
-        mag_v1 = np.linalg.norm(proj_v1)
-        mag_v2 = np.linalg.norm(proj_v2)
+    def angleBetweenXZ(vector_1, vector_2):  # Y Axis degrees
+        dot_product = Vector3.dotProduct(vector_1, vector_2)
+        length_vector_1 = Vector3.length(Vector3(vector_1.x, 0, vector_1.z))
+        length_vector_2 = Vector3.length(Vector3(vector_2.x, 0, vector_2.z))
 
-        if mag_v1 == 0 or mag_v2 == 0:
-            return 0  # or return None
+        if length_vector_1 == 0 or length_vector_2 == 0:
+            return 0
 
-        cos_angle = dot / (mag_v1 * mag_v2)
-        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
         angle = math.acos(cos_angle)
         return math.degrees(angle)
 
     @staticmethod
-    def angleBetweenXY(v1, v2):  # Z Axis degrees
-        proj_v1 = Vector3(v1.x, v1.y, 0).to_numpy()
-        proj_v2 = Vector3(v2.x, v2.y, 0).to_numpy()
-        dot = np.dot(proj_v1, proj_v2)
-        mag_v1 = np.linalg.norm(proj_v1)
-        mag_v2 = np.linalg.norm(proj_v2)
+    def angleBetweenXY(vector_1, vector_2):  # Z Axis degrees
+        dot_product = Vector3.dotProduct(vector_1, vector_2)
+        length_vector_1 = Vector3.length(Vector3(vector_1.x, vector_1.y, 0))
+        length_vector_2 = Vector3.length(Vector3(vector_2.x, vector_2.y, 0))
 
-        if mag_v1 == 0 or mag_v2 == 0:
-            return 0  # or return None
+        if length_vector_1 == 0 or length_vector_2 == 0:
+            return 0
 
-        cos_angle = dot / (mag_v1 * mag_v2)
-        cos_angle = np.clip(cos_angle, -1.0, 1.0)
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
         angle = math.acos(cos_angle)
         return math.degrees(angle)
 
     @staticmethod
-    def value(v1):
+    def value(vector_1):
         roundValue = 4
-        return (round(v1.x, roundValue),round(v1.y, roundValue),round(v1.z, roundValue))
+        return (round(vector_1.x, roundValue), round(vector_1.y, roundValue), round(vector_1.z, roundValue))
 
     @staticmethod
-    def reverse(v1):
+    def reverse(vector_1):
         return Vector3(
-            v1.x*-1,
-            v1.y*-1,
-            v1.z*-1
+            vector_1.x*-1,
+            vector_1.y*-1,
+            vector_1.z*-1
         )
 
     @staticmethod
-    def perpendicular(v1):
-        #Vector Lokale x en Lokale y haaks op gegeven vector en in globale z-richting.
-        lokX = Vector3(v1.y, -v1.x, 0)
-        lokZ = Vector3.crossProduct(v1, lokX)
-        if lokZ.z<0:
+    def perpendicular(vector_1):
+        lokX = Vector3(vector_1.y, -vector_1.x, 0)
+        lokZ = Vector3.crossProduct(vector_1, lokX)
+        if lokZ.z < 0:
             lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
 
-    # @staticmethod
-    # def normalize(v1):
-    #     length = Vector3.length(v1)
-    #     if length == 0:
-    #         scale = 1
-    #     else:
-    #         scale = 1 / length
-    #     return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
-
     @staticmethod
-    def normalize(v1, axis=-1, order=2):
-        v1 = Vector3.to_matrix(v1)
-        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
-        l2[l2==0] = 1
-        i = v1 / np.expand_dims(l2, axis)[0]
-        return Vector3(i[0],i[1],i[2])
+    def normalize(vector_1):
+        length = Vector3.length(vector_1)
+        if length == 0:
+            return Vector3(0, 0, 0)
 
+        normalized_vector = Vector3(
+            vector_1.x / length,
+            vector_1.y / length,
+            vector_1.z / length
+        )
+
+        return normalized_vector
 
     @staticmethod
     def byTwoPoints(p1, p2):
@@ -298,27 +273,26 @@ class Vector3:
         )
 
     @staticmethod
-    def rotateXY(v1, Beta):
+    def rotateXY(vector_1, Beta):
         return Vector3(
-            math.cos(Beta)*v1.x - math.sin(Beta)*v1.y,
-            math.sin(Beta)*v1.x + math.cos(Beta)*v1.y,
-            v1.z
+            math.cos(Beta)*vector_1.x - math.sin(Beta)*vector_1.y,
+            math.sin(Beta)*vector_1.x + math.cos(Beta)*vector_1.y,
+            vector_1.z
         )
 
     @staticmethod
-    def scale(v1, scalefactor):
+    def scale(vector_1, scalefactor):
         return Vector3(
-            v1.x * scalefactor,
-            v1.y * scalefactor,
-            v1.z * scalefactor
+            vector_1.x * scalefactor,
+            vector_1.y * scalefactor,
+            vector_1.z * scalefactor
         )
 
     @staticmethod
-    def new_length(v1, newlength: float):
-        scale = newlength /Vector3.length(v1)
-    
-        return Vector3.scale(v1,scale)
+    def new_length(vector_1, newlength: float):
+        scale = newlength / Vector3.length(vector_1)
 
+        return Vector3.scale(vector_1, scale)
 
     @staticmethod
     def to_matrix(self):

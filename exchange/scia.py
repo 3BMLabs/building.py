@@ -321,12 +321,12 @@ class LoadXML:
                                 else:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
-                                    try:
-                                        el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
-                                        comments.profile_data = el.profile_data
-                                        self.project.objects.append(el)
-                                        comments.centerbottom = el.centerbottom
-                                    except Exception as e:
-                                        if elementType not in self.unrecognizedElements:
-                                            self.unrecognizedElements.append(elementType)
-                                        print(e, elementType)
+                                    # try:
+                                    el = Frame.byStartpointEndpointProfileNameJustifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                    comments.profile_data = el.profile_data
+                                    self.project.objects.append(el)
+                                    comments.centerbottom = el.centerbottom
+                                    # except Exception as e:
+                                    #     if elementType not in self.unrecognizedElements:
+                                    #         self.unrecognizedElements.append(elementType)
+                                    #     print(e, elementType)

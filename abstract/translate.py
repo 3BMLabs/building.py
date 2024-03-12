@@ -53,10 +53,11 @@ class Geometry:
             p1 = Point.to_matrix(object)
             v1 = Vector3.to_matrix(v)
 
-            ar1 = np.array([p1])
-            ar2 = np.array([v1])
+            ar1 = Point.to_matrix(p1)
+            ar2 = Vector3.to_matrix(v1)
 
-            c = np.add(ar1,ar2)[0]
+            c = [ar1[i] + ar2[i] for i in range(len(ar1))]
+
             return Point(c[0], c[1], c[2])
 
         elif object.type == 'Line':
@@ -69,9 +70,10 @@ class Geometry:
             direction_x, direction_y, direction_z = v.x, v.y, v.z
 
             for point in object.points:
-                p1 = Point.to_array(point)
+                p1 = Point.to_matrix(point)
                 # Apply the translation
-                c = np.add(p1, [direction_x, direction_y, direction_z])
+                c = [p1[0] + direction_x, p1[1] + direction_y, p1[2] + direction_z]
+
                 translated_points.append(Point(c[0], c[1], c[2]))
 
             return PolyCurve.byPoints(translated_points)

@@ -77,7 +77,7 @@ class Tshape:
         l7 = Line2D(p7, p8)
         l8 = Line2D(p8, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8])
         
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -144,7 +144,7 @@ class Lshape:
         l5 = Line2D(p5, p6)
         l6 = Line2D(p6, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6])
 
         
     def serialize(self):
@@ -224,7 +224,7 @@ class Eshape:
         l11 = Line2D(p11, p12)
         l12 = Line2D(p12, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
     def serialize(self):
         return {
@@ -298,7 +298,7 @@ class Nshape:
         l9 = Line2D(p9, p10)
         l10 = Line2D(p10, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
     def serialize(self):
         return {
@@ -368,7 +368,7 @@ class Arrowshape:
         l6 = Line2D(p6, p7)
         l7 = Line2D(p7, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7])
 
     def serialize(self):
         return {

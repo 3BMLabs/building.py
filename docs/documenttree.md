@@ -5,7 +5,6 @@
 #package
 	helpers
 	sciPy
-	NumPy
 
 #abstract
 	#boundingbox

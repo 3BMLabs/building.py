@@ -19,7 +19,7 @@ ymin = bounds[2] - dx
 for i in PC.curves:
     if i.__class__.__name__ == "Arc2D":
         AC = Arc(Point(i.start.x,i.start.y,0),Point(i.mid.x,i.mid.y,0),Point(i.end.x,i.end.y,0))
-        lines = Arc.segmentedarc(AC,10)
+        lines = Arc.segmented_arc(AC,10)
         for i in lines:
             x0 = (i.start.x - xmin) * SF
             y0 = (i.start.y - ymin) * SF

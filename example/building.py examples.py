@@ -112,7 +112,7 @@ Line.length(Line1)
 
 # CLASS: PolyCurve
 # Create a PolyCurve object by joining a list of curves and collecting their starting points
-PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3])
+PC1 = PolyCurve.by_joined_curves([Line1, Line2, Line3])
 
 # Creating a PolyCurve object (PC2) from a list of Points.
 # by points, must be a closed polygon
@@ -123,7 +123,7 @@ PC2 = PolyCurve.byPoints(
      Point(0, 0, 0)
      ])
 
-ply2D = PolyCurve2D.byJoinedCurves([
+ply2D = PolyCurve2D.by_joined_curves([
     Line2D(
         Point2D(0,0),
         Point2D(100,0)),
@@ -211,7 +211,7 @@ Arc2D.points(testarc)
 
 # Class PolyCurve2D
 # Combine multiple lines and make it as 1 object
-PolyCurve2D.byJoinedCurves([l2d, l2d2, l2d3])
+PolyCurve2D.by_joined_curves([l2d, l2d2, l2d3])
 
 # return all the points within the PolyCurve2D
 PolyCurve2D.points(ply)
@@ -259,7 +259,7 @@ Point.point2DTo3D(p2d)
 Point.rotateXY(p1, 30, 5)
 
 # Transforms a 3D point from one coordinate system to another using direction vectors.
-transformed_point = transformPoint(p1, CSGlobal, p2, v1)
+transformed_point = transform_point(p1, CSGlobal, p2, v1)
 
 # ------------------------
 

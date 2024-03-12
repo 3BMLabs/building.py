@@ -113,9 +113,8 @@ class CoordinateSystem:
         CSNew.Origin = new_origin
         return CSNew
 
-
     @staticmethod
-    def transform(CS1, CS2): #incorrect output
+    def transform(CS1, CS2):  # incorrect output
         """
         Transforms CS1 into the coordinate system defined by CS2.
         :param CS1: The original CoordinateSystem instance.
@@ -123,47 +122,91 @@ class CoordinateSystem:
         :return: A new CoordinateSystem instance aligned with CS2.
         """
         from abstract.vector import Vector3
-        import numpy as np
 
         translation_vector = Vector3.subtract(CS2.Origin, CS1.Origin)
 
         rotation_matrix = CoordinateSystem.calculate_rotation_matrix(
             CS1.Xaxis, CS1.Yaxis, CS1.Zaxis, CS2.Xaxis, CS2.Yaxis, CS2.Zaxis)
 
-        xaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Xaxis))
-        yaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Yaxis))
-        zaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Zaxis))
+        xaxis_transformed = Vector3.dotProduct(rotation_matrix, CS1.Xaxis)
+        yaxis_transformed = Vector3.dotProduct(rotation_matrix, CS1.Yaxis)
+        zaxis_transformed = Vector3.dotProduct(rotation_matrix, CS1.Zaxis)
 
-        xaxis_normalized = Vector3.normalize(Vector3.from_matrix(xaxis_transformed))
-        yaxis_normalized = Vector3.normalize(Vector3.from_matrix(yaxis_transformed))
-        zaxis_normalized = Vector3.normalize(Vector3.from_matrix(zaxis_transformed))
+        xaxis_normalized = Vector3.normalize(
+            Vector3.from_matrix(xaxis_transformed))
+        yaxis_normalized = Vector3.normalize(
+            Vector3.from_matrix(yaxis_transformed))
+        zaxis_normalized = Vector3.normalize(
+            Vector3.from_matrix(zaxis_transformed))
 
         new_origin = Point.translate(CS1.Origin, translation_vector)
-        new_CS = CoordinateSystem(new_origin, xaxis_normalized, yaxis_normalized, zaxis_normalized)
+        new_CS = CoordinateSystem(
+            new_origin, xaxis_normalized, yaxis_normalized, zaxis_normalized)
 
         return new_CS
 
-
     @staticmethod
     def translate_origin(origin1: Point, origin2: Point):
+        origin1_n = Point.to_matrix(origin1)
+        origin2_n = Point.to_matrix(origin2)
 
-        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
-        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
-
-        new_origin_np = origin1_np + (origin2_np - origin1_np)
-        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+        new_origin_n = origin1_n + (origin2_n - origin1_n)
+        return Point(new_origin_n[0], new_origin_n[1], new_origin_n[2])
 
     @staticmethod
     def calculate_rotation_matrix(xaxis1: Vector3, yaxis1: Vector3, zaxis1: Vector3, xaxis2: Vector3, yaxis2: Vector3, zaxis2: Vector3):
         from abstract.vector import Vector3
 
-        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(
-            yaxis1), Vector3.to_matrix(zaxis1)]).T
-        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(
-            yaxis2), Vector3.to_matrix(zaxis2)]).T
+        def transpose(matrix):
+            return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
 
-        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
-        return rotation_matrix
+        def matrix_multiply(matrix1, matrix2):
+            result = []
+            for i in range(len(matrix1)):
+                row = []
+                for j in range(len(matrix2[0])):
+                    sum = 0
+                    for k in range(len(matrix2)):
+                        sum += matrix1[i][k] * matrix2[k][j]
+                    row.append(sum)
+                result.append(row)
+            return result
+
+        def matrix_inverse(matrix):
+            determinant = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) - \
+                matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) + \
+                matrix[0][2] * (matrix[1][0] * matrix[2][1] -
+                                matrix[1][1] * matrix[2][0])
+            if determinant == 0:
+                raise ValueError("Matrix is not invertible")
+            inv_det = 1.0 / determinant
+            result = [[0] * 3 for _ in range(3)]
+            result[0][0] = (matrix[1][1] * matrix[2][2] -
+                            matrix[1][2] * matrix[2][1]) * inv_det
+            result[0][1] = (matrix[0][2] * matrix[2][1] -
+                            matrix[0][1] * matrix[2][2]) * inv_det
+            result[0][2] = (matrix[0][1] * matrix[1][2] -
+                            matrix[0][2] * matrix[1][1]) * inv_det
+            result[1][0] = (matrix[1][2] * matrix[2][0] -
+                            matrix[1][0] * matrix[2][2]) * inv_det
+            result[1][1] = (matrix[0][0] * matrix[2][2] -
+                            matrix[0][2] * matrix[2][0]) * inv_det
+            result[1][2] = (matrix[0][2] * matrix[1][0] -
+                            matrix[0][0] * matrix[1][2]) * inv_det
+            result[2][0] = (matrix[1][0] * matrix[2][1] -
+                            matrix[1][1] * matrix[2][0]) * inv_det
+            result[2][1] = (matrix[0][1] * matrix[2][0] -
+                            matrix[0][0] * matrix[2][1]) * inv_det
+            result[2][2] = (matrix[0][0] * matrix[1][1] -
+                            matrix[0][1] * matrix[1][0]) * inv_det
+            return result
+
+        R1_transpose = transpose([Vector3.to_matrix(
+            xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)])
+        R2_transpose = transpose([Vector3.to_matrix(
+            xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)])
+
+        return matrix_multiply(R2_transpose, matrix_inverse(R1_transpose))
 
     @staticmethod
     def normalize(self):
@@ -173,11 +216,6 @@ class CoordinateSystem:
         self.Xaxis = Vector3.normalize(self.Xaxis)
         self.Yaxis = Vector3.normalize(self.Yaxis)
         self.Zaxis = Vector3.normalize(self.Zaxis)
-
-    #     norm = np.linalg.norm(v)
-    #     return v / norm if norm > 0 else v
-
-
 
     @staticmethod
     def move_local(CSOld, x: float, y: float, z: float):
@@ -192,12 +230,6 @@ class CoordinateSystem:
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
         CS = CoordinateSystem.translate(CSOld, disp)
         return CS
-
-
-
-
-
-
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ: Vector3):

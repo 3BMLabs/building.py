@@ -33,7 +33,6 @@ __url__ = "./abstract/intersect.py"
 
 import sys
 from pathlib import Path
-import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -43,13 +42,13 @@ from helper import *
 # [!not included in BP singlefile - end]
 
 def perp(a):
-    b = np.empty_like(a)
+    b = [None] * len(a)
     b[0] = -a[1]
     b[1] = a[0]
     return b
 
 
-def get_line_intersect(line_1: Line2D, line_2: Line2D) -> Point2D:
+def get_line_intersect(line_1, line_2):
     if line_1.start == line_1.end or line_2.start == line_2.end:
         return None
 
@@ -61,16 +60,17 @@ def get_line_intersect(line_1: Line2D, line_2: Line2D) -> Point2D:
     p3X, p3Y = p3.x, p3.y
     p4X, p4Y = p4.x, p4.y
 
-    da = np.array([p2X, p2Y]) - np.array([p1X, p1Y])
-    db = np.array([p4X, p4Y]) - np.array([p3X, p3Y])
-    dp = np.array([p1X, p1Y]) - np.array([p3X, p3Y])
+    da = [p2X - p1X, p2Y - p1Y]
+    db = [p4X - p3X, p4Y - p3Y]
+    dp = [p1X - p3X, p1Y - p3Y]
     dap = perp(da)
-    denom = np.dot(dap, db)
+    denom = dap[0] * db[0] + dap[1] * db[1]
     if abs(denom) < 1e-6:
         return None
-    num = np.dot(dap, dp)
+    num = dap[0] * dp[0] + dap[1] * dp[1]
     t = num / denom
-    nX, nY = np.array([p3X, p3Y]) + t * db
+    nX, nY = p3X + t * db[0], p3Y + t * db[1]
+
     return Point2D(nX, nY)
 
 
@@ -134,7 +134,7 @@ def get_intersect_polycurve_lines(polycurve: PolyCurve2D, lines: list[Line2D], s
 
     for splittedLines in splitedLinesList:
         for line in splittedLines:
-            centerLinePoint = line.pointAtParameter(0.5)
+            centerLinePoint = line.point_at_parameter(0.5)
             if is_point_in_polycurve(centerLinePoint, polycurve) == True:
                 InnerGridLines.append(line)
             else:
@@ -291,7 +291,7 @@ def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> 
 
 
 def is_on_line(line: Line2D, point: Point2D) -> bool:
-    if line.start == Point or line.end == Point:
+    if line.start == Point2D or line.end == Point2D:
         return True
     return False
 

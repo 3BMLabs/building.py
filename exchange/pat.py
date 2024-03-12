@@ -430,12 +430,12 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
         v1 = Vector3.byTwoPoints(l2.start,l2.end)
         v1 = Vector3.normalize(v1)
         v2 = Vector3.scale(v1, patrow.shift_pattern * n)
-        l3 = Line.translate2(l2, v2)  # shift of line for pattern
+        l3 = Line.translate_2(l2, v2)  # shift of line for pattern
         #if patrow.shift_pattern == 0:
         #    l3 = l2
         #else:
         #    v2 = Vector3.scale(v1, patrow.shift_pattern*(n+1))
-        #    l3 = Line.translate2(l2,v2) # shift of line for pattern
+        #    l3 = Line.translate_2(l2,v2) # shift of line for pattern
         v3 = Vector3.normalize(Vector3.crossProduct(v1,ZAxis)) #Eenheidsvector haaks op lijn
         if patrow.angle == 0:
             v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
@@ -448,7 +448,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
             l4 = l3.translate(v4)
         v6 = Vector3(dx + patrow.x_orig,dy + patrow.y_orig,0)
         print(v6)
-        l5 = Line.translate2(l4,v6)
+        l5 = Line.translate_2(l4,v6)
 
         if patrow.dash == 0 and patrow.space == 0:
             lines.append(l5)

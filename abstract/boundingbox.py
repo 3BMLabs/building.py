@@ -210,8 +210,8 @@ class BoundingBox3d:
         if length == None:
             length = 1000
         cs = self.coordinatesystem
-        lnX = Line.ByStartPointDirectionLength(cs.Origin, cs.Xaxis, length)
-        lnY = Line.ByStartPointDirectionLength(cs.Origin, cs.Yaxis, length)
-        lnZ = Line.ByStartPointDirectionLength(cs.Origin, cs.Zaxis, length)
+        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.Xaxis, length)
+        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Yaxis, length)
+        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Zaxis, length)
         return [lnX, lnY, lnZ]
     

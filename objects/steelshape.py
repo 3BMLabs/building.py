@@ -96,7 +96,7 @@ class CChannelParallelFlange:
         l9 = Line2D(p11, p12)
         l10 = Line2D(p12, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
     def serialize(self):
         return {
@@ -191,7 +191,7 @@ class CChannelSlopedFlange:
         l11 = Line2D(p15, p16)
         l12 = Line2D(p16, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
     def serialize(self):
         return {
@@ -299,7 +299,7 @@ class IShapeParallelFlange:
         l15 = Line2D(p19, p20)
         l16 = Line2D(p20, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16])
 
     def serialize(self):
         return {
@@ -367,7 +367,7 @@ class Rectangle:
         l3 = Line2D(p3, p4)
         l4 = Line2D(p4, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4])
 
     def serialize(self):
         return {
@@ -432,7 +432,7 @@ class Round:
         l3 = Arc2D(p5, p6, p7)
         l4 = Arc2D(p7, p8, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4])
 
     def serialize(self):
         return {
@@ -519,7 +519,7 @@ class Roundtube:
         l9 = Arc2D(p15, p16, p9)
         l10 = Line2D(p9,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
     def serialize(self):
         return {
@@ -603,7 +603,7 @@ class LAngle:
         l8 = Line2D(p11, p12)
         l9 = Line2D(p12, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9])
 
     def serialize(self):
         return {
@@ -719,7 +719,7 @@ class TProfile:
         l13 = Arc2D(p18, p19, p20)
         l14 = Line2D(p20, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14])
 
     def serialize(self):
         return {
@@ -845,7 +845,7 @@ class RectangleHollowSection:
 
         l18 = Line2D(p13,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18])
 
     def serialize(self):
         return {
@@ -939,7 +939,7 @@ class CProfile:
         l11 = Line2D(p15,p16)
         l12 = Line2D(p16,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
     def serialize(self):
         return {
@@ -1061,7 +1061,7 @@ class CProfileWithLips:
         l19 = Line2D(p26,p27)
         l20 = Arc2D(p27,p28,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
 
     def serialize(self):
         return {
@@ -1149,7 +1149,7 @@ class LProfileColdFormed:
         l7 = Line2D(p9,p10)
         l8 = Line2D(p10,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8])
 
     def serialize(self):
         return {
@@ -1285,7 +1285,7 @@ class SigmaProfileWithLipsColdFormed:
         l27 = Line2D(p35,p36)
         l28 = Line2D(p36,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20, l21, l22, l23,
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20, l21, l22, l23,
              l24, l25,
              l26, l27, l28])
 
@@ -1398,7 +1398,7 @@ class ZProfileColdFormed:
         l11 = Arc2D(p14,p15,p16)
         l12 = Line2D(p16,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
     def serialize(self):
         return {
@@ -1517,7 +1517,7 @@ class ZProfileWithLipsColdFormed:
         l19 = Arc2D(p26,p27,p28)
         l20 = Line2D(p28,p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16,l17,l18,l19,l20])
+        self.curve = PolyCurve2D().by_joined_curves([l1,l2,l3,l4,l5,l6,l7,l8,l9,l10,l11,l12,l13,l14,l15,l16,l17,l18,l19,l20])
 
     def serialize(self):
         return {

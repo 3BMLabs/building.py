@@ -252,7 +252,7 @@ class Frame:
         f1.curve3d = f1.extrusion.polycurve_3d_translated
 
         try:
-            pnew = PolyCurve.byJoinedCurves(f1.curve3d.curves)
+            pnew = PolyCurve.by_joined_curves(f1.curve3d.curves)
             f1.centerbottom = PolyCurve.centroid(pnew)
         except:
             pass

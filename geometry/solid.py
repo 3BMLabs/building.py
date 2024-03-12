@@ -142,10 +142,10 @@ class Extrusion:
         
         try:
             for i in polycurve2d.curves:
-                startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
-                endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
-                endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
-                startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
+                startpointLow = transform_point(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
+                endpointLow = transform_point(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transform_point(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transform_point(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
 
                 #Construct faces perpendicular on polycurve
                 Extrus.faces.append(4)
@@ -189,10 +189,10 @@ class Extrusion:
                 count = count + 4
         except:
             for i in polycurve2d.curves:
-                startpointLow = transformPoint(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
-                endpointLow = transformPoint(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
-                endpointHigh = transformPoint(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
-                startpointHigh = transformPoint(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
+                startpointLow = transform_point(Point(i.start.x,i.start.y,0), CSOld, startpoint, DirectionVector)
+                endpointLow = transform_point(Point(i.end.x,i.end.y,0), CSOld, startpoint, DirectionVector)
+                endpointHigh = transform_point(Point(i.end.x,i.end.y,height), CSOld, startpoint, DirectionVector)
+                startpointHigh = transform_point(Point(i.start.x,i.start.y,height), CSOld, startpoint, DirectionVector)
 
                 #Construct faces perpendicular on polycurve
                 Extrus.faces.append(4)

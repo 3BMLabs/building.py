@@ -70,12 +70,12 @@ Point.rotateXY(p1, 30, 5) # rotate (30 degrees) and translate (5 steps) a 3D poi
 ```
 <br>
 
-#### transformPoint:
+#### transform_point:
 > _`Input: Point, Coordinate system, Point, Vector3`_
 <br>
 
 ``` python
-transformed_point = transformPoint(p1, CSGlobal, p2, v1)
+transformed_point = transform_point(p1, CSGlobal, p2, v1)
 ```
 <br>
 
@@ -284,12 +284,12 @@ Line2D.length(l2d) # Calculate the length of a 2D Line
 ```
 <br>
 
-#### PolyCurve2D.byJoinedCurves:  
+#### PolyCurve2D.by_joined_curves:  
 > _`Input: Line2D`_
 <br>
 
 ``` python
-ply2D = PolyCurve2D.byJoinedCurves([
+ply2D = PolyCurve2D.by_joined_curves([
     Line2D(
         Point2D(0,0),
         Point2D(100,0)),
@@ -339,12 +339,12 @@ PolyCurve2D.polygon(ply2D) # returns a polygon by collecting start points of cur
 ```
 <br>
 
-#### PolyCurve.byJoinedCurves:  
+#### PolyCurve.by_joined_curves:  
 > _`Input: Line`_
 <br>
 
 ``` python
-PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3]) # Create a PolyCurve object by joining a list of curves and collecting their starting points
+PC1 = PolyCurve.by_joined_curves([Line1, Line2, Line3]) # Create a PolyCurve object by joining a list of curves and collecting their starting points
 ```
 <br>
 

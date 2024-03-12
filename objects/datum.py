@@ -150,7 +150,7 @@ class GridHead:
     def __geom(self):
         #CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
         for i in self.grid_head_type.curves:
-            self.curves.append(transformArc(i,(self.CS)))
+            self.curves.append(transform_arc(i,(self.CS)))
 
     def __textobject(self):
         cs_text = self.CS

@@ -32,7 +32,6 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/intersect.py"
 
 import sys, os, math
-from packages import numpy as np
 from pathlib import Path
 from typing import Any, List
 
