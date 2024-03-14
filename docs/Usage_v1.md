@@ -1,14 +1,14 @@
 # Building.py Class Documentation
 
-The `Vector3` class represents a 3D vector with x, y, and z coordinates.
+## `Vector3` class
 
-## Constructor
+Represents a 3D vector with x, y, and z coordinates.
 
-### `__init__(self, x: float, y: float, z: float)`
+### Constructor
+
+#### `__init__(self, x, y, z)`
 
 Initializes a new Vector3 instance with the given x, y, and z coordinates.
-
-#### Parameters:
 
 - `x` (float): X-coordinate of the vector.
 - `y` (float): Y-coordinate of the vector.
@@ -18,25 +18,27 @@ Initializes a new Vector3 instance with the given x, y, and z coordinates.
 
 ## Methods
 
-- `sum(vector1: Vector3, vector2: Vector3) -> Vector3`: Adds two vectors element-wise.
-- `diff(vector1: Vector3, vector2: Vector3) -> Vector3`: Subtracts two vectors element-wise.
+- `sum(vector_1: Vector3, vector_2: Vector3) -> Vector3`: Adds two vectors element-wise.
+- `diff(vector_1: Vector3, vector_2: Vector3) -> Vector3`: Subtracts two vectors element-wise.
 - `scale(vector: Vector3, scalefactor: float) -> Vector3`: Scales a vector by a given factor.
-- `dot_product(vector1: Vector3, vector2: Vector3) -> float`: Computes the dot product of two vectors.
-- `cross_product(vector1: Vector3, vector2: Vector3) -> Vector3`: Computes the cross product of two vectors.
+- `dot_product(vector_1: Vector3, vector_2: Vector3) -> float`: Computes the dot product of two vectors.
+- `cross_product(vector_1: Vector3, vector_2: Vector3) -> Vector3`: Computes the cross product of two vectors.
 - `normalize(vector: Vector3) -> Vector3`: Normalizes a vector (converts it to a unit vector).
-- `angle_between(vector1: Vector3, vector2: Vector3) -> float`: Computes the angle between two vectors in degrees.
+- `angle_between(vector_1: Vector3, vector_2: Vector3) -> float`: Computes the angle between two vectors in degrees.
 - `__str__(self) -> str`: Converts the vector to its string representation.
 
-## Documentation
+### Documentation
 
-### `sum(vector1: Vector3, vector2: Vector3) -> Vector3`
+#### `sum(vector_1: Vector3, vector_2: Vector3) -> Vector3`
 
 Adds two vectors element-wise.
 
 #### Parameters:
+- `vector_1` (Vector3): First vector.
+- `vector_2` (Vector3): Second vector.
 
-- `vector1` (Vector3): First vector.
-- `vector2` (Vector3): Second vector.
+Returns:
+(Vector3): Sum of the two input vectors.
 
 #### Example usage:
 
@@ -44,41 +46,31 @@ Adds two vectors element-wise.
 
 ```
 
-#### Returns:
-
-(Vector3): Sum of the two input vectors.
-
 ---
 
-### `diff(vector1: Vector3, vector2: Vector3) -> Vector3`
+#### `diff(vector_1: Vector3, vector_2: Vector3) -> Vector3`
 
 Subtracts two vectors element-wise.
 
 #### Parameters:
+- `vector_1` (Vector3): First vector.
+- `vector_2` (Vector3): Second vector.
 
-- `vector1` (Vector3): First vector.
-- `vector2` (Vector3): Second vector.
-
-#### Example usage:
-
-```python
-
-```
-
-#### Returns:
-
+Returns:
 (Vector3): Difference of the two input vectors.
 
 ---
 
-### `scale(vector: Vector3, scalefactor: float) -> Vector3`
+#### `scale(vector: Vector3, scalefactor: float) -> Vector3`
 
 Scales a vector by a given factor.
 
 #### Parameters:
-
 - `vector` (Vector3): The vector to be scaled.
 - `scalefactor` (float): The factor by which to scale the vector.
+
+Returns:
+(Vector3): Scaled vector.
 
 #### Example usage:
 
@@ -86,41 +78,31 @@ Scales a vector by a given factor.
 
 ```
 
-#### Returns:
-
-(Vector3): Scaled vector.
-
 ---
 
-### `dot_product(vector1: Vector3, vector2: Vector3) -> float`
+#### `dot_product(vector_1: Vector3, vector_2: Vector3) -> float`
 
 Computes the dot product of two vectors.
 
 #### Parameters:
+- `vector_1` (Vector3): First vector.
+- `vector_2` (Vector3): Second vector.
 
-- `vector1` (Vector3): First vector.
-- `vector2` (Vector3): Second vector.
-
-#### Example usage:
-
-```python
-
-```
-
-#### Returns:
-
+Returns:
 (float): Dot product of the two input vectors.
 
 ---
 
-### `cross_product(vector1: Vector3, vector2: Vector3) -> Vector3`
+#### `cross_product(vector_1: Vector3, vector_2: Vector3) -> Vector3`
 
 Computes the cross product of two vectors.
 
 #### Parameters:
+- `vector_1` (Vector3): First vector.
+- `vector_2` (Vector3): Second vector.
 
-- `vector1` (Vector3): First vector.
-- `vector2` (Vector3): Second vector.
+Returns:
+(Vector3): Cross product of the two input vectors.
 
 #### Example usage:
 
@@ -128,19 +110,17 @@ Computes the cross product of two vectors.
 
 ```
 
-#### Returns:
-
-(Vector3): Cross product of the two input vectors.
-
 ---
 
-### `normalize(vector: Vector3) -> Vector3`
+#### `normalize(vector: Vector3) -> Vector3`
 
 Normalizes a vector (converts it to a unit vector).
 
 #### Parameters:
-
 - `vector` (Vector3): The vector to be normalized.
+
+Returns:
+(Vector3): Normalized vector.
 
 #### Example usage:
 
@@ -148,20 +128,18 @@ Normalizes a vector (converts it to a unit vector).
 
 ```
 
-#### Returns:
-
-(Vector3): Normalized vector.
-
 ---
 
-### `angle_between(vector1: Vector3, vector2: Vector3) -> float`
+#### `angle_between(vector_1: Vector3, vector_2: Vector3) -> float`
 
 Computes the angle between two vectors in degrees.
 
 #### Parameters:
+- `vector_1` (Vector3): First vector.
+- `vector_2` (Vector3): Second vector.
 
-- `vector1` (Vector3): First vector.
-- `vector2` (Vector3): Second vector.
+Returns:
+(float): Angle between the two input vectors in degrees.
 
 #### Example usage:
 
@@ -169,29 +147,30 @@ Computes the angle between two vectors in degrees.
 
 ```
 
-#### Returns:
-
-(float): Angle between the two input vectors in degrees.
-
 ---
 
-### `__str__(self) -> str`
+#### `__str__(self) -> str`
 
 Converts the vector to its string representation.
 
-#### Returns:
-
+Returns:
 (str): String representation of the vector.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `Point` class
+## `Point` class
 
 Represents a point in 3D space with x, y, and z coordinates.
 
-#### Constructor
+### Constructor
 
-##### `__init__(self, x, y, z)`
+#### `__init__(self, x, y, z)`
 
 Initializes a new Point instance with the given x, y, and z coordinates.
 
@@ -199,7 +178,7 @@ Initializes a new Point instance with the given x, y, and z coordinates.
 - `y` (float): Y-coordinate of the point.
 - `z` (float): Z-coordinate of the point.
 
-#### Methods
+### Methods
 
 - `__str__(self) -> str`: Converts the point to its string representation.
 - `serialize()`: Serializes the point object.
@@ -223,228 +202,288 @@ Initializes a new Point instance with the given x, y, and z coordinates.
 
 Converts the point to its string representation.
 
-#### Returns:
-
+Returns:
 (str): String representation of the point.
 
 ---
 
-### `serialize()`
+#### `serialize()`
 
 Serializes the point object.
 
-#### Returns:
-
+Returns:
 (dict): Serialized representation of the point object.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `deserialize(data)`
+#### `deserialize(data)`
 
 Deserializes the point object from the provided data.
 
 #### Parameters:
-
 - `data` (dict): Serialized data of the point object.
 
-#### Returns:
-
+Returns:
 (Point): Deserialized point object.
 
 ---
 
-### `distance(point_1, point_2) -> float`
+#### `distance(point_1, point_2) -> float`
 
 Computes the Euclidean distance between two points.
 
 #### Parameters:
-
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
-#### Returns:
-
+Returns:
 (float): Euclidean distance between the two points.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `calculate_distance(points: list) -> float`
+#### `calculate_distance(points: list) -> float`
 
 Calculates distances between points in a list.
 
 #### Parameters:
-
 - `points` (list): List of points.
 
-#### Returns:
-
+Returns:
 (float): Total distance calculated between all the points in the list.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `difference(point_1, point_2) -> Vector3`
+#### `difference(point_1, point_2) -> Vector3`
 
 Computes the difference between two points as a Vector3 object.
 
 #### Parameters:
-
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
-#### Returns:
-
+Returns:
 (Vector3): Difference between the two input points as a Vector3 object.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `translate(point, vector) -> Point`
+#### `translate(point, vector) -> Point`
 
 Translates the point by a given vector.
 
 #### Parameters:
-
 - `point` (Point): The point to be translated.
 - `vector` (Vector3): The translation vector.
 
-#### Returns:
-
+Returns:
 (Point): Translated point.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `origin(point_1, point_2) -> Point`
+#### `origin(point_1, point_2) -> Point`
 
 Computes the midpoint between two points.
 
 #### Parameters:
-
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
-#### Returns:
-
+Returns:
 (Point): Midpoint between the two input points.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `point_2D_to_3D(point2D) -> Point`
+#### `point_2D_to_3D(point2D) -> Point`
 
 Converts a 2D point to a 3D point with zero z-coordinate.
 
 #### Parameters:
-
 - `point2D` (Point): 2D point to be converted.
 
-#### Returns:
-
+Returns:
 (Point): 3D point with zero z-coordinate.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `to_vector(point_1) -> Vector3`
+#### `to_vector(point_1) -> Vector3`
 
 Converts the point to a Vector3 object.
 
 #### Parameters:
-
 - `point_1` (Point): Point to be converted.
 
-#### Returns:
-
+Returns:
 (Vector3): Vector representation of the point.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `sum(point_1, point_2) -> Point`
+#### `sum(point_1, point_2) -> Point`
 
 Computes the sum of two points.
 
 #### Parameters:
-
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
-#### Returns:
-
+Returns:
 (Point): Sum of the two input points.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `diff(point_1, point_2) -> Point`
+#### `diff(point_1, point_2) -> Point`
 
 Computes the difference between two points.
 
 #### Parameters:
-
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
-#### Returns:
-
+Returns:
 (Point): Difference between the two input points.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `rotate_XY(point_1, beta, dz) -> Point`
+#### `rotate_XY(point_1, beta, dz) -> Point`
 
 Rotates the point about the Z-axis by a given angle.
 
 #### Parameters:
-
 - `point_1` (Point): Point to be rotated.
 - `beta` (float): Angle of rotation in degrees.
 - `dz` (float): Offset in the z-coordinate.
 
-#### Returns:
-
+Returns:
 (Point): Rotated point.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `product(number, point_1) -> Point`
+#### `product(number, point_1) -> Point`
 
 Scales the point by a given factor.
 
 #### Parameters:
-
 - `number` (float): Scaling factor.
 - `point_1` (Point): Point to be scaled.
 
-#### Returns:
-
+Returns:
 (Point): Scaled point.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `intersect(point_1, point_2) -> int`
+#### `intersect(point_1, point_2) -> int`
 
 Checks if two points intersect.
 
 #### Parameters:
-
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
-#### Returns:
-
+Returns:
 (int): 1 if points intersect, 0 otherwise.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `to_matrix(self) -> list`
+#### `to_matrix(self) -> list`
 
 Converts the point to a list.
 
-#### Returns:
-
+Returns:
 (list): List representation of the point.
+
+#### Example usage:
+
+```python
+
+```
 
 ---
 
-### `from_matrix(self) -> Point`
+#### `from_matrix(self) -> Point`
 
 Converts a list to a Point object.
 
-#### Returns:
-
+Returns:
 (Point): Point object created from the list.
+
+#### Example usage:
+
+```python
+
+```
