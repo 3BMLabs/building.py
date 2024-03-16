@@ -2754,6 +2754,18 @@ lstkaartbladennummers = \
 
 PCKaartbladen = []
 
+def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
+    x, y = point.x, point.y
+    intersections = 0
+    for curve in polycurve.curves:
+        p1, p2 = curve.start, curve.end
+        if (y > min(p1.y, p2.y)) and (y <= max(p1.y, p2.y)) and (x <= max(p1.x, p2.x)):
+            if p1.y != p2.y:
+                x_inters = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x
+                if (p1.x == p2.x) or (x <= x_inters):
+                    intersections += 1
+    return intersections % 2 != 0
+
 def kaartbladnummer(RdX,RdY):
     #geeft als resultaat het kaartbladnummer die voor de kadaster basisvoorziening o.a. gebruikt wordt
     orig = Point2D(RdX,RdY)

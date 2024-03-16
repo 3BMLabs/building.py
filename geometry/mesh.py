@@ -68,8 +68,8 @@ class MeshPB:
         self.colorlst = [material.colorint]
         return self
 
-    def by_three_coords(self, lsts, name, material, doublenest: bool):
-        # Example list structure
+    def by_coords(self, lsts, name, material, doublenest: bool):
+        # Example list structure, can be multiplexe as wel
         # [[[[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]], [[[-6735, 1188, 1520], [-6234, -6796, 1520], [8753, -5855, 1520]]], [[[8252, 2129, 870], [8753, -5855, 1520], [8753, -5855, 870]]], [[[8252, 2129, 870], [8252, 2129, 1520], [8753, -5855, 1520]]], [[[8753, -5855, 870], [-6234, -6796, 1520], [-6234, -6796, 870]]], [[[8753, -5855, 870], [8753, -5855, 1520], [-6234, -6796, 1520]]], [[[-6234, -6796, 870], [-6735, 1188, 1520], [-6735, 1188, 870]]], [[[-6234, -6796, 870], [-6234, -6796, 1520], [-6735, 1188, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 1520], [8252, 2129, 870]]], [[[-6735, 1188, 870], [-6735, 1188, 1520], [8252, 2129, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 870], [8753, -5855, 870]]], [[[-6234, -6796, 870], [-6735, 1188, 870], [8753, -5855, 870]]]]
         verts = []
         faces = []
@@ -77,19 +77,20 @@ class MeshPB:
         # lst is [[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]
         for lst in lsts:
             if doublenest:
-                # lst is [8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]
+                # lst is [8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520], [8753, -5855, 1520]
                 lst = lst[0]
             else:
                 lst = lst
-            faces.append(3)
+            faces.append(len(lst))
             for coord in lst:  # [8252, 2129, 1520]
                 faces.append(count)
                 verts.append(coord[0])  # x
                 verts.append(coord[1])  # y
                 verts.append(coord[2])  # z
                 count += 1
-            self.colorlst.append(material.colorint)
             self.numberFaces = + 1
+        for j in range(int(len(verts) / 3)):
+            self.colorlst.append(material.colorint)
         self.verts = verts
         self.faces = faces
         self.name = name

@@ -246,7 +246,7 @@ def PointsFromGML(filePath,xPathString,dx,dy,scale,DecimalNumbers):
 	return xyPosList
 
 def DataFromWFS(serverName,boundingBoxString,xPathStringCoord,xPathStrings,dx,dy,scale,DecimalNumbers):
-# group textdata from WFS
+    # group textdata from WFS
     myrequesturl = serverName + boundingBoxString
     urlFile = urllib.request.urlopen(myrequesturl)
     tree = ET.parse(urlFile)
@@ -262,13 +262,10 @@ def DataFromWFS(serverName,boundingBoxString,xPathStringCoord,xPathStrings,dx,dy
     return xPathResults
 
 def checkIfCoordIsInsideBoundingBox(coord, min_x, min_y, max_x, max_y):
-    if re.match(r'^-?\d+(?:\.\d+)$', coord[0]) is None or re.match(r'^-?\d+(?:\.\d+)$', coord[1]) is None:
-        return False
+    if min_x <= float(coord[0]) <= max_x and min_y <= float(coord[1]) <= max_y:
+        return True
     else:
-        if min_x <= float(coord[0]) <= max_x and min_y <= float(coord[1]) <= max_y:
-            return True
-        else:
-            return False
+        return False
 
 def filterGMLbbox(tree,xPathString,bbx,bby,BoxWidth,BoxHeight,scale):
 
@@ -377,7 +374,7 @@ def TMSBboxFromTileXY(TileX,TileY,zoom):
     return S_deg,W_deg,N_deg,E_deg
 
 def TMS_WMTSCombinedMapFromLatLonBbox(lat,lon,bboxWidth,bboxHeight,zoomL,pixels,TMS_WMTS,ServerName):
-	#With lat/lon and bbox tilenumbers are calculated then downloaded from given server and merged into 1 images and cropped afterwards to given boundingbox
+    #With lat/lon and bbox tilenumbers are calculated then downloaded from given server and merged into 1 images and cropped afterwards to given boundingbox
 
 	#Create Boundingbox lat/lon
 	loc = GeoLocation.from_degrees(lat,lon)
@@ -628,6 +625,7 @@ class GeoLocation:
                 GeoLocation.from_radians(max_lat, max_lon)]
 
 def download_image(url, index, results):
+    import requests
     response = requests.get(url)
     img = Image.open(BytesIO(response.content))
     results[index] = img
