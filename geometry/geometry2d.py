@@ -537,7 +537,7 @@ class PolyCurve2D:
     def from_polycurve_3D(PolyCurve):
         points = []
         for pt in PolyCurve.points:
-            points.append(Point2D.toPoint2D(pt))
+            points.append(Point2D(pt.x, pt.y))
         plycrv = PolyCurve2D.by_points(points)
         return plycrv
 

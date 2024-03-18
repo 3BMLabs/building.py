@@ -524,14 +524,14 @@ class PolyCurve:
 
         allLines = self.curves.copy()
 
-        # insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
+        # insect = Intersect2d().get_intersect_line_polycurve(self, line, split=True, stretch=False)
         # for pt in insect["IntersectGridPoints"]:
         #     for index, line in enumerate(allLines):
         #         if is_point_on_line_segment(pt, line) == True:
         #             cuttedLines = line.split([pt])
         #             allLines = replace_at_index(allLines,index, cuttedLines)
 
-        insect = Intersect2d().getIntersectLinePolyCurve(
+        insect = Intersect2d().get_intersect_line_polycurve(
             self, line, split=True, stretch=False)
         for pt in insect["IntersectGridPoints"]:
             for index, line in enumerate(allLines):

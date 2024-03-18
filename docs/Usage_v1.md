@@ -184,7 +184,7 @@ Initializes a new Point instance with the given x, y, and z coordinates.
 - `serialize()`: Serializes the point object.
 - `deserialize(data)`: Deserializes the point object from the provided data.
 - `distance(point_1, point_2) -> float`: Computes the Euclidean distance between two points.
-- `calculate_distance(points: list) -> float`: Calculates distances between points in a list.
+- `distance_list(points: list) -> float`: Calculates distances between points in a list.
 - `difference(point_1, point_2) -> Vector3`: Computes the difference between two points as a Vector3 object.
 - `translate(point, vector) -> Point`: Translates the point by a given vector.
 - `origin(point_1, point_2) -> Point`: Computes the midpoint between two points.
@@ -253,7 +253,7 @@ Returns:
 
 ---
 
-#### `calculate_distance(points: list) -> float`
+#### `distance_list(points: list) -> float`
 
 Calculates distances between points in a list.
 

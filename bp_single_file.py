@@ -2,7 +2,7 @@
 import math
 import sys
 import os
-#import requests
+import requests
 import json
 from collections import defaultdict
 import subprocess
@@ -461,7 +461,7 @@ class Point:
         return math.sqrt((point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2)
 
     @staticmethod
-    def calculate_distance(points: list) -> float:
+    def distance_list(points: list) -> float:
         distances = []
         for i in range(len(points)):
             for j in range(i+1, len(points)):
@@ -1505,14 +1505,14 @@ class PolyCurve:
 
         allLines = self.curves.copy()
 
-        # insect = Intersect2d().getIntersectLinePolyCurve(self, line, split=True, stretch=False)
+        # insect = Intersect2d().get_intersect_line_polycurve(self, line, split=True, stretch=False)
         # for pt in insect["IntersectGridPoints"]:
         #     for index, line in enumerate(allLines):
         #         if is_point_on_line_segment(pt, line) == True:
         #             cuttedLines = line.split([pt])
         #             allLines = replace_at_index(allLines,index, cuttedLines)
 
-        insect = Intersect2d().getIntersectLinePolyCurve(
+        insect = Intersect2d().get_intersect_line_polycurve(
             self, line, split=True, stretch=False)
         for pt in insect["IntersectGridPoints"]:
             for index, line in enumerate(allLines):

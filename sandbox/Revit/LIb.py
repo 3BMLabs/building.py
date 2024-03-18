@@ -211,7 +211,7 @@ class Point:
         return math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2 + (point1.z - point2.z) ** 2)
 
     @staticmethod
-    def calculate_distance(points: list) -> float:
+    def distance_list(points: list) -> float:
         distances = []
         for i in range(len(points)):
             for j in range(i + 1, len(points)):

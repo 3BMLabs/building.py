@@ -100,7 +100,7 @@ l6 = Line(Point(300,1200,0), Point(1200,0,0))
 # project.objects.append(l5)
 # project.objects.append(l6)
 
-intersect_calculator = Intersect2d()
+# intersect_calculator = Intersect2d()
 
 
 # multiline_intersect = intersect_calculator.getMultiLineIntersect([l3,l4,l5,l6])
@@ -109,14 +109,14 @@ intersect_calculator = Intersect2d()
 #     project.objects.append(res_intersect)
 
 
-# polycurve_intersect = intersect_calculator.getIntersectLinePolyCurve(PC2, [l3,l4,l5,l6], True)
+# polycurve_intersect = intersect_calculator.get_intersect_line_polycurve(PC2, [l3,l4,l5,l6], True)
 # print(polycurve_intersect)
 
 # for pt in polycurve_intersect["IntersectGridPoints"]:
 #     project.objects.append(pt)
 
 
-# lines_and_house = intersect_calculator.getIntersectLinePolyCurve(PC1, [l3,l4,l5,l6], True)
+# lines_and_house = intersect_calculator.get_intersect_line_polycurve(PC1, [l3,l4,l5,l6], True)
 # print(lines_and_house)
 # for pt in lines_and_house["IntersectGridPoints"]:
 #     project.objects.append(pt)
@@ -142,19 +142,19 @@ intersect_calculator = Intersect2d()
 
 
 
-x = splitPolyCurveByLine(PC4, Line4)
+x = split_polycurve_by_line(PC4, Line4)
 for i in x:
     project.objects.append(i)
 
-# b = splitPolyCurveByLine(PC5, Line4)
+# b = split_polycurve_by_line(PC5, Line4)
 # for i in b:
 #     project.objects.append(i)
 
-b = splitPolyCurveByLine(PC6, Line4)
+b = split_polycurve_by_line(PC6, Line4)
 for i in b:
     project.objects.append(i)
 
-# b = splitPolyCurveByLine(PC6, Line5)
+# b = split_polycurve_by_line(PC6, Line5)
 # for i in b:
 #     project.objects.append(i)
 

@@ -37,6 +37,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
+from helper import *
 
 # [!not included in BP singlefile - end]
 
