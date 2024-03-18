@@ -28,16 +28,16 @@ RdY = lst[1]
 GISBbox = GisRectBoundingBox().Create(RdX, RdY, Bboxwidth, Bboxwidth, 0)
 start = time.time()
 
-#3D Kadaster Basisvoorziening
+# 3D Kadaster Basisvoorziening
 filePaths = []
 for file in os.listdir(cityJSONFolder):
     if file.endswith(".json"):
         filepath = os.path.join(cityJSONFolder, file)
         filePaths.append(filepath)
 
-result = cityJSONParser(filePaths,GISBbox, 2.2)
+result = cityJSONParser(filePaths, GISBbox, 2.2)
 
-#3D BAG
+# 3D BAG
 filePaths = []
 for file in os.listdir(folderBAG3D):
     if file.endswith(".json"):
@@ -45,22 +45,24 @@ for file in os.listdir(folderBAG3D):
         filePaths.append(filepath)
 
 for i in filePaths:
-    cityjson_res = cityJSONParserBAG3D(i,RdX,RdY,2.2,Bboxwidth,Bboxwidth)
+    cityjson_res = cityJSONParserBAG3D(i, RdX, RdY, 2.2, Bboxwidth, Bboxwidth)
     buildings = cityjson_res[0]
     names = cityjson_res[1]
-    for i,j in zip(buildings, names):
+    for i, j in zip(buildings, names):
         name = j
         m = MeshPB().by_coords(i, name, BaseBuilding, False)
         GISProject.objects.append(m)
 
-#3D KADASTER BASISVOORZIENING
+
+# 3D KADASTER BASISVOORZIENING
+
 def Kadaster3DBasisvoorziening(resultparser, GISProject):
-    #3D KADASTER BASISVOORZIENING
+    # 3D KADASTER BASISVOORZIENING
 
     resultparser = result
 
     # 0 buildings LOD 1
-    #for i in example[0]:
+    # for i in example[0]:
     #    geom = i["geometry"]
     #    name = i["attributes"]["cadastre_id"]
     #    m = MeshPB().by_coords(geom, name, BaseBuilding, True)
@@ -129,9 +131,10 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
         m = MeshPB().by_coords(geom, name, BaseOther, False)
         GISProject.objects.append(m)
 
-Kadaster3DBasisvoorziening(result,GISProject)
 
-GISProject.toSpeckle("30185b86c3", "3D Kadaster Basisvoorziening en 3D BAG")
+Kadaster3DBasisvoorziening(result, GISProject)
+
+GISProject.toSpeckle("8c592da1d5", "3D Kadaster Basisvoorziening en 3D BAG")
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')
