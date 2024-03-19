@@ -1,4 +1,4 @@
-from docs.bp_single_file import *
+from bp_single_file import *
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
