@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import requests
+import webbrowser
 import xml.etree.ElementTree as ET
 from datetime import datetime
 import specklepy
@@ -9,7 +10,7 @@ from specklepy.api.client import SpeckleClient
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line
 
-from docs.bp_single_file import *
+from bp_single_file import *
 import bp_send_file
 
 
@@ -160,6 +161,7 @@ else:
     sys.exit()
 
 try:
+    webbrowser.open(commit[1])
     write_to_log(log_filename, f"Succesfully created Speckle model.")
 except:
     write_to_log(log_filename, f"Could not open {commit[1]} in browser.")
