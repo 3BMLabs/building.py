@@ -44,10 +44,27 @@ def fail_log():
     write_to_log(log_filename, f"Failed to create Speckle model.")
 
 
+def set_running_flag(ini_file_path, is_running):
+    temp_data = {}
+    if os.path.exists(ini_file_path):
+        with open(ini_file_path, 'r', encoding="utf-8") as config_file:
+            for line in config_file:
+                line = line.strip()
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    temp_data[key] = value
+    temp_data["running"] = str(is_running).lower()
+
+    with open(ini_file_path, 'w', encoding="utf-8") as config_file:
+        for key, value in temp_data.items():
+            config_file.write(f"{key}={value}\n")
+
+
 ini_file_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'PythonExport.ini')
 log_filename = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', "Struct4USpeckleExport.log")
 clear_log_file(log_filename)
 
+set_running_flag(ini_file_path, True)
 
 credential_data= {}
 
@@ -158,11 +175,13 @@ else:
     write_to_log(log_filename, f"{commit[1]}")
     fail_log()
     open_log()
-    sys.exit()
 
 try:
     webbrowser.open(commit[1])
     write_to_log(log_filename, f"Succesfully created Speckle model.")
+    
 except:
     write_to_log(log_filename, f"Could not open {commit[1]} in browser.")
     fail_log()
+
+set_running_flag(ini_file_path, False)
