@@ -46,7 +46,7 @@ from abstract.plane import Plane
 from abstract.interval import Interval
 from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
 
-from helper import *
+from packages.helper import *
 from project.fileformat import project
 
 # [!not included in BP singlefile - end]
@@ -74,7 +74,7 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point: Point or Point2D):
+def PointToSpecklePoint(point: Point | Point2D):
     if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
     elif point.type == "Point2D":

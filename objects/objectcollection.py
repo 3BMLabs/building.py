@@ -41,7 +41,7 @@ from geometry.surface import Surface
 from geometry.solid import Extrusion
 from exchange.DXF import ReadDXF
 from project.fileformat import *
-from helper import *
+from packages.helper import *
 
 # [!not included in BP singlefile - end]
 # EVERYWHERE FOR EACH OBJECT A ROTATION/POSITION

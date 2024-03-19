@@ -8,7 +8,7 @@ sys.path.append(str(package_root_directory))
 from exchange.speckle import *
 from objects.datum import *
 from objects.frame import *
-from helper import *
+from packages.helper import *
 from geometry.point import *
 from abstract.vector import Vector3
 #Proof of Concept modules

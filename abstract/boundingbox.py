@@ -36,7 +36,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from helper import *
+from packages.helper import *
 from geometry.solid import Extrusion
 from abstract.vector import Vector3
 from abstract.coordinatesystem import CoordinateSystem, CSGlobal

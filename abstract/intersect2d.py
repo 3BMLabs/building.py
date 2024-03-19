@@ -36,7 +36,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from helper import *
+from packages.helper import *
 from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]

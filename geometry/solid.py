@@ -42,7 +42,7 @@ sys.path.append(str(package_root_directory))
 from geometry.curve import *
 from geometry.geometry2d import PolyCurve2D
 from abstract.plane import *
-import helper
+import packages.helper as helper
 
 
 # [!not included in BP singlefile - end]
