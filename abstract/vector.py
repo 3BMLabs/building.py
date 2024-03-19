@@ -24,7 +24,8 @@
 # ***************************************************************************
 
 
-"""This module provides tools for vectors
+"""
+Represents a 3D vector with x, y, and z coordinates.
 """
 
 __title__ = "vector"
@@ -311,7 +312,7 @@ class Vector3:
         return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 
 YAxis = Vector3(0, 1, 0)
 

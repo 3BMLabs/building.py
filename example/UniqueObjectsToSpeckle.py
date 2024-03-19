@@ -44,12 +44,12 @@ ColumnTag.by_frame(f3).write(project)
 f4 = Frame.by_startpoint_endpoint_profile_name(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
 tg = FrameTag.by_frame(f4).write(project)
 
-CS = CoordinateSystem(Point(10800,10800,0),XAxis,YAxis,ZAxis)
+CS = CoordinateSystem(Point(10800,10800,0),X_axis,YAxis,ZAxis)
 t1 = Text(text="Textnote", font_family="calibri", cs=CS, height=200).write()
 for x in t1:
     project.objects.append(x)
 
-CS = CoordinateSystem(Point(0,0,0),XAxis,YAxis,ZAxis)
+CS = CoordinateSystem(Point(0,0,0),X_axis,YAxis,ZAxis)
 t2 = Text(text="Textnote", font_family="calibri", cs=CS, height=200).write()
 for x in t2:
     project.objects.append(x)

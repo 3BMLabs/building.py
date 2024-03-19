@@ -46,11 +46,11 @@ from abstract.vector import *
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
@@ -69,23 +69,23 @@ class CoordinateSystem:
     @staticmethod
     def deserialize(data):
         origin = Point.deserialize(data['Origin'])
-        xaxis = Vector3.deserialize(data['Xaxis'])
+        x_axis = Vector3.deserialize(data['Xaxis'])
         yaxis = Vector3.deserialize(data['Yaxis'])
         zaxis = Vector3.deserialize(data['Zaxis'])
-        return CoordinateSystem(origin, xaxis, yaxis, zaxis)
+        return CoordinateSystem(origin, x_axis, yaxis, zaxis)
 
     # @classmethod
     # def by_origin(self, origin: Point):
     #     self.Origin = origin
-    #     self.Xaxis = XAxis
+    #     self.Xaxis = X_axis
     #     self.Yaxis = YAxis
     #     self.Zaxis = ZAxis
     #     return self
 
     @classmethod
     def by_origin(self, origin: Point):
-        from abstract.coordinatesystem import XAxis, YAxis, ZAxis
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+        from abstract.coordinatesystem import X_axis, YAxis, ZAxis
+        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
     # @staticmethod
     # def translate(CSOld, direction):
@@ -100,14 +100,14 @@ class CoordinateSystem:
         pt = CSOld.Origin
         new_origin = Point.translate(pt, direction)
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
         YAxis = Vector3(0, 1, 0)
 
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
@@ -250,10 +250,10 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 Vector3(0, 1, 0)
 Vector3(0, 0, 1)
-CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)

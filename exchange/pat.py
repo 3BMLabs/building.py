@@ -418,7 +418,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
     lines = []
     n = 0
     for i in range(nlines):
-        Xn = Vector3.rotate_XY(XAxis, math.radians(patrow.angle))
+        Xn = Vector3.rotate_XY(X_axis, math.radians(patrow.angle))
         Yn = Vector3.rotate_XY(YAxis, math.radians(patrow.angle))
         CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
         x_start = 0

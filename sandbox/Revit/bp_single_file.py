@@ -362,7 +362,7 @@ class Vector3:
         return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 
 YAxis = Vector3(0, 1, 0)
 
@@ -523,35 +523,35 @@ class Point:
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
     @staticmethod
     def translate(CSOld, direction):
         new_origin = Point.translate(CSOld.Origin, direction)
         
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
         YAxis = Vector3(0, 1, 0)
 
         ZAxis = Vector3(0, 0, 1)
 
-        CSNew = CoordinateSystem(new_origin,xaxis=XAxis,yaxis=YAxis,zaxis=ZAxis)
+        CSNew = CoordinateSystem(new_origin,x_axis=X_axis,yaxis=YAxis,zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
@@ -692,10 +692,10 @@ class BuildingPy:
 
         #FreeCAD settings
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
         YAxis = Vector3(0, 1, 0)
         ZAxis = Vector3(0, 0, 1)
-        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
         
     def save(self):
         # print(self.objects)
@@ -746,11 +746,11 @@ project = BuildingPy("Project","0")
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
@@ -768,22 +768,22 @@ class CoordinateSystem:
     @staticmethod
     def deserialize(data):
         origin = Point.deserialize(data['Origin'])
-        xaxis = Vector3.deserialize(data['Xaxis'])
+        x_axis = Vector3.deserialize(data['Xaxis'])
         yaxis = Vector3.deserialize(data['Yaxis'])
         zaxis = Vector3.deserialize(data['Zaxis'])
-        return CoordinateSystem(origin, xaxis, yaxis, zaxis)
+        return CoordinateSystem(origin, x_axis, yaxis, zaxis)
 
     # @classmethod
     # def by_origin(self, origin: Point):
     #     self.Origin = origin
-    #     self.Xaxis = XAxis
+    #     self.Xaxis = X_axis
     #     self.Yaxis = YAxis
     #     self.Zaxis = ZAxis
     #     return self
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
     # @staticmethod
     # def translate(CSOld, direction):
@@ -797,13 +797,13 @@ class CoordinateSystem:
         pt = CSOld.Origin
         new_origin = Point.translate(pt, direction)
         
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
         YAxis = Vector3(0, 1, 0)
 
         ZAxis = Vector3(0, 0, 1)
 
-        CSNew = CoordinateSystem(new_origin,xaxis=XAxis,yaxis=YAxis,zaxis=ZAxis)
+        CSNew = CoordinateSystem(new_origin,x_axis=X_axis,yaxis=YAxis,zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
@@ -863,7 +863,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
 CSGlobal = project.CSGlobal
 
@@ -8210,7 +8210,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
     lines = []
     n = 0
     for i in range(nlines):
-        Xn = Vector3.rotate_XY(XAxis, math.radians(patrow.angle))
+        Xn = Vector3.rotate_XY(X_axis, math.radians(patrow.angle))
         Yn = Vector3.rotate_XY(YAxis, math.radians(patrow.angle))
         CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
         x_start = 0

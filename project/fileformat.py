@@ -88,10 +88,10 @@ class BuildingPy:
 
         #FreeCAD settings
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
         YAxis = Vector3(0, 1, 0)
         ZAxis = Vector3(0, 0, 1)
-        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
         
     def save(self):
         # print(self.objects)

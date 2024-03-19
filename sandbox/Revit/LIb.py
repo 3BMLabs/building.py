@@ -185,7 +185,7 @@ class Vector3:
         return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 
 YAxis = Vector3(0, 1, 0)
 
@@ -305,16 +305,16 @@ class Point:
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
         self.Origin = origin
-        self.Xaxis = XAxis
+        self.Xaxis = X_axis
         self.Yaxis = YAxis
         self.Zaxis = ZAxis
         return self
@@ -359,7 +359,7 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
 
-CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
 
 
 def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point,

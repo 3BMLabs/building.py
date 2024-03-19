@@ -24,7 +24,8 @@
 # ***************************************************************************
 
 
-"""This module provides tools to create points
+"""
+Represents a point in 3D space with x, y, and z coordinates.
 """
 
 __title__ = "point"
@@ -49,6 +50,14 @@ from helper import *
 
 class Point:
     def __init__(self, x, y, z):
+        """
+        Initializes a new Point instance with the given x, y, and z coordinates.
+
+        - `x` (float): X-coordinate of the point.
+        - `y` (float): Y-coordinate of the point.
+        - `z` (float): Z-coordinate of the point.
+
+        """
         self.id = generateID()
         self.type = __class__.__name__
         self.x: float = 0.0
@@ -61,9 +70,15 @@ class Point:
         self.units = "mm"
 
     def __str__(self) -> str:
+        """
+        Converts the point to its string representation.
+        """
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
     def serialize(self):
+        """
+        Serializes the point object.
+        """
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
         return {
@@ -78,14 +93,23 @@ class Point:
 
     @staticmethod
     def deserialize(data):
+        """
+        Deserializes the point object from the provided data.
+        """
         return Point(data['x'], data['y'], data['z'])
 
     @staticmethod
     def distance(point_1, point_2):
+        """
+        Computes the Euclidean distance between two points.
+        """
         return math.sqrt((point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2)
 
     @staticmethod
     def distance_list(points: list) -> float:
+        """
+        Calculates distances between points in a list.
+        """
         distances = []
         for i in range(len(points)):
             for j in range(i+1, len(points)):
@@ -96,6 +120,9 @@ class Point:
 
     @staticmethod
     def difference(point_1, point_2):
+        """
+        Computes the difference between two points as a Vector3 object.
+        """
         from abstract.vector import Vector3
         return Vector3(
             point_2.x - point_1.x,
@@ -105,6 +132,9 @@ class Point:
 
     @staticmethod
     def translate(point, vector):
+        """
+        Translates the point by a given vector.
+        """
         from abstract.vector import Vector3
 
         ar1 = Point.to_matrix(point)
@@ -118,6 +148,9 @@ class Point:
 
     @staticmethod
     def origin(point_1, point_2):
+        """
+        Computes the midpoint between two points.
+        """
         return Point(
             (point_1.x + point_2.x) / 2,
             (point_1.y + point_2.y) / 2,
@@ -126,6 +159,9 @@ class Point:
 
     @staticmethod
     def point_2D_to_3D(point_2D):
+        """
+        Converts a 2D point to a 3D point with zero z-coordinate.
+        """
         return Point(
             point_2D.x,
             point_2D.y,
@@ -133,16 +169,22 @@ class Point:
         )
 
     @staticmethod
-    def to_vector(point_1):
+    def to_vector(point):
+        """
+        Converts the point to a Vector3 object.
+        """
         from abstract.vector import Vector3
         return Vector3(
-            point_1.x,
-            point_1.y,
-            point_1.z
+            point.x,
+            point.y,
+            point.z
         )
 
     @staticmethod
     def sum(point_1, point_2):
+        """
+        Computes the sum of two points.
+        """
         return Point(
             point_1.x + point_2.x,
             point_1.y + point_2.y,
@@ -151,6 +193,9 @@ class Point:
 
     @staticmethod
     def diff(point_1, point_2):
+        """
+        Computes the difference between two points.
+        """
         return Point(
             point_1.x - point_2.x,
             point_1.y - point_2.y,
@@ -158,78 +203,78 @@ class Point:
         )
 
     @staticmethod
-    def rotate_XY(point_1, beta, dz):
+    def rotate_XY(point, beta, dz):
         return Point(
-            math.cos(math.radians(beta))*point_1.x -
-            math.sin(math.radians(beta))*point_1.y,
-            math.sin(math.radians(beta))*point_1.x +
-            math.cos(math.radians(beta))*point_1.y,
-            point_1.z + dz
+            math.cos(math.radians(beta))*point.x -
+            math.sin(math.radians(beta))*point.y,
+            math.sin(math.radians(beta))*point.x +
+            math.cos(math.radians(beta))*point.y,
+            point.z + dz
         )
 
-    def product(number, point_1):  # Same as scale
+    def product(number, point):  # Same as scale
         return Point(
-            point_1.x*number,
-            point_1.y*number,
-            point_1.z*number
+            point.x*number,
+            point.y*number,
+            point.z*number
         )
 
     @staticmethod
     def intersect(point_1, point_2):
         # Intersection of two points
         if point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z:
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     @staticmethod
-    def to_matrix(self):
-        return [self.x, self.y, self.z]
+    def to_matrix(point):
+        return [point.x, point.y, point.z]
 
     @staticmethod
-    def from_matrix(self):
+    def from_matrix(list):
         return Point(
-            self[0],
-            self[1],
-            self[2]
+            list[0],
+            list[1],
+            list[2]
         )
 
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         from abstract.vector import Vector3
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        from abstract.coordinatesystem import XAxis, YAxis, ZAxis
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+        from abstract.coordinatesystem import X_axis, YAxis, ZAxis
+        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
     @staticmethod
-    def translate(CS_old, direction):
+    def translate(cs_old, direction):
         from abstract.vector import Vector3
-        new_origin = Point.translate(CS_old.Origin, direction)
+        new_origin = Point.translate(cs_old.Origin, direction)
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
         YAxis = Vector3(0, 1, 0)
 
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
@@ -252,17 +297,17 @@ class CoordinateSystem:
         return CSNew
 
     @staticmethod
-    def move_local(CS_old, x: float, y: float, z: float):
+    def move_local(cs_old, x: float, y: float, z: float):
         from abstract.vector import Vector3
         # move coordinatesystem by y in local coordinates(not global)
-        xloc_vect_norm = CS_old.Xaxis
+        xloc_vect_norm = cs_old.Xaxis
         xdisp = Vector3.scale(xloc_vect_norm, x)
-        yloc_vect_norm = CS_old.Xaxis
+        yloc_vect_norm = cs_old.Xaxis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = CS_old.Xaxis
+        zloc_vect_norm = cs_old.Xaxis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
-        CS = CoordinateSystem.translate(CS_old, disp)
+        CS = CoordinateSystem.translate(cs_old, disp)
         return CS
 
     @staticmethod

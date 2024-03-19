@@ -19,12 +19,12 @@ project = BuildingPy("BoundingBoxes from Revit","1")
 bb = BoundingBox3d()
 
 
-#Vector xaxis, yaxis, zaxis -> cs system
+#Vector x_axis, yaxis, zaxis -> cs system
 height = 3675
 
-cs1 = CoordinateSystem(origin = Point(-16991.315, -3433.505, 1837.500), xaxis = Vector3(0.766, 0.643, 0.000), yaxis = Vector3(-0.643, 0.766, 0.000), zaxis = Vector3(0.000, 0.000, 1.000))
-# cs2 = CoordinateSystem(origin = Point(-30978.610, -4389.113, 774.449), xaxis = Vector3(0.754, 0.633, -0.174), yaxis = Vector3(-0.407, 0.659, 0.633), zaxis = Vector3(0.515, -0.407, 0.754))
-# cs3 = CoordinateSystem(origin = Point(-18712.652, -17614.200, 1837.500), xaxis = Vector3(1.000, 0.000, 0.000), yaxis = Vector3(0.000, 1.000, 0.000), zaxis = Vector3(0.000, 0.000, 1.000))
+cs1 = CoordinateSystem(origin = Point(-16991.315, -3433.505, 1837.500), x_axis = Vector3(0.766, 0.643, 0.000), yaxis = Vector3(-0.643, 0.766, 0.000), zaxis = Vector3(0.000, 0.000, 1.000))
+# cs2 = CoordinateSystem(origin = Point(-30978.610, -4389.113, 774.449), x_axis = Vector3(0.754, 0.633, -0.174), yaxis = Vector3(-0.407, 0.659, 0.633), zaxis = Vector3(0.515, -0.407, 0.754))
+# cs3 = CoordinateSystem(origin = Point(-18712.652, -17614.200, 1837.500), x_axis = Vector3(1.000, 0.000, 0.000), yaxis = Vector3(0.000, 1.000, 0.000), zaxis = Vector3(0.000, 0.000, 1.000))
 
 bb_2d = BoundingBox2d().by_dimensions(7350, 8550)
 bb_3d = BoundingBox3d().convert_boundingbox_2d(bb_2d, cs1, height)
