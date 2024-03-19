@@ -9,7 +9,7 @@ from specklepy.api.client import SpeckleClient
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line
 
-from bp_single_file import *
+from docs.bp_single_file import *
 import bp_send_file
 
 

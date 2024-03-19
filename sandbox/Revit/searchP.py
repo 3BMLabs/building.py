@@ -1,4 +1,4 @@
-from bp_single_file import *
+from docs.bp_single_file import *
 
 searchFor = "SHS200/200/8.0"
 revitElement = None

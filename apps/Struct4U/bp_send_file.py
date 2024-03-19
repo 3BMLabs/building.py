@@ -1,4 +1,4 @@
-from bp_single_file import *
+from docs.bp_single_file import *
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
@@ -22,7 +22,7 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point: Point or Point2D):
+def PointToSpecklePoint(point: Point | Point2D):
     if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
     elif point.type == "Point2D":
