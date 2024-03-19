@@ -24,7 +24,7 @@
 # ***************************************************************************
 
 
-"""Represents a point in 3D space with x, y, and z coordinates."""
+"""This module provides tools to create points."""
 
 __title__ = "point"
 __author__ = "Maarten & Jonathan"
@@ -37,7 +37,6 @@ import math
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-# from abstract import vector
 from packages.helper import *
 
 
@@ -47,14 +46,13 @@ from packages.helper import *
 
 
 class Point:
+    """Represents a point in 3D space with x, y, and z coordinates."""
     def __init__(self, x, y, z):
-        """
-        Initializes a new Point instance with the given x, y, and z coordinates.
+        """Initializes a new Point instance with the given x, y, and z coordinates.
 
         - `x` (float): X-coordinate of the point.
         - `y` (float): Y-coordinate of the point.
         - `z` (float): Z-coordinate of the point.
-
         """
         self.id = generateID()
         self.type = __class__.__name__
@@ -68,15 +66,11 @@ class Point:
         self.units = "mm"
 
     def __str__(self) -> str:
-        """
-        Converts the point to its string representation.
-        """
+        """Converts the point to its string representation."""
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
     def serialize(self):
-        """
-        Serializes the point object.
-        """
+        """Serializes the point object."""
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
         return {
@@ -91,23 +85,33 @@ class Point:
 
     @staticmethod
     def deserialize(data):
-        """
-        Deserializes the point object from the provided data.
-        """
+        """Deserializes the point object from the provided data."""
         return Point(data['x'], data['y'], data['z'])
 
     @staticmethod
-    def distance(point_1, point_2):
-        """
-        Computes the Euclidean distance between two points.
-        """
+    def distance(point_1: 'Point', point_2: 'Point') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Point): The first point.
+        - `point_2` (Point): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Point(100.23, 182, 19)
+        point_2 = Point(81, 0.1, -901)
+        output = Point.distance(point_1, point_2) 
+        # 938.0071443757771
+        ```"""
+        
         return math.sqrt((point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2)
 
     @staticmethod
-    def distance_list(points: list) -> float:
-        """
-        Calculates distances between points in a list.
-        """
+    def distance_list(points: list['Point']) -> float:
+        """Calculates distances between points in a list."""
         distances = []
         for i in range(len(points)):
             for j in range(i+1, len(points)):
@@ -117,10 +121,8 @@ class Point:
         return distances
 
     @staticmethod
-    def difference(point_1, point_2):
-        """
-        Computes the difference between two points as a Vector3 object.
-        """
+    def difference(point_1: 'Point', point_2: 'Point'):
+        """Computes the difference between two points as a Vector3 object."""
         from abstract.vector import Vector3
         return Vector3(
             point_2.x - point_1.x,
@@ -129,10 +131,8 @@ class Point:
         )
 
     @staticmethod
-    def translate(point, vector):
-        """
-        Translates the point by a given vector.
-        """
+    def translate(point: 'Point', vector) -> 'Point':
+        """Translates the point by a given vector."""
         from abstract.vector import Vector3
 
         ar1 = Point.to_matrix(point)
@@ -145,10 +145,8 @@ class Point:
         return Point(c[0], c[1], c[2])
 
     @staticmethod
-    def origin(point_1, point_2):
-        """
-        Computes the midpoint between two points.
-        """
+    def origin(point_1: 'Point', point_2: 'Point') -> 'Point':
+        """Computes the midpoint between two points."""
         return Point(
             (point_1.x + point_2.x) / 2,
             (point_1.y + point_2.y) / 2,
@@ -156,10 +154,8 @@ class Point:
         )
 
     @staticmethod
-    def point_2D_to_3D(point_2D):
-        """
-        Converts a 2D point to a 3D point with zero z-coordinate.
-        """
+    def point_2D_to_3D(point_2D) -> 'Point':
+        """Converts a 2D point to a 3D point with zero z-coordinate."""
         return Point(
             point_2D.x,
             point_2D.y,
@@ -167,10 +163,8 @@ class Point:
         )
 
     @staticmethod
-    def to_vector(point):
-        """
-        Converts the point to a Vector3 object.
-        """
+    def to_vector(point: 'Point'):
+        """Converts the point to a Vector3 object."""
         from abstract.vector import Vector3
         return Vector3(
             point.x,
@@ -179,10 +173,8 @@ class Point:
         )
 
     @staticmethod
-    def sum(point_1, point_2):
-        """
-        Computes the sum of two points.
-        """
+    def sum(point_1: 'Point', point_2: 'Point') -> 'Point':
+        """Computes the sum of two points."""
         return Point(
             point_1.x + point_2.x,
             point_1.y + point_2.y,
@@ -190,10 +182,8 @@ class Point:
         )
 
     @staticmethod
-    def diff(point_1, point_2):
-        """
-        Computes the difference between two points.
-        """
+    def diff(point_1: 'Point', point_2: 'Point') -> 'Point':
+        """Computes the difference between two points."""
         return Point(
             point_1.x - point_2.x,
             point_1.y - point_2.y,
@@ -201,7 +191,8 @@ class Point:
         )
 
     @staticmethod
-    def rotate_XY(point, beta, dz):
+    def rotate_XY(point: 'Point', beta: float, dz: float) -> 'Point':
+        """Rotates the point about the Z-axis by a given angle."""
         return Point(
             math.cos(math.radians(beta))*point.x -
             math.sin(math.radians(beta))*point.y,
@@ -210,7 +201,8 @@ class Point:
             point.z + dz
         )
 
-    def product(number, point):  # Same as scale
+    def product(number: float, point: 'Point') -> 'Point':
+        """Scales the point by a given factor."""
         return Point(
             point.x*number,
             point.y*number,
@@ -218,19 +210,21 @@ class Point:
         )
 
     @staticmethod
-    def intersect(point_1, point_2):
-        # Intersection of two points
+    def intersect(point_1: 'Point', point_2: 'Point') -> 'Point':
+        """Checks if two points intersect."""
         if point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z:
             return True
         else:
             return False
 
     @staticmethod
-    def to_matrix(point):
+    def to_matrix(point: 'Point') -> 'Point':
+        """Converts the point to a list."""
         return [point.x, point.y, point.z]
 
     @staticmethod
-    def from_matrix(list):
+    def from_matrix(list: list) -> 'Point':
+        """Converts a list to a Point object."""
         return Point(
             list[0],
             list[1],
@@ -240,19 +234,19 @@ class Point:
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         from abstract.vector import Vector3
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector3.normalize(x_axis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     @classmethod
-    def by_origin(self, origin: Point):
+    def by_origin(coordinate_system, origin: Point) -> 'CoordinateSystem':
         from abstract.coordinatesystem import X_axis, YAxis, ZAxis
-        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+        return coordinate_system(origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
     @staticmethod
     def translate(cs_old, direction):
@@ -266,13 +260,13 @@ class CoordinateSystem:
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
@@ -370,8 +364,8 @@ def transform_point(point_local, coordinate_system_old, new_origin, direction_ve
     v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
 
     v2 = Vector3.product(point_1.x, CSNew.Xaxis)
-    v3 = Vector3.product(point_1.y, CSNew.Yaxis)
-    v4 = Vector3.product(point_1.z, CSNew.Zaxis)
+    v3 = Vector3.product(point_1.y, CSNew.Y_axis)
+    v4 = Vector3.product(point_1.z, CSNew.Z_axis)
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y +
                    v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)
@@ -384,7 +378,7 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(
         CoordinateSystemNew.Xaxis, PointLocal.x))
     pn2 = Point.translate(pn, Vector3.scale(
-        CoordinateSystemNew.Yaxis, PointLocal.y))
+        CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point.translate(pn2, Vector3.scale(
-        CoordinateSystemNew.Zaxis, PointLocal.z))
+        CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
