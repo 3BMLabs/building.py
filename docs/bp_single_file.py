@@ -616,17 +616,17 @@ class Point:
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector3.normalize(x_axis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
     @staticmethod
     def translate(cs_old, direction):
@@ -639,13 +639,13 @@ class CoordinateSystem:
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
@@ -739,8 +739,8 @@ def transform_point(point_local, coordinate_system_old, new_origin, direction_ve
     v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
 
     v2 = Vector3.product(point_1.x, CSNew.Xaxis)
-    v3 = Vector3.product(point_1.y, CSNew.Yaxis)
-    v4 = Vector3.product(point_1.z, CSNew.Zaxis)
+    v3 = Vector3.product(point_1.y, CSNew.Y_axis)
+    v4 = Vector3.product(point_1.z, CSNew.Z_axis)
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y +
                    v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)
@@ -752,9 +752,9 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(
         CoordinateSystemNew.Xaxis, PointLocal.x))
     pn2 = Point.translate(pn, Vector3.scale(
-        CoordinateSystemNew.Yaxis, PointLocal.y))
+        CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point.translate(pn2, Vector3.scale(
-        CoordinateSystemNew.Zaxis, PointLocal.z))
+        CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
 
 
@@ -863,13 +863,13 @@ project = BuildingPy("Project", "0")
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector3.normalize(x_axis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(
@@ -879,33 +879,33 @@ class CoordinateSystem:
             'type': self.type,
             'Origin': self.Origin.serialize(),
             'Xaxis': self.Xaxis.serialize(),
-            'Yaxis': self.Yaxis.serialize(),
-            'Zaxis': self.Zaxis.serialize()
+            'Y_axis': self.Y_axis.serialize(),
+            'Z_axis': self.Z_axis.serialize()
         }
 
     @staticmethod
     def deserialize(data):
         origin = Point.deserialize(data['Origin'])
         x_axis = Vector3.deserialize(data['Xaxis'])
-        yaxis = Vector3.deserialize(data['Yaxis'])
-        zaxis = Vector3.deserialize(data['Zaxis'])
-        return CoordinateSystem(origin, x_axis, yaxis, zaxis)
+        y_axis = Vector3.deserialize(data['Y_axis'])
+        z_axis = Vector3.deserialize(data['Z_axis'])
+        return CoordinateSystem(origin, x_axis, y_axis, z_axis)
 
     # @classmethod
     # def by_origin(self, origin: Point):
     #     self.Origin = origin
     #     self.Xaxis = X_axis
-    #     self.Yaxis = YAxis
-    #     self.Zaxis = ZAxis
+    #     self.Y_axis = YAxis
+    #     self.Z_axis = ZAxis
     #     return self
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
     # @staticmethod
     # def translate(CSOld, direction):
-    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Y_axis, CSOld.Z_axis)
     #     new_origin = Point.translate(CSNew.Origin, direction)
     #     CSNew.Origin = new_origin
     #     return CSNew
@@ -922,7 +922,7 @@ class CoordinateSystem:
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
@@ -939,11 +939,11 @@ class CoordinateSystem:
         translation_vector = Vector3.subtract(CS2.Origin, CS1.Origin)
 
         rotation_matrix = CoordinateSystem.calculate_rotation_matrix(
-            CS1.Xaxis, CS1.Yaxis, CS1.Zaxis, CS2.Xaxis, CS2.Yaxis, CS2.Zaxis)
+            CS1.Xaxis, CS1.Y_axis, CS1.Z_axis, CS2.Xaxis, CS2.Y_axis, CS2.Z_axis)
 
         xaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Xaxis)
-        yaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Yaxis)
-        zaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Zaxis)
+        yaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Y_axis)
+        zaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Z_axis)
 
         xaxis_normalized = Vector3.normalize(
             Vector3.from_matrix(xaxis_transformed))
@@ -1026,8 +1026,8 @@ class CoordinateSystem:
         Normalizes the axes of the coordinate system to make them unit vectors.
         """
         self.Xaxis = Vector3.normalize(self.Xaxis)
-        self.Yaxis = Vector3.normalize(self.Yaxis)
-        self.Zaxis = Vector3.normalize(self.Zaxis)
+        self.Y_axis = Vector3.normalize(self.Y_axis)
+        self.Z_axis = Vector3.normalize(self.Z_axis)
 
     @staticmethod
     def move_local(CSOld, x: float, y: float, z: float):
@@ -1062,7 +1062,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
 
 X_axis = Vector3(1, 0, 0)
@@ -3270,7 +3270,7 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
     # CSold = CSGlobal
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
     # pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D.translate(PointLocal, Vector2(
         CoordinateSystemNew.Origin.x, CoordinateSystemNew.Origin.y))
     # pn3 = Point2D(pn.x,pn.y)
@@ -4987,10 +4987,10 @@ class BoundingBox3d:
         pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem
-        dirXvector = Vector3.angle_between(CSGlobal.Yaxis, cs.Yaxis)
+        dirXvector = Vector3.angle_between(CSGlobal.Y_axis, cs.Y_axis)
         pcrot = pc.rotate(dirXvector)  # bug multi direction
         cuboid = Extrusion.by_polycurve_height_vector(
-            pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
+            pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
         return cuboid
 
     def to_axis(self, length: int = None) -> Line:
@@ -4998,8 +4998,8 @@ class BoundingBox3d:
             length = 1000
         cs = self.coordinatesystem
         lnX = Line.by_startpoint_direction_length(cs.Origin, cs.Xaxis, length)
-        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Yaxis, length)
-        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Zaxis, length)
+        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Y_axis, length)
+        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Z_axis, length)
         return [lnX, lnY, lnZ]
 
 

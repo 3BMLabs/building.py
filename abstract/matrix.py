@@ -24,7 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for matrixces
+"""This module provides tools for matrices
 """
 
 __title__ = "matrix"
