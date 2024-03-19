@@ -221,7 +221,7 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
     # pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D.translate(PointLocal, Vector2(
         CoordinateSystemNew.Origin.x, CoordinateSystemNew.Origin.y))
     # pn3 = Point2D(pn.x,pn.y)

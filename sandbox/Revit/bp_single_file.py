@@ -523,17 +523,17 @@ class Point:
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector3.normalize(x_axis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
     @staticmethod
     def translate(CSOld, direction):
@@ -545,13 +545,13 @@ class CoordinateSystem:
 
         ZAxis = Vector3(0, 0, 1)
 
-        CSNew = CoordinateSystem(new_origin,x_axis=X_axis,yaxis=YAxis,zaxis=ZAxis)
+        CSNew = CoordinateSystem(new_origin,x_axis=X_axis,y_axis=YAxis,z_axis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
@@ -630,8 +630,8 @@ def transform_point(point_local, coordinate_system_old, new_origin, direction_ve
     v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
 
     v2 = Vector3.product(P1.x, CSNew.Xaxis)
-    v3 = Vector3.product(P1.y, CSNew.Yaxis)
-    v4 = Vector3.product(P1.z, CSNew.Zaxis)
+    v3 = Vector3.product(P1.y, CSNew.Y_axis)
+    v4 = Vector3.product(P1.z, CSNew.Z_axis)
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)
 
@@ -642,8 +642,8 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     #Transfrom point from Global Coordinatesystem to a new Coordinatesystem
     #CSold = CSGlobal
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
-    pn3 = Point.translate(pn2, Vector3.scale(CoordinateSystemNew.Zaxis, PointLocal.z))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    pn3 = Point.translate(pn2, Vector3.scale(CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
 
 class BuildingPy:
@@ -746,13 +746,13 @@ project = BuildingPy("Project","0")
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector3.normalize(x_axis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     def serialize(self):
         id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
@@ -761,33 +761,33 @@ class CoordinateSystem:
             'type': self.type,
             'Origin': self.Origin.serialize(),
             'Xaxis': self.Xaxis.serialize(),
-            'Yaxis': self.Yaxis.serialize(),
-            'Zaxis': self.Zaxis.serialize()
+            'Y_axis': self.Y_axis.serialize(),
+            'Z_axis': self.Z_axis.serialize()
         }
     
     @staticmethod
     def deserialize(data):
         origin = Point.deserialize(data['Origin'])
         x_axis = Vector3.deserialize(data['Xaxis'])
-        yaxis = Vector3.deserialize(data['Yaxis'])
-        zaxis = Vector3.deserialize(data['Zaxis'])
-        return CoordinateSystem(origin, x_axis, yaxis, zaxis)
+        y_axis = Vector3.deserialize(data['Y_axis'])
+        z_axis = Vector3.deserialize(data['Z_axis'])
+        return CoordinateSystem(origin, x_axis, y_axis, z_axis)
 
     # @classmethod
     # def by_origin(self, origin: Point):
     #     self.Origin = origin
     #     self.Xaxis = X_axis
-    #     self.Yaxis = YAxis
-    #     self.Zaxis = ZAxis
+    #     self.Y_axis = YAxis
+    #     self.Z_axis = ZAxis
     #     return self
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
 
     # @staticmethod
     # def translate(CSOld, direction):
-    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Y_axis, CSOld.Z_axis)
     #     new_origin = Point.translate(CSNew.Origin, direction)
     #     CSNew.Origin = new_origin
     #     return CSNew
@@ -803,7 +803,7 @@ class CoordinateSystem:
 
         ZAxis = Vector3(0, 0, 1)
 
-        CSNew = CoordinateSystem(new_origin,x_axis=X_axis,yaxis=YAxis,zaxis=ZAxis)
+        CSNew = CoordinateSystem(new_origin,x_axis=X_axis,y_axis=YAxis,z_axis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
@@ -863,7 +863,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
 CSGlobal = project.CSGlobal
 
@@ -2586,7 +2586,7 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
     # CSold = CSGlobal
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
     #pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D.translate(PointLocal,Vector2(CoordinateSystemNew.Origin.x,CoordinateSystemNew.Origin.y))
     #pn3 = Point2D(pn.x,pn.y)
     return pn3

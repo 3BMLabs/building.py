@@ -201,10 +201,10 @@ class BoundingBox3d:
         pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem
-        dirXvector = Vector3.angle_between(CSGlobal.Yaxis, cs.Yaxis)
+        dirXvector = Vector3.angle_between(CSGlobal.Y_axis, cs.Y_axis)
         pcrot = pc.rotate(dirXvector)  # bug multi direction
         cuboid = Extrusion.by_polycurve_height_vector(
-            pcrot, height, CSGlobal, cs.Origin, cs.Zaxis)
+            pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
         return cuboid
 
     def to_axis(self, length: int = None) -> Line:
@@ -212,6 +212,6 @@ class BoundingBox3d:
             length = 1000
         cs = self.coordinatesystem
         lnX = Line.by_startpoint_direction_length(cs.Origin, cs.Xaxis, length)
-        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Yaxis, length)
-        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Zaxis, length)
+        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Y_axis, length)
+        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Z_axis, length)
         return [lnX, lnY, lnZ]

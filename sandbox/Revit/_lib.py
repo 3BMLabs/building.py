@@ -305,23 +305,23 @@ class Point:
 
 class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         self.Origin = origin
         self.Xaxis = Vector3.normalize(x_axis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     @classmethod
     def by_origin(self, origin: Point):
         self.Origin = origin
         self.Xaxis = X_axis
-        self.Yaxis = YAxis
-        self.Zaxis = ZAxis
+        self.Y_axis = YAxis
+        self.Z_axis = ZAxis
         return self
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Y_axis, CSOld.Z_axis)
         new_origin = Point.translate(CSNew.Origin, direction)
         CSNew.Origin = new_origin
         return CSNew
@@ -357,7 +357,7 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Yaxis}, {self.Zaxis})"
+        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Y_axis}, {self.Z_axis})"
 
 CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
 
@@ -381,8 +381,8 @@ def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, Ne
     CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
     v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
     v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
-    v3 = Vector3.product(P1.y, CSNew.Yaxis)  # local transformation van Y
-    v4 = Vector3.product(P1.z, CSNew.Zaxis)  # local transformation van Z
+    v3 = Vector3.product(P1.y, CSNew.Y_axis)  # local transformation van Y
+    v4 = Vector3.product(P1.z, CSNew.Z_axis)  # local transformation van Z
     vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
     return pointNew
@@ -393,8 +393,8 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     # CSold = CSGlobal
     from abstract.vector import Vector3
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
-    pn3 = Point.translate(pn2, Vector3.scale(CoordinateSystemNew.Zaxis, PointLocal.z))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    pn3 = Point.translate(pn2, Vector3.scale(CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
 
 class Vector2:
@@ -505,7 +505,7 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D(pn.x, pn.y)
     return pn3
 
