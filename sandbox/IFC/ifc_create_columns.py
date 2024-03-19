@@ -9,6 +9,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from geometry.point import *
 from abstract.vector import *
+from abstract.matrix import *
 
 
 model = ifcopenshell.file()
@@ -35,37 +36,9 @@ def place_structural_element(model, from_point:Point, to_point:Point, element_ty
     ifc_class_type = "IfcColumnType" if element_type.lower() == "column" else "IfcBeamType"
     ifc_class = "IfcColumn" if element_type.lower() == "column" else "IfcBeam"
 
-    targetY = from_point.y
-    gunY = to_point.y
-
-    targetX = from_point.x
-    gunX = to_point.x
-
-    numerator = gunY-targetY
-    denominator = gunX-targetX
-
-    atvalue_rad = math.atan2(numerator, denominator)
-    atvalue_deg = math.degrees(atvalue_rad)
-
-    distance = Point.distance(from_point, to_point)
-
-    x_rad = math.atan2(distance, (to_point.z-from_point.z))
-    x_deg = math.degrees(x_rad)-90
-    print(x_deg)
+    matrix = Matrix.from_points(from_point, to_point).matrix
     
-
     column_type = run("root.create_entity", model, ifc_class=ifc_class_type, name=elementname)
-    matrix = np.eye(4)
-
-    matrix = ifcopenshell.util.placement.rotation(90, "X") @ matrix
-    matrix = ifcopenshell.util.placement.rotation(90, "Z") @ matrix
-
-    # matrix = ifcopenshell.util.placement.rotation(0, "Y") @ matrix -> direction works
-    # matrix = ifcopenshell.util.placement.rotation(180-155, "Y") @ matrix
-
-    matrix = ifcopenshell.util.placement.rotation(atvalue_deg, "Z") @ matrix
-
-    matrix[:,3][0:3] = (P1[0], P1[1], P1[2])
 
     material_set = run("material.add_material_set", model, name=elementname, set_type="IfcMaterialProfileSet")
     steel = run("material.add_material", model, name=materialname, category="steel")
@@ -86,34 +59,20 @@ beam_type = run("root.create_entity", model, ifc_class="IfcBeamType", name="B1")
 matrix = np.eye(4)
 length = 2
 
-P1 = [0,0,0]
-P2 = [1,2,3]
+# P1 = [0,0,0]
+# P2 = [1,2,3]
 
-# P1 = [43,1,-45]
-# P2 = [8,23,12]
+P1 = [43,1,-45]
+P2 = [8,23,12]
 
 # P1 = [30,30,10]
 # P2 = [1,23,113]
 
-targetY = P1[1]
-gunY = P2[1]
-
-targetX = P1[0]
-gunX = P2[0]
-
-numerator = gunY-targetY
-denominator = gunX-targetX
-
-atvalue_rad = math.atan2(numerator, denominator)
-atvalue_deg = math.degrees(atvalue_rad)
+# P1 = [30,30,10]
+# P2 = [30,30,20]
 
 distance = Point.distance(Point.from_matrix(P1), Point.from_matrix(P2))
-# print(distance)
 matrix[:,3][0:3] = (P1[0], P1[1], P1[2])
-
-XYdegree_rad = math.atan2(gunY, distance)
-XYdegree_deg = math.degrees(atvalue_deg)
-print(XYdegree_deg)
 
 material_set = run("material.add_material_set", model, name="B1", set_type="IfcMaterialProfileSet")
 steel = run("material.add_material", model, name="ST01", category="steel")
