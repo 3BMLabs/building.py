@@ -24,9 +24,7 @@
 # ***************************************************************************
 
 
-"""
-Represents a point in 3D space with x, y, and z coordinates.
-"""
+"""Represents a point in 3D space with x, y, and z coordinates."""
 
 __title__ = "point"
 __author__ = "Maarten & Jonathan"
