@@ -14,7 +14,10 @@ import random
 from typing import List, Tuple
 import xml.etree.ElementTree as ET
 from pathlib import Path
-#import numpy as np
+import copy
+import pickle
+from functools import reduce
+import struct
 #import ezdxf
 #from svg.path import parse_path
 
@@ -412,7 +415,7 @@ class Vector3:
         return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 
 YAxis = Vector3(0, 1, 0)
 
@@ -425,6 +428,14 @@ ZAxis = Vector3(0, 0, 1)
 
 class Point:
     def __init__(self, x, y, z):
+        """
+        Initializes a new Point instance with the given x, y, and z coordinates.
+
+        - `x` (float): X-coordinate of the point.
+        - `y` (float): Y-coordinate of the point.
+        - `z` (float): Z-coordinate of the point.
+
+        """
         self.id = generateID()
         self.type = __class__.__name__
         self.x: float = 0.0
@@ -437,9 +448,15 @@ class Point:
         self.units = "mm"
 
     def __str__(self) -> str:
+        """
+        Converts the point to its string representation.
+        """
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
 
     def serialize(self):
+        """
+        Serializes the point object.
+        """
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
         return {
@@ -454,14 +471,22 @@ class Point:
 
     @staticmethod
     def deserialize(data):
+        """
+        """
         return Point(data['x'], data['y'], data['z'])
 
     @staticmethod
     def distance(point_1, point_2):
+        """
+        Computes the Euclidean distance between two points.
+        """
         return math.sqrt((point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2)
 
     @staticmethod
     def distance_list(points: list) -> float:
+        """
+        Calculates distances between points in a list.
+        """
         distances = []
         for i in range(len(points)):
             for j in range(i+1, len(points)):
@@ -472,6 +497,9 @@ class Point:
 
     @staticmethod
     def difference(point_1, point_2):
+        """
+        Computes the difference between two points as a Vector3 object.
+        """
         return Vector3(
             point_2.x - point_1.x,
             point_2.y - point_1.y,
@@ -480,6 +508,9 @@ class Point:
 
     @staticmethod
     def translate(point, vector):
+        """
+        Translates the point by a given vector.
+        """
 
         ar1 = Point.to_matrix(point)
         ar2 = Vector3.to_matrix(vector)
@@ -492,6 +523,9 @@ class Point:
 
     @staticmethod
     def origin(point_1, point_2):
+        """
+        Computes the midpoint between two points.
+        """
         return Point(
             (point_1.x + point_2.x) / 2,
             (point_1.y + point_2.y) / 2,
@@ -500,6 +534,9 @@ class Point:
 
     @staticmethod
     def point_2D_to_3D(point_2D):
+        """
+        Converts a 2D point to a 3D point with zero z-coordinate.
+        """
         return Point(
             point_2D.x,
             point_2D.y,
@@ -507,15 +544,21 @@ class Point:
         )
 
     @staticmethod
-    def to_vector(point_1):
+    def to_vector(point):
+        """
+        Converts the point to a Vector3 object.
+        """
         return Vector3(
-            point_1.x,
-            point_1.y,
-            point_1.z
+            point.x,
+            point.y,
+            point.z
         )
 
     @staticmethod
     def sum(point_1, point_2):
+        """
+        Computes the sum of two points.
+        """
         return Point(
             point_1.x + point_2.x,
             point_1.y + point_2.y,
@@ -524,6 +567,9 @@ class Point:
 
     @staticmethod
     def diff(point_1, point_2):
+        """
+        Computes the difference between two points.
+        """
         return Point(
             point_1.x - point_2.x,
             point_1.y - point_2.y,
@@ -531,75 +577,75 @@ class Point:
         )
 
     @staticmethod
-    def rotate_XY(point_1, beta, dz):
+    def rotate_XY(point, beta, dz):
         return Point(
-            math.cos(math.radians(beta))*point_1.x -
-            math.sin(math.radians(beta))*point_1.y,
-            math.sin(math.radians(beta))*point_1.x +
-            math.cos(math.radians(beta))*point_1.y,
-            point_1.z + dz
+            math.cos(math.radians(beta))*point.x -
+            math.sin(math.radians(beta))*point.y,
+            math.sin(math.radians(beta))*point.x +
+            math.cos(math.radians(beta))*point.y,
+            point.z + dz
         )
 
-    def product(number, point_1):  # Same as scale
+    def product(number, point):  # Same as scale
         return Point(
-            point_1.x*number,
-            point_1.y*number,
-            point_1.z*number
+            point.x*number,
+            point.y*number,
+            point.z*number
         )
 
     @staticmethod
     def intersect(point_1, point_2):
         # Intersection of two points
         if point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z:
-            return 1
+            return True
         else:
-            return 0
+            return False
 
     @staticmethod
-    def to_matrix(self):
-        return [self.x, self.y, self.z]
+    def to_matrix(point):
+        return [point.x, point.y, point.z]
 
     @staticmethod
-    def from_matrix(self):
+    def from_matrix(list):
         return Point(
-            self[0],
-            self[1],
-            self[2]
+            list[0],
+            list[1],
+            list[2]
         )
 
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
     @staticmethod
-    def translate(CS_old, direction):
-        new_origin = Point.translate(CS_old.Origin, direction)
+    def translate(cs_old, direction):
+        new_origin = Point.translate(cs_old.Origin, direction)
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
         YAxis = Vector3(0, 1, 0)
 
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
@@ -621,16 +667,16 @@ class CoordinateSystem:
         return CSNew
 
     @staticmethod
-    def move_local(CS_old, x: float, y: float, z: float):
+    def move_local(cs_old, x: float, y: float, z: float):
         # move coordinatesystem by y in local coordinates(not global)
-        xloc_vect_norm = CS_old.Xaxis
+        xloc_vect_norm = cs_old.Xaxis
         xdisp = Vector3.scale(xloc_vect_norm, x)
-        yloc_vect_norm = CS_old.Xaxis
+        yloc_vect_norm = cs_old.Xaxis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = CS_old.Xaxis
+        zloc_vect_norm = cs_old.Xaxis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
-        CS = CoordinateSystem.translate(CS_old, disp)
+        CS = CoordinateSystem.translate(cs_old, disp)
         return CS
 
     @staticmethod
@@ -758,10 +804,10 @@ class BuildingPy:
 
         #FreeCAD settings
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
         YAxis = Vector3(0, 1, 0)
         ZAxis = Vector3(0, 0, 1)
-        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
         
     def save(self):
         # print(self.objects)
@@ -817,11 +863,11 @@ project = BuildingPy("Project", "0")
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    def __init__(self, origin: Point, x_axis, yaxis, zaxis):
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
         self.Yaxis = Vector3.normalize(yaxis)
         self.Zaxis = Vector3.normalize(zaxis)
 
@@ -840,22 +886,22 @@ class CoordinateSystem:
     @staticmethod
     def deserialize(data):
         origin = Point.deserialize(data['Origin'])
-        xaxis = Vector3.deserialize(data['Xaxis'])
+        x_axis = Vector3.deserialize(data['Xaxis'])
         yaxis = Vector3.deserialize(data['Yaxis'])
         zaxis = Vector3.deserialize(data['Zaxis'])
-        return CoordinateSystem(origin, xaxis, yaxis, zaxis)
+        return CoordinateSystem(origin, x_axis, yaxis, zaxis)
 
     # @classmethod
     # def by_origin(self, origin: Point):
     #     self.Origin = origin
-    #     self.Xaxis = XAxis
+    #     self.Xaxis = X_axis
     #     self.Yaxis = YAxis
     #     self.Zaxis = ZAxis
     #     return self
 
     @classmethod
     def by_origin(self, origin: Point):
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+        return self(origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
     # @staticmethod
     # def translate(CSOld, direction):
@@ -869,14 +915,14 @@ class CoordinateSystem:
         pt = CSOld.Origin
         new_origin = Point.translate(pt, direction)
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
         YAxis = Vector3(0, 1, 0)
 
         ZAxis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, yaxis=YAxis, zaxis=ZAxis)
 
         CSNew.Origin = new_origin
         return CSNew
@@ -1016,14 +1062,492 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 Vector3(0, 1, 0)
 Vector3(0, 0, 1)
-CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
 
+
+
+class Matrix:
+    def __init__(self, matrix=None):
+        if matrix is None:
+            self.matrix = [[0 for _ in range(4)] for _ in range(4)]
+        else:
+            self.matrix = matrix
+
+    def add(self, other):
+        if self.shape() != other.shape():
+            raise ValueError("Matrices must have the same dimensions")
+        return Matrix([[self.matrix[i][j] + other.matrix[i][j] for j in range(len(self.matrix[0]))] for i in range(len(self.matrix))])
+
+    def all(self, axis=None):
+        if axis is None:
+            return all(all(row) for row in self.matrix)
+        elif axis == 0:
+            return [all(self.matrix[row][col] for row in range(len(self.matrix))) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [all(col) for col in self.matrix]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def any(self, axis=None):
+        if axis is None:
+            return any(any(row) for row in self.matrix)
+        elif axis == 0:
+            return [any(self.matrix[row][col] for row in range(len(self.matrix))) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [any(col) for col in self.matrix]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def argmax(self, axis=None):
+        if axis is None:
+            flat_list = [item for sublist in self.matrix for item in sublist]
+            return flat_list.index(max(flat_list))
+        elif axis == 0:
+            return [max(range(len(self.matrix)), key=lambda row: self.matrix[row][col]) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [max(range(len(row)), key=lambda col: row[col]) for row in self.matrix]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def argmin(self, axis=None):
+        if axis is None:
+            flat_list = [item for sublist in self.matrix for item in sublist]
+            return flat_list.index(min(flat_list))
+        elif axis == 0:
+            return [min(range(len(self.matrix)), key=lambda row: self.matrix[row][col]) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [min(range(len(row)), key=lambda col: row[col]) for row in self.matrix]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def argpartition(self, kth, axis=0):
+        def partition(arr, kth):
+            pivot = arr[kth]
+            less = [i for i in range(len(arr)) if arr[i] < pivot]
+            equal = [i for i in range(len(arr)) if arr[i] == pivot]
+            greater = [i for i in range(len(arr)) if arr[i] > pivot]
+            return less + equal + greater
+
+        if axis == 0:
+            return [partition([self.matrix[row][col] for row in range(len(self.matrix))], kth) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [partition(row, kth) for row in self.matrix]
+
+    def argsort(self, axis=0):
+        if axis == 0:
+            return [[row for row, val in sorted(enumerate(col), key=lambda x: x[1])] for col in zip(*self.matrix)]
+        elif axis == 1:
+            return [list(range(len(self.matrix[0]))) for _ in self.matrix]
+
+    def astype(self, dtype):
+        cast_matrix = [[dtype(item) for item in row] for row in self.matrix]
+        return Matrix(cast_matrix)
+
+    def byteswap(self, inplace=False):
+        if inplace:
+            for i in range(len(self.matrix)):
+                for j in range(len(self.matrix[i])):
+                    self.matrix[i][j] = ~self.matrix[i][j]
+            return self
+        else:
+            new_matrix = [[~item for item in row] for row in self.matrix]
+            return Matrix(new_matrix)
+
+    def choose(self, choices, mode='raise'):
+        if mode != 'raise':
+            raise NotImplementedError("Only 'raise' mode is implemented")
+
+        chosen = [[choices[item] for item in row] for row in self.matrix]
+        return Matrix(chosen)
+
+    def compress(self, condition, axis=None):
+        if axis == 0:
+            compressed = [row for row, cond in zip(
+                self.matrix, condition) if cond]
+            return Matrix(compressed)
+        else:
+            raise NotImplementedError("Axis other than 0 is not implemented")
+
+    def clip(self, min=None, max=None):
+        clipped_matrix = []
+        for row in self.matrix:
+            clipped_row = [max if max is not None and val >
+                           max else min if min is not None and val < min else val for val in row]
+            clipped_matrix.append(clipped_row)
+        return Matrix(clipped_matrix)
+
+    def conj(self):
+        conjugated_matrix = [[complex(item).conjugate()
+                              for item in row] for row in self.matrix]
+        return Matrix(conjugated_matrix)
+
+    def conjugate(self):
+        return self.conj()
+
+    def copy(self):
+        copied_matrix = copy.deepcopy(self.matrix)
+        return Matrix(copied_matrix)
+
+    def cumprod(self, axis=None):
+        if axis is None:
+            flat_list = self.flatten()
+            cumprod_list = []
+            cumprod = 1
+            for item in flat_list:
+                cumprod *= item
+                cumprod_list.append(cumprod)
+            return Matrix([cumprod_list])
+        else:
+            raise NotImplementedError(
+                "Axis handling not implemented in this example")
+
+    def cumsum(self, axis=None):
+        if axis is None:
+            flat_list = self.flatten()
+            cumsum_list = []
+            cumsum = 0
+            for item in flat_list:
+                cumsum += item
+                cumsum_list.append(cumsum)
+            return Matrix([cumsum_list])
+        else:
+            raise NotImplementedError(
+                "Axis handling not implemented in this example")
+
+    def diagonal(self, offset=0):
+        return [self.matrix[i][i + offset] for i in range(len(self.matrix)) if 0 <= i + offset < len(self.matrix[i])]
+
+    def dump(self, file):
+        with open(file, 'wb') as f:
+            pickle.dump(self.matrix, f)
+
+    def dumps(self):
+        return pickle.dumps(self.matrix)
+
+    def fill(self, value):
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[i])):
+                self.matrix[i][j] = value
+
+    @staticmethod
+    def from_points(from_point: Point, to_point: Point):
+        Vz = Vector3.by_two_points(from_point, to_point)
+        Vz = Vector3.normalize(Vz)
+        Vzglob = Vector3(0, 0, 1)
+        Vx = Vector3.cross_product(Vz, Vzglob)
+        if Vector3.length(Vx) == 0:
+            Vx = Vector3(1, 0, 0) if Vz.x != 1 else Vector3(0, 1, 0)
+        Vx = Vector3.normalize(Vx)
+        Vy = Vector3.cross_product(Vx, Vz)
+
+        return Matrix([
+            [Vx.x, Vy.x, Vz.x, from_point.x],
+            [Vx.y, Vy.y, Vz.y, from_point.y],
+            [Vx.z, Vy.z, Vz.z, from_point.z],
+            [0, 0, 0, 1]
+        ])
+
+    def flatten(self):
+        return [item for sublist in self.matrix for item in sublist]
+
+    def getA(self):
+        return self.matrix
+
+    def getA1(self):
+        return [item for sublist in self.matrix for item in sublist]
+
+    def getH(self):
+        conjugate_transposed = [[complex(self.matrix[j][i]).conjugate() for j in range(
+            len(self.matrix))] for i in range(len(self.matrix[0]))]
+        return Matrix(conjugate_transposed)
+
+    def getI(self):
+        raise NotImplementedError(
+            "Matrix inversion is a complex operation not covered in this simple implementation.")
+
+    def getT(self):
+        return self.transpose()
+
+    def getfield(self, dtype, offset=0):
+        raise NotImplementedError(
+            "This method is conceptual and depends on structured data support within the Matrix.")
+
+    def item(self, *args):
+        if len(args) == 1:
+            index = args[0]
+            rows, cols = len(self.matrix), len(self.matrix[0])
+            return self.matrix[index // cols][index % cols]
+        elif len(args) == 2:
+            return self.matrix[args[0]][args[1]]
+        else:
+            raise ValueError("Invalid number of indices.")
+
+    def itemset(self, *args):
+        if len(args) == 2:
+            index, value = args
+            rows, cols = len(self.matrix), len(self.matrix[0])
+            self.matrix[index // cols][index % cols] = value
+        elif len(args) == 3:
+            row, col, value = args
+            self.matrix[row][col] = value
+        else:
+            raise ValueError("Invalid number of arguments.")
+
+    def max(self, axis=None):
+        if axis is None:
+            return max(item for sublist in self.matrix for item in sublist)
+        elif axis == 0:
+            return [max(self.matrix[row][col] for row in range(len(self.matrix))) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [max(row) for row in self.matrix]
+        else:
+            raise ValueError("Invalid axis.")
+
+    def mean(self, axis=None):
+        if axis is None:
+            flat_list = self.flatten()
+            return sum(flat_list) / len(flat_list)
+        elif axis == 0:
+            return [sum(self.matrix[row][col] for row in range(len(self.matrix))) / len(self.matrix) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [sum(row) / len(row) for row in self.matrix]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def min(self, axis=None):
+        if axis is None:
+            return min(item for sublist in self.matrix for item in sublist)
+        elif axis == 0:
+            return [min(self.matrix[row][col] for row in range(len(self.matrix))) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [min(row) for row in self.matrix]
+        else:
+            raise ValueError("Invalid axis.")
+
+    @staticmethod
+    def zeros(rows, cols):
+        return Matrix([[0 for _ in range(cols)] for _ in range(rows)])
+
+    @staticmethod
+    def participation(self):
+        pass
+
+    def prod(self, axis=None):
+        if axis is None:
+            return reduce(lambda x, y: x * y, [item for sublist in self.matrix for item in sublist], 1)
+        elif axis == 0:
+            return [reduce(lambda x, y: x * y, [self.matrix[row][col] for row in range(len(self.matrix))], 1) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [reduce(lambda x, y: x * y, row, 1) for row in self.matrix]
+        else:
+            raise ValueError("Invalid axis.")
+
+    def ptp(self, axis=None):
+        if axis is None:
+            flat_list = [item for sublist in self.matrix for item in sublist]
+            return max(flat_list) - min(flat_list)
+        elif axis == 0:
+            return [max([self.matrix[row][col] for row in range(len(self.matrix))]) - min([self.matrix[row][col] for row in range(len(self.matrix))]) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [max(row) - min(row) for row in self.matrix]
+        else:
+            raise ValueError("Invalid axis.")
+
+    def put(self, indices, values):
+        if len(indices) != len(values):
+            raise ValueError("Length of indices and values must match.")
+        flat_list = self.ravel()
+        for index, value in zip(indices, values):
+            flat_list[index] = value
+
+    @staticmethod
+    def random(rows, cols):
+        return Matrix([[random.random() for _ in range(cols)] for _ in range(rows)])
+
+    def ravel(self):
+        return [item for sublist in self.matrix for item in sublist]
+
+    def repeat(self, repeats, axis=None):
+        if axis is None:
+            flat_list = self.ravel()
+            repeated = [item for item in flat_list for _ in range(repeats)]
+            return Matrix([repeated])
+        elif axis == 0:
+            repeated_matrix = [
+                row for row in self.matrix for _ in range(repeats)]
+        elif axis == 1:
+            repeated_matrix = [
+                [item for item in row for _ in range(repeats)] for row in self.matrix]
+        else:
+            raise ValueError("Invalid axis.")
+        return Matrix(repeated_matrix)
+
+    def reshape(self, rows, cols):
+        flat_list = self.flatten()
+        if len(flat_list) != rows * cols:
+            raise ValueError(
+                "The total size of the new array must be unchanged.")
+        reshaped = [flat_list[i * cols:(i + 1) * cols] for i in range(rows)]
+        return Matrix(reshaped)
+
+    def resize(self, new_shape):
+        new_rows, new_cols = new_shape
+        current_rows, current_cols = len(self.matrix), len(
+            self.matrix[0]) if self.matrix else 0
+        if new_rows < current_rows:
+            self.matrix = self.matrix[:new_rows]
+        else:
+            for _ in range(new_rows - current_rows):
+                self.matrix.append([0] * current_cols)
+        for row in self.matrix:
+            if new_cols < current_cols:
+                row[:] = row[:new_cols]
+            else:
+                row.extend([0] * (new_cols - current_cols))
+
+    def round(self, decimals=0):
+        rounded_matrix = [[round(item, decimals)
+                           for item in row] for row in self.matrix]
+        return Matrix(rounded_matrix)
+
+    def searchsorted(self, v, side='left'):
+        flat_list = self.flatten()
+        i = 0
+        if side == 'left':
+            while i < len(flat_list) and flat_list[i] < v:
+                i += 1
+        elif side == 'right':
+            while i < len(flat_list) and flat_list[i] <= v:
+                i += 1
+        else:
+            raise ValueError("side must be 'left' or 'right'")
+        return i
+
+    def setfield(self, val, dtype, offset=0):
+        raise NotImplementedError(
+            "Structured data operations are not supported in this Matrix class.")
+
+    def setflags(self, write=None, align=None, uic=None):
+        print("This Matrix class does not support setting flags directly.")
+
+    def shape(self):
+        return len(self.matrix), len(self.matrix[0])
+
+    def sort(self, axis=-1):
+        if axis == -1 or axis == 1:
+            for row in self.matrix:
+                row.sort()
+        elif axis == 0:
+            transposed = [[self.matrix[j][i] for j in range(
+                len(self.matrix))] for i in range(len(self.matrix[0]))]
+            for row in transposed:
+                row.sort()
+            self.matrix = [[transposed[j][i] for j in range(
+                len(transposed))] for i in range(len(transposed[0]))]
+        else:
+            raise ValueError("Axis out of range.")
+
+    def squeeze(self):
+        squeezed_matrix = [row for row in self.matrix if any(row)]
+        return Matrix(squeezed_matrix)
+
+    def std(self, axis=None, ddof=0):
+        var = self.var(axis=axis, ddof=ddof)
+        if isinstance(var, list):
+            return [x ** 0.5 for x in var]
+        else:
+            return var ** 0.5
+
+    def subtract(self, other):
+        if self.shape() != other.shape():
+            raise ValueError("Matrices must have the same dimensions")
+        return Matrix([[self.matrix[i][j] - other.matrix[i][j] for j in range(len(self.matrix[0]))] for i in range(len(self.matrix))])
+
+    def sum(self, axis=None):
+        if axis is None:
+            return sum(sum(row) for row in self.matrix)
+        elif axis == 0:
+            return [sum(self.matrix[row][col] for row in range(len(self.matrix))) for col in range(len(self.matrix[0]))]
+        elif axis == 1:
+            return [sum(row) for row in self.matrix]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def swapaxes(self, axis1, axis2):
+        if axis1 == 0 and axis2 == 1 or axis1 == 1 and axis2 == 0:
+            return Matrix([[self.matrix[j][i] for j in range(len(self.matrix))] for i in range(len(self.matrix[0]))])
+        else:
+            raise ValueError("Axis values out of range for a 2D matrix.")
+
+    def take(self, indices, axis=None):
+        if axis is None:
+            flat_list = [item for sublist in self.matrix for item in sublist]
+            return Matrix([flat_list[i] for i in indices])
+        elif axis == 0:
+            return Matrix([self.matrix[i] for i in indices])
+        else:
+            raise ValueError(
+                "Axis not supported or out of range for a 2D matrix.")
+
+    def tobytes(self):
+        byte_array = bytearray()
+        for row in self.matrix:
+            for item in row:
+                byte_array.extend(struct.pack('i', item))
+        return bytes(byte_array)
+
+    def tofile(self, fid, sep="", format="%s"):
+        if isinstance(fid, str):
+            with open(fid, 'wb' if sep == "" else 'w') as f:
+                self._write_to_file(f, sep, format)
+        else:
+            self._write_to_file(fid, sep, format)
+
+    def _write_to_file(self, file, sep, format):
+        if sep == "":
+            file.write(self.tobytes())
+        else:
+            for row in self.matrix:
+                line = sep.join(format % item for item in row) + "\n"
+                file.write(line)
+
+    def tostring(self):
+        for row in self.matrix:
+            print(' '.join(map(str, row)))
+
+    def trace(self, offset=0):
+        rows, cols = len(self.matrix), len(self.matrix[0])
+        return sum(self.matrix[i][i + offset] for i in range(min(rows, cols - offset)) if 0 <= i + offset < cols)
+
+    def transpose(self):
+        transposed = [[self.matrix[j][i] for j in range(
+            len(self.matrix))] for i in range(len(self.matrix[0]))]
+        return Matrix(transposed)
+
+    def var(self, axis=None, ddof=0):
+        if axis is None:
+            flat_list = self.flatten()
+            mean = sum(flat_list) / len(flat_list)
+            return sum((x - mean) ** 2 for x in flat_list) / (len(flat_list) - ddof)
+        elif axis == 0 or axis == 1:
+            means = self.mean(axis=axis)
+            if axis == 0:
+                return [sum((self.matrix[row][col] - means[col]) ** 2 for row in range(len(self.matrix))) / (len(self.matrix) - ddof) for col in range(len(self.matrix[0]))]
+            else:
+                return [sum((row[col] - means[idx]) ** 2 for col in range(len(row))) / (len(row) - ddof) for idx, row in enumerate(self.matrix)]
+        else:
+            raise ValueError("Axis must be None, 0, or 1")
+
+    def _validate(self):
+        rows = len(self.matrix)
+        cols = len(self.matrix[0]) if rows > 0 else 0
+        return rows, cols
 
 
 class Line:  # add Line.bylenght (start and endpoint)
@@ -3062,7 +3586,7 @@ class PolyCurve2D:
     def from_polycurve_3D(PolyCurve):
         points = []
         for pt in PolyCurve.points:
-            points.append(Point2D.toPoint2D(pt))
+            points.append(Point2D(pt.x, pt.y))
         plycrv = PolyCurve2D.by_points(points)
         return plycrv
 
@@ -8884,7 +9408,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
     lines = []
     n = 0
     for i in range(nlines):
-        Xn = Vector3.rotate_XY(XAxis, math.radians(patrow.angle))
+        Xn = Vector3.rotate_XY(X_axis, math.radians(patrow.angle))
         Yn = Vector3.rotate_XY(YAxis, math.radians(patrow.angle))
         CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
         x_start = 0
