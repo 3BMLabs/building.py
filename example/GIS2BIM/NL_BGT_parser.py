@@ -1,10 +1,67 @@
- INPUTS
-gmlFilePaths = IN[0]
-gmlFileNames = IN[1]
-bboxCenterEW = float(IN[2])
+import os
+import sys
+sys.path.append("../building.py")
+#print(sys.path)
+from packages.GIS2BIM.GIS2BIM_NL import *
+from packages.GIS2BIM.GIS2BIM import *
+from project.fileformat import *
+from packages.GIS2BIM.GIS2BIM_NL_helpers import *
+from packages.GIS2BIM.GIS2BIM_CityJSON import *
+import time
+import ijson
+from library.material import *
+from geometry.mesh import *
+import ssl
+
+def GetWebServerDataSettings(SettingsfileLocation):
+    #get settings
+    url = urllib.request.urlopen(SettingsfileLocation)
+    jsonData = json.loads(url.read())['Settings']
+    #print(jsonData)
+    return jsonData
+
+def CreateFolder(Folder):
+    #check and ccreate folders
+    if not os.path.isdir(Folder):
+        #print(Folder + ": " + str(os.path.isdir(Folder)))
+        os.mkdir(Folder)
+
+settings = GetWebServerDataSettings('https://raw.githubusercontent.com/jochem25/settings/main/GIS2BIM_project1.json')
+ProjectDrive = settings["Projectdrive"]
+ProjectFolder = ProjectDrive + settings["Mainfolder"]
+City = settings["City"]
+Street = settings["Adress"]
+HouseNumber = settings["Housenumber"]
+MaximumLoD = 2.2
+Bboxwidth = int(settings["Bbox"])
+ProjectName = City + "_" + Street  + "_" + str(HouseNumber)
+#createfolders
+folders = []
+MainProjectFolder =  ProjectFolder + ProjectName
+FolderOBJ = MainProjectFolder  + "/OBJ"
+FolderImages = MainProjectFolder  + "/Images"
+FolderBGT = MainProjectFolder  + "/BGT/"
+FolderCityJSON = MainProjectFolder  + "/CityJSON/"
+FolderAHN = MainProjectFolder  + "/AHN"
+folderBAG3D = MainProjectFolder + "/BAG3D"
+folders.extend((FolderOBJ,FolderImages,FolderBGT,FolderCityJSON,FolderAHN,folderBAG3D))
+for folder in folders:
+    CreateFolder(folder)
+lst = NL_GetLocationData(NLPDOKServerURL, City, Street, str(HouseNumber))
+#BOUNDINGBOX
+RdX = lst[0]
+RdY = lst[1]
+Bbox = GIS2BIM.CreateBoundingBox(RdX,RdY,Bboxwidth,Bboxwidth,0)
+GISBbox = GisRectBoundingBox().Create(RdX, RdY, 200, 200, 0)
+GISProject = BuildingPy(settings["BuildingpyName"])
+polygonString = GIS2BIM.CreateBoundingBoxPolygon(RdX, RdY, 200, 200,2)
+
+gmlFilePaths = FolderBGT
+#gmlFileNames = IN[1]
+bboxCenterEW = float(RdY)
 bboxCenterNS = float(IN[3])
-bboxRadius = float(IN[4]) / 2
-includeCrossingElements = IN[5]
+bboxRadius = float(Bboxwidth) / 2
+#includeCrossingElements = IN[5]
 
 # CONSTANTS
 scaleFactor = 1000 # m to mm
