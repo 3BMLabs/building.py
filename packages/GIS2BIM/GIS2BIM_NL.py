@@ -36,7 +36,7 @@ import urllib.request
 import time
 import xml.etree.ElementTree as ET
 
-#import PyPackages.requests
+import requests
 
 #import urllib.request, json
 
@@ -129,11 +129,11 @@ def bgtDownloadURL(X,Y,bboxWidth,bboxHeight,timeout):
 	data = qryPart1 +  qryPart2 + qryPart3 + qryPart4 + qryPart5
 	dataquery = data
 	
-	headers = PyPackages.requests.structures.CaseInsensitiveDict()
+	headers = requests.structures.CaseInsensitiveDict()
 	headers["accept"] = "application/json"
 	headers["Content-Type"] = "application/json"
 	
-	resp = PyPackages.requests.post(url, headers=headers, data=data)
+	resp = requests.post(url, headers=headers, data=data)
 	
 	jsondata = json.loads(resp.text)
 	data = jsondata["downloadRequestId"]
