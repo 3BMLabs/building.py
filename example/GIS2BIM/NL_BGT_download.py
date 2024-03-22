@@ -121,5 +121,4 @@ GISBbox = GisRectBoundingBox().Create(RdX, RdY, 200, 200, 0)
 GISProject = BuildingPy(settings["BuildingpyName"])
 polygonString = GIS2BIM.CreateBoundingBoxPolygon(RdX, RdY, 200, 200,2)
 
-BGTDownloadnew(FolderBGT, True, polygonString)
-
+#BGTDownloadnew(FolderBGT, True, polygonString)
