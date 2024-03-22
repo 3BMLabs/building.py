@@ -74,7 +74,8 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point: Point | Point2D):
+def PointToSpecklePoint(point):
+    #@Jonathan: point: Point | Point2D  gaf een foutmelding
     if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
     elif point.type == "Point2D":
