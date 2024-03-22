@@ -14,8 +14,8 @@ from geometry.mesh import *
 import certifi
 import ssl
 
-#check and ccreate folders
 def CreateFolder(Folder):
+    #check and ccreate folders
     if not os.path.isdir(Folder):
         print(Folder + ": " + str(os.path.isdir(Folder)))
         os.mkdir(Folder)
@@ -66,8 +66,8 @@ def GetWebServerDataCategorised(obj1, obj2, obj3):
 	jsonData = json.loads(url.read())[obj1][obj2][obj3]
 	return jsonData
 
-#get settings
 def GetWebServerDataSettings(SettingsfileLocation):
+    #get settings
     url = urllib.request.urlopen(SettingsfileLocation)
     jsonData = json.loads(url.read())['Settings']
     print(jsonData)
@@ -85,7 +85,7 @@ def DownloadWMSBasis(Bbox, FolderImages):
         print(itemtitle)
         WMSRequestNew(itemserverrequestprefix, Bbox, FolderImages + "/"+ itemtitle +".png", 1500, 1500)
 
-def Kadaster3DBasisvoorziening(resultparser, GISProject):
+def Kadaster3DBasisvoorziening(result, GISProject):
     #3D KADASTER BASISVOORZIENING
 
     resultparser = result
@@ -160,6 +160,33 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
         m = MeshPB().by_coords(geom, name, BaseOther, False)
         GISProject.objects.append(m)
 
+def Create3DKadasterBasisvoorziening(GISBbox,FolderCityJSON):
+    #3D Kadaster Basisvoorziening
+    filePaths = []
+    for file in os.listdir(FolderCityJSON):
+        if file.endswith(".json"):
+            filepath = os.path.join(FolderCityJSON, file)
+            filePaths.append(filepath)
+    return(cityJSONParser(filePaths,GISBbox, 2.2))
+
+def Create3DBag(Folder, RdX,RdY,LOD,Bboxwidth):
+    #3D BAG files
+    filePaths = []
+    for file in os.listdir(Folder):
+        if file.endswith(".json"):
+            filepath = os.path.join(Folder, file)
+            filePaths.append(filepath)
+            print(filepath)
+    #3D BAG parse
+    for i in filePaths:
+        cityjson_res = cityJSONParserBAG3D(i,RdX,RdY,LOD,Bboxwidth,Bboxwidth)
+        buildings = cityjson_res[0]
+        names = cityjson_res[1]
+        for i,j in zip(buildings, names):
+            name = j
+            m = MeshPB().by_coords(i, name, BaseBuilding, False)
+            GISProject.objects.append(m)
+
 settings = GetWebServerDataSettings('https://raw.githubusercontent.com/jochem25/settings/main/GIS2BIM_project1.json')
 ProjectDrive = settings["Projectdrive"]
 ProjectFolder = ProjectDrive + settings["Mainfolder"]
@@ -190,39 +217,16 @@ GISBbox = GisRectBoundingBox().Create(RdX, RdY, 200, 200, 0)
 print(GISBbox)
 GISProject = BuildingPy(settings["BuildingpyName"])
 
-print(folderBAG3D)
-BAG3DDownload(GISBbox.boundingBoxString, folderBAG3D)
-DownloadCityJSON(GISBbox, FolderCityJSON)
-
 start = time.time()
+print(folderBAG3D)
+#BAG3DDownload(GISBbox.boundingBoxString, folderBAG3D)
+Create3DBag(folderBAG3D, RdX,RdY,2.2,Bboxwidth)
 
-#3D Kadaster Basisvoorziening
-#filePaths = []
-#for file in os.listdir(FolderCityJSON):
-#    if file.endswith(".json"):
-#        filepath = os.path.join(FolderCityJSON, file)
-#        filePaths.append(filepath)
-#result = cityJSONParser(filePaths,GISBbox, 2.2)
+print(FolderCityJSON)
+#DownloadCityJSON(GISBbox, FolderCityJSON)
+Kadaster3DBasisvoorziening(Create3DKadasterBasisvoorziening(GISBbox, FolderCityJSON),GISProject)
 
-#3D BAG
-#filePaths = []
-#for file in os.listdir(FolderOBJ):
-#    if file.endswith(".json"):
-#        filepath = os.path.join(FolderOBJ, file)
-#        filePaths.append(filepath)
-
-#for i in filePaths:
-#    cityjson_res = cityJSONParserBAG3D(i,RdX,RdY,2.2,Bboxwidth,Bboxwidth)
-#    buildings = cityjson_res[0]
-#    names = cityjson_res[1]
-#    for i,j in zip(buildings, names):
-#        name = j
-#        m = MeshPB().by_coords(i, name, BaseBuilding, False)
-#        GISProject.objects.append(m)
-
-#Kadaster3DBasisvoorziening(result,GISProject)
-
-#GISProject.toSpeckle("6b2055857b", "3D Kadaster Basisvoorziening en 3D BAG")
+GISProject.toSpeckle("6b2055857b", "3D Kadaster Basisvoorziening en 3D BAG")
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')
