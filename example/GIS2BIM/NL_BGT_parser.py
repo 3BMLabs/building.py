@@ -318,4 +318,4 @@ for fileIndex, gmlFilePath in enumerate(gmlFilePaths):
        
 # STEP 3: Return Boundary Curves
     
-OUT = [cityObjectTypes, cityObjectBounds, cityObjectIDs, cityObjectBAGPandIDs, cityObjectDates]
+#OUT = [cityObjectTypes, cityObjectBounds, cityObjectIDs, cityObjectBAGPandIDs, cityObjectDates]
