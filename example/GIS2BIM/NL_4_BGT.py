@@ -22,4 +22,3 @@ RdX = lst[0]
 RdY = lst[1]
 Bbox = GIS2BIM.CreateBoundingBox(RdX, RdY, Bboxwidth, Bboxwidth, 0)
 
-DownloadBGT = bgtDownloadURL(RdX,RdY,Bboxwidth,Bboxwidth,60)
