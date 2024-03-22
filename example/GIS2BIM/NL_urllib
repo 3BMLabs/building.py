@@ -2,8 +2,14 @@ import os
 import sys
 sys.path.append("../building.py")
 #print(sys.path)
+from get_certificate_chain.download import SSLCertificateChainDownloader
 import urllib
 import urllib.request
 from urllib.request import *
-urllib.request.urlopen("https://download.pdok.nl/kadaster/basisvoorziening-3d/v1_0//2020/volledig/38cn2_2020_volledig.zip")
+resource=urllib.request.urlopen("https://download.pdok.nl/kadaster/basisvoorziening-3d/v1_0//2020/volledig/38cn2_2020_volledig.zip")
+output1 = open("c:/temp/38cn2_2020_volledig.zip", "wb")
+output1.write(resource.read())
+output1.close()
 
+downloader = SSLCertificateChainDownloader(output_directory="c:/temp")
+downloader.run({"host": "www.pdok.nl"})
