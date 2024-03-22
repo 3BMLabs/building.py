@@ -76,10 +76,12 @@ pat = PatternSystem().stretcher_bond_with_joint("halfsteensverband",100,210,50,1
 
 ## Kruisverband
 
-![Image](2_kruisverband.png)
+![Image](docs/img/2_kruisverband.png)
 
-![Image](3_columns_beams.png)
+![Image](docs/img/3_columns_beams.png)
 
-![Image](4_woodframing_walls.png)
+![Image](docs/img/4_woodframing_walls.png)
 
-![Image](5_examples_panel_beam_steel_concrete.png)
+![Image](docs/img/5_examples_panel_beam_steel_concrete.png)
+
+![Image](docs/img/6_GIS2BIM.png)
