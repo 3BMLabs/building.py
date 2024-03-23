@@ -2767,7 +2767,7 @@ def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
     return intersections % 2 != 0
 
 def kaartbladnummer(RdX,RdY):
-    #geeft als resultaat het kaartbladnummer die voor de kadaster basisvoorziening o.a. gebruikt wordt
+    #geeft als resultaat het kaartbladnummer die voor de 3D Kadaster basisvoorziening o.a. gebruikt wordt
     orig = Point2D(RdX,RdY)
     kaartbladen = []
     for i,k in zip(lstkaartbladenpolygons,lstkaartbladennummers):
