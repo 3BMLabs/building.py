@@ -129,3 +129,4 @@ class ReadDXF():
             for pl in self.points:
                 plList.append(PolyCurve.by_points(pl))
             return plList
+

@@ -1,10 +1,5 @@
-from packages.GIS2BIM.GIS2BIM_NL import *
-from packages.GIS2BIM.GIS2BIM import *
-from project.fileformat import *
-from packages.GIS2BIM.GIS2BIM_NL_helpers import *
 from packages.GIS2BIM.GIS2BIM_CityJSON import *
 import time
-import ijson
 from library.material import *
 import os
 from geometry.mesh import *
@@ -13,11 +8,11 @@ from geometry.mesh import *
 # Download files using NL_1_Download_GIS_data.py
 
 # SETTINGS
-GISProject = BuildingPy("GIS2BIM Data")
-lst = NL_GetLocationData(NLPDOKServerURL, "Dordrecht", "werf van schouten", "501")
+GISProject = BuildingPy("GIS2BIM 3D NL")
+lst = NL_GetLocationData(NLPDOKServerURL, "Boskoop", "Warmoeskade", "2")
 
-Bboxwidth = 500  # Meter
-tempfolder = "C:/TEMP/GIS/"
+Bboxwidth = 400  # Meter
+tempfolder = "C:/TEMP/GIS3/"
 folderBAG3D = tempfolder + "BAG3D/"
 cityJSONFolder = tempfolder + "cityJSON/"
 maximumLoD = 2.2
@@ -53,9 +48,7 @@ for i in filePaths:
         m = MeshPB().by_coords(i, name, BaseBuilding, False)
         GISProject.objects.append(m)
 
-
 # 3D KADASTER BASISVOORZIENING
-
 def Kadaster3DBasisvoorziening(resultparser, GISProject):
     # 3D KADASTER BASISVOORZIENING
 
@@ -93,7 +86,7 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
     for i in result[4]:
         geom = i
         name = "landuses"
-        m = MeshPB().by_coords(geom, name, BaseInfra, False)
+        m = MeshPB().by_coords(geom, name, BaseGreen, False)
         GISProject.objects.append(m)
 
     # 5 plantcovers
@@ -134,7 +127,7 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
 
 Kadaster3DBasisvoorziening(result, GISProject)
 
-GISProject.toSpeckle("8c592da1d5", "3D Kadaster Basisvoorziening en 3D BAG")
+GISProject.toSpeckle("ef50079ffb", "3D Kadaster Basisvoorziening en 3D BAG")
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')
