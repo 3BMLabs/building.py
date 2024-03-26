@@ -47,10 +47,10 @@ pythonfiles = \
     "exchange/DXF.py",
     "exchange/pat.py",
     "exchange/struct4U.py",
-    "exchange/scia.py",
     ]
 
-#if export to revit, add this line:     "exchange/revit.py"
+#if export to Revit, add this line:     "exchange/revit.py"
+#if export to Scia, add this line:     "exchange/scia.py"
 
 BuildingPySingleFileStr = ""
 Includedstr = "# [included in BP singlefile]"
@@ -84,7 +84,7 @@ BuildingPySingleFileStr = BuildingPySingleFileStr.replace(Includedstr, "")
 BuildingPySingleFileStr_NoImports = ""
 
 for line in BuildingPySingleFileStr.split("\n"):
-    if "from " in line and "#" not in line:
+    if "from " in line and "#" not in line and len(line) < 20:
         pass
     elif "import " in line and "#" not in line:
         pass
