@@ -33,6 +33,7 @@ __url__ = "./objects/frame.py"
 
 import sys, os, math
 from pathlib import Path
+from typing import Union
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -151,7 +152,7 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def by_startpoint_endpoint_profile_name(cls, start: Point | Node, end: Point | Node, profile_name: str, name: str, material: None, comments=None):
+    def by_startpoint_endpoint_profile_name(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, material: None, comments=None):
         # [!not included in BP singlefile - start]
         from library.profile import profiledataToShape
         # [!not included in BP singlefile - end]
@@ -183,7 +184,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_shapevector(cls, start: Point | Node, end: Point | Node, profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+    def by_startpoint_endpoint_profile_name_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
         f1 = Frame()
         f1.comments = comments
 
@@ -222,7 +223,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Point | Node, end: Point | Node, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -271,7 +272,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint(cls, start: Point | Node, end: Point | Node, polycurve: PolyCurve2D, name: str, rotation: float, material=None, comments=None):
+    def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve2D, name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -301,7 +302,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_height_rotation(cls, start: Point | Node, height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
+    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -330,7 +331,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_point_profile_height_rotation(cls, start: Point | Node, height: float, profile_name: str, rotation: float, material=None, comments=None):
+    def by_point_profile_height_rotation(cls, start: Union[Point, Node], height: float, profile_name: str, rotation: float, material=None, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -360,7 +361,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_curve_justifiction(cls, start: Point | Node, end: Point | Node, polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
+    def by_startpoint_endpoint_curve_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
         f1 = Frame()
         f1.comments = comments
 
