@@ -45,18 +45,17 @@ def generate_class_documentation(module_name):
         documentation_lines.append("\n## Methods\n")
         for method_name, method_obj in methods:
             if method_name != '__init__':
-                signature = inspect.signature(method_obj)
-                signature = str(signature).replace("'", "")
+                signature_old = inspect.signature(method_obj)
+                signature = str(signature_old).replace("'", "")
                 method_doc = method_obj.__doc__ if method_obj.__doc__ is not None else "No documentation available."
                 method_doc = method_doc.split("#### Parameters:")[0]
-                print(method_doc)
-
                 documentation_lines.append(f"- `{method_name}{signature}`: {method_doc}\n")
 
         documentation_lines.append("\n## Documentation\n")
 
         for method_name, method_obj in methods:
-            signature = inspect.signature(method_obj)
+            signature_old = inspect.signature(method_obj)
+            signature = str(signature_old).replace("'", "")
             method_doc_raw = method_obj.__doc__ if method_obj.__doc__ is not None else "No documentation available."
             method_doc = remove_leading_whitespace(method_doc_raw)
             if method_name != '__init__':
@@ -67,7 +66,7 @@ def generate_class_documentation(module_name):
             for line in documentation_lines:
                 md_file.write(line + "\n")
         
-        print(f"Documentation for {cls_name} generated in {file_path}")
+        # print(f"Documentation for {cls_name} generated in {file_path}")
 
 for file in files:
     generate_class_documentation(file)
