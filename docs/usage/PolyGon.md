@@ -3,38 +3,77 @@ No documentation available.
 
 ## Constructor
 
-### `__init__(self, lines) -> None`
-No documentation available.
+### `__init__(self, lines) -> PolyGon`
+Represents a polygon composed of lines.
+
+        - `lines` (list[Line]): List of lines composing the polygon.
+        
 
 ---
 
 
 ## Methods
 
-- `__id__(self)`: No documentation available.
+- `__id__(self)`: Returns the ID of the PolyGon instance.
 
-- `__str__(self) -> str`: No documentation available.
+        
 
-- `polygon(flatCurves: geometry.curve.Line) -> geometry.point.Point`: No documentation available.
+- `__str__(self) -> str`: Returns a string representation of the PolyGon instance.
+
+        
+
+- `polygon(flatCurves: list[Line]) -> list[Point]`: Creates a polygon from a list of flat curves.
+
+        
 
 
 ## Documentation
 
 #### `__id__(self)`
 
-No documentation available.
+Returns the ID of the PolyGon instance.
+
+#### Returns:
+`str`: The ID of the PolyGon instance.
+
+#### Example usage:
+```python
+
+```         
+
 
 ---
 
 #### `__str__(self) -> str`
 
-No documentation available.
+Returns a string representation of the PolyGon instance.
+
+#### Returns:
+`str`: A string representation of the PolyGon instance.
+
+#### Example usage:
+```python
+
+```         
+
 
 ---
 
-#### `polygon(flatCurves: geometry.curve.Line) -> geometry.point.Point`
+#### `polygon(flatCurves: list[Line]) -> list[Point]`
 
-No documentation available.
+Creates a polygon from a list of flat curves.
+
+#### Parameters:
+- `flatCurves` (List[Line]): List of flat curves.
+
+#### Returns:
+`List[Point]`: List of points representing the polygon.
+
+#### Example usage:
+```python
+
+```            
+
 
 ---
 

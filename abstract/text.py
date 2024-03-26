@@ -53,7 +53,27 @@ from geometry.point import *
 
 
 class Text:
-    def __init__(self, text: str = None, font_family: str = None, cs=CoordinateSystem, height=None):
+    """The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
+    def __init__(self, text: str = None, font_family: 'str' = None, cs='CoordinateSystem', height=None) -> "Text":
+        """Initializes a new Text instance
+        
+        - `id` (str): A unique identifier for the text object.
+        - `type` (str): The class name, "Text".
+        - `text` (str, optional): The text string to be represented.
+        - `font_family` (str, optional): The font family of the text, defaulting to "Arial".
+        - `xyz` (Vector3): The origin point of the text in the coordinate system.
+        - `csglobal` (CoordinateSystem): The global coordinate system applied to the text.
+        - `x`, `y`, `z` (float): The position offsets for the text within its coordinate system.
+        - `scale` (float, optional): The scale factor applied to the text size.
+        - `height` (float, optional): The height of the text characters.
+        - `bbHeight` (float, optional): The bounding box height of the text.
+        - `width` (float, optional): The calculated width of the text string.
+        - `character_offset` (int): The offset between characters.
+        - `space` (int): The space between words.
+        - `curves` (list): A list of curves representing the text geometry.
+        - `points` (list): A list of points derived from the text geometry.
+        - `path_list` (list): A list containing the path data for each character.
+        """
         self.id = generateID()
         self.type = __class__.__name__
         self.text = text
@@ -72,7 +92,18 @@ class Text:
         self.path_list = self.load_path()
         self.load_o_example = self.load_o()
 
-    def serialize(self):
+    def serialize(self) -> 'dict':
+        """Serializes the text object's attributes into a dictionary.
+        This method is useful for exporting the text object's properties, making it easier to save or transmit as JSON.
+
+        #### Returns:
+            dict: A dictionary containing the serialized attributes of the text object.
+        
+        #### Example usage:
+        ```python
+
+        ```
+        """
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
         return {
@@ -96,7 +127,18 @@ class Text:
             'path_list': self.path_list,
         }
 
-    def load_path(self) -> str:
+    def load_path(self) -> 'str':
+        """Loads the glyph paths for the specified text from a JSON file.
+        This method fetches the glyph paths for each character in the text attribute, using a predefined font JSON file.
+
+        #### Returns:
+            str: A string representation of the glyph paths for the text.
+    
+        #### Example usage:
+        ```python
+
+        ```
+        """
         url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
         response = requests.get(url)
         if response.status_code == 200:
@@ -109,7 +151,18 @@ class Text:
                     output.append("space")
             return output
 
-    def load_o(self) -> str:
+    def load_path(self) -> 'str':
+        """Loads the glyph paths for the specified text from a JSON file.
+        This method fetches the glyph paths for each character in the text attribute, using a predefined font JSON file.
+
+        #### Returns:
+            str: A string representation of the glyph paths for the text.
+        
+        #### Example usage:
+        ```python
+
+        ```
+        """
         url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
         response = requests.get(url)
         if response.status_code == 200:
@@ -120,7 +173,18 @@ class Text:
                 load_o.append(glyph_data[letter]["glyph-path"])
             return load_o
 
-    def write(self) -> List[List[PolyCurve]]:
+    def write(self) -> 'List[List[PolyCurve]]':
+        """Generates a list of PolyCurve objects representing the text.
+        Transforms the text into geometric representations based on the specified font, scale, and position.
+
+        #### Returns:
+            List[List[PolyCurve]]: A list of lists containing PolyCurve objects representing the text geometry.
+        
+        #### Example usage:
+        ```python
+
+        ```
+        """
         # start ref_symbol
         path = self.load_o_example
         ref_points = []
@@ -204,7 +268,20 @@ class Text:
         # print(f'Object text naar objects gestuurd.')
         return pList
 
-    def translate(self, polyCurve):
+    def translate(self, polyCurve: 'PolyCurve') -> 'PolyCurve':
+        """Translates a PolyCurve according to the text object's global coordinate system and scale.
+
+        #### Parameters:
+            polyCurve (PolyCurve): The PolyCurve to be translated.
+
+        #### Returns:
+            PolyCurve: The translated PolyCurve.
+        
+        #### Example usage:
+        ```python
+
+        ```
+        """
         trans = []
         for pt in polyCurve.points:
             pscale = Point.product(self.scale, pt)
@@ -212,13 +289,41 @@ class Text:
             trans.append(pNew)
         return polyCurve.by_points(trans)
 
-    def calculate_bounding_box(self, points):
+    def calculate_bounding_box(self, points: 'list[Point]') -> tuple:
+        """Calculates the bounding box for a given set of points.
+
+        #### Parameters:
+            points (list): A list of points to calculate the bounding box for.
+
+        #### Returns:
+            tuple: A tuple containing the bounding box, its width, and its height.
+       
+        #### Example usage:
+        ```python
+
+        ```
+        """
+
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
         bounding_box_polyline = BoundingBox2d().by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
 
-    def convert_points_to_polyline(self, points: Point) -> PolyCurve:  # move
+    def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':
+        """Converts a list of points into a PolyCurve.
+        This method is used to generate a PolyCurve from a series of points, typically derived from text path data.
+
+        #### Parameters:
+            points (list): A list of points to be converted into a PolyCurve.
+
+        #### Returns:
+            PolyCurve: A PolyCurve object representing the points.
+        
+        #### Example usage:
+        ```python
+
+        ```
+        """
         output_list = []
         sub_lists = [[]]
         tempPoints = [elem for elem in points if elem != 'M']

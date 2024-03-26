@@ -3,7 +3,7 @@ Represents a 3D vector with x, y, and z coordinates.
 
 ## Constructor
 
-### `__init__(self, x: float, y: float, z: float) -> 'Vector3'`
+### `__init__(self, x: float, y: float, z: float) -> Vector3`
 Initializes a new Vector3 instance with the given x, y, and z coordinates.
 
         - `x` (float): X-coordinate of the vector.

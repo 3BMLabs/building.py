@@ -433,13 +433,9 @@ class Point:
 
 
 class CoordinateSystem:
-    """
-    Represents a coordinate system in 3D space defined by an origin point and normalized x, y, and z axis vectors.
-    """
-    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
-        """
-        Initializes a new CoordinateSystem instance with the given origin and axis vectors.
-        
+    """Represents a coordinate system in 3D space defined by an origin point and normalized x, y, and z axis vectors."""
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis) -> 'CoordinateSystem':
+        """Initializes a new CoordinateSystem instance with the given origin and axis vectors.
         The axis vectors are normalized to ensure they each have a length of 1, providing a standard basis for the coordinate system.
 
         - `origin` (Point): The origin point of the coordinate system.
@@ -457,8 +453,7 @@ class CoordinateSystem:
 
     @classmethod
     def by_origin(coordinate_system, origin: Point) -> 'CoordinateSystem':
-        """
-        Creates a CoordinateSystem with a specified origin.
+        """Creates a CoordinateSystem with a specified origin.
 
         #### Parameters:
         - `origin` (`Point`): The origin point of the new coordinate system.
@@ -476,8 +471,7 @@ class CoordinateSystem:
 
     @staticmethod
     def translate(cs_old, direction):
-        """
-        Translates a CoordinateSystem by a given direction vector.
+        """Translates a CoordinateSystem by a given direction vector.
 
         #### Parameters:
         - `cs_old` (CoordinateSystem): The original coordinate system to be translated.
@@ -512,9 +506,7 @@ class CoordinateSystem:
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
-        """
-        Creates a new CoordinateSystem at a given point, oriented along a specified direction vector.
-
+        """Creates a new CoordinateSystem at a given point, oriented along a specified direction vector.
         This method establishes a new coordinate system by defining its origin and its Z-axis direction. The X and Y axes are determined based on the given Z-axis to form a right-handed coordinate system. If the calculated X or Y axis has a zero length (in cases of alignment with the global Z-axis), default axes are used.
 
         #### Parameters:
@@ -549,8 +541,7 @@ class CoordinateSystem:
 
     @staticmethod
     def move_local(cs_old, x: float, y: float, z: float):
-        """
-        Moves a CoordinateSystem in its local coordinate space by specified displacements.
+        """Moves a CoordinateSystem in its local coordinate space by specified displacements.
 
         #### Parameters:
         - `cs_old` (CoordinateSystem): The original coordinate system to be moved.
@@ -581,8 +572,7 @@ class CoordinateSystem:
 
     @staticmethod
     def translate_origin(origin1, origin2):
-        """
-        Calculates the translation needed to move from one origin to another.
+        """Calculates the translation needed to move from one origin to another.
 
         #### Parameters:
         - `origin1` (Point): The starting origin point.
@@ -604,8 +594,7 @@ class CoordinateSystem:
 
     @staticmethod
     def calculate_rotation_matrix(xaxis_1, yaxis_1, zaxis_1, xaxis_2, yaxis_2, zaxis_2):
-        """
-        Calculates the rotation matrix needed to align one coordinate system with another.
+        """Calculates the rotation matrix needed to align one coordinate system with another.
 
         #### Parameters:
         - `xaxis_1`, `yaxis_1`, `zaxis_1` (Vector3): The axes of the initial coordinate system.
@@ -636,9 +625,7 @@ class CoordinateSystem:
 
     @staticmethod
     def normalize(point: Point) -> list:
-        """
-        Normalizes a vector to have a length of 1.
-
+        """Normalizes a vector to have a length of 1.
         This method calculates the normalized (unit) version of a given vector, making its length equal to 1 while preserving its direction. If the input vector has a length of 0 (i.e., it is a zero vector), the method returns the original vector.
 
         #### Parameters:
@@ -657,9 +644,7 @@ class CoordinateSystem:
 
 
 def transform_point(point_local: Point, coordinate_system_old: CoordinateSystem, new_origin: Point, direction_vector) -> Point:
-    """
-    Transforms a point from one coordinate system to another based on a new origin and a direction vector.
-
+    """Transforms a point from one coordinate system to another based on a new origin and a direction vector.
     This function calculates the new position of a point when the coordinate system is changed. The new coordinate system is defined by a new origin point and a direction vector that specifies the orientation of the Z-axis. The X and Y axes are computed to form a right-handed coordinate system. This method takes into account the original position of the point in the old coordinate system to accurately calculate its position in the new coordinate system.
 
     #### Parameters:
@@ -702,22 +687,20 @@ def transform_point(point_local: Point, coordinate_system_old: CoordinateSystem,
     point_1 = point_local
     CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector3.from_matrix(
         vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
-    v1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
+    vector_1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
 
-    v2 = Vector3.product(point_1.x, CSNew.Xaxis)
-    v3 = Vector3.product(point_1.y, CSNew.Y_axis)
-    v4 = Vector3.product(point_1.z, CSNew.Z_axis)
-    vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y +
-                   v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
+    vector_2 = Vector3.product(point_1.x, CSNew.Xaxis)
+    vector_3 = Vector3.product(point_1.y, CSNew.Y_axis)
+    vector_4 = Vector3.product(point_1.z, CSNew.Z_axis)
+    vtot = Vector3(vector_1.x + vector_2.x + vector_3.x + vector_4.x, vector_1.y + vector_2.y +
+                   vector_3.y + vector_4.y, vector_1.z + vector_2.z + vector_3.z + vector_4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)
 
     return pointNew
 
 
 def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem) -> Point:
-    """
-    Transforms a point from its local coordinate system to a new coordinate system.
-
+    """Transforms a point from its local coordinate system to a new coordinate system.
     This function translates a point based on its local coordinates (x, y, z) within its current coordinate system to a new position in a specified coordinate system. The transformation involves scaling the local coordinates by the axes vectors of the new coordinate system and sequentially translating the point along these axes vectors starting from the new origin.
 
     #### Parameters:

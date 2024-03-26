@@ -44,7 +44,20 @@ from abstract.vector import *
 
 
 class Node:
+    """The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
     def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
+        """"Initializes a new Node instance.
+        
+        - `id` (str): A unique identifier for the node.
+        - `type` (str): The class name, "Node".
+        - `point` (Point, optional): The location of the node in 3D space.
+        - `vector` (Vector3, optional): A vector indicating the orientation or direction associated with the node.
+        - `number` (any, optional): An identifying number or label for the node.
+        - `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
+        - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
+        - `comments` (str, optional): Additional comments or notes about the node.
+        """
+        
         self.id = generateID()
         self.type = __class__.__name__
         self.point = point if isinstance(point, Point) else None
@@ -54,7 +67,14 @@ class Node:
         self.diameter = diameter
         self.comments = comments
 
-    def serialize(self):
+    def serialize(self) -> dict:
+        """Serializes the node's attributes into a dictionary.
+
+        This method allows for the node's properties to be easily stored or transmitted in a dictionary format.
+
+        #### Returns:
+        `dict`: A dictionary containing the serialized attributes of the node.
+        """
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
         return {
@@ -69,7 +89,15 @@ class Node:
         }
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data: dict) -> 'Node':
+        """Recreates a Node object from a dictionary of serialized data.
+
+        #### Parameters:
+        - data (dict): The dictionary containing the node's serialized data.
+
+        #### Returns:
+        `Node`: A new Node object initialized with the data from the dictionary.
+        """
         node = Node()
         node.id = data.get('id')
         node.type = data.get('type')
@@ -86,6 +114,10 @@ class Node:
 
     # merge
     def merge(self):
+        """Merges this node with others in a project according to defined rules.
+
+        The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
+        """
         if project.node_merge == True:
             pass
         else:
@@ -93,7 +125,17 @@ class Node:
 
     # snap
     def snap(self):
+        """Adjusts the node's position based on snapping criteria.
+
+        This could involve aligning the node to a grid, other nodes, or specific geometric entities.
+        """
         pass
 
     def __str__(self) -> str:
+        """Generates a string representation of the Node.
+
+        #### Returns:
+        `str`: A string that represents the Node, including its type and potentially other identifying information.
+        """
+
         return f"{self.type}"

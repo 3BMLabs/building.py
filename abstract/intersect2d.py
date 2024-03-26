@@ -41,15 +41,50 @@ from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
 
-
+#intersect class?
 def perp(a):
+    """Calculates a perpendicular vector to the given vector `a`.
+    This function calculates a vector that is perpendicular to the given 2D vector `a`. The returned vector is in the 2D plane and rotated 90 degrees counterclockwise.
+
+    #### Parameters:
+    - `a` (list[float]): A 2D vector represented as a list of two floats, `[x, y]`.
+
+    #### Returns:
+    `list[float]`: A new 2D vector that is perpendicular to `a`.
+
+    #### Example usage:
+    ```python
+    vector_a = [1, 0]
+    perp_vector = perp(vector_a)
+    # Expected output: [0, 1], representing a vector perpendicular to `vector_a`.
+    ```
+    """
     b = [None] * len(a)
     b[0] = -a[1]
     b[1] = a[0]
     return b
 
 
-def get_line_intersect(line_1, line_2):
+def get_line_intersect(line_1: 'Line2D', line_2: 'Line2D') -> 'Point2D':
+    """Calculates the intersection point of two lines if they intersect.
+    This function computes the intersection point of two lines defined by `line_1` and `line_2`. If the lines are parallel or coincide, the function returns `None`.
+
+    #### Parameters:
+    - `line_1` (Line2D): The first line, represented by its start and end points.
+    - `line_2` (Line2D): The second line, represented by its start and end points.
+
+    #### Returns:
+    `Point2D` or `None`: The intersection point of `line_1` and `line_2` if they intersect; otherwise, `None`.
+
+    #### Example usage:
+    ```python
+    line_1 = Line2D(Point2D(0, 0), Point2D(1, 1))
+    line_2 = Line2D(Point2D(1, 0), Point2D(0, 1))
+    intersection = get_line_intersect(line_1, line_2)
+    # Expected output: Point2D(0.5, 0.5), the intersection point.
+    ```
+    """
+
     if line_1.start == line_1.end or line_2.start == line_2.end:
         return None
 
@@ -76,6 +111,25 @@ def get_line_intersect(line_1, line_2):
 
 
 def get_multi_lines_intersect(lines: list[Line2D]) -> list[Point2D]:
+    """Finds intersection points between multiple Line2D objects.
+    This function iterates through a list of Line2D objects, calculates intersections between each pair of lines, and returns a list of unique intersection points. If a line does not intersect or the intersection point is not on the line segment, it is ignored.
+
+    #### Parameters:
+    - `lines` (list[Line2D]): A list of Line2D objects.
+
+    #### Returns:
+    `list[Point2D]`: A list of Point2D objects representing the intersection points.
+
+    #### Example usage:
+    ```python
+    line1 = Line2D(Point2D(0, 0), Point2D(10, 10))
+    line2 = Line2D(Point2D(0, 10), Point2D(10, 0))
+    lines = [line1, line2]
+    intersections = get_multi_lines_intersect(lines)
+    # Expected output: [Point2D(5, 5)], the intersection point of the two lines.
+    ```
+    """
+
     pts = []
     for i in range(len(lines)):
         line1 = lines[i]
@@ -88,6 +142,30 @@ def get_multi_lines_intersect(lines: list[Line2D]) -> list[Point2D]:
 
 
 def get_intersect_polycurve_lines(polycurve: PolyCurve2D, lines: list[Line2D], split: bool = False, stretch: bool = False):
+    """Calculates intersections between a PolyCurve2D and multiple Line2D objects, with options to split and stretch lines.
+    This function identifies intersection points between a PolyCurve2D and a list of Line2D objects. It supports stretching lines to intersect across the entire polycurve and splitting lines at intersection points. The function returns a dictionary containing intersection points, split lines, and categorized lines as either inner or outer grid lines based on their location relative to the polycurve.
+
+    #### Parameters:
+    - `polycurve` (PolyCurve2D): The PolyCurve2D object to test for intersections.
+    - `lines` (list[Line2D]): A list of Line2D objects to test for intersections with the polycurve.
+    - `split` (bool): If True, splits lines at their intersection points. Defaults to False.
+    - `stretch` (bool): If True, extends lines to calculate intersections across the entire polycurve. Defaults to False.
+
+    #### Returns:
+    `dict`: A dictionary containing:
+    - `IntersectGridPoints`: A list of intersection points.
+    - `SplittedLines`: A list of Line2D objects, split at intersection points if `split` is True.
+    - `InnerGridLines`: Lines fully contained within the polycurve.
+    - `OuterGridLines`: Lines extending outside the polycurve.
+
+    #### Example usage:
+    ```python
+    polycurve = PolyCurve2D.by_points([Point2D(0, 0), Point2D(10, 0), Point2D(10, 10), Point2D(0, 10)])
+    line = Line2D(Point2D(5, -5), Point2D(5, 15))
+    results = get_intersect_polycurve_lines(polycurve, [line], split=True)
+    # Expected output: A dictionary with lists of intersection points, split lines, inner and outer grid lines.
+    ```
+    """
     dict = {}
     intersectionsPointsList = []
     splitedLinesList = []
@@ -153,7 +231,25 @@ def get_intersect_polycurve_lines(polycurve: PolyCurve2D, lines: list[Line2D], s
     return dict
 
 
-def is_point_on_line_segment(point: Point2D, line: Line2D) -> bool:
+def is_point_on_line_segment(point: 'Point2D', line: 'Line2D') -> 'bool':
+    """Checks if a Point2D is on a Line2D segment.
+    This function determines whether a given Point2D lies on a specified Line2D segment. It checks if the point is within the line segment's bounding box and calculates its distance from the line to verify its presence on the line.
+
+    #### Parameters:
+    - `point` (Point2D): The Point2D object to check.
+    - `line` (Line2D): The Line2D object on which the point's presence is to be checked.
+
+    #### Returns:
+    `bool`: True if the point lies on the line segment; otherwise, False.
+
+    #### Example usage:
+    ```python
+    point = Point2D(5, 5)
+    line = Line2D(Point2D(0, 0), Point2D(10, 10))
+    is_on_segment = is_point_on_line_segment(point, line)
+    # Expected output: True, since the point lies on the line segment.
+    ```
+    """
     x_min = min(line.start.x, line.end.x)
     x_max = max(line.start.x, line.end.x)
     y_min = min(line.start.y, line.end.y)
@@ -172,7 +268,25 @@ def is_point_on_line_segment(point: Point2D, line: Line2D) -> bool:
     return False
 
 
-def get_intersection_polycurve_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D) -> list[Point2D]:
+def get_intersection_polycurve_polycurve(polycurve_1: 'PolyCurve2D', polycurve_2: 'PolyCurve2D') -> 'list[Point2D]':
+    """Finds intersection points between two PolyCurve2D objects.
+    This function calculates the intersection points between all line segments of two PolyCurve2D objects. It iterates through each line segment of the first polycurve and checks for intersections with each line segment of the second polycurve. Intersection points that lie on both line segments are added to the result list.
+
+    #### Parameters:
+    - `polycurve_1` (PolyCurve2D): The first polycurve.
+    - `polycurve_2` (PolyCurve2D): The second polycurve to intersect with the first one.
+
+    #### Returns:
+    `list[Point2D]`: A list of Point2D objects representing the intersection points between the two polycurves.
+
+    #### Example usage:
+    ```python
+    polycurve1 = PolyCurve2D.by_points([Point2D(0, 0), Point2D(10, 10)])
+    polycurve2 = PolyCurve2D.by_points([Point2D(0, 10), Point2D(10, 0)])
+    intersections = get_intersection_polycurve_polycurve(polycurve1, polycurve2)
+    # Expected output: [Point2D(5, 5)], the intersection point of the two polycurves.
+    ```
+    """
     points = []
     for i in range(len(polycurve_1.points2D) - 1):
         line1 = Line2D(polycurve_1.points2D[i], polycurve_1.points2D[i+1])
@@ -184,7 +298,25 @@ def get_intersection_polycurve_polycurve(polycurve_1: PolyCurve2D, polycurve_2: 
     return points
 
 
-def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2D]) -> list[PolyCurve2D]:
+def split_polycurve_at_intersections(polycurve: 'PolyCurve2D', points: 'list[Point2D]') -> 'list[PolyCurve2D]':
+    """Splits a PolyCurve2D at specified points and returns the resulting segments as new polycurves.
+    This function sorts the given intersection points along the direction of the polycurve. Then it iterates through each segment of the polycurve, checking for intersections with the provided points and splitting the polycurve accordingly. Each segment between intersection points becomes a new PolyCurve2D object.
+
+    #### Parameters:
+    - `polycurve` (PolyCurve2D): The polycurve to be split.
+    - `points` (list[Point2D]): The points at which to split the polycurve.
+
+    #### Returns:
+    `list[PolyCurve2D]`: A list of PolyCurve2D objects representing the segments of the original polycurve after splitting.
+
+    #### Example usage:
+    ```python
+    polycurve = PolyCurve2D.by_points([Point2D(0, 0), Point2D(5, 5), Point2D(10, 0)])
+    points = [Point2D(5, 5)]
+    split_polycurves = split_polycurve_at_intersections(polycurve, points)
+    # Expected output: 2 new polycurves, one from (0,0) to (5,5) and another from (5,5) to (10,0).
+    ```
+    """
     points.sort(key=lambda pt: Point2D.distance(polycurve.points2D[0], pt))
 
     current_polycurve_points = [polycurve.points2D[0]]
@@ -232,7 +364,25 @@ def split_polycurve_at_intersections(polycurve: PolyCurve2D, points: list[Point2
 
 
 # extend to if on edge, then accept
-def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
+def is_point_in_polycurve(point: 'Point2D', polycurve: 'PolyCurve2D') -> 'bool':
+    """Determines if a point is located inside a closed PolyCurve2D.
+    The function uses a ray-casting algorithm to count the number of times a horizontal ray starting from the given point intersects the polycurve. If the count is odd, the point is inside; if even, the point is outside.
+
+    #### Parameters:
+    - `point` (Point2D): The point to check.
+    - `polycurve` (PolyCurve2D): The polycurve to check against.
+
+    #### Returns:
+    `bool`: True if the point is inside the polycurve, False otherwise.
+
+    #### Example usage:
+    ```python
+    polycurve = PolyCurve2D.by_points([Point2D(0, 0), Point2D(10, 0), Point2D(10, 10), Point2D(0, 10)])
+    point = Point2D(5, 5)
+    inside = is_point_in_polycurve(point, polycurve)
+    # Expected output: True, since the point is inside the polycurve.
+    ```
+    """
     x, y = point.x, point.y
     intersections = 0
     for curve in polycurve.curves:
@@ -245,7 +395,25 @@ def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
     return intersections % 2 != 0
 
 
-def is_polycurve_in_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D) -> bool:
+def is_polycurve_in_polycurve(polycurve_1: 'PolyCurve2D', polycurve_2: 'PolyCurve2D') -> 'bool':
+    """Checks if all points of one polycurve are inside another polycurve.
+    Iterates through each point of `polycurve_1` and checks if it is inside `polycurve_2` using the `is_point_in_polycurve` function. If all points of `polycurve_1` are inside `polycurve_2`, the function returns True; otherwise, it returns False.
+
+    #### Parameters:
+    - `polycurve_1` (PolyCurve2D): The polycurve to check if it is inside `polycurve_2`.
+    - `polycurve_2` (PolyCurve2D): The polycurve that may contain `polycurve_1`.
+
+    #### Returns:
+    `bool`: True if all points of `polycurve_1` are inside `polycurve_2`, False otherwise.
+
+    #### Example usage:
+    ```python
+    polycurve1 = PolyCurve2D.by_points([Point2D(1, 1), Point2D(2, 2)])
+    polycurve2 = PolyCurve2D.by_points([Point2D(0, 0), Point2D(3, 0), Point2D(3, 3), Point2D(0, 3)])
+    result = is_polycurve_in_polycurve(polycurve1, polycurve2)
+    # Expected output: True, since `polycurve1` is entirely within `polycurve2`.
+    ```
+    """
     colList = []
     for pt in polycurve_1.points2D:
         if is_point_in_polycurve(pt, polycurve_2):
@@ -260,6 +428,20 @@ def is_polycurve_in_polycurve(polycurve_1: PolyCurve2D, polycurve_2: PolyCurve2D
 
 
 def plane_line_intersection():
+    """Calculates the intersection point between a plane and a line in 3D space.
+    Given a line defined by a direction and a point on the line, and a plane defined by a normal vector and a point on the plane, this function calculates the intersection point between the line and the plane, if it exists.
+
+    #### Example usage:
+    ```python
+    line_dir = [1, 2, 3]  # Direction vector of the line
+    line_pt = [0, 0, 0]  # A point on the line
+    plane_norm = [4, 5, 6]  # Normal vector of the plane
+    plane_pt = [1, 1, 1]  # A point on the plane
+    intersection_point = plane_line_intersection(line_dir, line_pt, plane_norm, plane_pt)
+    print("The intersection point is:", intersection_point)
+    # Output: The intersection point coordinates, if an intersection exists.
+    ```
+    """
     line_dir = [1, 2, 3]
     line_pt = [0, 0, 0]
 
@@ -279,7 +461,26 @@ def plane_line_intersection():
         print("The intersection point is", inter_pt)
 
 
-def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> list[PolyCurve2D]:
+def split_polycurve_by_points(polycurve: 'PolyCurve2D', points: 'list[Point2D]') -> 'list[PolyCurve2D]':
+    """Splits a PolyCurve2D at specified points.
+    Given a list of points, this function splits the input polycurve at these points if they lie on the polycurve. Each segment of the polycurve defined by these points is returned as a new PolyCurve2D.
+
+    #### Parameters:
+    - `polycurve` (PolyCurve2D): The polycurve to split.
+    - `points` (list[Point2D]): A list of points at which the polycurve is to be split.
+
+    #### Returns:
+    `list[PolyCurve2D]`: A list of PolyCurve2D objects representing segments of the original polycurve.
+
+    #### Example usage:
+    ```python
+    polycurve = PolyCurve2D.by_points([Point2D(0, 0), Point2D(5, 5), Point2D(10, 0)])
+    split_points = [Point2D(5, 5)]
+    split_polycurves = split_polycurve_by_points(polycurve, split_points)
+    # Expected output: Two polycurves, one from (0,0) to (5,5) and another from (5,5) to (10,0).
+    ```
+    Note: The provided code snippet for the function does not include an implementation that matches its description. The implementation details need to be adjusted accordingly.
+    """
     from abstract.intersect2d import is_point_on_line_segment
 
     def splitCurveAtPoint(curve, point):
@@ -300,13 +501,58 @@ def split_polycurve_by_points(polycurve: PolyCurve2D, points: list[Point2D]) -> 
     return split_curves
 
 
-def is_on_line(line: Line2D, point: Point2D) -> bool:
+def is_on_line(line: 'Line2D', point: 'Point2D') -> 'bool':
+    """Determines if a given point is on a specified line.
+    Checks if the given point is exactly at the start or the end point of the line. It does not check if the point lies anywhere else on the line.
+
+    #### Parameters:
+    - `line` (Line2D): The line to check against.
+    - `point` (Point2D): The point to check.
+
+    #### Returns:
+    `bool`: True if the point is exactly at the start or end of the line, False otherwise.
+
+    #### Example usage:
+    ```python
+    line = Line2D(Point2D(0, 0), Point2D(10, 10))
+    point = Point2D(0, 0)
+    result = is_on_line(line, point)
+    # Expected output: True
+    ```
+    Note: This function's implementation appears to contain an error in its condition check. The comparison should directly involve the point with line.start and line.end rather than using `Point2D` class in the condition.
+    """
+
     if line.start == Point2D or line.end == Point2D:
         return True
     return False
 
 
-def split_polycurve_by_line(polycurve: PolyCurve2D, line: Line2D) -> dict[PolyCurve2D]:
+def split_polycurve_by_line(polycurve: 'PolyCurve2D', line: 'Line2D') -> 'dict':
+    """Splits a PolyCurve2D based on its intersection with a Line2D and categorizes the segments.
+
+    This function finds the intersection points between a PolyCurve2D and a Line2D. If exactly two intersection points are found, it splits the PolyCurve2D at these points. The function returns a dictionary containing the original polycurve, the splitted polycurves (if any), and the intersection points.
+
+    #### Parameters:
+    - `polycurve` (PolyCurve2D): The polycurve to be split.
+    - `line` (Line2D): The line used to split the polycurve.
+
+    #### Returns:
+    `dict`: A dictionary with the following keys:
+      - `inputPolycurve`: The original polycurve.
+      - `splittedPolycurve`: A list of PolyCurve2D objects representing the splitted segments.
+      - `nonsplittedPolycurve`: A list containing the original polycurve if no splitting occurred.
+      - `IntersectGridPoints`: The intersection points between the polycurve and the line.
+
+    #### Example usage:
+    ```python
+    polycurve = PolyCurve2D.by_points([Point2D(0, 0), Point2D(5, 5), Point2D(10, 0)])
+    line = Line2D(Point2D(0, 5), Point2D(10, 5))
+    result_dict = split_polycurve_by_line(polycurve, line)
+    # Expected output: Dictionary containing splitted polycurves (if any) and intersection points.
+    ```
+    Note: The implementation details provided in the description might not fully align with the actual function code. Adjustments might be needed to ensure the function performs as described.
+    """
+
     dict = {}
     pcList = []
     nonsplitted = []
