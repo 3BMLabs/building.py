@@ -48,7 +48,13 @@ def generate_class_documentation(module_name):
                 signature_old = inspect.signature(method_obj)
                 signature = str(signature_old).replace("'", "")
                 method_doc = method_obj.__doc__ if method_obj.__doc__ is not None else "No documentation available."
-                method_doc = method_doc.split("#### Parameters:")[0]
+                
+                parm_split = "#### Parameters:"
+                if parm_split in method_doc:
+                    method_doc = method_doc.split(parm_split)[0]
+                else:
+                    fallback_split = "#### Returns:"
+                    method_doc = method_doc.split(fallback_split)[0]
                 documentation_lines.append(f"- `{method_name}{signature}`: {method_doc}\n")
 
         documentation_lines.append("\n## Documentation\n")

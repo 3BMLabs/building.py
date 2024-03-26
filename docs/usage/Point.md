@@ -3,7 +3,7 @@ Represents a point in 3D space with x, y, and z coordinates.
 
 ## Constructor
 
-### `__init__(self, x: float, y: float, z: float)`
+### `__init__(self, x: float, y: float, z: float) -> 'Point'`
 Initializes a new Point instance with the given x, y, and z coordinates.
 
         - `x` (float): X-coordinate of the point.
