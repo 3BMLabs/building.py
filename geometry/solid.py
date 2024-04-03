@@ -205,7 +205,7 @@ class Extrusion:
             return extrusions
 
     @staticmethod
-    def by_polycurve_height_vector(cls, polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector3) -> 'Extrusion':
+    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector3) -> 'Extrusion':
         """Creates an extrusion from a 2D polycurve profile along a specified vector.
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -344,7 +344,7 @@ class Extrusion:
         return Extrus
 
     @staticmethod
-    def by_polycurve_height(cls, polycurve: PolyCurve, height: float, dz_loc: float) -> 'Extrusion':
+    def by_polycurve_height(polycurve: PolyCurve, height: float, dz_loc: float) -> 'Extrusion':
         """Creates an extrusion from a PolyCurve with a specified height and base elevation.
         This method generates a vertical extrusion of a given PolyCurve. The PolyCurve is first translated vertically by `dz_loc`, then extruded to the specified `height`, creating a solid form.
 

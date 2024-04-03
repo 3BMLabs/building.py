@@ -30,6 +30,7 @@
 from project.fileformat import *
 from geometry.curve import *
 from geometry.point import Point
+from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
 from pathlib import Path
 __title__ = "DXF"
 __author__ = "Maarten & Jonathan"
@@ -38,6 +39,7 @@ __url__ = "./exchange/dxf.py"
 
 import sys
 import ezdxf
+import math
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
@@ -45,88 +47,183 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 # [!not included in BP singlefile - end]
 
 
-class ReadDXF():
-    # append line only if unique start.value and end.value
-    # sort them based on end.value has to be start.value
-    def __init__(self, filename):
+class ReadDXF:
+    def __init__(self, filepath):
+        self.filepath = filepath
         self.points = []
         self.lines = []
-        self.filename = filename
-        self.get_line_coordinates()
-        self.polycurve = self.create_polycurve()
-        self.isClosed = project.closed
+        self.arcs = []
+        self.polylines = []
+        self._read_dxf_file()
 
-    def convert_coordinates(self, start_point, end_point, reference_point):
+    def _read_dxf_file(self):
+        self._read_line()
+        self._read_arc()
+        self._read_polyline()
 
-        # relative_start = start_point - reference_point
-        # print(start_point, end_point, reference_point)
-        relative_start = start_point[0] - reference_point[0], start_point[1] - \
-            reference_point[1], start_point[2] - reference_point[2]
-        # print(relative_start)
-        # print(end_point, reference_point)
-        relative_end = end_point[0] - reference_point[0], end_point[1] - \
-            reference_point[1], end_point[2] - reference_point[2]
-        # relative_end = end_point - reference_point
-        # print(relative_end)
-        relative_start = round(relative_start[0], project.decimals), round(
-            relative_start[1], project.decimals), round(relative_start[2], project.decimals)
-        relative_end = round(relative_end[0], project.decimals), round(
-            relative_end[1], project.decimals), round(relative_end[2], project.decimals)
-        return relative_start, relative_end
 
-    def get_line_coordinates(self):
-        doc = ezdxf.readfile(self.filename)
-        modelspace = doc.modelspace()
-        reference_point = None
-        for entity in modelspace:
-            if entity.dxftype() == 'LINE':
-                start_point = entity.dxf.start
-                end_point = entity.dxf.end
-                if reference_point is None:
-                    reference_point = start_point
-                relative_start, relative_end = self.convert_coordinates(
-                    start_point, end_point, reference_point)
-                p1 = Point(
-                    x=relative_start[0], y=relative_start[1], z=relative_start[2])
-                p2 = Point(x=relative_end[0],
-                           y=relative_end[1], z=relative_end[2])
-                line = Line(start=p1, end=p2)
-                self.points.append(p1)
-                self.lines.append(line)
+    def _read_arc(self):
+        arc_stukken = []
+        with open(self.filepath, 'r') as file:
+            lines = [line.strip() for line in file.readlines()]
 
-            elif entity.dxftype() == 'LWPOLYLINE':
-                splittedpoints = []
-                splittedlines = []
-                with entity.points() as points:
-                    endpoint = None
-                    for point in points:
-                        if reference_point is None:
-                            reference_point = point
-                        if endpoint is None:
-                            endpoint = point
-                        point = point[0], point[1], point[2]
-                        endpoint = endpoint[0], endpoint[1], endpoint[2]
-                        reference_point = reference_point[0], reference_point[1], reference_point[2]
-                        relative_start, relative_end = self.convert_coordinates(
-                            point, endpoint, reference_point)
-                        p1 = Point(
-                            x=relative_start[0], y=relative_start[1], z=relative_start[2])
-                        p2 = Point(
-                            x=relative_end[0], y=relative_end[1], z=relative_end[2])
-                        line = Line(start=p1, end=p2)
-                        splittedpoints.append(p1)
-                        splittedlines.append(line)
-                    self.points.append(splittedpoints)
-                    self.lines.append(splittedlines)
-        # print(self.lines)
-        return self.lines
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            if line == "0":
+                i += 1
+                continue
 
-    def create_polycurve(self):
-        if len(self.points) == 1:
-            return PolyCurve.by_points(self.points)
-        elif len(self.points) > 1:
-            plList = []
-            for pl in self.points:
-                plList.append(PolyCurve.by_points(pl))
-            return plList
+            if line == "ARC":
+                center_x = center_y = radius = start_angle = end_angle = None
+                while True:
+                    i += 1
+                    if i >= len(lines):
+                        break
 
+                    code = lines[i]
+                    if code == "10":
+                        i += 1
+                        center_x = float(lines[i])*project.scale
+                    elif code == "20":
+                        i += 1
+                        center_y = float(lines[i])*project.scale
+                    elif code == "40":
+                        i += 1
+                        radius = float(lines[i])*project.scale
+                    elif code == "50":
+                        i += 1
+                        start_angle = float(lines[i])*project.scale
+                    elif code == "51":
+                        i += 1
+                        end_angle = float(lines[i])*project.scale
+                    elif code == "0":
+                        break
+
+                if None not in [center_x, center_y, radius, start_angle, end_angle]:
+                    start_point = Arc2D.draw_arc_point(center_x, center_y, radius, start_angle)
+                    end_point = Arc2D.draw_arc_point(center_x, center_y, radius, end_angle)
+                    mid_angle = (start_angle + end_angle) / 2 if end_angle > start_angle else (start_angle + end_angle + 360) / 2
+                    mid_point = Arc2D.draw_arc_point(center_x, center_y, radius, mid_angle)
+                    arc_object = Arc2D(start_point, mid_point, end_point)
+                    arc_stukken.append(arc_object)
+                    self.arcs.append(arc_object)
+
+            i += 1
+
+        return arc_stukken
+
+    def _read_polyline(self):
+        polyline_stukken = []
+        with open(self.filepath, 'r') as file:
+            lines = [line.strip() for line in file.readlines()]
+
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            if line == "0":
+                i += 1
+                continue
+
+            if line == "LWPOLYLINE":
+                points2D = []
+                while True:
+                    i += 1
+                    if i >= len(lines):
+                        break
+
+                    code = lines[i]
+                    if code == "10":
+                        i += 1
+                        x = float(lines[i])*project.scale
+                    elif code == "20":
+                        i += 1
+                        y = float(lines[i])*project.scale
+                        points2D.append(Point2D(x, y))
+                    elif code == "0":
+                        break
+
+                if points2D:
+                    polyline_object = PolyCurve2D.by_points(points2D)
+                    polyline_stukken.append(polyline_object)
+                    self.polylines.append(polyline_object)
+
+            elif line == "POLYLINE":
+                points2D = []
+                while True:
+                    i += 1
+                    if i >= len(lines):
+                        break
+                    code = lines[i]
+                    if code == "VERTEX":
+                        while True:
+                            i += 1
+                            if i >= len(lines):
+                                break
+                            vertex_code = lines[i]
+                            if vertex_code == "10":
+                                i += 1
+                                x = float(lines[i])*project.scale
+                            elif vertex_code == "20":
+                                i += 1
+                                y = float(lines[i])*project.scale
+                                points2D.append(Point2D(x, y))
+                            elif vertex_code in ["0", "SEQEND"]:
+                                break
+                    if code == "SEQEND":
+                        break
+
+                if points2D:
+                    polyline_object = PolyCurve2D.by_points(points2D)
+                    polyline_stukken.append(polyline_object)
+                    self.polylines.append(polyline_object)
+
+            i += 1
+
+        return polyline_stukken
+
+
+    def _read_line(self):
+        linepieces = []
+        with open(self.filepath, 'r') as file:
+            lines = [line.strip() for line in file.readlines()]
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i]
+            if line == "0":
+                i += 1
+                continue
+            
+            if line in ["LINE"]:
+                x1 = y1 = x2 = y2 = None
+                while True:
+                    i += 1
+                    if i >= len(lines):
+                        break
+                    
+                    code = lines[i]
+                    if code == "10":
+                        i += 1
+                        x1 = float(lines[i])*project.scale
+                    elif code == "20":
+                        i += 1
+                        y1 = float(lines[i])*project.scale
+                    elif code == "11":
+                        i += 1
+                        x2 = float(lines[i])*project.scale
+                    elif code == "21":
+                        i += 1
+                        y2 = float(lines[i])*project.scale
+                    elif code == "0":
+                        break
+                
+                if None not in [x1, y1, x2, y2]:
+                    start_point = Point2D(x1, y1)
+                    end_point = Point2D(x2, y2)
+                    linepieces.append(Line2D(start_point, end_point))
+                    self.lines.append(Line2D(start_point, end_point))
+
+            i += 1
+
+        return linepieces

@@ -75,7 +75,6 @@ def IntervalToSpeckleInterval(interval: Interval):
 
 
 def PointToSpecklePoint(point):
-    #@Jonathan: point: Point | Point2D  gaf een foutmelding
     if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
     elif point.type == "Point2D":
@@ -211,11 +210,54 @@ def ArcToSpeckleArc(arc: Arc):
     speckle_plane = SpecklePlane(
         origin = PointToSpecklePoint(arc.plane.Origin),
         normal = VectorToSpeckleVector(arc.plane.Normal),
-        xdir = VectorToSpeckleVector(arc.plane.v1),
-        ydir = VectorToSpeckleVector(arc.plane.v2),
+        xdir = VectorToSpeckleVector(arc.plane.vector_1),
+        ydir = VectorToSpeckleVector(arc.plane.vector_2),
+        
         units = project.units
     )
 
+    start_point = PointToSpecklePoint(arc.start)
+    mid_point = PointToSpecklePoint(arc.mid)
+    end_point = PointToSpecklePoint(arc.end)
+
+    radius = arc.radius
+    start_angle = arc.startAngle
+    end_angle = arc.endAngle
+    angle_radians = arc.angle_radian
+    area = arc.area
+    length = arc.length
+    speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
+
+
+    spArc = SpeckleArc(
+        applicationId = project.applicationId,
+        startPoint=start_point,
+        midPoint=mid_point,
+        endPoint=end_point,
+        domain=speckle_interval,
+        plane=speckle_plane,
+        radius=radius,
+        startAngle=start_angle,
+        endAngle=end_angle,
+        angleRadians=angle_radians,
+        area=area,
+        length=length,
+        units=project.units
+    )
+
+    spArc.units = project.units
+    return spArc
+
+
+def Arc2DToSpeckleArc(arc: Arc):
+    speckle_plane = SpecklePlane(
+        origin = PointToSpecklePoint(arc.plane.Origin),
+        normal = VectorToSpeckleVector(arc.plane.Normal),
+        xdir = VectorToSpeckleVector(arc.plane.vector_1),
+        ydir = VectorToSpeckleVector(arc.plane.vector_2),
+        
+        units = project.units
+    )
 
     start_point = PointToSpecklePoint(arc.start)
     mid_point = PointToSpecklePoint(arc.mid)
@@ -279,7 +321,7 @@ def translateObjectsToSpeckleObjects(Obj):
         nm = i.__class__.__name__
         if nm == "list":
             if i == []:
-                pass
+                print(f"'{nm}' Object not yet added to translateObjectsToSpeckleObjects")
 
         elif nm == 'Panel':
             colrs = i.colorlst
@@ -356,6 +398,9 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'Arc':
             SpeckleObj.append(ArcToSpeckleArc(i))
+
+        elif nm == 'Arc2D':
+            SpeckleObj.append(Arc2DToSpeckleArc(i))
 
         elif nm == 'Line2D':
             SpeckleObj.append(Line2DToSpeckleLine3D(i))

@@ -25,6 +25,3 @@ project.objects.append(Panel.by_polycurve_thickness(
 
 pathxml = "C:/TEMP/test.xml"
 createXFEM4UXML(project, pathxml)
-
-openFile(pathxml)
-
