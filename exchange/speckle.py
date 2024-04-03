@@ -65,8 +65,8 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
+from specklepy.objects.geometry import Extrusion as SpeckleExtrusion
 from specklepy.objects.primitive import Interval as SpeckleInterval
-
 
 def IntervalToSpeckleInterval(interval: Interval):
     SpeckleInt = SpeckleInterval(start=interval.start, end=interval.end)
@@ -369,6 +369,47 @@ def translateObjectsToSpeckleObjects(Obj):
                         param_name = param
                     setattr(mesh, str(param_name), value)
             SpeckleObj.append(mesh)
+
+            # points = [
+            #     SpecklePoint(x=0, y=0, z=0),
+            #     SpecklePoint(x=0, y=10, z=0),
+            #     SpecklePoint(x=10, y=10, z=0),
+            #     SpecklePoint(x=10, y=0, z=0),
+            #     SpecklePoint(x=0, y=0, z=0)
+            # ]
+
+            # profiel = SpecklePolyLine.from_points(points)
+            # extrusix = SpeckleExtrusion(
+            #     capped = True,
+            #     profile = profiel,
+            #     pathStart = SpecklePoint(x=0, y=0, z=0),
+            #     pathEnd = SpecklePoint(x=120, y=10, z=0),
+            #     pathCurve = SpeckleLine(start = SpecklePoint(x=0, y=0, z=0), end = SpecklePoint(x=120, y=10, z=0)),
+            #     pathTangent = SpeckleVector.from_coords(0, 0, 200),
+            #     profiles = None,
+            #     length = None,
+            # )
+            
+            # hoofd_profiel = SpecklePolyLine.from_points([
+            #     SpecklePoint(x = 0, y = 0, z = 0),
+            #     SpecklePoint(x = 0,  y = 10, z = 0),
+            #     SpecklePoint(x = 10, y = 10, z = 0),
+            #     SpecklePoint(x = 10, y = 0, z = 0),
+            #     SpecklePoint(x = 0, y = 0, z = 0)
+            # ])
+
+            # gat_profiel = SpecklePolyLine.from_points([
+            #     SpecklePoint(x = 3, y = 3, z = 0),
+            #     SpecklePoint(x = 3, y = 7, z = 0),
+            #     SpecklePoint(x = 7, y = 7, z = 0),
+            #     SpecklePoint(x = 7, y = 3, z = 0),
+            #     SpecklePoint(x = 3, y = 3, z = 0)
+            # ])
+
+            # extrusix.profiles = [hoofd_profiel, gat_profiel]
+
+            # SpeckleObj.append(extrusix)
+
 
         elif nm == "Wall":
             clrs = []

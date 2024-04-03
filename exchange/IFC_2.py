@@ -86,16 +86,17 @@ class IfcBp:
         ifclocalplacement = self.file.createIfcLocalPlacement(relative_to, axis2placement)
         return ifclocalplacement
 
+    # def create_custom_profile()
+
     def write(self,path):
         self.file.write(path)
 
 
-ifc = IfcBp().create("testproject","testlibrary")
-ifc.organisation_application("3BM", "Maarten")
-ifc.ownerhistory()
-ifc.site_building("Site","Building")
+# ifc = IfcBp().create("testproject","testlibrary")
+# ifc.organisation_application("3BM", "Maarten")
+# ifc.ownerhistory()
+# ifc.site_building("Site","Building")
 
-ifc.write("C:/TEMP/test.ifc")
+# ifc.write("test.ifc")
 
-print(ifc.app)
-
+# print(ifc.app)

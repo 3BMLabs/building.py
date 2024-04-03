@@ -84,6 +84,7 @@ class Extrusion:
         self.bottomface = None  # return polycurve -> surface
         self.polycurve_3d_translated = None
         self.bottomshape = []
+        self.nested = []
 
     def serialize(self) -> dict:
         """Serializes the extrusion object into a dictionary.
@@ -171,7 +172,7 @@ class Extrusion:
         return self
 
     @staticmethod
-    def merge(cls, extrusions: list, name: str = None) -> 'Extrusion':
+    def merge(extrusions: list, name: str = None) -> 'Extrusion':
         """Merges multiple Extrusion instances into a single one.
         This class method combines several extrusions into a single Extrusion object, potentially useful for operations requiring unified geometric manipulation.
 

@@ -32,6 +32,8 @@ from geometry.curve import *
 from geometry.point import Point
 from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
 from pathlib import Path
+
+
 __title__ = "DXF"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/dxf.py"

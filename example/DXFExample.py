@@ -21,16 +21,21 @@ xample = "library/object_database/DXF/Appartementenvloer 320 test copy leeg docu
 
 readedDXF = ReadDXF(xample)
 
-print(readedDXF.lines)
-print(readedDXF.arcs)
-print(readedDXF.polylines)
+# print(readedDXF.lines)
+# print(readedDXF.arcs)
+# print(readedDXF.polylines)
 
-for pl2 in readedDXF.polylines:
+for index, pl2 in enumerate(readedDXF.polylines):
+    mother = None
+    # if index == 0:
     pl3 = PolyCurve.by_polycurve_2D(pl2)
-    ext = Extrusion.by_polycurve_height_vector(pl3, 20000, CoordinateSystem(Point(0,0,0), X_axis, YAxis, ZAxis), Point(0,0,0), Vector3(0,0,1))
+    mother = Extrusion.by_polycurve_height_vector(pl3, 20000, CoordinateSystem(Point(0,0,0), X_axis, YAxis, ZAxis), Point(0,0,0), Vector3(0,0,1))
+    project.objects.append(mother)
+    # else:
+    #     Extrusion
+    #       project.objects.append(mother)
+    #     project.objects.append(pl2)
 
-    project.objects.append(ext)
-    project.objects.append(pl2)
-
+# print(project.objects)
 
 project.toSpeckle("46f2db860e")
