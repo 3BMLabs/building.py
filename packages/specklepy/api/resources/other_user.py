@@ -1,17 +1,13 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List, Optional, Union
 
-from gql import gql
-
 from specklepy.api.models import ActivityCollection, LimitedUser
-from specklepy.api.resource import ResourceBase
+from specklepy.core.api.resources.other_user import Resource as CoreResource
 from specklepy.logging import metrics
 from specklepy.logging.exceptions import SpeckleException
 
-NAME = "other_user"
 
-
-class Resource(ResourceBase):
+class Resource(CoreResource):
     """API Access class for other users, that are not the currently active user."""
 
     def __init__(self, account, basepath, client, server_version) -> None:
@@ -19,7 +15,6 @@ class Resource(ResourceBase):
             account=account,
             basepath=basepath,
             client=client,
-            name=NAME,
             server_version=server_version,
         )
         self.schema = LimitedUser
@@ -34,26 +29,8 @@ class Resource(ResourceBase):
         Returns:
             LimitedUser -- the retrieved profile of another user
         """
-        metrics.track(metrics.OTHER_USER, self.account, {"name": "get"})
-        query = gql(
-            """
-            query OtherUser($id: String!) {
-                otherUser(id: $id) {
-                    id
-                    name
-                    bio
-                    company
-                    avatar
-                    verified
-                    role
-                }
-            }
-          """
-        )
-
-        params = {"id": id}
-
-        return self.make_request(query=query, params=params, return_type="otherUser")
+        metrics.track(metrics.SDK, self.account, {"name": "Other User Get"})
+        return super().get(id)
 
     def search(
         self, search_query: str, limit: int = 25
@@ -72,28 +49,8 @@ class Resource(ResourceBase):
                 message="User search query must be at least 3 characters"
             )
 
-        metrics.track(metrics.OTHER_USER, self.account, {"name": "search"})
-        query = gql(
-            """
-            query UserSearch($search_query: String!, $limit: Int!) {
-                userSearch(query: $search_query, limit: $limit) {
-                    items {
-                        id
-                        name
-                        bio
-                        company
-                        avatar
-                        verified
-                    }
-                }
-            }
-          """
-        )
-        params = {"search_query": search_query, "limit": limit}
-
-        return self.make_request(
-            query=query, params=params, return_type=["userSearch", "items"]
-        )
+        metrics.track(metrics.SDK, self.account, {"name": "Other User Search"})
+        return super().search(search_query, limit)
 
     def activity(
         self,
@@ -121,55 +78,5 @@ class Resource(ResourceBase):
             (ie: return all activity _after_ this time)
         cursor {datetime} -- timestamp cursor for pagination
         """
-
-        query = gql(
-            """
-            query UserActivity(
-                $user_id: String!,
-                $action_type: String,
-                $before:DateTime,
-                $after: DateTime,
-                $cursor: DateTime,
-                $limit: Int
-                ){
-                otherUser(id: $user_id) {
-                    activity(
-                        actionType: $action_type,
-                        before: $before,
-                        after: $after,
-                        cursor: $cursor,
-                        limit: $limit
-                        ) {
-                        totalCount
-                        cursor
-                        items {
-                            actionType
-                            info
-                            userId
-                            streamId
-                            resourceId
-                            resourceType
-                            message
-                            time
-                        }
-                    }
-                }
-            }
-            """
-        )
-
-        params = {
-            "user_id": user_id,
-            "limit": limit,
-            "action_type": action_type,
-            "before": before.astimezone(timezone.utc).isoformat() if before else before,
-            "after": after.astimezone(timezone.utc).isoformat() if after else after,
-            "cursor": cursor.astimezone(timezone.utc).isoformat() if cursor else cursor,
-        }
-
-        return self.make_request(
-            query=query,
-            params=params,
-            return_type=["otherUser", "activity"],
-            schema=ActivityCollection,
-        )
+        metrics.track(metrics.SDK, self.account, {"name": "Other User Activity"})
+        return super().activity(user_id, limit, action_type, before, after, cursor)

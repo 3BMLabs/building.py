@@ -1,11 +1,14 @@
 from functools import wraps
 from typing import Callable, Dict, List, Optional, Union
 
+from gql import gql
 from graphql import DocumentNode
 
-from specklepy.core.api.resources.subscriptions import Resource as CoreResource
-from specklepy.logging import metrics
+from specklepy.core.api.resource import ResourceBase
+from specklepy.core.api.resources.stream import Stream
 from specklepy.logging.exceptions import SpeckleException
+
+NAME = "subscribe"
 
 
 def check_wsclient(function):
@@ -21,7 +24,7 @@ def check_wsclient(function):
     return check_wsclient_wrapper
 
 
-class Resource(CoreResource):
+class Resource(ResourceBase):
     """API Access class for subscriptions"""
 
     def __init__(self, account, basepath, client) -> None:
@@ -29,6 +32,7 @@ class Resource(CoreResource):
             account=account,
             basepath=basepath,
             client=client,
+            name=NAME,
         )
 
     @check_wsclient
@@ -43,8 +47,14 @@ class Resource(CoreResource):
         Returns:
             Stream -- the update stream
         """
-        metrics.track(metrics.SDK, self.account, {"name": "Subscription Stream Added"})
-        return super().stream_added(callback)
+        query = gql(
+            """
+            subscription { userStreamAdded }
+            """
+        )
+        return await self.subscribe(
+            query=query, callback=callback, return_type="userStreamAdded", schema=Stream
+        )
 
     @check_wsclient
     async def stream_updated(self, id: str, callback: Optional[Callable] = None):
@@ -61,10 +71,20 @@ class Resource(CoreResource):
         Returns:
             Stream -- the update stream
         """
-        metrics.track(
-            metrics.SDK, self.account, {"name": "Subscription Stream Updated"}
+        query = gql(
+            """
+            subscription Update($id: String!) { streamUpdated(streamId: $id) }
+            """
         )
-        return super().stream_updated(id, callback)
+        params = {"id": id}
+
+        return await self.subscribe(
+            query=query,
+            params=params,
+            callback=callback,
+            return_type="streamUpdated",
+            schema=Stream,
+        )
 
     @check_wsclient
     async def stream_removed(self, callback: Optional[Callable] = None):
@@ -82,10 +102,18 @@ class Resource(CoreResource):
         Returns:
             dict -- dict containing 'id' of stream removed and optionally 'revokedBy'
         """
-        metrics.track(
-            metrics.SDK, self.account, {"name": "Subscription Stream Removed"}
+        query = gql(
+            """
+            subscription { userStreamRemoved }
+            """
         )
-        return super().stream_removed(callback)
+
+        return await self.subscribe(
+            query=query,
+            callback=callback,
+            return_type="userStreamRemoved",
+            parse_response=False,
+        )
 
     @check_wsclient
     async def subscribe(
