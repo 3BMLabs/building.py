@@ -324,9 +324,9 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
     streamid = streamid
 
     class SpeckleExport(Base):
-        objects = None
+        elements = None
 
-    obj = SpeckleExport(objects = SpeckleObjects)
+    obj = SpeckleExport(elements = SpeckleObjects)
     transport = ServerTransport(client=client, stream_id=streamid)
     hash = operations.send(base=obj, transports=[transport])
 
