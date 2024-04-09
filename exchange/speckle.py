@@ -226,7 +226,7 @@ def SpeckleMeshByImage(img):
                              name = img.name, 
                              colors = img.colorlst,
                              units = project.units,
-                             textureCoordinates = IMG.textureCoordinates
+                             textureCoordinates = img.textureCoordinates
                              )
     return SpeckleMsh
 
@@ -490,34 +490,15 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == "Wall":
             clrs = []
-<<<<<<< Updated upstream
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=i.verts, 
                                           faces=i.faces, 
-                                          colors = clrs, 
+                                          colors = clrs,
                                           name = i.name, 
                                           units = project.units,
                                           textureCoordinates = []
                                           ))
             
-=======
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
-
-        elif nm == 'Spiral':
-            start_punt = SpecklePoint(x = 0, y = 0, z = 0)
-            eind_punt = SpecklePoint(x = 10, y = 10, z = 0)
-            
-            spiraal = SpeckleSpiral()
-            spiraal.startPoint = start_punt
-            spiraal.endPoint = eind_punt
-            spiraal.pitchAxis = SpeckleVector.from_coords(0, 0, 1)
-            spiraal.turns = 1.0
-            spiraal.pitch = 5.0
-            spiraal.displayValue = SpecklePolyLine.from_points([start_punt, SpecklePoint(x = 5, y = 5, z = 2.5), eind_punt])
-            spiraal.spiralType = SpeckleSpiralType.Cosine
-            SpeckleObj.append(spiraal)
-
->>>>>>> Stashed changes
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
