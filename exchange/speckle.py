@@ -65,8 +65,12 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
+from specklepy.objects.other import DisplayStyle as SpeckleDisplayStyle
 from specklepy.objects.geometry import Extrusion as SpeckleExtrusion
 from specklepy.objects.primitive import Interval as SpeckleInterval
+from specklepy.objects.geometry import Spiral as SpeckleSpiral
+from specklepy.objects.geometry import SpiralType as SpeckleSpiralType
+
 
 def IntervalToSpeckleInterval(interval: Interval):
     SpeckleInt = SpeckleInterval(start=interval.start, end=interval.end)
@@ -92,6 +96,12 @@ def VectorToSpeckleVector(vector3: Vector3):
 
 
 def LineToSpeckleLine(line: Line):
+    display_style = SpeckleDisplayStyle()
+    display_style.name = "Custom Style"
+    display_style.color = -854423
+    display_style.linetype = "Continuous"
+    display_style.lineweight = 0.25
+
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(line.start), end = PointToSpecklePoint(line.end))
     SpeckleLn.id = line.id
     SpeckleLn.units = project.units
@@ -99,6 +109,7 @@ def LineToSpeckleLine(line: Line):
     SpeckleLn.length = line.length
     SpeckleLn.applicationId = project.applicationId
     SpeckleLn.color = 0
+    SpeckleLn.displayStyle = display_style
     return SpeckleLn
 
 
@@ -443,14 +454,18 @@ def translateObjectsToSpeckleObjects(Obj):
 
             # profiel = SpecklePolyLine.from_points(points)
             # extrusix = SpeckleExtrusion(
+            #     area = 0,
+            #     bbox = None,
+            #     units = "mm",
+            #     volume = 9,
             #     capped = True,
             #     profile = profiel,
             #     pathStart = SpecklePoint(x=0, y=0, z=0),
-            #     pathEnd = SpecklePoint(x=120, y=10, z=0),
-            #     pathCurve = SpeckleLine(start = SpecklePoint(x=0, y=0, z=0), end = SpecklePoint(x=120, y=10, z=0)),
-            #     pathTangent = SpeckleVector.from_coords(0, 0, 200),
-            #     profiles = None,
-            #     length = None,
+            #     pathEnd = SpecklePoint(x=0, y=10, z=120),
+            #     pathCurve = SpeckleLine(start = SpecklePoint(x=0, y=0, z=0), end = SpecklePoint(x=0, y=10, z=120)),
+            #     pathTangent = SpeckleVector.from_coords(1, 0, 0),
+            #     length = 120,
+            #     applicationId = "Test"
             # )
             
             # hoofd_profiel = SpecklePolyLine.from_points([
@@ -470,12 +485,12 @@ def translateObjectsToSpeckleObjects(Obj):
             # ])
 
             # extrusix.profiles = [hoofd_profiel, gat_profiel]
-
             # SpeckleObj.append(extrusix)
 
 
         elif nm == "Wall":
             clrs = []
+<<<<<<< Updated upstream
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=i.verts, 
                                           faces=i.faces, 
@@ -485,6 +500,24 @@ def translateObjectsToSpeckleObjects(Obj):
                                           textureCoordinates = []
                                           ))
             
+=======
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
+
+        elif nm == 'Spiral':
+            start_punt = SpecklePoint(x = 0, y = 0, z = 0)
+            eind_punt = SpecklePoint(x = 10, y = 10, z = 0)
+            
+            spiraal = SpeckleSpiral()
+            spiraal.startPoint = start_punt
+            spiraal.endPoint = eind_punt
+            spiraal.pitchAxis = SpeckleVector.from_coords(0, 0, 1)
+            spiraal.turns = 1.0
+            spiraal.pitch = 5.0
+            spiraal.displayValue = SpecklePolyLine.from_points([start_punt, SpecklePoint(x = 5, y = 5, z = 2.5), eind_punt])
+            spiraal.spiralType = SpeckleSpiralType.Cosine
+            SpeckleObj.append(spiraal)
+
+>>>>>>> Stashed changes
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
