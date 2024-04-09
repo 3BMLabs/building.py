@@ -60,7 +60,7 @@ class BuildingPy:
 
         #export selection info
         self.domain = None
-        self.applicationId = "OPEN-AEC | BuildingPy"
+        self.applicationId = "OPEN-AEC BuildingPy"
 
         #different settings for company's?
 
