@@ -1,3 +1,8 @@
+import sys, os, math
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from packages.GIS2BIM.GIS2BIM_NL_helpers import *
@@ -7,11 +12,11 @@ from packages.GIS2BIM.GIS2BIM_NL_helpers import *
 #SETTINGS
 tempfolder = "C:/TEMP/GIS3/"
 lst = NL_GetLocationData(NLPDOKServerURL,"Boskoop", "Warmoeskade", "2")
-Bboxwidth = 50 #m
+Bboxwidth = 500 #m
 
 #Download settings
-DownloadBAG3D = False
-Download3DBasisvoorzieningKadaster = False
+DownloadBAG3D = True
+Download3DBasisvoorzieningKadaster = True
 DownloadWMS = False
 DownloadBGT = False
 CreateCadasterDWG = False

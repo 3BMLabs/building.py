@@ -1,7 +1,11 @@
-from packages.GIS2BIM.GIS2BIM_CityJSON import *
+import sys, os, math
+from pathlib import Path
 import time
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+
+from packages.GIS2BIM.GIS2BIM_CityJSON import *
 from library.material import *
-import os
 from geometry.mesh import *
 
 # Parse CityJSON Files and send geometry to Speckle
@@ -127,7 +131,7 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
 
 Kadaster3DBasisvoorziening(result, GISProject)
 
-GISProject.toSpeckle("ef50079ffb", "3D Kadaster Basisvoorziening en 3D BAG")
+GISProject.toSpeckle("801883ce31", "3D Kadaster Basisvoorziening en 3D BAG")
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')
