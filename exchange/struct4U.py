@@ -31,6 +31,7 @@ from objects.datum import *
 from objects.panel import *
 from exchange.speckle import *
 from geometry.curve import *
+from abstract.node import *
 import xml.etree.ElementTree as ET
 __title__ = "XFEM4U"
 __author__ = "Maarten & Jonathan"

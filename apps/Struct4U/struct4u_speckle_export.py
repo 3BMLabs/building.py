@@ -119,8 +119,12 @@ obj = []
 
 #LoadGrid and create in Speckle
 XYZ = XMLImportNodes(tree)
+
 obj = obj + XMLImportGrids(tree, 1000)
 obj.append(XMLImportPlates(tree))
+
+print(obj)
+# sys.exit()
 
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
