@@ -83,6 +83,8 @@ class Extrusion:
         self.topface = None  # return polycurve -> surface
         self.bottomface = None  # return polycurve -> surface
         self.polycurve_3d_translated = None
+        self.outercurve = []
+        self.innercurve = []
         self.bottomshape = []
         self.nested = []
 
@@ -338,6 +340,8 @@ class Extrusion:
         Extrus.countVertsFaces = Extrus.countVertsFaces + \
             len(polycurve_2d.curves)*2
         Extrus.numberFaces = Extrus.numberFaces + 2
+
+        Extrus.outercurve = polycurve_2d
 
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
