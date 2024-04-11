@@ -23,46 +23,21 @@ from packages.helper import flatten
 from geometry.point import *
 from abstract.vector import *
 from abstract.matrix import *
+from geometry.surface import *
 
+project = BuildingPy("DXF","0001") 
 
-project = BuildingPy("DXF","0001")
+readedDXF = ReadDXF("library/object_database/DXF/Appartementenvloer 320 test copy leeg docu.dxf")
 
-# xample = "library/object_database/DXF/PS-isolatievloer 200 Rc=3,5 PURGE.dxf"
-xample = "library/object_database/DXF/Appartementenvloer 320 test copy leeg docu.dxf"
+obj = Surface.by_patch_inner_and_outer(readedDXF.polylines)
 
-readedDXF = ReadDXF(xample)
-
-# print(readedDXF.lines)
-# print(readedDXF.arcs)
-# print(readedDXF.polylines)
-
-
-#temp inner function.
-
-
-# get lines of polycurve 1
-
-extr = Extrusion()
 
 for index, pl2 in enumerate(readedDXF.polylines):
     project.objects.append(pl2)
-    if index == 0:
-        pl3 = PolyCurve.by_polycurve_2D(pl2)
-        extr.by_polycurve_height_vector(polycurve_2d=pl3,
-                                                        height=20000, 
-                                                        cs_old=CoordinateSystem(Point(0,0,0), X_axis, YAxis, ZAxis), 
-                                                        start_point=Point(0,0,0), 
-                                                        direction_vector=Vector3(0,0,1)
-                                                        )
-        extr.outercurve.append(pl2)
-    else:
-        extr.innercurve.append(pl2)
 
+project.objects.append(obj)
 
-
-
-
-
+project.toSpeckle("7603a8603c")
 
 
 model = ifcopenshell.file()
@@ -85,9 +60,6 @@ run("aggregate.assign_object", model, relating_object=site, product=building)
 run("aggregate.assign_object", model, relating_object=building, product=storey)
 
 
-P1 = [43,1,-45]
-P2 = [8,23,12]
-
 column_type = run("root.create_entity", model, ifc_class="IfcColumnType", name="CustomColumnC1")
 
 matrix = np.eye(4)
@@ -97,24 +69,18 @@ material_set = run("material.add_material_set", model, name="CustomMaterialSetC1
 steel = run("material.add_material", model, name="SteelST01", category="Steel")
 
 
-externe_punten = []
-for polycurve in extr.outercurve:
-    for pt in polycurve.points2D:
-        externe_punten.append((pt.x, pt.y))
-
-
 interne_punten = []
-for polycurve in extr.innercurve:
+for polycurve in obj.inner_Polygon:
     interne = []
-    for pt in polycurve.points2D:
+    for pt in polycurve.points:
         interne.append((pt.x, pt.y))
     interne_punten.append(interne)
 
 
 externe_punten = []
-for polycurve in extr.outercurve:
-    for pt in polycurve.points2D:
-        externe_punten.append((pt.x, pt.y))
+for pt in obj.outer_Polygon.points:
+    externe_punten.append((pt.x, pt.y))
+
 
 externe_ifc_punten = [model.create_entity('IfcCartesianPoint', Coordinates=p) for p in externe_punten]
 externe_polyline = model.create_entity('IfcPolyline', Points=externe_ifc_punten)
@@ -133,7 +99,6 @@ custom_profile_with_void = model.create_entity(
     InnerCurves=interne_polyline_lists
 )
 
-# sys.exit()
 
 run("material.add_profile", model, profile_set=material_set, material=steel, profile=custom_profile_with_void)
 
@@ -152,9 +117,3 @@ run("geometry.assign_representation", model, product=column, representation=repr
 run("spatial.assign_container", model, relating_structure=storey, product=column)
 
 model.write("model1.ifc")
-
-
-
-print(project.objects)
-
-project.toSpeckle("46f2db860e")

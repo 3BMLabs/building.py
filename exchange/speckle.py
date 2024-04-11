@@ -38,7 +38,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import Line
-from geometry.curve import PolyCurve
+from geometry.curve import PolyCurve, Polygon
 from geometry.curve import Arc
 from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
@@ -123,6 +123,7 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
     SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points]
     SpecklePolyln = SpecklePolyLine.from_points(SpecklePl)
     SpecklePolyln.id = polycurve.id
+    SpecklePolyln.name = polycurve.type
     SpecklePolyln.units = project.units
     SpecklePolyln.domain = project.domain
     SpecklePolyln.applicationId = project.applicationId
@@ -135,6 +136,21 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
 
     return SpecklePolyln
 
+def SpecklePolygonBySpecklePoints(polycurve: Polygon): #fixed
+    SpecklePoints = [PointToSpecklePoint(point) for point in polycurve.points]
+    SpecklePolygon = SpecklePolyLine.from_points(points=SpecklePoints)
+    SpecklePolygon.id = polycurve.id
+    SpecklePolygon.name = polycurve.type
+    SpecklePolygon.units = project.units
+    SpecklePolygon.domain = project.domain
+    SpecklePolygon.applicationId = project.applicationId
+    SpecklePolygon.closed = polycurve.isClosed
+    SpecklePolygon.area = polycurve.area()
+    SpecklePolygon.length = polycurve.length()
+    SpecklePolygon.curveCount = len(polycurve.curves)
+    SpecklePolygon.pointCount = len(polycurve.points)
+
+    return SpecklePolygon
 
 def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve2D):
     SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points2D]
@@ -342,7 +358,7 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
 
 def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
-    for i in Obj:
+    for i in flatten(Obj):
         nm = i.__class__.__name__
         if nm == "list":
             if i == []:
@@ -359,7 +375,7 @@ def translateObjectsToSpeckleObjects(Obj):
                                           textureCoordinates = []
                                           ))
             
-        elif nm == 'Surface' or nm == 'Face':
+        elif nm == 'Face':
             all_vertices = []
             all_faces = []
             all_colors = []
@@ -377,7 +393,34 @@ def translateObjectsToSpeckleObjects(Obj):
                                           name=i.name[index], 
                                           units= project.units
                                           ))
+
+        elif nm == 'Surface':
+            all_vertices = []
+            all_faces = []
+            all_colors = []
             
+            if len(i.inner_Surface) > 0:
+                for each in i.inner_Surface:
+                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                                  surface_type = "Inner_Surface",
+                                                  vertices=each.verts,
+                                                  faces=each.faces, 
+                                                  name=i.type,
+                                                  units= project.units,
+                                                  textureCoordinates = []
+                                                  ))
+
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          surface_type = "Outer_Surface",
+                                          vertices=i.outer_Surface.verts,
+                                          faces=i.outer_Surface.faces, 
+                                          name=i.type,
+                                          units= project.units,
+                                          textureCoordinates = []
+                                          ))
+            
+
+
         elif nm == 'Frame':
             try:
                 if i.comments.type == "Scia_Params":
@@ -501,6 +544,9 @@ def translateObjectsToSpeckleObjects(Obj):
             
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
+
+        elif nm == 'Polygon':
+            SpeckleObj.append(SpecklePolygonBySpecklePoints(i))
 
         elif nm == 'PolyCurve2D':
             SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))

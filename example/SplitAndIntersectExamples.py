@@ -14,7 +14,7 @@ from objects.annotation import *
 from abstract.intersect2d import *
 from geometry.systemsimple import *
 from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
-
+from exchange.pat import *
 
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"
@@ -30,7 +30,7 @@ project.objects.append(PC1)
 
 #MULTI PATROON
 
-test2 = PatternSystem().stretcher_bond_with_joint("halfsteensverband",0,210,50,10,12.5)
+test2 = PAT().stretcher_bond_with_joint("halfsteensverband",0,210,50,10,12.5)
 # test2 = PatternSystem().tile_bond_with_joint("tegels",400,400,0,10,10)
 test_res = pattern_geom(test2, 5400, 7500, Point(-1000, -1000, 0))
 

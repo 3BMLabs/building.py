@@ -49,7 +49,7 @@ from abstract.intersect2d import *
 
 class Surface:
     """Represents a surface object created from PolyCurves."""
-    def __init__(self, PolyCurves: PolyCurve, color=None) -> None:
+    def __init__(self) -> 'Surface':
         """This class is designed to manage and manipulate surfaces derived from PolyCurve objects. It supports the generation of mesh representations, serialization/deserialization, and operations like filling and voiding based on PolyCurve inputs.
        
         - `type` (str): The class name, "Surface".
@@ -63,27 +63,24 @@ class Surface:
         - `origincurve` (PolyCurve): The original PolyCurve from which the surface was created.
         - `color` (int): The color of the surface, represented as an integer.
         - `colorlst` (list): A list of color values associated with the surface.
-        """
-        # self.outerPolyCurve
-        # self.innerPolyCurves
-        if isinstance(PolyCurves, PolyCurve):
-            PolyCurves = [PolyCurves]
+        """       
         self.type = __class__.__name__
         self.mesh = []
-        self.length = 0
-        self.area = 0  # return the same area of the polyCurve but remove the innerpolycurves
         self.offset = 0
-        self.name = "test2"
+        self.name = None
         self.id = generateID()
-        self.PolyCurveList = PolyCurves
-        self.origincurve = None
-        if color is None:
-            self.color = Color.rgb_to_int(Color().Components("gray"))
-        else:
-            self.color = color
-
+        self.outer_Polygon = None
+        self.inner_Polygon = []
         self.colorlst = []
-        self.fill(self.PolyCurveList)
+        self.outer_Surface = None
+        self.inner_Surface = []
+        # self.byPatch = self.fill(self)
+        # if color is None:
+        #     self.color = Color.rgb_to_int(Color().Components("gray"))
+        # else:
+        #     self.color = color
+
+
 
     def serialize(self) -> dict:
         """Serializes the Surface object into a dictionary for storage or transfer.
@@ -148,36 +145,27 @@ class Surface:
 
         return surface
 
-    def fill(self, PolyCurveList: list):
-        """Fills the Surface with the specified PolyCurves.
-        This method applies PolyCurves to the Surface, creating an extrusion for each PolyCurve and adding it to the surface's mesh. It also assigns the specified color to each extrusion.
+    @classmethod
+    def by_patch_inner_and_outer(self, Polygons: 'list[Polygon]') -> 'Surface':
+        sorted_polygons = sorted(Polygons, key=lambda p: p.length(), reverse=True)
+        outer_Polygon = sorted_polygons[0]
+        inner_Polygon = sorted_polygons[1:] if len(sorted_polygons) > 1 else []
 
-        #### Parameters:
-        - `PolyCurveList` (`list` or `PolyCurve`): A list of PolyCurve objects or a single PolyCurve object to be applied to the Surface.
+        return self.by_patch(outer_Polygon, inner_Polygon)
 
-        #### Example usage:
-        ```python
-        polyCurveList = [polyCurve1, polyCurve2]
-        surface.fill(polyCurveList)
-        # The surface is now filled with the specified PolyCurves.
-        ```
-        """
-        if isinstance(PolyCurveList, PolyCurve):
-            plycColorList = []
-            p = Extrusion.by_polycurve_height(PolyCurveList, 0, self.offset)
-            self.mesh.append(p)
-            for j in range(int(len(p.verts) / 3)):
-                plycColorList.append(self.color)
-            self.colorlst.append(plycColorList)
 
-        elif isinstance(PolyCurveList, list):
-            for polyCurve in PolyCurveList:
-                plycColorList = []
-                p = Extrusion.by_polycurve_height(polyCurve, 0, self.offset)
-                self.mesh.append(p)
-                for j in range(int(len(p.verts) / 3)):
-                    plycColorList.append(self.color)
-                self.colorlst.append(plycColorList)
+    @classmethod
+    def by_patch(self, outer_Polygon: Polygon, inner_Polygon: 'list[Polygon]' = None) -> 'Surface':
+        srf = Surface()
+        srf.outer_Polygon = outer_Polygon
+        srf.inner_Polygon = inner_Polygon
+        srf.outer_Surface = Extrusion.by_polycurve_height(outer_Polygon, 0, 0)
+        srf.inner_Surface = []
+        if inner_Polygon != None:
+            for inner in srf.inner_Polygon:
+                srf.inner_Surface.append(Extrusion.by_polycurve_height(inner, 0, 0))
+
+        return srf
 
     def void(self, polyCurve: PolyCurve):
         """Creates a void in the Surface based on the specified PolyCurve.
@@ -193,42 +181,7 @@ class Surface:
         ```
         """
         # Find the index of the extrusion that intersects with the polyCurve
-        idx = None
-        for i, extr in enumerate(self.mesh):
-            if extr.intersects(polyCurve):
-                idx = i
-                break
-
-        if idx is not None:
-            # Remove the intersected extrusion from the extrusion list
-            removed = self.mesh.pop(idx)
-
-            # Remove the corresponding color list from the colorlst list
-            removed_colors = self.colorlst.pop(idx)
-
-            # Create a new list of colors for the remaining extrusions
-            new_colors = []
-            for colors in self.colorlst:
-                new_colors.extend(colors)
-
-            # Fill the hole with a new surface
-            hole_surface = Surface([polyCurve], color=self.color)
-            hole_surface.fill([polyCurve])
-            hole_extrusion = hole_surface.extrusion[0]
-
-            # Add the hole extrusion to the extrusion list
-            self.mesh.append(hole_extrusion)
-
-            # Add the hole colors to the colorlst list
-            hole_colors = [Color.rgb_to_int(Color().Components(
-                "red"))] * int(len(hole_extrusion.verts) / 3)
-            self.colorlst.append(hole_colors)
-
-            # Add the remaining colors to the colorlst list
-            self.colorlst.extend(new_colors)
-
-            # Update the origin curve
-            self.origincurve = self.PolyCurveList[0]
+        pass
 
     def __id__(self):
         """Returns the unique identifier of the Surface.
@@ -246,19 +199,9 @@ class Surface:
         """
 
     def __str__(self) -> str:
-        """Generates a string representation of the Surface object.
-        This method returns a string that includes the class name and optionally additional details about the Surface object, making it easier to identify and distinguish the surface when printed or logged.
+        return f"{self.__class__.__name__}({self.outer_Polygon}, {self.inner_Polygon})"
 
-        #### Returns:
-        `str`: A string representation of the Surface object, typically including its class name and potentially other identifying information.
-
-        #### Example usage:
-        ```python
-        surface = Surface(polyCurves, color)
-        print(surface)
-        # Output: Surface({...})
-        ```
-        """
+    
 
 class NurbsSurface:  # based on point data / degreeU&countU / degreeV&countV?
     """Represents a NURBS (Non-Uniform Rational B-Spline) surface."""

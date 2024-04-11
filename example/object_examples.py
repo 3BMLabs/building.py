@@ -1,4 +1,8 @@
 #Preview: https://speckle.xyz/streams/d2e38baf76/commits/505b8630c6?c=%5B0.0581,-0.28286,0.32333,0.23898,0.12909,-0.03397,0,1%5D
+import sys, os, math
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from typing import List, Tuple
 from svg.path import parse_path
@@ -9,6 +13,7 @@ from specklepy.api.credentials import get_default_account
 from specklepy.transports.server import ServerTransport
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line, Arc, Circle, Ellipse, SpiralType, Spiral, Polycurve, Polyline, Mesh, Vector, Plane, Interval
+from abstract.text import Text
 
 
 def flatten(nested_list):

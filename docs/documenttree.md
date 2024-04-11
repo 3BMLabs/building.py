@@ -26,7 +26,7 @@
 		#common
 			curve.intersect
 			curve.trim
-		PolyGon(Lines)
+		Polygon(Lines)
 		Line(Curve)
 		PolyCurve(Curves)
         Arc(Curve)

@@ -393,7 +393,7 @@ PolyCurve.rotate(PC1, 90, 10) # Poly-curve translate moves the curve by v1 vecto
 # moet nog naar worden gekeken
 
 flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))] # Create a List of lines
-plygn1 = PolyGon(flat_curves) # Create a Polygon using a list of Lines
+plygn1 = Polygon(flat_curves) # Create a Polygon using a list of Lines
 ```
 <br>
 

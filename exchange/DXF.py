@@ -27,10 +27,9 @@
 """This module provides import data from DXF file
 """
 
-from project.fileformat import *
-from geometry.curve import *
-from geometry.point import Point
-from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
+import sys
+import ezdxf
+import math
 from pathlib import Path
 
 
@@ -39,16 +38,16 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/dxf.py"
 
 
-import sys
-import ezdxf
-import math
-
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
+from project.fileformat import *
+from geometry.curve import *
+from geometry.point import Point
+from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
 
 # [!not included in BP singlefile - end]
 
-
+#todo, check if polygon is not closed, then draw polycurve
 class ReadDXF:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -56,6 +55,7 @@ class ReadDXF:
         self.lines = []
         self.arcs = []
         self.polylines = []
+        self.bulges = []
         self._read_dxf_file()
 
     def _read_dxf_file(self):
@@ -65,7 +65,7 @@ class ReadDXF:
 
 
     def _read_arc(self):
-        arc_stukken = []
+        arc_pieces = []
         with open(self.filepath, 'r') as file:
             lines = [line.strip() for line in file.readlines()]
 
@@ -108,12 +108,12 @@ class ReadDXF:
                     mid_angle = (start_angle + end_angle) / 2 if end_angle > start_angle else (start_angle + end_angle + 360) / 2
                     mid_point = Arc2D.draw_arc_point(center_x, center_y, radius, mid_angle)
                     arc_object = Arc2D(start_point, mid_point, end_point)
-                    arc_stukken.append(arc_object)
+                    arc_pieces.append(arc_object)
                     self.arcs.append(arc_object)
 
             i += 1
 
-        return arc_stukken
+        return arc_pieces
 
     def _read_polyline(self):
         polyline_stukken = []
@@ -129,26 +129,71 @@ class ReadDXF:
 
             if line == "LWPOLYLINE":
                 points2D = []
+                x, y, elevation = None, None, 0
+                polyline_flag, vertex_count = 0, None
+                widths = []
+                bulge = None
+                bulges = []
+                has_arc = False
+
                 while True:
                     i += 1
                     if i >= len(lines):
                         break
 
                     code = lines[i]
-                    if code == "10":
+                    if code == "5":
                         i += 1
-                        x = float(lines[i])*project.scale
+                        handle_id = lines[i]                     
+                    elif code == "8":
+                        i += 1
+                        layer = lines[i]
+                    elif code == "10":
+                        if x is not None and y is not None:
+                            points2D.append((x, y, bulge))
+                            bulge = 0
+                        i += 1
+                        x = float(lines[i]) * project.scale
                     elif code == "20":
                         i += 1
-                        y = float(lines[i])*project.scale
-                        points2D.append(Point2D(x, y))
+                        y = float(lines[i]) * project.scale
+                    elif code == "38":
+                        i += 1
+                        elevation = float(lines[i]) * project.scale
+                    elif code == "42":
+                        i += 1
+                        bulge = float(lines[i]) 
+                    elif code == "70":
+                        i += 1
+                        polyline_flag = int(lines[i])
+                    elif code == "90":
+                        i += 1
+                        vertex_count = int(lines[i])
+                    elif code == "100":
+                        i += 1
+                        subclass_marker = lines[i]                       
+                    elif code == "40":
+                        i += 1
+                        start_width = float(lines[i]) * project.scale
+                        widths.append(start_width)
+                    elif code == "41":
+                        i += 1
+                        end_width = float(lines[i]) * project.scale
+                        widths.append(end_width)
+                    elif code == "330":
+                        i += 1
+                        owner_id = lines[i]                     
                     elif code == "0":
                         break
 
                 if points2D:
-                    polyline_object = PolyCurve2D.by_points(points2D)
-                    polyline_stukken.append(polyline_object)
-                    self.polylines.append(polyline_object)
+                    if polyline_flag & 1 == 1:
+                        polyline_object = Polygon.by_points(points2D)
+                        polyline_stukken.append(polyline_object)
+                        self.polylines.append(polyline_object)
+                    else:
+                        print("Found polyline that was not closed!")
+
 
             elif line == "POLYLINE":
                 points2D = []
@@ -176,9 +221,14 @@ class ReadDXF:
                         break
 
                 if points2D:
-                    polyline_object = PolyCurve2D.by_points(points2D)
+                    is_closed = True 
+                    if is_closed:
+                        polyline_object = Polygon.by_points(points2D)
+                    # else:
+                    #     polyline_object = PolyCurve2D.by_points(points2D)  # Use this for open polylines
                     polyline_stukken.append(polyline_object)
                     self.polylines.append(polyline_object)
+
 
             i += 1
 
@@ -229,3 +279,40 @@ class ReadDXF:
             i += 1
 
         return linepieces
+    
+
+    def calculate_arc_midpoint(self, start, end, bulge):
+        dx = end.x - start.x
+        dy = end.y - start.y
+        
+        L = math.sqrt(dx**2 + dy**2)
+        
+        S = (L / 2) * bulge
+        
+        try:
+            R = ((L / 2)**2 + S**2) / (2 * S)
+        except:
+            R = 0
+        
+        mx = (start.x + end.x) / 2
+        my = (start.y + end.y) / 2
+        
+        if bulge > 0:
+            dir_x = -dy
+            dir_y = dx
+        else:
+            dir_x = dy
+            dir_y = -dx
+        
+        try:
+            length = math.sqrt(dir_x**2 + dir_y**2)
+            dir_x /= length
+            dir_y /= length
+        except:
+            length = 0
+            dir_x = 0
+            dir_y = 0
+        cx = mx + dir_x * math.sqrt(R**2 - (L / 2)**2)
+        cy = my + dir_y * math.sqrt(R**2 - (L / 2)**2)
+        
+        return Point2D(cx, cy)    

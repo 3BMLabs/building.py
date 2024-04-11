@@ -1,9 +1,9 @@
-# Class `PolyGon`
+# Class `Polygon`
 No documentation available.
 
 ## Constructor
 
-### `__init__(self, lines) -> PolyGon`
+### `__init__(self, lines) -> Polygon`
 Represents a polygon composed of lines.
 
         - `lines` (list[Line]): List of lines composing the polygon.
@@ -14,11 +14,11 @@ Represents a polygon composed of lines.
 
 ## Methods
 
-- `__id__(self)`: Returns the ID of the PolyGon instance.
+- `__id__(self)`: Returns the ID of the Polygon instance.
 
         
 
-- `__str__(self) -> str`: Returns a string representation of the PolyGon instance.
+- `__str__(self) -> str`: Returns a string representation of the Polygon instance.
 
         
 
@@ -31,10 +31,10 @@ Represents a polygon composed of lines.
 
 #### `__id__(self)`
 
-Returns the ID of the PolyGon instance.
+Returns the ID of the Polygon instance.
 
 #### Returns:
-`str`: The ID of the PolyGon instance.
+`str`: The ID of the Polygon instance.
 
 #### Example usage:
 ```python
@@ -46,10 +46,10 @@ Returns the ID of the PolyGon instance.
 
 #### `__str__(self) -> str`
 
-Returns a string representation of the PolyGon instance.
+Returns a string representation of the Polygon instance.
 
 #### Returns:
-`str`: A string representation of the PolyGon instance.
+`str`: A string representation of the Polygon instance.
 
 #### Example usage:
 ```python

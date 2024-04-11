@@ -84,7 +84,6 @@ class Extrusion:
         self.bottomface = None  # return polycurve -> surface
         self.polycurve_3d_translated = None
         self.outercurve = []
-        self.innercurve = []
         self.bottomshape = []
         self.nested = []
 

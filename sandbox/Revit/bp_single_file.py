@@ -1601,7 +1601,7 @@ class PolyCurve:
         l = len(self.points)
         return f"{__class__.__name__}, ({l} points)"
             
-# 2D PolyCurve to 3D PolyGon
+# 2D PolyCurve to 3D Polygon
 
 def Rect(vector: Vector3, width: float, height: float):
     #Rectangle in XY-plane with translation of vector
@@ -1632,7 +1632,7 @@ def Rect_YZ(vector: Vector3, width: float, height: float):
 
 
 
-class PolyGon:
+class Polygon:
     def __init__(self, lines) -> None:
         self.type = __class__.__name__        
         self.Lines = lines#collect in list

@@ -149,7 +149,7 @@ plycurve.rotate(90, 10)
 # create an instance
 # moet nog naar worden gekeken
 flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))]
-plygn1 = PolyGon(flat_curves)
+plygn1 = Polygon(flat_curves)
 
 # CLASS ARC
 # Create a new Arc

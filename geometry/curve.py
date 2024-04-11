@@ -62,6 +62,7 @@ class Line:
             self.z = [self.start.z, self.end.z]
         except:
             self.z = 0
+
         self.dx = self.end.x-self.start.x
         self.dy = self.end.y-self.start.y
         try:
@@ -1193,7 +1194,7 @@ class PolyCurve:
         length = len(self.points)
         return f"{__class__.__name__}, ({length} points)"
 
-# 2D PolyCurve to 3D PolyGon
+# 2D PolyCurve to 3D Polygon
 
 
 def Rect(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
@@ -1268,70 +1269,139 @@ def Rect_YZ(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
     return crv
 
 
-class PolyGon:
-    def __init__(self, lines) -> 'PolyGon':
+class Polygon:
+    def __init__(self) -> 'Polygon':
         """Represents a polygon composed of lines.
 
         - `lines` (list[Line]): List of lines composing the polygon.
         """
-        self.type = __class__.__name__
-        self.Lines = lines  # collect in list
         self.id = generateID()
-        pass  # Lines
+        self.type = __class__.__name__
+        self.curves = []
+        self.points = []
+        self.lines = []
+        self.isClosed = True
 
-    @staticmethod
-    def polygon(flatCurves: 'list[Line]') -> 'list[Point]':
-        """Creates a polygon from a list of flat curves.
+    @classmethod
+    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+        """Creates a Polygon from a list of points.
 
         #### Parameters:
-        - `flatCurves` (List[Line]): List of flat curves.
+        - `points` (list[Point]): The list of points defining the Polygon.
 
         #### Returns:
-        `List[Point]`: List of points representing the polygon.
+        `Polygon`: The created Polygon object.
 
         #### Example usage:
         ```python
 
-        ```            
+        ```        
         """
-        points = []
-        for i in flatCurves:
-            points.append(i.start)
-            try:
-                points.append(i.middle)
-            except:
-                pass
-        points.append(points[0])
-        points3D = []
-        for i in points:
-            points3D.append(Point.point_2D_to_3D(i))
-        return points3D
+        if len(points) < 3:
+            print("Error: Polygon must have at least 3 unique points.")
+            sys.exit()
 
-    def __id__(self):
-        """Returns the ID of the PolyGon instance.
+        _points = []
+
+        for point in points: #Convert all to Point
+            if point.type == "Point2D":
+                _points.append(Point(point.x, point.y, 0))
+            else:
+                _points.append(point)
+
+        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
+            _points.pop()
+
+        seen = set()
+        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
+
+        polygon = Polygon()
+        polygon.points = unique_points
+
+        num_points = len(unique_points)
+        for i in range(num_points):
+            next_index = (i + 1) % num_points
+            polygon.curves.append(Line(start=unique_points[i], end=unique_points[next_index]))
+
+        return polygon
+
+
+    @classmethod
+    def by_joined_curves(cls, curves: 'list[Line]') -> 'Polygon':
+        if not curves:
+            print("Error: At least one curve is required to form a Polygon.")
+            sys.exit()
+
+        for i in range(len(curves) - 1):
+            if curves[i].end != curves[i+1].start:
+                print("Error: Curves must be contiguous to form a Polygon.")
+                sys.exit()
+
+        if Point.to_matrix(curves[0].start) != Point.to_matrix(curves[-1].end):
+            curves.append(Line(curves[-1].end, curves[0].start))
+
+        polygon = cls()
+        polygon.curves = curves
+
+        for crv in polygon.curves:
+            if Point.to_matrix(crv.start) not in polygon.points:
+                polygon.points.append(crv.start)
+            elif Point.to_matrix(crv.end) not in polygon.points:
+                polygon.points.append(crv.end)
+
+        return polygon
+
+
+    def area(self) -> 'float':  # shoelace formula
+        """Calculates the area enclosed by the Polygon using the shoelace formula.
 
         #### Returns:
-        `str`: The ID of the PolyGon instance.
+        `float`: The area enclosed by the Polygon.
 
         #### Example usage:
         ```python
 
-        ```         
+        ```        
         """
-        return f"id:{self.id}"
+        if len(self.points) < 3:
+            return "Polygon has less than 3 points!"
+
+        num_points = len(self.points)
+        S1, S2 = 0, 0
+
+        for i in range(num_points):
+            x, y = self.points[i].x, self.points[i].y
+            if i == num_points - 1:
+                x_next, y_next = self.points[0].x, self.points[0].y
+            else:
+                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
+
+            S1 += x * y_next
+            S2 += y * x_next
+
+        area = 0.5 * abs(S1 - S2)
+        return area
+
+    def length(self) -> 'float':
+        """Calculates the total length of the Polygon.
+
+        #### Returns:
+        `float`: The total length of the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```
+        """
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
+        return sum(i.length for i in self.curves)
+
 
     def __str__(self) -> str:
-        """Returns a string representation of the PolyGon instance.
-
-        #### Returns:
-        `str`: A string representation of the PolyGon instance.
-
-        #### Example usage:
-        ```python
-
-        ```         
-        """
-        return f"{__class__.__name__}({self})"
+        return f"{self.type}"
 
 
 class Arc:
@@ -1423,9 +1493,13 @@ class Arc:
         b = self.distance(self.mid, self.end)
         c = self.distance(self.end, self.start)
         s = (a + b + c) / 2
-        A = math.sqrt(s * (s - a) * (s - b) * (s - c))
-        R = (a * b * c) / (4 * A)
-        return R
+        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+        
+        if abs(A) < 1e-6:
+            return float('inf')
+        else:
+            R = (a * b * c) / (4 * A)
+            return R
 
     def origin_arc(self) -> 'Point':
         """Calculates and returns the origin of the arc.
@@ -1440,12 +1514,9 @@ class Arc:
         # origin will be the calculated origin point of the arc
         ```
         """
-        # calculation of origin of arc #Todo can be simplified for sure
         Vstartend = Vector3.by_two_points(self.start, self.end)
         halfVstartend = Vector3.scale(Vstartend, 0.5)
-        # half distance between start and end
         b = 0.5 * Vector3.length(Vstartend)
-        # distance from start-end line to origin
         x = math.sqrt(Arc.radius_arc(self) * Arc.radius_arc(self) - b * b)
         mid = Point.translate(self.start, halfVstartend)
         vector_2 = Vector3.by_two_points(self.mid, mid)
@@ -1495,20 +1566,23 @@ class Arc:
         # length will be the calculated length of the arc
         ```
         """
-        x1, y1, z1 = self.start.x, self.start.y, self.start.z
-        x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-        x3, y3, z3 = self.end.x, self.end.y, self.end.z
+        try:
+            x1, y1, z1 = self.start.x, self.start.y, self.start.z
+            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
+            x3, y3, z3 = self.end.x, self.end.y, self.end.z
 
-        r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-        a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-        b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-        c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-        cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-        m1 = math.acos(cos_angle)
-        arc_length = r1 * m1
+            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
+            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
+            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
+            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+            m1 = math.acos(cos_angle)
+            arc_length = r1 * m1
 
-        return arc_length
-
+            return arc_length
+        except:
+            return 0
+    
     @staticmethod
     def points_at_parameter(arc: 'Arc', count: 'int') -> 'list':
         """Generates a list of points along the arc at specified intervals.

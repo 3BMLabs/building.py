@@ -501,6 +501,9 @@ class CoordinateSystem:
         CSNew.Origin = new_origin
         return CSNew
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z == other.z
+
     def __str__(self):
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
@@ -522,19 +525,17 @@ class CoordinateSystem:
         ```
         """
         from abstract.vector import Vector3
-        vz = DirectionVectorZ  # LineVector and new Z-axis
-        vz = Vector3.normalize(vz)  # NewZAxis
-        vx = Vector3.perpendicular(vz)[0]  # NewXAxis
+        vz = DirectionVectorZ
+        vz = Vector3.normalize(vz)
+        vx = Vector3.perpendicular(vz)[0]
         try:
-            vx = Vector3.normalize(vx)  # NewXAxisnormalized
+            vx = Vector3.normalize(vx)
         except:
-            # In case of vertical element the length is zero
             vx = Vector3(1, 0, 0)
-        vy = Vector3.perpendicular(vz)[1]  # NewYAxis
+        vy = Vector3.perpendicular(vz)[1]
         try:
-            vy = Vector3.normalize(vy)  # NewYAxisnormalized
+            vy = Vector3.normalize(vy)
         except:
-            # In case of vertical element the length is zero
             vy = Vector3(0, 1, 0)
         CSNew = CoordinateSystem(new_origin_coordinatesystem, vx, vy, vz)
         return CSNew
@@ -559,7 +560,7 @@ class CoordinateSystem:
         """
         
         from abstract.vector import Vector3
-        # move coordinatesystem by y in local coordinates(not global)
+
         xloc_vect_norm = cs_old.Xaxis
         xdisp = Vector3.scale(xloc_vect_norm, x)
         yloc_vect_norm = cs_old.Xaxis

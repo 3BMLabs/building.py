@@ -3729,7 +3729,7 @@ class PolyCurve:
         length = len(self.points)
         return f"{__class__.__name__}, ({length} points)"
 
-# 2D PolyCurve to 3D PolyGon
+# 2D PolyCurve to 3D Polygon
 
 
 def Rect(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
@@ -3804,8 +3804,8 @@ def Rect_YZ(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
     return crv
 
 
-class PolyGon:
-    def __init__(self, lines) -> 'PolyGon':
+class Polygon:
+    def __init__(self, lines) -> 'Polygon':
         """Represents a polygon composed of lines.
 
         - `lines` (list[Line]): List of lines composing the polygon.
@@ -3844,10 +3844,10 @@ class PolyGon:
         return points3D
 
     def __id__(self):
-        """Returns the ID of the PolyGon instance.
+        """Returns the ID of the Polygon instance.
 
         #### Returns:
-        `str`: The ID of the PolyGon instance.
+        `str`: The ID of the Polygon instance.
 
         #### Example usage:
         ```python
@@ -3857,10 +3857,10 @@ class PolyGon:
         return f"id:{self.id}"
 
     def __str__(self) -> str:
-        """Returns a string representation of the PolyGon instance.
+        """Returns a string representation of the Polygon instance.
 
         #### Returns:
-        `str`: A string representation of the PolyGon instance.
+        `str`: A string representation of the Polygon instance.
 
         #### Example usage:
         ```python
