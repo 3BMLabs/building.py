@@ -546,7 +546,10 @@ def translateObjectsToSpeckleObjects(Obj):
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
         elif nm == 'Polygon':
-            SpeckleObj.append(SpecklePolygonBySpecklePoints(i))
+            try:
+                SpeckleObj.append(SpecklePolygonBySpecklePoints(i))
+            except:
+                print("Polygon could not be exported")
 
         elif nm == 'PolyCurve2D':
             SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))

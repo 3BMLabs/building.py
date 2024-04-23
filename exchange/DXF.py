@@ -150,7 +150,7 @@ class ReadDXF:
                         layer = lines[i]
                     elif code == "10":
                         if x is not None and y is not None:
-                            points2D.append((x, y, bulge))
+                            points2D.append(Point2D(x, y))
                             bulge = 0
                         i += 1
                         x = float(lines[i]) * project.scale
@@ -187,12 +187,12 @@ class ReadDXF:
                         break
 
                 if points2D:
-                    if polyline_flag & 1 == 1:
-                        polyline_object = Polygon.by_points(points2D)
-                        polyline_stukken.append(polyline_object)
-                        self.polylines.append(polyline_object)
-                    else:
-                        print("Found polyline that was not closed!")
+                    # if polyline_flag & 1 == 1:
+                    polyline_object = Polygon.by_points(points2D)
+                    polyline_stukken.append(polyline_object)
+                    self.polylines.append(polyline_object)
+                    # else:
+                    #     print("Found polyline that was not closed!")
 
 
             elif line == "POLYLINE":

@@ -7,7 +7,7 @@ from objects.frame import *
 from exchange.IFC import *
 from exchange.struct4U import *
 
-tree = ET.parse("C:/Users/Jonathan/Desktop/Struct4U_Export/hal_speckle_test2.xml")
+tree = ET.parse("C:/Users/Jonathan/Documents/Struct4U/hal_speckle_test.xml")
 root = tree.getroot()
 
 #convert .xml to buildingpy objects.
@@ -53,4 +53,4 @@ project.objects = obj
 # give rotation on axis.
 
 print(project.objects)
-project.toIFC("c6e11e74cb")
+project.toIFC("7603a8603c")

@@ -346,7 +346,7 @@ def translateObjectsToIFC(objects, ifc_creator):
 
             run("type.assign_type", ifc_creator.model, related_object=column, relating_type=surface_type)
 
-            representation = run("geometry.add_profile_representation", ifc_creator.model, context=ifc_creator.body, profile=custom_profile_with_void, depth=20)
+            representation = run("geometry.add_profile_representation", ifc_creator.model, context=ifc_creator.body, profile=custom_profile_with_void, depth=1)
 
             run("geometry.assign_representation", ifc_creator.model, product=column, representation=representation)
 
@@ -359,7 +359,7 @@ def translateObjectsToIFC(objects, ifc_creator):
         elif nm == "Extrusion":
             test = "test"
 
-        elif nm == 'PolyCurve':
+        elif nm == 'PolyCurve' or nm == 'Polygon':
             test = "test"
 
         elif nm == 'BoundingBox2d':

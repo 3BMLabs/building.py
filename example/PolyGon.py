@@ -39,8 +39,6 @@ ip2_3 = Point(3500, 2000, 0)
 ip2_4 = Point(3500, 1000, 0)
 innerPolygon2 = Polygon.by_points([ip2_1, ip2_2, ip2_3, ip2_4])
 
-# SF1 = Surface.by_patch(PG1, [innerPolygon1, innerPolygon2])
-
 lst = [PG1, innerPolygon1, innerPolygon2]
 
 

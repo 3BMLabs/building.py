@@ -10,13 +10,11 @@ from exchange.struct4U import *
 from objects.analytical import *
 from project.fileformat import BuildingPy
 
-
 filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\_2.xml"
 
 project = BuildingPy("TempCommit", "0")
 
 LoadXML(filepath, project)
-
 
 project.toSpeckle("c6e11e74cb")
 

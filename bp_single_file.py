@@ -1401,6 +1401,9 @@ class CoordinateSystem:
         CSNew.Origin = new_origin
         return CSNew
 
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z == other.z
+
     def __str__(self):
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
 
@@ -1421,19 +1424,17 @@ class CoordinateSystem:
 
         ```
         """
-        vz = DirectionVectorZ  # LineVector and new Z-axis
-        vz = Vector3.normalize(vz)  # NewZAxis
-        vx = Vector3.perpendicular(vz)[0]  # NewXAxis
+        vz = DirectionVectorZ
+        vz = Vector3.normalize(vz)
+        vx = Vector3.perpendicular(vz)[0]
         try:
-            vx = Vector3.normalize(vx)  # NewXAxisnormalized
+            vx = Vector3.normalize(vx)
         except:
-            # In case of vertical element the length is zero
             vx = Vector3(1, 0, 0)
-        vy = Vector3.perpendicular(vz)[1]  # NewYAxis
+        vy = Vector3.perpendicular(vz)[1]
         try:
-            vy = Vector3.normalize(vy)  # NewYAxisnormalized
+            vy = Vector3.normalize(vy)
         except:
-            # In case of vertical element the length is zero
             vy = Vector3(0, 1, 0)
         CSNew = CoordinateSystem(new_origin_coordinatesystem, vx, vy, vz)
         return CSNew
@@ -1457,7 +1458,7 @@ class CoordinateSystem:
         ```
         """
         
-        # move coordinatesystem by y in local coordinates(not global)
+
         xloc_vect_norm = cs_old.Xaxis
         xdisp = Vector3.scale(xloc_vect_norm, x)
         yloc_vect_norm = cs_old.Xaxis
@@ -2603,6 +2604,7 @@ class Line:
             self.z = [self.start.z, self.end.z]
         except:
             self.z = 0
+
         self.dx = self.end.x-self.start.x
         self.dy = self.end.y-self.start.y
         try:
@@ -3805,69 +3807,138 @@ def Rect_YZ(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
 
 
 class Polygon:
-    def __init__(self, lines) -> 'Polygon':
+    def __init__(self) -> 'Polygon':
         """Represents a polygon composed of lines.
 
         - `lines` (list[Line]): List of lines composing the polygon.
         """
-        self.type = __class__.__name__
-        self.Lines = lines  # collect in list
         self.id = generateID()
-        pass  # Lines
+        self.type = __class__.__name__
+        self.curves = []
+        self.points = []
+        self.lines = []
+        self.isClosed = True
 
-    @staticmethod
-    def polygon(flatCurves: 'list[Line]') -> 'list[Point]':
-        """Creates a polygon from a list of flat curves.
+    @classmethod
+    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+        """Creates a Polygon from a list of points.
 
         #### Parameters:
-        - `flatCurves` (List[Line]): List of flat curves.
+        - `points` (list[Point]): The list of points defining the Polygon.
 
         #### Returns:
-        `List[Point]`: List of points representing the polygon.
+        `Polygon`: The created Polygon object.
 
         #### Example usage:
         ```python
 
-        ```            
+        ```        
         """
-        points = []
-        for i in flatCurves:
-            points.append(i.start)
-            try:
-                points.append(i.middle)
-            except:
-                pass
-        points.append(points[0])
-        points3D = []
-        for i in points:
-            points3D.append(Point.point_2D_to_3D(i))
-        return points3D
+        if len(points) < 3:
+            print("Error: Polygon must have at least 3 unique points.")
+            return None
 
-    def __id__(self):
-        """Returns the ID of the Polygon instance.
+        _points = []
+
+        for point in points: #Convert all to Point
+            if point.type == "Point2D":
+                _points.append(Point(point.x, point.y, 0))
+            else:
+                _points.append(point)
+
+        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
+            _points.pop()
+
+        seen = set()
+        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
+
+        polygon = Polygon()
+        polygon.points = unique_points
+
+        num_points = len(unique_points)
+        for i in range(num_points):
+            next_index = (i + 1) % num_points
+            polygon.curves.append(Line(start=unique_points[i], end=unique_points[next_index]))
+
+        return polygon
+
+
+    @classmethod
+    def by_joined_curves(cls, curves: 'list[Line]') -> 'Polygon':
+        if not curves:
+            print("Error: At least one curve is required to form a Polygon.")
+            sys.exit()
+
+        for i in range(len(curves) - 1):
+            if curves[i].end != curves[i+1].start:
+                print("Error: Curves must be contiguous to form a Polygon.")
+                sys.exit()
+
+        if Point.to_matrix(curves[0].start) != Point.to_matrix(curves[-1].end):
+            curves.append(Line(curves[-1].end, curves[0].start))
+
+        polygon = cls()
+        polygon.curves = curves
+
+        for crv in polygon.curves:
+            if Point.to_matrix(crv.start) not in polygon.points:
+                polygon.points.append(crv.start)
+            elif Point.to_matrix(crv.end) not in polygon.points:
+                polygon.points.append(crv.end)
+
+        return polygon
+
+
+    def area(self) -> 'float':  # shoelace formula
+        """Calculates the area enclosed by the Polygon using the shoelace formula.
 
         #### Returns:
-        `str`: The ID of the Polygon instance.
+        `float`: The area enclosed by the Polygon.
 
         #### Example usage:
         ```python
 
-        ```         
+        ```        
         """
-        return f"id:{self.id}"
+        if len(self.points) < 3:
+            return "Polygon has less than 3 points!"
+
+        num_points = len(self.points)
+        S1, S2 = 0, 0
+
+        for i in range(num_points):
+            x, y = self.points[i].x, self.points[i].y
+            if i == num_points - 1:
+                x_next, y_next = self.points[0].x, self.points[0].y
+            else:
+                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
+
+            S1 += x * y_next
+            S2 += y * x_next
+
+        area = 0.5 * abs(S1 - S2)
+        return area
+
+    def length(self) -> 'float':
+        """Calculates the total length of the Polygon.
+
+        #### Returns:
+        `float`: The total length of the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```
+        """
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
+        return sum(i.length for i in self.curves)
+
 
     def __str__(self) -> str:
-        """Returns a string representation of the Polygon instance.
-
-        #### Returns:
-        `str`: A string representation of the Polygon instance.
-
-        #### Example usage:
-        ```python
-
-        ```         
-        """
-        return f"{__class__.__name__}({self})"
+        return f"{self.type}"
 
 
 class Arc:
@@ -3959,9 +4030,13 @@ class Arc:
         b = self.distance(self.mid, self.end)
         c = self.distance(self.end, self.start)
         s = (a + b + c) / 2
-        A = math.sqrt(s * (s - a) * (s - b) * (s - c))
-        R = (a * b * c) / (4 * A)
-        return R
+        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+        
+        if abs(A) < 1e-6:
+            return float('inf')
+        else:
+            R = (a * b * c) / (4 * A)
+            return R
 
     def origin_arc(self) -> 'Point':
         """Calculates and returns the origin of the arc.
@@ -3976,12 +4051,9 @@ class Arc:
         # origin will be the calculated origin point of the arc
         ```
         """
-        # calculation of origin of arc #Todo can be simplified for sure
         Vstartend = Vector3.by_two_points(self.start, self.end)
         halfVstartend = Vector3.scale(Vstartend, 0.5)
-        # half distance between start and end
         b = 0.5 * Vector3.length(Vstartend)
-        # distance from start-end line to origin
         x = math.sqrt(Arc.radius_arc(self) * Arc.radius_arc(self) - b * b)
         mid = Point.translate(self.start, halfVstartend)
         vector_2 = Vector3.by_two_points(self.mid, mid)
@@ -4031,20 +4103,23 @@ class Arc:
         # length will be the calculated length of the arc
         ```
         """
-        x1, y1, z1 = self.start.x, self.start.y, self.start.z
-        x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-        x3, y3, z3 = self.end.x, self.end.y, self.end.z
+        try:
+            x1, y1, z1 = self.start.x, self.start.y, self.start.z
+            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
+            x3, y3, z3 = self.end.x, self.end.y, self.end.z
 
-        r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-        a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-        b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-        c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-        cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-        m1 = math.acos(cos_angle)
-        arc_length = r1 * m1
+            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
+            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
+            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
+            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+            m1 = math.acos(cos_angle)
+            arc_length = r1 * m1
 
-        return arc_length
-
+            return arc_length
+        except:
+            return 0
+    
     @staticmethod
     def points_at_parameter(arc: 'Arc', count: 'int') -> 'list':
         """Generates a list of points along the arc at specified intervals.
@@ -6928,7 +7003,6 @@ class Extrusion:
         self.bottomface = None  # return polycurve -> surface
         self.polycurve_3d_translated = None
         self.outercurve = []
-        self.innercurve = []
         self.bottomshape = []
         self.nested = []
 
@@ -7297,7 +7371,7 @@ class Extrusion:
 
 class Surface:
     """Represents a surface object created from PolyCurves."""
-    def __init__(self, PolyCurves: PolyCurve, color=None) -> None:
+    def __init__(self) -> 'Surface':
         """This class is designed to manage and manipulate surfaces derived from PolyCurve objects. It supports the generation of mesh representations, serialization/deserialization, and operations like filling and voiding based on PolyCurve inputs.
        
         - `type` (str): The class name, "Surface".
@@ -7311,27 +7385,24 @@ class Surface:
         - `origincurve` (PolyCurve): The original PolyCurve from which the surface was created.
         - `color` (int): The color of the surface, represented as an integer.
         - `colorlst` (list): A list of color values associated with the surface.
-        """
-        # self.outerPolyCurve
-        # self.innerPolyCurves
-        if isinstance(PolyCurves, PolyCurve):
-            PolyCurves = [PolyCurves]
+        """       
         self.type = __class__.__name__
         self.mesh = []
-        self.length = 0
-        self.area = 0  # return the same area of the polyCurve but remove the innerpolycurves
         self.offset = 0
-        self.name = "test2"
+        self.name = None
         self.id = generateID()
-        self.PolyCurveList = PolyCurves
-        self.origincurve = None
-        if color is None:
-            self.color = Color.rgb_to_int(Color().Components("gray"))
-        else:
-            self.color = color
-
+        self.outer_Polygon = None
+        self.inner_Polygon = []
         self.colorlst = []
-        self.fill(self.PolyCurveList)
+        self.outer_Surface = None
+        self.inner_Surface = []
+        # self.byPatch = self.fill(self)
+        # if color is None:
+        #     self.color = Color.rgb_to_int(Color().Components("gray"))
+        # else:
+        #     self.color = color
+
+
 
     def serialize(self) -> dict:
         """Serializes the Surface object into a dictionary for storage or transfer.
@@ -7395,37 +7466,33 @@ class Surface:
             surface.origincurve = PolyCurve.deserialize(data['origincurve'])
 
         return surface
+    @classmethod
+    def by_patch_inner_and_outer(self, Polygons: 'list[Polygon]') -> 'Surface':
+        valid_polygons = [p for p in Polygons if p is not None]
+        sorted_polygons = sorted(valid_polygons, key=lambda p: p.length(), reverse=True)
 
-    def fill(self, PolyCurveList: list):
-        """Fills the Surface with the specified PolyCurves.
-        This method applies PolyCurves to the Surface, creating an extrusion for each PolyCurve and adding it to the surface's mesh. It also assigns the specified color to each extrusion.
+        if len(sorted_polygons) == 0:
+            raise ValueError("No valid polygons provided")
 
-        #### Parameters:
-        - `PolyCurveList` (`list` or `PolyCurve`): A list of PolyCurve objects or a single PolyCurve object to be applied to the Surface.
+        outer_Polygon = sorted_polygons[0]
 
-        #### Example usage:
-        ```python
-        polyCurveList = [polyCurve1, polyCurve2]
-        surface.fill(polyCurveList)
-        # The surface is now filled with the specified PolyCurves.
-        ```
-        """
-        if isinstance(PolyCurveList, PolyCurve):
-            plycColorList = []
-            p = Extrusion.by_polycurve_height(PolyCurveList, 0, self.offset)
-            self.mesh.append(p)
-            for j in range(int(len(p.verts) / 3)):
-                plycColorList.append(self.color)
-            self.colorlst.append(plycColorList)
+        inner_Polygon = sorted_polygons[1:] if len(sorted_polygons) > 1 else []
 
-        elif isinstance(PolyCurveList, list):
-            for polyCurve in PolyCurveList:
-                plycColorList = []
-                p = Extrusion.by_polycurve_height(polyCurve, 0, self.offset)
-                self.mesh.append(p)
-                for j in range(int(len(p.verts) / 3)):
-                    plycColorList.append(self.color)
-                self.colorlst.append(plycColorList)
+        return self.by_patch(outer_Polygon, inner_Polygon)
+
+
+    @classmethod
+    def by_patch(self, outer_Polygon: Polygon, inner_Polygon: 'list[Polygon]' = None) -> 'Surface':
+        srf = Surface()
+        srf.outer_Polygon = outer_Polygon
+        srf.inner_Polygon = inner_Polygon
+        srf.outer_Surface = Extrusion.by_polycurve_height(outer_Polygon, 0, 0)
+        srf.inner_Surface = []
+        if inner_Polygon != None:
+            for inner in srf.inner_Polygon:
+                srf.inner_Surface.append(Extrusion.by_polycurve_height(inner, 0, 0))
+
+        return srf
 
     def void(self, polyCurve: PolyCurve):
         """Creates a void in the Surface based on the specified PolyCurve.
@@ -7441,42 +7508,7 @@ class Surface:
         ```
         """
         # Find the index of the extrusion that intersects with the polyCurve
-        idx = None
-        for i, extr in enumerate(self.mesh):
-            if extr.intersects(polyCurve):
-                idx = i
-                break
-
-        if idx is not None:
-            # Remove the intersected extrusion from the extrusion list
-            removed = self.mesh.pop(idx)
-
-            # Remove the corresponding color list from the colorlst list
-            removed_colors = self.colorlst.pop(idx)
-
-            # Create a new list of colors for the remaining extrusions
-            new_colors = []
-            for colors in self.colorlst:
-                new_colors.extend(colors)
-
-            # Fill the hole with a new surface
-            hole_surface = Surface([polyCurve], color=self.color)
-            hole_surface.fill([polyCurve])
-            hole_extrusion = hole_surface.extrusion[0]
-
-            # Add the hole extrusion to the extrusion list
-            self.mesh.append(hole_extrusion)
-
-            # Add the hole colors to the colorlst list
-            hole_colors = [Color.rgb_to_int(Color().Components(
-                "red"))] * int(len(hole_extrusion.verts) / 3)
-            self.colorlst.append(hole_colors)
-
-            # Add the remaining colors to the colorlst list
-            self.colorlst.extend(new_colors)
-
-            # Update the origin curve
-            self.origincurve = self.PolyCurveList[0]
+        pass
 
     def __id__(self):
         """Returns the unique identifier of the Surface.
@@ -7494,19 +7526,9 @@ class Surface:
         """
 
     def __str__(self) -> str:
-        """Generates a string representation of the Surface object.
-        This method returns a string that includes the class name and optionally additional details about the Surface object, making it easier to identify and distinguish the surface when printed or logged.
+        return f"{self.__class__.__name__}({self.outer_Polygon}, {self.inner_Polygon})"
 
-        #### Returns:
-        `str`: A string representation of the Surface object, typically including its class name and potentially other identifying information.
-
-        #### Example usage:
-        ```python
-        surface = Surface(polyCurves, color)
-        print(surface)
-        # Output: Surface({...})
-        ```
-        """
+    
 
 class NurbsSurface:  # based on point data / degreeU&countU / degreeV&countV?
     """Represents a NURBS (Non-Uniform Rational B-Spline) surface."""
@@ -8709,7 +8731,6 @@ class profiledataToShape:
         if profile_data == None:
             print(f"profile {name1} not recognised")
         shape_name = profile_data.shape_name
-
         if shape_name == None:
             profile_data = searchProfile(project.structural_fallback_element)
             err = f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'"
@@ -8742,7 +8763,6 @@ class profiledataToShape:
             prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
         elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-
         self.prof = prof
         self.data = d1
         pc2d = self.prof.curve  # 2D polycurve
@@ -12152,7 +12172,7 @@ class ZProfileWithLipsColdFormed:
 
 
 
-
+#todo, check if polygon is not closed, then draw polycurve
 class ReadDXF:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -12160,6 +12180,7 @@ class ReadDXF:
         self.lines = []
         self.arcs = []
         self.polylines = []
+        self.bulges = []
         self._read_dxf_file()
 
     def _read_dxf_file(self):
@@ -12169,7 +12190,7 @@ class ReadDXF:
 
 
     def _read_arc(self):
-        arc_stukken = []
+        arc_pieces = []
         with open(self.filepath, 'r') as file:
             lines = [line.strip() for line in file.readlines()]
 
@@ -12212,12 +12233,12 @@ class ReadDXF:
                     mid_angle = (start_angle + end_angle) / 2 if end_angle > start_angle else (start_angle + end_angle + 360) / 2
                     mid_point = Arc2D.draw_arc_point(center_x, center_y, radius, mid_angle)
                     arc_object = Arc2D(start_point, mid_point, end_point)
-                    arc_stukken.append(arc_object)
+                    arc_pieces.append(arc_object)
                     self.arcs.append(arc_object)
 
             i += 1
 
-        return arc_stukken
+        return arc_pieces
 
     def _read_polyline(self):
         polyline_stukken = []
@@ -12233,26 +12254,71 @@ class ReadDXF:
 
             if line == "LWPOLYLINE":
                 points2D = []
+                x, y, elevation = None, None, 0
+                polyline_flag, vertex_count = 0, None
+                widths = []
+                bulge = None
+                bulges = []
+                has_arc = False
+
                 while True:
                     i += 1
                     if i >= len(lines):
                         break
 
                     code = lines[i]
-                    if code == "10":
+                    if code == "5":
                         i += 1
-                        x = float(lines[i])*project.scale
+                        handle_id = lines[i]                     
+                    elif code == "8":
+                        i += 1
+                        layer = lines[i]
+                    elif code == "10":
+                        if x is not None and y is not None:
+                            points2D.append(Point2D(x, y))
+                            bulge = 0
+                        i += 1
+                        x = float(lines[i]) * project.scale
                     elif code == "20":
                         i += 1
-                        y = float(lines[i])*project.scale
-                        points2D.append(Point2D(x, y))
+                        y = float(lines[i]) * project.scale
+                    elif code == "38":
+                        i += 1
+                        elevation = float(lines[i]) * project.scale
+                    elif code == "42":
+                        i += 1
+                        bulge = float(lines[i]) 
+                    elif code == "70":
+                        i += 1
+                        polyline_flag = int(lines[i])
+                    elif code == "90":
+                        i += 1
+                        vertex_count = int(lines[i])
+                    elif code == "100":
+                        i += 1
+                        subclass_marker = lines[i]                       
+                    elif code == "40":
+                        i += 1
+                        start_width = float(lines[i]) * project.scale
+                        widths.append(start_width)
+                    elif code == "41":
+                        i += 1
+                        end_width = float(lines[i]) * project.scale
+                        widths.append(end_width)
+                    elif code == "330":
+                        i += 1
+                        owner_id = lines[i]                     
                     elif code == "0":
                         break
 
                 if points2D:
-                    polyline_object = PolyCurve2D.by_points(points2D)
+                    # if polyline_flag & 1 == 1:
+                    polyline_object = Polygon.by_points(points2D)
                     polyline_stukken.append(polyline_object)
                     self.polylines.append(polyline_object)
+                    # else:
+                    #     print("Found polyline that was not closed!")
+
 
             elif line == "POLYLINE":
                 points2D = []
@@ -12280,9 +12346,14 @@ class ReadDXF:
                         break
 
                 if points2D:
-                    polyline_object = PolyCurve2D.by_points(points2D)
+                    is_closed = True 
+                    if is_closed:
+                        polyline_object = Polygon.by_points(points2D)
+                    # else:
+                    #     polyline_object = PolyCurve2D.by_points(points2D)  # Use this for open polylines
                     polyline_stukken.append(polyline_object)
                     self.polylines.append(polyline_object)
+
 
             i += 1
 
@@ -12333,6 +12404,43 @@ class ReadDXF:
             i += 1
 
         return linepieces
+    
+
+    def calculate_arc_midpoint(self, start, end, bulge):
+        dx = end.x - start.x
+        dy = end.y - start.y
+        
+        L = math.sqrt(dx**2 + dy**2)
+        
+        S = (L / 2) * bulge
+        
+        try:
+            R = ((L / 2)**2 + S**2) / (2 * S)
+        except:
+            R = 0
+        
+        mx = (start.x + end.x) / 2
+        my = (start.y + end.y) / 2
+        
+        if bulge > 0:
+            dir_x = -dy
+            dir_y = dx
+        else:
+            dir_x = dy
+            dir_y = -dx
+        
+        try:
+            length = math.sqrt(dir_x**2 + dir_y**2)
+            dir_x /= length
+            dir_y /= length
+        except:
+            length = 0
+            dir_x = 0
+            dir_y = 0
+        cx = mx + dir_x * math.sqrt(R**2 - (L / 2)**2)
+        cy = my + dir_y * math.sqrt(R**2 - (L / 2)**2)
+        
+        return Point2D(cx, cy)    
 
 
 Patprefix = ';%UNITS=MM' \
@@ -12796,38 +12904,17 @@ def getXYZ(XMLtree, nodenumber):
     return (rest)
 
 
-# def XMLImportNodes(XMLtree): #!
-#     root = XMLtree.getroot()
-    
-#     nodenumbers = [node.text for node in root.findall(".//Nodes/Number")]
-#     X = [float(x.text.replace(",", ".")) for x in root.findall(".//Nodes/X")]
-#     Y = [float(y.text.replace(",", ".")) for y in root.findall(".//Nodes/Y")]
-#     Z = [float(z.text.replace(",", ".")) for z in root.findall(".//Nodes/Z")]
-    
-#     XYZ = [Node(x, y, z) for x, y, z in zip(X, Y, Z)]
-#     return nodenumbers, XYZ
-
-
 def XMLImportNodes(XMLtree):
     root = XMLtree.getroot()
-    nodenumbers = []
-    XYZ = []
-
-    for node in root.findall(".//Number"):
-        number = node.text
-        x_node = node.find("../X")
-        y_node = node.find("../Y")
-        z_node = node.find("../Z")
-
-        x = float(x_node.text.replace(",", ".")) if x_node is not None else 0
-        y = float(y_node.text.replace(",", ".")) if y_node is not None else 0
-        z = float(z_node.text.replace(",", ".")) if z_node is not None else 0
-
-        nodenumbers.append(number)
-        XYZ.append(Node(x, y, z))
-
+    
+    nodenumbers = [node.text for node in root.findall(".//Nodes/Number")]
+    X = [float(x.text.replace(",", ".")) for x in root.findall(".//Nodes/X")]
+    Y = [float(y.text.replace(",", ".")) for y in root.findall(".//Nodes/Y")]
+    Z = [float(z.text.replace(",", ".")) for z in root.findall(".//Nodes/Z")]
+    
+    XYZ = [Point(x, y, z) for x, y, z in zip(X, Y, Z)]
+    
     return nodenumbers, XYZ
-
 
 
 def XMLImportgetGridDistances(Grids):
@@ -12892,7 +12979,7 @@ def XMLImportGrids(XMLtree, gridExtension):
 # def findMaterial(material):
 
 
-def XMLImportPlates(XMLtree): #!
+def XMLImportPlates(XMLtree):
     # Get platedata from XML
     root = XMLtree.getroot()
     # PLATES

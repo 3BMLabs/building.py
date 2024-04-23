@@ -27,7 +27,7 @@ from geometry.surface import *
 
 project = BuildingPy("DXF","0001") 
 
-readedDXF = ReadDXF("library/object_database/DXF/Appartementenvloer 320 test copy leeg docu.dxf")
+readedDXF = ReadDXF("library/object_database/DXF/VBI Isolatieplaatvloer K260 Randoplegging.dxf")
 
 obj = Surface.by_patch_inner_and_outer(readedDXF.polylines)
 

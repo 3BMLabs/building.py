@@ -459,7 +459,7 @@ class Arc2D:
         self.area = 0
         self.length = self.length()
         self.units = project.units
-        self.coordinatesystem = self.coordinatesystem_arc()
+        self.coordinatesystem = None #self.coordinatesystem_arc()
 
     def distance(self, point_1: 'Point2D', point_2: 'Point2D') -> float:
         """Calculates the Euclidean distance between two points in 3D space.
@@ -519,17 +519,9 @@ class Arc2D:
         b = self.distance(self.mid, self.end)
         c = self.distance(self.end, self.start)
         s = (a + b + c) / 2
-        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))  # Prevent negative due to floating point errors
-        
-        # Check if the area A is almost zero (using a tolerance value)
-        if abs(A) < 1e-6:
-            # The points are collinear or the area is too small to form a valid arc
-            # Handle this case as needed, for example, by returning an infinite radius
-            # or raising an exception.
-            return float('inf')  # Or handle the error as appropriate for your application
-        else:
-            R = (a * b * c) / (4 * A)
-            return R
+        A = math.sqrt(s * (s - a) * (s - b) * (s - c))
+        R = (a * b * c) / (4 * A)
+        return R
 
     def origin_arc(self) -> 'Point2D':
         """Calculates and returns the origin of the arc.
@@ -642,11 +634,12 @@ class Arc2D:
         pnts = []
         for i in range(count):
             pnts.append(Point2D(arc.radius * math.cos(alpha),
-                                arc.radius * math.sin(alpha)))
+                        arc.radius * math.sin(alpha), 0))
             alpha = alpha + d_alpha
         cs_new = arc.coordinatesystem
-        pnts2 = [transform_point_2(point, cs_new) for point in pnts]
-        print(pnts2)
+        pnts2 = []  # transformed points
+        for i in pnts:
+            pnts2.append(transform_point_2(i, cs_new))
         return pnts2
 
     @staticmethod

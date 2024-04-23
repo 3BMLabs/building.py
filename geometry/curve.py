@@ -1299,7 +1299,7 @@ class Polygon:
         """
         if len(points) < 3:
             print("Error: Polygon must have at least 3 unique points.")
-            sys.exit()
+            return None
 
         _points = []
 

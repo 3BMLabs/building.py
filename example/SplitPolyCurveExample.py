@@ -17,10 +17,6 @@ from geometry.systemsimple import *
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"
 
-
-# Line1 = Line(start=Point(1000,-500,0), end=Point(2000,3000,0))
-# project.objects.append(Line1)
-
 Line2 = Line(start=Point(-500,500,0), end=Point(1500,-200,0))
 project.objects.append(Line2)
 

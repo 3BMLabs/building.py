@@ -144,11 +144,16 @@ class Surface:
             surface.origincurve = PolyCurve.deserialize(data['origincurve'])
 
         return surface
-
     @classmethod
     def by_patch_inner_and_outer(self, Polygons: 'list[Polygon]') -> 'Surface':
-        sorted_polygons = sorted(Polygons, key=lambda p: p.length(), reverse=True)
+        valid_polygons = [p for p in Polygons if p is not None]
+        sorted_polygons = sorted(valid_polygons, key=lambda p: p.length(), reverse=True)
+
+        if len(sorted_polygons) == 0:
+            raise ValueError("No valid polygons provided")
+
         outer_Polygon = sorted_polygons[0]
+
         inner_Polygon = sorted_polygons[1:] if len(sorted_polygons) > 1 else []
 
         return self.by_patch(outer_Polygon, inner_Polygon)
