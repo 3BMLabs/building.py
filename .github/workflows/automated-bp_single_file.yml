@@ -1,4 +1,4 @@
-name: Execute Python Script
+name: Generate bp_single_file
 
 on:
   push:
