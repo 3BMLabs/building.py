@@ -24,7 +24,6 @@ jobs:
       - name: Execute Python script
         run: |
           python docs/write_bp_single_file.py
-          mv docs/bp_single_file.py ./bp_single_file.py
 
       - name: Commit and push if changes
         run: |
