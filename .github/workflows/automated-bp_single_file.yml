@@ -24,12 +24,17 @@ jobs:
       - name: Execute Python script
         run: |
           python docs/write_bp_single_file.py
+          echo "Script execution completed."
 
       - name: Commit and push if changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git status
-          git add bp_single_file.py
-          git commit -m "Automatically updated bp_single_file.py" || true
-          git push
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected, preparing to commit."
+            git add bp_single_file.py
+            git commit -m "Automatically updated bp_single_file.py"
+            git push
+          else
+            echo "No changes detected, skipping commit."
+          fi
