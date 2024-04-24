@@ -1,0 +1,22 @@
+name: Update Wiki
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  update_wiki:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Update Wiki
+      run: |
+        cp docs/usage/*.md wiki/
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add wiki/*.md
+        git commit -m "Automatisch geupdate wiki documentatie"
+        git push
