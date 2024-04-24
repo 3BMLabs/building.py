@@ -30,5 +30,6 @@ jobs:
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "Update wiki documentation"
+        git commit -m "Update wiki documentation" || true
         git push --set-upstream https://${{ env.MY_WIKI_PAT }}@github.com/3BMLabs/building.py.wiki.git
+
