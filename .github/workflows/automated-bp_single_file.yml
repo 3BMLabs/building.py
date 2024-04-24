@@ -33,7 +33,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add docs/bp_single_file
+          git add bp_single_file.py
           git commit -m "Automatically updated bp_single_file" || true
           git push
 
