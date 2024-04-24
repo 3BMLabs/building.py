@@ -23,10 +23,12 @@ jobs:
         cp docs/usage/*.md wiki/
 
     - name: Commit and Push Changes to Wiki
+      env:
+        MY_WIKI_PAT: ${{ secrets.MY_WIKI_PAT }}
       run: |
         cd wiki
         git add .
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -m "Update wiki documentation"
-        git push
+        git push --set-upstream https://${{ env.MY_WIKI_PAT }}@github.com/3BMLabs/building.py.wiki.git
