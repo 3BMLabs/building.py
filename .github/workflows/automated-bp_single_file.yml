@@ -29,6 +29,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git status
           git add bp_single_file.py
-          git diff --quiet || git commit -m "Automatically updated bp_single_file.py"
+          git commit -m "Automatically updated bp_single_file.py" || true
           git push
