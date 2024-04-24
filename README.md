@@ -1,5 +1,5 @@
 [![Update Wiki](https://github.com/3BMLabs/building.py/actions/workflows/update_wiki.yml/badge.svg)](https://github.com/3BMLabs/building.py/actions/workflows/update_wiki.yml)
-[![Execute Python Script](https://github.com/3BMLabs/building.py/actions/workflows/automated-bp_single_file.yml/badge.svg)](https://github.com/3BMLabs/building.py/actions/workflows/automated-bp_single_file.yml)
+[![Generate bp_single_file](https://github.com/3BMLabs/building.py/actions/workflows/generate-bp_single_file.yml/badge.svg)](https://github.com/3BMLabs/building.py/actions/workflows/generate-bp_single_file.yml)
 # building.py
 A Python library for creating buildings, building systems, objects, and exporting them to various programs such as Blender, Revit, and Speckle.
 
