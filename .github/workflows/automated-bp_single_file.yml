@@ -21,19 +21,15 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-
       - name: Execute Python script
         run: |
           python docs/write_bp_single_file.py
+          mv docs/bp_single_file.py ./bp_single_file.py
 
       - name: Commit and push if changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add bp_single_file.py
-          git commit -m "Automatically updated bp_single_file" || true
+          git commit -m "Automatically updated bp_single_file.py" || true
           git push
-
