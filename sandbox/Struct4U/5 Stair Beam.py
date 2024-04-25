@@ -18,7 +18,7 @@ Column = "K150/150/10"
 Tread = "S120/10"
 obj = []
 
-obj.append(Frame.by_startpoint_endpoint_profile_name(Point(0,0,0),Point(0,0,Height),Column,"spiral",BaseSteel)) #Spiral
+obj.append(Frame.by_startpoint_endpoint_profile(Point(0,0,0),Point(0,0,Height),Column,"spiral",BaseSteel)) #Spiral
 
 deg = 0
 x = 0
@@ -29,7 +29,7 @@ p2 = Point(x, y, z)
 ddeg = DegreesSpiral / NumberOfTreads
 
 for i in range(NumberOfTreads):
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(Point(0, 0, z), p2, Tread, "Tread","Center","Center",0, BaseSteel))  # Treads
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0, 0, z), p2, Tread, "Tread","Center","Center",0, BaseSteel))  # Treads
     p2 = Point.rotate_XY(p2, ddeg, dz)
     z = z + dz
 

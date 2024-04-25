@@ -152,7 +152,7 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def by_startpoint_endpoint_profile_name(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, material: None, comments=None):
+    def by_startpoint_endpoint_profile(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, material: None, comments=None):
         # [!not included in BP singlefile - start]
         from library.profile import profiledataToShape
         # [!not included in BP singlefile - end]
@@ -168,7 +168,16 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        f1.curve = profiledataToShape(profile_name).polycurve2d  # polycurve2d
+        if type(profile).__name__ == "PolyCurve2D":
+            f1.curve = profile
+        elif type(profile).__name__ == "Polygon":
+            f1.curve = PolyCurve2D.by_points(profile.points)
+        elif type(profile).__name__ == "str":
+            f1.curve = profiledataToShape(profile).polycurve2d  # polycurve2d
+        else:
+            print("[by_startpoint_endpoint_profile], input is not correct.")
+            sys.exit()
+
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -176,7 +185,7 @@ class Frame:
             f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
-        f1.profileName = profile_name
+        f1.profileName = profile
         f1.material = material
         f1.color = material.colorint
         f1.colorlst = colorlist(f1.extrusion, f1.color)
@@ -184,7 +193,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
         f1 = Frame()
         f1.comments = comments
 
@@ -223,7 +232,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 

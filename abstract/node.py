@@ -57,7 +57,6 @@ class Node:
         - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
         - `comments` (str, optional): Additional comments or notes about the node.
         """
-        
         self.id = generateID()
         self.type = __class__.__name__
         self.point = point if isinstance(point, Point) else None

@@ -17,6 +17,7 @@ from objects.wall import Wall
 from objects.door import Door
 from objects.room import Room
 from geometry.surface import Surface
+from abstract.matrix import *
 
 
 class LoadIFC:
@@ -277,12 +278,32 @@ class CreateIFC:
     def export(self, filename):
         # Export the IFC model to a file with the specified name
         self.model.write(filename)
+        print(f"IFC created: {filename}")
 
 
 
 def translateObjectsToIFC(objects, ifc_creator):
-    FreeCADObj = []
+    IFCObj = []
 
+
+    def process_grid(object_type, ifc_creator):
+        grid_axes = []
+        for line in object_type.horizontal_lines:
+            ifc_line = create_ifc_polyline(line, ifc_creator)
+            grid_axes.append(ifc_line)
+        
+        for line in object_type.vertical_lines:
+            ifc_line = create_ifc_polyline(line, ifc_creator)
+            grid_axes.append(ifc_line)
+
+        placement = ifc_creator.model.create_entity('IfcLocalPlacement', Location=(0, 0, 0))
+        ifc_grid = ifc_creator.model.create_entity('IfcGrid', UAxes=grid_axes, VAxes=grid_axes, WAxes=None, ObjectPlacement=placement, Name=object_type.name)
+        return ifc_grid
+
+    def create_ifc_polyline(points, ifc_creator):
+        ifc_points = [ifc_creator.model.create_entity('IfcCartesianPoint', Coordinates=(p.x, p.y, 0)) for p in points]
+        polyline = ifc_creator.model.create_entity('IfcPolyline', Points=ifc_points)
+        return polyline
 
     # Elements
     # Andere category meegeven.
@@ -296,6 +317,8 @@ def translateObjectsToIFC(objects, ifc_creator):
             test = "test"
 
         elif nm == 'Surface' or nm == 'Face':
+            # extrude along path : 24-04-2024
+
             surface_type = run("root.create_entity", ifc_creator.model, ifc_class="IfcColumnType", name="")
 
             matrix = np.eye(4)
@@ -328,10 +351,11 @@ def translateObjectsToIFC(objects, ifc_creator):
                 interne_polyline = ifc_creator.model.create_entity('IfcPolyline', Points=interne_ifc_punten)
                 interne_polyline_lists.append(interne_polyline)
 
+
             custom_profile_with_void = ifc_creator.model.create_entity(
                 'IfcArbitraryProfileDefWithVoids',
                 ProfileType='AREA',
-                ProfileName='CustomProfileWithVoid',
+                ProfileName= object_type.name,
                 OuterCurve=externe_polyline,
                 InnerCurves=interne_polyline_lists
             )
@@ -340,21 +364,50 @@ def translateObjectsToIFC(objects, ifc_creator):
 
             run("material.assign_material", ifc_creator.model, product=surface_type, material=material_set)
 
-            column = run("root.create_entity", ifc_creator.model, ifc_class="IfcDoor")
+            object = run("root.create_entity", ifc_creator.model, ifc_class="IfcBuildingElementProxy")
 
-            run("geometry.edit_object_placement", ifc_creator.model, product=column, matrix=matrix, is_si=True)
+            run("geometry.edit_object_placement", ifc_creator.model, product=object, matrix=matrix, is_si=True)
 
-            run("type.assign_type", ifc_creator.model, related_object=column, relating_type=surface_type)
+            run("type.assign_type", ifc_creator.model, related_object=object, relating_type=surface_type)
 
-            representation = run("geometry.add_profile_representation", ifc_creator.model, context=ifc_creator.body, profile=custom_profile_with_void, depth=1)
+            representation = run("geometry.add_profile_representation", ifc_creator.model, context=ifc_creator.body, profile=custom_profile_with_void, depth=0)
 
-            run("geometry.assign_representation", ifc_creator.model, product=column, representation=representation)
+            run("geometry.assign_representation", ifc_creator.model, product=object, representation=representation)
 
-            run("spatial.assign_container", ifc_creator.model, relating_structure=ifc_creator.storey, product=column)
+            run("spatial.assign_container", ifc_creator.model, relating_structure=ifc_creator.storey, product=object)
             
         elif nm == 'Frame':
-            #convert this to a .ifc object
-            pass
+
+            start = Point.to_matrix(object_type.start)
+            end = Point.to_matrix(object_type.end)
+            distance = Point.distance(Point.from_matrix(start), Point.from_matrix(end))
+
+            ifc_class_type = "IfcBeamType"
+            ifc_class = "IfcBeam"
+            column_type = run("root.create_entity", ifc_creator.model, ifc_class=ifc_class_type, name=object_type.name)
+            material_set = run("material.add_material_set", ifc_creator.model, name=object_type.name, set_type="IfcMaterialProfileSet")
+            material_name = run("material.add_material", ifc_creator.model, name="", category="steel")
+            matrix = Matrix.from_points(object_type.start, object_type.end).matrix
+            externe_punten = []
+            for pt in object_type.curve.points2D:
+                externe_punten.append((pt.x*1000, pt.y*1000))
+
+            externe_ifc_punten = [ifc_creator.model.create_entity('IfcCartesianPoint', Coordinates=p) for p in externe_punten]
+            polyline = ifc_creator.model.create_entity('IfcPolyline', Points=externe_ifc_punten)
+
+            shape_profile = ifc_creator.model.create_entity("IfcArbitraryClosedProfileDef", 
+                                                            ProfileType="AREA", 
+                                                            OuterCurve=polyline)
+
+            run("material.add_profile", ifc_creator.model, profile_set=material_set, material=material_name, profile=shape_profile)
+            run("material.assign_material", ifc_creator.model, product=column_type, material=material_set)
+            column = run("root.create_entity", ifc_creator.model, ifc_class=ifc_class)
+            run("geometry.edit_object_placement", ifc_creator.model, product=column, matrix=matrix, is_si=True)
+            run("type.assign_type", ifc_creator.model, related_object=column, relating_type=column_type)
+            representation = run("geometry.add_profile_representation", ifc_creator.model, context=ifc_creator.body, profile=shape_profile, depth=distance)
+            run("geometry.assign_representation", ifc_creator.model, product=column, representation=representation)
+            run("spatial.assign_container", ifc_creator.model, relating_structure=ifc_creator.storey, product=column)
+
 
         elif nm == "Extrusion":
             test = "test"
@@ -390,7 +443,8 @@ def translateObjectsToIFC(objects, ifc_creator):
             test = "test"
 
         elif nm == 'Grid':
-            test = "test"
+            grid = process_grid(object_type, ifc_creator)
+            IFCObj.append(grid)
 
         elif nm == 'GridSystem':
             test = "test"
@@ -398,4 +452,4 @@ def translateObjectsToIFC(objects, ifc_creator):
         else:
             print(f"{nm} Object not yet added to translateObjectsToIFC")
 
-    return FreeCADObj
+    return IFCObj

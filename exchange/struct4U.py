@@ -376,12 +376,12 @@ class xmlXFEM4U:
                 ProfN = ProfileNamesUnique.index(i.profileName) + 1
                 beamsGN = beamsGN + 1
                 Beamgroup.append("<Number>" + str(beamsGN) + "</Number>\n")
-                n = n + 1
+                n = n + 1 # frame object (node number)
                 Nodes.append("<Number>" + str(n) + "</Number>\n")
                 Nodes.append("<X>" + str(round(i.start.x)) + "</X>\n")
                 Nodes.append("<Y>" + str(round(i.start.y)) + "</Y>\n")
                 Nodes.append("<Z>" + str(round(i.start.z)) + "</Z>\n")
-
+    
                 Beamgroup.append("<Startnode>" + str(n) + "</Startnode>\n")
 
                 Points.append([i.start, n])

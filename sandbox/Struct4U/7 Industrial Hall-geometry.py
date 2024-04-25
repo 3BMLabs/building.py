@@ -70,12 +70,12 @@ length = l
 
 #SPANTEN
 for i in range(n):
-    f1 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, 0, z), Point(spac_x, y * 0.5, z + afschot), HOOFDLIGGER, HOOFDLIGGER, BaseSteel).write(project)
+    f1 = Frame.by_startpoint_endpoint_profile(Point(spac_x, 0, z), Point(spac_x, y * 0.5, z + afschot), HOOFDLIGGER, HOOFDLIGGER, BaseSteel).write(project)
     FrameTag.by_frame(f1).write(project)
-    Frame.by_startpoint_endpoint_profile_name(Point(spac_x, y * 0.5, z + afschot), Point(spac_x, y, z), HOOFDLIGGER, HOOFDLIGGER, BaseSteel).write(project)
-    k1 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, 0, 0), Point(spac_x, 1, z), GEVELKOLOM, GEVELKOLOM, BaseSteel).write(project)
+    Frame.by_startpoint_endpoint_profile(Point(spac_x, y * 0.5, z + afschot), Point(spac_x, y, z), HOOFDLIGGER, HOOFDLIGGER, BaseSteel).write(project)
+    k1 = Frame.by_startpoint_endpoint_profile(Point(spac_x, 0, 0), Point(spac_x, 1, z), GEVELKOLOM, GEVELKOLOM, BaseSteel).write(project)
     ColumnTag.by_frame(k1).write(project)
-    k2 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, y, 0), Point(spac_x, y+1, z), GEVELKOLOM, GEVELKOLOM, BaseSteel).write(project)
+    k2 = Frame.by_startpoint_endpoint_profile(Point(spac_x, y, 0), Point(spac_x, y+1, z), GEVELKOLOM, GEVELKOLOM, BaseSteel).write(project)
     ColumnTag.by_frame(k2).write(project)
     spac_x = spac_x + spac
 
@@ -92,15 +92,15 @@ FrameTag.by_frame(fb4).write(project)
 #RANDLIGGERS & KOPPELKOKERS
 spac_x = 0
 for i in range(n+1): #elk stramienvak + 1
-    rl1 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, 0, z), Point(spac_x + spac, 0, z), RANDLIGGER, RANDLIGGER, BaseSteel).write(project)
+    rl1 = Frame.by_startpoint_endpoint_profile(Point(spac_x, 0, z), Point(spac_x + spac, 0, z), RANDLIGGER, RANDLIGGER, BaseSteel).write(project)
     FrameTag.by_frame(rl1).write(project)
 
-    rl2 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, y, z), Point(spac_x + spac, y, z), RANDLIGGER, RANDLIGGER, BaseSteel).write(project)
+    rl2 = Frame.by_startpoint_endpoint_profile(Point(spac_x, y, z), Point(spac_x + spac, y, z), RANDLIGGER, RANDLIGGER, BaseSteel).write(project)
     FrameTag.by_frame(rl2).write(project)
 
     ys = spac_y
     for i in range(nw-1):
-        kk = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, ys, z), Point(spac_x + spac, ys, z), KOPPELLIGGER, KOPPELLIGGER, BaseSteel).write(project)
+        kk = Frame.by_startpoint_endpoint_profile(Point(spac_x, ys, z), Point(spac_x + spac, ys, z), KOPPELLIGGER, KOPPELLIGGER, BaseSteel).write(project)
         FrameTag.by_frame(kk).write(project)
         ys = ys + spac_y
     spac_x = spac_x + spac
@@ -108,21 +108,21 @@ for i in range(n+1): #elk stramienvak + 1
 #KOPGEVEL
 spac_x = 0
 for i in range(2): #VOORZIJDE EN ACHTERZIJDE
-    hk1 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, 0, 0), Point(spac_x, 1, z), HOEKKOLOM, HOEKKOLOM, BaseSteel).write(project)
+    hk1 = Frame.by_startpoint_endpoint_profile(Point(spac_x, 0, 0), Point(spac_x, 1, z), HOEKKOLOM, HOEKKOLOM, BaseSteel).write(project)
     ColumnTag.by_frame(hk1).write(project)
 
-    hk2 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, y, 0), Point(spac_x, y+1, z), HOEKKOLOM, HOEKKOLOM, BaseSteel).write(project)
+    hk2 = Frame.by_startpoint_endpoint_profile(Point(spac_x, y, 0), Point(spac_x, y+1, z), HOEKKOLOM, HOEKKOLOM, BaseSteel).write(project)
     ColumnTag.by_frame(hk2).write(project)
 
     ys = spac_y
     for i in range(nw-1):
-        hk3 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, ys, 0), Point(spac_x, ys+1, z), KOPGEVELKOLOM, KOPGEVELKOLOM, BaseSteel).write(project)
+        hk3 = Frame.by_startpoint_endpoint_profile(Point(spac_x, ys, 0), Point(spac_x, ys+1, z), KOPGEVELKOLOM, KOPGEVELKOLOM, BaseSteel).write(project)
         ColumnTag.by_frame(hk3).write(project)
 
         ys = ys + spac_y
     ys = 0
     for i in range(nw):
-        rb1 = Frame.by_startpoint_endpoint_profile_name(Point(spac_x, ys, z), Point(spac_x, ys + spac_y, z), RANDLIGGER_KOPGEVEL, RANDLIGGER_KOPGEVEL, BaseSteel).write(project)
+        rb1 = Frame.by_startpoint_endpoint_profile(Point(spac_x, ys, z), Point(spac_x, ys + spac_y, z), RANDLIGGER_KOPGEVEL, RANDLIGGER_KOPGEVEL, BaseSteel).write(project)
         ys = ys + spac_y
         FrameTag.by_frame(rb1).write(project)
 
@@ -132,18 +132,18 @@ for i in range(2): #VOORZIJDE EN ACHTERZIJDE
 
 for i in wvb: #For loop for vertical bracing
     if i[0] == "K1": #kopgevel 1
-        Frame.by_startpoint_endpoint_profile_name(Point(0, (i[1]-1) * spac_y, 0), Point(0, (i[1]) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
-        Frame.by_startpoint_endpoint_profile_name(Point(0, (i[1]) * spac_y, 0), Point(0, (i[1]-1) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point(0, (i[1]-1) * spac_y, 0), Point(0, (i[1]) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point(0, (i[1]) * spac_y, 0), Point(0, (i[1]-1) * spac_y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
     elif i[0] == "K2":
         spac_x = l
-        Frame.by_startpoint_endpoint_profile_name(Point(spac_x, (i[1] - 1) * spac_y, 0), Point(spac_x, (i[1]) * spac_y, z), WVB_GEVEL, "WVB KOPGEVEL", BaseSteel).write(project)
-        Frame.by_startpoint_endpoint_profile_name(Point(spac_x, (i[1]) * spac_y, 0), Point(spac_x, (i[1] - 1) * spac_y, z), WVB_GEVEL, "WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point(spac_x, (i[1] - 1) * spac_y, 0), Point(spac_x, (i[1]) * spac_y, z), WVB_GEVEL, "WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point(spac_x, (i[1]) * spac_y, 0), Point(spac_x, (i[1] - 1) * spac_y, z), WVB_GEVEL, "WVB KOPGEVEL", BaseSteel).write(project)
     elif i[0] == "L1":
-        Frame.by_startpoint_endpoint_profile_name(Point((i[1]-1) * spac, 0, 0), Point((i[1]) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
-        Frame.by_startpoint_endpoint_profile_name(Point((i[1]) * spac, 0, 0), Point((i[1]-1) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point((i[1]-1) * spac, 0, 0), Point((i[1]) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point((i[1]) * spac, 0, 0), Point((i[1]-1) * spac, 0, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
     elif i[0] == "L2":
-        Frame.by_startpoint_endpoint_profile_name(Point((i[1] - 1) * spac, y, 0), Point((i[1]) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
-        Frame.by_startpoint_endpoint_profile_name(Point((i[1]) * spac, y, 0), Point((i[1] - 1) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point((i[1] - 1) * spac, y, 0), Point((i[1]) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
+        Frame.by_startpoint_endpoint_profile(Point((i[1]) * spac, y, 0), Point((i[1] - 1) * spac, y, z), WVB_GEVEL,"WVB KOPGEVEL", BaseSteel).write(project)
     else:
         pass
 
@@ -160,7 +160,7 @@ for i in wvbDak:
         x2 = x1t
     else:
         x1 = x1
-    Frame.by_startpoint_endpoint_profile_name(
+    Frame.by_startpoint_endpoint_profile(
         Point(x1, y1, z),
         Point(x2, y2, z),
         WVB_DAK,"WVB DAK", BaseSteel).write(project)

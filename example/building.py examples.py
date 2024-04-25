@@ -139,10 +139,10 @@ ply2D = PolyCurve2D.by_joined_curves([
 PC4 = PolyCurve.by_polycurve_2D(ply2D)
 
 # Poly-curve translate moves the curve by v1 vector.
-plycurve.translate(v1)
+PC4.translate(v1)
 
 # Poly-curve Rotate  # NOT SURE WHAT THE INPUT HAS TO BE
-plycurve.rotate(90, 10)
+PC4.rotate(90, 10)
 
 # Polygon # CHECK IF ITS WORKING
 # CLASS: POLYGON
@@ -211,7 +211,7 @@ Arc2D.points(testarc)
 
 # Class PolyCurve2D
 # Combine multiple lines and make it as 1 object
-PolyCurve2D.by_joined_curves([l2d, l2d2, l2d3])
+ply = PolyCurve2D.by_joined_curves([l2d, l2d2, l2d3])
 
 # return all the points within the PolyCurve2D
 PolyCurve2D.points(ply)
@@ -290,10 +290,10 @@ grdsystem = GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension)
 
 # FILE: frame
 # Class Frame
-frame2 = Frame.by_startpoint_endpoint_profile_name(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
-frame3 = Frame.by_startpoint_endpoint_profile_name(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2", "steel")
-frame4 = Frame.by_startpoint_endpoint_profile_name_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
-frame5 = Frame.by_startpoint_endpoint_profile_name_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
+frame2 = Frame.by_startpoint_endpoint_profile(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
+frame3 = Frame.by_startpoint_endpoint_profile(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2", "steel")
+frame4 = Frame.by_startpoint_endpoint_profile_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
+frame5 = Frame.by_startpoint_endpoint_profile_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
 frame6 = Frame.by_startpoint_endpoint(p1, p2, PC1, "test", 90, "Steel")
 
 # ------------------------

@@ -62,7 +62,7 @@ for i in names:
     Mat = BaseSteel
     prof = i[:3]
     print(i)
-    fram = Frame.by_startpoint_endpoint_profile_name(Point(x, y, 0), Point(x, y+1, height), i, i, Mat).write(project)
+    fram = Frame.by_startpoint_endpoint_profile(Point(x, y, 0), Point(x, y+1, height), i, i, Mat).write(project)
     ColumnTag.by_frame(fram).write(project)
     x = x + spacing
     rownumb = rownumb + 1

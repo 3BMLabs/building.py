@@ -1116,36 +1116,62 @@ class PolyCurve:
 
         ```        
         """
-        crvs = []
+
         if polycurve.type == "PolyCurve2D":
+            crvs = []
+            pnts = []            
             for i in polycurve.curves:
-                if i.__class__.__name__ == "Arc":
-                    crvs.append(Arc(transform_point(i.start, CSGlobal, startpoint, directionvector),
-                                    transform_point(
-                                        i.mid, CSGlobal, startpoint, directionvector),
-                                    transform_point(
-                                        i.end, CSGlobal, startpoint, directionvector)
-                                    ))
-                elif i.__class__.__name__ == "Line":
-                    crvs.append(Line(start=transform_point(i.start, CSGlobal, startpoint, directionvector),
-                                     end=transform_point(
-                                         i.end, CSGlobal, startpoint, directionvector)
-                                     ))
-                elif i.__class__.__name__ == "Arc2D":
-                    # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
-                    crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point_2D_to_3D(
-                                        i.mid), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point_2D_to_3D(
-                                        i.end), CSGlobal, startpoint, directionvector)
-                                    ))
-                elif i.__class__.__name__ == "Line2D":
-                    crvs.append(Line(start=transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                                     end=transform_point(Point.point_2D_to_3D(
-                                         i.end), CSGlobal, startpoint, directionvector)
-                                     ))
+                if i.__class__.__name__ == "Arc" or i.__class__.__name__ == "Arc2D":
+                    start_transformed = transform_point(Point.point_2D_to_3D(i.start) if i.__class__.__name__ == "Arc2D" else i.start, CSGlobal, startpoint, directionvector)
+                    mid_transformed = transform_point(Point.point_2D_to_3D(i.mid) if i.__class__.__name__ == "Arc2D" else i.mid, CSGlobal, startpoint, directionvector)
+                    end_transformed = transform_point(Point.point_2D_to_3D(i.end) if i.__class__.__name__ == "Arc2D" else i.end, CSGlobal, startpoint, directionvector)
+                    
+                    crvs.append(Arc(start_transformed, mid_transformed, end_transformed))
+                    pnts.extend([start_transformed, mid_transformed, end_transformed])
+
+                elif i.__class__.__name__ == "Line" or i.__class__.__name__ == "Line2D":
+                    start_transformed = transform_point(Point.point_2D_to_3D(i.start) if i.__class__.__name__ == "Line2D" else i.start, CSGlobal, startpoint, directionvector)
+                    end_transformed = transform_point(Point.point_2D_to_3D(i.end) if i.__class__.__name__ == "Line2D" else i.end, CSGlobal, startpoint, directionvector)
+
+                    crvs.append(Line(start_transformed, end_transformed))
+                    pnts.extend([start_transformed, end_transformed])
+
                 else:
-                    print(i.__class__.__name__ + "Curvetype not found")
+                    print(i.__class__.__name__ + " Curvetype not found")
+
+                # if i.__class__.__name__ == "Arc":
+                #     crvs.append(Arc(transform_point(i.start, CSGlobal, startpoint, directionvector),
+                #                     transform_point(
+                #                         i.mid, CSGlobal, startpoint, directionvector),
+                #                     transform_point(
+                #                         i.end, CSGlobal, startpoint, directionvector)
+                #                     ))
+                # elif i.__class__.__name__ == "Line":
+                #     crvs.append(Line(start=transform_point(i.start, CSGlobal, startpoint, directionvector),
+                #                      end=transform_point(
+                #                          i.end, CSGlobal, startpoint, directionvector)
+                #                      ))
+                # elif i.__class__.__name__ == "Arc2D":
+                #     # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
+                #     crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
+                #                     transform_point(Point.point_2D_to_3D(
+                #                         i.mid), CSGlobal, startpoint, directionvector),
+                #                     transform_point(Point.point_2D_to_3D(
+                #                         i.end), CSGlobal, startpoint, directionvector)
+                #                     ))
+                # elif i.__class__.__name__ == "Line2D":
+                #     crvs.append(Line(start=transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
+                #                      end=transform_point(Point.point_2D_to_3D(
+                #                          i.end), CSGlobal, startpoint, directionvector)
+                #                      ))
+                # else:
+                #     print(i.__class__.__name__ + "Curvetype not found")
+                
+            new_polycurve = PolyCurve()
+            new_polycurve.curves = crvs
+            new_polycurve.points = pnts
+            return new_polycurve
+
         elif polycurve.type == "PolyCurve":
             for i in polycurve.curves:
                 if i.__class__.__name__ == "Arc":
@@ -1398,6 +1424,54 @@ class Polygon:
             lst.append(line.length)
 
         return sum(i.length for i in self.curves)
+
+
+    def translate(self, vector_3d: 'Vector3') -> 'Polygon':
+        """Translates the Polygon by a 3D vector.
+
+        #### Parameters:
+        - `vector_3d` (Vector3): The 3D vector by which to translate the Polygon.
+
+        #### Returns:
+        `Polygon`: The translated Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        # Create a new Polygon instance to hold the translated polygon
+        translated_polygon = Polygon()
+        translated_curves = []
+        translated_points = []
+
+        # Translate all curves
+        for curve in self.curves:
+            if curve.__class__.__name__ == "Arc":
+                # Translate the start, middle, and end points of the arc
+                new_start = Point.translate(curve.start, vector_3d)
+                new_middle = Point.translate(curve.middle, vector_3d)
+                new_end = Point.translate(curve.end, vector_3d)
+                translated_curves.append(Arc(new_start, new_middle, new_end))
+            elif curve.__class__.__name__ == "Line":
+                # Translate the start and end points of the line
+                new_start = Point.translate(curve.start, vector_3d)
+                new_end = Point.translate(curve.end, vector_3d)
+                translated_curves.append(Line(new_start, new_end))
+            else:
+                print("Curve type not found")
+
+        # Ensure that translated_curves are assigned back to the translated_polygon
+        translated_polygon.curves = translated_curves
+
+        # Translate all points
+        for point in self.points:
+            translated_points.append(Point.translate(point, vector_3d))
+
+        # Ensure that translated_points are assigned back to the translated_polygon
+        translated_polygon.points = translated_points
+
+        return translated_polygon
 
 
     def __str__(self) -> str:

@@ -53,7 +53,7 @@ for i in lst:
     ColumnTag.by_frame(f).write(project)
 
 
-f4 = Frame.by_startpoint_endpoint_profile_name(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
+f4 = Frame.by_startpoint_endpoint_profile(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
 tg = FrameTag.by_frame(f4).write(project)
 
 project.toSpeckle("e973243375")

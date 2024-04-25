@@ -57,10 +57,10 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,ro
 
     obj = []
     #Bottom Frame
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P2,P1,"UNP200","Frame","Left","bottom",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P3,P2,"UNP200","Frame","Left","bottom",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P4,P3,"UNP200","Frame","Left","bottom",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P1,P4,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P2,P1,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P3,P2,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P4,P3,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P1,P4,"UNP200","Frame","Left","bottom",0,BaseSteel))
 
     #Bottom Floor Framing
     if floorframing:
@@ -76,16 +76,16 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,ro
         v1 = "skip"
 
     #Top Frame
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P6,P5,"UNP200","Frame","Left","top",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P7,P6,"UNP200","Frame","Left","top",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P8,P7,"UNP200","Frame","Left","top",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_justifiction(P5,P8,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P6,P5,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P7,P6,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P8,P7,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(P5,P8,"UNP200","Frame","Left","top",0,BaseSteel))
 
     #Columns
-    obj.append(Frame.by_startpoint_endpoint_profile_name_shapevector(P1,P5,"K100/5","Column",Vector2(50,50),0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_shapevector(P2,P6,"K100/5","Column",Vector2(-50,50),0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_shapevector(P3,P7,"K100/5","Column",Vector2(-50,-50),0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_name_shapevector(P4,P8,"K100/5","Column",Vector2(50,-50),0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P1,P5,"K100/5","Column",Vector2(50,50),0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P2,P6,"K100/5","Column",Vector2(-50,50),0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P3,P7,"K100/5","Column",Vector2(-50,-50),0,BaseSteel))
+    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P4,P8,"K100/5","Column",Vector2(50,-50),0,BaseSteel))
 
     return obj
 

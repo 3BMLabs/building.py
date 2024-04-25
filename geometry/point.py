@@ -342,6 +342,7 @@ class Point:
             point.z + dz
         )
 
+    @staticmethod
     def product(number: float, point: 'Point') -> 'Point':
         """Scales the point by a given factor.        
         

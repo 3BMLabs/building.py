@@ -45,7 +45,7 @@ from abstract.vector import Vector3
 from abstract.plane import Plane
 from abstract.interval import Interval
 from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
-
+from abstract.color import *
 from packages.helper import *
 from project.fileformat import project
 
@@ -464,13 +464,16 @@ def translateObjectsToSpeckleObjects(Obj):
                                                 textureCoordinates = []
                                                 ))
                 
-        elif nm == "Extrusion":
-            clrs = []
+        elif nm == "Extrusion" or nm == "Void":
+            clrs = [4294901760, 4294901760, 4294901760, 4294901760, 4294901760]
+
+            # if void, color red.
+            
             mesh = SpeckleMesh(applicationId=project.applicationId,
                                vertices=i.verts,
                                faces=i.faces,
                                colors=clrs,
-                               name=i.name,
+                               name=nm if nm == "Void" else i.name,
                                units=project.units,
                                textureCoordinates = []
                                )

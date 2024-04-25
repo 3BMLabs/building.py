@@ -549,28 +549,28 @@ gridExtension = 1000
 grdsystem = GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension)
 ```
 
-#### Frame.by_startpoint_endpoint_profile_name:  
+#### Frame.by_startpoint_endpoint_profile:  
 > _`Input: start: Point, end: Point, profile_name: str, name: str, material`_
 <br>
 
 ``` python
-Frame.by_startpoint_endpoint_profile_name(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
+Frame.by_startpoint_endpoint_profile(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
 ```
 
-#### Frame.by_startpoint_endpoint_profile_name_shapevector:  
+#### Frame.by_startpoint_endpoint_profile_shapevector:  
 > _`Input: start: Point, end: Point, profile_name: str, name: str, Vector2, rotation: float, material`_
 <br>
 
 ``` python
-Frame.by_startpoint_endpoint_profile_name_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
+Frame.by_startpoint_endpoint_profile_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
 ```
 
-#### Frame.by_startpoint_endpoint_profile_name_shapevector:  
+#### Frame.by_startpoint_endpoint_profile_shapevector:  
 > _`Input: start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material`_
 <br>
 
 ``` python
-Frame.by_startpoint_endpoint_profile_name_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
+Frame.by_startpoint_endpoint_profile_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
 ```
 
 #### Frame.by_startpoint_endpoint:  

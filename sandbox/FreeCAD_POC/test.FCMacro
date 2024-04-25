@@ -220,11 +220,11 @@ for i in names:
     Mat = BaseSteel
     prof = i[:3]
     print(i)
-    # fram = Frame.by_startpoint_endpoint_profile_name(Point(x, y, 0), Point(x, y+1, height), i, i, Mat).write(project2)
+    # fram = Frame.by_startpoint_endpoint_profile(Point(x, y, 0), Point(x, y+1, height), i, i, Mat).write(project2)
     x = x + spacing
     rownumb = rownumb + 1
 
-fram = Frame.by_startpoint_endpoint_profile_name(Point(0, -1000, 0), Point(3000, -900, 0), "IPE600", "IPE600", Mat).write(
+fram = Frame.by_startpoint_endpoint_profile(Point(0, -1000, 0), Point(3000, -900, 0), "IPE600", "IPE600", Mat).write(
     project2)
 
 Grid.by_startpoint_endpoint(Line(Point(100, 100, 0), Point(-5000, 10000, 0)), "Q").write(project2)
