@@ -71,6 +71,13 @@ from specklepy.objects.primitive import Interval as SpeckleInterval
 from specklepy.objects.geometry import Spiral as SpeckleSpiral
 from specklepy.objects.geometry import SpiralType as SpeckleSpiralType
 
+def CreateStream(serverurl, name, description):
+    #Create new stream/project in Speckle Server
+    client = SpeckleClient(host=serverurl)
+    account = get_default_account()
+    client.authenticate_with_account(account)
+    streamid = client.stream.create(name,description,True)
+    return streamid
 
 def IntervalToSpeckleInterval(interval: Interval):
     SpeckleInt = SpeckleInterval(start=interval.start, end=interval.end)
