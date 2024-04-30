@@ -7,16 +7,17 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from packages.GIS2BIM.GIS2BIM_CityJSON import *
 from library.material import *
 from geometry.mesh import *
-
+from NL_1_Download_GIS_data import *
+from exchange.speckle import CreateStream
+import webbrowser
 # Parse CityJSON Files and send geometry to Speckle
 # Download files using NL_1_Download_GIS_data.py
 
 # SETTINGS
-GISProject = BuildingPy("GIS2BIM 3D NL")
-lst = NL_GetLocationData(NLPDOKServerURL, "Boskoop", "Warmoeskade", "2")
-
-Bboxwidth = 400  # Meter
-tempfolder = "C:/TEMP/GIS3/"
+GISProject = BuildingPy(ProjectName)
+StreamID = CreateStream(GISProject.speckleserver,ProjectName,"3D GIS") #Create new specklestream
+print(StreamID)
+#StreamID = "2e64d634c9" # Speckle Stream ID
 folderBAG3D = tempfolder + "BAG3D/"
 cityJSONFolder = tempfolder + "cityJSON/"
 maximumLoD = 2.2
@@ -131,7 +132,9 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
 
 Kadaster3DBasisvoorziening(result, GISProject)
 
-GISProject.toSpeckle("801883ce31", "3D Kadaster Basisvoorziening en 3D BAG")
+GISProject.toSpeckle(StreamID, ProjectName)
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')
+url = "https://" + GISProject.speckleserver + "/streams/" + StreamID
+webbrowser.open(url, new=2)

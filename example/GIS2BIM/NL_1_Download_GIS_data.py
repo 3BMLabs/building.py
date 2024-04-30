@@ -10,9 +10,16 @@ from packages.GIS2BIM.GIS2BIM_NL_helpers import *
 #Download GIS-files
 
 #SETTINGS
-tempfolder = "C:/TEMP/GIS3/"
-lst = NL_GetLocationData(NLPDOKServerURL,"Boskoop", "Warmoeskade", "2")
-Bboxwidth = 500 #m
+tempfolder = "C:/TEMP/GIS10/"
+projectplace = "Maastricht"
+street = "Maastrichter%Smedenstraat"
+housenumber = "14"
+
+lst = NL_GetLocationData(NLPDOKServerURL,projectplace, street, housenumber)
+ProjectName = "GIS2BIM 3D BAG + Kadaster Basisvoorziening"
+Rdx = lst[0]
+Rdy = lst[1]
+Bboxwidth = 750 #m
 
 #Download settings
 DownloadBAG3D = True
@@ -20,6 +27,7 @@ Download3DBasisvoorzieningKadaster = True
 DownloadWMS = False
 DownloadBGT = False
 CreateCadasterDWG = False
+CreateDirectory(tempfolder)
 
 #BOUNDINGBOX
 RdX = lst[0]

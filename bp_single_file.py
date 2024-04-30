@@ -1245,6 +1245,7 @@ class Point:
             point.z + dz
         )
 
+    @staticmethod
     def product(number: float, point: 'Point') -> 'Point':
         """Scales the point by a given factor.        
         
@@ -3653,36 +3654,62 @@ class PolyCurve:
 
         ```        
         """
-        crvs = []
+
         if polycurve.type == "PolyCurve2D":
+            crvs = []
+            pnts = []            
             for i in polycurve.curves:
-                if i.__class__.__name__ == "Arc":
-                    crvs.append(Arc(transform_point(i.start, CSGlobal, startpoint, directionvector),
-                                    transform_point(
-                                        i.mid, CSGlobal, startpoint, directionvector),
-                                    transform_point(
-                                        i.end, CSGlobal, startpoint, directionvector)
-                                    ))
-                elif i.__class__.__name__ == "Line":
-                    crvs.append(Line(start=transform_point(i.start, CSGlobal, startpoint, directionvector),
-                                     end=transform_point(
-                                         i.end, CSGlobal, startpoint, directionvector)
-                                     ))
-                elif i.__class__.__name__ == "Arc2D":
-                    # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
-                    crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point_2D_to_3D(
-                                        i.mid), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point_2D_to_3D(
-                                        i.end), CSGlobal, startpoint, directionvector)
-                                    ))
-                elif i.__class__.__name__ == "Line2D":
-                    crvs.append(Line(start=transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                                     end=transform_point(Point.point_2D_to_3D(
-                                         i.end), CSGlobal, startpoint, directionvector)
-                                     ))
+                if i.__class__.__name__ == "Arc" or i.__class__.__name__ == "Arc2D":
+                    start_transformed = transform_point(Point.point_2D_to_3D(i.start) if i.__class__.__name__ == "Arc2D" else i.start, CSGlobal, startpoint, directionvector)
+                    mid_transformed = transform_point(Point.point_2D_to_3D(i.mid) if i.__class__.__name__ == "Arc2D" else i.mid, CSGlobal, startpoint, directionvector)
+                    end_transformed = transform_point(Point.point_2D_to_3D(i.end) if i.__class__.__name__ == "Arc2D" else i.end, CSGlobal, startpoint, directionvector)
+                    
+                    crvs.append(Arc(start_transformed, mid_transformed, end_transformed))
+                    pnts.extend([start_transformed, mid_transformed, end_transformed])
+
+                elif i.__class__.__name__ == "Line" or i.__class__.__name__ == "Line2D":
+                    start_transformed = transform_point(Point.point_2D_to_3D(i.start) if i.__class__.__name__ == "Line2D" else i.start, CSGlobal, startpoint, directionvector)
+                    end_transformed = transform_point(Point.point_2D_to_3D(i.end) if i.__class__.__name__ == "Line2D" else i.end, CSGlobal, startpoint, directionvector)
+
+                    crvs.append(Line(start_transformed, end_transformed))
+                    pnts.extend([start_transformed, end_transformed])
+
                 else:
-                    print(i.__class__.__name__ + "Curvetype not found")
+                    print(i.__class__.__name__ + " Curvetype not found")
+
+                # if i.__class__.__name__ == "Arc":
+                #     crvs.append(Arc(transform_point(i.start, CSGlobal, startpoint, directionvector),
+                #                     transform_point(
+                #                         i.mid, CSGlobal, startpoint, directionvector),
+                #                     transform_point(
+                #                         i.end, CSGlobal, startpoint, directionvector)
+                #                     ))
+                # elif i.__class__.__name__ == "Line":
+                #     crvs.append(Line(start=transform_point(i.start, CSGlobal, startpoint, directionvector),
+                #                      end=transform_point(
+                #                          i.end, CSGlobal, startpoint, directionvector)
+                #                      ))
+                # elif i.__class__.__name__ == "Arc2D":
+                #     # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
+                #     crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
+                #                     transform_point(Point.point_2D_to_3D(
+                #                         i.mid), CSGlobal, startpoint, directionvector),
+                #                     transform_point(Point.point_2D_to_3D(
+                #                         i.end), CSGlobal, startpoint, directionvector)
+                #                     ))
+                # elif i.__class__.__name__ == "Line2D":
+                #     crvs.append(Line(start=transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
+                #                      end=transform_point(Point.point_2D_to_3D(
+                #                          i.end), CSGlobal, startpoint, directionvector)
+                #                      ))
+                # else:
+                #     print(i.__class__.__name__ + "Curvetype not found")
+                
+            new_polycurve = PolyCurve()
+            new_polycurve.curves = crvs
+            new_polycurve.points = pnts
+            return new_polycurve
+
         elif polycurve.type == "PolyCurve":
             for i in polycurve.curves:
                 if i.__class__.__name__ == "Arc":
@@ -3935,6 +3962,54 @@ class Polygon:
             lst.append(line.length)
 
         return sum(i.length for i in self.curves)
+
+
+    def translate(self, vector_3d: 'Vector3') -> 'Polygon':
+        """Translates the Polygon by a 3D vector.
+
+        #### Parameters:
+        - `vector_3d` (Vector3): The 3D vector by which to translate the Polygon.
+
+        #### Returns:
+        `Polygon`: The translated Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        # Create a new Polygon instance to hold the translated polygon
+        translated_polygon = Polygon()
+        translated_curves = []
+        translated_points = []
+
+        # Translate all curves
+        for curve in self.curves:
+            if curve.__class__.__name__ == "Arc":
+                # Translate the start, middle, and end points of the arc
+                new_start = Point.translate(curve.start, vector_3d)
+                new_middle = Point.translate(curve.middle, vector_3d)
+                new_end = Point.translate(curve.end, vector_3d)
+                translated_curves.append(Arc(new_start, new_middle, new_end))
+            elif curve.__class__.__name__ == "Line":
+                # Translate the start and end points of the line
+                new_start = Point.translate(curve.start, vector_3d)
+                new_end = Point.translate(curve.end, vector_3d)
+                translated_curves.append(Line(new_start, new_end))
+            else:
+                print("Curve type not found")
+
+        # Ensure that translated_curves are assigned back to the translated_polygon
+        translated_polygon.curves = translated_curves
+
+        # Translate all points
+        for point in self.points:
+            translated_points.append(Point.translate(point, vector_3d))
+
+        # Ensure that translated_points are assigned back to the translated_polygon
+        translated_polygon.points = translated_points
+
+        return translated_polygon
 
 
     def __str__(self) -> str:
@@ -4319,7 +4394,6 @@ class Node:
         - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
         - `comments` (str, optional): Additional comments or notes about the node.
         """
-        
         self.id = generateID()
         self.type = __class__.__name__
         self.point = point if isinstance(point, Point) else None
@@ -9807,7 +9881,7 @@ class Frame:
         self.length = Vector3.length(self.vector)
 
     @classmethod
-    def by_startpoint_endpoint_profile_name(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, material: None, comments=None):
+    def by_startpoint_endpoint_profile(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, material: None, comments=None):
         
         f1 = Frame()
         f1.comments = comments
@@ -9821,7 +9895,16 @@ class Frame:
         elif end.type == 'Node':
             f1.end = end.point
 
-        f1.curve = profiledataToShape(profile_name).polycurve2d  # polycurve2d
+        if type(profile).__name__ == "PolyCurve2D":
+            f1.curve = profile
+        elif type(profile).__name__ == "Polygon":
+            f1.curve = PolyCurve2D.by_points(profile.points)
+        elif type(profile).__name__ == "str":
+            f1.curve = profiledataToShape(profile).polycurve2d  # polycurve2d
+        else:
+            print("[by_startpoint_endpoint_profile], input is not correct.")
+            sys.exit()
+
         f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
         f1.length = Vector3.length(f1.directionVector)
         f1.name = name
@@ -9829,7 +9912,7 @@ class Frame:
             f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
-        f1.profileName = profile_name
+        f1.profileName = profile
         f1.material = material
         f1.color = material.colorint
         f1.colorlst = colorlist(f1.extrusion, f1.color)
@@ -9837,7 +9920,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
         f1 = Frame()
         f1.comments = comments
 
@@ -9876,7 +9959,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_name_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -12176,271 +12259,45 @@ class ZProfileWithLipsColdFormed:
 class ReadDXF:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.points = []
-        self.lines = []
-        self.arcs = []
-        self.polylines = []
-        self.bulges = []
-        self._read_dxf_file()
+        self.points = []     
+        self.lines = []      
+        self.arcs = []       
+        self.polylines = []  
+        self.read_dxf()
 
-    def _read_dxf_file(self):
-        self._read_line()
-        self._read_arc()
-        self._read_polyline()
+    def read_dxf(self):
+        doc = ezdxf.readfile(self.filepath)
+        msp = doc.modelspace()
 
-
-    def _read_arc(self):
-        arc_pieces = []
-        with open(self.filepath, 'r') as file:
-            lines = [line.strip() for line in file.readlines()]
-
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            if line == "0":
-                i += 1
-                continue
-
-            if line == "ARC":
-                center_x = center_y = radius = start_angle = end_angle = None
-                while True:
-                    i += 1
-                    if i >= len(lines):
-                        break
-
-                    code = lines[i]
-                    if code == "10":
-                        i += 1
-                        center_x = float(lines[i])*project.scale
-                    elif code == "20":
-                        i += 1
-                        center_y = float(lines[i])*project.scale
-                    elif code == "40":
-                        i += 1
-                        radius = float(lines[i])*project.scale
-                    elif code == "50":
-                        i += 1
-                        start_angle = float(lines[i])*project.scale
-                    elif code == "51":
-                        i += 1
-                        end_angle = float(lines[i])*project.scale
-                    elif code == "0":
-                        break
-
-                if None not in [center_x, center_y, radius, start_angle, end_angle]:
-                    start_point = Arc2D.draw_arc_point(center_x, center_y, radius, start_angle)
-                    end_point = Arc2D.draw_arc_point(center_x, center_y, radius, end_angle)
-                    mid_angle = (start_angle + end_angle) / 2 if end_angle > start_angle else (start_angle + end_angle + 360) / 2
-                    mid_point = Arc2D.draw_arc_point(center_x, center_y, radius, mid_angle)
-                    arc_object = Arc2D(start_point, mid_point, end_point)
-                    arc_pieces.append(arc_object)
-                    self.arcs.append(arc_object)
-
-            i += 1
-
-        return arc_pieces
-
-    def _read_polyline(self):
-        polyline_stukken = []
-        with open(self.filepath, 'r') as file:
-            lines = [line.strip() for line in file.readlines()]
-
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            if line == "0":
-                i += 1
-                continue
-
-            if line == "LWPOLYLINE":
-                points2D = []
-                x, y, elevation = None, None, 0
-                polyline_flag, vertex_count = 0, None
-                widths = []
-                bulge = None
-                bulges = []
-                has_arc = False
-
-                while True:
-                    i += 1
-                    if i >= len(lines):
-                        break
-
-                    code = lines[i]
-                    if code == "5":
-                        i += 1
-                        handle_id = lines[i]                     
-                    elif code == "8":
-                        i += 1
-                        layer = lines[i]
-                    elif code == "10":
-                        if x is not None and y is not None:
-                            points2D.append(Point2D(x, y))
-                            bulge = 0
-                        i += 1
-                        x = float(lines[i]) * project.scale
-                    elif code == "20":
-                        i += 1
-                        y = float(lines[i]) * project.scale
-                    elif code == "38":
-                        i += 1
-                        elevation = float(lines[i]) * project.scale
-                    elif code == "42":
-                        i += 1
-                        bulge = float(lines[i]) 
-                    elif code == "70":
-                        i += 1
-                        polyline_flag = int(lines[i])
-                    elif code == "90":
-                        i += 1
-                        vertex_count = int(lines[i])
-                    elif code == "100":
-                        i += 1
-                        subclass_marker = lines[i]                       
-                    elif code == "40":
-                        i += 1
-                        start_width = float(lines[i]) * project.scale
-                        widths.append(start_width)
-                    elif code == "41":
-                        i += 1
-                        end_width = float(lines[i]) * project.scale
-                        widths.append(end_width)
-                    elif code == "330":
-                        i += 1
-                        owner_id = lines[i]                     
-                    elif code == "0":
-                        break
-
-                if points2D:
-                    # if polyline_flag & 1 == 1:
-                    polyline_object = Polygon.by_points(points2D)
-                    polyline_stukken.append(polyline_object)
-                    self.polylines.append(polyline_object)
-                    # else:
-                    #     print("Found polyline that was not closed!")
-
-
-            elif line == "POLYLINE":
-                points2D = []
-                while True:
-                    i += 1
-                    if i >= len(lines):
-                        break
-                    code = lines[i]
-                    if code == "VERTEX":
-                        while True:
-                            i += 1
-                            if i >= len(lines):
-                                break
-                            vertex_code = lines[i]
-                            if vertex_code == "10":
-                                i += 1
-                                x = float(lines[i])*project.scale
-                            elif vertex_code == "20":
-                                i += 1
-                                y = float(lines[i])*project.scale
-                                points2D.append(Point2D(x, y))
-                            elif vertex_code in ["0", "SEQEND"]:
-                                break
-                    if code == "SEQEND":
-                        break
-
-                if points2D:
-                    is_closed = True 
-                    if is_closed:
-                        polyline_object = Polygon.by_points(points2D)
-                    # else:
-                    #     polyline_object = PolyCurve2D.by_points(points2D)  # Use this for open polylines
-                    polyline_stukken.append(polyline_object)
-                    self.polylines.append(polyline_object)
-
-
-            i += 1
-
-        return polyline_stukken
-
-
-    def _read_line(self):
-        linepieces = []
-        with open(self.filepath, 'r') as file:
-            lines = [line.strip() for line in file.readlines()]
-        
-        i = 0
-        while i < len(lines):
-            line = lines[i]
-            if line == "0":
-                i += 1
-                continue
-            
-            if line in ["LINE"]:
-                x1 = y1 = x2 = y2 = None
-                while True:
-                    i += 1
-                    if i >= len(lines):
-                        break
-                    
-                    code = lines[i]
-                    if code == "10":
-                        i += 1
-                        x1 = float(lines[i])*project.scale
-                    elif code == "20":
-                        i += 1
-                        y1 = float(lines[i])*project.scale
-                    elif code == "11":
-                        i += 1
-                        x2 = float(lines[i])*project.scale
-                    elif code == "21":
-                        i += 1
-                        y2 = float(lines[i])*project.scale
-                    elif code == "0":
-                        break
-                
-                if None not in [x1, y1, x2, y2]:
-                    start_point = Point2D(x1, y1)
-                    end_point = Point2D(x2, y2)
-                    linepieces.append(Line2D(start_point, end_point))
-                    self.lines.append(Line2D(start_point, end_point))
-
-            i += 1
-
-        return linepieces
-    
-
-    def calculate_arc_midpoint(self, start, end, bulge):
-        dx = end.x - start.x
-        dy = end.y - start.y
-        
-        L = math.sqrt(dx**2 + dy**2)
-        
-        S = (L / 2) * bulge
-        
-        try:
-            R = ((L / 2)**2 + S**2) / (2 * S)
-        except:
-            R = 0
-        
-        mx = (start.x + end.x) / 2
-        my = (start.y + end.y) / 2
-        
-        if bulge > 0:
-            dir_x = -dy
-            dir_y = dx
-        else:
-            dir_x = dy
-            dir_y = -dx
-        
-        try:
-            length = math.sqrt(dir_x**2 + dir_y**2)
-            dir_x /= length
-            dir_y /= length
-        except:
-            length = 0
-            dir_x = 0
-            dir_y = 0
-        cx = mx + dir_x * math.sqrt(R**2 - (L / 2)**2)
-        cy = my + dir_y * math.sqrt(R**2 - (L / 2)**2)
-        
-        return Point2D(cx, cy)    
+        for entity in msp:
+            dxftype = entity.dxftype()
+            if dxftype == 'POINT':
+                # Handle point entities
+                point = Point2D(entity.dxf.location)
+                self.points.append(point)
+            elif dxftype == 'LINE':
+                pass
+                # Handle line entities
+                # start = Point2D(entity.dxf.start)
+                # end = Point2D(entity.dxf.end)
+                # self.lines.append(Line2D(start, end))
+            elif dxftype == 'ARC':
+                center = Vector3(entity.dxf.center)
+                radius = entity.dxf.radius
+                start_angle = entity.dxf.start_angle
+                end_angle = entity.dxf.end_angle
+                self.arcs.append((center, radius, start_angle, end_angle))
+            elif dxftype in {'LWPOLYLINE', 'POLYLINE'}:
+                try:
+                    points = [Point2D(x, y) for x, y in entity.vertices()]
+                    polygon = Polygon.by_points(points)
+                    self.polylines.append((polygon, entity.dxf.layer))
+                except DXFValueError as error:
+                    print(f"Failed to process {entity.dxftype()} on layer {entity.dxf.layer} due to a DXF error: {str(error)}")
+                except ValueError as error:
+                    print(f"Data format error with {entity.dxftype()} on layer {entity.dxf.layer}: {str(error)}")
+                except Exception as error:
+                    print(f"An unexpected error occurred while processing an entity: {str(error)}")
 
 
 Patprefix = ';%UNITS=MM' \
@@ -13217,12 +13074,12 @@ class xmlXFEM4U:
                 ProfN = ProfileNamesUnique.index(i.profileName) + 1
                 beamsGN = beamsGN + 1
                 Beamgroup.append("<Number>" + str(beamsGN) + "</Number>\n")
-                n = n + 1
+                n = n + 1 # frame object (node number)
                 Nodes.append("<Number>" + str(n) + "</Number>\n")
                 Nodes.append("<X>" + str(round(i.start.x)) + "</X>\n")
                 Nodes.append("<Y>" + str(round(i.start.y)) + "</Y>\n")
                 Nodes.append("<Z>" + str(round(i.start.z)) + "</Z>\n")
-
+    
                 Beamgroup.append("<Startnode>" + str(n) + "</Startnode>\n")
 
                 Points.append([i.start, n])
