@@ -81,9 +81,9 @@ bovendorpel_profiel = kozijnprofiel1
 project.objects.append(Frame.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
 
 
-# project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "Name", "center", "center", 0, BaseSteel, 0, 0))
+project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "Name", "center", "center", 0, BaseSteel, 0, 0))
 
-# project.toSpeckle("7603a8603c")
+project.toSpeckle("7603a8603c")
 
 # ifc_project = CreateIFC()
 
