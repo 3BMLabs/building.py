@@ -38,13 +38,6 @@ def process_directory(dxf_directory):
     else:
         print("Invalid directory or file path")
 
-# dxf_input_path = 'Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\Aluminium kozijnen\\SL 38 Classic buitenopengaand\\'
-# dxf_input_path = 'C:\\Users\\Jonathan\\Documents\\GitHub\\building.py\\library\\object_database\\DXF\\'
-
-# dxf_input_path = 'C:\\Users\\Jonathan\\Documents\\GitHub\\building.py\\library\\object_database\\DXF\\VBI Isolatieplaatvloer K200 Standaard.dxf'
-
-# process_directory(dxf_input_path)
-
 kozijnstijl = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium buitenkader SL 38 Classic Bi draai.dxf"
 kozijnprofiel = ReadDXF(kozijnstijl).polylines[0][0]
 kozijnstijl1 = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium T-profiel SL 38 Classic Bi vast.dxf"
@@ -52,47 +45,24 @@ kozijnprofiel1 = ReadDXF(kozijnstijl1).polylines[0][0]
 
 c_profile = PolyCurve2D.by_points([Point2D(-50,-50), Point2D(-50,50), Point2D(50,50), Point2D(0,-25), Point2D(50,-50)])
 
-# print(j)
-# sys.exit()
-
 start_list = [Point(0,0,0),Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0)]
 end_list = [Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0),Point(0,0,0)]
 profile_name = "HEA100"
 
-
-# for start, end in zip(start_list, end_list):
-#     frame1 = Frame.by_startpoint_endpoint_profile(start, end, kozijnprofiel, "None", BaseSteel)
-#     project.objects.append(frame1)
-
-onderdorpel = Line(Point(0,0,0), Point(0,900,0))
-onderdorpel_profiel = kozijnprofiel
-project.objects.append(Frame.by_startpoint_endpoint_profile(onderdorpel.start, onderdorpel.end, onderdorpel_profiel, "None", BaseSteel))
-
-linkerstijl = Line(Point(0,-99,-99), Point(0,-99,2400))
-linkerstijl_profiel = kozijnprofiel
-project.objects.append(Frame.by_startpoint_endpoint_profile(linkerstijl.start, linkerstijl.end, linkerstijl_profiel, "None", BaseSteel))
-
-bovendorpel = Line(Point(0,0,2483.1), Point(0,900,2483.1))
-bovendorpel_profiel = kozijnprofiel
-project.objects.append(Frame.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
-
-bovendorpel = Line(Point(0,999,2400), Point(0,999,-99))
-bovendorpel_profiel = kozijnprofiel1
-project.objects.append(Frame.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
-
-
-project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "Name", "center", "center", 0, BaseSteel, 0, 0))
+project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "center", "center", 0, BaseSteel, 0, 0))
+project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "left", "top", 0, BaseSteel, 0, 0))
 
 project.toSpeckle("7603a8603c")
 
-# ifc_project = CreateIFC()
 
-# ifc_project.add_project("My Project")
-# ifc_project.add_site("My Site")
-# ifc_project.add_building("Building A")
-# ifc_project.add_storey("Ground Floor")
-# ifc_project.add_storey("G2Floor")
+ifc_project = CreateIFC()
 
-# translateObjectsToIFC(project.objects, ifc_project)
+ifc_project.add_project("My Project")
+ifc_project.add_site("My Site")
+ifc_project.add_building("Building A")
+ifc_project.add_storey("Ground Floor")
+ifc_project.add_storey("G2Floor")
 
-# ifc_project.export("Single_Obj2.ifc")
+translateObjectsToIFC(project.objects, ifc_project)
+
+ifc_project.export("Single_Obj2.ifc")

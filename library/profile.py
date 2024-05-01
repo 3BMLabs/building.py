@@ -151,7 +151,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
         dx = dxorigin #TODO
     elif XJustifiction == "left":
         dx = dxleft
-    elif XJustifiction == "right":
+    elif XJustifiction == "right":  
         dx = dxright
     elif XJustifiction == "origin":
         dx = dxorigin #TODO

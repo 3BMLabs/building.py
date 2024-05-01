@@ -139,19 +139,18 @@ class Text:
 
         ```
         """
-        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
-        response = requests.get(url)
-        if response.status_code == 200:
-            glyph_data = json.loads(response.text)
-            output = []
-            for letter in self.text:
-                if letter in glyph_data:
-                    output.append(glyph_data[letter]["glyph-path"])
-                elif letter == " ":
-                    output.append("space")
-            return output
+        with open('library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
+            response = file.read()
+        glyph_data = json.loads(response)        
+        output = []
+        for letter in self.text:
+            if letter in glyph_data:
+                output.append(glyph_data[letter]["glyph-path"])
+            elif letter == " ":
+                output.append("space")
+        return output
 
-    def load_path(self) -> 'str':
+    def load_o(self) -> 'str':
         """Loads the glyph paths for the specified text from a JSON file.
         This method fetches the glyph paths for each character in the text attribute, using a predefined font JSON file.
 
@@ -163,15 +162,14 @@ class Text:
 
         ```
         """
-        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
-        response = requests.get(url)
-        if response.status_code == 200:
-            glyph_data = json.loads(response.text)
-            load_o = []
-            letter = "o"
-            if letter in glyph_data:
-                load_o.append(glyph_data[letter]["glyph-path"])
-            return load_o
+        with open('library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
+            response = file.read()
+        glyph_data = json.loads(response)
+        load_o = []
+        letter = "o"
+        if letter in glyph_data:
+            load_o.append(glyph_data[letter]["glyph-path"])
+        return load_o
 
     def write(self) -> 'List[List[PolyCurve]]':
         """Generates a list of PolyCurve objects representing the text.
@@ -307,7 +305,7 @@ class Text:
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
         bounding_box_polyline = BoundingBox2d().by_points(ptList)
-        return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
+        return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.length
 
     def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':
         """Converts a list of points into a PolyCurve.

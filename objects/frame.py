@@ -251,17 +251,20 @@ class Frame:
         if type(profile).__name__ == "PolyCurve2D":
             profile_name = "None"
             f1.profile_data = profile
+            curve = f1.profile_data
         elif type(profile).__name__ == "Polygon":
             profile_name = "None"
             f1.profile_data = PolyCurve2D.by_points(profile.points)
+            curve = f1.profile_data
         elif type(profile).__name__ == "str":
             profile_name = profile
             f1.profile_data = profiledataToShape(profile).polycurve2d  # polycurve2d
+            curve = f1.profile_data
         else:
             print("[by_startpoint_endpoint_profile], input is not correct.")
             sys.exit()
 
-        curve = f1.profile_data.polycurve2d
+        # curve = f1.profile_data.polycurve2d
 
         v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
         f1.XOffset = v1.x

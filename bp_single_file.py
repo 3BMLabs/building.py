@@ -2,7 +2,6 @@
 import math
 import sys
 import os
-import requests
 import json
 from collections import defaultdict
 import subprocess
@@ -5066,7 +5065,7 @@ class Text:
         ```
         """
         url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
-        response = requests.get(url)
+        response = open('library/text/json/Calibri.json')
         if response.status_code == 200:
             glyph_data = json.loads(response.text)
             load_o = []

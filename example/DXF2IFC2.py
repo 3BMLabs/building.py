@@ -52,9 +52,6 @@ kozijnprofiel1 = ReadDXF(kozijnstijl1).polylines[0][0]
 
 c_profile = PolyCurve2D.by_points([Point2D(-50,-50), Point2D(-50,50), Point2D(50,50), Point2D(0,-25), Point2D(50,-50)])
 
-# print(j)
-# sys.exit()
-
 start_list = [Point(0,0,0),Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0)]
 end_list = [Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0),Point(0,0,0)]
 profile_name = "HEA100"
