@@ -188,7 +188,8 @@ def Line2DToSpeckleLine3D(line: Line):
 
 def PolyCurveToSpecklePolyLine(polycurve: PolyCurve):
     tmpList = []
-
+    if not isinstance(polycurve, list):
+        polycurve = [polycurve]
     for item in polycurve:
         spklpc = SpecklePolylineBySpecklePoints(item)
         tmpList.append(spklpc)
@@ -236,7 +237,9 @@ def SpeckleMeshByMesh(MeshPB):
 
 def TextToSpeckleCurveSurface(Text):
     returnlist = []
-    for polyc in Text.write():
+    # print(Text.write())
+    pcw = Text.write()
+    for polyc in pcw:
         pc = PolyCurveToSpecklePolyLine(polyc)
         returnlist.append(pc)
     return returnlist
@@ -602,8 +605,8 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Node':
             SpeckleObj.append(PointToSpecklePoint(i.point))
             
-#        elif nm == 'Text' or 'Text2':
-#            SpeckleObj.append(TextToSpeckleCurveSurface(i))
+        elif nm == 'Text' or 'Text2':
+            SpeckleObj.append(TextToSpeckleCurveSurface(i))
 
         elif nm == 'Point2D':
             SpeckleObj.append(Point2DToSpecklePoint(i))

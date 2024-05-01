@@ -170,6 +170,8 @@ class GridHead:
         cs_text_new = CoordinateSystem.move_local(cs_text, -100, 40, 0)
         self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
                                 height=self.grid_head_type.text_height, cs=cs_text_new).write()
+        project.objects.append(Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
+                                height=self.grid_head_type.text_height, cs=cs_text_new))
 
     @staticmethod
     def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
