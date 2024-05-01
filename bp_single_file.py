@@ -9958,7 +9958,7 @@ class Frame:
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -9974,7 +9974,19 @@ class Frame:
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        f1.profile_data = profiledataToShape(profile_name)
+        if type(profile).__name__ == "PolyCurve2D":
+            profile_name = "None"
+            f1.profile_data = profile
+        elif type(profile).__name__ == "Polygon":
+            profile_name = "None"
+            f1.profile_data = PolyCurve2D.by_points(profile.points)
+        elif type(profile).__name__ == "str":
+            profile_name = profile
+            f1.profile_data = profiledataToShape(profile).polycurve2d  # polycurve2d
+        else:
+            print("[by_startpoint_endpoint_profile], input is not correct.")
+            sys.exit()
+
         curve = f1.profile_data.polycurve2d
 
         v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
