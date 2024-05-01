@@ -174,13 +174,9 @@ class LoadIFC:
 
 class CreateIFC:
     def __init__(self):
-        # Initialize a new IFC model
         self.model = ifcopenshell.file()
 
-
-
     def add_project(self, name):
-        # Create and add a project to the IFC model
         self.project = self.model.createIfcProject(
             GlobalId=ifcopenshell.guid.new(), 
             OwnerHistory=None, 
@@ -200,7 +196,6 @@ class CreateIFC:
         
 
     def add_site(self, name):
-        # Create and add a site to the IFC model
         self.site = self.model.createIfcSite(
             GlobalId=ifcopenshell.guid.new(), 
             OwnerHistory=None, 
@@ -227,7 +222,6 @@ class CreateIFC:
         )
 
     def add_building(self, name):
-        # Create and add a building to the IFC model
         self.building = self.model.createIfcBuilding(
             GlobalId=ifcopenshell.guid.new(), 
             OwnerHistory=None, 
@@ -252,7 +246,6 @@ class CreateIFC:
         )
 
     def add_storey(self, name):
-        # Create and add a building storey to the IFC model
         self.storey = self.model.createIfcBuildingStorey(
             GlobalId=ifcopenshell.guid.new(), 
             OwnerHistory=None, 
@@ -286,20 +279,6 @@ def translateObjectsToIFC(objects, ifc_creator):
     IFCObj = []
 
 
-    def process_grid(object_type, ifc_creator):
-        grid_axes = []
-        for line in object_type.horizontal_lines:
-            ifc_line = create_ifc_polyline(line, ifc_creator)
-            grid_axes.append(ifc_line)
-        
-        for line in object_type.vertical_lines:
-            ifc_line = create_ifc_polyline(line, ifc_creator)
-            grid_axes.append(ifc_line)
-
-        placement = ifc_creator.model.create_entity('IfcLocalPlacement', Location=(0, 0, 0))
-        ifc_grid = ifc_creator.model.create_entity('IfcGrid', UAxes=grid_axes, VAxes=grid_axes, WAxes=None, ObjectPlacement=placement, Name=object_type.name)
-        return ifc_grid
-
     def create_ifc_polyline(points, ifc_creator):
         ifc_points = [ifc_creator.model.create_entity('IfcCartesianPoint', Coordinates=(p.x, p.y, 0)) for p in points]
         polyline = ifc_creator.model.create_entity('IfcPolyline', Points=ifc_points)
@@ -317,7 +296,6 @@ def translateObjectsToIFC(objects, ifc_creator):
             test = "test"
 
         elif nm == 'Surface' or nm == 'Face':
-            # extrude along path : 24-04-2024
 
             surface_type = run("root.create_entity", ifc_creator.model, ifc_class="IfcColumnType", name="")
 
@@ -442,9 +420,38 @@ def translateObjectsToIFC(objects, ifc_creator):
         elif nm == 'Point2D':
             test = "test"
 
-        elif nm == 'Grid':
-            grid = process_grid(object_type, ifc_creator)
-            IFCObj.append(grid)
+        elif nm == 'Grid': #zijn nog niet zichtbaar, maar zijn wel aanwezig
+            point_a = (object_type.start.x, object_type.start.y, object_type.start.z)
+            point_b = (object_type.end.x, object_type.end.y, object_type.end.z)
+            grid_name = object_type.name
+
+            ifc_point_a = ifc_creator.model.createIfcCartesianPoint(point_a)
+            ifc_point_b = ifc_creator.model.createIfcCartesianPoint(point_b)
+            grid_line = ifc_creator.model.createIfcPolyline([ifc_point_a, ifc_point_b])
+            grid_axis = ifc_creator.model.createIfcGridAxis(grid_name, grid_line, True)
+
+            grid_axes_u = [grid_axis]
+            grid_axes_v = []
+            grid_axes_w = []
+
+            grid = ifc_creator.model.createIfcGrid(
+                GlobalId=ifcopenshell.guid.new(),
+                OwnerHistory=None,
+                UAxes=grid_axes_u,
+                VAxes=grid_axes_v,
+                WAxes=grid_axes_w,
+                ObjectPlacement=None,
+                Representation=None
+            )
+
+            ifc_creator.model.createIfcRelContainedInSpatialStructure(
+                GlobalId=ifcopenshell.guid.new(),
+                OwnerHistory=None,
+                Name=f"{grid_name} Placement",
+                Description=None,
+                RelatedElements=[grid],
+                RelatingStructure=ifc_creator.storey
+            )
 
         elif nm == 'GridSystem':
             test = "test"

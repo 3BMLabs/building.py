@@ -16,15 +16,16 @@ from abstract.coordinatesystem import *
 from objects.frame import *
 from objects.datum import *
 
-GridA = Grid.by_startpoint_endpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A") #check text direction
-# project.objects.append(GridA)
+GridA = Grid.by_startpoint_endpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")
 
+ifc_project = CreateIFC()
 
-project.objects.append(Text(text="A", font_family="calibri", height=200, cs=CoordinateSystem(Point(0,0,0), X_axis, YAxis, ZAxis)))
-print(project.objects)
+ifc_project.add_project("My Project")
+ifc_project.add_site("My Site")
+ifc_project.add_building("Building A")
+ifc_project.add_storey("Ground Floor")
+ifc_project.add_storey("G2Floor")
 
-# print(project.objects[2].write())
+translateObjectsToIFC(project.objects, ifc_project)
 
-project.toSpeckle("7603a8603c")
-
-# convert grid to IFC grid.
+ifc_project.export("Grids.ifc")
