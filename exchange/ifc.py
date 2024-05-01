@@ -278,12 +278,6 @@ class CreateIFC:
 def translateObjectsToIFC(objects, ifc_creator):
     IFCObj = []
 
-
-    def create_ifc_polyline(points, ifc_creator):
-        ifc_points = [ifc_creator.model.create_entity('IfcCartesianPoint', Coordinates=(p.x, p.y, 0)) for p in points]
-        polyline = ifc_creator.model.create_entity('IfcPolyline', Points=ifc_points)
-        return polyline
-
     # Elements
     # Andere category meegeven.
     # boundingbox van element bepalen.
