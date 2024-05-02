@@ -5040,19 +5040,18 @@ class Text:
 
         ```
         """
-        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
-        response = requests.get(url)
-        if response.status_code == 200:
-            glyph_data = json.loads(response.text)
-            output = []
-            for letter in self.text:
-                if letter in glyph_data:
-                    output.append(glyph_data[letter]["glyph-path"])
-                elif letter == " ":
-                    output.append("space")
-            return output
+        with open('library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
+            response = file.read()
+        glyph_data = json.loads(response)        
+        output = []
+        for letter in self.text:
+            if letter in glyph_data:
+                output.append(glyph_data[letter]["glyph-path"])
+            elif letter == " ":
+                output.append("space")
+        return output
 
-    def load_path(self) -> 'str':
+    def load_o(self) -> 'str':
         """Loads the glyph paths for the specified text from a JSON file.
         This method fetches the glyph paths for each character in the text attribute, using a predefined font JSON file.
 
@@ -5064,15 +5063,14 @@ class Text:
 
         ```
         """
-        url = 'https://raw.githubusercontent.com/3BMLabs/building.py/main/library/text/json/Calibri.json'
-        response = open('library/text/json/Calibri.json')
-        if response.status_code == 200:
-            glyph_data = json.loads(response.text)
-            load_o = []
-            letter = "o"
-            if letter in glyph_data:
-                load_o.append(glyph_data[letter]["glyph-path"])
-            return load_o
+        with open('library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
+            response = file.read()
+        glyph_data = json.loads(response)
+        load_o = []
+        letter = "o"
+        if letter in glyph_data:
+            load_o.append(glyph_data[letter]["glyph-path"])
+        return load_o
 
     def write(self) -> 'List[List[PolyCurve]]':
         """Generates a list of PolyCurve objects representing the text.
@@ -5208,7 +5206,7 @@ class Text:
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
         bounding_box_polyline = BoundingBox2d().by_points(ptList)
-        return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.height
+        return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.length
 
     def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':
         """Converts a list of points into a PolyCurve.
@@ -8881,7 +8879,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
         dx = dxorigin #TODO
     elif XJustifiction == "left":
         dx = dxleft
-    elif XJustifiction == "right":
+    elif XJustifiction == "right":  
         dx = dxright
     elif XJustifiction == "origin":
         dx = dxorigin #TODO
@@ -9582,6 +9580,8 @@ class GridHead:
         cs_text_new = CoordinateSystem.move_local(cs_text, -100, 40, 0)
         self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
                                 height=self.grid_head_type.text_height, cs=cs_text_new).write()
+        project.objects.append(Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
+                                height=self.grid_head_type.text_height, cs=cs_text_new))
 
     @staticmethod
     def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
@@ -9629,7 +9629,7 @@ class Grid:
         g1.name = name
         g1.__cs(line)
         g1.line = line_to_pattern(line, Centerline)
-        # g1.__grid_heads()
+        g1.__grid_heads()
         return g1
 
     def __grid_heads(self):
@@ -9977,17 +9977,20 @@ class Frame:
         if type(profile).__name__ == "PolyCurve2D":
             profile_name = "None"
             f1.profile_data = profile
+            curve = f1.profile_data
         elif type(profile).__name__ == "Polygon":
             profile_name = "None"
             f1.profile_data = PolyCurve2D.by_points(profile.points)
+            curve = f1.profile_data
         elif type(profile).__name__ == "str":
             profile_name = profile
             f1.profile_data = profiledataToShape(profile).polycurve2d  # polycurve2d
+            curve = f1.profile_data
         else:
             print("[by_startpoint_endpoint_profile], input is not correct.")
             sys.exit()
 
-        curve = f1.profile_data.polycurve2d
+        # curve = f1.profile_data.polycurve2d
 
         v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
         f1.XOffset = v1.x
