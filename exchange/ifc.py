@@ -380,39 +380,38 @@ def translateObjectsToIFC(objects, ifc_creator):
             outer_points = object_type.points
             building_storey_obj = ifc_creator.storey
             slab_type_obj = "IfcSlabType"
-            thickness = object_type.thickness
+            thickness = 1
             x = float(0)
             y = float(0)
             z = float(0)
-            model_body = ifc_creator.model 
             floor_name = object_type.name
             floor_description = object_type.description
             
             ifc_slab = ifcopenshell.api.run("root.create_entity", ifc_creator.model, ifc_class="IfcSlab",
                                             name=floor_name)
-            ifc_slabtype = slab_type_obj
+            
+            ifc_slabtype = ifc_creator.model.create_entity('IfcSlabType', GlobalId=ifcopenshell.guid.new(), Name="Standard Slab Type")
             ifcopenshell.api.run("type.assign_type", ifc_creator.model, related_object=ifc_slab, relating_type=ifc_slabtype)
 
-            slab_line = ifc_creator.model.createIfcPolyline(outer_points)
+            ifc_outer_points = [ifc_creator.model.createIfcCartesianPoint((p.x, p.y, p.z)) for p in object_type.points]
+            slab_line = ifc_creator.model.createIfcPolyline(ifc_outer_points)
             ifcclosedprofile = ifc_creator.model.createIfcArbitraryClosedProfileDef("AREA", None, slab_line)
-            ifc_direction = ifc_creator.model.createIfcDirection(z)
 
             point = ifc_creator.model.createIfcCartesianPoint((x, y, z))
-            dir1 = ifc_creator.model.createIfcDirection((0., 0., 1.))
-            dir2 = ifc_creator.model.createIfcDirection((1., 0., 0.))
+            dir1 = ifc_creator.model.createIfcDirection((0.0, 0.0, 1.0))
+            dir2 = ifc_creator.model.createIfcDirection((1.0, 0.0, 0.0))
             axis2placement = ifc_creator.model.createIfcAxis2Placement3D(point, dir1, dir2)
+            ifc_direction = ifc_creator.model.createIfcDirection((0.0, 0.0, 1.0))
             extrusion = thickness
-            slab_solid = ifc_creator.model.createIfcExtrudedAreaSolid(ifcclosedprofile, axis2placement, ifc_direction,
-                                                            extrusion)
-            shape_representation = ifc_creator.model.createIfcShapeRepresentation(ContextOfItems=model_body,
+
+            slab_solid = ifc_creator.model.createIfcExtrudedAreaSolid(ifcclosedprofile, axis2placement, ifc_direction, extrusion)
+            shape_representation = ifc_creator.model.createIfcShapeRepresentation(ContextOfItems=ifc_creator.building,
                                                                         RepresentationIdentifier='Body',
                                                                         RepresentationType='SweptSolid',
                                                                         Items=[slab_solid])
 
-            ifcopenshell.api.run("geometry.assign_representation", ifc_creator.model, product=ifc_slabtype,
-                                representation=shape_representation)
-            ifcopenshell.api.run("spatial.assign_container", ifc_creator.model, product=ifc_slab,
-                                relating_structure=building_storey_obj)
+            ifcopenshell.api.run("geometry.assign_representation", ifc_creator.model, product=ifc_slabtype, representation=shape_representation)
+            ifcopenshell.api.run("spatial.assign_container", ifc_creator.model, product=ifc_slab, relating_structure=building_storey_obj)
 
 
         elif nm == 'Grid': #zijn nog niet zichtbaar, maar zijn wel aanwezig

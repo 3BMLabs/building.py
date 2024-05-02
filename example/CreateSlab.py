@@ -20,7 +20,8 @@ from objects.floor import *
 
 point1 = Point(0, 0, 0)
 point2 = Point(10, 0, 0)
-point3 = Point(10, 5, 0)
+point3 = Point(18, 5, 0)
+point3 = Point(12, 7, 0)
 point4 = Point(0, 5, 0)
 
 floor_points = [point1, point2, point3, point4]
