@@ -635,7 +635,17 @@ def translateObjectsToSpeckleObjects(Obj):
                                           units = project.units,
                                           textureCoordinates = []
                                           ))
-            
+
+        elif nm == 'Trimesh':
+            clrs = []
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=i.vertices, 
+                                          faces=i.faces, 
+                                          colors = clrs, 
+                                          name = i.name, 
+                                          units = project.units,
+                                          textureCoordinates = []
+                                          ))
         else:
             print(f"'{nm}' Object not yet added to translateObjectsToSpeckleObjects")
 
