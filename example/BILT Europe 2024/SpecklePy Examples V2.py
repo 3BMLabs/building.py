@@ -1,4 +1,4 @@
-#Preview: https://speckle.xyz/streams/d2e38baf76/commits/505b8630c6?c=%5B0.0581,-0.28286,0.32333,0.23898,0.12909,-0.03397,0,1%5D
+#Preview: https://speckle.xyz/streams/7603a8603c/commits/07cc939f58
 import sys
 from pathlib import Path
 
@@ -147,8 +147,17 @@ def Platform(height, xyz, btmShape=None, text=None, txyz=None):
         btmShape = [0+x,0+y,0+z, 50+x,0+y,0+z, 50+x,5+y,0+z, 27+x,5+y,0+z, 27+x,35+y,0+z, 50+x,35+y,0+z, 50+x,40+y,0+z, 0+x,40+y,0+z, 0+x,35+y,0+z, 23+x,35+y,0+z, 23+x,5+y,0+z, 0+x,5+y,0+z, 0+x,0+y,0+z]
 
     if text != None and txyz != None:
-        Text(text="A", font_family="calibri", height=200, cs=CoordinateSystem(BPPoint(0, 0, 0), X_axis, YAxis, ZAxis))
-
+        tx, ty, tz = txyz
+        correction = 12
+        text_pcrvs = Text(text=text, font_family="calibri", height=10, cs=CoordinateSystem(BPPoint(tx+correction, ty+correction, tz), X_axis, YAxis, ZAxis)).write()
+        polycurves = []
+        for pcrv in text_pcrvs:
+            pt_list = []
+            for pt in pcrv.points:
+                pt_list.append(Point(x=pt.x, y=pt.y, z=coordZ, units="mm"))
+            polylineObj = Polyline.from_points(pt_list)
+            polycurves.append(polylineObj)
+        
     topVertices = [v + height if i % 3 == 2 else v for i, v in enumerate(btmShape)]
     allVertices = btmShape + topVertices
 
@@ -190,7 +199,7 @@ def Platform(height, xyz, btmShape=None, text=None, txyz=None):
         units="mm"
     )
     if text != None:
-        return meshPlatform #t
+        return meshPlatform, polycurves
     else:
         return meshPlatform
 
