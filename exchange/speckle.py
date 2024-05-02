@@ -242,11 +242,9 @@ def SpeckleMeshByMesh(MeshPB):
 
 def TextToSpeckleCurveSurface(Text):
     returnlist = []
-    # print(Text.write())
-    pcw = Text.write()
-    for polyc in pcw:
-        pc = PolyCurveToSpecklePolyLine(polyc)
-        returnlist.append(pc)
+    for polycurves in Text.write():
+        polycurve = PolyCurveToSpecklePolyLine(polycurves)
+        returnlist.append(polycurve)
     return returnlist
 
 
@@ -610,7 +608,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Node':
             SpeckleObj.append(PointToSpecklePoint(i.point))
             
-        elif nm == 'Text' or 'Text2':
+        elif nm == 'Text':
             SpeckleObj.append(TextToSpeckleCurveSurface(i))
 
         elif nm == 'Point2D':
