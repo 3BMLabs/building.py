@@ -10,7 +10,7 @@ from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
 from specklepy.transports.server import ServerTransport
 from specklepy.objects import Base
-from specklepy.objects.geometry import Point, Line, Arc, Circle, Ellipse, SpiralType, Spiral, Polycurve, Polyline, Mesh, Vector, Plane, Interval
+from specklepy.objects.geometry import Point, Line, Arc, Circle, SpiralType, Spiral, Polycurve, Polyline, Mesh, Vector, Plane, Interval
 from geometry.point import Point as BPPoint
 from abstract.text import Text
 
@@ -62,12 +62,6 @@ circlePlane = Plane(origin = Point(x=350, y=35, z=13, units="mm"), normal = Vect
 circleObj = Circle(radius=20.0, plane=circlePlane, units="mm")
 objList.append(circleObj)
 #Circle - end
-
-#Ellipse - start
-ellipsePlane = Plane(origin = Point(x=1, y=0, z=13, units="mm"), normal = Vector(x=0, y=1, z=0), xdir = Vector(x=1, y=0, z=0), ydir = Vector(x=0, y=1, z=0), units="mm")
-ellipseObj = Ellipse(firstRadius=40.0, secondRadius=20.0, plane=ellipsePlane, units="mm")
-objList.append(ellipseObj)
-#Ellipse - end
 
 #Spiral - start
 spiralPlane = Plane(origin = Point(x=1, y=0, z=13, units="mm"), normal = Vector(x=0, y=1, z=0), xdir = Vector(x=1, y=0, z=0), ydir = Vector(x=0, y=1, z=0), units="mm")
@@ -153,9 +147,7 @@ def Platform(height, xyz, btmShape=None, text=None, txyz=None):
         btmShape = [0+x,0+y,0+z, 50+x,0+y,0+z, 50+x,5+y,0+z, 27+x,5+y,0+z, 27+x,35+y,0+z, 50+x,35+y,0+z, 50+x,40+y,0+z, 0+x,40+y,0+z, 0+x,35+y,0+z, 23+x,35+y,0+z, 23+x,5+y,0+z, 0+x,5+y,0+z, 0+x,0+y,0+z]
 
     if text != None and txyz != None:
-        tx, ty, tz = txyz
         Text(text="A", font_family="calibri", height=200, cs=CoordinateSystem(BPPoint(0, 0, 0), X_axis, YAxis, ZAxis))
-        #t = Text(text=text, font_family="arial", bounding_box=False, xyz=[-tx, -ty, 15], rotation=0, scale=0.007).write()
 
     topVertices = [v + height if i % 3 == 2 else v for i, v in enumerate(btmShape)]
     allVertices = btmShape + topVertices
