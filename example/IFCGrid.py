@@ -22,7 +22,7 @@ gr = Grid.by_startpoint_endpoint(l1, "Grid")
 
 project.objects.append(gr)
 
-project.toSpeckle("7603a8603c")
+# project.toSpeckle("7603a8603c")
 
 ifc_project = CreateIFC()
 
@@ -33,4 +33,4 @@ ifc_project.add_storey("Ground Floor")
 ifc_project.add_storey("G2Floor")
 
 translateObjectsToIFC(project.objects, ifc_project)
-# ifc_project.export("Object11.ifc")
+ifc_project.export("grids.ifc")

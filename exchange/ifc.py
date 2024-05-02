@@ -439,25 +439,7 @@ def translateObjectsToIFC(objects, ifc_creator):
                 Representation=None
             )
 
-            # ifc_creator.model.createIfcRelContainedInSpatialStructure(
-            #     GlobalId=ifcopenshell.guid.new(),
-            #     OwnerHistory=None,
-            #     Name=f"{grid_name} Placement",
-            #     Description=None,
-            #     RelatedElements=[grid],
-            #     RelatingStructure=ifc_creator.storey
-            # )
-
-            # ifc_creator.model.createIfcRelContainedInSpatialStructure(
-            #     GlobalId=ifcopenshell.guid.new(),
-            #     OwnerHistory=None,
-            #     Name=f"{grid_name} Placement",
-            #     Description=None,
-            #     RelatedElements=[grid],
-            #     RelatingStructure=ifc_creator.storey  # Change from storey to building
-            # )
-
-            ifc_creator.model.createIfcRelContainedInSpatialStructure(
+            container_SpatialStructure = ifc_creator.model.createIfcRelContainedInSpatialStructure(
                 GlobalId=ifcopenshell.guid.new(),
                 OwnerHistory=None,
                 Name=f"{grid_name} Placement",
@@ -465,6 +447,18 @@ def translateObjectsToIFC(objects, ifc_creator):
                 RelatedElements=[grid],
                 RelatingStructure=ifc_creator.storey
             )
+            container_SpatialStructure.Name = 'BuildingStoreyContainer'
+            container_SpatialStructure.Description = 'BuildingStoreyContainer for Elements'
+            container_SpatialStructure.RelatingStructure = ifc_creator.storey
+            container_SpatialStructure.RelatedElements = [grid]
+            ifcopenshell.api.run("geometry.assign_representation", 
+                                ifc_creator.model,
+                                product=grid,
+                                representation=container_SpatialStructure)
+            ifcopenshell.api.run("spatial.assign_container", 
+                                ifc_creator.model,
+                                relating_structure=ifc_creator.building,
+                                product=grid)
 
         else:
             print(f"{nm} Object not yet added to translateObjectsToIFC")
