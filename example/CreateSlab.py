@@ -41,4 +41,4 @@ ifc_project.add_storey("G2Floor")
 
 translateObjectsToIFC(project.objects, ifc_project)
 
-ifc_project.export("floor.ifc") #TypeError: Attribute of type AGGREGATE OF REAL needs a python sequence of floats
+ifc_project.export("floor.ifc")
