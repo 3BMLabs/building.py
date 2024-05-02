@@ -152,8 +152,9 @@ def Platform(height, xyz, btmShape=None, text=None, txyz=None):
 
     if text != None and txyz != None:
         tx, ty, tz = txyz
+        Text(text="A", font_family="calibri", height=200, cs=CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)))
         #t = Text(text=text, font_family="arial", bounding_box=False, xyz=[-tx, -ty, 15], rotation=0, scale=0.007).write()
-        #t = Text(text=text, font_family="arial").write()
+        t = Text(text=text, font_family="arial").write()
 
     topVertices = [v + height if i % 3 == 2 else v for i, v in enumerate(btmShape)]
     allVertices = btmShape + topVertices
