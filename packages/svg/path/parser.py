@@ -1,7 +1,12 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # SVG Path specification parser
 
 import re
-from svg.path import path
+# from svg.path import path
+from . import path
+
+# [!not included in BP singlefile - end]
 
 COMMANDS = set("MmZzLlHhVvCcSsQqTtAa")
 UPPERCASE = set("MZLHVCSQTA")

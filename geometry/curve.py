@@ -873,11 +873,12 @@ class PolyCurve:
 
         ```        
         """
-        from abstract.intersect2d import Intersect2d, is_point_on_line_segment
+        from abstract.intersect2d import is_point_on_line_segment
+        from abstract.intersect2d import get_intersect_polycurve_lines
 
         allLines = self.curves.copy()
 
-        insect = Intersect2d().get_intersect_line_polycurve(
+        insect = get_intersect_polycurve_lines(
             self, line, split=True, stretch=False)
         for pt in insect["IntersectGridPoints"]:
             for index, line in enumerate(allLines):
