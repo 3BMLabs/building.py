@@ -28,4 +28,4 @@ ifc_project.add_storey("G2Floor")
 
 translateObjectsToIFC(project.objects, ifc_project)
 
-ifc_project.export("Grids.ifc")
+ifc_project.export("grids.ifc")

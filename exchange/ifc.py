@@ -278,18 +278,13 @@ class CreateIFC:
 def translateObjectsToIFC(objects, ifc_creator):
     IFCObj = []
 
-    # Elements
-    # Andere category meegeven.
-    # boundingbox van element bepalen.
     if not isinstance(objects, list):
         objects = [objects]
 
     for object_type in flatten(objects):
         nm = object_type.__class__.__name__
-        if nm == 'Panel':
-            test = "test"
 
-        elif nm == 'Surface' or nm == 'Face':
+        if nm == 'Surface' or nm == 'Face':
 
             surface_type = run("root.create_entity", ifc_creator.model, ifc_class="IfcColumnType", name="")
 
@@ -381,30 +376,6 @@ def translateObjectsToIFC(objects, ifc_creator):
             run("spatial.assign_container", ifc_creator.model, relating_structure=ifc_creator.storey, product=column)
 
 
-        elif nm == "Extrusion":
-            test = "test"
-
-        elif nm == 'PolyCurve' or nm == 'Polygon':
-            test = "test"
-
-        elif nm == 'BoundingBox2d':
-            test = "test"
-
-        elif nm == 'ImagePyB':
-            test = "test"
-
-        elif nm == 'Interval':
-            test = "test"
-
-        elif nm == 'Line':
-            test = "test"
-
-        elif nm == 'Plane':
-            test = "test"
-
-        elif nm == 'Arc':
-            test = "test"
-
         elif nm == 'Floor':
             outer_points = object_type.points
             building_storey_obj = ifc_creator.storey
@@ -444,15 +415,6 @@ def translateObjectsToIFC(objects, ifc_creator):
                                 relating_structure=building_storey_obj)
 
 
-        elif nm == 'Line2D':
-            test = "test"
-
-        elif nm == 'Point':
-            test = "test"
-
-        elif nm == 'Point2D':
-            test = "test"
-
         elif nm == 'Grid': #zijn nog niet zichtbaar, maar zijn wel aanwezig
             point_a = (object_type.start.x, object_type.start.y, object_type.start.z)
             point_b = (object_type.end.x, object_type.end.y, object_type.end.z)
@@ -477,6 +439,24 @@ def translateObjectsToIFC(objects, ifc_creator):
                 Representation=None
             )
 
+            # ifc_creator.model.createIfcRelContainedInSpatialStructure(
+            #     GlobalId=ifcopenshell.guid.new(),
+            #     OwnerHistory=None,
+            #     Name=f"{grid_name} Placement",
+            #     Description=None,
+            #     RelatedElements=[grid],
+            #     RelatingStructure=ifc_creator.storey
+            # )
+
+            # ifc_creator.model.createIfcRelContainedInSpatialStructure(
+            #     GlobalId=ifcopenshell.guid.new(),
+            #     OwnerHistory=None,
+            #     Name=f"{grid_name} Placement",
+            #     Description=None,
+            #     RelatedElements=[grid],
+            #     RelatingStructure=ifc_creator.storey  # Change from storey to building
+            # )
+
             ifc_creator.model.createIfcRelContainedInSpatialStructure(
                 GlobalId=ifcopenshell.guid.new(),
                 OwnerHistory=None,
@@ -485,9 +465,6 @@ def translateObjectsToIFC(objects, ifc_creator):
                 RelatedElements=[grid],
                 RelatingStructure=ifc_creator.storey
             )
-
-        elif nm == 'GridSystem':
-            test = "test"
 
         else:
             print(f"{nm} Object not yet added to translateObjectsToIFC")
