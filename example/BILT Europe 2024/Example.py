@@ -3,7 +3,7 @@ from exchange.speckle import *
 
 #if you use Speckle, Speckle Manager should be installed
 
-proj = BuildingPy("BILT Europe 2024",2024)
+proj = project("BILT Europe 2024",2024)
 proj.round = True
 
 #streamid = CreateStream("speckle.xyz","BILT Europe 2024 2","description") #Create a new stream

@@ -22,7 +22,7 @@ gr = Grid.by_startpoint_endpoint(l1, "Grid")
 
 project.objects.append(gr)
 
-# project.toSpeckle("7603a8603c")
+project.toSpeckle("7603a8603c")
 
 ifc_project = CreateIFC()
 
