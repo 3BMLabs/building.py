@@ -187,9 +187,9 @@ class Vector3:
 
 X_axis = Vector3(1, 0, 0)
 
-YAxis = Vector3(0, 1, 0)
+Y_Axis = Vector3(0, 1, 0)
 
-ZAxis = Vector3(0, 0, 1)
+Z_Axis = Vector3(0, 0, 1)
 
 
 class Point:
@@ -315,8 +315,8 @@ class CoordinateSystem:
     def by_origin(self, origin: Point):
         self.Origin = origin
         self.Xaxis = X_axis
-        self.Y_axis = YAxis
-        self.Z_axis = ZAxis
+        self.Y_axis = Y_Axis
+        self.Z_axis = Z_Axis
         return self
 
     @staticmethod
@@ -359,7 +359,7 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.Origin}, {self.Xaxis}, {self.Y_axis}, {self.Z_axis})"
 
-CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 
 
 def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point,

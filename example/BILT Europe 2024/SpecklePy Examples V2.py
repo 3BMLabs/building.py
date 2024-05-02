@@ -149,7 +149,7 @@ def Platform(height, xyz, btmShape=None, text=None, txyz=None):
     if text != None and txyz != None:
         tx, ty, tz = txyz
         correction = 12
-        text_pcrvs = Text(text=text, font_family="calibri", height=10, cs=CoordinateSystem(BPPoint(tx+correction, ty+correction, tz), X_axis, YAxis, ZAxis)).write()
+        text_pcrvs = Text(text=text, font_family="calibri", height=10, cs=CoordinateSystem(BPPoint(tx+correction, ty+correction, tz), X_axis, Y_Axis, Z_Axis)).write()
         polycurves = []
         for pcrv in text_pcrvs:
             pt_list = []

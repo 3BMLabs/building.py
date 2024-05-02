@@ -467,8 +467,8 @@ class CoordinateSystem:
 
         ```
         """
-        from abstract.coordinatesystem import X_axis, YAxis, ZAxis
-        return coordinate_system(origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
+        from abstract.coordinatesystem import X_axis, Y_Axis, Z_Axis
+        return coordinate_system(origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
 
     @staticmethod
     def translate(cs_old, direction):
@@ -492,12 +492,12 @@ class CoordinateSystem:
 
         X_axis = Vector3(1, 0, 0)
 
-        YAxis = Vector3(0, 1, 0)
+        Y_Axis = Vector3(0, 1, 0)
 
-        ZAxis = Vector3(0, 0, 1)
+        Z_Axis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, x_axis=X_axis, y_axis=YAxis, z_axis=ZAxis)
+            new_origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
 
         CSNew.Origin = new_origin
         return CSNew
@@ -506,7 +506,7 @@ class CoordinateSystem:
         return self.x == other.x and self.y == other.y and self.z == other.z
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, YAxis = {self.Y_axis}, ZAxis = {self.Z_axis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):

@@ -482,15 +482,15 @@ Ellipse(3, 5, plane_ex) # Create an ellipse
 <br>
 
 #### CoordinateSystem:  
-> _`Input: Point, X_axis, YAxis, ZAxis`_
+> _`Input: Point, X_axis, Y_Axis, Z_Axis`_
 <br>
 
 ``` python
 X_axis = Vector3(1, 0, 0)
-YAxis = Vector3(0, 1, 0)
-ZAxis = Vector3(0, 0, 0)
+Y_Axis = Vector3(0, 1, 0)
+Z_Axis = Vector3(0, 0, 0)
 
-CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis) # returns CoordinateSystem
+CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis) # returns CoordinateSystem
 ```
 <br>
 

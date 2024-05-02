@@ -182,7 +182,7 @@ class Dimension:
             self.end, Vector3.scale(direction, self.dimension_type.line_extension))
         x = direction
         y = Vector3.rotate_XY(x, math.radians(90))
-        z = ZAxis
+        z = Z_Axis
         cs_new_start = CoordinateSystem(self.start, x, y, z)
         cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
         cs_new_end = CoordinateSystem(self.end, x, y, z)
@@ -276,7 +276,7 @@ class FrameTag:
         frame_vector = frame.vector_normalised
         x = frame_vector
         y = Vector3.rotate_XY(x, math.radians(90))
-        z = ZAxis
+        z = Z_Axis
         vx = Vector3.scale(frame_vector, tag.offset_x)
         frame_width = PolyCurve2D.bounds(frame.curve)[4]
         vy = Vector3.scale(y, frame_width*0.5+tag.offset_y)

@@ -208,7 +208,7 @@ class Grid:
     def __cs(self, line):
         self.direction = line.vector_normalised
         vect3 = Vector3.rotate_XY(self.direction, math.radians(-90))
-        self.cs_end = CoordinateSystem(line.end, vect3, self.direction, ZAxis)
+        self.cs_end = CoordinateSystem(line.end, vect3, self.direction, Z_Axis)
 
     @classmethod
     def by_startpoint_endpoint(cls, line, name):

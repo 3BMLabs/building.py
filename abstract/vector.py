@@ -839,6 +839,6 @@ class Vector3:
 
 X_axis = Vector3(1, 0, 0)
 
-YAxis = Vector3(0, 1, 0)
+Y_Axis = Vector3(0, 1, 0)
 
-ZAxis = Vector3(0, 0, 1)
+Z_Axis = Vector3(0, 0, 1)

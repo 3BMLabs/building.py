@@ -33,7 +33,7 @@ test12 = Vector2(0, 10)
 
 
 # CLASS: COORDINATESYSTEM
-CS = CoordinateSystem(Point(0, 0, 0), X_axis, YAxis, ZAxis)
+CS = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 
 CSGlobal
 
