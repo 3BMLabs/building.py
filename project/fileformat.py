@@ -127,6 +127,14 @@ class BuildingPy:
         pass  # open data.json objects in here
 
     def toSpeckle(self, streamid, commitstring=None):
+        try:
+            import specklepy
+        except ImportError:
+            print("Installing requirement: specklepy")
+            import subprocess
+            import sys
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "specklepy"])
+            import specklepy
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)

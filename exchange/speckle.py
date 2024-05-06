@@ -72,6 +72,15 @@ from specklepy.objects.geometry import Spiral as SpeckleSpiral
 from specklepy.objects.geometry import SpiralType as SpeckleSpiralType
 
 def toSpeckle(self, streamid, commitstring=None):
+    try:
+        import specklepy
+    except ImportError:
+        print("Installing requirement: specklepy")
+        import subprocess
+        import sys
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "specklepy"])
+        import specklepy
+    from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
     self.specklestream = streamid
     speckleobj = translateObjectsToSpeckleObjects(self.objects)
     TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
