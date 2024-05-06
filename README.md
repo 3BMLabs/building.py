@@ -15,9 +15,7 @@ Goals of the building.py Project:
   * XFEM4U
   * IFC using IFCOpenShell
   * Scia Engineer
- 
-# Design principles
-* Create 
+    
 # Implemented
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
