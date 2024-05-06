@@ -15,9 +15,7 @@ Goals of the building.py Project:
   * XFEM4U
   * IFC using IFCOpenShell
   * Scia Engineer
- 
-# Design principles
-* Create 
+    
 # Implemented
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
@@ -50,10 +48,10 @@ Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Component3D | | |  
 &nbsp; | Component2D | | |  
 &nbsp; | Hatch | :heavy_check_mark: | :heavy_check_mark:  |  
-Library | Steelprofiles | |  |  
+Library | Steelprofiles | :heavy_check_mark: |  |  
 &nbsp; | Materials | |  |  
 Exchange | Speckle | :heavy_check_mark: |  |  
-&nbsp; | IFC | |  |  
+&nbsp; | IFC | :heavy_check_mark: |  |  
 &nbsp; | PAT |:heavy_check_mark: |  |  
 &nbsp; | OBJ | |  |  
 &nbsp; | Struct4U |:heavy_check_mark: |  |  
