@@ -146,8 +146,6 @@ class BuildingPy:
         ifc_project.add_storey("G2Floor")     
         translateObjectsToIFC(self.objects, ifc_project)
         ifc_project.export(f"{name}.ifc")
-
-        print("IFC created")
 # [!not included in BP singlefile - end]
 
 

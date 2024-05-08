@@ -344,7 +344,6 @@ def translateObjectsToIFC(objects, ifc_creator):
             run("spatial.assign_container", ifc_creator.model, relating_structure=ifc_creator.storey, product=object)
             
         elif nm == 'Frame':
-
             start = Point.to_matrix(object_type.start)
             end = Point.to_matrix(object_type.end)
             distance = Point.distance(Point.from_matrix(start), Point.from_matrix(end))
@@ -356,9 +355,14 @@ def translateObjectsToIFC(objects, ifc_creator):
             material_name = run("material.add_material", ifc_creator.model, name="", category="steel")
             matrix = Matrix.from_points(object_type.start, object_type.end).matrix
             externe_punten = []
-            for pt in object_type.curve.points2D:
-                externe_punten.append((pt.x*1000, pt.y*1000))
-
+            if len(object_type.curve.points2D) == 0:
+                for pt in object_type.curve.points:
+                    externe_punten.append((pt.x*1000, pt.y*1000))
+                # externe_punten = object_type.curve.points
+            else:
+                for pt in object_type.curve.points2D:
+                    externe_punten.append((pt.x*1000, pt.y*1000))
+            # sys.exit()
             externe_ifc_punten = [ifc_creator.model.create_entity('IfcCartesianPoint', Coordinates=p) for p in externe_punten]
             polyline = ifc_creator.model.create_entity('IfcPolyline', Points=externe_ifc_punten)
 
@@ -414,7 +418,7 @@ def translateObjectsToIFC(objects, ifc_creator):
             ifcopenshell.api.run("spatial.assign_container", ifc_creator.model, product=ifc_slab, relating_structure=building_storey_obj)
 
 
-        elif nm == 'Grid': #zijn nog niet zichtbaar, maar zijn wel aanwezig
+        elif nm == 'Grid':
             point_a = (object_type.start.x, object_type.start.y, object_type.start.z)
             point_b = (object_type.end.x, object_type.end.y, object_type.end.z)
             grid_name = object_type.name

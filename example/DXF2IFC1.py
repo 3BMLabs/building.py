@@ -42,11 +42,10 @@ def process_directory(dxf_directory):
         print("Invalid directory or file path")
 
 # dxf_input_path = 'Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\Aluminium kozijnen\\SL 38 Classic buitenopengaand\\'
-dxf_input_path = 'C:\\Users\\Jonathan\\Documents\\GitHub\\building.py\\library\\object_database\\DXF\\'
-# dxf_input_path = 'C:\\Users\\Jonathan\\Documents\\GitHub\\building.py\\library\\object_database\\DXF\\VBI Isolatieplaatvloer K200 Standaard.dxf'
+dxf_input_path = 'library\\object_database\\DXF\\'
 
 process_directory(dxf_input_path)
-# project.toSpeckle("7603a8603c")
+project.toSpeckle("7603a8603c")
 
 ifc_project = CreateIFC()
 
@@ -58,4 +57,4 @@ ifc_project.add_storey("G2Floor")
 
 
 translateObjectsToIFC(project.objects, ifc_project)
-ifc_project.export("Object1.ifc")
+ifc_project.export("BILT_Dictionary.ifc")
