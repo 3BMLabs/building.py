@@ -144,10 +144,18 @@ class BuildingPy:
         from exchange.Freecad_Bupy import translateObjectsToFreeCAD
         translateObjectsToFreeCAD(self.objects)
 
-    def toIFC(self):
-        from exchange.IFC import translateObjectsToIFC
-        translateObjectsToIFC(self.objects)
+    def toIFC(self, name):
+        from exchange.IFC import translateObjectsToIFC, CreateIFC
+        ifc_project = CreateIFC()
+        ifc_project.add_project(name)
+        ifc_project.add_site("My Site")
+        ifc_project.add_building("Building A")
+        ifc_project.add_storey("Ground Floor")
+        ifc_project.add_storey("G2Floor")     
+        translateObjectsToIFC(self.objects, ifc_project)
+        ifc_project.export(f"{name}.ifc")
 
+        print("IFC created")
 # [!not included in BP singlefile - end]
 
 
