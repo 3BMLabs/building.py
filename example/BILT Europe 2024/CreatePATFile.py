@@ -13,6 +13,7 @@ pat10 = PAT().stretcher_bond_with_joint("WF_210x50",210,50,10,12.5,Revitmodelpat
 pat11 = PAT().Strips("hor_200",200,25,Revitmodelpattern)
 pat12 = PAT().ParallelLines("Rollaag", [0,50,12.5],Revitmodelpattern)
 pat13 = PAT().cross_bond_with_joint("Kruisverband",100,210,50,10,12.5,Revitmodelpattern)
+
 lst = [pat1,pat2,pat3,pat4,pat5,pat6,pat7,pat8,pat9,pat10,pat11,pat12,pat13]
 
 CreatePatFile(lst,'C:/TEMP/test4.pat')

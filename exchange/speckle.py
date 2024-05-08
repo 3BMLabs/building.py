@@ -244,7 +244,7 @@ def SpeckleMeshByMesh(MeshPB):
                              name = MeshPB.name, 
                              colors = colrs, 
                              units = project.units,
-                             textureCoordinates = MeshPB.textureCoordinates
+                             textureCoordinates = []
                              )
     return SpeckleMsh
 
@@ -264,7 +264,7 @@ def SpeckleMeshByImage(img):
                              name = img.name, 
                              colors = img.colorlst,
                              units = project.units,
-                             textureCoordinates = img.textureCoordinates
+                             textureCoordinates = []
                              )
     return SpeckleMsh
 
