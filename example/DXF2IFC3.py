@@ -38,10 +38,10 @@ def process_directory(dxf_directory):
     else:
         print("Invalid directory or file path")
 
-kozijnstijl = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium buitenkader SL 38 Classic Bi draai.dxf"
-kozijnprofiel = ReadDXF(kozijnstijl).polylines[0][0]
-kozijnstijl1 = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium T-profiel SL 38 Classic Bi vast.dxf"
-kozijnprofiel1 = ReadDXF(kozijnstijl1).polylines[0][0]
+# kozijnstijl = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium buitenkader SL 38 Classic Bi draai.dxf"
+# kozijnprofiel = ReadDXF(kozijnstijl).polylines[0][0]
+# kozijnstijl1 = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium T-profiel SL 38 Classic Bi vast.dxf"
+# kozijnprofiel1 = ReadDXF(kozijnstijl1).polylines[0][0]
 
 c_profile = PolyCurve2D.by_points([Point2D(-50,-50), Point2D(-50,50), Point2D(50,50), Point2D(0,-25), Point2D(50,-50)])
 
@@ -54,15 +54,4 @@ project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0
 
 project.toSpeckle("7603a8603c")
 
-
-ifc_project = CreateIFC()
-
-ifc_project.add_project("My Project")
-ifc_project.add_site("My Site")
-ifc_project.add_building("Building A")
-ifc_project.add_storey("Ground Floor")
-ifc_project.add_storey("G2Floor")
-
-translateObjectsToIFC(project.objects, ifc_project)
-
-ifc_project.export("Single_Obj2.ifc")
+project.toIFC("BILT")

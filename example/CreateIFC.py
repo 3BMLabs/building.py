@@ -35,7 +35,7 @@ ifc_project.add_storey("G2Floor")
 
 project = BuildingPy("DXF","0001")
 
-readedDXF = ReadDXF("library/object_database/DXF/VBI Isolatieplaatvloer T200 Randoplegging I.dxf")
+readedDXF = ReadDXF("library/object_database/DXF/VBI Isolatieplaatvloer HVU 400 Standaard.dxf")
 print(readedDXF.polylines)
 
 obj = Surface.by_patch_inner_and_outer(readedDXF.polylines)

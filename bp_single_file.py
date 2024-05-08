@@ -2687,10 +2687,6 @@ class BuildingPy:
         pass  # open data.json objects in here
 
     def toSpeckle(self, streamid, commitstring=None):
-        try:
-        except ImportError:
-            print("Installing requirement: specklepy")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "specklepy"])
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)
         TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
@@ -2698,9 +2694,17 @@ class BuildingPy:
     def toFreeCAD(self):
         translateObjectsToFreeCAD(self.objects)
 
-    def toIFC(self):
-        translateObjectsToIFC(self.objects)
+    def toIFC(self, name):
+        ifc_project = CreateIFC()
+        ifc_project.add_project(name)
+        ifc_project.add_site("My Site")
+        ifc_project.add_building("Building A")
+        ifc_project.add_storey("Ground Floor")
+        ifc_project.add_storey("G2Floor")     
+        translateObjectsToIFC(self.objects, ifc_project)
+        ifc_project.export(f"{name}.ifc")
 
+        print("IFC created")
 
 
 
