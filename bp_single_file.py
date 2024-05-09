@@ -2704,8 +2704,6 @@ class BuildingPy:
         translateObjectsToIFC(self.objects, ifc_project)
         ifc_project.export(f"{name}.ifc")
 
-        print("IFC created")
-
 
 
 project = BuildingPy("Project", "0")
@@ -10788,6 +10786,7 @@ class Frame:
         self.curve = None  # 2D polycurve of the sectionprofile
         self.curve3d = None  # Translated 3D polycurve of the sectionprofile
         self.length = 0
+        self.points = []
         self.coordinateSystem: CoordinateSystem = CSGlobal
         self.YJustification = "Origin"  # Top, Center, Origin, Bottom
         self.ZJustification = "Origin"  # Left, Center, Origin, Right
@@ -10890,6 +10889,7 @@ class Frame:
             f1.curve = PolyCurve2D.by_points(profile.points)
         elif type(profile).__name__ == "str":
             f1.curve = profiledataToShape(profile).polycurve2d  # polycurve2d
+            f1.points = profiledataToShape(profile).polycurve2d.points
         else:
             print("[by_startpoint_endpoint_profile], input is not correct.")
             sys.exit()
