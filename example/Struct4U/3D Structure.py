@@ -6,10 +6,11 @@ from objects.datum import *
 from library.profile import *
 from exchange.struct4U import *
 from library.material import *
+from exchange.speckle import *
 
 project = BuildingPy("Struct4U Example file","0")
 
-height = 3000
+height = 3200
 
 #CREATE GRIDSYSTEM
 gridinput =  ["0 1000 1000",seqChar,"0 4x3600",seqNumber,"0"]
@@ -49,3 +50,5 @@ pathxml = "C:/TEMP/test4.xml"
 createXFEM4UXML(project,pathxml,gridinput)
 
 OpenXMLXFEM4U(pathxml)
+
+#project.toSpeckle("8e8b5a5eea", "My shiny commit for Struct4U")

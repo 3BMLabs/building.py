@@ -1,3 +1,6 @@
+# [included in GIS2BIM singlefile]
+# [!not included in GIS2BIM singlefile - start]
+
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2021 Maarten Vroegindeweij <maarten@3bm.co.nl>          *
@@ -36,7 +39,6 @@ __title__= "GIS2BIM"
 __author__ = "Maarten Vroegindeweij"
 __url__ = "https://github.com/DutchSailor/GIS2BIM"
 
-
 import urllib
 import urllib.request
 from urllib.request import urlopen
@@ -48,6 +50,8 @@ from zipfile import ZipFile
 #from PIL import Image
 	
 #Common functions
+
+# [!not included in GIS2BIM singlefile - end]
 
 def CreateDirectory(Directory):
     import os

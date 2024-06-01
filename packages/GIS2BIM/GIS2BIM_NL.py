@@ -1,3 +1,6 @@
+# [included in GIS2BIM singlefile]
+# [!not included in GIS2BIM singlefile - start]
+
 # -*- coding: utf8 -*-
 #***************************************************************************
 #*   Copyright (c) 2021 Maarten Vroegindeweij <maarten@3bm.co.nl>          *
@@ -37,6 +40,8 @@ import time
 import xml.etree.ElementTree as ET
 
 import requests
+
+# [!not included in GIS2BIM singlefile - end]
 
 #import urllib.request, json
 

@@ -1,5 +1,6 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
+
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2024 Maarten Vroegindeweij                              *
@@ -27,12 +28,15 @@
 """This module provides conversion from and to GIS2BIM to BuildingPy Objects
 """
 
+
 from geometry.linestyle import *
 from geometry.curve import Point, PolyCurve, Line
+
 __title__ = "GIS2BIM"
 __author__ = "Maarten"
 __url__ = "./exchange/GIS2BIM.py"
 
+# [!not included in BP singlefile - end]
 
 def WFSCurvesToBPCurves(curves):
     BPyPolyCurves = []
