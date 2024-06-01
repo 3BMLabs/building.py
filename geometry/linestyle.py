@@ -111,3 +111,9 @@ def line_to_pattern(baseline: 'Line', pattern_obj) -> 'list':
             rl = l - ll  # remaining length within the pattern
         startpoint = startpoint
     return lines
+
+def polycurve_to_pattern(polycurve: 'PolyCurve', pattern_obj) -> 'list':
+    res = []
+    for i in polycurve.curves:
+       res.append(line_to_pattern(i,pattern_obj))
+    return res

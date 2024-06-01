@@ -17,15 +17,17 @@ import sys
 GISProject = BuildingPy("test")
 tempfolder = "C:/TEMP/GIS/"
 lst = NL_GetLocationData(NLPDOKServerURL, "Dordrecht", "werf van schouten", "501")
-Bboxwidth = 500  # Meter
+Bboxwidth = 300  # Meter
 
 # MODEL/DRAWING SETTINGS
-Centerline2 = ["Center Line 2", [8, 4, 4, 4], 500]  # Rule: line, whitespace, line whitespace etc., scale
+Centerline2 = ["Center Line 2", [8, 4, 4, 4], 250]  # Rule: line, whitespace, line whitespace etc., scale
 
 # BASE VALUES
 RdX = lst[0]
 RdY = lst[1]
-Bbox = GIS2BIM.CreateBoundingBox(RdX, RdY, Bboxwidth, Bboxwidth, 0)
+Bbox = CreateBoundingBox(RdX, RdY, Bboxwidth, Bboxwidth, 0)
+
+NLPDOKCadastreCadastralParcels = "http://service.pdok.nl/kadaster/kadastralekaart/wfs/v5_0?service=WFS&version=2.0.0&request=GetFeature&typeName=perceel&bbox="
 
 # Aerialphoto
 #fileLocationWMS = tempfolder + "luchtfoto_2020_2.png"
@@ -34,14 +36,18 @@ Bbox = GIS2BIM.CreateBoundingBox(RdX, RdY, Bboxwidth, Bboxwidth, 0)
 # img = imagePyB().by_file(fileLocationWMS,Bboxwidth*1000,Bboxwidth*1000,0,0,0)
 # GISProject.objects.append(img)
 
-sys.exit()
-
 # KADASTRALE GRENZEN
 curvesCadaster = GIS2BIM.PointsFromWFS(NLPDOKCadastreCadastralParcels, Bbox, NLPDOKxPathOpenGISposList, -RdX, -RdY,
                                        1000, 2)
 # for i in WFSCurvesToBPCurvesLinePattern(curvesCadaster, Centerline):
 for i in WFSCurvesToBPCurves(curvesCadaster):
-    GISProject.objects.append(i)
+    for j in i.curves:
+        GISProject.objects.append(j)
+
+    # linepattern
+    #j = polycurve_to_pattern(i,Centerline2)
+    #for k in j:
+    #    GISProject.objects.append(k)
 
 # GEBOUWEN
 curvesBAG = GIS2BIM.PointsFromWFS(NLPDOKBAGBuildingCountour, Bbox, NLPDOKxPathOpenGISposList, -RdX, -RdY, 1000, 2)
@@ -53,4 +59,5 @@ for i in BPCurvesBAG:
     m = MeshPB().by_polycurve(i, "BAG:pand", BaseBuilding)
     GISProject.objects.append(m)
 
-GISProject.toSpeckle("30185b86c3", "Kadaster")
+#GISProject.toSpeckle("30185b86c3", "Kadaster")
+

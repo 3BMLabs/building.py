@@ -1,0 +1,33 @@
+name: Generate gis2bim_single_file
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  run_python_script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Execute Python script
+        run: |
+          python docs/write_gis2bim_single_file.py
+
+      - name: Commit and push if changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git status
+          git add GIS2BIM_single_file.py
+          git commit -m "Automatically updated gis2bim_single_file.py" || true
+          git push
