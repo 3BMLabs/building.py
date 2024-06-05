@@ -1,3 +1,9 @@
+import sys
+import os
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 from project.fileformat import *
 from objects.frame import Frame
 from objects.analytical import *
@@ -46,9 +52,9 @@ project.objects.append(Panel.by_polycurve_thickness(
     ,BaseConcrete.colorint))
 
 #CREATE XML-FILE
-pathxml = "C:/TEMP/test4.xml"
+pathxml = "C:/Users/Jonathan/Desktop/TEMP/test1.xml"
 createXFEM4UXML(project,pathxml,gridinput)
 
-OpenXMLXFEM4U(pathxml)
+# OpenXMLXFEM4U(pathxml)
 
-#project.toSpeckle("8e8b5a5eea", "My shiny commit for Struct4U")
+project.toSpeckle("7603a8603c", "My shiny commit for Struct4U")

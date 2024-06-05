@@ -248,7 +248,7 @@ def XMLImportPlates(XMLtree):
         for j in i:
             Point = XYZ[getXYZ(XMLtree, j)]
             PlatePoints.append(Point)
-        PlatePoints.append(PlatePoints[0])
+        # PlatePoints.append(PlatePoints[0])
         ply = PolyCurve.by_points(PlatePoints)
         # obj.append(ply)
         platesPolyCurves.append(ply)
@@ -257,7 +257,8 @@ def XMLImportPlates(XMLtree):
     Panels = []
 
     for i, j, k, l, m, n in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers, lstColor):
-        Panels.append(Panel.by_polycurve_thickness(i, j, k, l + m, n))
+        Panels.append(Panel.by_polycurve_thickness(i, -j, k, l + m, n))
+        print("Panel created")
 
     return Panels
 
