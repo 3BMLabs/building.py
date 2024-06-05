@@ -9771,6 +9771,15 @@ url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
 
+def is_rectangle_format(shape_name):
+    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
+    if match:
+        width, height = int(match.group(1)), int(match.group(2))
+        if 0 <= width <= 10000 and 0 <= height <= 10000:
+            return True, width, height
+    return False, 0, 0
+
+
 class searchProfile:
     def __init__(self, name):
         self.name = name
@@ -9780,13 +9789,16 @@ class searchProfile:
         for item in data:
             for i in item.values():
                 synonymList = i[0]["synonyms"]
-                #if self.name in synonymList:
-                #bools = [self.name.lower() in e for e in [synonym.lower() for synonym in synonymList]]
-                #if True in bools:
                 if self.name.lower() in [synonym.lower() for synonym in synonymList]:
                     self.shape_coords = i[0]["shape_coords"]
                     self.shape_name = i[0]["shape_name"]
                     self.synonyms = i[0]["synonyms"]
+        if self.shape_coords == None:
+            check_rect, width, height = is_rectangle_format(name)
+            if check_rect:
+                self.shape_coords = [width, height]
+                self.shape_name = "Rectangle"
+                self.synonyms = name
 
 
 class profiledataToShape:
@@ -9797,14 +9809,12 @@ class profiledataToShape:
         shape_name = profile_data.shape_name
         if shape_name == None:
             profile_data = searchProfile(project.structural_fallback_element)
-            err = f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'"
-            print(err)
+            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
             shape_name = profile_data.shape_name
         self.profile_data = profile_data
         self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
-        #self.d1.insert(0,name)
         d1 = self.d1
         if shape_name == "C-channel parallel flange":
             prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
