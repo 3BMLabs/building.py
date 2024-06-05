@@ -10,7 +10,7 @@ def find_ext(dr, ext):
 
 pythonfiles = \
     [
-    "bp_single_file.py",
+    "BuildingPy.py",
     "packages/GIS2BIM/GIS2BIM.py",
     "packages/GIS2BIM/GIS2BIM_NL.py",
     "packages/GIS2BIM/GIS2BIM_NL_helpers.py",

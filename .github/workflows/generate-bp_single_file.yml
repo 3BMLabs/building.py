@@ -21,13 +21,13 @@ jobs:
 
       - name: Execute Python script
         run: |
-          python docs/write_bp_single_file.py
+          python docs/write_BuildingPy.py
 
       - name: Commit and push if changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git status
-          git add bp_single_file.py
-          git commit -m "Automatically updated bp_single_file.py" || true
+          git add BuildingPy.py
+          git commit -m "Automatically updated BuildingPy.py" || true
           git push
