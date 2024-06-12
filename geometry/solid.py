@@ -380,17 +380,13 @@ class Extrusion:
 
         Extrus.polycurve_3d_translated = polycurve
 
+        numPoints = len(Points)
+        
         # allverts
         for pnt in Points:
             # Onderzijde verplaatst met dz_loc
             pnts.append(Point.translate(pnt, Vector3.product(dz_loc, norm)))
-        for pnt in Points:
-            # Bovenzijde verplaatst met dz_loc
-            pnts.append(Point.translate(
-                pnt, Vector3.product((dz_loc+height), norm)))
-
-        numPoints = len(Points)
-
+        
         # Bottomface
         count = 0
         face = []
@@ -398,42 +394,55 @@ class Extrusion:
             face.append(count)
             count = count + 1
         faces.append(face)
-
+        
         # Topface
+        # TODO: correct winding
         count = 0
         face = []
         for x in range(numPoints):
             face.append(count+numPoints)
             count = count + 1
         faces.append(face)
+            
+        # when the height of an extrusion is 0, we only have to add the top / bottom (it doesn't really matter) side mesh. it would just cause z-buffer glitching
+        if height:
+            for pnt in Points:
+                # Bovenzijde verplaatst met dz_loc
+                pnts.append(Point.translate(
+                    pnt, Vector3.product((dz_loc+height), norm)))
+            #other faces
 
-        # Sides
-        count = 0
-        length = len(faces[0])
-        for i, j in zip(faces[0], faces[1]):
-            face = []
-            face.append(i)
-            face.append(faces[0][count + 1])
-            face.append(faces[1][count + 1])
-            face.append(j)
-            count = count + 1
-            if count == length-1:
+
+
+            # Sides
+            count = 0
+            length = len(faces[0])
+            for i, j in zip(faces[0], faces[1]):
+                face = []
                 face.append(i)
-                face.append(faces[0][0])
-                face.append(faces[1][0])
+                face.append(faces[0][count + 1])
+                face.append(faces[1][count + 1])
                 face.append(j)
+                count = count + 1
+                if count == length-1:
+                    face.append(i)
+                    face.append(faces[0][0])
+                    face.append(faces[1][0])
+                    face.append(j)
+                    faces.append(face)
+                    break
+                else:
+                    pass
                 faces.append(face)
-                break
-            else:
-                pass
-            faces.append(face)
 
         # toMeshStructure
         for i in pnts:
             Extrus.verts.append(i.x)
             Extrus.verts.append(i.y)
             Extrus.verts.append(i.z)
-
+            
+        # faces are laid out like this: face 0 vert count, face 0 vert 0 index, vert ...count index, face 1 vert count etc.
+        # for example: 4, 0, 1, 2, 3, 3, 4, 5, 6 => 4, (0, 1, 2, 3), 3, (4, 5, 6)
         for x in faces:
             Extrus.faces.append(len(x))  # Number of verts in face
             for y in x:

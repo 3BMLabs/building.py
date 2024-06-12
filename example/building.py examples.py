@@ -1,6 +1,11 @@
 import sys, os, math, random
 from pathlib import Path
-import geometry.geometry2d
+#import geometry.geometry2d
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 from objects.panel import *
 from objects.frame import *
 from objects.steelshape import *
@@ -14,11 +19,6 @@ from abstract.color import *
 from abstract.plane import *
 from geometry.solid import Extrusion
 from abstract.boundingbox import BoundingBox2d, BoundingBox3d
-
-
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
 
 # INITIALIZE
 pnt1 = Point(0, 0, 0)
