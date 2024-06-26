@@ -37,15 +37,15 @@ import math
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from geometry.coords import Coords
 from packages.helper import *
-
 
 # [!not included in BP singlefile - end]
 
 # from project.fileformat import project
 
 
-class Point:
+class Point(Coords):
     """Represents a point in 3D space with x, y, and z coordinates."""
     def __init__(self, x: float, y: float, z: float) -> 'Point':
         """Initializes a new Point instance with the given x, y, and z coordinates.
@@ -54,31 +54,20 @@ class Point:
         - `y` (float): Y-coordinate of the point.
         - `z` (float): Z-coordinate of the point.
         """
-        self.id = generateID()
+        super().__init__(x, y, z)
         self.type = __class__.__name__
-        self.x: float = 0.0
-        self.y: float = 0.0
-        self.z: float = 0.0
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
         self.value = self.x, self.y, self.z
         self.units = "mm"
 
     def __str__(self) -> str:
         """Converts the point to its string representation."""
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-
+    
     def serialize(self):
         """Serializes the point object."""
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'x': self.x,
-            'y': self.y,
-            'z': self.z,
+        return super().serialize() | {
             'value': self.value,
             'units': self.units
         }

@@ -39,11 +39,12 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from packages.helper import *
+from geometry.coords import Coords
 
 # [!not included in BP singlefile - end]
 
 
-class Vector3:
+class Vector3(Coords):
     """Represents a 3D vector with x, y, and z coordinates."""
     def __init__(self, x: float, y: float, z: float) -> 'Vector3':
         """Initializes a new Vector3 instance with the given x, y, and z coordinates.
@@ -52,15 +53,8 @@ class Vector3:
         - `y` (float): Y-coordinate of the vector.
         - `z` (float): Z-coordinate of the vector.
         """
-        self.id = generateID()
+        super().__init__(x, y, z)
         self.type = __class__.__name__
-        self.x: float = 0.0
-        self.y: float = 0.0
-        self.z: float = 0.0
-
-        self.x = x
-        self.y = y
-        self.z = z
 
     def serialize(self) -> dict:
         """Serializes the Vector3 object into a dictionary.
@@ -75,15 +69,7 @@ class Vector3:
         # {'id': None, 'type': None, 'x': 1, 'y': 2, 'z': 3}
         ```
         """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'x': self.x,
-            'y': self.y,
-            'z': self.z
-        }
+        return super().serialize()
 
     @staticmethod
     def deserialize(data):

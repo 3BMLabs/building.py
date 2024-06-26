@@ -384,24 +384,22 @@ class Extrusion:
         
         # allverts
         for pnt in Points:
-            # Onderzijde verplaatst met dz_loc
+            # bottom side moves along the normal with dz_loc units
             pnts.append(Point.translate(pnt, Vector3.product(dz_loc, norm)))
         
         # Bottomface
-        count = 0
         face = []
-        for x in range(numPoints):
-            face.append(count)
-            count = count + 1
+        for x in reversed(range(numPoints)):
+            face.append(x)
         faces.append(face)
+        
         
         # Topface
         # TODO: correct winding
-        count = 0
         face = []
-        for x in range(numPoints):
-            face.append(count+numPoints)
-            count = count + 1
+        start = numPoints if height else 0
+        for x in range(start, start + numPoints):
+            face.append(x)
         faces.append(face)
             
         # when the height of an extrusion is 0, we only have to add the top / bottom (it doesn't really matter) side mesh. it would just cause z-buffer glitching

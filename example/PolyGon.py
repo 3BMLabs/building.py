@@ -41,11 +41,18 @@ PG1 = Polygon.by_points([p1,p2,p4,])
 
 lst = [PG1]#, innerPolygon1, innerPolygon2]
 
+p = Point(2,3,4)
+p.serialize()
 
 obj = Surface.by_patch_inner_and_outer(lst)
 print(obj)
 
-project.objects.append(obj)
+curve = PolyCurve.by_points([p1, p2, p4])
+
+obj2 = Extrusion.by_polycurve_height(polycurve=curve,height= 2000.0,dz_loc= 0)
+
+#project.objects.append(obj)
+project.objects.append(obj2)
 # project.objects.append(SF1)
 #project.objects.append(PG1)
 #project.objects.append(innerPolygon1)

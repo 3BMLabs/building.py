@@ -438,7 +438,8 @@ def translateObjectsToSpeckleObjects(Obj):
                                           faces=i.outer_Surface.faces, 
                                           name=i.type,
                                           units= project.units,
-                                          textureCoordinates = []
+                                          textureCoordinates = [],
+                                          colors = i.colorlst
                                           ))
             
 

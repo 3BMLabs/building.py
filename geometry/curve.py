@@ -41,11 +41,11 @@ from geometry.point import Point
 from project.fileformat import project
 from abstract.coordinatesystem import CoordinateSystem, CSGlobal
 from geometry.point import transform_point
-
+from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
-class Line:
+class Line(Serializable):
     def __init__(self, start: 'Point', end: 'Point') -> 'Line':
         """Initializes a Line object with the specified start and end points.
 
@@ -749,12 +749,14 @@ class PolyCurve:
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
-            try:
-                nextpoint = points[index+1]
-                plycrv.curves.append(Line(start=point, end=nextpoint))
-            except:
+            if(index == len(points) - 1):
                 firstpoint = points[0]
                 plycrv.curves.append(Line(start=point, end=firstpoint))
+                
+            else:
+                
+                nextpoint = points[index+1]
+                plycrv.curves.append(Line(start=point, end=nextpoint))
 
         if project.closed:
             if plycrv.points[0].value == plycrv.points[-1].value:

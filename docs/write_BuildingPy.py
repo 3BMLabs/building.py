@@ -8,10 +8,12 @@ def find_ext(dr, ext):
 
 def generate_single_file(output_filename, include_files=None):
 	pythonfiles = [
+		"abstract/serializable.py",
 		"packages/helper.py",
 		"packages/svg/path/parser.py",
 		"packages/svg/path/path.py",
-		"abstract/vector.py",    
+		"geometry/coords.py",
+		"abstract/vector.py",
 		"geometry/point.py",
 		"project/fileformat.py",
 		"abstract/coordinatesystem.py",
