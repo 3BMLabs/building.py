@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import requests
+import webbrowser
 import xml.etree.ElementTree as ET
 from datetime import datetime
 import specklepy
@@ -43,10 +44,27 @@ def fail_log():
     write_to_log(log_filename, f"Failed to create Speckle model.")
 
 
+def set_running_flag(ini_file_path, is_running):
+    temp_data = {}
+    if os.path.exists(ini_file_path):
+        with open(ini_file_path, 'r', encoding="utf-8") as config_file:
+            for line in config_file:
+                line = line.strip()
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    temp_data[key] = value
+    temp_data["running"] = str(is_running).lower()
+
+    with open(ini_file_path, 'w', encoding="utf-8") as config_file:
+        for key, value in temp_data.items():
+            config_file.write(f"{key}={value}\n")
+
+
 ini_file_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', 'PythonExport.ini')
 log_filename = os.path.join(os.getenv('LOCALAPPDATA'), 'Struct4u', "Struct4USpeckleExport.log")
 clear_log_file(log_filename)
 
+set_running_flag(ini_file_path, True)
 
 credential_data= {}
 
@@ -101,8 +119,12 @@ obj = []
 
 #LoadGrid and create in Speckle
 XYZ = XMLImportNodes(tree)
+
 obj = obj + XMLImportGrids(tree, 1000)
 obj.append(XMLImportPlates(tree))
+
+print(obj)
+# sys.exit()
 
 #BEAMS
 BeamsFrom = root.findall(".//Beams/From_node_number")
@@ -126,7 +148,7 @@ for i, j, k, l, m in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber, BeamsRotati
         start = XYZ[1][XYZ[0].index(i.text)]
         end = XYZ[1][XYZ[0].index(j.text)]
         try:
-            pf = Frame.byStartpointEndpointProfileNameShapevector(start, end, profile_name, profile_name + "-" + l.text, Vector2(0,0), float(m.text), BaseSteel, None)
+            pf = Frame.by_startpoint_endpoint_profile_shapevector(start, end, profile_name, profile_name + "-" + l.text, Vector2(0,0), float(m.text), BaseSteel, None)
             if pf != None:
                 obj.append(pf)
         except Exception as e:
@@ -136,7 +158,7 @@ write_to_log(log_filename, f"Generated BuildingPy Objects.")
 # convert the buildingpy objects to speckle objects
 SpeckleObj = bp_send_file.translateObjectsToSpeckleObjects(obj)
 write_to_log(log_filename, f"Translated BuildingPy objects to Speckle Objects.")
-
+# sys.exit()
 # convert to speckle objects and return browser link
 commit = bp_send_file.TransportToSpeckle(credential_data, SpeckleObj)
 
@@ -157,10 +179,13 @@ else:
     write_to_log(log_filename, f"{commit[1]}")
     fail_log()
     open_log()
-    sys.exit()
 
 try:
+    webbrowser.open(commit[1])
     write_to_log(log_filename, f"Succesfully created Speckle model.")
+    
 except:
     write_to_log(log_filename, f"Could not open {commit[1]} in browser.")
     fail_log()
+
+set_running_flag(ini_file_path, False)

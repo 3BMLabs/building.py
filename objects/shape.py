@@ -27,10 +27,9 @@
 """This module provides classes for steel shapes
 """
 
-__title__= "shape"
+__title__ = "shape"
 __author__ = "Joas"
 __url__ = "./objects/shape.py"
-
 
 import sys, math
 from pathlib import Path
@@ -39,9 +38,11 @@ from objects.frame import *
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.geometry2d import *
+
 # [!not included in BP singlefile - end]
 
 sqrt2 = math.sqrt(2)
+
 class Tshape:
     def __init__(self, name, h, b, h1, b1):
         self.Description = "T-shape"
@@ -60,12 +61,12 @@ class Tshape:
         # describe points
         p1 = Point2D(b1 / 2, -h / 2)  # right bottom
         p2 = Point2D(b1 / 2, h / 2 - h1)  # right middle 1
-        p3 = Point2D(b / 2, h / 2 - h1) # right middle 2
-        p4 = Point2D(b / 2, h / 2) # right top
+        p3 = Point2D(b / 2, h / 2 - h1)  # right middle 2
+        p4 = Point2D(b / 2, h / 2)  # right top
         p5 = Point2D(-b / 2, h / 2)  # left top
         p6 = Point2D(-b / 2, h / 2 - h1)  # left middle 2
-        p7 = Point2D(-b1 / 2, h / 2 - h1) # left middle 1
-        p8 = Point2D(-b1 / 2, -h / 2) # left bottom
+        p7 = Point2D(-b1 / 2, h / 2 - h1)  # left middle 1
+        p8 = Point2D(-b1 / 2, -h / 2)  # left bottom
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -77,10 +78,12 @@ class Tshape:
         l7 = Line2D(p7, p8)
         l8 = Line2D(p8, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8])
-        
+        self.curve = PolyCurve2D().by_joined_curves(
+            [l1, l2, l3, l4, l5, l6, l7, l8])
+
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
@@ -93,7 +96,7 @@ class Tshape:
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
         }
-    
+
     @staticmethod
     def deserialize(data):
         tshape = Tshape(
@@ -106,12 +109,14 @@ class Tshape:
 
         tshape.Description = data.get('Description', "T-shape")
         tshape.ID = data.get('ID', "T")
-        tshape.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+        tshape.curve = PolyCurve2D.deserialize(
+            data['curve']) if 'curve' in data else None
 
         return tshape
 
     def __str__(self):
         return "Profile(" + f"{self.name})"
+
 
 class Lshape:
     def __init__(self, name, h, b, h1, b1):
@@ -131,8 +136,8 @@ class Lshape:
         # describe points
         p1 = Point2D(b / 2, -h / 2)  # right bottom
         p2 = Point2D(b / 2, -h / 2 + h1)  # right middle
-        p3 = Point2D(-b / 2 + b1, -h / 2 + h1) # middle
-        p4 = Point2D(-b / 2 + b1, h / 2) # middle top
+        p3 = Point2D(-b / 2 + b1, -h / 2 + h1)  # middle
+        p4 = Point2D(-b / 2 + b1, h / 2)  # middle top
         p5 = Point2D(-b / 2, h / 2)  # left top
         p6 = Point2D(-b / 2, -h / 2)  # left bottom
 
@@ -144,9 +149,8 @@ class Lshape:
         l5 = Line2D(p5, p6)
         l6 = Line2D(p6, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6])
+        self.curve = PolyCurve2D().by_joined_curves([l1, l2, l3, l4, l5, l6])
 
-        
     def serialize(self):
         return {
             'Description': self.Description,
@@ -160,7 +164,7 @@ class Lshape:
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
         }
-    
+
     @staticmethod
     def deserialize(data):
         lshape = Lshape(
@@ -175,12 +179,14 @@ class Lshape:
         lshape.ID = data.get('ID', "L")
         lshape.id = data.get('id')
         lshape.type = data.get('type')
-        lshape.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+        lshape.curve = PolyCurve2D.deserialize(
+            data['curve']) if 'curve' in data else None
 
-        return lshape    
+        return lshape
 
     def __str__(self):
         return "Profile(" + f"{self.name})"
+
 
 class Eshape:
     def __init__(self, name, h, b, h1):
@@ -189,7 +195,7 @@ class Eshape:
 
         # parameters
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -224,7 +230,8 @@ class Eshape:
         l11 = Line2D(p11, p12)
         l12 = Line2D(p12, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve2D().by_joined_curves(
+            [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
     def serialize(self):
         return {
@@ -238,7 +245,7 @@ class Eshape:
             'h1': self.h1,
             'curve': self.curve.serialize() if self.curve else None
         }
-    
+
     @staticmethod
     def deserialize(data):
         eshape = Eshape(
@@ -252,7 +259,8 @@ class Eshape:
         eshape.ID = data.get('ID', "E")
         eshape.id = data.get('id')
         eshape.type = data.get('type')
-        eshape.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+        eshape.curve = PolyCurve2D.deserialize(
+            data['curve']) if 'curve' in data else None
 
         return eshape
 
@@ -267,7 +275,7 @@ class Nshape:
 
         # parameters
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.name = name
         self.curve = []
         self.h = h  # height
@@ -298,7 +306,8 @@ class Nshape:
         l9 = Line2D(p9, p10)
         l10 = Line2D(p10, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+        self.curve = PolyCurve2D().by_joined_curves(
+            [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
     def serialize(self):
         return {
@@ -312,7 +321,7 @@ class Nshape:
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
         }
-    
+
     @staticmethod
     def deserialize(data):
         nshape = Nshape(
@@ -326,12 +335,14 @@ class Nshape:
         nshape.ID = data.get('ID', "N")
         nshape.id = data.get('id')
         nshape.type = data.get('type')
-        nshape.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+        nshape.curve = PolyCurve2D.deserialize(
+            data['curve']) if 'curve' in data else None
 
         return nshape
 
     def __str__(self):
         return "Profile(" + f"{self.name})"
+
 
 class Arrowshape:
     def __init__(self, name, l, b, b1, l1):
@@ -340,7 +351,7 @@ class Arrowshape:
 
         # parameters
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.name = name
         self.curve = []
         self.l = l  # length
@@ -368,7 +379,8 @@ class Arrowshape:
         l6 = Line2D(p6, p7)
         l7 = Line2D(p7, p1)
 
-        self.curve = PolyCurve2D().byJoinedCurves([l1, l2, l3, l4, l5, l6, l7])
+        self.curve = PolyCurve2D().by_joined_curves(
+            [l1, l2, l3, l4, l5, l6, l7])
 
     def serialize(self):
         return {
@@ -383,7 +395,7 @@ class Arrowshape:
             'l1': self.l1,
             'curve': self.curve.serialize() if self.curve else None
         }
-    
+
     @staticmethod
     def deserialize(data):
         arrowshape = Arrowshape(
@@ -398,7 +410,8 @@ class Arrowshape:
         arrowshape.ID = data.get('ID', "Arrowshape")
         arrowshape.id = data.get('id')
         arrowshape.type = data.get('type')
-        arrowshape.curve = PolyCurve2D.deserialize(data['curve']) if 'curve' in data else None
+        arrowshape.curve = PolyCurve2D.deserialize(
+            data['curve']) if 'curve' in data else None
 
         return arrowshape
 

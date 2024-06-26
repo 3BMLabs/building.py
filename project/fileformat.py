@@ -60,7 +60,7 @@ class BuildingPy:
 
         #export selection info
         self.domain = None
-        self.applicationId = "OPEN-AEC | BuildingPy"
+        self.applicationId = "OPEN-AEC BuildingPy"
 
         #different settings for company's?
 
@@ -88,10 +88,10 @@ class BuildingPy:
 
         #FreeCAD settings
 
-        XAxis = Vector3(1, 0, 0)
-        YAxis = Vector3(0, 1, 0)
-        ZAxis = Vector3(0, 0, 1)
-        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+        X_axis = Vector3(1, 0, 0)
+        Y_Axis = Vector3(0, 1, 0)
+        Z_Axis = Vector3(0, 0, 1)
+        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
     def save(self):
         # print(self.objects)
@@ -123,24 +123,30 @@ class BuildingPy:
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
 
-
     def open(self):
-        pass #open data.json objects in here
+        pass  # open data.json objects in here
 
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)
-        TransportToSpeckle(self.speckleserver,streamid,speckleobj,commitstring)
+        TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
 
     def toFreeCAD(self):
-        from exchange.freecad_bupy import translateObjectsToFreeCAD
+        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
         translateObjectsToFreeCAD(self.objects)
 
-    def toIFC(self):
-        from exchange.IFC import translateObjectsToIFC
-        translateObjectsToIFC(self.objects)
-
+    def toIFC(self, name):
+        from exchange.IFC import translateObjectsToIFC, CreateIFC
+        ifc_project = CreateIFC()
+        ifc_project.add_project(name)
+        ifc_project.add_site("My Site")
+        ifc_project.add_building("Building A")
+        ifc_project.add_storey("Ground Floor")
+        ifc_project.add_storey("G2Floor")     
+        translateObjectsToIFC(self.objects, ifc_project)
+        ifc_project.export(f"{name}.ifc")
 # [!not included in BP singlefile - end]
 
-project = BuildingPy("Project","0")
+
+project = BuildingPy("Project", "0")

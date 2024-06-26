@@ -27,18 +27,17 @@
 """This module provides tools for coordinatesystems
 """
 
-from geometry.point import Point
-from abstract.vector import *
-from pathlib import Path
-import sys
-import os
-import math
 __title__ = "coordinatesystem"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/coordinatesystem.py"
 
+import sys
+from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from geometry.point import Point
+from abstract.vector import *
 
 # from project.fileformat import project
 
@@ -47,15 +46,45 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED #TOdo organize resic
-    def __init__(self, origin: Point, xaxis, yaxis, zaxis):
+    """The `CoordinateSystem` class represents a coordinate system in 3D space, defined by an origin point and three orthogonal unit vectors along the X, Y, and Z axes."""
+    def __init__(self, origin: Point, x_axis, y_axis, z_axis):
+        """Initializes a new CoordinateSystem instance.
+
+        #### Parameters:
+        - `origin` (Point): The origin point of the coordinate system.
+        - `x_axis` (Vector3): The X-axis direction vector.
+        - `y_axis` (Vector3): The Y-axis direction vector.
+        - `z_axis` (Vector3): The Z-axis direction vector.
+
+        #### Example usage:
+        ```python
+        origin = Point(0, 0, 0)
+        x_axis = Vector3(1, 0, 0)
+        y_axis = Vector3(0, 1, 0)
+        z_axis = Vector3(0, 0, 1)
+        coordinate_system = CoordinateSystem(origin, x_axis, y_axis, z_axis)
+        ```
+        """
+
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(xaxis)
-        self.Yaxis = Vector3.normalize(yaxis)
-        self.Zaxis = Vector3.normalize(zaxis)
+        self.Xaxis = Vector3.normalize(x_axis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
-    def serialize(self):
+    def serialize(self) -> dict:
+        """Serializes the coordinate system's attributes into a dictionary.
+
+        #### Returns:
+        `dict`: A dictionary containing the serialized attributes of the coordinate system.
+
+        #### Example usage:
+        ```python
+        coordinate_system = CoordinateSystem(...)
+        serialized_cs = coordinate_system.serialize()
+        ```
+        """
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
         return {
@@ -63,144 +92,321 @@ class CoordinateSystem:
             'type': self.type,
             'Origin': self.Origin.serialize(),
             'Xaxis': self.Xaxis.serialize(),
-            'Yaxis': self.Yaxis.serialize(),
-            'Zaxis': self.Zaxis.serialize()
+            'Y_axis': self.Y_axis.serialize(),
+            'Z_axis': self.Z_axis.serialize()
         }
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data: dict):
+        """Recreates a CoordinateSystem object from serialized data.
+
+        #### Parameters:
+        - `data` (dict): The dictionary containing the serialized data of a CoordinateSystem object.
+
+        #### Returns:
+        `CoordinateSystem`: A new CoordinateSystem object initialized with the data from the dictionary.
+
+        #### Example usage:
+        ```python
+        data = {...}
+        coordinate_system = CoordinateSystem.deserialize(data)
+        ```
+        """
         origin = Point.deserialize(data['Origin'])
-        xaxis = Vector3.deserialize(data['Xaxis'])
-        yaxis = Vector3.deserialize(data['Yaxis'])
-        zaxis = Vector3.deserialize(data['Zaxis'])
-        return CoordinateSystem(origin, xaxis, yaxis, zaxis)
+        x_axis = Vector3.deserialize(data['Xaxis'])
+        y_axis = Vector3.deserialize(data['Y_axis'])
+        z_axis = Vector3.deserialize(data['Z_axis'])
+        return CoordinateSystem(origin, x_axis, y_axis, z_axis)
 
     # @classmethod
     # def by_origin(self, origin: Point):
     #     self.Origin = origin
-    #     self.Xaxis = XAxis
-    #     self.Yaxis = YAxis
-    #     self.Zaxis = ZAxis
+    #     self.Xaxis = X_axis
+    #     self.Y_axis = Y_Axis
+    #     self.Z_axis = Z_Axis
     #     return self
 
     @classmethod
-    def by_origin(self, origin: Point):
-        from abstract.coordinatesystem import XAxis, YAxis, ZAxis
-        return self(origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+    def by_origin(self, origin: Point) -> 'CoordinateSystem':
+        """Creates a CoordinateSystem with a new origin while keeping the standard orientation.
+
+        #### Parameters:
+        - `origin` (Point): The new origin point of the coordinate system.
+
+        #### Returns:
+        `CoordinateSystem`: A CoordinateSystem instance with the specified origin and standard axes orientation.
+
+        #### Example usage:
+        ```python
+        new_origin = Point(10, 10, 10)
+        coordinate_system = CoordinateSystem.by_origin(new_origin)
+        ```
+        """
+        from abstract.coordinatesystem import X_axis, Y_Axis, Z_Axis
+        return self(origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
 
     # @staticmethod
-    # def translate(CSOld, direction):
-    #     CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Yaxis, CSOld.Zaxis)
+    # def translate(cs_old, direction):
+    #     CSNew = CoordinateSystem(cs_old.Origin, cs_old.Xaxis, cs_old.Y_axis, cs_old.Z_axis)
     #     new_origin = Point.translate(CSNew.Origin, direction)
     #     CSNew.Origin = new_origin
     #     return CSNew
 
     @staticmethod
-    def translate(CSOld, direction: Vector3):
+    def translate(cs_old, direction: Vector3):
+        """Translates an existing CoordinateSystem by a given direction vector.
+
+        #### Parameters:
+        - `cs_old` (CoordinateSystem): The original CoordinateSystem to be translated.
+        - `direction` (Vector3): The direction vector by which to translate the coordinate system.
+
+        #### Returns:
+        `CoordinateSystem`: A new CoordinateSystem instance translated according to the direction vector.
+
+        #### Example usage:
+        ```python
+        original_cs = CoordinateSystem(...)
+        direction_vector = Vector3(5, 5, 0)
+        translated_cs = CoordinateSystem.translate(original_cs, direction_vector)
+        ```
+        """
         from abstract.vector import Vector3
-        pt = CSOld.Origin
+        pt = cs_old.Origin
         new_origin = Point.translate(pt, direction)
 
-        XAxis = Vector3(1, 0, 0)
+        X_axis = Vector3(1, 0, 0)
 
-        YAxis = Vector3(0, 1, 0)
+        Y_Axis = Vector3(0, 1, 0)
 
-        ZAxis = Vector3(0, 0, 1)
+        Z_Axis = Vector3(0, 0, 1)
 
         CSNew = CoordinateSystem(
-            new_origin, xaxis=XAxis, yaxis=YAxis, zaxis=ZAxis)
+            new_origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
 
         CSNew.Origin = new_origin
         return CSNew
 
-
     @staticmethod
-    def transform(CS1, CS2): #incorrect output
-        """
-        Transforms CS1 into the coordinate system defined by CS2.
-        :param CS1: The original CoordinateSystem instance.
-        :param CS2: The target CoordinateSystem instance.
-        :return: A new CoordinateSystem instance aligned with CS2.
+    def transform(CS1, CS2):
+        """Transforms one coordinate system (CS1) to align with another (CS2).
+
+        This method calculates the transformation required to align CS1's axes with those of CS2, including translation and rotation.
+
+        #### Parameters:
+        - `CS1` (CoordinateSystem): The original coordinate system to be transformed.
+        - `CS2` (CoordinateSystem): The target coordinate system to align with.
+
+        #### Returns:
+        `CoordinateSystem`: A new CoordinateSystem instance that has been transformed to align with CS2.
+
+        #### Example usage:
+        ```python
+        CS1 = CoordinateSystem(...)
+        CS2 = CoordinateSystem(...)
+        transformed_CS = CoordinateSystem.transform(CS1, CS2)
+        ```
         """
         from abstract.vector import Vector3
-        import numpy as np
 
         translation_vector = Vector3.subtract(CS2.Origin, CS1.Origin)
 
         rotation_matrix = CoordinateSystem.calculate_rotation_matrix(
-            CS1.Xaxis, CS1.Yaxis, CS1.Zaxis, CS2.Xaxis, CS2.Yaxis, CS2.Zaxis)
+            CS1.Xaxis, CS1.Y_axis, CS1.Z_axis, CS2.Xaxis, CS2.Y_axis, CS2.Z_axis)
 
-        xaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Xaxis))
-        yaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Yaxis))
-        zaxis_transformed = np.dot(rotation_matrix, Vector3.to_matrix(CS1.Zaxis))
+        xaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Xaxis)
+        yaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Y_axis)
+        zaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Z_axis)
 
-        xaxis_normalized = Vector3.normalize(Vector3.from_matrix(xaxis_transformed))
-        yaxis_normalized = Vector3.normalize(Vector3.from_matrix(yaxis_transformed))
-        zaxis_normalized = Vector3.normalize(Vector3.from_matrix(zaxis_transformed))
+        xaxis_normalized = Vector3.normalize(
+            Vector3.from_matrix(xaxis_transformed))
+        yaxis_normalized = Vector3.normalize(
+            Vector3.from_matrix(yaxis_transformed))
+        zaxis_normalized = Vector3.normalize(
+            Vector3.from_matrix(zaxis_transformed))
 
         new_origin = Point.translate(CS1.Origin, translation_vector)
-        new_CS = CoordinateSystem(new_origin, xaxis_normalized, yaxis_normalized, zaxis_normalized)
+        new_CS = CoordinateSystem(
+            new_origin, xaxis_normalized, yaxis_normalized, zaxis_normalized)
 
         return new_CS
 
-
     @staticmethod
     def translate_origin(origin1: Point, origin2: Point):
+        """Translates the origin of a coordinate system from one point to another.
 
-        origin1_np = np.array([origin1.x, origin1.y, origin1.z])
-        origin2_np = np.array([origin2.x, origin2.y, origin2.z])
+        #### Parameters:
+        - `origin1` (Point): The original origin point.
+        - `origin2` (Point): The new origin point to translate to.
 
-        new_origin_np = origin1_np + (origin2_np - origin1_np)
-        return Point(new_origin_np[0], new_origin_np[1], new_origin_np[2])
+        #### Returns:
+        `Point`: The new origin point after translation.
+
+        #### Example usage:
+        ```python
+        origin1 = Point(0, 0, 0)
+        origin2 = Point(5, 5, 5)
+        new_origin = CoordinateSystem.translate_origin(origin1, origin2)
+        ```
+        """
+        origin1_n = Point.to_matrix(origin1)
+        origin2_n = Point.to_matrix(origin2)
+
+        new_origin_n = origin1_n + (origin2_n - origin1_n)
+        return Point(new_origin_n[0], new_origin_n[1], new_origin_n[2])
 
     @staticmethod
     def calculate_rotation_matrix(xaxis1: Vector3, yaxis1: Vector3, zaxis1: Vector3, xaxis2: Vector3, yaxis2: Vector3, zaxis2: Vector3):
+        """Calculates the rotation matrix needed to align one set of axes with another.
+
+        #### Parameters:
+        - `xaxis1`, `yaxis1`, `zaxis1`: The original axes vectors.
+        - `xaxis2`, `yaxis2`, `zaxis2`: The target axes vectors to align with.
+
+        #### Returns:
+        A matrix representing the rotation required to align the first set of axes with the second.
+
+        #### Example usage:
+        ```python
+        xaxis1 = Vector3(1, 0, 0)
+        yaxis1 = Vector3(0, 1, 0)
+        zaxis1 = Vector3(0, 0, 1)
+        xaxis2 = Vector3(0, 1, 0)
+        yaxis2 = Vector3(-1, 0, 0)
+        zaxis2 = Vector3(0, 0, 1)
+        rotation_matrix = CoordinateSystem.calculate_rotation_matrix(xaxis1, yaxis1, zaxis1, xaxis2, yaxis2, zaxis2)
+        ```
+        """
         from abstract.vector import Vector3
 
-        R1 = np.array([Vector3.to_matrix(xaxis1), Vector3.to_matrix(
-            yaxis1), Vector3.to_matrix(zaxis1)]).T
-        R2 = np.array([Vector3.to_matrix(xaxis2), Vector3.to_matrix(
-            yaxis2), Vector3.to_matrix(zaxis2)]).T
+        def transpose(matrix):
+            return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
 
-        rotation_matrix = np.dot(R2, np.linalg.inv(R1))
-        return rotation_matrix
+        def matrix_multiply(matrix1, matrix2):
+            result = []
+            for i in range(len(matrix1)):
+                row = []
+                for j in range(len(matrix2[0])):
+                    sum = 0
+                    for k in range(len(matrix2)):
+                        sum += matrix1[i][k] * matrix2[k][j]
+                    row.append(sum)
+                result.append(row)
+            return result
+
+        def matrix_inverse(matrix):
+            determinant = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) - \
+                matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) + \
+                matrix[0][2] * (matrix[1][0] * matrix[2][1] -
+                                matrix[1][1] * matrix[2][0])
+            if determinant == 0:
+                raise ValueError("Matrix is not invertible")
+            inv_det = 1.0 / determinant
+            result = [[0] * 3 for _ in range(3)]
+            result[0][0] = (matrix[1][1] * matrix[2][2] -
+                            matrix[1][2] * matrix[2][1]) * inv_det
+            result[0][1] = (matrix[0][2] * matrix[2][1] -
+                            matrix[0][1] * matrix[2][2]) * inv_det
+            result[0][2] = (matrix[0][1] * matrix[1][2] -
+                            matrix[0][2] * matrix[1][1]) * inv_det
+            result[1][0] = (matrix[1][2] * matrix[2][0] -
+                            matrix[1][0] * matrix[2][2]) * inv_det
+            result[1][1] = (matrix[0][0] * matrix[2][2] -
+                            matrix[0][2] * matrix[2][0]) * inv_det
+            result[1][2] = (matrix[0][2] * matrix[1][0] -
+                            matrix[0][0] * matrix[1][2]) * inv_det
+            result[2][0] = (matrix[1][0] * matrix[2][1] -
+                            matrix[1][1] * matrix[2][0]) * inv_det
+            result[2][1] = (matrix[0][1] * matrix[2][0] -
+                            matrix[0][0] * matrix[2][1]) * inv_det
+            result[2][2] = (matrix[0][0] * matrix[1][1] -
+                            matrix[0][1] * matrix[1][0]) * inv_det
+            return result
+
+        R1_transpose = transpose([Vector3.to_matrix(
+            xaxis1), Vector3.to_matrix(yaxis1), Vector3.to_matrix(zaxis1)])
+        R2_transpose = transpose([Vector3.to_matrix(
+            xaxis2), Vector3.to_matrix(yaxis2), Vector3.to_matrix(zaxis2)])
+
+        return matrix_multiply(R2_transpose, matrix_inverse(R1_transpose))
 
     @staticmethod
     def normalize(self):
-        """
-        Normalizes the axes of the coordinate system to make them unit vectors.
+        """Normalizes the axes vectors of a given CoordinateSystem to unit vectors.
+
+        This method ensures that the X, Y, and Z axes of the coordinate system are unit vectors (vectors of length 1), which is essential for many calculations involving directions and orientations in 3D space.
+
+        #### Parameters:
+        - `self` (CoordinateSystem): The coordinate system whose axes vectors are to be normalized.
+
+        #### Returns:
+        `CoordinateSystem`: A new CoordinateSystem instance with normalized axes vectors.
+
+        #### Example usage:
+        ```python
+        CS_before_normalization = CoordinateSystem(
+            origin=Point(0, 0, 0),
+            x_axis=Vector3(10, 0, 0),
+            y_axis=Vector3(0, 10, 0),
+            z_axis=Vector3(0, 0, 10)
+        )
+        CS_after_normalization = CoordinateSystem.normalize(CS_before_normalization)
+        # Now, CS_after_normalization's X, Y, and Z axes are unit vectors.
+        ```
         """
         self.Xaxis = Vector3.normalize(self.Xaxis)
-        self.Yaxis = Vector3.normalize(self.Yaxis)
-        self.Zaxis = Vector3.normalize(self.Zaxis)
-
-    #     norm = np.linalg.norm(v)
-    #     return v / norm if norm > 0 else v
-
-
+        self.Y_axis = Vector3.normalize(self.Y_axis)
+        self.Z_axis = Vector3.normalize(self.Z_axis)
 
     @staticmethod
-    def move_local(CSOld, x: float, y: float, z: float):
+    def move_local(cs_old, x: float, y: float, z: float):
+        """Moves a CoordinateSystem locally along its own axes.
+
+        #### Parameters:
+        - `cs_old` (CoordinateSystem): The coordinate system to move.
+        - `x` (float): The distance to move along the local X-axis.
+        - `y` (float): The distance to move along the local Y-axis.
+        - `z` (float): The distance to move along the local Z-axis.
+
+        #### Returns:
+        `CoordinateSystem`: A new CoordinateSystem instance that has been moved according to the specified distances.
+
+        #### Example usage:
+        ```python
+        cs_old = CoordinateSystem(...)
+        moved_cs = CoordinateSystem.move_local(cs_old, 10, 0, 5)
+        # The returned CoordinateSystem is moved 10 units along its X-axis and 5 units along its Z-axis.
+        ```
+        """
         from abstract.vector import Vector3
         # move coordinatesystem by y in local coordinates(not global)
-        xloc_vect_norm = CSOld.Xaxis
+        xloc_vect_norm = cs_old.Xaxis
         xdisp = Vector3.scale(xloc_vect_norm, x)
-        yloc_vect_norm = CSOld.Xaxis
+        yloc_vect_norm = cs_old.Xaxis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = CSOld.Xaxis
+        zloc_vect_norm = cs_old.Xaxis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
-        CS = CoordinateSystem.translate(CSOld, disp)
+        CS = CoordinateSystem.translate(cs_old, disp)
         return CS
 
-
-
-
-
-
-
     @staticmethod
-    def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ: Vector3):
+    def by_point_main_vector(NewOriginCoordinateSystem: Point, DirectionVectorZ: Vector3) -> 'CoordinateSystem':
+        """Creates a CoordinateSystem with a specified origin and a main direction vector for the Z-axis.
+
+        #### Parameters:
+        - `NewOriginCoordinateSystem` (Point): The origin point of the new CoordinateSystem.
+        - `DirectionVectorZ` (Vector3): The main direction vector to define the new Z-axis.
+
+        #### Returns:
+        `CoordinateSystem`: A CoordinateSystem instance with the specified origin and Z-axis orientation.
+
+        #### Example usage:
+        ```python
+        new_origin = Point(0, 0, 0)
+        main_direction = Vector3(0, 0, 1)
+        coordinate_system = CoordinateSystem.by_point_main_vector(new_origin, main_direction)
+        ```
+        """
         vz = DirectionVectorZ  # LineVector and new Z-axis
         vz = Vector3.normalize(vz)  # NewZAxis
         vx = Vector3.perpendicular(vz)[0]  # NewXAxis
@@ -219,10 +425,10 @@ class CoordinateSystem:
         return CSNew
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, XAxis = {self.Xaxis}, YAxis = {self.Yaxis}, ZAxis = {self.Zaxis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
 
-XAxis = Vector3(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 Vector3(0, 1, 0)
 Vector3(0, 0, 1)
-CSGlobal = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)

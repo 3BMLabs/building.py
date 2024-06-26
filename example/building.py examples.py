@@ -33,7 +33,7 @@ test12 = Vector2(0, 10)
 
 
 # CLASS: COORDINATESYSTEM
-CS = CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis)
+CS = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 
 CSGlobal
 
@@ -41,7 +41,7 @@ CSGlobal
 v1 = Vector3(0, 100, 0)
 v2 = Vector3(100, 100, 0)
 
-plane_ex = Plane.byTwoVectorsOrigin(v1, v2, Point(0, 0, 0))
+plane_ex = Plane.by_two_vectors_origin(v1, v2, Point(0, 0, 0))
 
 # CLASS: Vector3
 
@@ -49,13 +49,13 @@ plane_ex = Plane.byTwoVectorsOrigin(v1, v2, Point(0, 0, 0))
 # v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z
 test1 = Vector3.sum(v1, v2)
 
-# crossProduct ↓
+# cross_product ↓
 # v1.Y*v2.Z - v1.Z*v2.Y, v1.Z*v2.X - v1.X*v2.Z, v1.X*v2.Y - v1.Y*v2.X
-test2 = Vector3.crossProduct(v1, v2)
+test2 = Vector3.cross_product(v1, v2)
 
-# dotProduct ↓
+# dot_product ↓
 # v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z
-test3 = Vector3.dotProduct(v1, v2)
+test3 = Vector3.dot_product(v1, v2)
 
 # product ↓
 # v1.X * n, v1.Y * n, v1.Z * n
@@ -69,10 +69,10 @@ test5 = Vector3.length(v1)
 # v1.X, v1.Y*math.cos(angle) - v1.Z*math.sin(angle), v1.Y*math.sin(angle) + v1.Z*math.cos(angle)
 test6 = Vector3.pitch(v1, 45)
 
-# angleBetween ↓
-# math.degrees(math.acos((Vector3.dotProduct(v1, v2) / (Vector3.length(v1) * Vector3.length(v2)))))
+# angle_between ↓
+# math.degrees(math.acos((Vector3.dot_product(v1, v2) / (Vector3.length(v1) * Vector3.length(v2)))))
 # (Calculate the angle of two vectors)
-test7 = Vector3.angleBetween(v1, v2)
+test7 = Vector3.angle_between(v1, v2)
 
 # reverse ↓
 # Turn positive into negative and the other way around
@@ -91,9 +91,9 @@ test10 = Vector3.normalize(v1)
 p1 = Point(0, 100, 0)
 p2 = Point(0, 300, 0)
 
-# byTwoPoints ↓
+# by_two_points ↓
 # Subtracts point1 x,y and z from point2 x,y and z
-test11 = Vector3.byTwoPoints(p1, p2)
+test11 = Vector3.by_two_points(p1, p2)
 
 # FILE : CURVE
 # CLASS: Line
@@ -112,18 +112,18 @@ Line.length(Line1)
 
 # CLASS: PolyCurve
 # Create a PolyCurve object by joining a list of curves and collecting their starting points
-PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3])
+PC1 = PolyCurve.by_joined_curves([Line1, Line2, Line3])
 
 # Creating a PolyCurve object (PC2) from a list of Points.
 # by points, must be a closed polygon
-PC2 = PolyCurve.byPoints(
+PC2 = PolyCurve.by_points(
     [Point(0, 0, 0),
      Point(2000, 0, 0),
      Point(0, 1000, 2000),
      Point(0, 0, 0)
      ])
 
-ply2D = PolyCurve2D.byJoinedCurves([
+ply2D = PolyCurve2D.by_joined_curves([
     Line2D(
         Point2D(0,0),
         Point2D(100,0)),
@@ -136,20 +136,20 @@ ply2D = PolyCurve2D.byJoinedCurves([
     )
 
 # Creating a PolyCurve object (PC4) from a 3D polygon curve defined by four points.
-PC4 = PolyCurve.byPolyCurve2D(ply2D)
+PC4 = PolyCurve.by_polycurve_2D(ply2D)
 
 # Poly-curve translate moves the curve by v1 vector.
-plycurve.translate(v1)
+PC4.translate(v1)
 
 # Poly-curve Rotate  # NOT SURE WHAT THE INPUT HAS TO BE
-plycurve.rotate(90, 10)
+PC4.rotate(90, 10)
 
 # Polygon # CHECK IF ITS WORKING
 # CLASS: POLYGON
 # create an instance
 # moet nog naar worden gekeken
 flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))]
-plygn1 = PolyGon(flat_curves)
+plygn1 = Polygon(flat_curves)
 
 # CLASS ARC
 # Create a new Arc
@@ -211,7 +211,7 @@ Arc2D.points(testarc)
 
 # Class PolyCurve2D
 # Combine multiple lines and make it as 1 object
-PolyCurve2D.byJoinedCurves([l2d, l2d2, l2d3])
+ply = PolyCurve2D.by_joined_curves([l2d, l2d2, l2d3])
 
 # return all the points within the PolyCurve2D
 PolyCurve2D.points(ply)
@@ -237,8 +237,8 @@ para = ParametricProfile2D()
 # ------------------------
 
 # FILE: Line style
-# LineToPattern
-LTP = lineToPattern(Line(start=Point(0, 1200, 0), end=Point(11400, 1200, 0)), Centerline)
+# line_to_pattern
+LTP = line_to_pattern(Line(start=Point(0, 1200, 0), end=Point(11400, 1200, 0)), Centerline)
 
 # ------------------------
 
@@ -253,30 +253,30 @@ Point.difference(p1, p2)
 Point.translate(p1, v1)
 
 # Transforms a 2D point into a 3D point
-Point.point2DTo3D(p2d)
+Point.point_2D_to_3D(p2d)
 
 # rotate (30 degrees) and translate (5 steps) a 3D point around the Z axis.
-Point.rotateXY(p1, 30, 5)
+Point.rotate_XY(p1, 30, 5)
 
 # Transforms a 3D point from one coordinate system to another using direction vectors.
-transformed_point = transformPoint(p1, CSGlobal, p2, v1)
+transformed_point = transform_point(p1, CSGlobal, p2, v1)
 
 # ------------------------
 
 # FILE: Solid.py
 # Class Extrusion
 # Extrude a 2D profile to a 3D mesh
-Extrusion.byPolyCurveHeightVector(PC1, 20, 30, p1, v1)
-Extrusion.byPolyCurveHeight(PC1, 20, 40)
+Extrusion.by_polycurve_height_vector(PC1, 20, 30, p1, v1)
+Extrusion.by_polycurve_height(PC1, 20, 40)
   
 # ------------------------
 
 # FILE: Datum
-GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")
+GridA = Grid.by_startpoint_endpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")
 
-# getGridDistances
+# get_grid_distances
 # Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
-getGridDistances(GridA)
+get_grid_distances(GridA)
 
 # GridSystem
 spacingX = "4x5400 4000 4000"
@@ -290,17 +290,17 @@ grdsystem = GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension)
 
 # FILE: frame
 # Class Frame
-frame2 = Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
-frame3 = Frame.byStartpointEndpointProfileName(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2", "steel")
-frame4 = Frame.byStartpointEndpointProfileNameShapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
-frame5 = Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
-frame6 = Frame.byStartpointEndpoint(p1, p2, PC1, "test", 90, "Steel")
+frame2 = Frame.by_startpoint_endpoint_profile(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
+frame3 = Frame.by_startpoint_endpoint_profile(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2", "steel")
+frame4 = Frame.by_startpoint_endpoint_profile_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
+frame5 = Frame.by_startpoint_endpoint_profile_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
+frame6 = Frame.by_startpoint_endpoint(p1, p2, PC1, "test", 90, "Steel")
 
 # ------------------------
 
 # CLASS: Panel
-pan = Panel.byPolyCurveThickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
-pan2 = Panel.byBaselineHeight(Line(start=Point(0, -1000, 0),
+pan = Panel.by_polycurve_thickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
+pan2 = Panel.by_baseline_height(Line(start=Point(0, -1000, 0),
                                    end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 
 # ------------------------

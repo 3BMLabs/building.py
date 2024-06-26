@@ -1,7 +1,15 @@
+import sys, os, math
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 import PIL
 from PIL import Image, ImageDraw
 from geometry.geometry2d import *
 from objects.steelshape import *
+from geometry.curve import Arc
+from geometry.point import Point
+
 PC = IShapeParallelFlange("test",200,200,10,15,15).curve
 
 widthpix = 1000 #[pix]
@@ -19,7 +27,7 @@ ymin = bounds[2] - dx
 for i in PC.curves:
     if i.__class__.__name__ == "Arc2D":
         AC = Arc(Point(i.start.x,i.start.y,0),Point(i.mid.x,i.mid.y,0),Point(i.end.x,i.end.y,0))
-        lines = Arc.segmentedarc(AC,10)
+        lines = Arc.segmented_arc(AC,15)
         for i in lines:
             x0 = (i.start.x - xmin) * SF
             y0 = (i.start.y - ymin) * SF

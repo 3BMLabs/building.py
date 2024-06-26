@@ -1,71 +1,70 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools to create 2D profiles 
 """
 
-__title__= "geometry2d"
+__title__ = "geometry2d"
 __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/geometry2d.py"
 
 
 import sys, math
 from pathlib import Path
-import numpy as np
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from helper import *
+from packages.helper import *
 from abstract.vector import Vector3
+from geometry.point import transform_point_2
+from abstract.plane import Plane
 from abstract.coordinatesystem import CoordinateSystem
 from project.fileformat import project
-
 # [!not included in BP singlefile - end]
 
 
 class Vector2:
     def __init__(self, x, y) -> None:
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
         self.y = y
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
             'x': self.x,
             'y': self.y
         }
-    
+
     @staticmethod
     def deserialize(data):
         x = data['x']
@@ -73,7 +72,7 @@ class Vector2:
         return Vector2(x, y)
 
     @staticmethod
-    def byTwoPoints(p1, p2):
+    def by_two_points(p1, p2):
         return Vector2(
             p2.x-p1.x,
             p2.y-p1.y
@@ -92,11 +91,14 @@ class Vector2:
 
     @staticmethod
     def normalize(v1, axis=-1, order=2):
-        v1 = Vector2.to_matrix(v1)
-        l2 = np.atleast_1d(np.linalg.norm(v1, order, axis))
-        l2[l2==0] = 1
-        i = v1 / np.expand_dims(l2, axis)[0]
-        return Vector2(i[0],i[1])
+        v1_mat = Vector2.to_matrix(v1)
+        l2_norm = math.sqrt(v1_mat[0]**2 + v1_mat[1]**2)
+        if l2_norm == 0:
+            l2_norm = 1
+
+        normalized_v = [v1_mat[0] / l2_norm, v1_mat[1] / l2_norm]
+
+        return Vector2(normalized_v[0], normalized_v[1])
 
     @staticmethod
     def to_matrix(self):
@@ -104,22 +106,22 @@ class Vector2:
 
     @staticmethod
     def from_matrix(self):
-        return Vector2(self[0],self[1])
+        return Vector2(self[0], self[1])
 
-    @staticmethod #inwendig product, if zero, then vectors are perpendicular
-    def dotProduct(v1, v2):
+    @staticmethod  # inwendig product, if zero, then vectors are perpendicular
+    def dot_product(v1, v2):
         return v1.x*v2.x+v1.y*v2.y
 
     @staticmethod
-    def angleBetween(v1, v2):
-        return math.degrees(math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2)))))
+    def angle_between(v1, v2):
+        return math.degrees(math.acos((Vector2.dot_product(v1, v2)/(Vector2.length(v1) * Vector2.length(v2)))))
 
     @staticmethod
-    def angleRadianBetween(v1, v2):
-        return math.acos((Vector2.dotProduct(v1, v2)/(Vector2.length(v1) * Vector2.length(v2))))
+    def angle_radian_between(v1, v2):
+        return math.acos((Vector2.dot_product(v1, v2)/(Vector2.length(v1) * Vector2.length(v2))))
 
-    @staticmethod #Returns vector perpendicular on the two vectors
-    def crossProduct(v1, v2):
+    @staticmethod  # Returns vector perpendicular on the two vectors
+    def cross_product(v1, v2):
         return Vector3(
             v1.y - v2.y,
             v2.x - v1.x,
@@ -133,16 +135,42 @@ class Vector2:
             v1.y*-1
         )
 
+    @staticmethod
+    def sum(vector_1: 'Vector2', vector_2: 'Vector2') -> 'Vector2':
+        """Adds two vectors element-wise.        
+        
+        #### Parameters:
+        - `vector_1` (Vector2): First vector.
+        - `vector_2` (Vector2): Second vector.
+
+        Returns:
+        `Vector2`: Sum of the two input vectors.
+
+        #### Example usage:
+
+        ```python
+        vector_1 = Vector2(19, 18)
+        vector_2 = Vector2(8, 17)
+        output = Vector2.sum(vector_1, vector_2)
+        # Vector3()
+        ```
+        """
+        return Vector2(
+            vector_1.x + vector_2.x,
+            vector_1.y + vector_2.y
+        )
+
     def __id__(self):
         return f"id:{self.id}"
 
     def __str__(self) -> str:
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f})"
 
+
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.x = x
         self.y = y
         self.x = float(x)
@@ -151,14 +179,15 @@ class Point2D:
         self.units = "mm"
 
     def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
         return {
             'id': id_value,
             'type': self.type,
             'x': self.x,
             'y': self.y
         }
-    
+
     @staticmethod
     def deserialize(data):
         x = data['x']
@@ -167,12 +196,16 @@ class Point2D:
 
     def __id__(self):
         return f"id:{self.id}"
-    
+
     def translate(self, vector: Vector2):
         x = self.x + vector.x
         y = self.y + vector.y
         p1 = Point2D(x, y)
         return p1
+
+    @staticmethod
+    def dot_product(p1, p2):
+        return p1.x*p2.x+p1.y*p2.y
 
     def rotate(self, rotation):
         x = self.x
@@ -180,8 +213,8 @@ class Point2D:
         r = math.sqrt(x * x + y * y)
         rotationstart = math.degrees(math.atan2(y, x))
         rotationtot = rotationstart + rotation
-        xn = round(math.cos(math.radians(rotationtot)) * r,3)
-        yn = round(math.sin(math.radians(rotationtot)) * r,3)
+        xn = round(math.cos(math.radians(rotationtot)) * r, 3)
+        yn = round(math.sin(math.radians(rotationtot)) * r, 3)
         p1 = Point2D(xn, yn)
         return p1
 
@@ -197,36 +230,41 @@ class Point2D:
         return Point2D((point2.x-point1.x)/2, (point2.y-point1.y)/2)
 
     @staticmethod
-    def toPixel(point1, Xmin, Ymin, TotalWidth, TotalHeight, ImgWidthPix: int, ImgHeightPix: int):
-      # Convert Point to pixel on a image given a deltaX, deltaY, Width of the image etc.
-      x = point1.x
-      y = point1.y
-      xpix = math.floor(((x - Xmin) / TotalWidth) * ImgWidthPix)
-      ypix = ImgHeightPix-math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix) # min vanwege coord stelsel Image.Draw
-      return xpix, ypix
+    def to_pixel(point1, Xmin, Ymin, TotalWidth, TotalHeight, ImgWidthPix: int, ImgHeightPix: int):
+        # Convert Point to pixel on a image given a deltaX, deltaY, Width of the image etc.
+        x = point1.x
+        y = point1.y
+        xpix = math.floor(((x - Xmin) / TotalWidth) * ImgWidthPix)
+        # min vanwege coord stelsel Image.Draw
+        ypix = ImgHeightPix - \
+            math.floor(((y - Ymin) / TotalHeight) * ImgHeightPix)
+        return xpix, ypix
 
-def transformPoint2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
+
+def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
     from abstract.vector import Vector3
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    #pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    #pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Yaxis, PointLocal.y))
-    pn3 = Point2D.translate(PointLocal,Vector2(CoordinateSystemNew.Origin.x,CoordinateSystemNew.Origin.y))
-    #pn3 = Point2D(pn.x,pn.y)
+    # pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    pn3 = Point2D.translate(PointLocal, Vector2(
+        CoordinateSystemNew.Origin.x, CoordinateSystemNew.Origin.y))
+    # pn3 = Point2D(pn.x,pn.y)
     return pn3
+
 
 class Line2D:
     def __init__(self, start, end) -> None:
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.start: Point2D = start
         self.end: Point2D = end
         self.x = [self.start.x, self.end.x]
         self.y = [self.start.y, self.end.y]
         self.dx = self.start.x-self.end.x
         self.dy = self.start.y-self.end.y
-        self.vector2: Vector2 = Vector2.byTwoPoints(self.start,self.end)
+        self.vector2: Vector2 = Vector2.by_two_points(self.start, self.end)
         self.vector2_normalised = Vector2.normalize(self.vector2)
         self.length = self.length()
         self.id = generateID()
@@ -254,142 +292,423 @@ class Line2D:
         return f"id:{self.id}"
 
     def mid_point(self):
-        vect = Vector2.scale(self.vector2,0.5)
-        mid = Point2D.translate(self.start,vect)
+        vect = Vector2.scale(self.vector2, 0.5)
+        mid = Point2D.translate(self.start, vect)
         return mid
 
     def length(self):
         return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy))
 
-    def fline(self):
-        #returns line for Folium(GIS)
-        return [[self.start.y,self.start.x],[self.end.y,self.end.x]]
-    
+    def f_line(self):
+        # returns line for Folium(GIS)
+        return [[self.start.y, self.start.x], [self.end.y, self.end.x]]
+
     def __str__(self):
         return f"{__class__.__name__}(" + f"Start: {self.start}, End: {self.end})"
 
 
+# class Arc2D:
+#     def __init__(self, pntxy1, pntxy2, pntxy3) -> None:
+#         self.id = generateID()
+#         self.type = __class__.__name__
+#         self.start: Point2D = pntxy1
+#         self.mid: Point2D = pntxy2
+#         self.end: Point2D = pntxy3
+#         self.origin = self.origin_arc()
+#         self.angle_radian = self.angle_radian()
+#         self.radius = self.radius_arc()
+#         self.normal = Vector3(0, 0, 1)
+#         self.xdir = Vector3(1, 0, 0)
+#         self.ydir = Vector3(0, 1, 0)
+#         self.coordinatesystem = self.coordinatesystem_arc()
+
+#     def serialize(self):
+#         id_value = str(self.id) if not isinstance(
+#             self.id, (str, int, float)) else self.id
+#         return {
+#             'id': id_value,
+#             'type': self.type,
+#             'start': self.start.serialize(),
+#             'mid': self.mid.serialize(),
+#             'end': self.end.serialize(),
+#             'origin': self.origin,
+#             'angle_radian': self.angle_radian,
+#             'coordinatesystem': self.coordinatesystem
+#         }
+
+#     @staticmethod
+#     def deserialize(data):
+#         start_point = Point2D.deserialize(data['start'])
+#         mid_point = Point2D.deserialize(data['mid'])
+#         end_point = Point2D.deserialize(data['end'])
+#         arc = Arc2D(start_point, mid_point, end_point)
+
+#         arc.origin = data.get('origin')
+#         arc.angle_radian = data.get('angle_radian')
+#         arc.coordinatesystem = data.get('coordinatesystem')
+
+#         return arc
+
+#     def __id__(self):
+#         return f"id:{self.id}"
+
+#     def points(self):
+#         # returns point on the curve
+#         return (self.start, self.mid, self.end)
+
+#     def coordinatesystem_arc(self):
+#         vx2d = Vector2.by_two_points(self.origin, self.start)  # Local X-axe
+#         vx = Vector3(vx2d.x, vx2d.y, 0)
+#         vy = Vector3(vx.y, vx.x * -1, 0)
+#         vz = Vector3(0, 0, 1)
+#         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(
+#             vx), Vector3.normalize(vy), Vector3.normalize(vz))
+#         return self.coordinatesystem
+
+#     def angle_radian(self):
+#         v1 = Vector2.by_two_points(self.origin, self.end)
+#         v2 = Vector2.by_two_points(self.origin, self.start)
+#         angle = Vector2.angle_radian_between(v1, v2)
+#         return angle
+
+#     def origin_arc(self):
+#         # calculation of origin of arc #Todo can be simplified for sure
+#         Vstartend = Vector2.by_two_points(self.start, self.end)
+#         halfVstartend = Vector2.scale(Vstartend, 0.5)
+#         # half distance between start and end
+#         b = 0.5 * Vector2.length(Vstartend)
+#         try:
+#             # distance from start-end line to origin
+#             x = math.sqrt(Arc2D.radius_arc(self) *
+#                           Arc2D.radius_arc(self) - b * b)
+#         except:
+#             x = 0
+#         mid = Point2D.translate(self.start, halfVstartend)
+#         v2 = Vector2.by_two_points(self.mid, mid)
+#         v3 = Vector2.normalize(v2)
+#         tocenter = Vector2.scale(v3, x)
+#         center = Point2D.translate(mid, tocenter)
+#         self.origin = center
+#         return center
+
+#     def radius_arc(self):
+#         a = Vector2.length(Vector2.by_two_points(self.start, self.mid))
+#         b = Vector2.length(Vector2.by_two_points(self.mid, self.end))
+#         c = Vector2.length(Vector2.by_two_points(self.end, self.start))
+#         s = (a + b + c) / 2
+#         A = math.sqrt(s * (s-a) * (s-b) * (s-c))
+#         R = (a * b * c) / (4 * A)
+#         return R
+
+#     @staticmethod
+#     def points_at_parameter(arc, count: int):
+#         # ToDo can be simplified. Now based on the 3D variant
+#         d_alpha = arc.angle_radian / (count - 1)
+#         alpha = 0
+#         pnts = []
+#         for i in range(count):
+#             pnts.append(Point2D(arc.radius * math.cos(alpha),
+#                         arc.radius * math.sin(alpha)))
+#             alpha = alpha + d_alpha
+#         CSNew = arc.coordinatesystem
+#         pnts2 = []
+#         for i in pnts:
+#             pnts2.append(transform_point_2D(i, CSNew))
+#         return pnts2
+
+#     @staticmethod
+#     def segmented_arc(arc, count):
+#         pnts = Arc2D.points_at_parameter(arc, count)
+#         i = 0
+#         lines = []
+#         for j in range(len(pnts)-1):
+#             lines.append(Line2D(pnts[i], pnts[i+1]))
+#             i = i + 1
+#         return lines
+
+#     def __str__(self):
+#         return f"{__class__.__name__}({self.start},{self.mid},{self.end})"
+
+
 class Arc2D:
-    def __init__(self,pntxy1,pntxy2,pntxy3) -> None:
+    def __init__(self, startPoint: 'Point2D', midPoint: 'Point2D', endPoint: 'Point2D') -> 'Arc2D':
+        """Initializes an Arc object with start, mid, and end points.
+        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
+
+        - `startPoint` (Point2D): The starting point of the arc.
+        - `midPoint` (Point2D): The mid point of the arc which defines its curvature.
+        - `endPoint` (Point2D): The ending point of the arc.
+        """
         self.id = generateID()
-        self.type = __class__.__name__        
-        self.start:Point2D = pntxy1
-        self.mid: Point2D = pntxy2
-        self.end: Point2D = pntxy3
-        self.origin = self.originarc()
-        self.angleRadian = self.angleRadian()
-        self.radius = self.radiusarc()
-        #self.radius = self.radiusarc()
-        self.coordinatesystem = self.coordinatesystemarc()
-        #self.length
+        self.type = __class__.__name__
+        self.start = startPoint
+        self.mid = midPoint
+        self.end = endPoint
+        self.origin = self.origin_arc()
+        vector_1 = Vector3(x=1, y=0, z=0)
+        vector_2 = Vector3(x=0, y=1, z=0)
+        self.plane = Plane.by_two_vectors_origin(
+            vector_1,
+            vector_2,
+            self.origin
+        )
+        self.radius = self.radius_arc()
+        self.startAngle = 0
+        self.endAngle = 0
+        self.angle_radian = self.angle_radian()
+        self.area = 0
+        self.length = self.length()
+        self.units = project.units
+        self.coordinatesystem = None #self.coordinatesystem_arc()
 
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'start': self.start.serialize(),
-            'mid': self.mid.serialize(),
-            'end': self.end.serialize(),
-            'origin': self.origin,
-            'angleRadian': self.angleRadian,
-            'coordinatesystem': self.coordinatesystem
-        }
+    def distance(self, point_1: 'Point2D', point_2: 'Point2D') -> float:
+        """Calculates the Euclidean distance between two points in 3D space.
 
-    @staticmethod
-    def deserialize(data):
-        start_point = Point2D.deserialize(data['start'])
-        mid_point = Point2D.deserialize(data['mid'])
-        end_point = Point2D.deserialize(data['end'])
-        arc = Arc2D(start_point, mid_point, end_point)
-        
-        arc.origin = data.get('origin')
-        arc.angleRadian = data.get('angleRadian')
-        arc.coordinatesystem = data.get('coordinatesystem')
+        #### Parameters:
+        - `point_1` (Point2D): The first point.
+        - `point_2` (Point2D): The second point.
 
-        return arc
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
 
-    def __id__(self):
-        return f"id:{self.id}"
+        #### Example usage:
+        ```python
+        point1 = Point2D(1, 2)
+        point2 = Point2D(4, 5)
+        distance = arc.distance(point1, point2)
+        # distance will be the Euclidean distance between point1 and point2
+        ```
+        """
+        return math.sqrt((point_2.x - point_1.x) ** 2 + (point_2.y - point_1.y) ** 2)
 
-    def points(self):
-        #returns point on the curve
-        return (self.start, self.mid, self.end)
+    def coordinatesystem_arc(self) -> 'CoordinateSystem':
+        """Calculates and returns the coordinate system of the arc.
+        The coordinate system is defined by the origin of the arc and the normalized vectors along the local X, Y, and Z axes.
 
-    def coordinatesystemarc(self):
-        vx2d = Vector2.byTwoPoints(self.origin, self.start)  # Local X-axe
-        vx = Vector3(vx2d.x, vx2d.y, 0)
-        vy = Vector3(vx.y, vx.x * -1,0)
-        vz = Vector3(0,0,1)
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy), Vector3.normalize(vz))
+        #### Returns:
+        `CoordinateSystem`: The coordinate system of the arc.
+
+        #### Example usage:
+        ```python
+        coordinatesystem = arc.coordinatesystem_arc()
+        # coordinatesystem will be an instance of CoordinateSystem representing the arc's local coordinate system
+        ```
+        """
+        vx = Vector2.by_two_points(self.origin, self.start)  # Local X-axe
+        vector_2 = Vector2.by_two_points(self.end, self.origin)
+        vz = Vector2.cross_product(vx, vector_2)  # Local Z-axe
+        vy = Vector2.cross_product(vx, vz)  # Local Y-axe
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector2.normalize(vx), Vector2.normalize(vy),
+                                                 Vector2.normalize(vz))
         return self.coordinatesystem
 
-    def angleRadian(self):
-        v1 = Vector2.byTwoPoints(self.origin, self.end)
-        v2 = Vector2.byTwoPoints(self.origin, self.start)
-        angle = Vector2.angleRadianBetween(v1,v2)
-        return angle
+    def radius_arc(self) -> 'float':
+        """Calculates and returns the radius of the arc.
+        The radius is computed based on the distances between the start, mid, and end points of the arc.
 
-    def originarc(self):
-        #calculation of origin of arc #Todo can be simplified for sure
-        Vstartend = Vector2.byTwoPoints(self.start, self.end)
-        halfVstartend = Vector2.scale(Vstartend,0.5)
-        b = 0.5 * Vector2.length(Vstartend) #half distance between start and end
-        try:
-            x = math.sqrt(Arc2D.radiusarc(self) * Arc2D.radiusarc(self) - b * b) #distance from start-end line to origin
-        except:
-            x = 0
-        mid = Point2D.translate(self.start, halfVstartend)
-        v2 = Vector2.byTwoPoints(self.mid, mid)
-        v3 = Vector2.normalize(v2)
-        tocenter = Vector2.scale(v3, x)
-        center = Point2D.translate(mid, tocenter)
-        self.origin = center
-        return center
+        #### Returns:
+        `float`: The radius of the arc.
 
-    def radiusarc(self):
-        a = Vector2.length(Vector2.byTwoPoints(self.start, self.mid))
-        b = Vector2.length(Vector2.byTwoPoints(self.mid, self.end))
-        c = Vector2.length(Vector2.byTwoPoints(self.end, self.start))
+        #### Example usage:
+        ```python
+        radius = arc.radius_arc()
+        # radius will be the calculated radius of the arc
+        ```
+        """
+        a = self.distance(self.start, self.mid)
+        b = self.distance(self.mid, self.end)
+        c = self.distance(self.end, self.start)
         s = (a + b + c) / 2
-        A = math.sqrt(s * (s-a) * (s-b) * (s-c))
+        A = math.sqrt(s * (s - a) * (s - b) * (s - c))
         R = (a * b * c) / (4 * A)
         return R
 
+    def origin_arc(self) -> 'Point2D':
+        """Calculates and returns the origin of the arc.
+        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
+
+        #### Returns:
+        `Point`: The calculated origin point of the arc.
+
+        #### Example usage:
+        ```python
+        origin = arc.origin_arc()
+        # origin will be the calculated origin point of the arc
+        ```
+        """
+        # calculation of origin of arc #Todo can be simplified for sure
+        Vstartend = Vector2.by_two_points(self.start, self.end)
+        halfVstartend = Vector2.scale(Vstartend, 0.5)
+        # half distance between start and end
+        b = 0.5 * Vector2.length(Vstartend)
+        # distance from start-end line to origin
+        # print(Arc2D.radius_arc(self), Arc2D.radius_arc(self), b)
+        try:
+            x = math.sqrt(Arc2D.radius_arc(self) * Arc2D.radius_arc(self) - b * b)
+        except:
+            x = 0
+        mid = Point2D.translate(self.start, halfVstartend)
+        vector_2 = Vector2.by_two_points(self.mid, mid)
+        vector_3 = Vector2.normalize(vector_2)
+        tocenter = Vector2.scale(vector_3, x)
+        center = Point2D.translate(mid, tocenter)
+        return center
+
+    def angle_radian(self) -> 'float':
+        """Calculates and returns the total angle of the arc in radians.
+        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
+
+        #### Returns:
+        `float`: The total angle of the arc in radians.
+
+        #### Example usage:
+        ```python
+        angle = arc.angle_radian()
+        # angle will be the total angle of the arc in radians
+        ```
+        """
+        vector_1 = Vector2.by_two_points(self.origin, self.end)
+        vector_2 = Vector2.by_two_points(self.origin, self.start)
+        vector_3 = Vector2.by_two_points(self.origin, self.mid)
+        vector_4 = Vector2.sum(vector_1, vector_2)
+        try:
+            v4b = Vector2.new_length(vector_4, self.radius)
+            if Vector2.value(vector_3) == Vector2.value(v4b):
+                angle = Vector2.angle_radian_between(vector_1, vector_2)
+            else:
+                angle = 2*math.pi-Vector2.angle_radian_between(vector_1, vector_2)
+            return angle
+        except:
+            angle = 2*math.pi-Vector2.angle_radian_between(vector_1, vector_2)
+            return angle
+
+    def length(self) -> 'float':
+        """Calculates and returns the length of the arc.
+        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
+
+        #### Returns:
+        `float`: The length of the arc.
+
+        #### Example usage:
+        ```python
+        length = arc.length()
+        # length will be the calculated length of the arc
+        ```
+        """
+        x1, y1, z1 = self.start.x, self.start.y, 0
+        x2, y2, z2 = self.mid.x, self.mid.y, 0
+        x3, y3, z3 = self.end.x, self.end.y, 0
+
+        r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
+        a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+        b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
+        c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
+        cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+        m1 = math.acos(cos_angle)
+        arc_length = r1 * m1
+
+        return arc_length
 
     @staticmethod
-    def pointsAtParameter(arc, count: int):
-        #ToDo can be simplified. Now based on the 3D variant
-        d_alpha = arc.angleRadian / (count - 1)
+    def points_at_parameter(arc: 'Arc2D', count: 'int') -> 'list':
+        """Generates a list of points along the arc at specified intervals.
+        This method divides the arc into segments based on the `count` parameter and calculates points at these intervals along the arc.
+
+        #### Parameters:
+        - `arc` (Arc2D): The arc object.
+        - `count` (int): The number of points to generate along the arc.
+
+        #### Returns:
+        `list`: A list of points (`Point2D` objects) along the arc.
+
+        #### Example usage:
+        ```python
+        arc = Arc2D(startPoint, midPoint, endPoint)
+        points = Arc2D.points_at_parameter(arc, 5)
+        # points will be a list of 5 points along the arc
+        ```
+        """
+        # Create points at parameter on an arc based on an interval
+        d_alpha = arc.angle_radian / (count - 1)
         alpha = 0
         pnts = []
         for i in range(count):
-            pnts.append(Point2D(arc.radius * math.cos(alpha), arc.radius * math.sin(alpha)))
+            pnts.append(Point2D(arc.radius * math.cos(alpha),
+                        arc.radius * math.sin(alpha), 0))
             alpha = alpha + d_alpha
-        CSNew = arc.coordinatesystem
-        pnts2 = []
+        cs_new = arc.coordinatesystem
+        pnts2 = []  # transformed points
         for i in pnts:
-            pnts2.append(transformPoint2D(i, CSNew))
+            pnts2.append(transform_point_2(i, cs_new))
         return pnts2
 
     @staticmethod
-    def segmentedarc(arc, count):
-        pnts = Arc2D.pointsAtParameter(arc,count)
+    def segmented_arc(arc: 'Arc2D', count: 'int') -> 'list':
+        """Divides the arc into segments and returns a list of line segments.
+        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
+
+        #### Parameters:
+        - `arc` (Arc2D): The arc object.
+        - `count` (int): The number of segments (and thus the number of points - 1) to create.
+
+        #### Returns:
+        `list`: A list of line segments (`Line` objects) representing the divided arc.
+
+        #### Example usage:
+        ```python
+        arc = Arc2D(startPoint, midPoint, endPoint)
+        segments = Arc2D.segmented_arc(arc, 3)
+        # segments will be a list of 2 lines dividing the arc into 3 segments
+        ```
+        """
+        pnts = Arc2D.points_at_parameter(arc, count)
         i = 0
         lines = []
-        for j in range(len(pnts)-1):
-            lines.append(Line2D(pnts[i],pnts[i+1]))
+        for j in range(len(pnts) - 1):
+            lines.append(Line2D(pnts[i], pnts[i + 1]))
             i = i + 1
         return lines
 
-    def __str__(self):
-        return f"{__class__.__name__}({self.start},{self.mid},{self.end})"
+    def draw_arc_point(cx: 'float', cy: 'float', radius: 'float', angle_degrees: 'float') -> 'Point2D':
+        """
+        Calculates a point on the arc given its center, radius, and an angle in degrees.
+
+        Parameters:
+        - cx (float): The x-coordinate of the arc's center.
+        - cy (float): The y-coordinate of the arc's center.
+        - radius (float): The radius of the arc.
+        - angle_degrees (float): The angle in degrees from the start point of the arc, 
+        measured clockwise from the positive x-axis.
+
+        Returns:
+        Point2D: The calculated point on the arc represented as a `Point2D` object with the calculated x and y coordinates.
+        """
+        angle_radians = math.radians(angle_degrees)
+        x = cx + radius * math.cos(angle_radians)
+        y = cy + radius * math.sin(angle_radians)
+        return Point2D(x, y)
+
+
+    def __str__(self) -> 'str':
+        """Generates a string representation of the Arc2D object.
+
+        #### Returns:
+        `str`: A string that represents the Arc2D object.
+
+        #### Example usage:
+        ```python
+        arc = Arc2D(startPoint, midPoint, endPoint)
+        print(arc)
+        # Output: Arc2D()
+        ```
+        """
+        return f"{__class__.__name__}()"
 
 
 class PolyCurve2D:
     def __init__(self) -> None:
         self.id = generateID()
-        self.type = __class__.__name__        
+        self.type = __class__.__name__
         self.curves = []
         self.points2D = []
         self.segmentcurves = None
@@ -405,11 +724,12 @@ class PolyCurve2D:
         self.period = None
         self.reference = None
         self.visibility = None
-        
 
     def serialize(self):
-        curves_serialized = [curve.serialize() if hasattr(curve, 'serialize') else str(curve) for curve in self.curves]
-        points_serialized = [point.serialize() if hasattr(point, 'serialize') else str(point) for point in self.points2D]
+        curves_serialized = [curve.serialize() if hasattr(
+            curve, 'serialize') else str(curve) for curve in self.curves]
+        points_serialized = [point.serialize() if hasattr(
+            point, 'serialize') else str(point) for point in self.points2D]
 
         return {
             'type': self.type,
@@ -429,7 +749,7 @@ class PolyCurve2D:
             'reference': self.reference,
             'visibility': self.visibility
         }
-    
+
     @staticmethod
     def deserialize(data):
         polycurve = PolyCurve2D()
@@ -451,7 +771,7 @@ class PolyCurve2D:
             for curve_data in data['curves']:
                 curve = Line2D.deserialize(curve_data)
                 polycurve.curves.append(curve)
-        
+
         if 'points2D' in data:
             for point_data in data['points2D']:
                 point = Point2D.deserialize(point_data)
@@ -459,15 +779,14 @@ class PolyCurve2D:
 
         return polycurve
 
-
     def __id__(self):
         return f"id:{self.id}"
 
-
-    @classmethod #curves or curves?
-    def byJoinedCurves(cls, curves):
+    @classmethod  # curves or curves?
+    def by_joined_curves(cls, curves):
         if not curves or len(curves) < 1:
-            raise ValueError("At least one curve is required to create a PolyCurve2D.")
+            raise ValueError(
+                "At least one curve is required to create a PolyCurve2D.")
 
         polycurve = cls()
         for curve in curves:
@@ -478,11 +797,11 @@ class PolyCurve2D:
 
         polycurve.isClosed = polycurve.points2D[0].value == polycurve.points2D[-1].value
         if project.autoclose == True and polycurve.isClosed == False:
-            polycurve.curves.append(Line2D(start=curves[-1].end, end=curves[0].start))
+            polycurve.curves.append(
+                Line2D(start=curves[-1].end, end=curves[0].start))
             polycurve.points2D.append(curves[0].start)
             polycurve.isClosed = True
         return polycurve
-
 
     def points(self):
         for i in self.curves:
@@ -490,45 +809,59 @@ class PolyCurve2D:
             self.points2D.append(i.end)
         return self.points2D
 
-
     def centroid(self) -> Point2D:
-        if self.isClosed:
-            if len(self.points2D) < 3:
-                return "Polygon has less than 3 points!"
-            num_points = len(self.points2D)
-            polygon = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)],dtype=np.float64)
-            polygon2 = np.roll(polygon, -1, axis=0)
-            signed_areas = 0.5 * np.cross(polygon, polygon2)
-            centroids = (polygon + polygon2) / 3.0
-            centroid = np.average(centroids, axis=0, weights=signed_areas)
-            return Point2D(x=round(centroid[0], project.decimals), y=round(centroid[1], project.decimals))
+        if not self.isClosed or len(self.points2D) < 3:
+            return "Polygon has less than 3 points or is not closed!"
+
+        num_points = len(self.points2D)
+        signed_area = 0
+        centroid_x = 0
+        centroid_y = 0
+
+        for i in range(num_points):
+            x0, y0 = self.points2D[i].x, self.points2D[i].y
+            if i == num_points - 1:
+                x1, y1 = self.points2D[0].x, self.points2D[0].y
+            else:
+                x1, y1 = self.points2D[i + 1].x, self.points2D[i + 1].y
+
+            cross = x0 * y1 - x1 * y0
+            signed_area += cross
+            centroid_x += (x0 + x1) * cross
+            centroid_y += (y0 + y1) * cross
+
+        signed_area *= 0.5
+        centroid_x /= (6.0 * signed_area)
+        centroid_y /= (6.0 * signed_area)
+
+        return Point2D(x=round(centroid_x, project.decimals), y=round(centroid_y, project.decimals))
 
     @staticmethod
-    def fromPolyCurve3D(PolyCurve):
+    def from_polycurve_3D(PolyCurve):
         points = []
         for pt in PolyCurve.points:
-            points.append(Point2D.toPoint2D(pt))
-        plycrv = PolyCurve2D.byPoints(points)
+            points.append(Point2D(pt.x, pt.y))
+        plycrv = PolyCurve2D.by_points(points)
         return plycrv
 
+    def area(self) -> float:  # shoelace formula
+        if not self.isClosed or len(self.points2D) < 3:
+            return "Polygon has less than 3 points or is not closed!"
 
-    def area(self) -> float: #shoelace formula
-        if self.isClosed:
-            if len(self.points2D) < 3:
-                return "Polygon has less than 3 points!"
-            num_points = len(self.points2D)
-            x_y = np.array([(self.points2D[i].x, self.points2D[i].y) for i in range(num_points)])
-            x_y = x_y.reshape(-1,2)
-            x = x_y[:,0]
-            y = x_y[:,1]
-            S1 = np.sum(x*np.roll(y,-1))
-            S2 = np.sum(y*np.roll(x,-1))
+        num_points = len(self.points2D)
+        area = 0
 
-            area = .5*np.absolute(S1 - S2)
-            return area
-        else:
-            return None
+        for i in range(num_points):
+            x0, y0 = self.points2D[i].x, self.points2D[i].y
+            if i == num_points - 1:
+                x1, y1 = self.points2D[0].x, self.points2D[0].y
+            else:
+                x1, y1 = self.points2D[i + 1].x, self.points2D[i + 1].y
 
+            area += x0 * y1 - x1 * y0
+
+        area = abs(area) / 2.0
+        return area
 
     def close(self) -> bool:
         if self.curves[0] == self.curves[-1]:
@@ -540,24 +873,24 @@ class PolyCurve2D:
                 plycrv.curves.append(curve)
         return plycrv
 
-
     def scale(self, scalefactor):
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
-                arcie = Arc2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end))
-                arcie.mid = Point2D.product(scalefactor,i.mid)
+                arcie = Arc2D(Point2D.product(scalefactor, i.start),
+                              Point2D.product(scalefactor, i.end))
+                arcie.mid = Point2D.product(scalefactor, i.mid)
                 crvs.append(arcie)
             elif i.__class__.__name__ == "Line":
-                crvs.append(Line2D(Point2D.product(scalefactor, i.start), Point2D.product(scalefactor, i.end)))
+                crvs.append(Line2D(Point2D.product(
+                    scalefactor, i.start), Point2D.product(scalefactor, i.end)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve2D.byJoinedCurves(crvs)
+        crv = PolyCurve2D.by_joined_curves(crvs)
         return crv
-    
 
     @classmethod
-    def byPoints(cls, points):
+    def by_points(cls, points):
         if not points or len(points) < 2:
             pass
 
@@ -565,15 +898,15 @@ class PolyCurve2D:
         for i in range(len(points)):
             polycurve.points2D.append(points[i])
             if i < len(points) - 1:
-                polycurve.curves.append(Line2D(start=points[i], end=points[i+1]))
-        
+                polycurve.curves.append(
+                    Line2D(start=points[i], end=points[i+1]))
+
         polycurve.isClosed = points[0] == points[-1]
         if project.autoclose == True:
             polycurve.curves.append(Line2D(start=points[-1], end=points[0]))
             polycurve.points2D.append(points[0])
             polycurve.isClosed = True
         return polycurve
-
 
     def get_width(self) -> float:
         x_values = [point.x for point in self.points2D]
@@ -583,7 +916,7 @@ class PolyCurve2D:
         max_x = max(x_values)
         min_y = min(y_values)
         max_y = max(y_values)
-        
+
         left_top = Point2D(x=min_x, y=max_y)
         left_bottom = Point2D(x=min_x, y=min_y)
         right_top = Point2D(x=max_x, y=max_y)
@@ -591,7 +924,6 @@ class PolyCurve2D:
         self.width = abs(Point2D.distance(left_top, right_top))
         self.height = abs(Point2D.distance(left_top, left_bottom))
         return self.width
-    
 
     def length(self) -> float:
         lst = []
@@ -600,16 +932,17 @@ class PolyCurve2D:
 
         return sum(i.length for i in self.curves)
 
-
     @staticmethod
-    def byPolyCurve2D(PolyCurve2D):
+    def by_polycurve_2D(PolyCurve2D):
         plycrv = PolyCurve2D()
         curves = []
         for i in PolyCurve2D.curves:
             if i.__class__.__name__ == "Arc2D":
-                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.mid.x, i.mid.y), Point2D(i.end.x,i.end.y)))
+                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(
+                    i.mid.x, i.mid.y), Point2D(i.end.x, i.end.y)))
             elif i.__class__.__name__ == "Line2D":
-                curves.append(Line2D(Point2D(i.start.x, i.start.y),Point2D(i.end.x, i.end.y)))
+                curves.append(
+                    Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
             else:
                 print("Curvetype not found")
         pnts = []
@@ -620,72 +953,72 @@ class PolyCurve2D:
         plycrv.curves = curves
         return plycrv
 
-
-    def multi_split(self, lines:Line2D):
+    def multi_split(self, lines: Line2D):
         lines = flatten(lines)
         new_polygons = []
         for index, line in enumerate(lines):
             if index == 0:
                 n_p = self.split(line, returnlines=True)
                 if n_p != None:
-                    for np in n_p:
-                        if np != None:
+                    for nxp in n_p:
+                        if nxp != None:
                             new_polygons.append(n_p)
             else:
                 for new_poly in flatten(new_polygons):
                     n_p = new_poly.split(line, returnlines=True)
                     if n_p != None:
-                        for np in n_p:
-                            if np != None:
+                        for nxp in n_p:
+                            if nxp != None:
                                 new_polygons.append(n_p)
         project.objects.append(flatten(new_polygons))
         return flatten(new_polygons)
 
-
-    def translate(self, vector2d:Vector2):
+    def translate(self, vector2d: Vector2):
         crvs = []
         v1 = vector2d
         for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D(i.start.translate(v1), i.mid.translate(v1), i.end.translate(v1)))
+                crvs.append(Arc2D(i.start.translate(v1),
+                            i.mid.translate(v1), i.end.translate(v1)))
             elif i.__class__.__name__ == "Line2D":
                 crvs.append(Line2D(i.start.translate(v1), i.end.translate(v1)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve2D.byJoinedCurves(crvs)
+        crv = PolyCurve2D.by_joined_curves(crvs)
         return crv
 
-
     @staticmethod
-    def copyTranslate(pc, vector3d:Vector3):
+    def copy_translate(pc, vector3d: Vector3):
         crvs = []
         v1 = vector3d
         for i in pc.curves:
             if i.__class__.__name__ == "Line":
-                crvs.append(Line2D(Point2D.translate(i.start, v1), Point2D.translate(i.end, v1)))
+                crvs.append(Line2D(Point2D.translate(i.start, v1),
+                            Point2D.translate(i.end, v1)))
             else:
                 print("Curvetype not found")
 
-        PCnew = PolyCurve2D.byJoinedCurves(crvs)
+        PCnew = PolyCurve2D.by_joined_curves(crvs)
         return PCnew
 
     def rotate(self, rotation):
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D(i.start.rotate(rotation), i.mid.rotate(rotation), i.end.rotate(rotation)))
+                crvs.append(Arc2D(i.start.rotate(rotation),
+                            i.mid.rotate(rotation), i.end.rotate(rotation)))
             elif i.__class__.__name__ == "Line2D":
-                crvs.append(Line2D(i.start.rotate(rotation), i.end.rotate(rotation)))
+                crvs.append(Line2D(i.start.rotate(
+                    rotation), i.end.rotate(rotation)))
             else:
                 print("Curvetype not found")
-        crv = PolyCurve2D.byJoinedCurves(crvs)
+        crv = PolyCurve2D.by_joined_curves(crvs)
         return crv
 
-
     @staticmethod
-    def boundingboxGlobalCS(PC):
-        x =[]
-        y =[]
+    def boundingbox_global_CS(PC):
+        x = []
+        y = []
         for i in PC.curves():
             x.append(i.start.x)
             y.append(i.start.y)
@@ -693,14 +1026,15 @@ class PolyCurve2D:
         xmax = max(x)
         ymin = min(y)
         ymax = max(y)
-        bbox = PolyCurve2D.byPoints([Point2D(xmin,ymin),Point2D(xmax,ymin),Point2D(xmax,ymax),Point2D(xmin,ymax),Point2D(xmin,ymin)])
+        bbox = PolyCurve2D.by_points([Point2D(xmin, ymin), Point2D(
+            xmax, ymin), Point2D(xmax, ymax), Point2D(xmin, ymax), Point2D(xmin, ymin)])
         return bbox
 
     @staticmethod
     def bounds(PC):
-        #returns xmin,xmax,ymin,ymax,width,height of polycurve 2D
-        x =[]
-        y =[]
+        # returns xmin,xmax,ymin,ymax,width,height of polycurve 2D
+        x = []
+        y = []
         for i in PC.curves:
             x.append(i.start.x)
             y.append(i.start.y)
@@ -710,8 +1044,7 @@ class PolyCurve2D:
         ymax = max(y)
         width = xmax-xmin
         height = ymax-ymin
-        return xmin,xmax,ymin,ymax,width,height
-
+        return xmin, xmax, ymin, ymax, width, height
 
     @classmethod
     def unclosed_by_points(self, points: Point2D):
@@ -724,33 +1057,31 @@ class PolyCurve2D:
             except:
                 pass
         return plycrv
-    
 
     @staticmethod
     def polygon(self):
         points = []
         for i in self.curves:
             if i == Arc2D:
-                points.append(i.start, i.mid) #
+                points.append(i.start, i.mid)
             else:
                 points.append(i.start)
         points.append(points[0])
         return points
-
 
     @staticmethod
     def segment(self, count):
         crvs = []
         for i in self.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D.segmentedarc(i, count))
+                crvs.append(Arc2D.segmented_arc(i, count))
             elif i.__class__.__name__ == "Line2D":
                 crvs.append(i)
         crv = flatten(crvs)
-        pc = PolyCurve2D.byJoinedCurves(crv)
+        pc = PolyCurve2D.by_joined_curves(crv)
         return pc
 
-    def toPolyCurve2D(self):
+    def to_polycurve_3D(self):
         from geometry.geometry2d import PolyCurve2D
         from geometry.geometry2d import Point2D
         from geometry.geometry2d import Line2D
@@ -761,9 +1092,10 @@ class PolyCurve2D:
         for i in self.curves:
             if i.__class__.__name__ == "Arc":
                 curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
-                                  Point2D(i.end.x, i.end.y)))
+                                    Point2D(i.end.x, i.end.y)))
             elif i.__class__.__name__ == "Line":
-                curves.append(Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
+                curves.append(
+                    Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
             else:
                 print("Curvetype not found")
         pnts = []
@@ -779,14 +1111,17 @@ class PolyCurve2D:
         crvs = []
         for i in polycurve.curves:
             if i.__class__.__name__ == "Arc2D":
-                crvs.append(Arc2D(transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
-                                transformPoint2D(i.mid, project.CSGlobal, startpoint, directionvector),
-                                transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
-                                ))
+                crvs.append(Arc2D(transform_point_2D(i.start, project.CSGlobal, startpoint, directionvector),
+                                  transform_point_2D(
+                                      i.mid, project.CSGlobal, startpoint, directionvector),
+                                  transform_point_2D(
+                                      i.end, project.CSGlobal, startpoint, directionvector)
+                                  ))
             elif i.__class__.__name__ == "Line2D":
-                crvs.append(Line2D(start = transformPoint2D(i.start,project.CSGlobal,startpoint,directionvector),
-                                end = transformPoint2D(i.end, project.CSGlobal, startpoint, directionvector)
-                                ))
+                crvs.append(Line2D(start=transform_point_2D(i.start, project.CSGlobal, startpoint, directionvector),
+                                   end=transform_point_2D(
+                                       i.end, project.CSGlobal, startpoint, directionvector)
+                                   ))
             else:
                 print(i.__class__.__name__ + "Curvetype not found")
         pc = PolyCurve2D()
@@ -796,17 +1131,14 @@ class PolyCurve2D:
     def __str__(self):
         l = len(self.points2D)
         return f"{__class__.__name__}, ({l} points)"
- #   def __str__(self) -> str:
-#        return f"{__class__.__name__}({self})"
 
 
 class Surface2D:
     def __init__(self) -> None:
-        pass #PolyCurve2D
+        pass  # PolyCurve2D
         self.id = generateID()
-        self.type = __class__.__name__        
-    pass #opening(PolyCurve2D)
-        
+        self.type = __class__.__name__
+
     def __id__(self):
         return f"id:{self.id}"
 
@@ -816,12 +1148,8 @@ class Surface2D:
 
 class Profile2D:
     def __init__(self) -> None:
-        pass #Surface2D, collect curves and add parameters
         self.id = generateID()
-        self.type = __class__.__name__        
-    #voorzien van parameters
-    #gebruiken voor objecten(kanaalplaatvloer, HEA200, iets)
-    pass
+        self.type = __class__.__name__
 
     def __id__(self):
         return f"id:{self.id}"
@@ -834,11 +1162,6 @@ class ParametricProfile2D:
     def __init__(self) -> None:
         self.type = __class__.__name__
         self.id = generateID()
-    # Aluminium
-    # Generic
-    # Precast Concrete
-    # ParametricProfile2D
-    pass
 
     def __id__(self):
         return f"id:{self.id}"

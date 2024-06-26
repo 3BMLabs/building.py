@@ -17,10 +17,6 @@ from geometry.systemsimple import *
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"
 
-
-# Line1 = Line(start=Point(1000,-500,0), end=Point(2000,3000,0))
-# project.objects.append(Line1)
-
 Line2 = Line(start=Point(-500,500,0), end=Point(1500,-200,0))
 project.objects.append(Line2)
 
@@ -31,7 +27,7 @@ p4 = Point(1500,2500,0)
 p5 = Point(2500,2500,0)
 p6 = Point(2500,0,0)
 
-contour = PolyCurve.byPoints([p1,p2,p3,p4,p5,p6])
+contour = PolyCurve.by_points([p1,p2,p3,p4,p5,p6])
 project.objects.append(contour)
 
 

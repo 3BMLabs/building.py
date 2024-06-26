@@ -1,3 +1,5 @@
+[![Update Wiki](https://github.com/3BMLabs/building.py/actions/workflows/update_wiki.yml/badge.svg)](https://github.com/3BMLabs/building.py/actions/workflows/update_wiki.yml)
+[![Generate bp_single_file](https://github.com/3BMLabs/building.py/actions/workflows/generate-bp_single_file.yml/badge.svg)](https://github.com/3BMLabs/building.py/actions/workflows/generate-bp_single_file.yml)
 # building.py
 A Python library for creating buildings, building systems, objects, and exporting them to various programs such as Blender, Revit, and Speckle.
 
@@ -13,9 +15,7 @@ Goals of the building.py Project:
   * XFEM4U
   * IFC using IFCOpenShell
   * Scia Engineer
- 
-# Design principles
-* Create 
+    
 # Implemented
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
@@ -48,10 +48,10 @@ Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Component3D | | |  
 &nbsp; | Component2D | | |  
 &nbsp; | Hatch | :heavy_check_mark: | :heavy_check_mark:  |  
-Library | Steelprofiles | |  |  
+Library | Steelprofiles | :heavy_check_mark: |  |  
 &nbsp; | Materials | |  |  
 Exchange | Speckle | :heavy_check_mark: |  |  
-&nbsp; | IFC | |  |  
+&nbsp; | IFC | :heavy_check_mark: |  |  
 &nbsp; | PAT |:heavy_check_mark: |  |  
 &nbsp; | OBJ | |  |  
 &nbsp; | Struct4U |:heavy_check_mark: |  |  
@@ -70,16 +70,18 @@ Versions 0.x will be subject to significant changes of the API until the release
 
 ## CrossBondWithJointYellowRed
 
-pat = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
+pat = PatternSystem().stretcher_bond_with_joint("halfsteensverband",100,210,50,10,12.5)
 
-![Image](1_crossBondWithJointYellowRed.png)
+![Image](docs/img/1_crossBondWithJointYellowRed.png)
 
 ## Kruisverband
 
-![Image](2_kruisverband.png)
+![Image](docs/img/2_kruisverband.png)
 
-![Image](3_columns_beams.png)
+![Image](docs/img/3_columns_beams.png)
 
-![Image](4_woodframing_walls.png)
+![Image](docs/img/4_woodframing_walls.png)
 
-![Image](5_examples_panel_beam_steel_concrete.png)
+![Image](docs/img/5_examples_panel_beam_steel_concrete.png)
+
+![Image](docs/img/6_GIS2BIM.png)

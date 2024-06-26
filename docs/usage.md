@@ -52,30 +52,30 @@ Point.translate(Point1, v1) # translates a 3D point by a given Vector and return
 ```
 <br>
 
-#### Point.point2DTo3D:
+#### Point.point_2D_to_3D:
 > _`Input: Point2D`_
 <br>
 
 ``` python
-Point.point2DTo3D(p2d) # Transforms a 2D point into a 3D point
+Point.point_2D_to_3D(p2d) # Transforms a 2D point into a 3D point
 ```
 <br>
 
-#### Point.rotateXY:
+#### Point.rotate_XY:
 > _`Input: Point, Degrees, Number of steps`_
 <br>
 
 ``` python
-Point.rotateXY(p1, 30, 5) # rotate (30 degrees) and translate (5 steps) a 3D point around the Z axis
+Point.rotate_XY(p1, 30, 5) # rotate (30 degrees) and translate (5 steps) a 3D point around the Z axis
 ```
 <br>
 
-#### transformPoint:
+#### transform_point:
 > _`Input: Point, Coordinate system, Point, Vector3`_
 <br>
 
 ``` python
-transformed_point = transformPoint(p1, CSGlobal, p2, v1)
+transformed_point = transform_point(p1, CSGlobal, p2, v1)
 ```
 <br>
 
@@ -94,21 +94,21 @@ Vector3.sum(v1, v2) # returns sum of 2 vectors
 ```
 <br>
 
-#### Vector3.crossProduct:  
+#### Vector3.cross_product:  
 > _`Input: Vector3, Vector3`_
 <br>
 
 ``` python
-Vector3.crossProduct(v1, v2) # returns vector perpendicular on the two vectors
+Vector3.cross_product(v1, v2) # returns vector perpendicular on the two vectors
 ```
 <br>
 
-#### Vector3.dotProduct:  
+#### Vector3.dot_product:  
 > _`Input: Vector3, Vector3`_
 <br>
 
 ``` python
-Vector3.dotProduct(v1, v2) # inner product, if zero, then vectors are 
+Vector3.dot_product(v1, v2) # inner product, if zero, then vectors are 
 ```
 <br>
 
@@ -139,12 +139,12 @@ Vector3.pitch(v1, 45) # ??
 ```
 <br>
 
-#### Vector3.angleBetween:  
+#### Vector3.angle_between:  
 > _`Input: Vector3, Vector3`_
 <br>
 
 ``` python
-Vector3.angleBetween(v1, v2) # returns the angle between two vectors
+Vector3.angle_between(v1, v2) # returns the angle between two vectors
 ```
 <br>
 
@@ -175,30 +175,30 @@ Vector3.normalize(v1) # ??
 ```
 <br>
 
-#### Vector3.byTwoPoints:  
+#### Vector3.by_two_points:  
 > _`Input: Point, Point`_
 <br>
 
 ``` python
-Vector3.byTwoPoints(Point1, Point2) # Subtracts Point1 x,y and z from Point2 x,y and z
+Vector3.by_two_points(Point1, Point2) # Subtracts Point1 x,y and z from Point2 x,y and z
 ```
 <br>
 
-#### Vector3.toPoint:  
+#### Vector3.to_point:  
 > _`Input: Vector3`_
 <br>
 
 ``` python
-Vector3.toPoint(v1) # Translates a Vector to a Point
+Vector3.to_point(v1) # Translates a Vector to a Point
 ```
 <br>
 
-#### Vector3.toLine:  
+#### Vector3.to_line:  
 > _`Input: Vector3, Vector3`_
 <br>
 
 ``` python
-Vector3.toLine(v10, v20) # Returns a Line from point v10, and Point v20
+Vector3.to_line(v10, v20) # Returns a Line from point v10, and Point v20
 ```
 <br>
 
@@ -231,14 +231,14 @@ Point2D.rotate(p2d, 90) # A new point is created by rotating a Point2D a certain
 ```
 <br>
 
-#### Plane.byTwoVectorsOrigin:  
+#### Plane.by_two_vectors_origin:  
 > _`Input: v1, v2, Point`_
 <br>
 
 ``` python
 origin = Point(0, 0, 0)
 
-plane_ex = Plane.byTwoVectorsOrigin(v1, v2, origin)
+plane_ex = Plane.by_two_vectors_origin(v1, v2, origin)
 # returns Plane
 ```
 <br>
@@ -284,12 +284,12 @@ Line2D.length(l2d) # Calculate the length of a 2D Line
 ```
 <br>
 
-#### PolyCurve2D.byJoinedCurves:  
+#### PolyCurve2D.by_joined_curves:  
 > _`Input: Line2D`_
 <br>
 
 ``` python
-ply2D = PolyCurve2D.byJoinedCurves([
+ply2D = PolyCurve2D.by_joined_curves([
     Line2D(
         Point2D(0,0),
         Point2D(100,0)),
@@ -339,31 +339,31 @@ PolyCurve2D.polygon(ply2D) # returns a polygon by collecting start points of cur
 ```
 <br>
 
-#### PolyCurve.byJoinedCurves:  
+#### PolyCurve.by_joined_curves:  
 > _`Input: Line`_
 <br>
 
 ``` python
-PC1 = PolyCurve.byJoinedCurves([Line1, Line2, Line3]) # Create a PolyCurve object by joining a list of curves and collecting their starting points
+PC1 = PolyCurve.by_joined_curves([Line1, Line2, Line3]) # Create a PolyCurve object by joining a list of curves and collecting their starting points
 ```
 <br>
 
-#### PolyCurve.byPoints:  
+#### PolyCurve.by_points:  
 
->_<code>Input usage: Polycurve.byPoints(list[<a href="#link_point">Point</a>])</code>_
+>_<code>Input usage: Polycurve.by_points(list[<a href="#link_point">Point</a>])</code>_
 
 
 ``` python
-PolyCurve.byPoints([Point1, Point2, Point3, Point4, Point1]) # Creating a PolyCurve object from a list of Points
+PolyCurve.by_points([Point1, Point2, Point3, Point4, Point1]) # Creating a PolyCurve object from a list of Points
 ```
 <br>
 
-#### PolyCurve.byPolyCurve2D:  
+#### PolyCurve.by_polycurve_2D:  
 > _`Input: PolyCurve2D`_
 <br>
 
 ``` python
-PolyCurve.byPolyCurve2D(ply2D) # Creating a PolyCurve object from a 2D polygon curve defined by four points
+PolyCurve.by_polycurve_2D(ply2D) # Creating a PolyCurve object from a 2D polygon curve defined by four points
 ```
 <br>
 
@@ -393,7 +393,7 @@ PolyCurve.rotate(PC1, 90, 10) # Poly-curve translate moves the curve by v1 vecto
 # moet nog naar worden gekeken
 
 flat_curves = [Line(Point(0, 0, 0), Point(0, 100, 0)), Line(Point(0, 100, 0), Point(100, 100, 0))] # Create a List of lines
-plygn1 = PolyGon(flat_curves) # Create a Polygon using a list of Lines
+plygn1 = Polygon(flat_curves) # Create a Polygon using a list of Lines
 ```
 <br>
 
@@ -482,15 +482,15 @@ Ellipse(3, 5, plane_ex) # Create an ellipse
 <br>
 
 #### CoordinateSystem:  
-> _`Input: Point, XAxis, YAxis, ZAxis`_
+> _`Input: Point, X_axis, Y_Axis, Z_Axis`_
 <br>
 
 ``` python
-XAxis = Vector3(1, 0, 0)
-YAxis = Vector3(0, 1, 0)
-ZAxis = Vector3(0, 0, 0)
+X_axis = Vector3(1, 0, 0)
+Y_Axis = Vector3(0, 1, 0)
+Z_Axis = Vector3(0, 0, 0)
 
-CoordinateSystem(Point(0, 0, 0), XAxis, YAxis, ZAxis) # returns CoordinateSystem
+CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis) # returns CoordinateSystem
 ```
 <br>
 
@@ -503,36 +503,36 @@ BoundingBox2d(points=[POINTS]).perimeter() # returns 2d-perimeter
 BoundingBox3d(points=[POINTS]).perimeter() # returns 3d-perimeter
 ```
 
-#### Extrusion.byPolyCurveHeightVector:  
+#### Extrusion.by_polycurve_height_vector:  
 > _`Input: PolyCurve, Height, Coördinate system, Point, Vector3`_
 <br>
 
 ``` python
-Extrusion.byPolyCurveHeightVector(PC1, 20, 30, p1, v1) # Extrude a 2D profile to a 3D mesh
+Extrusion.by_polycurve_height_vector(PC1, 20, 30, p1, v1) # Extrude a 2D profile to a 3D mesh
 ```
 
-#### Extrusion.byPolyCurveHeight:  
+#### Extrusion.by_polycurve_height:  
 > _`Input: PolyCurve, Height, Dzloc`_
 <br>
 
 ``` python
-Extrusion.byPolyCurveHeight(PC1, 20, 40) # Extrude a 2D profile to a 3D mesh
+Extrusion.by_polycurve_height(PC1, 20, 40) # Extrude a 2D profile to a 3D mesh
 ```
 
-#### Grid.byStartpointEndpoint:  
+#### Grid.by_startpoint_endpoint:  
 > _`Input: Line, Name`_
 <br>
 
 ``` python
-GridA = Grid.byStartpointEndpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A") # Create panel by polycurve
+GridA = Grid.by_startpoint_endpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A") # Create panel by polycurve
 ```
 
-#### getGridDistances:  
+#### get_grid_distances:  
 > _`Input: Grid`_
 <br>
 
 ``` python
-getGridDistances(GridA) # ??
+get_grid_distances(GridA) # ??
 ```
 
 #### GridSystem:  
@@ -549,52 +549,52 @@ gridExtension = 1000
 grdsystem = GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension)
 ```
 
-#### Frame.byStartpointEndpointProfileName:  
+#### Frame.by_startpoint_endpoint_profile:  
 > _`Input: start: Point, end: Point, profile_name: str, name: str, material`_
 <br>
 
 ``` python
-Frame.byStartpointEndpointProfileName(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
+Frame.by_startpoint_endpoint_profile(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
 ```
 
-#### Frame.byStartpointEndpointProfileNameShapevector:  
+#### Frame.by_startpoint_endpoint_profile_shapevector:  
 > _`Input: start: Point, end: Point, profile_name: str, name: str, Vector2, rotation: float, material`_
 <br>
 
 ``` python
-Frame.byStartpointEndpointProfileNameShapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
+Frame.by_startpoint_endpoint_profile_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
 ```
 
-#### Frame.byStartpointEndpointProfileNameShapevector:  
+#### Frame.by_startpoint_endpoint_profile_shapevector:  
 > _`Input: start: Point, end: Point, profile_name: str, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material`_
 <br>
 
 ``` python
-Frame.byStartpointEndpointProfileNameJustifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
+Frame.by_startpoint_endpoint_profile_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
 ```
 
-#### Frame.byStartpointEndpoint:  
+#### Frame.by_startpoint_endpoint:  
 > _`Input: start: Point, end: Point, polycurve: PolyCurve2D, name: str, rotation: float, material`_
 <br>
 
 ``` python
-Frame.byStartpointEndpoint(p1, p2, PC1, "test", 90, "Steel")
+Frame.by_startpoint_endpoint(p1, p2, PC1, "test", 90, "Steel")
 ```
 
-#### Panel.byPolyCurveThickness:  
+#### Panel.by_polycurve_thickness:  
 > _`Input: PolyCurve, thickness: float, offset: float, name: str, colorrgbint`_
 <br>
 
 ``` python
-Panel.byPolyCurveThickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
+Panel.by_polycurve_thickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
 ```
 
-#### Panel.byBaselineHeight:  
+#### Panel.by_baseline_height:  
 > _`Input: baseline: Line, height: float, thickness: float, name: str, colorrgbint`_
 <br>
 
 ``` python
-Panel.byBaselineHeight(Line(start=Point(0, -1000, 0),
+Panel.by_baseline_height(Line(start=Point(0, -1000, 0),
                             end=Point(3000, -1000, 0)), 2500, 150, "wand", rgb_to_int([192, 192, 192]))
 ```
 

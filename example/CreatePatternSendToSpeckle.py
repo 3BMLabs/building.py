@@ -13,10 +13,10 @@ pat6 = PAT().CombiPattern("Combipatroon",300,Revitmodelpattern)
 pat7 = PAT().ChevronPattern("Hongaarsepunt",500,100,Revitmodelpattern)
 pat8 = PAT().HerringbonePattern("Visgraat",500,5,Revitmodelpattern)
 pat9 = PAT().ParallelLines("Bamboe",[0,150,100,100,50,150,50,100,100],Revitmodelpattern)
-pat10 = PAT().StretcherBondWithJoint("WF_210x50",210,50,10,12.5,Revitmodelpattern)
+pat10 = PAT().stretcher_bond_with_joint("WF_210x50",210,50,10,12.5,Revitmodelpattern)
 pat11 = PAT().Strips("hor_200",200,25,Revitmodelpattern)
 pat12 = PAT().ParallelLines("Rollaag", [0,50,12.5],Revitmodelpattern)
-pat13 = PAT().CrossBondWithJoint("Kruisverband",100,210,50,10,12.5,Revitmodelpattern)
+pat13 = PAT().cross_bond_with_joint("Kruisverband",100,210,50,10,12.5,Revitmodelpattern)
 lst = [pat1,pat2,pat3,pat4,pat5,pat6,pat7,pat8,pat9,pat10,pat11,pat12,pat13]
 #lst = [pat5]
 
@@ -31,4 +31,4 @@ for i in lst:
         project.objects.append(j)
     dx = dx + spacing
 
-#project.toSpeckle("3e34ec62e2")
+project.toSpeckle("3e34ec62e2")

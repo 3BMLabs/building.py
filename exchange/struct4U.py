@@ -31,6 +31,7 @@ from objects.datum import *
 from objects.panel import *
 from exchange.speckle import *
 from geometry.curve import *
+from abstract.node import *
 import xml.etree.ElementTree as ET
 __title__ = "XFEM4U"
 __author__ = "Maarten & Jonathan"
@@ -130,7 +131,7 @@ def XMLImportGrids(XMLtree, gridExtension):
 
     obj = []
     for i in grids:
-        obj.append(Grid.byStartpointEndpoint(i, "Grid"))
+        obj.append(Grid.by_startpoint_endpoint(i, "Grid"))
      #   gridlines.append(line)
     return obj
 
@@ -247,8 +248,8 @@ def XMLImportPlates(XMLtree):
         for j in i:
             Point = XYZ[getXYZ(XMLtree, j)]
             PlatePoints.append(Point)
-        PlatePoints.append(PlatePoints[0])
-        ply = PolyCurve.byPoints(PlatePoints)
+        # PlatePoints.append(PlatePoints[0])
+        ply = PolyCurve.by_points(PlatePoints)
         # obj.append(ply)
         platesPolyCurves.append(ply)
 
@@ -256,7 +257,8 @@ def XMLImportPlates(XMLtree):
     Panels = []
 
     for i, j, k, l, m, n in zip(platesPolyCurves, platesThickness, plateOffsets, platesMaterial, platesNumbers, lstColor):
-        Panels.append(Panel.byPolyCurveThickness(i, j, k, l + m, n))
+        Panels.append(Panel.by_polycurve_thickness(i, -j, k, l + m, n))
+        print("Panel created")
 
     return Panels
 
@@ -362,6 +364,7 @@ class xmlXFEM4U:
                     Nodes.append("<Y>" + str(round(j.y)) + "</Y>\n")
                     Nodes.append("<Z>" + str(round(j.z)) + "</Z>\n")
                     Plates.append("<Node>" + str(n) + "</Node>\n")
+                    Points.append([j, n])
                 Plates.append("<h>" + str(i.thickness) + "</h>\n")
                 Plates.append(
                     "<Material_type>" + "c4aeb39b3f8d45cf9613e8377bdf73624" + "</Material_type>\n")  # material nog uitlezen #Concrete: c9a5876f475cefab7cc11281b017914a1 # Steel: c4aeb39b3f8d45cf9613e8377bdf73624
@@ -371,16 +374,17 @@ class xmlXFEM4U:
                 Plates.append("<Top_Center_Bottom>" +
                               "Center" + "</Top_Center_Bottom>\n")
 
+
             elif nm == 'Frame':
                 ProfN = ProfileNamesUnique.index(i.profileName) + 1
                 beamsGN = beamsGN + 1
                 Beamgroup.append("<Number>" + str(beamsGN) + "</Number>\n")
-                n = n + 1
+                n = n + 1 # frame object (node number)
                 Nodes.append("<Number>" + str(n) + "</Number>\n")
                 Nodes.append("<X>" + str(round(i.start.x)) + "</X>\n")
                 Nodes.append("<Y>" + str(round(i.start.y)) + "</Y>\n")
                 Nodes.append("<Z>" + str(round(i.start.z)) + "</Z>\n")
-
+    
                 Beamgroup.append("<Startnode>" + str(n) + "</Startnode>\n")
 
                 Points.append([i.start, n])
@@ -414,23 +418,27 @@ class xmlXFEM4U:
                              i.YJustification + "</Top_Center_Bottom>\n")
             elif nm == 'Grid':
                 pass
+        maxNodeNumber = int((len(Nodes)-1)/4) #every node has 4 regels. Min 1 regel voor xml-tag
+        n = maxNodeNumber
         for i in obj:
             nm = i.__class__.__name__
             if nm == 'Support':
                 supportN = supportN + 1
 
                 bools = []
-                for j in Points:
+                for j in Points: # Moet Nodesnumber zijn niet points
                     bools.append(Point.intersect(i.Point, j[0]))
                 if sum(bools) > 0:  # Means intersection with existing point/node
-                    no = bools.index(1)+1
+                    no = bools.index(1)+1 #nodenumber which intersects
                 else:  # No intersection, so new node is required
+                    maxNodeNumber = int((len(Nodes) - 1) / 4)  # every node has 4 regels. Min 1 regel voor xml-tag
+                    n = maxNodeNumber
                     n = n + 1
+                    no = n
                     Nodes.append("<Number>" + str(n) + "</Number>\n")
                     Nodes.append("<X>" + str(round(i.Point.x)) + "</X>\n")
                     Nodes.append("<Y>" + str(round(i.Point.y)) + "</Y>\n")
                     Nodes.append("<Z>" + str(round(i.Point.z)) + "</Z>\n")
-                    no = n
                 Supports.append("<Number>" + str(supportN) + "</Number>\n")
                 Supports.append("<Nodenumber>" + str(no) + "</Nodenumber>\n")
                 Supports.append("<Tx>" + i.Tx + "</Tx>\n")
@@ -448,7 +456,6 @@ class xmlXFEM4U:
                 Supports.append("<dx>" + str(i.dx) + "</dx>\n")
                 Supports.append("<dy>" + str(i.dy) + "</dy>\n")
                 Supports.append("<dz>" + str(i.dz) + "</dz>\n")
-
             else:
                 pass
 
@@ -637,14 +644,17 @@ class xmlXFEM4U:
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
 
 
-def createXFEM4UXML(project: BuildingPy, filepathxml: str):
+def createXFEM4UXML(project: BuildingPy, filepathxml: str, gridinputs=None):
     # Export to XFEM4U XMLK-file
     xmlS4U = xmlXFEM4U()  # Create XML object with standard values
     # Add Beams, Profiles, Plates, Beamgroups, Nodes
     xmlS4U.addBeamsPlates(project.objects)
     xmlS4U.addProject(project.name)
     xmlS4U.addPanels(project.objects)  # add Load Panels
-    xmlS4U.addGrids()  # Grids
+    if gridinputs is None:
+        xmlS4U.addGrids()  # Grids
+    else:
+        xmlS4U.addGrids(gridinputs[0],gridinputs[1],gridinputs[2],gridinputs[3],gridinputs[4])
     xmlS4U.addLoadCasesCombinations()
     xmlS4U.XML()
     XMLString = xmlS4U.xmlstr
@@ -670,21 +680,43 @@ def writeDirectCommandsfile(xmlfilepath: str):
     file.close()
 
 
-def openXFEM4U(fileName):
-    # Open XML file in XFEM4U
+def openXMLInXFEM4U(fileName):
+    #Open XML file in XFEM4U
     os.system("C:/Struct4u/XFEM4U/wframe3d.exe " + fileName)
 
-
 def openXFrame2D(fileName):
-    # Open XML file in XFEM4U
+    #Open XML file in XFEM4U
     os.system("C:/Program Files (x86)/Struct4u/XFrame2d/XFrame2d.exe " + fileName)
 
+def openXFEM4U():
+    #Run XFEM4U
+    path = r"C:/Struct4u/XFEM4U/wframe3d.exe"
+    os.spawnl(os.P_NOWAIT,  # flag
+              path,  # program
+              path)  # arguments
+    #import subprocess
+    #try:
+    #    subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe", shell=True, check=False)
+    #except:
+    #    print("exception")
 
-def SubprocessXFEM4UThread():
-    # Run XFEM4U
+def process_exists(process_name):
     import subprocess
-    try:
-        subprocess.run("C:/Struct4u/XFEM4U/wframe3d.exe",
-                       shell=True, check=False)
-    except:
-        print("exception")
+    call = 'TASKLIST', '/FI', 'imagename eq %s' % process_name
+    # use buildin check_output right away
+    output = subprocess.check_output(call).decode()
+    # check in last line for process name
+    last_line = output.strip().split('\r\n')[-1]
+    # because Fail message could be translated
+    return last_line.lower().startswith(process_name.lower())
+
+def OpenXMLXFEM4U(pathxml):
+    import time
+    # CHECK IF XFEM4U IS OPENED. IF NOT OPEN XFEM4U
+    if process_exists("wframe3d.exe") is True:
+        pass
+    else:
+        openXFEM4U()
+        time.sleep(15)
+    # WRITE DIRECTCOMMANDS TO XFEM4U, THEN XML-FILE IS OPENED IN XFEM4U
+    writeDirectCommandsfile(pathxml)

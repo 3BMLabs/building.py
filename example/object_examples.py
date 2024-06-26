@@ -1,4 +1,8 @@
 #Preview: https://speckle.xyz/streams/d2e38baf76/commits/505b8630c6?c=%5B0.0581,-0.28286,0.32333,0.23898,0.12909,-0.03397,0,1%5D
+import sys, os, math
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from typing import List, Tuple
 from svg.path import parse_path
@@ -9,6 +13,7 @@ from specklepy.api.credentials import get_default_account
 from specklepy.transports.server import ServerTransport
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line, Arc, Circle, Ellipse, SpiralType, Spiral, Polycurve, Polyline, Mesh, Vector, Plane, Interval
+from abstract.text import Text
 
 
 def flatten(nested_list):
@@ -61,17 +66,17 @@ objList.append(circleObj)
 #Circle - end
 
 #Ellipse - start
-# ellipsePlane = Plane(origin = Point(x=1, y=0, z=13, units="mm"), normal = Vector(x=0, y=1, z=0), xdir = Vector(x=1, y=0, z=0), ydir = Vector(x=0, y=1, z=0), units="mm")
-# ellipseObj = Ellipse(firstRadius=40.0, secondRadius=20.0, plane=ellipsePlane, units="mm")
-# objList.append(ellipseObj)
+ellipsePlane = Plane(origin = Point(x=1, y=0, z=13, units="mm"), normal = Vector(x=0, y=1, z=0), xdir = Vector(x=1, y=0, z=0), ydir = Vector(x=0, y=1, z=0), units="mm")
+ellipseObj = Ellipse(firstRadius=40.0, secondRadius=20.0, plane=ellipsePlane, units="mm")
+objList.append(ellipseObj)
 #Ellipse - end
 
 #Spiral - start
-# spiralPlane = Plane(origin = Point(x=1, y=0, z=13, units="mm"), normal = Vector(x=0, y=1, z=0), xdir = Vector(x=1, y=0, z=0), ydir = Vector(x=0, y=1, z=0), units="mm")
-# p1 = Point(x=50, y=190, z=13, units="mm")
-# p2 = Point(x=0, y=280, z=13, units="mm")
-# spiralObj = Spiral(startPoint=p1, endPoint=p2, plane=spiralPlane, turns=4, pitchAxis=Vector(x=0, y=1, z=0), spiralType=SpiralType.BiquadraticParabola)
-# objList.append(spiralObj)
+spiralPlane = Plane(origin = Point(x=1, y=0, z=13, units="mm"), normal = Vector(x=0, y=1, z=0), xdir = Vector(x=1, y=0, z=0), ydir = Vector(x=0, y=1, z=0), units="mm")
+p1 = Point(x=50, y=190, z=13, units="mm")
+p2 = Point(x=0, y=280, z=13, units="mm")
+spiralObj = Spiral(startPoint=p1, endPoint=p2, plane=spiralPlane, turns=4, pitchAxis=Vector(x=0, y=1, z=0), spiralType=SpiralType.BiquadraticParabola)
+objList.append(spiralObj)
 #Spiral - end
 
 #Polycurve - start

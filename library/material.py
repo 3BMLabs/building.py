@@ -72,8 +72,8 @@ BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147
 
 #GIS Materials
 BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
-BaseWater = Material.byNameColor("Water", Color().RGB([205, 230, 237]))
-BaseGreen = Material.byNameColor("Green", Color().RGB([223, 230, 208]))
+BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
+BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
 BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
 BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
 

@@ -1,3 +1,6 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
+
 from math import sqrt, cos, sin, acos, degrees, radians, log, pi
 from bisect import bisect
 from abc import ABC, abstractmethod
@@ -9,6 +12,7 @@ except ImportError:
 
 # This file contains classes for the different types of SVG path segments as
 # well as a Path object that contains a sequence of path segments.
+# [!not included in BP singlefile - end]
 
 MIN_DEPTH = 5
 ERROR = 1e-12

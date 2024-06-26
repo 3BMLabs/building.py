@@ -1,50 +1,51 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
 """This module provides tools for image handling
 """
 
-__title__= "image"
+import sys
+from pathlib import Path
+import urllib.request
+from PIL import Image
+
+__title__ = "image"
 __author__ = "Joas"
 __url__ = "./abstract/image.py"
 
-import sys
-from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # [!not included in BP singlefile - end]
 
-from PIL import Image
-import urllib.request
+# example 1 = imagePyB().by_file("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/bugatti-chiron.jpg", 100, 100, dx=10, dy=10)
+# example 2 = imagePyB().by_stream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
 
-#example 1 = imagePyB().byFile("C:/Users/JoasHollander/Documents/GitHub/building.py/temp/bugatti-chiron.jpg", 100, 100, dx=10, dy=10)
-#example 2 = imagePyB().byStream("https://onlinejpgtools.com/images/examples-onlinejpgtools/sunflower.jpg")
 
 class imagePyB:
-#Image to Mesh with colors of pixels
+    # Image to Mesh with colors of pixels
     def __init__(self):
         self.img = None
         self.imgpath = None
@@ -73,7 +74,7 @@ class imagePyB:
         r, g, b = [max(0, min(255, c)) for c in rgb]
         return (255 << 24) | (r << 16) | (g << 8) | b
 
-    def byFile(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
+    def by_file(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
         self.imgpath = imgpath
         self.dx = dx
         self.dy = dy
@@ -151,7 +152,7 @@ class imagePyB:
             # self.colorlst = None
         return self
 
-    def byStream(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
+    def by_stream(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
         self.imgpath = imgpath
         urllib.request.urlretrieve(
             self.imgpath, "img.png")
@@ -229,4 +230,3 @@ class imagePyB:
             self.colorlst.append(argbint_color)
             self.colorlst.append(argbint_color)
         return self
-

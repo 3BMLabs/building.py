@@ -38,15 +38,15 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import Line
-from geometry.curve import PolyCurve
+from geometry.curve import PolyCurve, Polygon
 from geometry.curve import Arc
 from geometry.geometry2d import Point2D
 from abstract.vector import Vector3
 from abstract.plane import Plane
 from abstract.interval import Interval
 from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
-
-from helper import *
+from abstract.color import *
+from packages.helper import *
 from project.fileformat import project
 
 # [!not included in BP singlefile - end]
@@ -65,8 +65,33 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
+from specklepy.objects.other import DisplayStyle as SpeckleDisplayStyle
+from specklepy.objects.geometry import Extrusion as SpeckleExtrusion
 from specklepy.objects.primitive import Interval as SpeckleInterval
+from specklepy.objects.geometry import Spiral as SpeckleSpiral
+from specklepy.objects.geometry import SpiralType as SpeckleSpiralType
 
+def toSpeckle(self, streamid, commitstring=None):
+    try:
+        import specklepy
+    except ImportError:
+        print("Installing requirement: specklepy")
+        import subprocess
+        import sys
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "specklepy"])
+        import specklepy
+    from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
+    self.specklestream = streamid
+    speckleobj = translateObjectsToSpeckleObjects(self.objects)
+    TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+
+def CreateStream(serverurl, name, description):
+    #Create new stream/project in Speckle Server
+    client = SpeckleClient(host=serverurl)
+    account = get_default_account()
+    client.authenticate_with_account(account)
+    streamid = client.stream.create(name,description,True)
+    return streamid
 
 def IntervalToSpeckleInterval(interval: Interval):
     SpeckleInt = SpeckleInterval(start=interval.start, end=interval.end)
@@ -74,7 +99,7 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point: Point or Point2D):
+def PointToSpecklePoint(point):
     if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
     elif point.type == "Point2D":
@@ -92,6 +117,12 @@ def VectorToSpeckleVector(vector3: Vector3):
 
 
 def LineToSpeckleLine(line: Line):
+    display_style = SpeckleDisplayStyle()
+    display_style.name = "Custom Style"
+    display_style.color = -854423
+    display_style.linetype = "Continuous"
+    display_style.lineweight = 0.25
+
     SpeckleLn = SpeckleLine(start = PointToSpecklePoint(line.start), end = PointToSpecklePoint(line.end))
     SpeckleLn.id = line.id
     SpeckleLn.units = project.units
@@ -99,6 +130,7 @@ def LineToSpeckleLine(line: Line):
     SpeckleLn.length = line.length
     SpeckleLn.applicationId = project.applicationId
     SpeckleLn.color = 0
+    SpeckleLn.displayStyle = display_style
     return SpeckleLn
 
 
@@ -112,6 +144,7 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
     SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points]
     SpecklePolyln = SpecklePolyLine.from_points(SpecklePl)
     SpecklePolyln.id = polycurve.id
+    SpecklePolyln.name = polycurve.type
     SpecklePolyln.units = project.units
     SpecklePolyln.domain = project.domain
     SpecklePolyln.applicationId = project.applicationId
@@ -124,6 +157,21 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
 
     return SpecklePolyln
 
+def SpecklePolygonBySpecklePoints(polycurve: Polygon): #fixed
+    SpecklePoints = [PointToSpecklePoint(point) for point in polycurve.points]
+    SpecklePolygon = SpecklePolyLine.from_points(points=SpecklePoints)
+    SpecklePolygon.id = polycurve.id
+    SpecklePolygon.name = polycurve.type
+    SpecklePolygon.units = project.units
+    SpecklePolygon.domain = project.domain
+    SpecklePolygon.applicationId = project.applicationId
+    SpecklePolygon.closed = polycurve.isClosed
+    SpecklePolygon.area = polycurve.area()
+    SpecklePolygon.length = polycurve.length()
+    SpecklePolygon.curveCount = len(polycurve.curves)
+    SpecklePolygon.pointCount = len(polycurve.points)
+
+    return SpecklePolygon
 
 def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve2D):
     SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points2D]
@@ -154,7 +202,8 @@ def Line2DToSpeckleLine3D(line: Line):
 
 def PolyCurveToSpecklePolyLine(polycurve: PolyCurve):
     tmpList = []
-
+    if not isinstance(polycurve, list):
+        polycurve = [polycurve]
     for item in polycurve:
         spklpc = SpecklePolylineBySpecklePoints(item)
         tmpList.append(spklpc)
@@ -188,21 +237,35 @@ def SpeckleMeshByMesh(MeshPB):
     colrs = []
     for i in range(MeshPB.countVertsFaces):
         colrs.append(color)
-    #colors = colrs
-    SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, vertices = MeshPB.verts, faces = MeshPB.faces, name = MeshPB.name, colors = colrs, units = project.units)
+
+    SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, 
+                             vertices = MeshPB.verts, 
+                             faces = MeshPB.faces, 
+                             name = MeshPB.name, 
+                             colors = colrs, 
+                             units = project.units,
+                             textureCoordinates = []
+                             )
     return SpeckleMsh
 
 
 def TextToSpeckleCurveSurface(Text):
     returnlist = []
-    for polyc in Text.write():
-        pc = PolyCurveToSpecklePolyLine(polyc)
-        returnlist.append(pc)
+    for polycurves in Text.write():
+        polycurve = PolyCurveToSpecklePolyLine(polycurves)
+        returnlist.append(polycurve)
     return returnlist
 
 
 def SpeckleMeshByImage(img):
-    SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, vertices = img.vert, faces = img.faces, name = img.name, colors = img.colorlst)
+    SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, 
+                             vertices = img.vert, 
+                             faces = img.faces, 
+                             name = img.name, 
+                             colors = img.colorlst,
+                             units = project.units,
+                             textureCoordinates = []
+                             )
     return SpeckleMsh
 
 
@@ -210,11 +273,11 @@ def ArcToSpeckleArc(arc: Arc):
     speckle_plane = SpecklePlane(
         origin = PointToSpecklePoint(arc.plane.Origin),
         normal = VectorToSpeckleVector(arc.plane.Normal),
-        xdir = VectorToSpeckleVector(arc.plane.v1),
-        ydir = VectorToSpeckleVector(arc.plane.v2),
+        xdir = VectorToSpeckleVector(arc.plane.vector_1),
+        ydir = VectorToSpeckleVector(arc.plane.vector_2),
+        
         units = project.units
     )
-
 
     start_point = PointToSpecklePoint(arc.start)
     mid_point = PointToSpecklePoint(arc.mid)
@@ -223,7 +286,50 @@ def ArcToSpeckleArc(arc: Arc):
     radius = arc.radius
     start_angle = arc.startAngle
     end_angle = arc.endAngle
-    angle_radians = arc.angleRadian
+    angle_radians = arc.angle_radian
+    area = arc.area
+    length = arc.length
+    speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
+
+
+    spArc = SpeckleArc(
+        applicationId = project.applicationId,
+        startPoint=start_point,
+        midPoint=mid_point,
+        endPoint=end_point,
+        domain=speckle_interval,
+        plane=speckle_plane,
+        radius=radius,
+        startAngle=start_angle,
+        endAngle=end_angle,
+        angleRadians=angle_radians,
+        area=area,
+        length=length,
+        units=project.units
+    )
+
+    spArc.units = project.units
+    return spArc
+
+
+def Arc2DToSpeckleArc(arc: Arc):
+    speckle_plane = SpecklePlane(
+        origin = PointToSpecklePoint(arc.plane.Origin),
+        normal = VectorToSpeckleVector(arc.plane.Normal),
+        xdir = VectorToSpeckleVector(arc.plane.vector_1),
+        ydir = VectorToSpeckleVector(arc.plane.vector_2),
+        
+        units = project.units
+    )
+
+    start_point = PointToSpecklePoint(arc.start)
+    mid_point = PointToSpecklePoint(arc.mid)
+    end_point = PointToSpecklePoint(arc.end)
+
+    radius = arc.radius
+    start_angle = arc.startAngle
+    end_angle = arc.endAngle
+    angle_radians = arc.angle_radian
     area = arc.area
     length = arc.length
     speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
@@ -256,9 +362,9 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
     streamid = streamid
 
     class SpeckleExport(Base):
-        objects = None
+        elements = None
 
-    obj = SpeckleExport(objects = SpeckleObjects)
+    obj = SpeckleExport(elements = SpeckleObjects)
     transport = ServerTransport(client=client, stream_id=streamid)
     hash = operations.send(base=obj, transports=[transport])
 
@@ -274,17 +380,24 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
 
 def translateObjectsToSpeckleObjects(Obj):
     SpeckleObj = []
-    for i in Obj:
+    for i in flatten(Obj):
         nm = i.__class__.__name__
         if nm == "list":
             if i == []:
-                pass
+                print(f"'{nm}' Object not yet added to translateObjectsToSpeckleObjects")
 
         elif nm == 'Panel':
             colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = colrs, name = i.name, units = project.units))
-        
-        elif nm == 'Surface' or nm == 'Face':
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=i.extrusion.verts, 
+                                          faces=i.extrusion.faces, 
+                                          colors = colrs, 
+                                          name = i.name, 
+                                          units = project.units,
+                                          textureCoordinates = []
+                                          ))
+            
+        elif nm == 'Face':
             all_vertices = []
             all_faces = []
             all_colors = []
@@ -295,25 +408,97 @@ def translateObjectsToSpeckleObjects(Obj):
             all_vertices = flatten(all_vertices)
             all_faces = flatten(all_faces)
             all_colors = flatten(all_colors)
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=all_vertices, faces=all_faces, colors=all_colors, name=i.name[index], units= project.units))
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=all_vertices,
+                                          faces=all_faces, 
+                                          colors=all_colors, 
+                                          name=i.name[index], 
+                                          units= project.units
+                                          ))
+
+        elif nm == 'Surface':
+            all_vertices = []
+            all_faces = []
+            all_colors = []
+            
+            if len(i.inner_Surface) > 0:
+                for each in i.inner_Surface:
+                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                                  surface_type = "Inner_Surface",
+                                                  vertices=each.verts,
+                                                  faces=each.faces, 
+                                                  name=i.type,
+                                                  units= project.units,
+                                                  textureCoordinates = []
+                                                  ))
+
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          surface_type = "Outer_Surface",
+                                          vertices=i.outer_Surface.verts,
+                                          faces=i.outer_Surface.faces, 
+                                          name=i.type,
+                                          units= project.units,
+                                          textureCoordinates = []
+                                          ))
+            
+
 
         elif nm == 'Frame':
             try:
                 if i.comments.type == "Scia_Params":
-                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units, Scia_Id=i.comments.id, Scia_Justification=i.comments.perpendicular_alignment, Scia_Layer=i.comments.layer, Scia_Rotation=i.comments.lcs_rotation, Scia_Staaf=i.comments.name, Scia_Type=i.comments.cross_section, Scia_Node_Start = i.comments.start_node, Scia_Node_End = i.comments.end_node, Revit_Rotation=str(i.comments.revit_rot), Scia_Layer_Type=i.comments.layer_type, BuildingPy_XJustification=i.comments.Xjustification, BuildingPy_YJustification=i.comments.Yjustification))
+                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, 
+                                                  vertices=i.extrusion.verts, 
+                                                  faces=i.extrusion.faces, 
+                                                  colors = i.colorlst, 
+                                                  name = i.profileName, 
+                                                  units = project.units,
+                                                  textureCoordinates = [],
+                                                  Scia_Id=i.comments.id, 
+                                                  Scia_Justification=i.comments.perpendicular_alignment, 
+                                                  Scia_Layer=i.comments.layer, 
+                                                  Scia_Rotation=i.comments.lcs_rotation, 
+                                                  Scia_Staaf=i.comments.name, 
+                                                  Scia_Type=i.comments.cross_section, 
+                                                  Scia_Node_Start = i.comments.start_node, 
+                                                  Scia_Node_End = i.comments.end_node, 
+                                                  Revit_Rotation=str(i.comments.revit_rot), 
+                                                  Scia_Layer_Type=i.comments.layer_type, 
+                                                  BuildingPy_XJustification=i.comments.Xjustification, 
+                                                  BuildingPy_YJustification=i.comments.Yjustification))
+                    
                 else:
-                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
+                    SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, 
+                                                  vertices=i.extrusion.verts, 
+                                                  faces=i.extrusion.faces, 
+                                                  colors = i.colorlst, 
+                                                  name = i.profileName, 
+                                                  units = project.units,
+                                                  textureCoordinates = []
+                                                  ))
+                    
             except:
-                SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, vertices=i.extrusion.verts, faces=i.extrusion.faces, colors = i.colorlst, name = i.profileName, units = project.units))
+                SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, 
+                                                vertices=i.extrusion.verts, 
+                                                faces=i.extrusion.faces, 
+                                                colors = i.colorlst, 
+                                                name = i.profileName, 
+                                                units = project.units,
+                                                textureCoordinates = []
+                                                ))
+                
+        elif nm == "Extrusion" or nm == "Void":
+            clrs = [4294901760, 4294901760, 4294901760, 4294901760, 4294901760]
 
-        elif nm == "Extrusion":
-            clrs = []
+            # if void, color red.
+            
             mesh = SpeckleMesh(applicationId=project.applicationId,
-                            vertices=i.verts,
-                            faces=i.faces,
-                            colors=clrs,
-                            name=i.name,
-                            units=project.units)
+                               vertices=i.verts,
+                               faces=i.faces,
+                               colors=clrs,
+                               name=nm if nm == "Void" else i.name,
+                               units=project.units,
+                               textureCoordinates = []
+                               )
             
             if isinstance(i.parameters, dict):
                 i.parameters = [i.parameters]
@@ -327,12 +512,69 @@ def translateObjectsToSpeckleObjects(Obj):
                     setattr(mesh, str(param_name), value)
             SpeckleObj.append(mesh)
 
+            # points = [
+            #     SpecklePoint(x=0, y=0, z=0),
+            #     SpecklePoint(x=0, y=10, z=0),
+            #     SpecklePoint(x=10, y=10, z=0),
+            #     SpecklePoint(x=10, y=0, z=0),
+            #     SpecklePoint(x=0, y=0, z=0)
+            # ]
+
+            # profiel = SpecklePolyLine.from_points(points)
+            # extrusix = SpeckleExtrusion(
+            #     area = 0,
+            #     bbox = None,
+            #     units = "mm",
+            #     volume = 9,
+            #     capped = True,
+            #     profile = profiel,
+            #     pathStart = SpecklePoint(x=0, y=0, z=0),
+            #     pathEnd = SpecklePoint(x=0, y=10, z=120),
+            #     pathCurve = SpeckleLine(start = SpecklePoint(x=0, y=0, z=0), end = SpecklePoint(x=0, y=10, z=120)),
+            #     pathTangent = SpeckleVector.from_coords(1, 0, 0),
+            #     length = 120,
+            #     applicationId = "Test"
+            # )
+            
+            # hoofd_profiel = SpecklePolyLine.from_points([
+            #     SpecklePoint(x = 0, y = 0, z = 0),
+            #     SpecklePoint(x = 0,  y = 10, z = 0),
+            #     SpecklePoint(x = 10, y = 10, z = 0),
+            #     SpecklePoint(x = 10, y = 0, z = 0),
+            #     SpecklePoint(x = 0, y = 0, z = 0)
+            # ])
+
+            # gat_profiel = SpecklePolyLine.from_points([
+            #     SpecklePoint(x = 3, y = 3, z = 0),
+            #     SpecklePoint(x = 3, y = 7, z = 0),
+            #     SpecklePoint(x = 7, y = 7, z = 0),
+            #     SpecklePoint(x = 7, y = 3, z = 0),
+            #     SpecklePoint(x = 3, y = 3, z = 0)
+            # ])
+
+            # extrusix.profiles = [hoofd_profiel, gat_profiel]
+            # SpeckleObj.append(extrusix)
+
+
         elif nm == "Wall":
             clrs = []
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
-
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=i.verts, 
+                                          faces=i.faces, 
+                                          colors = clrs,
+                                          name = i.name, 
+                                          units = project.units,
+                                          textureCoordinates = []
+                                          ))
+            
         elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
+
+        elif nm == 'Polygon':
+            try:
+                SpeckleObj.append(SpecklePolygonBySpecklePoints(i))
+            except:
+                print("Polygon could not be exported")
 
         elif nm == 'PolyCurve2D':
             SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))
@@ -342,8 +584,15 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'ImagePyB':
             colrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = colrs, name = i.name, units = project.units))
-
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=i.verts, 
+                                          faces=i.faces, 
+                                          colors = colrs, 
+                                          name = i.name, 
+                                          units = project.units,
+                                          textureCoordinates = []
+                                          ))
+            
         elif nm == 'Interval':
             SpeckleObj.append(IntervalToSpeckleInterval(i))
 
@@ -356,6 +605,9 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Arc':
             SpeckleObj.append(ArcToSpeckleArc(i))
 
+        elif nm == 'Arc2D':
+            SpeckleObj.append(Arc2DToSpeckleArc(i))
+
         elif nm == 'Line2D':
             SpeckleObj.append(Line2DToSpeckleLine3D(i))
 
@@ -365,8 +617,8 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Node':
             SpeckleObj.append(PointToSpecklePoint(i.point))
             
-#        elif nm == 'Text' or 'Text2':
-#            SpeckleObj.append(TextToSpeckleCurveSurface(i))
+        elif nm == 'Text':
+            SpeckleObj.append(TextToSpeckleCurveSurface(i))
 
         elif nm == 'Point2D':
             SpeckleObj.append(Point2DToSpecklePoint(i))
@@ -384,8 +636,25 @@ def translateObjectsToSpeckleObjects(Obj):
 
         elif nm == 'MeshPB':
             clrs = i.colorlst
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,vertices=i.verts, faces=i.faces, colors = clrs, name = i.name, units = project.units))
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=i.verts, 
+                                          faces=i.faces, 
+                                          colors = clrs, 
+                                          name = i.name, 
+                                          units = project.units,
+                                          textureCoordinates = []
+                                          ))
 
+        elif nm == 'Trimesh':
+            clrs = []
+            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
+                                          vertices=i.vertices, 
+                                          faces=i.faces, 
+                                          colors = clrs, 
+                                          name = i.name, 
+                                          units = project.units,
+                                          textureCoordinates = []
+                                          ))
         else:
             print(f"'{nm}' Object not yet added to translateObjectsToSpeckleObjects")
 

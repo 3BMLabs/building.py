@@ -11,49 +11,22 @@ from library.profile import data as jsondata
 from library.material import *
 from library.profile import profiledataToShape
 from objects.annotation import *
-import threading
 
 project = BuildingPy("BoundingBoxes from Revit","1")
-
-
 bb = BoundingBox3d()
 
-
-#Vector xaxis, yaxis, zaxis -> cs system
 height = 3675
 
-cs1 = CoordinateSystem(origin = Point(-16991.315, -3433.505, 1837.500), xaxis = Vector3(0.766, 0.643, 0.000), yaxis = Vector3(-0.643, 0.766, 0.000), zaxis = Vector3(0.000, 0.000, 1.000))
-cs2 = CoordinateSystem(origin = Point(-30978.610, -4389.113, 774.449), xaxis = Vector3(0.754, 0.633, -0.174), yaxis = Vector3(-0.407, 0.659, 0.633), zaxis = Vector3(0.515, -0.407, 0.754))
-cs3 = CoordinateSystem(origin = Point(-18712.652, -17614.200, 1837.500), xaxis = Vector3(1.000, 0.000, 0.000), yaxis = Vector3(0.000, 1.000, 0.000), zaxis = Vector3(0.000, 0.000, 1.000))
+cs1 = CoordinateSystem(origin = Point(-16991.315, -3433.505, 1837.500), x_axis = Vector3(0.766, 0.643, 0.000), y_axis = Vector3(-0.643, 0.766, 0.000), z_axis = Vector3(0.000, 0.000, 1.000))
+bb_2d = BoundingBox2d().by_dimensions(7350, 8550)
+bb_3d = BoundingBox3d().convert_boundingbox_2d(bb_2d, cs1, height)
 
-#cs1.show()
-cs_new = CoordinateSystem.transform(cs1, cs2)
-print(cs_new)
+cbd_3d = bb_3d.to_cuboid()
+cbd_parm = cbd_3d.set_parameter({"test_1": "1", "test_2": 2, 3: "test_3", 4:4})
+project.objects.append(cbd_parm)
 
-# bb_2d = BoundingBox2d().byDimensions(7350, 8550)
-# bb_3d = BoundingBox3d().convertBoundingbox2d(bb_2d, cs1, height)
-# cbd,l1,l2,l3 = bb_3d.toCuboid()
-
-# cbd_parm = cbd.setParameter({"test_1": "1", "test_2": 2, 3: "test_3", 4:4})
-
-# project.objects.append(cbd_parm)
-# project.objects.append(l1)
-# project.objects.append(l2)
-# project.objects.append(l3)
-
-# bb_3d = BoundingBox3d().convertBoundingbox2d(bb_2d, cs2, height)
-# cbd,l1,l2,l3 = bb_3d.toCuboid()
-# project.objects.append(cbd)
-# project.objects.append(l1)
-# project.objects.append(l2)
-# project.objects.append(l3)
-
-# bb_3d = BoundingBox3d().convertBoundingbox2d(bb_2d, cs3, height)
-# cbd,l1,l2,l3 = bb_3d.toCuboid()
-# project.objects.append(cbd)
-# project.objects.append(l1)
-# project.objects.append(l2)
-# project.objects.append(l3)
+for axis in bb_3d.to_axis():
+    project.objects.append(axis)
 
 
-# project.toSpeckle("801883ce31")
+project.toSpeckle("7603a8603c")

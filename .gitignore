@@ -1,7 +1,6 @@
 *.pyc
-\prive
 *.iml
 *.xml
 *.xml
-*.ifc
-.idea/workspace.xml
+.idea
+\prive

@@ -25,7 +25,7 @@ p3 = Point2D(2000,6500)
 p4 = Point2D(4000,3000)
 p5 = Point2D(4000,0)
 
-PC1 = PolyCurve2D.byPoints([p1,p2,p3,p4,p5])
+PC1 = PolyCurve2D.by_points([p1,p2,p3,p4,p5])
 
 i = PolyCurve2D.length(PC1)
 print(i)
@@ -34,4 +34,4 @@ for j in PC1.curves:
     print(j)
 
 project.objects.append(PC1)
-project.toSpeckle("bd33f3c533")
+project.toSpeckle("7603a8603c")

@@ -279,7 +279,7 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-    def StretcherBondWithJoint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+    def stretcher_bond_with_joint(self, name:str, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
         #This is stretcherbond(halfsteensverband) with joints
         self.name = name
         self.patterntype = patterntype
@@ -340,7 +340,7 @@ class PAT:
         self.patstrings.append(";")
         return self
 
-    def CrossBondWithJoint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
+    def cross_bond_with_joint(self, name:str, brickwidth: float, bricklength: float, brickheight: float, jointwidth: float, jointheight: float, patterntype: str):
         #This is crossbond(kruisverband) with joints
         self.name = name
         self.patterntype = patterntype
@@ -418,25 +418,25 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
     lines = []
     n = 0
     for i in range(nlines):
-        Xn = Vector3.rotateXY(XAxis, math.radians(patrow.angle))
-        Yn = Vector3.rotateXY(YAxis, math.radians(patrow.angle))
-        CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, ZAxis)
+        Xn = Vector3.rotate_XY(X_axis, math.radians(patrow.angle))
+        Yn = Vector3.rotate_XY(Y_Axis, math.radians(patrow.angle))
+        CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, Z_Axis)
         x_start = 0
         y_start = 0
         x_end = width
         y_end = 0
         l1 = Line(Point(x_start, y_start, 0), Point(x_end, y_end, 0)) # baseline
         l2 = Line.transform(l1, CSNewLn) # rotation
-        v1 = Vector3.byTwoPoints(l2.start,l2.end)
+        v1 = Vector3.by_two_points(l2.start,l2.end)
         v1 = Vector3.normalize(v1)
         v2 = Vector3.scale(v1, patrow.shift_pattern * n)
-        l3 = Line.translate2(l2, v2)  # shift of line for pattern
+        l3 = Line.translate_2(l2, v2)  # shift of line for pattern
         #if patrow.shift_pattern == 0:
         #    l3 = l2
         #else:
         #    v2 = Vector3.scale(v1, patrow.shift_pattern*(n+1))
-        #    l3 = Line.translate2(l2,v2) # shift of line for pattern
-        v3 = Vector3.normalize(Vector3.crossProduct(v1,ZAxis)) #Eenheidsvector haaks op lijn
+        #    l3 = Line.translate_2(l2,v2) # shift of line for pattern
+        v3 = Vector3.normalize(Vector3.cross_product(v1,Z_Axis)) #Eenheidsvector haaks op lijn
         if patrow.angle == 0:
             v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
             v4 = Vector3.reverse(v4)
@@ -448,7 +448,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
             l4 = l3.translate(v4)
         v6 = Vector3(dx + patrow.x_orig,dy + patrow.y_orig,0)
         print(v6)
-        l5 = Line.translate2(l4,v6)
+        l5 = Line.translate_2(l4,v6)
 
         if patrow.dash == 0 and patrow.space == 0:
             lines.append(l5)
@@ -456,7 +456,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
             # dashed lines
             LinePattern = ["Pat", [patrow.dash, -patrow.space],
                            1]  # Rule: line, whitespace, line whitespace etc., scale
-            for i in lineToPattern(l5, LinePattern):
+            for i in line_to_pattern(l5, LinePattern):
                 lines.append(i)
         n = n + 1
 

@@ -28,16 +28,16 @@ p3 = Point(2000,6500,0)
 p4 = Point(4000,3000,0)
 p5 = Point(4000,0,0)
 
-# PC1 = PolyCurve.byPoints([p1,p2,p3,p4,p5])
+# PC1 = PolyCurve.by_points([p1,p2,p3,p4,p5])
 # project.objects.append(PC1)
 
 window1 = [Point(-500,500,0), Point(500,750,0), Point(750,750,0), Point(750,500,0)]
 
-# PC2 = PolyCurve.byPoints(window1)
+# PC2 = PolyCurve.by_points(window1)
 
 window2 = [Point(3700,6000,0), Point(500,750,0), Point(750,750,0), Point(750,500,0)]
 
-# PC3 = PolyCurve.byPoints(window2)
+# PC3 = PolyCurve.by_points(window2)
 
 Line4 = Line(start=Point(2500, -900, 0), end=Point(2500, 6000, 0))
 project.objects.append(Line4)
@@ -47,7 +47,7 @@ p2 = Point(1000,3000,0)
 p3 = Point(6000,6500,0)
 p5 = Point(4000,2500,0)
 
-PC4 = PolyCurve.byPoints([p1,p2,p3,p5])
+PC4 = PolyCurve.by_points([p1,p2,p3,p5])
 project.objects.append(PC4)
 
 
@@ -56,10 +56,10 @@ p2 = Point(0,500,0)
 p3 = Point(4000,500,0)
 p5 = Point(4000,-500,0)
 
-PC5 = PolyCurve.byPoints([p1,p2,p3,p5])
+PC5 = PolyCurve.by_points([p1,p2,p3,p5])
 project.objects.append(PC5)
 
-PC6 = PolyCurve.byPoints([p5,p3,p2,p1])
+PC6 = PolyCurve.by_points([p5,p3,p2,p1])
 
 
 # Line5 = Line(start=Point(1500, -750, 0), end=Point(1500, 1500, 0))
@@ -72,7 +72,7 @@ PC6 = PolyCurve.byPoints([p5,p3,p2,p1])
 # p5 = Point(2000,500,0)
 # p6 = Point(2500,0,0)
 # p7 = Point(2000,-500,0)
-# PC6 = PolyCurve.byPoints([p1,p2,p3,p4,p5,p6,p7])
+# PC6 = PolyCurve.by_points([p1,p2,p3,p4,p5,p6,p7])
 # project.objects.append(PC6)
 
 
@@ -82,10 +82,10 @@ PC6 = PolyCurve.byPoints([p5,p3,p2,p1])
 # for j in window1:
 #     project.objects.append(j)
 
-# test1 = PatternSystem().StretcherBondWithJoint("halfsteensverband",100,210,50,10,12.5)
-# test2 = PatternSystem().TileBondWithJoint("tegels",400,400,10,10,10)
-# test3 = PatternSystem().CrossBondWithJoint("kruisverband test",100,210,50,10,12.5)
-# test_res = PatternGEOM(test3,2000,2000)
+# test1 = PatternSystem().stretcher_bond_with_joint("halfsteensverband",100,210,50,10,12.5)
+# test2 = PatternSystem().tile_bond_with_joint("tegels",400,400,10,10,10)
+# test3 = PatternSystem().cross_bond_with_joint("kruisverband test",100,210,50,10,12.5)
+# test_res = pattern_geom(test3,2000,2000)
 
 # for i in test_res:
 #     project.objects.append(i)
@@ -100,7 +100,7 @@ l6 = Line(Point(300,1200,0), Point(1200,0,0))
 # project.objects.append(l5)
 # project.objects.append(l6)
 
-intersect_calculator = Intersect2d()
+# intersect_calculator = Intersect2d()
 
 
 # multiline_intersect = intersect_calculator.getMultiLineIntersect([l3,l4,l5,l6])
@@ -109,14 +109,14 @@ intersect_calculator = Intersect2d()
 #     project.objects.append(res_intersect)
 
 
-# polycurve_intersect = intersect_calculator.getIntersectLinePolyCurve(PC2, [l3,l4,l5,l6], True)
+# polycurve_intersect = intersect_calculator.get_intersect_line_polycurve(PC2, [l3,l4,l5,l6], True)
 # print(polycurve_intersect)
 
 # for pt in polycurve_intersect["IntersectGridPoints"]:
 #     project.objects.append(pt)
 
 
-# lines_and_house = intersect_calculator.getIntersectLinePolyCurve(PC1, [l3,l4,l5,l6], True)
+# lines_and_house = intersect_calculator.get_intersect_line_polycurve(PC1, [l3,l4,l5,l6], True)
 # print(lines_and_house)
 # for pt in lines_and_house["IntersectGridPoints"]:
 #     project.objects.append(pt)
@@ -142,19 +142,19 @@ intersect_calculator = Intersect2d()
 
 
 
-x = splitPolyCurveByLine(PC4, Line4)
+x = split_polycurve_by_line(PC4, Line4)
 for i in x:
     project.objects.append(i)
 
-# b = splitPolyCurveByLine(PC5, Line4)
+# b = split_polycurve_by_line(PC5, Line4)
 # for i in b:
 #     project.objects.append(i)
 
-b = splitPolyCurveByLine(PC6, Line4)
+b = split_polycurve_by_line(PC6, Line4)
 for i in b:
     project.objects.append(i)
 
-# b = splitPolyCurveByLine(PC6, Line5)
+# b = split_polycurve_by_line(PC6, Line5)
 # for i in b:
 #     project.objects.append(i)
 

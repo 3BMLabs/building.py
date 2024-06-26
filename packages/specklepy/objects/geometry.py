@@ -39,7 +39,11 @@ class Point(Base, speckle_type=GEOMETRY + "Point"):
         return pt
 
 
-class Pointcloud(Base, speckle_type=GEOMETRY + "Pointcloud"):
+class Pointcloud(
+    Base,
+    speckle_type=GEOMETRY + "Pointcloud",
+    chunkable={"points": 31250, "colors": 62500, "sizes": 62500},
+):
     points: Optional[List[float]] = None
     colors: Optional[List[int]] = None
     sizes: Optional[List[float]] = None
@@ -315,7 +319,7 @@ class Spiral(Base, speckle_type=GEOMETRY + "Spiral", detachable={"displayValue"}
     startPoint: Optional[Point] = None
     endPoint: Optional[Point]
     plane: Optional[Plane]
-    turns: Optional[int]
+    turns: Optional[float]
     pitchAxis: Optional[Vector] = Vector()
     pitch: float = 0
     spiralType: Optional[SpiralType] = None
@@ -894,7 +898,7 @@ class Brep(
     def VerticesValue(self) -> List[Point]:
         if self.Vertices is None:
             return None
-        encoded_unit = get_encoding_from_units(self.Vertices[0]._units)
+        encoded_unit = get_encoding_from_units(self.Vertices[0].units)
         values = [encoded_unit]
         for vertex in self.Vertices:
             values.extend(vertex.to_list())
@@ -909,7 +913,7 @@ class Brep(
 
         for i in range(0, len(value), 3):
             vertex = Point.from_list(value[i : i + 3])
-            vertex._units = units
+            vertex.units = units
             vertices.append(vertex)
 
         self.Vertices = vertices
