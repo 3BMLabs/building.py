@@ -1130,7 +1130,7 @@ class Path(MutableSequence):
 
 
 
-class Vector3:
+class Vector3(Coords):
     """Represents a 3D vector with x, y, and z coordinates."""
     def __init__(self, x: float, y: float, z: float) -> 'Vector3':
         """Initializes a new Vector3 instance with the given x, y, and z coordinates.
@@ -1139,15 +1139,8 @@ class Vector3:
         - `y` (float): Y-coordinate of the vector.
         - `z` (float): Z-coordinate of the vector.
         """
-        self.id = generateID()
+        super().__init__(x, y, z)
         self.type = __class__.__name__
-        self.x: float = 0.0
-        self.y: float = 0.0
-        self.z: float = 0.0
-
-        self.x = x
-        self.y = y
-        self.z = z
 
     def serialize(self) -> dict:
         """Serializes the Vector3 object into a dictionary.
@@ -1162,15 +1155,7 @@ class Vector3:
         # {'id': None, 'type': None, 'x': 1, 'y': 2, 'z': 3}
         ```
         """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'x': self.x,
-            'y': self.y,
-            'z': self.z
-        }
+        return super().serialize()
 
     @staticmethod
     def deserialize(data):
@@ -1932,7 +1917,7 @@ Z_Axis = Vector3(0, 0, 1)
 # from project.fileformat import project
 
 
-class Point:
+class Point(Coords):
     """Represents a point in 3D space with x, y, and z coordinates."""
     def __init__(self, x: float, y: float, z: float) -> 'Point':
         """Initializes a new Point instance with the given x, y, and z coordinates.
@@ -1941,31 +1926,20 @@ class Point:
         - `y` (float): Y-coordinate of the point.
         - `z` (float): Z-coordinate of the point.
         """
-        self.id = generateID()
+        super().__init__(x, y, z)
         self.type = __class__.__name__
-        self.x: float = 0.0
-        self.y: float = 0.0
-        self.z: float = 0.0
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
         self.value = self.x, self.y, self.z
         self.units = "mm"
 
     def __str__(self) -> str:
         """Converts the point to its string representation."""
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-
+    
     def serialize(self):
         """Serializes the point object."""
         id_value = str(self.id) if not isinstance(
             self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'x': self.x,
-            'y': self.y,
-            'z': self.z,
+        return super().serialize() | {
             'value': self.value,
             'units': self.units
         }
@@ -3575,7 +3549,7 @@ class Matrix:
         return rows, cols
 
 
-class Line:
+class Line(Serializable):
     def __init__(self, start: 'Point', end: 'Point') -> 'Line':
         """Initializes a Line object with the specified start and end points.
 
@@ -4279,12 +4253,14 @@ class PolyCurve:
         plycrv = PolyCurve()
         for index, point in enumerate(points):
             plycrv.points.append(point)
-            try:
-                nextpoint = points[index+1]
-                plycrv.curves.append(Line(start=point, end=nextpoint))
-            except:
+            if(index == len(points) - 1):
                 firstpoint = points[0]
                 plycrv.curves.append(Line(start=point, end=firstpoint))
+                
+            else:
+                
+                nextpoint = points[index+1]
+                plycrv.curves.append(Line(start=point, end=nextpoint))
 
         if project.closed:
             if plycrv.points[0].value == plycrv.points[-1].value:
@@ -8363,60 +8339,67 @@ class Extrusion:
 
         Extrus.polycurve_3d_translated = polycurve
 
+        numPoints = len(Points)
+        
         # allverts
         for pnt in Points:
-            # Onderzijde verplaatst met dz_loc
+            # bottom side moves along the normal with dz_loc units
             pnts.append(Point.translate(pnt, Vector3.product(dz_loc, norm)))
-        for pnt in Points:
-            # Bovenzijde verplaatst met dz_loc
-            pnts.append(Point.translate(
-                pnt, Vector3.product((dz_loc+height), norm)))
-
-        numPoints = len(Points)
-
+        
         # Bottomface
-        count = 0
         face = []
-        for x in range(numPoints):
-            face.append(count)
-            count = count + 1
+        for x in reversed(range(numPoints)):
+            face.append(x)
         faces.append(face)
-
+        
+        
         # Topface
-        count = 0
+        # TODO: correct winding
         face = []
-        for x in range(numPoints):
-            face.append(count+numPoints)
-            count = count + 1
+        start = numPoints if height else 0
+        for x in range(start, start + numPoints):
+            face.append(x)
         faces.append(face)
+            
+        # when the height of an extrusion is 0, we only have to add the top / bottom (it doesn't really matter) side mesh. it would just cause z-buffer glitching
+        if height:
+            for pnt in Points:
+                # Bovenzijde verplaatst met dz_loc
+                pnts.append(Point.translate(
+                    pnt, Vector3.product((dz_loc+height), norm)))
+            #other faces
 
-        # Sides
-        count = 0
-        length = len(faces[0])
-        for i, j in zip(faces[0], faces[1]):
-            face = []
-            face.append(i)
-            face.append(faces[0][count + 1])
-            face.append(faces[1][count + 1])
-            face.append(j)
-            count = count + 1
-            if count == length-1:
+
+
+            # Sides
+            count = 0
+            length = len(faces[0])
+            for i, j in zip(faces[0], faces[1]):
+                face = []
                 face.append(i)
-                face.append(faces[0][0])
-                face.append(faces[1][0])
+                face.append(faces[0][count + 1])
+                face.append(faces[1][count + 1])
                 face.append(j)
+                count = count + 1
+                if count == length-1:
+                    face.append(i)
+                    face.append(faces[0][0])
+                    face.append(faces[1][0])
+                    face.append(j)
+                    faces.append(face)
+                    break
+                else:
+                    pass
                 faces.append(face)
-                break
-            else:
-                pass
-            faces.append(face)
 
         # toMeshStructure
         for i in pnts:
             Extrus.verts.append(i.x)
             Extrus.verts.append(i.y)
             Extrus.verts.append(i.z)
-
+            
+        # faces are laid out like this: face 0 vert count, face 0 vert 0 index, vert ...count index, face 1 vert count etc.
+        # for example: 4, 0, 1, 2, 3, 3, 4, 5, 6 => 4, (0, 1, 2, 3), 3, (4, 5, 6)
         for x in faces:
             Extrus.faces.append(len(x))  # Number of verts in face
             for y in x:
