@@ -36,18 +36,16 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.point import Point
-from geometry.curve import Line
-from geometry.curve import PolyCurve, Polygon
-from geometry.curve import Arc
-from geometry.geometry2d import Point2D
-from abstract.vector import Vector3
-from abstract.plane import Plane
-from abstract.interval import Interval
-from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
-from abstract.color import *
+from BuildingPy import Point
+from BuildingPy import Line
+from BuildingPy import PolyCurve, Polygon
+from BuildingPy import Arc
+from BuildingPy import Vector3
+from BuildingPy import Plane
+from BuildingPy import Interval
+from BuildingPy import Vector2, Point2D, Line2D, PolyCurve2D
 from packages.helper import *
-from project.fileformat import project
+from BuildingPy import project
 
 # [!not included in BP singlefile - end]
 
@@ -157,7 +155,7 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
 
     return SpecklePolyln
 
-def SpecklePolygonBySpecklePoints(polycurve: Polygon): #fixed
+def SpecklePolygonBySpecklePoints(polycurve): #fixed
     SpecklePoints = [PointToSpecklePoint(point) for point in polycurve.points]
     SpecklePolygon = SpecklePolyLine.from_points(points=SpecklePoints)
     SpecklePolygon.id = polycurve.id
