@@ -80,7 +80,8 @@ class Frame(Serializable):
         self.rotation = 0
         self.material = None
         self.color = BaseOther.color
-        self.profile_data = None
+        self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
+        self.profile_obj = None #object of 2D profile
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
@@ -327,6 +328,41 @@ class Frame(Serializable):
         f1.colorlst = colorlist(f1.extrusion, f1.color)
         f1.props()
         return f1
+
+    @classmethod
+    def by_startpoint_endpoint_rect(cls, start: Union[Point, Node], end: Union[Point, Node], width: float, height: float, name: str, rotation: float, material=None, comments=None):
+        # 2D polycurve
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+
+        prof = Rectangle(str(width)+"x"+str(height),width,height)
+        polycurve = prof.curve
+        f1.profile_obj = prof
+        curvrot = polycurve.rotate(rotation)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = curvrot
+        f1.profileName = name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
 
     @classmethod
     def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):

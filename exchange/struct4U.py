@@ -326,15 +326,27 @@ class xmlXFEM4U:
                 Profiles.append("<Material_type>" + "0" + "</Material_type>\n")
                 Profiles.append("<Material>" + "S235" + "</Material>\n")
                 Profiles.append("<Angle>" + "0" + "</Angle>\n")
-            elif j.material.name == "Concrete":  # nu simpel al het andere is beton
-                Profiles.append("<Profile_name>" + "Profile " +
-                                str(profN) + "</Profile_name>\n")
+            elif j.material.name == "Timber":
+                Profiles.append("<Profile_name>" + "Profile " + str(profN) + "</Profile_name>\n")
+                Profiles.append("<Material_type>" + "2" + "</Material_type>\n")
+                Profiles.append("<Material>" + "C24" + "</Material>\n")
+                Profiles.append("<Angle>" + "0" + "</Angle>\n")
+                Profiles.append("<ServiceClass>" + "0" + "</ServiceClass>\n")
+                Profiles.append("<Profile_shape>" + "6" + "</Profile_shape>\n")
+                Profiles.append("<h>" + str(j.profile_obj.h) + "</h>\n")
+                Profiles.append("<b>" + str(j.profile_obj.b) + "</b>\n")
+                Profiles.append("<tf>" + str(j.profile_obj.h) + "</tf>\n")
+                Profiles.append("<tw>10</tw>\n")
+                Profiles.append("<r1>5</r1>\n")
+                Profiles.append("<r2>5</r2>\n")
+            elif j.material.name == "Concrete":
+                Profiles.append("<Profile_name>" + "Profile " + str(profN) + "</Profile_name>\n")
                 Profiles.append("<Material_type>" + "1" + "</Material_type>\n")
                 Profiles.append("<Material>" + "C20/25" + "</Material>\n")
                 Profiles.append("<Angle>" + "0" + "</Angle>\n")
                 Profiles.append("<Profile_shape>" + "1" + "</Profile_shape>\n")
-                Profiles.append("<h>600</h>\n")
-                Profiles.append("<b>500</b>\n")
+                Profiles.append("<h>" + str(j.profile_obj.h) + "</h>\n")
+                Profiles.append("<b>" + str(j.profile_obj.b) + "</b>\n")
                 Profiles.append("<h1>50</h1>\n")
                 Profiles.append("<b1>50</b1>\n")
                 Profiles.append("<h2>50</h2>\n")
@@ -343,7 +355,6 @@ class xmlXFEM4U:
                 Profiles.append("<b3>50</b3>\n")
                 Profiles.append("<h4>50</h4>\n")
                 Profiles.append("<b4>50</b4>\n")
-
         for i in obj:
             nm = i.__class__.__name__
             if nm == 'Panel':
