@@ -25,7 +25,7 @@ xmlS4U.addProject("Parametric Industrial Hall")
 xmlS4U.addPanels() #add Load Panels
 xmlS4U.addGrids() # Grids
 xmlS4U.addSurfaceLoad()
-xmlS4U.addLoadCasesCombinations()
+
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 

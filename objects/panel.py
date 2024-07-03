@@ -44,7 +44,7 @@ from geometry.curve import *
 # [!not included in BP singlefile - end]
 
 
-class Panel:
+class Panel(Serializable):
     # Panel
     def __init__(self):
         self.id = generateID()

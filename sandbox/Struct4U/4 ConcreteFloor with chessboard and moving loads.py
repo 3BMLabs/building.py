@@ -100,7 +100,7 @@ xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Concrete floor with loads")
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,0) # Grids
-xmlS4U.addLoadCasesCombinations()
+
 xmlS4U.addSurfaceLoad(obj)
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr

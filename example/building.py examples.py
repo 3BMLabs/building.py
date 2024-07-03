@@ -8,7 +8,7 @@ sys.path.append(str(package_root_directory))
 
 from objects.panel import *
 from objects.frame import *
-from objects.steelshape import *
+from objects.steel_shapes import *
 from objects.datum import *
 from geometry.linestyle import *
 from geometry.curve import *

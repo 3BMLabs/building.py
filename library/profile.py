@@ -41,8 +41,9 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
-from objects.steelshape import *
+from objects.steel_shapes import *
 from geometry.geometry2d import *
+from geometry.curve import PolyCurve
 
 # [!not included in BP singlefile - end]
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"

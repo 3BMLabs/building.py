@@ -45,6 +45,7 @@ from abstract.vector import *
 from abstract.coordinatesystem import *
 from abstract.node import *
 from geometry.solid import *
+from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
@@ -56,7 +57,7 @@ def colorlist(extrus, color):
 
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
-class Frame:
+class Frame(Serializable):
     def __init__(self):
         self.id = generateID()
         self.type = __class__.__name__
@@ -207,12 +208,12 @@ class Frame:
             f1.end = end
         elif end.type == 'Node':
             f1.end = end.point
-
-        try:
-            curv = profiledataToShape(profile_name).polycurve2d
-        except Exception as e:
+            
+        #try:
+        curv = profiledataToShape(profile_name).polycurve2d
+        #except Exception as e:
             # Profile does not exist
-            print(f"Profile does not exist: {profile_name}\nError: {e}")
+        #print(f"Profile does not exist: {profile_name}\nError: {e}")
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees

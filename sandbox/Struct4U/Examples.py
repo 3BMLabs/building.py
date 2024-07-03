@@ -49,7 +49,7 @@ xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Examples of building.py")
 xmlS4U.addPanels(obj) #add Load Panels
 xmlS4U.addSurfaceLoad(obj)
-xmlS4U.addLoadCasesCombinations()
+
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 

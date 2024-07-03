@@ -17,7 +17,7 @@ sys.path.append(str(package_root_directory))
 
 # Building Py Imports
 from objects.frame import *
-from objects.steelshape import *
+from objects.steel_shapes import *
 from project.fileformat import *
 from objects.datum import *
 # from exchange.Freecad_Bupy import *
