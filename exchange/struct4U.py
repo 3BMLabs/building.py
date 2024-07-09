@@ -306,7 +306,7 @@ class xmlXFEM4U:
         profN = 0  # Numbering profiles
         supportN = 0  # Numbering of supports
         Nodes.append("<Nodes>\n")
-        Plates.append("<Plates>\n")
+        Plates.append("<Plates>")
         Beams.append("<Beams>\n")
         Beamgroup.append("<Beamgroup>\n")
         Profiles.append("<Profiles>\n")
@@ -616,7 +616,7 @@ class xmlXFEM4U:
 
     def addPanels(self, obj=None):
         Panels = []
-        Panels.append("<Panels>\n")
+        Panels.append("<Panels>")
         if obj != None:
             slN = 0
             for i in obj:
