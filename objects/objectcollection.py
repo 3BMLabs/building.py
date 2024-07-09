@@ -47,7 +47,7 @@ from packages.helper import *
 # EVERYWHERE FOR EACH OBJECT A ROTATION/POSITION
 # Make sure that the objects can be merged!
 
-class WurksRaster3d:
+class WurksRaster3d(Serializable):
     def __init__(self):
         self.id = generateID()
         self.type = __class__.__name__

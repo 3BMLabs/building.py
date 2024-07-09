@@ -56,21 +56,6 @@ class Vector3(Coords):
         super().__init__(x, y, z)
         self.type = __class__.__name__
 
-    def serialize(self) -> dict:
-        """Serializes the Vector3 object into a dictionary.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized data of the Vector3 object.
-
-        #### Example usage:
-        ```python
-        vector = Vector3(1, 2, 3)
-        serialized_data = vector.serialize()
-        # {'id': None, 'type': None, 'x': 1, 'y': 2, 'z': 3}
-        ```
-        """
-        return super().serialize()
-
     @staticmethod
     def deserialize(data):
         """Converts a dictionary representation of a vector into a Vector3 object.

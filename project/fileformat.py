@@ -37,12 +37,13 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+from abstract.serializable import Serializable
 from geometry.point import Point
 from abstract.coordinatesystem import CoordinateSystem
 from abstract.vector import Vector3
 
 # [!not included in BP singlefile - end]
-class BuildingPy:
+class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
@@ -93,38 +94,24 @@ class BuildingPy:
         Z_Axis = Vector3(0, 0, 1)
         self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
-    def save(self):
-        # print(self.objects)
-        serialized_objects = []
-        for obj in self.objects:
-            try:
-                # print(obj)
-                serialized_objects.append(json.dumps(obj.serialize()))
-            except:
-                print(obj)
-
-        serialized_data = json.dumps(serialized_objects)
-        file_name = 'project/data.json'
-        with open(file_name, 'w') as file:
-            file.write(serialized_data)
-
-
+    def save(self, file_name = 'project/data.json'):
+        super().save(file_name)
+        
         type_count = defaultdict(int)
-        for serialized_item in serialized_objects:
-            item = json.loads(serialized_item)
-            item_type = item.get("type")
+        for serialized_item in self.objects:
+            #item = json.loads(serialized_item)
+            item_type = serialized_item.type
             if item_type:
                 type_count[item_type] += 1
 
-        total_items = len(serialized_objects)
+        total_items = len(self.objects)
 
         print(f"\nTotal saved items to '{file_name}': {total_items}")
         print("Type counts:")
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
-
-    def open(self):
-        pass  # open data.json objects in here
+    def open(self, file_name = 'project/data.json'):
+        super().open(file_name)
 
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle

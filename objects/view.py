@@ -35,7 +35,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.curve import *
 
-class View:
+class View(Serializable):
     def __init__(self):
         self.name = None
         self.id = generateID()
@@ -71,7 +71,7 @@ class View:
         return view
 
 
-class Visibility:
+class Visibility(Serializable):
     def __init__(self):
         self.name = None
         self.id = generateID()

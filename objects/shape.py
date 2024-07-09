@@ -43,30 +43,41 @@ from geometry.geometry2d import *
 
 sqrt2 = math.sqrt(2)
 
-class Tshape:
-    def __init__(self, name, h, b, h1, b1):
-        self.Description = "T-shape"
-        self.ID = "T"
+class Shape(Serializable):
+    def __init__(self, ID, name:string, description:string):
+        super().__init__()
+        self.ID = ID
+        self.name = name
+        self.description = description
+        self.curve = []
+
+#define rectangularshape as a separate class for now, to make multiple inheritance easier
+class RectangularShape(Shape):
+    def __init__(self, height, width, **kwargs):
+        super().__init__(**kwargs)
+        self.height = height
+        self.width = width
+
+class Tshape(RectangularShape):
+    def __init__(self, name, height, width, h1, b1):
+        super().__init__("T", name, "T-shape")
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+        self.height = height  # height
+        self.width = width  # width
         self.h1 = h1
         self.b1 = b1
 
         # describe points
-        p1 = Point2D(b1 / 2, -h / 2)  # right bottom
-        p2 = Point2D(b1 / 2, h / 2 - h1)  # right middle 1
-        p3 = Point2D(b / 2, h / 2 - h1)  # right middle 2
-        p4 = Point2D(b / 2, h / 2)  # right top
-        p5 = Point2D(-b / 2, h / 2)  # left top
-        p6 = Point2D(-b / 2, h / 2 - h1)  # left middle 2
-        p7 = Point2D(-b1 / 2, h / 2 - h1)  # left middle 1
-        p8 = Point2D(-b1 / 2, -h / 2)  # left bottom
+        p1 = Point2D(b1 / 2, -height / 2)  # right bottom
+        p2 = Point2D(b1 / 2, height / 2 - h1)  # right middle 1
+        p3 = Point2D(width / 2, height / 2 - h1)  # right middle 2
+        p4 = Point2D(width / 2, height / 2)  # right top
+        p5 = Point2D(-width / 2, height / 2)  # left top
+        p6 = Point2D(-width / 2, height / 2 - h1)  # left middle 2
+        p7 = Point2D(-b1 / 2, height / 2 - h1)  # left middle 1
+        p8 = Point2D(-b1 / 2, -height / 2)  # left bottom
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -90,8 +101,8 @@ class Tshape:
             'Description': self.Description,
             'ID': self.ID,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
@@ -101,8 +112,8 @@ class Tshape:
     def deserialize(data):
         tshape = Tshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             h1=data.get('h1'),
             b1=data.get('b1')
         )
@@ -118,28 +129,22 @@ class Tshape:
         return "Profile(" + f"{self.name})"
 
 
-class Lshape:
-    def __init__(self, name, h, b, h1, b1):
-        self.Description = "L-shape"
-        self.ID = "L"
+class Lshape(RectangularShape):
+    def __init__(self, name, height, width, h1, b1):
+        super().__init__(ID = "L", name=name, Description="L-shape", height=height,width=width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
         self.h1 = h1
         self.b1 = b1
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + h1)  # right middle
-        p3 = Point2D(-b / 2 + b1, -h / 2 + h1)  # middle
-        p4 = Point2D(-b / 2 + b1, h / 2)  # middle top
-        p5 = Point2D(-b / 2, h / 2)  # left top
-        p6 = Point2D(-b / 2, -h / 2)  # left bottom
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, -height / 2 + h1)  # right middle
+        p3 = Point2D(-width / 2 + b1, -height / 2 + h1)  # middle
+        p4 = Point2D(-width / 2 + b1, height / 2)  # middle top
+        p5 = Point2D(-width / 2, height / 2)  # left top
+        p6 = Point2D(-width / 2, -height / 2)  # left bottom
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -158,8 +163,8 @@ class Lshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
@@ -169,8 +174,8 @@ class Lshape:
     def deserialize(data):
         lshape = Lshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             h1=data.get('h1'),
             b1=data.get('b1')
         )
@@ -188,33 +193,27 @@ class Lshape:
         return "Profile(" + f"{self.name})"
 
 
-class Eshape:
-    def __init__(self, name, h, b, h1):
-        self.Description = "E-shape"
-        self.ID = "E"
+class Eshape(Serializable):
+    def __init__(self, name, height, width, h1):
+        super().__init__(ID = "E", name=name, Description="E-shape", height=height,width=width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
         self.h1 = h1
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + h1)
-        p3 = Point2D(-b / 2 + h1, -h / 2 + h1)
-        p4 = Point2D(-b / 2 + h1, -h1 / 2)
-        p5 = Point2D(b / 2, -h1 / 2)
-        p6 = Point2D(b / 2, h1 / 2)
-        p7 = Point2D(-b / 2 + h1, h1 / 2)
-        p8 = Point2D(-b / 2 + h1, h / 2 - h1)
-        p9 = Point2D(b / 2, h / 2 - h1)
-        p10 = Point2D(b / 2, h / 2)
-        p11 = Point2D(-b / 2, h / 2)
-        p12 = Point2D(-b / 2, -h / 2)
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, -height / 2 + h1)
+        p3 = Point2D(-width / 2 + h1, -height / 2 + h1)
+        p4 = Point2D(-width / 2 + h1, -h1 / 2)
+        p5 = Point2D(width / 2, -h1 / 2)
+        p6 = Point2D(width / 2, h1 / 2)
+        p7 = Point2D(-width / 2 + h1, h1 / 2)
+        p8 = Point2D(-width / 2 + h1, height / 2 - h1)
+        p9 = Point2D(width / 2, height / 2 - h1)
+        p10 = Point2D(width / 2, height / 2)
+        p11 = Point2D(-width / 2, height / 2)
+        p12 = Point2D(-width / 2, -height / 2)
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -240,8 +239,8 @@ class Eshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             'curve': self.curve.serialize() if self.curve else None
         }
@@ -250,8 +249,8 @@ class Eshape:
     def deserialize(data):
         eshape = Eshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             h1=data.get('h1')
         )
 
@@ -268,31 +267,25 @@ class Eshape:
         return "Profile(" + f"{self.name})"
 
 
-class Nshape:
-    def __init__(self, name, h, b, b1):
-        self.Description = "N-shape"
-        self.ID = "N"
+class Nshape(Serializable):
+    def __init__(self, name, height, width, b1):
+        super().__init__(ID = "N", name=name, Description="N-shape", height=height,width=width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
         self.b1 = b1
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, h / 2)
-        p3 = Point2D(b / 2 - b1, h / 2)
-        p4 = Point2D(b / 2 - b1, -h / 2 + b1 * 2)
-        p5 = Point2D(-b / 2 + b1, h / 2)
-        p6 = Point2D(-b / 2, h / 2)
-        p7 = Point2D(-b / 2, -h / 2)
-        p8 = Point2D(-b / 2 + b1, -h / 2)
-        p9 = Point2D(-b / 2 + b1, h / 2 - b1 * 2)
-        p10 = Point2D(b / 2 - b1, -h / 2)
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, height / 2)
+        p3 = Point2D(width / 2 - b1, height / 2)
+        p4 = Point2D(width / 2 - b1, -height / 2 + b1 * 2)
+        p5 = Point2D(-width / 2 + b1, height / 2)
+        p6 = Point2D(-width / 2, height / 2)
+        p7 = Point2D(-width / 2, -height / 2)
+        p8 = Point2D(-width / 2 + b1, -height / 2)
+        p9 = Point2D(-width / 2 + b1, height / 2 - b1 * 2)
+        p10 = Point2D(width / 2 - b1, -height / 2)
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -316,8 +309,8 @@ class Nshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
         }
@@ -326,8 +319,8 @@ class Nshape:
     def deserialize(data):
         nshape = Nshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             b1=data.get('b1')
         )
 
@@ -344,31 +337,29 @@ class Nshape:
         return "Profile(" + f"{self.name})"
 
 
-class Arrowshape:
-    def __init__(self, name, l, b, b1, l1):
-        self.Description = "Arrow-shape"
-        self.ID = "Arrowshape"
+class Arrowshape(Shape):
+    def __init__(self, name, length, width, b1, l1):
+        
+        super().__init__(ID = "Arrowshape", name=name, Description="Arrow-shape")
 
         # parameters
         self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.l = l  # length
-        self.b = b  # width
+        self.length = length  # length
+        self.width = width  # width
         self.b1 = b1
         self.l1 = l1
 
         # describe points
-        p1 = Point2D(0, l / 2)  # top middle
-        p2 = Point2D(b / 2, -l / 2 + l1)
-        # p3 = Point2D(b1 / 2, -l / 2 + l1)
-        p3 = Point2D(b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
-        p4 = Point2D(b1 / 2, -l / 2)
-        p5 = Point2D(-b1 / 2, -l / 2)
-        # p6 = Point2D(-b1 / 2, -l / 2 + l1)
-        p6 = Point2D(-b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
-        p7 = Point2D(-b / 2, -l / 2 + l1)
+        p1 = Point2D(0, length / 2)  # top middle
+        p2 = Point2D(width / 2, -length / 2 + l1)
+        # p3 = Point2D(b1 / 2, -length / 2 + l1)
+        p3 = Point2D(b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
+        p4 = Point2D(b1 / 2, -length / 2)
+        p5 = Point2D(-b1 / 2, -length / 2)
+        # p6 = Point2D(-b1 / 2, -length / 2 + l1)
+        p6 = Point2D(-b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
+        p7 = Point2D(-width / 2, -length / 2 + l1)
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -389,8 +380,8 @@ class Arrowshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'l': self.l,
-            'b': self.b,
+            'length': self.length,
+            'width': self.width,
             'b1': self.b1,
             'l1': self.l1,
             'curve': self.curve.serialize() if self.curve else None
@@ -400,8 +391,8 @@ class Arrowshape:
     def deserialize(data):
         arrowshape = Arrowshape(
             name=data.get('name'),
-            l=data.get('l'),
-            b=data.get('b'),
+            length=data.get('length'),
+            width=data.get('width'),
             b1=data.get('b1'),
             l1=data.get('l1')
         )

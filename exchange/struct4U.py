@@ -265,11 +265,8 @@ def XMLImportPlates(XMLtree):
 
 class xmlXFEM4U:
     def __init__(self):
-        self.Frame1 = "<Frame>\n"
         self.Project = "<ProjectName>" + "Building.py" + "</ProjectName>\n"
         self.ProjectNumber = "<ProjectNumber>0</ProjectNumber>\n"
-        self.ExportDate = "<ExportDateTime>2023-04-08 19:55:39Z</ExportDateTime>\n"
-        self.XMLVersion = "<XMLExportVersion>v4.0.30319</XMLExportVersion>\n"
         self.Nodes = "<Nodes></Nodes>\n"
         self.Supports = "<Supports></Supports>\n"
         self.Grids = "<Grids><X>0 5000</X><X_Lable>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC</X_Lable><Y>0 5000</Y><Y_Lable>1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24</Y_Lable><Z>0</Z><Z_Lable>+0</Z_Lable></Grids>\n"
@@ -283,10 +280,6 @@ class xmlXFEM4U:
         self.NodeLoads = "<NodeLoads></NodeLoads>\n"
         self.SurfaceLoads = "<SurfaceLoads></SurfaceLoads>\n"
         self.Combinations = "<Combinations></Combinations>\n"
-        self.RebarLongitudinal = "<RebarLongitudinal></RebarLongitudinal>\n"
-        self.RebarStirrup = "<RebarStirrup></RebarStirrup>\n"
-        self.Layers = "<Layers><Layer_number>1</Layer_number><Layer_description>Layer 1</Layer_description></Layers>\n"
-        self.Frame2 = "</Frame>\n"
         self.xmlstr = None
 
     def addBeamsPlates(self, buildingpyobj):
@@ -491,89 +484,6 @@ class xmlXFEM4U:
             self.Grids = "<Grids>" + "<X>" + spacX + "</X>" + "<X_Lable>" + seqX + "</X_Lable>" + "<Y>" + spacY + "</Y>" + "<Y_Lable>" + seqY + "</Y_Lable>" + "<Z>" + "0 " + str(
                 z) + "</Z>" + "<Z_Lable>" + "+0 h" + "</Z_Lable>" + "</Grids>"
 
-    def addLoadCasesCombinations(self):
-        # Standard Load Cases and Combinations
-        # Load Cases
-        LoadCases = []
-        LoadCases.append("<LoadCases>\n")
-        LoadCases.append("<Number>1</Number>\n")
-        LoadCases.append("<Description>Permanent</Description>\n")
-        LoadCases.append("<Type>0</Type>\n")
-        LoadCases.append("<psi0>1</psi0>\n")
-        LoadCases.append("<psi1>1</psi1>\n")
-        LoadCases.append("<psi2>1</psi2>\n")
-        LoadCases.append("<Number>2</Number>\n")
-        LoadCases.append("<Description>Veranderlijk</Description>\n")
-        LoadCases.append("<Type>1</Type>\n")
-        LoadCases.append("<psi0>0,4</psi0>\n")
-        LoadCases.append("<psi1>0,5</psi1>\n")
-        LoadCases.append("<psi2>0,3</psi2>\n")
-        LoadCases.append("</LoadCases>\n")
-
-        # Load Combinations
-        Combinations = []
-        Combinations.append("<Combinations>\n")
-        Combinations.append(
-            "<LoadCombinationNumber>1</LoadCombinationNumber>\n")
-        Combinations.append("<Description>Dead load</Description>\n")
-        Combinations.append("<CombTyp>0</CombTyp>\n")
-        Combinations.append("<Case>1</Case>\n")
-        Combinations.append("<Psi>1</Psi>\n")
-        Combinations.append("<Gamma>1, 35</Gamma>\n")
-        Combinations.append("<Case>2</Case>\n")
-        Combinations.append("<Psi>1</Psi>\n")
-        Combinations.append("<Gamma>1, 5</Gamma>\n")
-        Combinations.append(
-            "<LoadCombinationNumber>2</LoadCombinationNumber>\n")
-        Combinations.append("<Description>Live load</Description>\n")
-        Combinations.append("<CombTyp>0</CombTyp>\n")
-        Combinations.append("<Case>1</Case>\n")
-        Combinations.append("<Psi>1</Psi>\n")
-        Combinations.append("<Gamma>1, 2</Gamma>\n")
-        Combinations.append("<Case>2</Case>\n")
-        Combinations.append("<Psi>1</Psi>\n")
-        Combinations.append("<Gamma>1, 5</Gamma>\n")
-        Combinations.append(
-            "<LoadCombinationNumber>3</LoadCombinationNumber>\n")
-        Combinations.append("<Description>Dead load</Description>\n")
-        Combinations.append("<CombTyp>3</CombTyp>")
-        Combinations.append("<Case>1</Case>")
-        Combinations.append("<Psi>1</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("<Case>2</Case>")
-        Combinations.append("<Psi>1</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("<LoadCombinationNumber>4</LoadCombinationNumber>")
-        Combinations.append("<Description>Live")
-        Combinations.append("load</Description>")
-        Combinations.append("<CombTyp>3</CombTyp>")
-        Combinations.append("<Case>1</Case>")
-        Combinations.append("<Psi>1</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("<Case>2</Case>")
-        Combinations.append("<Psi>1</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("<LoadCombinationNumber>5</LoadCombinationNumber>")
-        Combinations.append("<Description>SLS")
-        Combinations.append("Permanent</Description>")
-        Combinations.append("<CombTyp>4</CombTyp>")
-        Combinations.append("<Case>1</Case>")
-        Combinations.append("<Psi>1</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("<LoadCombinationNumber>6</LoadCombinationNumber>")
-        Combinations.append("<Description>SLS")
-        Combinations.append("Quasi - permanent</Description>")
-        Combinations.append("<CombTyp>2</CombTyp>")
-        Combinations.append("<Case>1</Case>")
-        Combinations.append("<Psi>1</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("<Case>2</Case>")
-        Combinations.append("<Psi>0, 8</Psi>")
-        Combinations.append("<Gamma>1</Gamma>")
-        Combinations.append("</Combinations>")
-        self.LoadCases = ''.join(str(LCa) for LCa in LoadCases)
-        self.Combinations = ''.join(str(LC) for LC in Combinations)
-
     def addSurfaceLoad(self, obj=None):
         SurfaceLoads = []
         SurfaceLoads.append("<SurfaceLoads>\n")
@@ -644,12 +554,98 @@ class xmlXFEM4U:
 
     def addprojectnumber(self, ProjectNumber):
         self.ProjectNumber = "<ProjectNumber>" + ProjectNumber + "</ProjectNumber>\n"
-
-    def XML(self):
-        self.xmlstr = self.Frame1 + self.Project + self.ProjectNumber + self.ExportDate + self.XMLVersion + self.Nodes + self.Supports + self.Grids + self.Profiles + self.Beamgroup + self.Beams + \
-            self.Plates + self.Panels + self.LoadCases + self.BeamLoads + self.NodeLoads + self.SurfaceLoads + \
-            self.Combinations + self.RebarLongitudinal + \
-            self.RebarStirrup + self.Layers + self.Frame2
+        
+    #todo: make this function bigger and the class smaller
+    def convert_to_XML(self) -> string:
+        #the layout of this giant export function is like the file itself. 
+        self.xmlstr = \
+    "<Frame>" + \
+        self.Project + \
+        self.ProjectNumber + \
+    """ <ExportDateTime>2023-04-08 19:55:39Z</ExportDateTime>
+        <XMLExportVersion>v4.0.30319</XMLExportVersion>\n""" +\
+                    self.Nodes + self.Supports + self.Grids + self.Profiles + self.Beamgroup + self.Beams + \
+            self.Plates + self.Panels + \
+        """
+        <LoadCases>\n
+            <Number>1</Number>\n
+            <Description>Permanent</Description>\n
+            <Type>0</Type>\n
+            <psi0>1</psi0>\n
+            <psi1>1</psi1>\n
+            <psi2>1</psi2>\n
+            <Number>2</Number>\n
+            <Description>Veranderlijk</Description>\n
+            <Type>1</Type>\n
+            <psi0>0,4</psi0>\n
+            <psi1>0,5</psi1>\n
+            <psi2>0,3</psi2>\n
+        </LoadCases>\n""" + \
+            self.BeamLoads + self.NodeLoads + self.SurfaceLoads + \
+            """
+        <Combinations>\n
+            <LoadCombinationNumber>1</LoadCombinationNumber>\n
+            <Description>Dead load</Description>\n
+            <CombTyp>0</CombTyp>\n
+            <Case>1</Case>\n
+            <Psi>1</Psi>\n
+            <Gamma>1, 35</Gamma>\n
+            <Case>2</Case>\n
+            <Psi>1</Psi>\n
+            <Gamma>1, 5</Gamma>\n
+            <LoadCombinationNumber>2</LoadCombinationNumber>\n
+            <Description>Live load</Description>\n
+            <CombTyp>0</CombTyp>\n
+            <Case>1</Case>\n
+            <Psi>1</Psi>\n
+            <Gamma>1, 2</Gamma>\n
+            <Case>2</Case>\n
+            <Psi>1</Psi>\n
+            <Gamma>1, 5</Gamma>\n
+            <LoadCombinationNumber>3</LoadCombinationNumber>\n
+            <Description>Dead load</Description>\n
+            <CombTyp>3</CombTyp>
+            <Case>1</Case>
+            <Psi>1</Psi>
+            <Gamma>1</Gamma>
+            <Case>2</Case>
+            <Psi>1</Psi>
+            <Gamma>1</Gamma>
+            <LoadCombinationNumber>4</LoadCombinationNumber>
+            <Description>Live load</Description>
+            <CombTyp>3</CombTyp>
+            <Case>1</Case>
+            <Psi>1</Psi>
+            <Gamma>1</Gamma>
+            <Case>2</Case>
+            <Psi>1</Psi>
+            <Gamma>1</Gamma>
+            <LoadCombinationNumber>5</LoadCombinationNumber>
+            <Description>SLS
+            Permanent</Description>
+            <CombTyp>4</CombTyp>
+            <Case>1</Case>
+            <Psi>1</Psi>
+            <Gamma>1</Gamma>
+            <LoadCombinationNumber>6</LoadCombinationNumber>
+            <Description>SLS Quasi - permanent</Description>
+            <CombTyp>2</CombTyp>
+            <Case>1</Case>
+            <Psi>1</Psi>
+            <Gamma>1</Gamma>
+            <Case>2</Case>
+            <Psi>0, 8</Psi>
+            <Gamma>1</Gamma>
+        </Combinations>
+        <RebarLongitudinal>
+        </RebarLongitudinal>
+        <RebarStirrup>
+        </RebarStirrup>
+        <Layers>
+            <Layer_number>1</Layer_number>
+            <Layer_description>Layer 1</Layer_description>
+        </Layers>
+    </Frame>"""
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.xmlstr})"
@@ -666,8 +662,8 @@ def createXFEM4UXML(project: BuildingPy, filepathxml: str, gridinputs=None):
         xmlS4U.addGrids()  # Grids
     else:
         xmlS4U.addGrids(gridinputs[0],gridinputs[1],gridinputs[2],gridinputs[3],gridinputs[4])
-    xmlS4U.addLoadCasesCombinations()
-    xmlS4U.XML()
+    
+    xmlS4U.convert_to_XML()
     XMLString = xmlS4U.xmlstr
 
     filepath = filepathxml

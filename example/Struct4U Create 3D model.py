@@ -1,5 +1,6 @@
-from objects.frame import *
+from pathfixer import *
 from exchange.struct4U import *
+from objects.frame import *
 from objects.analytical import *
 
 project = BuildingPy("Steelstructure","0")
@@ -23,5 +24,5 @@ project.objects.append(Panel.by_polycurve_thickness(
 
 #project.toSpeckle("31d9948b31")
 
-pathxml = "C:/TEMP/test.xml"
+pathxml = "project/testXML.xml"
 createXFEM4UXML(project, pathxml)

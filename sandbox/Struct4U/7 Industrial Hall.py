@@ -218,7 +218,7 @@ xmlS4U.addProject("Parametric Industrial Hall")
 xmlS4U.addPanels(obj1) #add Load Panels
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,z) # Grids
 xmlS4U.addSurfaceLoad(obj1)
-xmlS4U.addLoadCasesCombinations()
+
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 

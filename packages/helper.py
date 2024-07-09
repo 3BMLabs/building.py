@@ -37,6 +37,8 @@ import string, random, json
 import urllib
 import xml.etree.ElementTree as ET
 
+from abstract.serializable import Serializable
+
 # [!not included in BP singlefile - end]
 
 
@@ -46,7 +48,7 @@ def find_in_list_of_list(mylist, char):
             return (mylist.index(sub_list))
     raise ValueError("'{char}' is not in list".format(char=char))
 
-class generateID:
+class ID(Serializable):
     def __init__(self) -> None:
         self.id = None
         self.object = None
@@ -67,6 +69,8 @@ class generateID:
     def __repr__(self) -> str:
         return f"{self.id}"
 
+def generateID() -> ID:
+    return ID()
 
 def findjson(id, json_string):
     #faster way to search in json

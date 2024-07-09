@@ -8,7 +8,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from objects.panel import *
 from objects.frame import *
-from objects.steelshape import *
+from objects.steel_shapes import *
 from exchange.speckle import *
 from project import fileformat
 from objects.datum import *

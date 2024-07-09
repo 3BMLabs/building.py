@@ -5,7 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from objects.panel import *
 from objects.frame import *
-from objects.steelshape import *
+from objects.steel_shapes import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
@@ -19,6 +19,44 @@ from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
 
 project = BuildingPy("PolyGon, to Surface and DXF to Ifc","0")
 
+
+class Serializable:
+    # Placeholder for the Serializable base class
+    pass
+
+class Shape(Serializable):
+    def __init__(self, ID, name: str, description: str):
+        super().__init__()  # Ensure the Serializable base class is initialized
+        self.ID = ID
+        self.name = name
+        self.description = description
+        self.curve = []
+
+class RectangularShape(Shape):
+    def __init__(self, width: float, height: float, **kwargs):
+        super().__init__(**kwargs)
+        self.width = width
+        self.height = height
+
+class SteelShape(Shape):
+    def __init__(self, IFC_profile_def: str, **kwargs):
+        super().__init__(**kwargs)
+        self.IFC_profile_def = IFC_profile_def
+
+class SteelRectangularShape(SteelShape, RectangularShape):
+    def __init__(self, ID, name: str, description: str, IFC_profile_def: str, width: float, height: float):
+        # Initialize Shape through the correct order
+        #Shape.__init__(self, ID, name, description)
+        #super().__init__(IFC_profile_def, width, height)
+        #RectangularShape.__init__(self, ID= ID, name, description, width, height)
+        #SteelShape.__init__(self, ID, name, description, IFC_profile_def)
+        super().__init__(ID=ID, name=name,description=description, IFC_profile_def=IFC_profile_def, width=width,height=height)
+
+# Example of how to create a SteelRectangularShape object
+steel_rectangular_shape = SteelRectangularShape("HEA", "Steel Beam", "A steel beam", "IFC_HEA", 200, 100)
+print(vars(steel_rectangular_shape))
+
+r = RectangularSteelShape("test", "name", "desc", "def", 3, 4)
 
 p1 = Point(0,0, 0)
 p2 = Point(0,3000, 0)
@@ -42,7 +80,6 @@ PG1 = Polygon.by_points([p1,p2,p4,])
 lst = [PG1]#, innerPolygon1, innerPolygon2]
 
 p = Point(2,3,4)
-p.serialize()
 
 obj = Surface.by_patch_inner_and_outer(lst)
 print(obj)
@@ -51,11 +88,14 @@ curve = PolyCurve.by_points([p1, p2, p4])
 
 obj2 = Extrusion.by_polycurve_height(polycurve=curve,height= 2000.0,dz_loc= 0)
 
+
 #project.objects.append(obj)
 project.objects.append(obj2)
 # project.objects.append(SF1)
 #project.objects.append(PG1)
 #project.objects.append(innerPolygon1)
 #project.objects.append(innerPolygon2)
-
+#project.save()
+#project.open()
+project.save()
 project.toSpeckle("29a6c39880")

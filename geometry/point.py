@@ -62,15 +62,6 @@ class Point(Coords):
     def __str__(self) -> str:
         """Converts the point to its string representation."""
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-    
-    def serialize(self):
-        """Serializes the point object."""
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return super().serialize() | {
-            'value': self.value,
-            'units': self.units
-        }
 
     @staticmethod
     def deserialize(data):

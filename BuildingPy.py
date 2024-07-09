@@ -34,7 +34,7 @@ def find_in_list_of_list(mylist, char):
             return (mylist.index(sub_list))
     raise ValueError("'{char}' is not in list".format(char=char))
 
-class generateID:
+class ID(Serializable):
     def __init__(self) -> None:
         self.id = None
         self.object = None
@@ -55,6 +55,8 @@ class generateID:
     def __repr__(self) -> str:
         return f"{self.id}"
 
+def generateID() -> ID:
+    return ID()
 
 def findjson(id, json_string):
     #faster way to search in json
@@ -1142,21 +1144,6 @@ class Vector3(Coords):
         super().__init__(x, y, z)
         self.type = __class__.__name__
 
-    def serialize(self) -> dict:
-        """Serializes the Vector3 object into a dictionary.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized data of the Vector3 object.
-
-        #### Example usage:
-        ```python
-        vector = Vector3(1, 2, 3)
-        serialized_data = vector.serialize()
-        # {'id': None, 'type': None, 'x': 1, 'y': 2, 'z': 3}
-        ```
-        """
-        return super().serialize()
-
     @staticmethod
     def deserialize(data):
         """Converts a dictionary representation of a vector into a Vector3 object.
@@ -1934,15 +1921,6 @@ class Point(Coords):
     def __str__(self) -> str:
         """Converts the point to its string representation."""
         return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-    
-    def serialize(self):
-        """Serializes the point object."""
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return super().serialize() | {
-            'value': self.value,
-            'units': self.units
-        }
 
     @staticmethod
     def deserialize(data):
@@ -2576,7 +2554,7 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem) 
         CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
 
-class BuildingPy:
+class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
@@ -2627,38 +2605,24 @@ class BuildingPy:
         Z_Axis = Vector3(0, 0, 1)
         self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
-    def save(self):
-        # print(self.objects)
-        serialized_objects = []
-        for obj in self.objects:
-            try:
-                # print(obj)
-                serialized_objects.append(json.dumps(obj.serialize()))
-            except:
-                print(obj)
-
-        serialized_data = json.dumps(serialized_objects)
-        file_name = 'project/data.json'
-        with open(file_name, 'w') as file:
-            file.write(serialized_data)
-
-
+    def save(self, file_name = 'project/data.json'):
+        super().save(file_name)
+        
         type_count = defaultdict(int)
-        for serialized_item in serialized_objects:
-            item = json.loads(serialized_item)
-            item_type = item.get("type")
+        for serialized_item in self.objects:
+            #item = json.loads(serialized_item)
+            item_type = serialized_item.type
             if item_type:
                 type_count[item_type] += 1
 
-        total_items = len(serialized_objects)
+        total_items = len(self.objects)
 
         print(f"\nTotal saved items to '{file_name}': {total_items}")
         print("Type counts:")
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
-
-    def open(self):
-        pass  # open data.json objects in here
+    def open(self, file_name = 'project/data.json'):
+        super().open(file_name)
 
     def toSpeckle(self, streamid, commitstring=None):
         self.specklestream = streamid
@@ -8667,7 +8631,7 @@ class PolySurface:
 
 
 
-class Panel:
+class Panel(Serializable):
     # Panel
     def __init__(self):
         self.id = generateID()
@@ -10442,7 +10406,7 @@ seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
 
-class GridheadType:
+class GridheadType(Serializable):
     def __init__(self):
         self.id = generateID()
         self.type = __class__.__name__
@@ -10770,7 +10734,7 @@ def colorlist(extrus, color):
 
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
-class Frame:
+class Frame(Serializable):
     def __init__(self):
         self.id = generateID()
         self.type = __class__.__name__
@@ -10793,7 +10757,8 @@ class Frame:
         self.rotation = 0
         self.material = None
         self.color = BaseOther.color
-        self.profile_data = None
+        self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
+        self.profile_obj = None #object of 2D profile
         self.colorlst = []
         self.vector = None
         self.vector_normalised = None
@@ -10919,12 +10884,12 @@ class Frame:
             f1.end = end
         elif end.type == 'Node':
             f1.end = end.point
-
-        try:
-            curv = profiledataToShape(profile_name).polycurve2d
-        except Exception as e:
+            
+        #try:
+        curv = profiledataToShape(profile_name).polycurve2d
+        #except Exception as e:
             # Profile does not exist
-            print(f"Profile does not exist: {profile_name}\nError: {e}")
+        #print(f"Profile does not exist: {profile_name}\nError: {e}")
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
@@ -11040,6 +11005,41 @@ class Frame:
         return f1
 
     @classmethod
+    def by_startpoint_endpoint_rect(cls, start: Union[Point, Node], end: Union[Point, Node], width: float, height: float, name: str, rotation: float, material=None, comments=None):
+        # 2D polycurve
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+
+        f1.directionVector = Vector3.by_two_points(f1.start, f1.end)
+        f1.length = Vector3.length(f1.directionVector)
+        f1.name = name
+
+        prof = Rectangle(str(width)+"x"+str(height),width,height)
+        polycurve = prof.curve
+        f1.profile_obj = prof
+        curvrot = polycurve.rotate(rotation)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = curvrot
+        f1.profileName = name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+
+    @classmethod
     def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
@@ -11141,30 +11141,41 @@ class Frame:
 
 sqrt2 = math.sqrt(2)
 
-class Tshape:
-    def __init__(self, name, h, b, h1, b1):
-        self.Description = "T-shape"
-        self.ID = "T"
+class Shape(Serializable):
+    def __init__(self, ID, name:string, description:string):
+        super().__init__()
+        self.ID = ID
+        self.name = name
+        self.description = description
+        self.curve = []
+
+#define rectangularshape as a separate class for now, to make multiple inheritance easier
+class RectangularShape(Shape):
+    def __init__(self, height, width, **kwargs):
+        super().__init__(**kwargs)
+        self.height = height
+        self.width = width
+
+class Tshape(RectangularShape):
+    def __init__(self, name, height, width, h1, b1):
+        super().__init__("T", name, "T-shape")
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+        self.height = height  # height
+        self.width = width  # width
         self.h1 = h1
         self.b1 = b1
 
         # describe points
-        p1 = Point2D(b1 / 2, -h / 2)  # right bottom
-        p2 = Point2D(b1 / 2, h / 2 - h1)  # right middle 1
-        p3 = Point2D(b / 2, h / 2 - h1)  # right middle 2
-        p4 = Point2D(b / 2, h / 2)  # right top
-        p5 = Point2D(-b / 2, h / 2)  # left top
-        p6 = Point2D(-b / 2, h / 2 - h1)  # left middle 2
-        p7 = Point2D(-b1 / 2, h / 2 - h1)  # left middle 1
-        p8 = Point2D(-b1 / 2, -h / 2)  # left bottom
+        p1 = Point2D(b1 / 2, -height / 2)  # right bottom
+        p2 = Point2D(b1 / 2, height / 2 - h1)  # right middle 1
+        p3 = Point2D(width / 2, height / 2 - h1)  # right middle 2
+        p4 = Point2D(width / 2, height / 2)  # right top
+        p5 = Point2D(-width / 2, height / 2)  # left top
+        p6 = Point2D(-width / 2, height / 2 - h1)  # left middle 2
+        p7 = Point2D(-b1 / 2, height / 2 - h1)  # left middle 1
+        p8 = Point2D(-b1 / 2, -height / 2)  # left bottom
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11188,8 +11199,8 @@ class Tshape:
             'Description': self.Description,
             'ID': self.ID,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
@@ -11199,8 +11210,8 @@ class Tshape:
     def deserialize(data):
         tshape = Tshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             h1=data.get('h1'),
             b1=data.get('b1')
         )
@@ -11216,28 +11227,22 @@ class Tshape:
         return "Profile(" + f"{self.name})"
 
 
-class Lshape:
-    def __init__(self, name, h, b, h1, b1):
-        self.Description = "L-shape"
-        self.ID = "L"
+class Lshape(RectangularShape):
+    def __init__(self, name, height, width, h1, b1):
+        super().__init__(ID = "L", name=name, Description="L-shape", height=height,width=width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
         self.h1 = h1
         self.b1 = b1
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + h1)  # right middle
-        p3 = Point2D(-b / 2 + b1, -h / 2 + h1)  # middle
-        p4 = Point2D(-b / 2 + b1, h / 2)  # middle top
-        p5 = Point2D(-b / 2, h / 2)  # left top
-        p6 = Point2D(-b / 2, -h / 2)  # left bottom
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, -height / 2 + h1)  # right middle
+        p3 = Point2D(-width / 2 + b1, -height / 2 + h1)  # middle
+        p4 = Point2D(-width / 2 + b1, height / 2)  # middle top
+        p5 = Point2D(-width / 2, height / 2)  # left top
+        p6 = Point2D(-width / 2, -height / 2)  # left bottom
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11256,8 +11261,8 @@ class Lshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
@@ -11267,8 +11272,8 @@ class Lshape:
     def deserialize(data):
         lshape = Lshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             h1=data.get('h1'),
             b1=data.get('b1')
         )
@@ -11286,33 +11291,27 @@ class Lshape:
         return "Profile(" + f"{self.name})"
 
 
-class Eshape:
-    def __init__(self, name, h, b, h1):
-        self.Description = "E-shape"
-        self.ID = "E"
+class Eshape(Serializable):
+    def __init__(self, name, height, width, h1):
+        super().__init__(ID = "E", name=name, Description="E-shape", height=height,width=width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
         self.h1 = h1
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + h1)
-        p3 = Point2D(-b / 2 + h1, -h / 2 + h1)
-        p4 = Point2D(-b / 2 + h1, -h1 / 2)
-        p5 = Point2D(b / 2, -h1 / 2)
-        p6 = Point2D(b / 2, h1 / 2)
-        p7 = Point2D(-b / 2 + h1, h1 / 2)
-        p8 = Point2D(-b / 2 + h1, h / 2 - h1)
-        p9 = Point2D(b / 2, h / 2 - h1)
-        p10 = Point2D(b / 2, h / 2)
-        p11 = Point2D(-b / 2, h / 2)
-        p12 = Point2D(-b / 2, -h / 2)
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, -height / 2 + h1)
+        p3 = Point2D(-width / 2 + h1, -height / 2 + h1)
+        p4 = Point2D(-width / 2 + h1, -h1 / 2)
+        p5 = Point2D(width / 2, -h1 / 2)
+        p6 = Point2D(width / 2, h1 / 2)
+        p7 = Point2D(-width / 2 + h1, h1 / 2)
+        p8 = Point2D(-width / 2 + h1, height / 2 - h1)
+        p9 = Point2D(width / 2, height / 2 - h1)
+        p10 = Point2D(width / 2, height / 2)
+        p11 = Point2D(-width / 2, height / 2)
+        p12 = Point2D(-width / 2, -height / 2)
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11338,8 +11337,8 @@ class Eshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             'curve': self.curve.serialize() if self.curve else None
         }
@@ -11348,8 +11347,8 @@ class Eshape:
     def deserialize(data):
         eshape = Eshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             h1=data.get('h1')
         )
 
@@ -11366,31 +11365,25 @@ class Eshape:
         return "Profile(" + f"{self.name})"
 
 
-class Nshape:
-    def __init__(self, name, h, b, b1):
-        self.Description = "N-shape"
-        self.ID = "N"
+class Nshape(Serializable):
+    def __init__(self, name, height, width, b1):
+        super().__init__(ID = "N", name=name, Description="N-shape", height=height,width=width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
         self.b1 = b1
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, h / 2)
-        p3 = Point2D(b / 2 - b1, h / 2)
-        p4 = Point2D(b / 2 - b1, -h / 2 + b1 * 2)
-        p5 = Point2D(-b / 2 + b1, h / 2)
-        p6 = Point2D(-b / 2, h / 2)
-        p7 = Point2D(-b / 2, -h / 2)
-        p8 = Point2D(-b / 2 + b1, -h / 2)
-        p9 = Point2D(-b / 2 + b1, h / 2 - b1 * 2)
-        p10 = Point2D(b / 2 - b1, -h / 2)
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, height / 2)
+        p3 = Point2D(width / 2 - b1, height / 2)
+        p4 = Point2D(width / 2 - b1, -height / 2 + b1 * 2)
+        p5 = Point2D(-width / 2 + b1, height / 2)
+        p6 = Point2D(-width / 2, height / 2)
+        p7 = Point2D(-width / 2, -height / 2)
+        p8 = Point2D(-width / 2 + b1, -height / 2)
+        p9 = Point2D(-width / 2 + b1, height / 2 - b1 * 2)
+        p10 = Point2D(width / 2 - b1, -height / 2)
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11414,8 +11407,8 @@ class Nshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'b1': self.b1,
             'curve': self.curve.serialize() if self.curve else None
         }
@@ -11424,8 +11417,8 @@ class Nshape:
     def deserialize(data):
         nshape = Nshape(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             b1=data.get('b1')
         )
 
@@ -11442,31 +11435,29 @@ class Nshape:
         return "Profile(" + f"{self.name})"
 
 
-class Arrowshape:
-    def __init__(self, name, l, b, b1, l1):
-        self.Description = "Arrow-shape"
-        self.ID = "Arrowshape"
+class Arrowshape(Shape):
+    def __init__(self, name, length, width, b1, l1):
+        
+        super().__init__(ID = "Arrowshape", name=name, Description="Arrow-shape")
 
         # parameters
         self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.l = l  # length
-        self.b = b  # width
+        self.length = length  # length
+        self.width = width  # width
         self.b1 = b1
         self.l1 = l1
 
         # describe points
-        p1 = Point2D(0, l / 2)  # top middle
-        p2 = Point2D(b / 2, -l / 2 + l1)
-        # p3 = Point2D(b1 / 2, -l / 2 + l1)
-        p3 = Point2D(b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
-        p4 = Point2D(b1 / 2, -l / 2)
-        p5 = Point2D(-b1 / 2, -l / 2)
-        # p6 = Point2D(-b1 / 2, -l / 2 + l1)
-        p6 = Point2D(-b1 / 2, (-l / 2 + l1) + (l / 2) / 4)
-        p7 = Point2D(-b / 2, -l / 2 + l1)
+        p1 = Point2D(0, length / 2)  # top middle
+        p2 = Point2D(width / 2, -length / 2 + l1)
+        # p3 = Point2D(b1 / 2, -length / 2 + l1)
+        p3 = Point2D(b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
+        p4 = Point2D(b1 / 2, -length / 2)
+        p5 = Point2D(-b1 / 2, -length / 2)
+        # p6 = Point2D(-b1 / 2, -length / 2 + l1)
+        p6 = Point2D(-b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
+        p7 = Point2D(-width / 2, -length / 2 + l1)
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11487,8 +11478,8 @@ class Arrowshape:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'l': self.l,
-            'b': self.b,
+            'length': self.length,
+            'width': self.width,
             'b1': self.b1,
             'l1': self.l1,
             'curve': self.curve.serialize() if self.curve else None
@@ -11498,8 +11489,8 @@ class Arrowshape:
     def deserialize(data):
         arrowshape = Arrowshape(
             name=data.get('name'),
-            l=data.get('l'),
-            b=data.get('b'),
+            length=data.get('length'),
+            width=data.get('width'),
             b1=data.get('b1'),
             l1=data.get('l1')
         )
@@ -11528,38 +11519,70 @@ sqrt2 = math.sqrt(2)
 # section is een profiel met eigenschappen HEA200, 200,200,10,10,5 en eventuele rekenkundige eigenschappen.
 # beam is een object wat in 3D zit met materiaal enz.
 
+class SteelShape(Shape):
+    def __init__(self, IFC_profile_def:string, **kwargs):
+        """Creates a steelshape.
 
-class CChannelParallelFlange:
-    def __init__(self, name, h, b, tw, tf, r, ex):
-        self.Description = "C-channel with parallel flange"
-        self.ID = "C_PF"
+        Args:
+            name (string): _description_
+            description (string): _description_
+            IFC_profile_def (string): _description_
+            ID (_type_): HEA, IPE, HEB, HEM etc.
+            height (_type_): _description_
+            width (_type_): _description_
+        """
+        super().__init__(**kwargs)
+        self.IFC_profile_def = IFC_profile_def
 
-        # parameters
-        self.id = generateID()
-        self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+class RectangularSteelShape(SteelShape, RectangularShape):
+    def __init__(self, ID, name: string, description:string, IFC_profile_def:string, height, width):
+        super().__init__(ID=ID, name=name, description=description, IFC_profile_def=IFC_profile_def, height=height, width=width)
+
+class CircularSteelShape(SteelShape):
+    def __init__(self, ID, name: string, description:string, IFC_profile_def:string, r):
+        """Creates a steelshape.
+
+        Args:
+            name (string): _description_
+            description (string): _description_
+            IFC_profile_def (string): _description_
+            ID (_type_): HEA, IPE, HEB, HEM etc.
+            height (_type_): _description_
+            width (_type_): _description_
+        """
+        super().__init__(ID, name,description, IFC_profile_def)
+        self.r = r
+    
+class Flange(RectangularSteelShape):
+    def __init__(self, name: string, description: string, IFC_profile_def: string, ID, height, width, tw, tf):
+        super().__init__(ID, name,description, IFC_profile_def, height, width)
         self.tw = tw  # web thickness
         self.tf = tf  # flange thickness
+
+class CChannelParallelFlange(Flange):
+    def __init__(self, name, height, width, tw, tf, r, ex):
+        super().__init__("C_PF", name,"C-channel with parallel flange", "IfcUShapeProfileDef", height, width, tw, tf)
+
+        # parameters
+        self.type = __class__.__name__
+        
+        
         self.r1 = r  # web fillet
         self.ex = ex  # centroid horizontal
-        self.IfcProfileDef = "IfcUShapeProfileDef"
 
         # describe points
-        p1 = Point2D(-ex, -h / 2)  # left bottom
-        p2 = Point2D(b - ex, -h / 2)  # right bottom
-        p3 = Point2D(b - ex, -h / 2 + tf)
-        p4 = Point2D(-ex + tw + r, -h / 2 + tf)  # start arc
-        p5 = Point2D(-ex + tw + r, -h / 2 + tf + r)  # second point arc
-        p6 = Point2D(-ex + tw, -h / 2 + tf + r)  # end arc
-        p7 = Point2D(-ex + tw, h / 2 - tf - r)  # start arc
-        p8 = Point2D(-ex + tw + r, h / 2 - tf - r)  # second point arc
-        p9 = Point2D(-ex + tw + r, h / 2 - tf)  # end arc
-        p10 = Point2D(b - ex, h / 2 - tf)
-        p11 = Point2D(b - ex, h / 2)  # right top
-        p12 = Point2D(-ex, h / 2)  # left top
+        p1 = Point2D(-ex, -height / 2)  # left bottom
+        p2 = Point2D(width - ex, -height / 2)  # right bottom
+        p3 = Point2D(width - ex, -height / 2 + tf)
+        p4 = Point2D(-ex + tw + r, -height / 2 + tf)  # start arc
+        p5 = Point2D(-ex + tw + r, -height / 2 + tf + r)  # second point arc
+        p6 = Point2D(-ex + tw, -height / 2 + tf + r)  # end arc
+        p7 = Point2D(-ex + tw, height / 2 - tf - r)  # start arc
+        p8 = Point2D(-ex + tw + r, height / 2 - tf - r)  # second point arc
+        p9 = Point2D(-ex + tw + r, height / 2 - tf)  # end arc
+        p10 = Point2D(width - ex, height / 2 - tf)
+        p11 = Point2D(width - ex, height / 2)  # right top
+        p12 = Point2D(-ex, height / 2)  # left top
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11583,8 +11606,8 @@ class CChannelParallelFlange:
             'Description': self.Description,
             'ID': self.ID,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'tw': self.tw,
             'tf': self.tf,
             'r1': self.r1,
@@ -11596,8 +11619,8 @@ class CChannelParallelFlange:
     def deserialize(data):
         c_channel = CChannelParallelFlange(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             tw=data.get('tw'),
             tf=data.get('tf'),
             r=data.get('r1'),
@@ -11616,20 +11639,12 @@ class CChannelParallelFlange:
         return f"{self.type} ({self.name})"
 
 
-class CChannelSlopedFlange:
-    def __init__(self, name, h, b, tw, tf, r1, r2, tl, sa, ex):
-        self.Description = "C-channel with sloped flange"
-        self.ID = "C_SF"
-
-        # parameters
-        self.id = generateID()
+class CChannelSlopedFlange(Flange):
+    def __init__(self, name, height, width, tw, tf, r1, r2, tl, sa, ex):
+        super().__init__(name,"C-channel with sloped flange", "IfcUShapeProfileDef", "C_SF", height, width, tw, tf)
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.b = b  # width
-        self.h = h  # height
-        self.tf = tf  # flange thickness
-        self.tw = tw  # web thickness
+        
+        
         self.r1 = r1  # web fillet
         self.r11 = r1 / sqrt2
         self.r2 = r2  # flange fillet
@@ -11637,23 +11652,23 @@ class CChannelSlopedFlange:
         self.tl = tl  # flange thickness location from right
         self.sa = math.radians(sa)  # the angle of sloped flange in degrees
         self.ex = ex  # centroid horizontal
-        self.IfcProfileDef = "IfcUShapeProfileDef"
+        self.IFC_profile_def = "IfcUShapeProfileDef"
 
         # describe points
-        p1 = Point2D(-ex, -h / 2)  # left bottom
-        p2 = Point2D(b - ex, -h / 2)  # right bottom
-        p3 = Point2D(b - ex, -h / 2 + tf - math.tan(self.sa)
+        p1 = Point2D(-ex, -height / 2)  # left bottom
+        p2 = Point2D(width - ex, -height / 2)  # right bottom
+        p3 = Point2D(width - ex, -height / 2 + tf - math.tan(self.sa)
                      * tl - r2)  # start arc
-        p4 = Point2D(b - ex - r2 + self.r21, -h / 2 + tf -
+        p4 = Point2D(width - ex - r2 + self.r21, -height / 2 + tf -
                      math.tan(self.sa) * tl - r2 + self.r21)  # second point arc
-        p5 = Point2D(b - ex - r2 + math.sin(self.sa) * r2, -h /
+        p5 = Point2D(width - ex - r2 + math.sin(self.sa) * r2, -height /
                      2 + tf - math.tan(self.sa) * (tl - r2))  # end arc
-        p6 = Point2D(-ex + tw + r1 - math.sin(self.sa) * r1, -h / 2 +
-                     tf + math.tan(self.sa) * (b - tl - tw - r1))  # start arc
-        p7 = Point2D(-ex + tw + r1 - self.r11, -h / 2 + tf + math.tan(self.sa)
-                     * (b - tl - tw - r1) + r1 - self.r11)  # second point arc
-        p8 = Point2D(-ex + tw, -h / 2 + tf + math.tan(self.sa)
-                     * (b - tl - tw) + r1)  # end arc
+        p6 = Point2D(-ex + tw + r1 - math.sin(self.sa) * r1, -height / 2 +
+                     tf + math.tan(self.sa) * (width - tl - tw - r1))  # start arc
+        p7 = Point2D(-ex + tw + r1 - self.r11, -height / 2 + tf + math.tan(self.sa)
+                     * (width - tl - tw - r1) + r1 - self.r11)  # second point arc
+        p8 = Point2D(-ex + tw, -height / 2 + tf + math.tan(self.sa)
+                     * (width - tl - tw) + r1)  # end arc
         p9 = Point2D(p8.x, -p8.y)  # start arc
         p10 = Point2D(p7.x, -p7.y)  # second point arc
         p11 = Point2D(p6.x, -p6.y)  # end arc
@@ -11687,8 +11702,8 @@ class CChannelSlopedFlange:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'tw': self.tw,
             'tf': self.tf,
             'r1': self.r1,
@@ -11705,8 +11720,8 @@ class CChannelSlopedFlange:
     def deserialize(data):
         c_channel_sf = CChannelSlopedFlange(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             tw=data.get('tw'),
             tf=data.get('tf'),
             r1=data.get('r1'),
@@ -11730,36 +11745,28 @@ class CChannelSlopedFlange:
         return f"{self.type} ({self.name})"
 
 
-class IShapeParallelFlange:
-    def __init__(self, name, h, b, tw, tf, r):
-        self.Description = "I Shape profile with parallel flange"
-        self.ID = "I_PF"
-        # HEA, IPE, HEB, HEM etc.
+class IShapeParallelFlange(Flange):
+    def __init__(self, name, height, width, tw, tf, r):
+        super().__init__(name,"I Shape profile with parallel flange", "IfcUShapeProfileDef", "I_PF", height, width, tw, tf)
 
-        # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.h = h  # height
-        self.b = b  # width
-        self.tw = tw  # web thickness
-        self.tf = tf  # flange thickness
+        
         self.r = r  # web fillet
         self.r1 = r1 = r / sqrt2
-        self.IfcProfileDef = "IfcIShapeProfileDef"
+        self.IFC_profile_def = "IfcIShapeProfileDef"
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, -h / 2 + tf)
-        p3 = Point2D(tw / 2 + r, -h / 2 + tf)  # start arc
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, -height / 2 + tf)
+        p3 = Point2D(tw / 2 + r, -height / 2 + tf)  # start arc
         # second point arc
-        p4 = Point2D(tw / 2 + r - r1, (-h / 2 + tf + r - r1))
-        p5 = Point2D(tw / 2, -h / 2 + tf + r)  # end arc
-        p6 = Point2D(tw / 2, h / 2 - tf - r)  # start arc
-        p7 = Point2D(tw / 2 + r - r1, h / 2 - tf - r + r1)  # second point arc
-        p8 = Point2D(tw / 2 + r, h / 2 - tf)  # end arc
-        p9 = Point2D(b / 2, h / 2 - tf)
-        p10 = Point2D((b / 2), (h / 2))  # right top
+        p4 = Point2D(tw / 2 + r - r1, (-height / 2 + tf + r - r1))
+        p5 = Point2D(tw / 2, -height / 2 + tf + r)  # end arc
+        p6 = Point2D(tw / 2, height / 2 - tf - r)  # start arc
+        p7 = Point2D(tw / 2 + r - r1, height / 2 - tf - r + r1)  # second point arc
+        p8 = Point2D(tw / 2 + r, height / 2 - tf)  # end arc
+        p9 = Point2D(width / 2, height / 2 - tf)
+        p10 = Point2D((width / 2), (height / 2))  # right top
         p11 = Point2D(-p10.x, p10.y)  # left top
         p12 = Point2D(-p9.x, p9.y)
         p13 = Point2D(-p8.x, p8.y)  # start arc
@@ -11799,8 +11806,8 @@ class IShapeParallelFlange:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'tw': self.tw,
             'tf': self.tf,
             'r': self.r,
@@ -11812,8 +11819,8 @@ class IShapeParallelFlange:
     def deserialize(data):
         i_shape_pf = IShapeParallelFlange(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             tw=data.get('tw'),
             tf=data.get('tf'),
             r=data.get('r')
@@ -11834,25 +11841,16 @@ class IShapeParallelFlange:
         return f"{self.type} ({self.name})"
 
 
-class Rectangle:
-    def __init__(self, name, b, h):
-        self.Description = "Rectangle"
-        self.ID = "Rec"
-
-        # parameters
-        self.id = generateID()
+class Rectangle(RectangularSteelShape):
+    def __init__(self, name, width, height):
+        super().__init__(name, "Rectangle", "IfcRectangleProfileDef", "Rec", height, width)
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
-        self.IfcProfileDef = "IfcRectangleProfileDef"
 
         # describe points
-        p1 = Point2D(b / 2, -h / 2)  # right bottom
-        p2 = Point2D(b / 2, h / 2)  # right top
-        p3 = Point2D(-b / 2, h / 2)  # left top
-        p4 = Point2D(-b / 2, -h / 2)  # left bottom
+        p1 = Point2D(width / 2, -height / 2)  # right bottom
+        p2 = Point2D(width / 2, height / 2)  # right top
+        p3 = Point2D(-width / 2, height / 2)  # left top
+        p4 = Point2D(-width / 2, -height / 2)  # left bottom
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -11869,8 +11867,8 @@ class Rectangle:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'curve': self.curve.serialize() if self.curve else None
         }
 
@@ -11878,8 +11876,8 @@ class Rectangle:
     def deserialize(data):
         rectangle = Rectangle(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h')
+            width=data.get('width'),
+            height=data.get('height')
         )
 
         rectangle.Description = data.get('Description', "Rectangle")
@@ -11895,20 +11893,15 @@ class Rectangle:
         return f"{self.type} ({self.name})"
 
 
-class Round:
+class Round(CircularSteelShape):
     def __init__(self, name, r):
-        self.Description = "Round"
-        self.ID = "Rnd"
+        super().__init__(name, "Round", "IfcRectangleProfileDef", "Rnd", r)
 
-        # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.r = r  # radius
+       
         self.data = (name, r, "Round")
         dr = r / sqrt2  # grootste deel
-        self.IfcProfileDef = "IfcCircleProfileDef"
+        self.IFC_profile_def = "IfcCircleProfileDef"
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
@@ -11962,25 +11955,22 @@ class Round:
         return f"{self.type} ({self.name})"
 
 
-class Roundtube:
+class Roundtube(CircularSteelShape):
     def __init__(self, name, d, t):
-        self.Description = "Round Tube Profile"
-        self.ID = "Tube"
+        super().__init__(name,"Round Tube Profile", "IfcCircleHollowProfileDef", "Tube", d / 2)
 
         # parameters
         self.id = generateID()
         self.type = __class__.__name__
         self.name = name
-        self.curve = []
+        
         self.d = d
-        self.r = d/2  # radius
         self.t = t  # wall thickness
         self.data = (name, d, t, "Round Tube Profile")
         dr = self.r / sqrt2  # grootste deel
         r = self.r
         ri = r-t
         dri = ri / sqrt2
-        self.IfcProfileDef = "IfcCircleHollowProfileDef"
 
         # describe points
         p1 = Point2D(r, 0)  # right middle
@@ -12055,18 +12045,13 @@ class Roundtube:
         return f"{self.type} ({self.name})"
 
 
-class LAngle:
-    def __init__(self, name, h, b, tw, tf, r1, r2, ex, ey):
-        self.Description = "LAngle"
-        self.ID = "L"
+class LAngle(RectangularSteelShape):
+    def __init__(self, name, height, width, tw, tf, r1, r2, ex, ey):
+        super().__init__(name,"LAngle", "IfcLShapeProfileDef", "L", height, width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.b = b  # width
-        self.h = h  # height
+        
         self.tw = tw  # wall nominal thickness
         self.tf = tw
         self.r1 = r1  # inner fillet
@@ -12075,24 +12060,23 @@ class LAngle:
         self.r21 = r2 / sqrt2
         self.ex = ex  # from left
         self.ey = ey  # from bottom
-        self.IfcProfileDef = "IfcLShapeProfileDef"
 
         # describe points
         p1 = Point2D(-ex, -ey)  # left bottom
-        p2 = Point2D(b - ex, -ey)  # right bottom
-        p3 = Point2D(b - ex, -ey + tf - r2)  # start arc
-        p4 = Point2D(b - ex - r2 + self.r21, -ey + tf -
+        p2 = Point2D(width - ex, -ey)  # right bottom
+        p3 = Point2D(width - ex, -ey + tf - r2)  # start arc
+        p4 = Point2D(width - ex - r2 + self.r21, -ey + tf -
                      r2 + self.r21)  # second point arc
-        p5 = Point2D(b - ex - r2, -ey + tf)  # end arc
+        p5 = Point2D(width - ex - r2, -ey + tf)  # end arc
         p6 = Point2D(-ex + tf + r1, -ey + tf)  # start arc
         p7 = Point2D(-ex + tf + r1 - self.r11, -ey + tf +
                      r1 - self.r11)  # second point arc
         p8 = Point2D(-ex + tf, -ey + tf + r1)  # end arc
-        p9 = Point2D(-ex + tf, h - ey - r2)  # start arc
-        p10 = Point2D(-ex + tf - r2 + self.r21, h - ey -
+        p9 = Point2D(-ex + tf, height - ey - r2)  # start arc
+        p10 = Point2D(-ex + tf - r2 + self.r21, height - ey -
                       r2 + self.r21)  # second point arc
-        p11 = Point2D(-ex + tf - r2, h - ey)  # end arc
-        p12 = Point2D(-ex, h - ey)  # left top
+        p11 = Point2D(-ex + tf - r2, height - ey)  # end arc
+        p12 = Point2D(-ex, height - ey)  # left top
 
         # describe curves
         l1 = Line2D(p1, p2)
@@ -12115,8 +12099,8 @@ class LAngle:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'b': self.b,
-            'h': self.h,
+            'width': self.width,
+            'height': self.height,
             'tw': self.tw,
             'tf': self.tf,
             'r1': self.r1,
@@ -12132,8 +12116,8 @@ class LAngle:
     def deserialize(data):
         langle = LAngle(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             tw=data.get('tw'),
             tf=data.get('tf'),
             r1=data.get('r1'),
@@ -12157,19 +12141,13 @@ class LAngle:
         return f"{self.type} ({self.name})"
 
 
-class TProfile:
+class TProfile(RectangularSteelShape):
     # ToDo: inner outer fillets in polycurve
-    def __init__(self, name, h, b, tw, tf, r, r1, r2, ex, ey):
-        self.Description = "TProfile"
-        self.ID = "T"
+    def __init__(self, name, height, width, tw, tf, r, r1, r2, ex, ey):
+        super().__init__(name, "TProfile", "IfcTShapeProfileDef", "T", height,width)
 
-        # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.b = b  # width
-        self.h = h  # height
+        
         self.tw = tw  # wall nominal thickness
         self.tf = tw
         self.r = r  # inner fillet
@@ -12180,23 +12158,22 @@ class TProfile:
         self.r21 = r2 / sqrt2
         self.ex = ex  # from left
         self.ey = ey  # from bottom
-        self.IfcProfileDef = "IfcTShapeProfileDef"
 
         # describe points
         p1 = Point2D(-ex, -ey)  # left bottom
-        p2 = Point2D(b - ex, -ey)  # right bottom
-        p3 = Point2D(b - ex, -ey + tf - r1)  # start arc
-        p4 = Point2D(b - ex - r1 + self.r11, -ey + tf -
+        p2 = Point2D(width - ex, -ey)  # right bottom
+        p3 = Point2D(width - ex, -ey + tf - r1)  # start arc
+        p4 = Point2D(width - ex - r1 + self.r11, -ey + tf -
                      r1 + self.r11)  # second point arc
-        p5 = Point2D(b - ex - r1, -ey + tf)  # end arc
+        p5 = Point2D(width - ex - r1, -ey + tf)  # end arc
         p6 = Point2D(0.5 * tw + r, -ey + tf)  # start arc
         p7 = Point2D(0.5 * tw + r - self.r01, -ey + tf +
                      r - self.r01)  # second point arc
         p8 = Point2D(0.5 * tw, -ey + tf + r)  # end arc
-        p9 = Point2D(0.5 * tw, -ey + h - r2)  # start arc
-        p10 = Point2D(0.5 * tw - self.r21, -ey + h -
+        p9 = Point2D(0.5 * tw, -ey + height - r2)  # start arc
+        p10 = Point2D(0.5 * tw - self.r21, -ey + height -
                       r2 + self.r21)  # second point arc
-        p11 = Point2D(0.5 * tw - r2, -ey + h)  # end arc
+        p11 = Point2D(0.5 * tw - r2, -ey + height)  # end arc
 
         p12 = Point2D(-p11.x, p11.y)
         p13 = Point2D(-p10.x, p10.y)
@@ -12236,8 +12213,8 @@ class TProfile:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'b': self.b,
-            'h': self.h,
+            'width': self.width,
+            'height': self.height,
             'tw': self.tw,
             'tf': self.tf,
             'r': self.r,
@@ -12255,8 +12232,8 @@ class TProfile:
     def deserialize(data):
         t_profile = TProfile(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             tw=data.get('tw'),
             tf=data.get('tf'),
             r=data.get('r'),
@@ -12282,32 +12259,26 @@ class TProfile:
         return f"{self.type} ({self.name})"
 
 
-class RectangleHollowSection:
-    def __init__(self, name, h, b, t, r1, r2):
-        self.Description = "Rectangle Hollow Section"
-        self.ID = "RHS"
+class RectangleHollowSection(RectangularSteelShape):
+    def __init__(self, name, height, width, t, r1, r2):
+        super().__init__(name, "Rectangle Hollow Section", "IfcRectangleHollowProfileDef", "RHS", height,width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+        
         self.t = t  # thickness
         self.r1 = r1  # outer radius
         self.r2 = r2  # inner radius
         dr = r1 - r1 / sqrt2
         dri = r2 - r2 / sqrt2
-        bi = b-t
-        hi = h-t
-        self.IfcProfileDef = "IfcRectangleHollowProfileDef"
+        bi = width-t
+        hi = height-t
 
         # describe points
-        p1 = Point2D(-b / 2 + r1, - h / 2)  # left bottom end arc
-        p2 = Point2D(b / 2 - r1, - h / 2)  # right bottom start arc
-        p3 = Point2D(b / 2 - dr, - h / 2 + dr)  # right bottom mid arc
-        p4 = Point2D(b / 2, - h / 2 + r1)  # right bottom end arc
+        p1 = Point2D(-width / 2 + r1, - height / 2)  # left bottom end arc
+        p2 = Point2D(width / 2 - r1, - height / 2)  # right bottom start arc
+        p3 = Point2D(width / 2 - dr, - height / 2 + dr)  # right bottom mid arc
+        p4 = Point2D(width / 2, - height / 2 + r1)  # right bottom end arc
         p5 = Point2D(p4.x, -p4.y)  # right start arc
         p6 = Point2D(p3.x, -p3.y)  # right mid arc
         p7 = Point2D(p2.x, -p2.y)  # right end arc
@@ -12364,8 +12335,8 @@ class RectangleHollowSection:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             't': self.t,
             'r1': self.r1,
             'r2': self.r2,
@@ -12376,8 +12347,8 @@ class RectangleHollowSection:
     def deserialize(data):
         rhs = RectangleHollowSection(
             name=data.get('name'),
-            h=data.get('h'),
-            b=data.get('b'),
+            height=data.get('height'),
+            width=data.get('width'),
             t=data.get('t'),
             r1=data.get('r1'),
             r2=data.get('r2')
@@ -12396,40 +12367,34 @@ class RectangleHollowSection:
         return f"{self.type} ({self.name})"
 
 
-class CProfile:
-    def __init__(self, name, b, h, t, r1, ex):
-        self.Description = "Cold Formed C Profile"
-        self.ID = "CP"
+class CProfile(RectangularSteelShape):
+    def __init__(self, name, width, height, t, r1, ex):
+        super().__init__(name, "Cold Formed C Profile", "Unknown", "CP", height,width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+        
         self.t = t  # flange thickness
         self.r1 = r1  # outer radius
         self.r2 = r1-t  # inner radius
         r2 = r1-t
 
         self.ex = ex
-        self.ey = h/2
+        self.ey = height/2
         dr = r1 - r1/sqrt2
         dri = r2 - r2/sqrt2
-        hi = h-t
-        self.IfcProfileDef = "Unknown"
+        hi = height-t
 
         # describe points
-        p1 = Point2D(b-ex, -h/2)  # right bottom
-        p2 = Point2D(r1-ex, -h/2)
-        p3 = Point2D(dr-ex, -h/2+dr)
-        p4 = Point2D(0-ex, -h/2+r1)
+        p1 = Point2D(width-ex, -height/2)  # right bottom
+        p2 = Point2D(r1-ex, -height/2)
+        p3 = Point2D(dr-ex, -height/2+dr)
+        p4 = Point2D(0-ex, -height/2+r1)
         p5 = Point2D(p4.x, -p4.y)
         p6 = Point2D(p3.x, -p3.y)
         p7 = Point2D(p2.x, -p2.y)
         p8 = Point2D(p1.x, -p1.y)  # right top
-        p9 = Point2D(b-ex, hi/2)  # right top inner
+        p9 = Point2D(width-ex, hi/2)  # right top inner
         p10 = Point2D(t+r2-ex, hi/2)
         p11 = Point2D(t+dri-ex, hi/2-dri)
         p12 = Point2D(t-ex, hi/2-r2)
@@ -12461,8 +12426,8 @@ class CProfile:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             't': self.t,
             'r1': self.r1,
             'r2': self.r2,
@@ -12475,8 +12440,8 @@ class CProfile:
     def deserialize(data):
         c_profile = CProfile(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h'),
+            width=data.get('width'),
+            height=data.get('height'),
             t=data.get('t'),
             r1=data.get('r1'),
             ex=data.get('ex')
@@ -12498,8 +12463,10 @@ class CProfile:
         return f"{self.type} ({self.name})"
 
 
-class CProfileWithLips:
-    def __init__(self, name, b, h, h1, t, r1, ex):
+class CProfileWithLips(RectangularSteelShape):
+    def __init__(self, name, width, height, h1, t, r1, ex):
+        super().__init__(name, "Cold Formed C Profile", "Unknown", "CP", height,width)
+        
         self.Description = "Cold Formed C Profile with Lips"
         self.ID = "CPWL"
 
@@ -12507,9 +12474,9 @@ class CProfileWithLips:
         self.id = generateID()
         self.type = __class__.__name__
         self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+        
+        self.height = height  # height
+        self.width = width  # width
         self.h1 = h1  # lip length
         self.t = t  # flange thickness
         self.r1 = r1  # outer radius
@@ -12517,31 +12484,31 @@ class CProfileWithLips:
         r2 = r1-t
 
         self.ex = ex
-        self.ey = h/2
+        self.ey = height/2
         dr = r1 - r1/sqrt2
         dri = r2 - r2/sqrt2
-        hi = h-t
-        self.IfcProfileDef = "Unknown"
+        hi = height-t
+        self.IFC_profile_def = "Unknown"
 
         # describe points
-        p1 = Point2D(b-ex-r1, -h/2)  # right bottom  before fillet
-        p2 = Point2D(r1-ex, -h/2)
-        p3 = Point2D(dr-ex, -h/2+dr)
-        p4 = Point2D(0-ex, -h/2+r1)
+        p1 = Point2D(width-ex-r1, -height/2)  # right bottom  before fillet
+        p2 = Point2D(r1-ex, -height/2)
+        p3 = Point2D(dr-ex, -height/2+dr)
+        p4 = Point2D(0-ex, -height/2+r1)
         p5 = Point2D(p4.x, -p4.y)
         p6 = Point2D(p3.x, -p3.y)
         p7 = Point2D(p2.x, -p2.y)
         p8 = Point2D(p1.x, -p1.y)  # right top before fillet
-        p9 = Point2D(b-ex-dr, h/2-dr)  # middle point arc
-        p10 = Point2D(b-ex, h/2-r1)  # end fillet
-        p11 = Point2D(b-ex, h/2-h1)
-        p12 = Point2D(b-ex-t, h/2-h1)  # bottom lip
-        p13 = Point2D(b-ex-t, h/2-t-r2)  # start inner fillet right top
-        p14 = Point2D(b-ex-t-dri, h/2-t-dri)
-        p15 = Point2D(b-ex-t-r2, h/2-t)  # end inner fillet right top
-        p16 = Point2D(0-ex+t+r2, h/2-t)
-        p17 = Point2D(0-ex+t+dri, h/2-t-dri)
-        p18 = Point2D(0-ex+t, h/2-t-r2)
+        p9 = Point2D(width-ex-dr, height/2-dr)  # middle point arc
+        p10 = Point2D(width-ex, height/2-r1)  # end fillet
+        p11 = Point2D(width-ex, height/2-h1)
+        p12 = Point2D(width-ex-t, height/2-h1)  # bottom lip
+        p13 = Point2D(width-ex-t, height/2-t-r2)  # start inner fillet right top
+        p14 = Point2D(width-ex-t-dri, height/2-t-dri)
+        p15 = Point2D(width-ex-t-r2, height/2-t)  # end inner fillet right top
+        p16 = Point2D(0-ex+t+r2, height/2-t)
+        p17 = Point2D(0-ex+t+dri, height/2-t-dri)
+        p18 = Point2D(0-ex+t, height/2-t-r2)
 
         p19 = Point2D(p18.x, -p18.y)
         p20 = Point2D(p17.x, -p17.y)
@@ -12586,8 +12553,8 @@ class CProfileWithLips:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             'h1': self.h1,
             't': self.t,
             'r1': self.r1,
@@ -12601,8 +12568,8 @@ class CProfileWithLips:
     def deserialize(data):
         c_profile_with_lips = CProfileWithLips(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h'),
+            width=data.get('width'),
+            height=data.get('height'),
             h1=data.get('h1'),
             t=data.get('t'),
             r1=data.get('r1'),
@@ -12625,18 +12592,13 @@ class CProfileWithLips:
         return "Profile(" + f"{self.name})"
 
 
-class LProfileColdFormed:
-    def __init__(self, name, b, h, t, r1, ex, ey):
-        self.Description = "Cold Formed L Profile"
-        self.ID = "CF_L"
+class LProfileColdFormed(RectangularSteelShape):
+    def __init__(self, name, width, height, t, r1, ex, ey):
+        super().__init__(name, "Cold Formed L Profile", "Unknown", "CF_L", height,width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
-        self.b = b  # width
+        
         self.t = t  # flange thickness
         self.r1 = r1  # inner radius
         self.r2 = r1-t  # outer radius
@@ -12645,14 +12607,13 @@ class LProfileColdFormed:
         r11 = r1/math.sqrt(2)
         r2 = r1+t
         r21 = r2/math.sqrt(2)
-        self.IfcProfileDef = "Unknown"
 
         # describe points
         p1 = Point2D(-ex, -ey + r2)  # start arc left bottom
         p2 = Point2D(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
         p3 = Point2D(-ex + r2, -ey)  # end arc
-        p4 = Point2D(b - ex, -ey)  # right bottom
-        p5 = Point2D(b - ex, -ey + t)
+        p4 = Point2D(width - ex, -ey)  # right bottom
+        p5 = Point2D(width - ex, -ey + t)
         p6 = Point2D(-ex + t + r1, -ey + t)  # start arc
         p7 = Point2D(-ex + t + r1 - r11, -ey + t +
                      r1 - r11)  # second point arc
@@ -12679,8 +12640,8 @@ class LProfileColdFormed:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             't': self.t,
             'r1': self.r1,
             'r2': self.r2,
@@ -12693,8 +12654,8 @@ class LProfileColdFormed:
     def deserialize(data):
         l_profile_cold_formed = LProfileColdFormed(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h'),
+            width=data.get('width'),
+            height=data.get('height'),
             t=data.get('t'),
             r1=data.get('r1'),
             ex=data.get('ex'),
@@ -12716,47 +12677,41 @@ class LProfileColdFormed:
         return f"{self.type} ({self.name})"
 
 
-class SigmaProfileWithLipsColdFormed:
-    def __init__(self, name, b, h, t, r1, h1, h2, h3, b2, ex):
-        self.Description = "Cold Formed Sigma Profile with Lips"
-        self.ID = "CF_SWL"
+class SigmaProfileWithLipsColdFormed(RectangularSteelShape):
+    def __init__(self, name, width, height, t, r1, h1, h2, h3, b2, ex):
+        super().__init__(name, "Cold Formed Sigma Profile with Lips", "Unknown", "CF_SWL", height,width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.h = h  # height
+        
         self.h1 = h1  # LipLength
         self.h2 = h2  # MiddleBendLength
         self.h3 = h3  # TopBendLength
-        self.h4 = h4 = (h - h2 - h3 * 2) / 2
+        self.h4 = h4 = (height - h2 - h3 * 2) / 2
         self.h5 = h5 = math.tan(0.5 * math.atan(b2 / h4)) * t
-        self.b = b  # width
         self.b2 = b2  # MiddleBendWidth
         self.t = t  # flange thickness
         self.r1 = r1  # inner radius
         self.r2 = r2 = r1+t  # outer radius
         self.ex = ex
-        self.ey = ey = h/2
+        self.ey = ey = height/2
         self.r11 = r11 = r1/math.sqrt(2)
         self.r21 = r21 = r2/math.sqrt(2)
-        self.IfcProfileDef = "Unknown"
 
         p1 = Point2D(-ex + b2, -h2 / 2)
         p2 = Point2D(-ex, -ey + h3)
         p3 = Point2D(-ex, -ey + r2)  # start arc left bottom
         p4 = Point2D(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
         p5 = Point2D(-ex + r2, -ey)  # end arc
-        p6 = Point2D(b - ex - r2, -ey)  # start arc
-        p7 = Point2D(b - ex - r2 + r21, -ey + r2 - r21)  # second point arc
-        p8 = Point2D(b - ex, -ey + r2)  # end arc
-        p9 = Point2D(b - ex, -ey + h1)  # end lip
-        p10 = Point2D(b - ex - t, -ey + h1)
-        p11 = Point2D(b - ex - t, -ey + t + r1)  # start arc
-        p12 = Point2D(b - ex - t - r1 + r11, -ey +
+        p6 = Point2D(width - ex - r2, -ey)  # start arc
+        p7 = Point2D(width - ex - r2 + r21, -ey + r2 - r21)  # second point arc
+        p8 = Point2D(width - ex, -ey + r2)  # end arc
+        p9 = Point2D(width - ex, -ey + h1)  # end lip
+        p10 = Point2D(width - ex - t, -ey + h1)
+        p11 = Point2D(width - ex - t, -ey + t + r1)  # start arc
+        p12 = Point2D(width - ex - t - r1 + r11, -ey +
                       t + r1 - r11)  # second point arc
-        p13 = Point2D(b - ex - t - r1, -ey + t)  # end arc
+        p13 = Point2D(width - ex - t - r1, -ey + t)  # end arc
         p14 = Point2D(-ex + t + r1, -ey + t)  # start arc
         p15 = Point2D(-ex + t + r1 - r11, -ey + t +
                       r1 - r11)  # second point arc
@@ -12822,8 +12777,8 @@ class SigmaProfileWithLipsColdFormed:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'h': self.h,
-            'b': self.b,
+            'height': self.height,
+            'width': self.width,
             't': self.t,
             'r1': self.r1,
             'h1': self.h1,
@@ -12844,8 +12799,8 @@ class SigmaProfileWithLipsColdFormed:
     def deserialize(data):
         sigma_profile_with_lips = SigmaProfileWithLipsColdFormed(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h'),
+            width=data.get('width'),
+            height=data.get('height'),
             t=data.get('t'),
             r1=data.get('r1'),
             h1=data.get('h1'),
@@ -12875,26 +12830,20 @@ class SigmaProfileWithLipsColdFormed:
         return f"{self.type} ({self.name})"
 
 
-class ZProfileColdFormed:
-    def __init__(self, name, b, h, t, r1):
-        self.Description = "Cold Formed Z Profile"
-        self.ID = "CF_Z"
+class ZProfileColdFormed(RectangularSteelShape):
+    def __init__(self, name, width, height, t, r1):
+        super().__init__(name, "Cold Formed Z Profile", "Unknown", "CF_Z", height,width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.b = b  # width
-        self.h = h  # height
+
         self.t = t  # flange thickness
         self.r1 = r1  # inner radius
         self.r2 = r2 = r1+t  # outer radius
-        self.ex = ex = b/2
-        self.ey = ey = h/2
+        self.ex = ex = width/2
+        self.ey = ey = height/2
         self.r11 = r11 = r1 / math.sqrt(2)
         self.r21 = r21 = r2 / math.sqrt(2)
-        self.IfcProfileDef = "Unknown"
 
         p1 = Point2D(-0.5 * t, -ey + t + r1)  # start arc
         p2 = Point2D(-0.5 * t - r1 + r11, -ey + t +
@@ -12937,8 +12886,8 @@ class ZProfileColdFormed:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'b': self.b,
-            'h': self.h,
+            'width': self.width,
+            'height': self.height,
             't': self.t,
             'r1': self.r1,
             'r2': self.r2,
@@ -12953,8 +12902,8 @@ class ZProfileColdFormed:
     def deserialize(data):
         z_profile_cold_formed = ZProfileColdFormed(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h'),
+            width=data.get('width'),
+            height=data.get('height'),
             t=data.get('t'),
             r1=data.get('r1')
         )
@@ -12978,27 +12927,21 @@ class ZProfileColdFormed:
         return f"{self.type} ({self.name})"
 
 
-class ZProfileWithLipsColdFormed:
-    def __init__(self, name, b, h, t, r1, h1):
-        self.Description = "Cold Formed Z Profile with Lips"
-        self.ID = "CF_ZL"
+class ZProfileWithLipsColdFormed(RectangularSteelShape):
+    def __init__(self, name, width, height, t, r1, h1):
+        super().__init__(name,"Cold Formed Z Profile with Lips", "Unknown", "CF_ZL", height,width)
 
         # parameters
-        self.id = generateID()
         self.type = __class__.__name__
-        self.name = name
-        self.curve = []
-        self.b = b  # width
-        self.h = h  # height
+        
         self.t = t  # flange thickness
         self.h1 = h1  # lip length
         self.r1 = r1  # inner radius
         self.r2 = r2 = r1+t  # outer radius
-        self.ex = ex = b/2
-        self.ey = ey = h/2
+        self.ex = ex = width/2
+        self.ey = ey = height/2
         self.r11 = r11 = r1 / math.sqrt(2)
         self.r21 = r21 = r2 / math.sqrt(2)
-        self.IfcProfileDef = "Unknown"
 
         p1 = Point2D(-0.5*t, -ey+t+r1)  # start arc
         p2 = Point2D(-0.5*t-r1+r11, -ey+t+r1-r11)  # second point arc
@@ -13060,8 +13003,8 @@ class ZProfileWithLipsColdFormed:
             'id': self.id,
             'type': self.type,
             'name': self.name,
-            'b': self.b,
-            'h': self.h,
+            'width': self.width,
+            'height': self.height,
             't': self.t,
             'h1': self.h1,
             'r1': self.r1,
@@ -13077,8 +13020,8 @@ class ZProfileWithLipsColdFormed:
     def deserialize(data):
         z_profile_with_lips = ZProfileWithLipsColdFormed(
             name=data.get('name'),
-            b=data.get('b'),
-            h=data.get('h'),
+            width=data.get('width'),
+            height=data.get('height'),
             t=data.get('t'),
             r1=data.get('r1'),
             h1=data.get('h1')
