@@ -22,7 +22,7 @@ project.toSpeckle("c6e11e74cb")
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(project.objects) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Parametric Industrial Hall")
-xmlS4U.addPanels() #add Load Panels
+xmlS4U.convert_panels_to_xml() #add Load Panels
 xmlS4U.addGrids() # Grids
 xmlS4U.addSurfaceLoad()
 

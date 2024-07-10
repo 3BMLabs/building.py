@@ -347,7 +347,7 @@ class Point(Coords):
         )
 
     @staticmethod
-    def intersect(point_1: 'Point', point_2: 'Point') -> 'Point':
+    def intersect(point_1: 'Point', point_2: 'Point') -> 'bool':
         """Checks if two points intersect.        
         
         #### Parameters:
@@ -365,10 +365,7 @@ class Point(Coords):
         # False
         ```
         """
-        if point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z:
-            return True
-        else:
-            return False
+        return point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z
 
     @staticmethod
     def to_matrix(point: 'Point') -> 'Point':

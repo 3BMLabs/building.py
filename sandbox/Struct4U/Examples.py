@@ -47,7 +47,7 @@ SpeckleObj = translateObjectsToSpeckleObjects(obj)
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Examples of building.py")
-xmlS4U.addPanels(obj) #add Load Panels
+xmlS4U.convert_panels_to_xml(obj) #add Load Panels
 xmlS4U.addSurfaceLoad(obj)
 
 xmlS4U.XML()
