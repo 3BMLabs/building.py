@@ -86,7 +86,6 @@ obj.append(LC2)
 obj.append(LC3)
 
 #Surfaceload
-
 obj.append(chess_board_surface_loads_rectangle(0,0,spac_x*2,spac_y*2,6,6,spac_x,spac_y,1,-20,obj))
 
 print(obj)
