@@ -69,6 +69,27 @@ class Point(Coords):
         return Point(data['x'], data['y'], data['z'])
 
     @staticmethod
+    def distance_squared(point_1: 'Point', point_2: 'Point') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Point): The first point.
+        - `point_2` (Point): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Point(0, 0, 400)
+        point_2 = Point(300, 0, 400)
+        output = Point.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2
+        
+    @staticmethod
     def distance(point_1: 'Point', point_2: 'Point') -> float:
         """Computes the Euclidean distance between two 3D points.
 
@@ -88,7 +109,7 @@ class Point(Coords):
         ```
         """
         
-        return math.sqrt((point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2)
+        return math.sqrt(Point.distance_squared(point_1, point_2))
 
     @staticmethod
     def distance_list(points: list['Point']) -> float:
