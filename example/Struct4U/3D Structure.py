@@ -22,8 +22,12 @@ height = 3200
 gridinput =  ["0 1000 1000",seqChar,"0 4x3600",seqNumber,"0"]
 
 #CONCRETE BEAM
+
 project.objects.append(Frame().by_startpoint_endpoint(Point(0,0,0),Point(0,14400,0),Rectangle("350x500",350,500).curve,"350x500",0,BaseConcrete))
 project.objects.append(Frame.by_startpoint_endpoint(Point(0,14400,0),Point(2000,14400,0),Rectangle("350x500",350,500).curve,"350x500",0,BaseConcrete))
+
+project.objects.append(Frame.by_startpoint_endpoint_rect(Point(0,14400,0),Point(2000,14400,0)))
+
 
 #STEEL COLUMN
 project.objects.append(Frame.by_startpoint_endpoint_profile_shapevector(Point(2000,14400,0),Point(2000,14400,height),"HEA160","HEA160",Vector2(0,0),0,BaseSteel,"Frame"))
@@ -55,6 +59,6 @@ project.objects.append(Panel.by_polycurve_thickness(
 pathxml = "C:/Users/Jonathan/Desktop/TEMP/test1.xml"
 createXFEM4UXML(project,pathxml,gridinput)
 
-# OpenXMLXFEM4U(pathxml)
+OpenXMLXFEM4U(pathxml)
 
-project.toSpeckle("7603a8603c", "My shiny commit for Struct4U")
+#project.toSpeckle("7603a8603c", "My shiny commit for Struct4U")

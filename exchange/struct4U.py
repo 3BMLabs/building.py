@@ -326,9 +326,9 @@ class xmlXFEM4U:
                 Profiles += "<Angle>" + "0" + "</Angle>\n"
                 Profiles += "<ServiceClass>" + "0" + "</ServiceClass>\n"
                 Profiles += "<Profile_shape>" + "6" + "</Profile_shape>\n"
-                Profiles += "<h>" + str(item.profile_obj.h) + "</h>\n"
-                Profiles += "<b>" + str(item.profile_obj.b) + "</b>\n"
-                Profiles += "<tf>" + str(item.profile_obj.h) + "</tf>\n"
+                Profiles += "<h>" + str(item.profile.h) + "</h>\n"
+                Profiles += "<b>" + str(item.profile.b) + "</b>\n"
+                Profiles += "<tf>" + str(item.profile.h) + "</tf>\n"
                 Profiles += "<tw>10</tw>\n"
                 Profiles += "<r1>5</r1>\n"
                 Profiles += "<r2>5</r2>\n"
@@ -338,8 +338,8 @@ class xmlXFEM4U:
                 Profiles += "<Material>" + "C20/25" + "</Material>\n"
                 Profiles += "<Angle>" + "0" + "</Angle>\n"
                 Profiles += "<Profile_shape>" + "1" + "</Profile_shape>\n"
-                Profiles += "<h>" + str(item.profile_obj.h) + "</h>\n"
-                Profiles += "<b>" + str(item.profile_obj.b) + "</b>\n"
+                Profiles += "<h>" + str(item.profile.h) + "</h>\n"
+                Profiles += "<b>" + str(item.profile.b) + "</b>\n"
                 Profiles += "<h1>50</h1>\n"
                 Profiles += "<b1>50</b1>\n"
                 Profiles += "<h2>50</h2>\n"
@@ -714,6 +714,6 @@ def OpenXMLXFEM4U(pathxml):
         pass
     else:
         openXFEM4U()
-        time.sleep(15)
+        time.sleep(20)
     # WRITE DIRECTCOMMANDS TO XFEM4U, THEN XML-FILE IS OPENED IN XFEM4U
     writeDirectCommandsfile(pathxml)

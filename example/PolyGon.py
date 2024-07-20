@@ -9,7 +9,7 @@ from objects.steel_shapes import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
-from library.profile import profiledataToShape
+from library.profile import nameToProfile
 from geometry.surface import Surface
 from objects.annotation import *
 from abstract.intersect2d import *

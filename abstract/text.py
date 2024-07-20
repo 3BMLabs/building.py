@@ -33,7 +33,7 @@ __url__ = "./geometry/text.py"
 
 import sys
 from pathlib import Path
-import requests
+#import requests
 from typing import List
 import json
 

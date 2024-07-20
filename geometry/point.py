@@ -425,7 +425,7 @@ class CoordinateSystem:
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.Xaxis = Vector3.normalize(x_axis)
+        self.X_axis = Vector3.normalize(x_axis)
         self.Y_axis = Vector3.normalize(y_axis)
         self.Z_axis = Vector3.normalize(z_axis)
 
@@ -483,7 +483,7 @@ class CoordinateSystem:
         return self.x == other.x and self.y == other.y and self.z == other.z
 
     def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
+        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.X_axis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
@@ -539,11 +539,11 @@ class CoordinateSystem:
         
         from abstract.vector import Vector3
 
-        xloc_vect_norm = cs_old.Xaxis
+        xloc_vect_norm = cs_old.X_axis
         xdisp = Vector3.scale(xloc_vect_norm, x)
-        yloc_vect_norm = cs_old.Xaxis
+        yloc_vect_norm = cs_old.X_axis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = cs_old.Xaxis
+        zloc_vect_norm = cs_old.X_axis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
         CS = CoordinateSystem.translate(cs_old, disp)
@@ -668,7 +668,7 @@ def transform_point(point_local: Point, coordinate_system_old: CoordinateSystem,
         vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
     vector_1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
 
-    vector_2 = Vector3.product(point_1.x, CSNew.Xaxis)
+    vector_2 = Vector3.product(point_1.x, CSNew.X_axis)
     vector_3 = Vector3.product(point_1.y, CSNew.Y_axis)
     vector_4 = Vector3.product(point_1.z, CSNew.Z_axis)
     vtot = Vector3(vector_1.x + vector_2.x + vector_3.x + vector_4.x, vector_1.y + vector_2.y +
@@ -696,7 +696,7 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem) 
     """
     from abstract.vector import Vector3
     pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(
-        CoordinateSystemNew.Xaxis, PointLocal.x))
+        CoordinateSystemNew.X_axis, PointLocal.x))
     pn2 = Point.translate(pn, Vector3.scale(
         CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point.translate(pn2, Vector3.scale(

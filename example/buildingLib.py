@@ -9,7 +9,7 @@ from objects.steel_shapes import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
-from library.profile import profiledataToShape
+from library.profile import nameToProfile
 from objects.annotation import *
 import threading
 
@@ -21,7 +21,7 @@ for item in jsondata:
     for i in item.values():
         lst.append(i[0]["synonyms"][0])
 
-test = profiledataToShape("HEA200")
+test = nameToProfile("HEA200")
 
 #sys.exit()
 #3D Frames

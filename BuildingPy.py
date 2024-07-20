@@ -2473,11 +2473,11 @@ class CoordinateSystem:
         """
         
 
-        xloc_vect_norm = cs_old.Xaxis
+        xloc_vect_norm = cs_old.X_axis
         xdisp = Vector3.scale(xloc_vect_norm, x)
-        yloc_vect_norm = cs_old.Xaxis
+        yloc_vect_norm = cs_old.X_axis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = cs_old.Xaxis
+        zloc_vect_norm = cs_old.X_axis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
         CS = CoordinateSystem.translate(cs_old, disp)
@@ -2893,9 +2893,9 @@ class CoordinateSystem:
         translation_vector = Vector3.subtract(CS2.Origin, CS1.Origin)
 
         rotation_matrix = CoordinateSystem.calculate_rotation_matrix(
-            CS1.Xaxis, CS1.Y_axis, CS1.Z_axis, CS2.Xaxis, CS2.Y_axis, CS2.Z_axis)
+            CS1.X_axis, CS1.Y_axis, CS1.Z_axis, CS2.X_axis, CS2.Y_axis, CS2.Z_axis)
 
-        xaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Xaxis)
+        xaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.X_axis)
         yaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Y_axis)
         zaxis_transformed = Vector3.dot_product(rotation_matrix, CS1.Z_axis)
 
@@ -3034,7 +3034,7 @@ class CoordinateSystem:
         # Now, CS_after_normalization's X, Y, and Z axes are unit vectors.
         ```
         """
-        self.Xaxis = Vector3.normalize(self.Xaxis)
+        self.X_axis = Vector3.normalize(self.X_axis)
         self.Y_axis = Vector3.normalize(self.Y_axis)
         self.Z_axis = Vector3.normalize(self.Z_axis)
 
@@ -3059,11 +3059,11 @@ class CoordinateSystem:
         ```
         """
         # move coordinatesystem by y in local coordinates(not global)
-        xloc_vect_norm = cs_old.Xaxis
+        xloc_vect_norm = cs_old.X_axis
         xdisp = Vector3.scale(xloc_vect_norm, x)
-        yloc_vect_norm = cs_old.Xaxis
+        yloc_vect_norm = cs_old.X_axis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = cs_old.Xaxis
+        zloc_vect_norm = cs_old.X_axis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp, ydisp, zdisp)
         CS = CoordinateSystem.translate(cs_old, disp)
@@ -9064,7 +9064,7 @@ class BoundingBox3d:
         if length == None:
             length = 1000
         cs = self.coordinatesystem
-        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.Xaxis, length)
+        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.X_axis, length)
         lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Y_axis, length)
         lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Z_axis, length)
         return [lnX, lnY, lnZ]

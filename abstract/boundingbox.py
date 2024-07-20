@@ -319,7 +319,7 @@ class BoundingBox3d:
         if length == None:
             length = 1000
         cs = self.coordinatesystem
-        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.Xaxis, length)
+        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.X_axis, length)
         lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Y_axis, length)
         lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Z_axis, length)
         return [lnX, lnY, lnZ]

@@ -321,7 +321,7 @@ class CoordinateSystem:
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Y_axis, CSOld.Z_axis)
+        CSNew = CoordinateSystem(CSOld.Origin, CSOld.X_axis, CSOld.Y_axis, CSOld.Z_axis)
         new_origin = Point.translate(CSNew.Origin, direction)
         CSNew.Origin = new_origin
         return CSNew
@@ -329,11 +329,11 @@ class CoordinateSystem:
     @staticmethod
     def move_local(CSOld,x: float, y:float, z:float):
         #move coordinatesystem by y in local coordinates(not global)
-        xloc_vect_norm = CSOld.Xaxis
+        xloc_vect_norm = CSOld.X_axis
         xdisp = Vector3.scale(xloc_vect_norm,x)
-        yloc_vect_norm = CSOld.Xaxis
+        yloc_vect_norm = CSOld.X_axis
         ydisp = Vector3.scale(yloc_vect_norm, y)
-        zloc_vect_norm = CSOld.Xaxis
+        zloc_vect_norm = CSOld.X_axis
         zdisp = Vector3.scale(zloc_vect_norm, z)
         disp = Vector3.sum3(xdisp,ydisp,zdisp)
         CS = CoordinateSystem.translate(CSOld,disp)

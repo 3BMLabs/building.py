@@ -41,7 +41,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
-from objects.steel_shapes import *
+from objects.profile import *
 from geometry.geometry2d import *
 from geometry.curve import PolyCurve
 
@@ -60,7 +60,7 @@ def is_rectangle_format(shape_name):
     return False, 0, 0
 
 
-class searchProfile:
+class _getProfileDataFromDatabase:
     def __init__(self, name):
         self.name = name
         self.shape_coords = None
@@ -81,45 +81,45 @@ class searchProfile:
                 self.synonyms = name
 
 
-class profiledataToShape:
+class nameToProfile:
     def __init__(self, name1, segmented = True):
-        profile_data = searchProfile(name1)
+        profile_data = _getProfileDataFromDatabase(name1)
         if profile_data == None:
             print(f"profile {name1} not recognised")
-        shape_name = profile_data.shape_name
-        if shape_name == None:
-            profile_data = searchProfile(project.structural_fallback_element)
+        profile_name = profile_data.shape_name
+        if profile_name == None:
+            profile_data = _getProfileDataFromDatabase(project.structural_fallback_element)
             print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
-            shape_name = profile_data.shape_name
+            profile_name = profile_data.shape_name
         self.profile_data = profile_data
-        self.shape_name = shape_name
+        self.profile_name = profile_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
         d1 = self.d1
-        if shape_name == "C-channel parallel flange":
+        if profile_name == "C-channel parallel flange":
             prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
-        elif shape_name == "C-channel sloped flange":
+        elif profile_name == "C-channel sloped flange":
             prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
-        elif shape_name == "I-shape parallel flange":
+        elif profile_name == "I-shape parallel flange":
             prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        elif shape_name == "I-shape sloped flange":
+        elif profile_name == "I-shape sloped flange":
             prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
             #Todo: add sloped flange shape
-        elif shape_name == "Rectangle":
+        elif profile_name == "Rectangle":
             prof = Rectangle(name,d1[0], d1[1])
-        elif shape_name == "Round":
+        elif profile_name == "Round":
             prof = Round(name, d1[1])
-        elif shape_name == "Round tube profile":
+        elif profile_name == "Round tube profile":
             prof = Roundtube(name, d1[0], d1[1])
-        elif shape_name == "LAngle":
+        elif profile_name == "LAngle":
             prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
-        elif shape_name == "TProfile":
-            prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
-        elif shape_name == "Rectangle Hollow Section":
+        elif profile_name == "TProfile":
+            prof = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
+        elif profile_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        self.prof = prof
+        self.profile = prof
         self.data = d1
-        pc2d = self.prof.curve  # 2D polycurve
+        pc2d = self.profile.curve  # 2D polycurve
         if segmented == True:
             pc3d = PolyCurve.by_polycurve_2D(pc2d)
             pcsegment = PolyCurve.segment(pc3d, 10)

@@ -44,7 +44,6 @@ def generate_single_file(output_filename, include_files=None):
 		"objects/frame.py",
 		"objects/shape.py",
 		"objects/shape3d.py",
-		"objects/steel_shapes.py",
 		"objects/view.py",
 		"exchange/pat.py",
 	]

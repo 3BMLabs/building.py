@@ -305,9 +305,6 @@ pan2 = Panel.by_baseline_height(Line(start=Point(0, -1000, 0),
 
 # ------------------------
 
-data = searchProfile("HE120A").shape_coords
-
-
 # Color
 c = Color()
 print(c.red)
