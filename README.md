@@ -3,6 +3,8 @@
 # building.py
 A Python library for creating buildings, building systems, objects, and exporting them to various programs such as Blender, Revit, and Speckle.
 
+Supports Python 3.10 or higher.
+
 # Why?
 In the realm of building design, almost everything can be categorized as a frame or a panel – from windows and curtain walls to floor systems. The aim of the building.py project is to automate the creation of these systems.
 

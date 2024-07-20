@@ -1485,11 +1485,17 @@ class Arc:
     def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
         """Initializes an Arc object with start, mid, and end points.
         This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
+        
+        the mid point should really be in the center; we don't support warped arcs.
 
         - `startPoint` (Point): The starting point of the arc.
         - `midPoint` (Point): The mid point of the arc which defines its curvature.
         - `endPoint` (Point): The ending point of the arc.
         """
+        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
+        if Point.distance_squared(startPoint, midPoint) != Point.distance_squared(midPoint, endPoint):
+            raise ValueError('midpoint is not in the center')
+        
         self.id = generateID()
         self.type = __class__.__name__
         self.start = startPoint
@@ -1511,26 +1517,6 @@ class Arc:
         self.length = self.length()
         self.units = project.units
         self.coordinatesystem = self.coordinatesystem_arc()
-
-    def distance(self, point_1: 'Point', point_2: 'Point') -> float:
-        """Calculates the Euclidean distance between two points in 3D space.
-
-        #### Parameters:
-        - `point_1` (Point): The first point.
-        - `point_2` (Point): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-        ```python
-        point1 = Point(1, 2, 3)
-        point2 = Point(4, 5, 6)
-        distance = arc.distance(point1, point2)
-        # distance will be the Euclidean distance between point1 and point2
-        ```
-        """
-        return math.sqrt((point_2.x - point_1.x) ** 2 + (point_2.y - point_1.y) ** 2 + (point_2.z - point_1.z) ** 2)
 
     def coordinatesystem_arc(self) -> 'CoordinateSystem':
         """Calculates and returns the coordinate system of the arc.
@@ -1566,9 +1552,9 @@ class Arc:
         # radius will be the calculated radius of the arc
         ```
         """
-        a = self.distance(self.start, self.mid)
-        b = self.distance(self.mid, self.end)
-        c = self.distance(self.end, self.start)
+        a = Point.distance(self.start, self.mid)
+        b = Point.distance(self.mid, self.end)
+        c = Point.distance(self.end, self.start)
         s = (a + b + c) / 2
         A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
         
@@ -1591,11 +1577,12 @@ class Arc:
         # origin will be the calculated origin point of the arc
         ```
         """
-        Vstartend = Vector3.by_two_points(self.start, self.end)
-        halfVstartend = Vector3.scale(Vstartend, 0.5)
-        b = 0.5 * Vector3.length(Vstartend)
-        x = math.sqrt(Arc.radius_arc(self) * Arc.radius_arc(self) - b * b)
-        mid = Point.translate(self.start, halfVstartend)
+        start_to_end = Vector3.by_two_points(self.start, self.end)
+        half_start_end = Vector3.scale(start_to_end, 0.5)
+        b = Vector3.length(half_start_end)
+        radius = Arc.radius_arc(self)
+        x = math.sqrt(radius * radius - b * b)
+        mid = Point.translate(self.start, half_start_end)
         vector_2 = Vector3.by_two_points(self.mid, mid)
         vector_3 = Vector3.normalize(vector_2)
         tocenter = Vector3.scale(vector_3, x)

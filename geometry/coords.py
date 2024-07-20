@@ -43,3 +43,18 @@ class Coords(Serializable):
         self.y : float = float(y)
         self.z : float = float(z)
         self.id = generateID()
+        
+    def __add__(self, other):
+        self.x += other.x
+        self.y += other.y
+        self.z += other.z
+    
+    def __truediv__(self, other):
+        if isinstance(other, Coords):
+            self.x /= other.x
+            self.y /= other.y
+            self.z /= other.z            
+        else:
+            self.x /= other
+            self.y /= other
+            self.z /= other
