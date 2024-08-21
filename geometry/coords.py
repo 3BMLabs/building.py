@@ -36,25 +36,60 @@ from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
-class Coords(Serializable):
+class Coords(list, Serializable):
     """a shared base class for point and vector. contains the x, y and z coordinates"""
-    def __init__(self, x: float, y: float, z: float) -> 'Coords':
-        self.x : float = float(x)
-        self.y : float = float(y)
-        self.z : float = float(z)
+    def __init__(self, *args) -> 'Coords':
+        arrayArgs : list = args if len(args) > 1 else args[0]
+
+        list.__init__(self, arrayArgs)
+        Serializable.__init__(self)
         self.id = generateID()
+
+    def __str__(self):
+        length = len(self)
+        result = '['
+        if length >= 1:
+            result += f'x: {self.x}'
+            if length >= 2:
+                result += f', y: {self.y}'
+                if length >= 3:
+                    result += f', z: {self.z}'
+
+        result += ']'
+        return result
+    
+    def __repr__(self):
+        return str(self)
+    
+    @property
+    def x(self):
+        return self[0]
+    @x.setter
+    def x(self, value):
+        self[0] = value
+        
+    @property
+    def y(self):
+        return self[1]
+    @y.setter
+    def y(self, value):
+        self[1] = value
+
+    @property
+    def z(self):
+        return self[2]
+    @z.setter
+    def z(self, value):
+        self[2] = value
         
     def __add__(self, other):
-        self.x += other.x
-        self.y += other.y
-        self.z += other.z
+        for (selfElem, otherElem) in zip(self, other):
+            selfElem += otherElem
     
     def __truediv__(self, other):
         if isinstance(other, Coords):
-            self.x /= other.x
-            self.y /= other.y
-            self.z /= other.z            
+            for (selfElem, otherElem) in zip(self, other):
+                selfElem /= otherElem
         else:
-            self.x /= other
-            self.y /= other
-            self.z /= other
+            for selfElem in self:
+                selfElem /= other
