@@ -13,8 +13,9 @@ mat = Matrix(Matrix.identity(4))
 scalemat = Matrix.scale(4, 2)
 scalemat[3][3] = 1
 translatemat = Matrix.translate(Vector3(4,5,3))
-combined = mat * scalemat * translatemat
-combined2 = translatemat * scalemat
+#multiplication order: right to left
+combined = translatemat * scalemat *mat 
+combined2 = scalemat* translatemat
 result = combined * point
 
 print(result)

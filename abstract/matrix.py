@@ -43,19 +43,26 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from project.fileformat import *
 from geometry.point import Point
 from abstract.vector import *
+from typing import Self
 
 # [!not included in BP singlefile - end]
 
 class Matrix(list[list]):
+    """
+    elements are ordered like [row][column] or [y][x]
+    """
     def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> 'Matrix':
         list.__init__(self, matrix)
+    
 
     @property
-    def width(self):
+    def cols(self) -> 'int':
+        """returns the width (x size) of this matrix in columns."""
         return len(self[0])
 
     @property
-    def height(self):
+    def rows(self) -> 'int':
+        """returns the height (y size) of this matrix in columns."""
         return len(self)
 
     @staticmethod
@@ -79,10 +86,11 @@ class Matrix(list[list]):
         return Matrix(arr)
     
     @staticmethod
-    def empty(width:int, height = None):
-        if height == None:
-            height = width
-        return Matrix([[0 for x in range(width)] for y in range(height)])
+    def empty(rows:int, cols = None):
+        """creates a matrix of size n x m (rows x columns or y * x or h * w)"""
+        if cols == None:
+            cols = rows
+        return Matrix([[0 for col in range(cols)] for row in range(rows)])
 
     @staticmethod
     def identity(dimensions:int):
@@ -91,49 +99,70 @@ class Matrix(list[list]):
     @staticmethod
     def translate(toAdd: Vector3):
         dimensions:int = len(toAdd) + 1
-        return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(dimensions)])
-
-    def __mul__(self, other):
-        if isinstance(other, Coords):
-            result: Coords = Coords([0] * len (self))
-            for col in range(len(result)):
-                for row in range(len(other)):
-                    result[col] += other[row] * self[col][row]
-            return result
-        elif isinstance(other, Matrix):
+        return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
+    
+    def __mul__(self, other:Self | Coords):
+        """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
+        for example: translate * rotate (rotate first, translate after)
+        and: matrix * point (point first, multiplied by matrix after)"""
+        if isinstance(other, Matrix):
             #multiply matrices with eachother
             #https://www.geeksforgeeks.org/multiplication-two-matrices-single-line-using-numpy-python/
-            
+
             #visualisation of resulting sizes:
             #https://en.wikipedia.org/wiki/Matrix_multiplication
-            
+
             #the number of columns (width) in the first matrix needs to be equal to the number of rows (height) in the second matrix
             #(look at for i in range(other.height))
-            if self.width == other.height:
-                resultWidth = other.width
-                resultHeight = self.height
 
-                result:Matrix = Matrix.empty(resultWidth, resultHeight)
-
+            #we are multiplying row vectors of self with col vectors of other
+            if self.cols == other.rows:
+                resultRows = self.rows
+                resultCols = other.cols
+                result:Matrix = Matrix.empty(resultRows, resultCols)
                 # explicit for loops
-                for y in range(self.height):
-                    for x in range(other.width):
-                        for i in range(other.height):
-                            #this is the simple code, which would work if the number of self.width was equal to other.height
-                            result[y][x] += other[y][i] * self[i][x]
+                for row in range(self.rows):
+                    for col in range(other.cols):
+                        for multiplyIndex in range(other.rows):
+                            #this is the simple code, which would work if the number of self.cols was equal to other.rows
+                            result[row][col] += self[row][multiplyIndex] * other[multiplyIndex][col]
             else:
-                resultWidth = max(self.width, other.width)
-                resultHeight = max(self.height, other.height)
-                
-                result:Matrix = Matrix.empty(resultWidth, resultHeight)
-                
+                resultCols = max(self.cols, other.cols)
+                resultRows = max(self.rows, other.rows)
+
+                result:Matrix = Matrix.empty(resultRows, resultCols)
+
+                #the size of the vector that we're multiplying.
+                multiplyVectorSize = max(self.cols, other.rows)
+
                 # explicit for loops
-                for y in range(self.height):
-                    for x in range(other.width):
-                        for i in range(other.height):
-                            #this is the simple code, which would work if the number of self.width was equal to other.height
-                            result[y][x] += other[y][i] * self[i][x]
+                for row in range(resultRows):
+                    for col in range(resultCols):
+                        for multiplyIndex in range(multiplyVectorSize):
+                            #if an element doesn't exist in the matrix, we use an identity element.
+                            selfValue = self[row][multiplyIndex] if row < self.rows and multiplyIndex < self.cols else 1 if multiplyIndex == row else 0
+                            otherValue = other[multiplyIndex][col] if col < other.cols and multiplyIndex < other.rows else 1 if multiplyIndex == col else 0
+                            result[row][col] += selfValue * otherValue
+
+        #point comes in from top and comes out to the right:
+        # |
+        # v
+        #a b
+        #c d ->
+        elif isinstance(other, Coords):
+            result: Coords = Coords([0] * self.rows)
+            #loop over column vectors and multiply them with the vector. sum the results (multiplied col 1 + multiplied col 2) to get the final product!
+            for col in range(self.cols):
+                if col < len(other):
+                    for row in range(self.rows):
+                        result[row] += self[row][col] * other[col]
+                else:
+                    #otherValue = 1, just add the vector
+                    for row in range(self.rows):
+                        result[row] += self[row][col]
             return result
+
+        return result
 
     def add(self, other: 'Matrix'):
         if self.shape() != other.shape():
