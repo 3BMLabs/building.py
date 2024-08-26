@@ -19,3 +19,5 @@ combined2 = scalemat* translatemat
 result = combined * point
 
 print(result)
+print(result * 4)
+print(result / 5)

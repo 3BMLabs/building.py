@@ -31,8 +31,12 @@ __title__ = "coords"
 __author__ = "JohnHeikens"
 __url__ = "./geometry/coords.py"
 
+from types import UnionType
+from typing import Any, SupportsIndex
 from packages.helper import generateID
 from abstract.serializable import Serializable
+
+import operator
 
 # [!not included in BP singlefile - end]
 
@@ -82,14 +86,27 @@ class Coords(list, Serializable):
     def z(self, value):
         self[2] = value
         
+    def operate(self, other, op:operator):
+        result = Coords([0] * len(self))
+        try:
+            for index in range(len(self)):
+                result[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                result[index] = op(self[index], other)
+        return result
+    
     def __add__(self, other):
-        for (selfElem, otherElem) in zip(self, other):
-            selfElem += otherElem
+        return self.operate(other, operator.add)
+
+    def __sub__(self, other):
+        return self.operate(other, operator.sub)
     
     def __truediv__(self, other):
-        if isinstance(other, Coords):
-            for (selfElem, otherElem) in zip(self, other):
-                selfElem /= otherElem
-        else:
-            for selfElem in self:
-                selfElem /= other
+        return self.operate(other, operator.truediv)
+
+    def __mul__(self, other):
+        return self.operate(other, operator.mul)
+    __rmul__ = __mul__
