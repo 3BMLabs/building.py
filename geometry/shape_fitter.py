@@ -2,6 +2,7 @@
 
 
 from bisect import bisect, bisect_left, bisect_right
+from math import inf
 from geometry.coords import Coords
 
 #compare: a function which should return true if the compared element is less than the search value, when sorted ascending.
@@ -42,7 +43,7 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
     #for now, we just use one parent shape
 
 #this function modifies the parents list!
-def try_perfect_fit(parents:list[tuple[int,float]], child: tuple[int,float], move_leftovers_to:list[tuple[int,float]], allowed_error:float) -> tuple[int,float] | None:
+def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple[int,float]], child: tuple[int,float], allowed_error:float) -> tuple[int,float] | None:
     """this function modifies the parents list!
 
     Args:
@@ -106,20 +107,20 @@ def fit_lengths_1d(parent_lengths:list[float], child_lengths: list[float], paddi
     for child in children:
         padded_child = (child[0],child[1] + padding)
         #find a good parent in the list of used parents
-        fit = try_perfect_fit(used_parents, padded_child, allowed_error)
+        fit = try_perfect_fit(used_parents, used_parents, padded_child, allowed_error)
         
         if fit != None:
             fit = (fit[0], fit[1] - padding)
         else:
             #else, use a new parent of the remaining parents
 
-            fit = try_perfect_fit(unused_parents, child, allowed_error)
+            fit = try_perfect_fit(unused_parents, used_parents, child, allowed_error)
             if fit == None:
-                fit = try_imperfect_fit(used_parents,used_parents, padded_child)
+                fit = try_perfect_fit(used_parents,used_parents, padded_child,inf)
                 if fit != None:
                     fit = (fit[0], fit[1] - padding)
                 else:
-                    fit = try_imperfect_fit(unused_parents, used_parents, child)
+                    fit = try_perfect_fit(unused_parents, used_parents, child, inf)
         
         if fit != None:
             #reverse offset in parent
