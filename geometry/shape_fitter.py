@@ -58,7 +58,7 @@ def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple
     if len(parents) > 0 and parents[0][1] >= child[1]:
         #find a parent in use which fits perfectly.
         perfect_fit_index = bisect_compare(parents,compare=lambda compare:compare[1] >= child[1])
-        if perfect_fit_index < len(parents) and perfect_fit_index > 0:
+        if perfect_fit_index <= len(parents) and perfect_fit_index > 0:
             perfect_fit_index -= 1
             #copy reference
             perfect_fit_parent = parents[perfect_fit_index]
@@ -77,7 +77,7 @@ def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple
                     parents.pop(perfect_fit_index)
                     new_parent_index = bisect_compare(move_leftovers_to, compare=lambda x:x[1] > modified_parent[1])
                     move_leftovers_to.insert(new_parent_index,modified_parent)
-                    return result                    
+                    return result
     return None
 
 def fit_lengths_1d(parent_lengths:list[float], child_lengths: list[float], padding: float, allowed_error:float)->list[tuple[int,float] | None]:
@@ -125,6 +125,8 @@ def fit_lengths_1d(parent_lengths:list[float], child_lengths: list[float], paddi
         if fit != None:
             #reverse offset in parent
             fitted_children[child[0]] = (fit[0], parent_lengths[fit[0]] - fit[1])
+            
+    #moving items around will rarely do much. it'd take a whole load of performance, though.
 
     #finally, return the list
     return fitted_children
