@@ -49,7 +49,7 @@ Initializes a PolyCurve object.
 
         
 
-- `copy_translate(pc: PolyCurve, vector_3d: Vector3) -> PolyCurve`: Creates a copy of a PolyCurve and translates it by a 3D vector.
+- `copy_translate(pc: PolyCurve, vector_3d: Vector) -> PolyCurve`: Creates a copy of a PolyCurve and translates it by a 3D vector.
 
         
 
@@ -94,11 +94,11 @@ Initializes a PolyCurve object.
 
         
 
-- `transform_from_origin(polycurve: PolyCurve, startpoint: Point, directionvector: Vector3) -> PolyCurve`: Transforms a PolyCurve from a given origin point and direction vector.
+- `transform_from_origin(polycurve: PolyCurve, startpoint: Point, directionvector: Vector) -> PolyCurve`: Transforms a PolyCurve from a given origin point and direction vector.
 
         
 
-- `translate(self, vector_3d: Vector3) -> PolyCurve`: Translates the PolyCurve by a 3D vector.
+- `translate(self, vector_3d: Vector) -> PolyCurve`: Translates the PolyCurve by a 3D vector.
 
         
 
@@ -183,13 +183,13 @@ Closes the PolyCurve by connecting the last point to the first point.
 
 ---
 
-#### `copy_translate(pc: PolyCurve, vector_3d: Vector3) -> PolyCurve`
+#### `copy_translate(pc: PolyCurve, vector_3d: Vector) -> PolyCurve`
 
 Creates a copy of a PolyCurve and translates it by a 3D vector.
 
 #### Parameters:
 - `pc` (PolyCurve): The PolyCurve to copy and translate.
-- `vector_3d` (Vector3): The 3D vector by which to translate the PolyCurve.
+- `vector_3d` (Vector): The 3D vector by which to translate the PolyCurve.
 
 #### Returns:
 `PolyCurve`: The translated copy of the PolyCurve.
@@ -373,14 +373,14 @@ Converts the PolyCurve to a PolyCurve2D.
 
 ---
 
-#### `transform_from_origin(polycurve: PolyCurve, startpoint: Point, directionvector: Vector3) -> PolyCurve`
+#### `transform_from_origin(polycurve: PolyCurve, startpoint: Point, directionvector: Vector) -> PolyCurve`
 
 Transforms a PolyCurve from a given origin point and direction vector.
 
 #### Parameters:
 - `polycurve` (PolyCurve): The PolyCurve to transform.
 - `startpoint` (Point): The origin point for the transformation.
-- `directionvector` (Vector3): The direction vector for the transformation.
+- `directionvector` (Vector): The direction vector for the transformation.
 
 #### Returns:
 `PolyCurve`: The transformed PolyCurve.
@@ -393,12 +393,12 @@ Transforms a PolyCurve from a given origin point and direction vector.
 
 ---
 
-#### `translate(self, vector_3d: Vector3) -> PolyCurve`
+#### `translate(self, vector_3d: Vector) -> PolyCurve`
 
 Translates the PolyCurve by a 3D vector.
 
 #### Parameters:
-- `vector_3d` (Vector3): The 3D vector by which to translate the PolyCurve.
+- `vector_3d` (Vector): The 3D vector by which to translate the PolyCurve.
 
 #### Returns:
 `PolyCurve`: The translated PolyCurve.

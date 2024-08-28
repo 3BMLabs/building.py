@@ -49,14 +49,14 @@ class Plane:
         """"Initializes a new Plane instance.
 
         - `Origin` (Point): The origin point of the plane, which also lies on the plane.
-        - `Normal` (Vector3): A vector perpendicular to the plane, defining its orientation.
-        - `v1` (Vector3): A vector lying on the plane, typically representing the "x" direction on the plane.
-        - `v2` (Vector3): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
+        - `Normal` (Vector): A vector perpendicular to the plane, defining its orientation.
+        - `v1` (Vector): A vector lying on the plane, typically representing the "x" direction on the plane.
+        - `v2` (Vector): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
         """
         self.Origin = Point(0, 0, 0)
-        self.Normal = Vector3(x=0, y=0, z=1)
-        self.vector_1 = Vector3(x=1, y=0, z=0)
-        self.vector_2 = Vector3(x=0, y=1, z=0)
+        self.Normal = Vector(x=0, y=0, z=1)
+        self.vector_1 = Vector(x=1, y=0, z=0)
+        self.vector_2 = Vector(x=0, y=1, z=0)
 
     def serialize(self) -> dict:
         """Serializes the plane's attributes into a dictionary.
@@ -95,20 +95,20 @@ class Plane:
         """
         plane = Plane()
         plane.Origin = Point.deserialize(data['Origin'])
-        plane.Normal = Vector3.deserialize(data['Normal'])
-        plane.vector_1 = Vector3.deserialize(data['vector_1'])
-        plane.vector_2 = Vector3.deserialize(data['vector_2'])
+        plane.Normal = Vector.deserialize(data['Normal'])
+        plane.vector_1 = Vector.deserialize(data['vector_1'])
+        plane.vector_2 = Vector.deserialize(data['vector_2'])
 
         return plane
 
     @classmethod
-    def by_two_vectors_origin(cls, vector_1: Vector3, vector_2: Vector3, origin: Point) -> 'Plane':
+    def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
         """Creates a Plane defined by two vectors and an origin point.
         This method establishes a plane using two vectors that lie on the plane and an origin point. The normal is calculated as the cross product of the two vectors, ensuring it is perpendicular to the plane.
 
         #### Parameters:
-            vector_1 (Vector3): The first vector on the plane.
-            vector_2 (Vector3): The second vector on the plane, should not be parallel to vector_1.
+            vector_1 (Vector): The first vector on the plane.
+            vector_2 (Vector): The second vector on the plane, should not be parallel to vector_1.
             origin (Point): The origin point of the plane, lying on the plane.
 
         #### Returns:
@@ -120,7 +120,7 @@ class Plane:
         ```
         """
         p1 = Plane()
-        p1.Normal = Vector3.normalize(Vector3.cross_product(vector_1, vector_2))
+        p1.Normal = Vector.normalize(Vector.cross_product(vector_1, vector_2))
         p1.Origin = origin
         p1.vector_1 = vector_1
         p1.vector_2 = vector_2

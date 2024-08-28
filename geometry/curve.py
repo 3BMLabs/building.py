@@ -70,8 +70,8 @@ class Line(Serializable):
         except:
             self.dz = 0
         self.length = self.length()
-        self.vector: Vector3 = Vector3.by_two_points(start, end)
-        self.vector_normalised = Vector3.normalize(self.vector)
+        self.vector: Vector = Vector.by_two_points(start, end)
+        self.vector_normalised = Vector.normalize(self.vector)
 
     def serialize(self) -> 'dict':
         """Serializes the Line object into a dictionary.
@@ -143,13 +143,13 @@ class Line(Serializable):
         instance.dz = data.get('dz')
         instance.length = data.get('length')
 
-        if 'vector' in data and hasattr(Vector3, 'deserialize'):
-            instance.vector = Vector3.deserialize(data['vector'])
+        if 'vector' in data and hasattr(Vector, 'deserialize'):
+            instance.vector = Vector.deserialize(data['vector'])
         else:
             instance.vector = data['vector']
 
-        if 'vector_normalised' in data and hasattr(Vector3, 'deserialize'):
-            instance.vector_normalised = Vector3.deserialize(
+        if 'vector_normalised' in data and hasattr(Vector, 'deserialize'):
+            instance.vector_normalised = Vector.deserialize(
                 data['vector_normalised'])
         else:
             instance.vector_normalised = data['vector_normalised']
@@ -157,12 +157,12 @@ class Line(Serializable):
         return instance
 
     @staticmethod
-    def by_startpoint_direction_length(start: 'Point', direction: 'Vector3', length: 'float') -> 'Line':
+    def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
         """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
 
         #### Parameters:
         - `start` (Point): The starting point of the line segment.
-        - `direction` (Vector3): The direction vector of the line segment.
+        - `direction` (Vector): The direction vector of the line segment.
         - `length` (float): The length of the line segment.
 
         #### Returns:
@@ -175,7 +175,7 @@ class Line(Serializable):
         """
         norm = math.sqrt(direction.x ** 2 + direction.y **
                          2 + direction.z ** 2)
-        normalized_direction = Vector3(
+        normalized_direction = Vector(
             direction.x / norm, direction.y / norm, direction.z / norm)
 
         end_x = start.x + normalized_direction.x * length
@@ -185,11 +185,11 @@ class Line(Serializable):
 
         return Line(start, end_point)
 
-    def translate(self, direction: 'Vector3') -> 'Line':
+    def translate(self, direction: 'Vector') -> 'Line':
         """Translates the Line object by a given direction vector.
 
         #### Parameters:
-        - `direction` (Vector3): The direction vector by which the line segment will be translated.
+        - `direction` (Vector): The direction vector by which the line segment will be translated.
 
         #### Returns:
         `Line`: The translated Line object.
@@ -204,12 +204,12 @@ class Line(Serializable):
         return self
 
     @staticmethod
-    def translate_2(line: 'Line', direction: 'Vector3') -> 'Line':
+    def translate_2(line: 'Line', direction: 'Vector') -> 'Line':
         """Translates the specified Line object by a given direction vector.
 
         #### Parameters:
         - `line` (Line): The Line object to be translated.
-        - `direction` (Vector3): The direction vector by which the line segment will be translated.
+        - `direction` (Vector): The direction vector by which the line segment will be translated.
 
         #### Returns:
         `Line`: The translated Line object.
@@ -244,12 +244,12 @@ class Line(Serializable):
         ln.end = transform_point_2(ln.end, cs_new)
         return ln
 
-    def offset(line: 'Line', vector: 'Vector3') -> 'Line':
+    def offset(line: 'Line', vector: 'Vector') -> 'Line':
         """Offsets the Line object by a given vector.
 
         #### Parameters:
         - `line` (Line): The Line object to be offset.
-        - `vector` (Vector3): The vector by which the Line object will be offset.
+        - `vector` (Vector): The vector by which the Line object will be offset.
 
         #### Returns:
         `Line`: The offset Line object.
@@ -301,7 +301,7 @@ class Line(Serializable):
 
         ```          
         """
-        vect = Vector3.scale(self.vector, 0.5)
+        vect = Vector.scale(self.vector, 0.5)
         mid = Point.translate(self.start, vect)
         return mid
 
@@ -976,11 +976,11 @@ class PolyCurve:
         project.objects.append(flatten(new_polygons))
         return flatten(new_polygons)
 
-    def translate(self, vector_3d: 'Vector3') -> 'PolyCurve':
+    def translate(self, vector_3d: 'Vector') -> 'PolyCurve':
         """Translates the PolyCurve by a 3D vector.
 
         #### Parameters:
-        - `vector_3d` (Vector3): The 3D vector by which to translate the PolyCurve.
+        - `vector_3d` (Vector): The 3D vector by which to translate the PolyCurve.
 
         #### Returns:
         `PolyCurve`: The translated PolyCurve.
@@ -1006,12 +1006,12 @@ class PolyCurve:
         return pc
 
     @staticmethod
-    def copy_translate(pc: 'PolyCurve', vector_3d: 'Vector3') -> 'PolyCurve':
+    def copy_translate(pc: 'PolyCurve', vector_3d: 'Vector') -> 'PolyCurve':
         """Creates a copy of a PolyCurve and translates it by a 3D vector.
 
         #### Parameters:
         - `pc` (PolyCurve): The PolyCurve to copy and translate.
-        - `vector_3d` (Vector3): The 3D vector by which to translate the PolyCurve.
+        - `vector_3d` (Vector): The 3D vector by which to translate the PolyCurve.
 
         #### Returns:
         `PolyCurve`: The translated copy of the PolyCurve.
@@ -1103,13 +1103,13 @@ class PolyCurve:
         return point_1
 
     @staticmethod
-    def transform_from_origin(polycurve: 'PolyCurve', startpoint: 'Point', directionvector: 'Vector3') -> 'PolyCurve':
+    def transform_from_origin(polycurve: 'PolyCurve', startpoint: 'Point', directionvector: 'Vector') -> 'PolyCurve':
         """Transforms a PolyCurve from a given origin point and direction vector.
 
         #### Parameters:
         - `polycurve` (PolyCurve): The PolyCurve to transform.
         - `startpoint` (Point): The origin point for the transformation.
-        - `directionvector` (Vector3): The direction vector for the transformation.
+        - `directionvector` (Vector): The direction vector for the transformation.
 
         #### Returns:
         `PolyCurve`: The transformed PolyCurve.
@@ -1226,11 +1226,11 @@ class PolyCurve:
 # 2D PolyCurve to 3D Polygon
 
 
-def Rect(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
+def Rect(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
     """Creates a rectangle in the XY-plane with a translation of vector.
 
     #### Parameters:
-    - `vector` (Vector3): The translation vector.
+    - `vector` (Vector): The translation vector.
     - `width` (float): The width of the rectangle.
     - `height` (float): The height of the rectangle.
 
@@ -1250,11 +1250,11 @@ def Rect(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
     return crv
 
 
-def Rect_XY(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
+def Rect_XY(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
     """Creates a rectangle in the XY-plane.
 
     #### Parameters:
-    - `vector` (Vector3): The base vector of the rectangle.
+    - `vector` (Vector): The base vector of the rectangle.
     - `width` (float): The width of the rectangle.
     - `height` (float): The height of the rectangle.
 
@@ -1274,11 +1274,11 @@ def Rect_XY(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
     return crv
 
 
-def Rect_YZ(vector: 'Vector3', width: 'float', height: 'float') -> 'PolyCurve':
+def Rect_YZ(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
     """Creates a rectangle in the YZ-plane.
 
     #### Parameters:
-    - `vector` (Vector3): The base vector of the rectangle.
+    - `vector` (Vector): The base vector of the rectangle.
     - `width` (float): The width of the rectangle.
     - `height` (float): The height of the rectangle.
 
@@ -1429,11 +1429,11 @@ class Polygon:
         return sum(i.length for i in self.curves)
 
 
-    def translate(self, vector_3d: 'Vector3') -> 'Polygon':
+    def translate(self, vector_3d: 'Vector') -> 'Polygon':
         """Translates the Polygon by a 3D vector.
 
         #### Parameters:
-        - `vector_3d` (Vector3): The 3D vector by which to translate the Polygon.
+        - `vector_3d` (Vector): The 3D vector by which to translate the Polygon.
 
         #### Returns:
         `Polygon`: The translated Polygon.
@@ -1502,8 +1502,8 @@ class Arc:
         self.mid = midPoint
         self.end = endPoint
         self.origin = self.origin_arc()
-        vector_1 = Vector3(x=1, y=0, z=0)
-        vector_2 = Vector3(x=0, y=1, z=0)
+        vector_1 = Vector(x=1, y=0, z=0)
+        vector_2 = Vector(x=0, y=1, z=0)
         self.plane = Plane.by_two_vectors_origin(
             vector_1,
             vector_2,
@@ -1531,12 +1531,12 @@ class Arc:
         # coordinatesystem will be an instance of CoordinateSystem representing the arc's local coordinate system
         ```
         """
-        vx = Vector3.by_two_points(self.origin, self.start)  # Local X-axe
-        vector_2 = Vector3.by_two_points(self.end, self.origin)
-        vz = Vector3.cross_product(vx, vector_2)  # Local Z-axe
-        vy = Vector3.cross_product(vx, vz)  # Local Y-axe
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy),
-                                                 Vector3.normalize(vz))
+        vx = Vector.by_two_points(self.origin, self.start)  # Local X-axe
+        vector_2 = Vector.by_two_points(self.end, self.origin)
+        vz = Vector.cross_product(vx, vector_2)  # Local Z-axe
+        vy = Vector.cross_product(vx, vz)  # Local Y-axe
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
+                                                 Vector.normalize(vz))
         return self.coordinatesystem
 
     def radius_arc(self) -> 'float':
@@ -1577,15 +1577,15 @@ class Arc:
         # origin will be the calculated origin point of the arc
         ```
         """
-        start_to_end = Vector3.by_two_points(self.start, self.end)
-        half_start_end = Vector3.scale(start_to_end, 0.5)
-        b = Vector3.length(half_start_end)
+        start_to_end = Vector.by_two_points(self.start, self.end)
+        half_start_end = Vector.scale(start_to_end, 0.5)
+        b = Vector.length(half_start_end)
         radius = Arc.radius_arc(self)
         x = math.sqrt(radius * radius - b * b)
         mid = Point.translate(self.start, half_start_end)
-        vector_2 = Vector3.by_two_points(self.mid, mid)
-        vector_3 = Vector3.normalize(vector_2)
-        tocenter = Vector3.scale(vector_3, x)
+        vector_2 = Vector.by_two_points(self.mid, mid)
+        vector_3 = Vector.normalize(vector_2)
+        tocenter = Vector.scale(vector_3, x)
         center = Point.translate(mid, tocenter)
         return center
 
@@ -1602,19 +1602,19 @@ class Arc:
         # angle will be the total angle of the arc in radians
         ```
         """
-        vector_1 = Vector3.by_two_points(self.origin, self.end)
-        vector_2 = Vector3.by_two_points(self.origin, self.start)
-        vector_3 = Vector3.by_two_points(self.origin, self.mid)
+        vector_1 = Vector.by_two_points(self.origin, self.end)
+        vector_2 = Vector.by_two_points(self.origin, self.start)
+        vector_3 = Vector.by_two_points(self.origin, self.mid)
         vector_4 = vector_1 + vector_2
         try:
-            v4b = Vector3.new_length(vector_4, self.radius)
-            if Vector3.value(vector_3) == Vector3.value(v4b):
-                angle = Vector3.angle_radian_between(vector_1, vector_2)
+            v4b = Vector.new_length(vector_4, self.radius)
+            if Vector.value(vector_3) == Vector.value(v4b):
+                angle = Vector.angle_radian_between(vector_1, vector_2)
             else:
-                angle = 2*math.pi-Vector3.angle_radian_between(vector_1, vector_2)
+                angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
             return angle
         except:
-            angle = 2*math.pi-Vector3.angle_radian_between(vector_1, vector_2)
+            angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
             return angle
 
     def length(self) -> 'float':

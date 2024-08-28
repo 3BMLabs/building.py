@@ -88,8 +88,8 @@ class WurksRaster3d(Serializable):
         return wurks_raster3d
 
     def by_line(self, lines: Line, bottom: float, top: float):
-        self.bottom = Vector3(0, 0, bottom)
-        self.top = Vector3(0, 0, top)
+        self.bottom = Vector(0, 0, bottom)
+        self.top = Vector(0, 0, top)
         self.lines = lines
 
         surfList = []
@@ -148,7 +148,7 @@ class WurksPedestal:
                 translated_top, self.topheight, 0))
 
             frame = Rect(
-                Vector3(x=(translated_top.centroid().x) - (self.diameter / 2),
+                Vector(x=(translated_top.centroid().x) - (self.diameter / 2),
                         y=(translated_top.centroid().y) - (self.diameter / 2),
                         z=point.z - self.topheight),
                 self.diameter, self.diameter
@@ -183,15 +183,15 @@ class WorkPlane():
     def create(self, length: float = None, width: float = None) -> str:
         self.length = length or 1000
         self.width = width or 1000
-        rect = Rect(Vector3(0, 0, 0), self.length, self.width)
+        rect = Rect(Vector(0, 0, 0), self.length, self.width)
         for pt in rect.points:
             self.points.append(pt)
         project.objects.append(rect)
         print(f"1* {self.__class__.__name__} {project.createdTxt}")
-        return Rect(Vector3(0, 0, 0), self.length, self.width)
+        return Rect(Vector(0, 0, 0), self.length, self.width)
 
     pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,
 
 
 WorkPlane = WorkPlane()
-# rotation(Vector3)/#volume/#scale
+# rotation(Vector)/#volume/#scale

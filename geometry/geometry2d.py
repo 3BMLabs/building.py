@@ -38,7 +38,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from packages.helper import *
-from abstract.vector import Vector3
+from abstract.vector import Vector
 from geometry.point import transform_point_2
 from abstract.plane import Plane
 from abstract.coordinatesystem import CoordinateSystem
@@ -122,7 +122,7 @@ class Vector2:
 
     @staticmethod  # Returns vector perpendicular on the two vectors
     def cross_product(v1, v2):
-        return Vector3(
+        return Vector(
             v1.y - v2.y,
             v2.x - v1.x,
             v1.x*v2.y - v1.y*v2.x
@@ -152,7 +152,7 @@ class Vector2:
         vector_1 = Vector2(19, 18)
         vector_2 = Vector2(8, 17)
         output = Vector2.sum(vector_1, vector_2)
-        # Vector3()
+        # Vector()
         ```
         """
         return Vector2(
@@ -244,11 +244,11 @@ class Point2D:
 def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
-    from abstract.vector import Vector3
+    from abstract.vector import Vector
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    # pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    # pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    # pn2 = Point2D.translate(pn, Vector.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D.translate(PointLocal, Vector2(
         CoordinateSystemNew.Origin.x, CoordinateSystemNew.Origin.y))
     # pn3 = Point2D(pn.x,pn.y)
@@ -317,9 +317,9 @@ class Line2D:
 #         self.origin = self.origin_arc()
 #         self.angle_radian = self.angle_radian()
 #         self.radius = self.radius_arc()
-#         self.normal = Vector3(0, 0, 1)
-#         self.xdir = Vector3(1, 0, 0)
-#         self.ydir = Vector3(0, 1, 0)
+#         self.normal = Vector(0, 0, 1)
+#         self.xdir = Vector(1, 0, 0)
+#         self.ydir = Vector(0, 1, 0)
 #         self.coordinatesystem = self.coordinatesystem_arc()
 
 #     def serialize(self):
@@ -358,11 +358,11 @@ class Line2D:
 
 #     def coordinatesystem_arc(self):
 #         vx2d = Vector2.by_two_points(self.origin, self.start)  # Local X-axe
-#         vx = Vector3(vx2d.x, vx2d.y, 0)
-#         vy = Vector3(vx.y, vx.x * -1, 0)
-#         vz = Vector3(0, 0, 1)
-#         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(
-#             vx), Vector3.normalize(vy), Vector3.normalize(vz))
+#         vx = Vector(vx2d.x, vx2d.y, 0)
+#         vy = Vector(vx.y, vx.x * -1, 0)
+#         vz = Vector(0, 0, 1)
+#         self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(
+#             vx), Vector.normalize(vy), Vector.normalize(vz))
 #         return self.coordinatesystem
 
 #     def angle_radian(self):
@@ -445,8 +445,8 @@ class Arc2D:
         self.mid = midPoint
         self.end = endPoint
         self.origin = self.origin_arc()
-        vector_1 = Vector3(x=1, y=0, z=0)
-        vector_2 = Vector3(x=0, y=1, z=0)
+        vector_1 = Vector(x=1, y=0, z=0)
+        vector_2 = Vector(x=0, y=1, z=0)
         self.plane = Plane.by_two_vectors_origin(
             vector_1,
             vector_2,
@@ -988,7 +988,7 @@ class PolyCurve2D:
         return crv
 
     @staticmethod
-    def copy_translate(pc, vector3d: Vector3):
+    def copy_translate(pc, vector3d: Vector):
         crvs = []
         v1 = vector3d
         for i in pc.curves:
@@ -1107,7 +1107,7 @@ class PolyCurve2D:
         return p1
 
     @staticmethod
-    def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector3):
+    def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector):
         crvs = []
         for i in polycurve.curves:
             if i.__class__.__name__ == "Arc2D":

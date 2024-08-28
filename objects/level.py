@@ -58,7 +58,7 @@ class Level:
     def by_point(self, point=Point, name=str):
         if point.type == "Point":
             Lvl = Level()
-            XY_plane = [Vector3(x=1, y=0, z=0), Vector3(x=0, y=1, z=0)]
+            XY_plane = [Vector(x=1, y=0, z=0), Vector(x=0, y=1, z=0)]
             Lvl.plane = Plane.by_two_vectors_origin(
                 XY_plane[0], XY_plane[1], point)
             Lvl.polycurve = Rect_XY(Point.to_vector(point), 1000, 1000)

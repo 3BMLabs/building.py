@@ -41,15 +41,15 @@ def POCWoodFrameWall(l,h,startPoint,studheight,studwidth,spacing):
     obj1 = []
     x = 0 + studheight*0.5
     for i in range(count):
-        obj1.append(Frame.by_startpoint_endpoint(Point.translate(startPoint, Vector3(x, 0, studheight)),
-                                               Point.translate(startPoint, Vector3(x, 0, h-studheight)),
+        obj1.append(Frame.by_startpoint_endpoint(Point.translate(startPoint, Vector(x, 0, studheight)),
+                                               Point.translate(startPoint, Vector(x, 0, h-studheight)),
                                                Rectangle("stud", studwidth, studheight).curve, "stud", 0, BaseTimber))
         x = x + spacing
 
-    obj1.append(Frame.by_startpoint_endpoint(startPoint, Point.translate(startPoint,Vector3(l,0,0)),Rectangle("stud", studwidth, studheight).curve.translate(Vector2(studheight/2,0)),"bottomplate", 90, BaseTimber))
-    obj1.append(Frame.by_startpoint_endpoint(Point.translate(startPoint,Vector3(0,0,h)), Point.translate(startPoint,Vector3(l,0,h)),Rectangle("stud", studwidth, studheight).curve.translate(Vector2(-studheight/2,0)),"topplate", 90, BaseTimber))
-    obj1.append(Frame.by_startpoint_endpoint(Point.translate(startPoint, Vector3(l-studheight*0.5, 0, studheight)),
-                                           Point.translate(startPoint, Vector3(l-studheight*0.5, 0, h - studheight)),
+    obj1.append(Frame.by_startpoint_endpoint(startPoint, Point.translate(startPoint,Vector(l,0,0)),Rectangle("stud", studwidth, studheight).curve.translate(Vector2(studheight/2,0)),"bottomplate", 90, BaseTimber))
+    obj1.append(Frame.by_startpoint_endpoint(Point.translate(startPoint,Vector(0,0,h)), Point.translate(startPoint,Vector(l,0,h)),Rectangle("stud", studwidth, studheight).curve.translate(Vector2(-studheight/2,0)),"topplate", 90, BaseTimber))
+    obj1.append(Frame.by_startpoint_endpoint(Point.translate(startPoint, Vector(l-studheight*0.5, 0, studheight)),
+                                           Point.translate(startPoint, Vector(l-studheight*0.5, 0, h - studheight)),
                                            Rectangle("stud", studwidth, studheight).curve, "last stud", 0, BaseTimber))
     return obj1
 

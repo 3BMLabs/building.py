@@ -173,31 +173,31 @@ def LoadPanels(width,length,z):
     LPRoof = LoadPanel()
     LPRoof.Description = "Roof"
     LPRoof.LoadBearingDirection = "X"
-    LPRoof.PolyCurve = Rect(Vector3(0,0,z),width,length)
+    LPRoof.PolyCurve = Rect(Vector(0,0,z),width,length)
     obj1.append(LPRoof)
 
     LPWall1 = LoadPanel()
     LPWall1.Description = "Kopgevel 1"
     LPWall1.LoadBearingDirection = "X"
-    LPWall1.PolyCurve = Rect_XY(Vector3(0,0,0),width,z)
+    LPWall1.PolyCurve = Rect_XY(Vector(0,0,0),width,z)
     obj1.append(LPWall1)
 
     LPWall2 = LoadPanel()
     LPWall2.Description = "Kopgevel 2"
     LPWall2.LoadBearingDirection = "X"
-    LPWall2.PolyCurve = Rect_XY(Vector3(0,length,0),width,z)
+    LPWall2.PolyCurve = Rect_XY(Vector(0,length,0),width,z)
     obj1.append(LPWall2)
 
     LPWall3 = LoadPanel()
     LPWall3.Description = "Langsgevel 1"
     LPWall3.LoadBearingDirection = "X"
-    LPWall3.PolyCurve = Rect_YZ(Vector3(0,0,0),length,z)
+    LPWall3.PolyCurve = Rect_YZ(Vector(0,0,0),length,z)
     obj1.append(LPWall3)
 
     LPWall4 = LoadPanel()
     LPWall4.Description = "Langsgevel 1"
     LPWall4.LoadBearingDirection = "X"
-    LPWall4.PolyCurve = Rect_YZ(Vector3(width,0,0),length,z)
+    LPWall4.PolyCurve = Rect_YZ(Vector(width,0,0),length,z)
 
     obj1.append(LPWall4)
 

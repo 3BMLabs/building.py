@@ -21,9 +21,9 @@ def CastellatedBeam(b,h,h1,b1,b2,spac,l):
     db = (b2-b1)/2 #delta width of the opening
     b4 = spac-b2 #width in between
 
-    VX = Vector3(1,0,0)
-    VY = Vector3(0,1,0)
-    VZ = Vector3(0,0,1)
+    VX = Vector(1,0,0)
+    VY = Vector(0,1,0)
+    VZ = Vector(0,0,1)
 
     #Middle
     xval = 0
@@ -71,7 +71,7 @@ def CastellatedBeam(b,h,h1,b1,b2,spac,l):
         Point(0, -b/2, h)])
 
     #Bottomplate
-    bottom = top.translate(Vector3(0,0,-h))
+    bottom = top.translate(Vector(0,0,-h))
     return top, bottom, crv, crv2
 
 CB = CastellatedBeam(b,h,h1,b1,b2,spac,l)

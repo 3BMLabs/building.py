@@ -97,7 +97,7 @@ class Matrix(list[list]):
         return Matrix.scale(dimensions, 1)
 
     @staticmethod
-    def translate(toAdd: Vector3):
+    def translate(toAdd: Vector):
         dimensions:int = len(toAdd) + 1
         return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
     
@@ -322,14 +322,14 @@ class Matrix(list[list]):
 
     @staticmethod
     def from_points(from_point: Point, to_point: Point):
-        Vz = Vector3.by_two_points(from_point, to_point)
-        Vz = Vector3.normalize(Vz)
-        Vzglob = Vector3(0, 0, 1)
-        Vx = Vector3.cross_product(Vz, Vzglob)
-        if Vector3.length(Vx) == 0:
-            Vx = Vector3(1, 0, 0) if Vz.x != 1 else Vector3(0, 1, 0)
-        Vx = Vector3.normalize(Vx)
-        Vy = Vector3.cross_product(Vx, Vz)
+        Vz = Vector.by_two_points(from_point, to_point)
+        Vz = Vector.normalize(Vz)
+        Vzglob = Vector(0, 0, 1)
+        Vx = Vector.cross_product(Vz, Vzglob)
+        if Vector.length(Vx) == 0:
+            Vx = Vector(1, 0, 0) if Vz.x != 1 else Vector(0, 1, 0)
+        Vx = Vector.normalize(Vx)
+        Vy = Vector.cross_product(Vx, Vz)
 
         return Matrix([
             [Vx.x, Vy.x, Vz.x, from_point.x],

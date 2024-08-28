@@ -10,7 +10,7 @@ from objects.datum import *
 from objects.frame import *
 from packages.helper import *
 from geometry.point import *
-from abstract.vector import Vector3
+from abstract.vector import Vector
 #Proof of Concept modules
 
 # GridSystem
@@ -28,7 +28,7 @@ obj = grids[0] + grids[1]
 width = spacingx
 length = spacingy * 4
 
-def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,rot: bool, floorframing :bool):
+def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector,rot: bool, floorframing :bool):
     x = vector.x
     y = vector.y
     z = vector.z
@@ -40,9 +40,9 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,ro
     else:
         length = lengthMod
         width = widthMod
-    Vdx = Vector3(length,0,0)
-    Vdy = Vector3(0,width,0)
-    Vdz = Vector3(0,0,heightMod)
+    Vdx = Vector(length,0,0)
+    Vdy = Vector(0,width,0)
+    Vdz = Vector(0,0,heightMod)
 
     #Bottom
     P1 = StartPoint #Left Bottom
@@ -64,7 +64,7 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector3,ro
 
     #Bottom Floor Framing
     if floorframing:
-        v1 = Vector3(610, 0, 0)
+        v1 = Vector(610, 0, 0)
         count = int(math.floor(length/610))
         pb1 = P1
         pb2 = P4
@@ -130,7 +130,7 @@ Modules = [ #Syntax: Level, GridX, GridY, Rotation # 0 is 0, 1 = 90
 Modules = ModulesUltimo(2,15)
 
 for i in Modules:
-    V = Vector3(i[1]*spacingx, i[2]*spacingy,i[0]*heigth)
+    V = Vector(i[1]*spacingx, i[2]*spacingy,i[0]*heigth)
     if i[3] == 0:
         rot = 0
     elif i[3] == 1:

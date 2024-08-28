@@ -75,7 +75,7 @@ class ReadDXF:
                 # end = Point2D(entity.dxf.end)
                 # self.lines.append(Line2D(start, end))
             elif dxftype == 'ARC':
-                center = Vector3(entity.dxf.center)
+                center = Vector(entity.dxf.center)
                 radius = entity.dxf.radius
                 start_angle = entity.dxf.start_angle
                 end_angle = entity.dxf.end_angle

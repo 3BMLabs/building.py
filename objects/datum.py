@@ -160,7 +160,7 @@ class GridHead:
         return grid_head
 
     def __geom(self):
-        # CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
+        # CStot = CoordinateSystem.translate(self.CS,Vector(0,self.grid_head_type.radius,0))
         for i in self.grid_head_type.curves:
             self.curves.append(transform_arc(i, (self.CS)))
 
@@ -197,7 +197,7 @@ class Grid:
         self.line = None
         self.start = None
         self.end = None
-        self.direction: Vector3 = Vector3(0, 1, 0)
+        self.direction: Vector = Vector(0, 1, 0)
         self.grid_head_type = GHT50
         self.name = None
         self.bulbStart = False
@@ -207,7 +207,7 @@ class Grid:
 
     def __cs(self, line):
         self.direction = line.vector_normalised
-        vect3 = Vector3.rotate_XY(self.direction, math.radians(-90))
+        vect3 = Vector.rotate_XY(self.direction, math.radians(-90))
         self.cs_end = CoordinateSystem(line.end, vect3, self.direction, Z_Axis)
 
     @classmethod

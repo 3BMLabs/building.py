@@ -38,7 +38,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from packages.helper import *
 from geometry.solid import Extrusion
-from abstract.vector import Vector3
+from abstract.vector import Vector
 from abstract.coordinatesystem import CoordinateSystem, CSGlobal
 from geometry.curve import PolyCurve, Line
 from geometry.point import Point
@@ -292,7 +292,7 @@ class BoundingBox3d:
         pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem
-        dirXvector = Vector3.angle_between(CSGlobal.Y_axis, cs.Y_axis)
+        dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)
         pcrot = pc.rotate(dirXvector)  # bug multi direction
         cuboid = Extrusion.by_polycurve_height_vector(
             pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)

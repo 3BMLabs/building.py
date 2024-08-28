@@ -32,7 +32,7 @@ The Extrusion class represents the process of extruding a 2D profile into a 3D m
 
         
 
-- `by_polycurve_height_vector(cls, polycurve_2d: geometry.geometry2d.PolyCurve2D, height: float, cs_old: geometry.point.CoordinateSystem, start_point: geometry.point.Point, direction_vector: abstract.vector.Vector3) -> Extrusion`: Creates an extrusion from a 2D polycurve profile along a specified vector.
+- `by_polycurve_height_vector(cls, polycurve_2d: geometry.geometry2d.PolyCurve2D, height: float, cs_old: geometry.point.CoordinateSystem, start_point: geometry.point.Point, direction_vector: abstract.vector.Vector) -> Extrusion`: Creates an extrusion from a 2D polycurve profile along a specified vector.
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
         
@@ -81,7 +81,7 @@ extrusion = Extrusion.by_polycurve_height(polycurve, 5, 0)
 
 ---
 
-#### `by_polycurve_height_vector(cls, polycurve_2d: geometry.geometry2d.PolyCurve2D, height: float, cs_old: geometry.point.CoordinateSystem, start_point: geometry.point.Point, direction_vector: abstract.vector.Vector3) -> Extrusion`
+#### `by_polycurve_height_vector(cls, polycurve_2d: geometry.geometry2d.PolyCurve2D, height: float, cs_old: geometry.point.CoordinateSystem, start_point: geometry.point.Point, direction_vector: abstract.vector.Vector) -> Extrusion`
 
 Creates an extrusion from a 2D polycurve profile along a specified vector.
 This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
@@ -91,7 +91,7 @@ This method extrudes a 2D polycurve profile into a 3D form by translating it to 
 - `height` (float): The height of the extrusion.
 - `cs_old` (CoordinateSystem): The original coordinate system of the polycurve.
 - `start_point` (Point): The start point for the extrusion in the new coordinate system.
-- `direction_vector` (Vector3): The direction vector along which the polycurve is extruded.
+- `direction_vector` (Vector): The direction vector along which the polycurve is extruded.
 
 #### Returns:
 `Extrusion`: An Extrusion object representing the 3D form of the extruded polycurve.

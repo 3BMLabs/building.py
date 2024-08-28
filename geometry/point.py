@@ -139,25 +139,25 @@ class Point(Coords):
 
     @staticmethod
     def difference(point_1: 'Point', point_2: 'Point'):
-        """Computes the difference between two points as a Vector3 object.
+        """Computes the difference between two points as a Vector object.
                 
         #### Parameters:
         - `point_1` (Point): First point.
         - `point_2` (Point): Second point.
 
         #### Returns:
-        `Vector3`: Difference between the two input points as a Vector3 object.
+        `Vector`: Difference between the two input points as a Vector object.
 
         #### Example usage:
     	```python
         point_1 = Point(23, 1, 23)
         point_2 = Point(93, 0, -19)
         output = Point.difference(point_1, point_2)
-        # Vector3(X = 70.000, Y = -1.000, Z = -42.000)
+        # Vector(X = 70.000, Y = -1.000, Z = -42.000)
         ```
         """
-        from abstract.vector import Vector3
-        return Vector3(
+        from abstract.vector import Vector
+        return Vector(
             point_2.x - point_1.x,
             point_2.y - point_1.y,
             point_2.z - point_1.z
@@ -169,7 +169,7 @@ class Point(Coords):
         
         #### Parameters:
         - `point` (Point): The point to be translated.
-        - `vector` (Vector3): The translation vector.
+        - `vector` (Vector): The translation vector.
 
         #### Returns:
         `Point`: Translated point.
@@ -177,15 +177,15 @@ class Point(Coords):
         #### Example usage:
     	```python
         point = Point(23, 1, 23)
-        vector = Vector3(93, 0, -19)
+        vector = Vector(93, 0, -19)
         output = Point.translate(point, vector)
         # Point(X = 116.000, Y = 1.000, Z = 4.000)
         ```
         """
-        from abstract.vector import Vector3
+        from abstract.vector import Vector
 
         ar1 = Point.to_matrix(point)
-        ar2 = Vector3.to_matrix(vector)
+        ar2 = Vector.to_matrix(vector)
         if len(ar1) == len(ar2):
             c = [ar1[i] + ar2[i] for i in range(len(ar1))]
         else:
@@ -243,23 +243,23 @@ class Point(Coords):
 
     @staticmethod
     def to_vector(point: 'Point'):
-        """Converts the point to a Vector3 object.        
+        """Converts the point to a Vector object.        
         
         #### Parameters:
         - `point` (Point): Point to be converted.
 
         #### Returns:
-        `Vector3`: Vector representation of the point.
+        `Vector`: Vector representation of the point.
 
         #### Example usage:
     	```python
         point_1 = Point(9, 20, 10)
         output = Point.to_vector(point_1)
-        # Vector3(X = 9.000, Y = 20.000, Z = 10.000)
+        # Vector(X = 9.000, Y = 20.000, Z = 10.000)
         ```
         """
-        from abstract.vector import Vector3
-        return Vector3(
+        from abstract.vector import Vector
+        return Vector(
             point.x,
             point.y,
             point.z
@@ -437,17 +437,17 @@ class CoordinateSystem:
         The axis vectors are normalized to ensure they each have a length of 1, providing a standard basis for the coordinate system.
 
         - `origin` (Point): The origin point of the coordinate system.
-        - `x_axis` (Vector3): The initial vector representing the X-axis before normalization.
-        - `y_axis` (Vector3): The initial vector representing the Y-axis before normalization.
-        - `z_axis` (Vector3): The initial vector representing the Z-axis before normalization.
+        - `x_axis` (Vector): The initial vector representing the X-axis before normalization.
+        - `y_axis` (Vector): The initial vector representing the Y-axis before normalization.
+        - `z_axis` (Vector): The initial vector representing the Z-axis before normalization.
         """
-        from abstract.vector import Vector3
+        from abstract.vector import Vector
         self.id = generateID()
         self.type = __class__.__name__
         self.Origin = origin
-        self.X_axis = Vector3.normalize(x_axis)
-        self.Y_axis = Vector3.normalize(y_axis)
-        self.Z_axis = Vector3.normalize(z_axis)
+        self.X_axis = Vector.normalize(x_axis)
+        self.Y_axis = Vector.normalize(y_axis)
+        self.Z_axis = Vector.normalize(z_axis)
 
     @classmethod
     def by_origin(coordinate_system, origin: Point) -> 'CoordinateSystem':
@@ -473,7 +473,7 @@ class CoordinateSystem:
 
         #### Parameters:
         - `cs_old` (CoordinateSystem): The original coordinate system to be translated.
-        - `direction` (Vector3): The direction vector along which the coordinate system is to be translated.
+        - `direction` (Vector): The direction vector along which the coordinate system is to be translated.
 
         #### Returns:
         `CoordinateSystem`: A new CoordinateSystem object translated from the original one.
@@ -484,14 +484,14 @@ class CoordinateSystem:
         ```
         """
 
-        from abstract.vector import Vector3
+        from abstract.vector import Vector
         new_origin = Point.translate(cs_old.Origin, direction)
 
-        X_axis = Vector3(1, 0, 0)
+        X_axis = Vector(1, 0, 0)
 
-        Y_Axis = Vector3(0, 1, 0)
+        Y_Axis = Vector(0, 1, 0)
 
-        Z_Axis = Vector3(0, 0, 1)
+        Z_Axis = Vector(0, 0, 1)
 
         CSNew = CoordinateSystem(
             new_origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
@@ -512,7 +512,7 @@ class CoordinateSystem:
 
         #### Parameters:
         - `new_origin_coordinatesystem` (`Point`): The origin point of the new coordinate system.
-        - `DirectionVectorZ` (Vector3): The direction vector that defines the Z-axis of the new coordinate system.
+        - `DirectionVectorZ` (Vector): The direction vector that defines the Z-axis of the new coordinate system.
 
         #### Returns:
         `CoordinateSystem`: A new CoordinateSystem object oriented along the specified direction vector with its origin at the given point.
@@ -522,19 +522,19 @@ class CoordinateSystem:
 
         ```
         """
-        from abstract.vector import Vector3
+        from abstract.vector import Vector
         vz = DirectionVectorZ
-        vz = Vector3.normalize(vz)
-        vx = Vector3.perpendicular(vz)[0]
+        vz = Vector.normalize(vz)
+        vx = Vector.perpendicular(vz)[0]
         try:
-            vx = Vector3.normalize(vx)
+            vx = Vector.normalize(vx)
         except:
-            vx = Vector3(1, 0, 0)
-        vy = Vector3.perpendicular(vz)[1]
+            vx = Vector(1, 0, 0)
+        vy = Vector.perpendicular(vz)[1]
         try:
-            vy = Vector3.normalize(vy)
+            vy = Vector.normalize(vy)
         except:
-            vy = Vector3(0, 1, 0)
+            vy = Vector(0, 1, 0)
         CSNew = CoordinateSystem(new_origin_coordinatesystem, vx, vy, vz)
         return CSNew
 
@@ -557,14 +557,14 @@ class CoordinateSystem:
         ```
         """
         
-        from abstract.vector import Vector3
+        from abstract.vector import Vector
 
         xloc_vect_norm = cs_old.X_axis
-        xdisp = Vector3.scale(xloc_vect_norm, x)
+        xdisp = Vector.scale(xloc_vect_norm, x)
         yloc_vect_norm = cs_old.X_axis
-        ydisp = Vector3.scale(yloc_vect_norm, y)
+        ydisp = Vector.scale(yloc_vect_norm, y)
         zloc_vect_norm = cs_old.X_axis
-        zdisp = Vector3.scale(zloc_vect_norm, z)
+        zdisp = Vector.scale(zloc_vect_norm, z)
         disp = xdisp + ydisp + zdisp
         CS = CoordinateSystem.translate(cs_old, disp)
         return CS
@@ -596,8 +596,8 @@ class CoordinateSystem:
         """Calculates the rotation matrix needed to align one coordinate system with another.
 
         #### Parameters:
-        - `xaxis_1`, `yaxis_1`, `zaxis_1` (Vector3): The axes of the initial coordinate system.
-        - `xaxis_2`, `yaxis_2`, `zaxis_2` (Vector3): The axes of the target coordinate system.
+        - `xaxis_1`, `yaxis_1`, `zaxis_1` (Vector): The axes of the initial coordinate system.
+        - `xaxis_2`, `yaxis_2`, `zaxis_2` (Vector): The axes of the target coordinate system.
 
         #### Returns:
         Rotation Matrix (list of lists): A matrix representing the rotation needed to align the first coordinate system with the second.
@@ -607,19 +607,19 @@ class CoordinateSystem:
         
         ```
         """
-        from abstract.vector import Vector3
+        from abstract.vector import Vector
 
-        R1 = [Vector3.to_matrix(xaxis_1), Vector3.to_matrix(
-            yaxis_1), Vector3.to_matrix(zaxis_1)]
+        R1 = [Vector.to_matrix(xaxis_1), Vector.to_matrix(
+            yaxis_1), Vector.to_matrix(zaxis_1)]
 
-        R2 = [Vector3.to_matrix(xaxis_2), Vector3.to_matrix(
-            yaxis_2), Vector3.to_matrix(zaxis_2)]
+        R2 = [Vector.to_matrix(xaxis_2), Vector.to_matrix(
+            yaxis_2), Vector.to_matrix(zaxis_2)]
 
         R1_transposed = list(map(list, zip(*R1)))
         R2_transposed = list(map(list, zip(*R2)))
 
-        rotation_matrix = Vector3.dot_product(Vector3.from_matrix(
-            R2_transposed), Vector3.length(Vector3.from_matrix(R1_transposed)))
+        rotation_matrix = Vector.dot_product(Vector.from_matrix(
+            R2_transposed), Vector.length(Vector.from_matrix(R1_transposed)))
         return rotation_matrix
 
     @staticmethod
@@ -650,7 +650,7 @@ def transform_point(point_local: Point, coordinate_system_old: CoordinateSystem,
     - `point_local` (Point): The point to be transformed, given in the local coordinate system.
     - `coordinate_system_old` (CoordinateSystem): The original coordinate system the point is in.
     - `new_origin` (Point): The origin of the new coordinate system.
-    - `direction_vector` (Vector3): The direction vector defining the new Z-axis of the coordinate system.
+    - `direction_vector` (Vector): The direction vector defining the new Z-axis of the coordinate system.
 
     #### Returns:
     Point: The transformed point in the new coordinate system.
@@ -660,38 +660,38 @@ def transform_point(point_local: Point, coordinate_system_old: CoordinateSystem,
     
     ```
     """
-    from abstract.vector import Vector3
+    from abstract.vector import Vector
 
-    direction_vector = Vector3.to_matrix(direction_vector)
+    direction_vector = Vector.to_matrix(direction_vector)
     new_origin = Point.to_matrix(new_origin)
-    vz_norm = Vector3.length(Vector3(*direction_vector))
+    vz_norm = Vector.length(Vector(*direction_vector))
     vz = [direction_vector[0] / vz_norm, direction_vector[1] /
           vz_norm, direction_vector[2] / vz_norm]
 
     vx = [-vz[1], vz[0], 0]
-    vx_norm = Vector3.length(Vector3(*vx))
+    vx_norm = Vector.length(Vector(*vx))
 
     if vx_norm == 0:
         vx = [1, 0, 0]
     else:
         vx = [vx[0] / vx_norm, vx[1] / vx_norm, vx[2] / vx_norm]
 
-    vy = Vector3.cross_product(Vector3(*vz), Vector3(*vx))
-    vy_norm = Vector3.length(vy)
+    vy = Vector.cross_product(Vector(*vz), Vector(*vx))
+    vy_norm = Vector.length(vy)
     if vy_norm != 0:
         vy = [vy.x / vy_norm, vy.y / vy_norm, vy.z / vy_norm]
     else:
         vy = [0, 1, 0]
 
     point_1 = point_local
-    CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector3.from_matrix(
-        vx), Vector3.from_matrix(vy), Vector3.from_matrix(vz))
+    CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector.from_matrix(
+        vx), Vector.from_matrix(vy), Vector.from_matrix(vz))
     vector_1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
 
-    vector_2 = Vector3.product(point_1.x, CSNew.X_axis)
-    vector_3 = Vector3.product(point_1.y, CSNew.Y_axis)
-    vector_4 = Vector3.product(point_1.z, CSNew.Z_axis)
-    vtot = Vector3(vector_1.x + vector_2.x + vector_3.x + vector_4.x, vector_1.y + vector_2.y +
+    vector_2 = Vector.product(point_1.x, CSNew.X_axis)
+    vector_3 = Vector.product(point_1.y, CSNew.Y_axis)
+    vector_4 = Vector.product(point_1.z, CSNew.Z_axis)
+    vtot = Vector(vector_1.x + vector_2.x + vector_3.x + vector_4.x, vector_1.y + vector_2.y +
                    vector_3.y + vector_4.y, vector_1.z + vector_2.z + vector_3.z + vector_4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)
 
@@ -714,11 +714,11 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem) 
     
     ```
     """
-    from abstract.vector import Vector3
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(
+    from abstract.vector import Vector
+    pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(
         CoordinateSystemNew.X_axis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector3.scale(
+    pn2 = Point.translate(pn, Vector.scale(
         CoordinateSystemNew.Y_axis, PointLocal.y))
-    pn3 = Point.translate(pn2, Vector3.scale(
+    pn3 = Point.translate(pn2, Vector.scale(
         CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3

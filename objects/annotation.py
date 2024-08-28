@@ -175,13 +175,13 @@ class Dimension:
         # baseline
         baseline = Line(start=self.start, end=self.end)
         midpoint_text = baseline.mid_point()
-        direction = Vector3.normalize(baseline.vector)
-        tick_mark_extension_point_1 = Point.translate(self.start, Vector3.reverse(
-            Vector3.scale(direction, self.dimension_type.line_extension)))
+        direction = Vector.normalize(baseline.vector)
+        tick_mark_extension_point_1 = Point.translate(self.start, Vector.reverse(
+            Vector.scale(direction, self.dimension_type.line_extension)))
         tick_mark_extension_point_2 = Point.translate(
-            self.end, Vector3.scale(direction, self.dimension_type.line_extension))
+            self.end, Vector.scale(direction, self.dimension_type.line_extension))
         x = direction
-        y = Vector3.rotate_XY(x, math.radians(90))
+        y = Vector.rotate_XY(x, math.radians(90))
         z = Z_Axis
         cs_new_start = CoordinateSystem(self.start, x, y, z)
         cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
@@ -275,11 +275,11 @@ class FrameTag:
         tag = FrameTag()
         frame_vector = frame.vector_normalised
         x = frame_vector
-        y = Vector3.rotate_XY(x, math.radians(90))
+        y = Vector.rotate_XY(x, math.radians(90))
         z = Z_Axis
-        vx = Vector3.scale(frame_vector, tag.offset_x)
+        vx = Vector.scale(frame_vector, tag.offset_x)
         frame_width = PolyCurve2D.bounds(frame.curve)[4]
-        vy = Vector3.scale(y, frame_width*0.5+tag.offset_y)
+        vy = Vector.scale(y, frame_width*0.5+tag.offset_y)
         origintext = Point.translate(frame.start, vx)
         origintext = Point.translate(origintext, vy)
         csnew = CoordinateSystem(origintext, x, y, z)
@@ -301,14 +301,14 @@ class ColumnTag:
         self.position = "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
         self.cs: CoordinateSystem = CSGlobal
 
-        # self.textoff_vector_local: Vector3 = Vector3(1,1,1)
+        # self.textoff_vector_local: Vector = Vector(1,1,1)
         self.font_family = "calibri"
         self.curves = []
         # self.leadercurves()
         self.text: str = "text"
         self.text_height = 100
         self.text_offset_factor = 5
-        self.textoff_vector_local: Vector3 = Vector3(
+        self.textoff_vector_local: Vector = Vector(
             self.height/self.factor, self.height+self.height/self.text_offset_factor, 0)
         self.text_curves = None
         # self.textobject()
@@ -349,7 +349,7 @@ class ColumnTag:
         column_tag.text = data.get('text', "text")
         column_tag.text_height = data.get('text_height', 100)
         column_tag.text_offset_factor = data.get('text_offset_factor', 5)
-        column_tag.textoff_vector_local = Vector3.deserialize(
+        column_tag.textoff_vector_local = Vector.deserialize(
             data['textoff_vector_local'])
         column_tag.text_curves = data.get('text_curves')
 
@@ -357,10 +357,10 @@ class ColumnTag:
 
     def __leadercurves(self):
         self.startpoint = Point(0, 0, 0)
-        self.midpoint = Point.translate(self.startpoint, Vector3(
+        self.midpoint = Point.translate(self.startpoint, Vector(
             self.height/self.factor, self.height, 0))
         self.endpoint = Point.translate(
-            self.midpoint, Vector3(self.width, 0, 0))
+            self.midpoint, Vector(self.width, 0, 0))
         crves = [Line(start=self.startpoint, end=self.midpoint),
                  Line(start=self.midpoint, end=self.endpoint)]
         for i in crves:
@@ -393,7 +393,7 @@ class ColumnTag:
         tag = ColumnTag()
         csold = CSGlobal
         tag.position = position
-        tag.cs = CoordinateSystem.translate(csold, Vector3(
+        tag.cs = CoordinateSystem.translate(csold, Vector(
             frame.start.x, frame.start.y, frame.start.z))
         tag.text = frame.name
         tag.__leadercurves()

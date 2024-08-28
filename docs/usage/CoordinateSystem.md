@@ -8,9 +8,9 @@ Initializes a new CoordinateSystem instance with the given origin and axis vecto
         The axis vectors are normalized to ensure they each have a length of 1, providing a standard basis for the coordinate system.
 
         - `origin` (Point): The origin point of the coordinate system.
-        - `x_axis` (Vector3): The initial vector representing the X-axis before normalization.
-        - `y_axis` (Vector3): The initial vector representing the Y-axis before normalization.
-        - `z_axis` (Vector3): The initial vector representing the Z-axis before normalization.
+        - `x_axis` (Vector): The initial vector representing the X-axis before normalization.
+        - `y_axis` (Vector): The initial vector representing the Y-axis before normalization.
+        - `z_axis` (Vector): The initial vector representing the Z-axis before normalization.
         
 
 ---
@@ -62,7 +62,7 @@ This method establishes a new coordinate system by defining its origin and its Z
 
 #### Parameters:
 - `new_origin_coordinatesystem` (`Point`): The origin point of the new coordinate system.
-- `DirectionVectorZ` (Vector3): The direction vector that defines the Z-axis of the new coordinate system.
+- `DirectionVectorZ` (Vector): The direction vector that defines the Z-axis of the new coordinate system.
 
 #### Returns:
 `CoordinateSystem`: A new CoordinateSystem object oriented along the specified direction vector with its origin at the given point.
@@ -80,8 +80,8 @@ This method establishes a new coordinate system by defining its origin and its Z
 Calculates the rotation matrix needed to align one coordinate system with another.
 
 #### Parameters:
-- `xaxis_1`, `yaxis_1`, `zaxis_1` (Vector3): The axes of the initial coordinate system.
-- `xaxis_2`, `yaxis_2`, `zaxis_2` (Vector3): The axes of the target coordinate system.
+- `xaxis_1`, `yaxis_1`, `zaxis_1` (Vector): The axes of the initial coordinate system.
+- `xaxis_2`, `yaxis_2`, `zaxis_2` (Vector): The axes of the target coordinate system.
 
 #### Returns:
 Rotation Matrix (list of lists): A matrix representing the rotation needed to align the first coordinate system with the second.
@@ -140,7 +140,7 @@ Translates a CoordinateSystem by a given direction vector.
 
 #### Parameters:
 - `cs_old` (CoordinateSystem): The original coordinate system to be translated.
-- `direction` (Vector3): The direction vector along which the coordinate system is to be translated.
+- `direction` (Vector): The direction vector along which the coordinate system is to be translated.
 
 #### Returns:
 `CoordinateSystem`: A new CoordinateSystem object translated from the original one.

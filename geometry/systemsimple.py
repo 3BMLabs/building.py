@@ -56,13 +56,13 @@ class System:
         - `name` (str, optional): The name of the system.
         - `id` (str): A unique identifier for the system instance.
         - `polycurve` (PolyCurve, optional): An optional PolyCurve associated with the system.
-        - `direction` (Vector3): A Vector3 indicating the primary direction of the system.
+        - `direction` (Vector): A Vector indicating the primary direction of the system.
         """
         self.type = __class__.__name__
         self.name = None
         self.id = generateID()
         self.polycurve = None
-        self.direction: Vector3 = Vector3(1, 0, 0)
+        self.direction: Vector = Vector(1, 0, 0)
 
 
 class DivisionSystem:
@@ -308,12 +308,12 @@ class RectangleSystem:
         # First Inner panel
         i = self.division_system.distances[0]
         point1 = self.mother_surface_origin_point_x_zero
-        point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+        point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
             i - self.inner_frame_type.b * 0.5, 0, 0))
         point3 = Point.translate(self.mother_surface_origin_point_x_zero,
-                                 Vector3(i - self.inner_frame_type.b * 0.5, self.inner_height, 0))
+                                 Vector(i - self.inner_frame_type.b * 0.5, self.inner_height, 0))
         point4 = Point.translate(
-            self.mother_surface_origin_point_x_zero, Vector3(0, self.inner_height, 0))
+            self.mother_surface_origin_point_x_zero, Vector(0, self.inner_height, 0))
         self.panel_objects.append(
             Panel.by_polycurve_thickness(
                 PolyCurve.by_points(
@@ -324,13 +324,13 @@ class RectangleSystem:
         # In between
         for i in self.division_system.distances:
             try:
-                point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.division_system.distances[count]+self.inner_frame_type.b*0.5, 0, 0))
-                point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.division_system.distances[count+1]-self.inner_frame_type.b*0.5, 0, 0))
-                point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.division_system.distances[count+1]-self.inner_frame_type.b*0.5, self.inner_height, 0))
-                point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
                 self.panel_objects.append(
                     Panel.by_polycurve_thickness(
@@ -339,13 +339,13 @@ class RectangleSystem:
                 count = count + 1
             except:
                 # Last panel
-                point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.division_system.distances[count]+self.inner_frame_type.b*0.5, 0, 0))
-                point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.inner_width+self.left_frame_type.b, 0, 0))
-                point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.inner_width+self.left_frame_type.b, self.inner_height, 0))
-                point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector3(
+                point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
                     self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
                 self.panel_objects.append(
                     Panel.by_polycurve_thickness(
@@ -371,11 +371,11 @@ class RectangleSystem:
         self.symbolic_inner_mother_surface = PolyCurve.by_points(
             [self.mother_surface_origin_point,
              Point.translate(self.mother_surface_origin_point,
-                             Vector3(self.inner_width, 0, 0)),
-             Point.translate(self.mother_surface_origin_point, Vector3(
+                             Vector(self.inner_width, 0, 0)),
+             Point.translate(self.mother_surface_origin_point, Vector(
                  self.inner_width, self.inner_height, 0)),
              Point.translate(self.mother_surface_origin_point,
-                             Vector3(0, self.inner_height, 0)),
+                             Vector(0, self.inner_height, 0)),
              self.mother_surface_origin_point]
         )
 
@@ -390,9 +390,9 @@ class RectangleSystem:
         """
         for i in self.division_system.distances:
             start_point = Point.translate(
-                self.mother_surface_origin_point_x_zero, Vector3(i, 0, 0))
+                self.mother_surface_origin_point_x_zero, Vector(i, 0, 0))
             end_point = Point.translate(
-                self.mother_surface_origin_point_x_zero, Vector3(i, self.inner_height, 0))
+                self.mother_surface_origin_point_x_zero, Vector(i, self.inner_height, 0))
             self.inner_frame_objects.append(
                 Frame.by_start_point_endpoint_curve_justifiction(
                     start_point, end_point, self.inner_frame_type.curve, "innerframe", "center", "top", 0, self.material)
@@ -486,7 +486,7 @@ class pattern_system:
         self.id = generateID()
         self.pattern = None
         self.basepanels = []  # contains a list with basepanels of the system
-        # contains a list sublists with Vector3 which represent the repetition of the system
+        # contains a list sublists with Vector which represent the repetition of the system
         self.vectors = []
 
     def stretcher_bond_with_joint(self, name: str, brick_width: float, brick_length: float, brick_height: float, joint_width: float, joint_height: float):
@@ -511,13 +511,13 @@ class pattern_system:
         """
         self.name = name
         # Vectors of panel 1
-        V1 = Vector3(0, (brick_height + joint_height)*2, 0)  # dy
-        V2 = Vector3(brick_length+joint_width, 0, 0)  # dx
+        V1 = Vector(0, (brick_height + joint_height)*2, 0)  # dy
+        V2 = Vector(brick_length+joint_width, 0, 0)  # dx
         self.vectors.append([V1, V2])
 
         # Vectors of panel 2
-        V3 = Vector3(0, (brick_height + joint_height) * 2, 0)  # dy
-        V4 = Vector3(brick_length + joint_width, 0, 0)  # dx
+        V3 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy
+        V4 = Vector(brick_length + joint_width, 0, 0)  # dx
         self.vectors.append([V3, V4])
 
         dx = (brick_length+joint_width)/2
@@ -560,8 +560,8 @@ class pattern_system:
         """
         self.name = name
         # Vectors of panel 1
-        V1 = Vector3(0, (tile_height + joint_height), 0)  # dy
-        V2 = Vector3(tile_width+joint_width, 0, 0)  # dx
+        V1 = Vector(0, (tile_height + joint_height), 0)  # dy
+        V2 = Vector(tile_width+joint_width, 0, 0)  # dx
         self.vectors.append([V1, V2])
 
         PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, tile_height, 0), Point(
@@ -597,29 +597,29 @@ class pattern_system:
         self.name = name
         lagenmaat = brick_height + joint_height
         # Vectors of panel 1 (strek)
-        V1 = Vector3(0, (brick_height + joint_height) * 4, 0)  # dy spacing
-        V2 = Vector3(brick_length + joint_width, 0, 0)  # dx spacing
+        V1 = Vector(0, (brick_height + joint_height) * 4, 0)  # dy spacing
+        V2 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V1, V2])
 
         # Vectors of panel 2 (koppen 1)
-        V3 = Vector3(0, (brick_height + joint_height) * 2, 0)  # dy spacing
-        V4 = Vector3(brick_length + joint_width, 0, 0)  # dx spacing
+        V3 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy spacing
+        V4 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V3, V4])
 
         dx2 = (brick_width + joint_width)/2  # start x offset
         dy2 = lagenmaat  # start y offset
 
         # Vectors of panel 3 (strekken)
-        V5 = Vector3(0, (brick_height + joint_height) * 4, 0)  # dy spacing
-        V6 = Vector3(brick_length + joint_width, 0, 0)  # dx spacing
+        V5 = Vector(0, (brick_height + joint_height) * 4, 0)  # dy spacing
+        V6 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V5, V6])
 
         dx3 = (brick_length + joint_width)/2  # start x offset
         dy3 = lagenmaat * 2  # start y offset
 
         # Vectors of panel 4 (koppen 2)
-        V7 = Vector3(0, (brick_height + joint_height) * 2, 0)  # dy spacing
-        V8 = Vector3(brick_length + joint_width, 0, 0)  # dx spacing
+        V7 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy spacing
+        V8 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V7, V8])
 
         dx4 = (brick_width + joint_width)/2 + \
@@ -685,7 +685,7 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
         yvectdisplacement = j[0]
         yvector = Point.to_vector(start_point)
         xvectdisplacement = j[1]
-        xvector = Vector3(0, 0, 0)
+        xvector = Vector(0, 0, 0)
 
         ylst = []
         for k in range(ny):
@@ -699,8 +699,8 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
                 pan = Panel.by_polycurve_thickness(
                     PCNew, thickness, 0, "name", color)
                 panels.append(pan)
-            xvector = Vector3.sum(
-                xvectdisplacement, Vector3(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
+            xvector = Vector.sum(
+                xvectdisplacement, Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
     return panels
 
 

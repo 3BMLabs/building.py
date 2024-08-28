@@ -102,8 +102,8 @@ def wire_to_solid(wire, FCVector):
     sld = Part.show(solid)
 
 
-def Vector3ToFreeCADVector(vector3):
-    vect = FreeCAD.Vector(vector3.x, vector3.y, vector3.z)
+def Vector3ToFreeCADVector(Vector):
+    vect = FreeCAD.Vector(Vector.x, Vector.y, Vector.z)
     return vect
 
 

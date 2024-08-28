@@ -31,7 +31,7 @@ obj = grids[0] + grids[1] #list with objects
 
 #Concretefloor
 obj.append(Panel.by_polycurve_thickness(
-    Rect(Vector3(0,0,0),width,height),
+    Rect(Vector(0,0,0),width,height),
     floorthickness,
     0,
     "Concrete Floor",

@@ -24,8 +24,8 @@ for serialized_obj in serialized_objects:
     if obj_data['type'] == 'Point':
         deserialize = Point.deserialize(obj_data)
         project.objects.append(deserialize)
-    if obj_data['type'] == 'Vector3':
-        deserialize = Vector3.deserialize(obj_data)
+    if obj_data['type'] == 'Vector':
+        deserialize = Vector.deserialize(obj_data)
         project.objects.append(deserialize)
     if obj_data['type'] == 'Line':
         deserialize = Line.deserialize(obj_data)

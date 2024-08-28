@@ -35,16 +35,16 @@ Point4 = Point(1000, 0, 0)
 <br>
 
 ``` python
-Point.difference(Point1, Point2) # calculate the difference between two 3D points and return a Vector3
+Point.difference(Point1, Point2) # calculate the difference between two 3D points and return a Vector
 ```
 <br>
 
-#### Vector3.sum:  
-> _`Input: Vector3, Vector3`_
+#### Vector.sum:  
+> _`Input: Vector, Vector`_
 <br>
 
 #### Point.translate:
-> _`Input: Point, Vector3`_
+> _`Input: Point, Vector`_
 <br>
 
 ``` python
@@ -71,7 +71,7 @@ Point.rotate_XY(p1, 30, 5) # rotate (30 degrees) and translate (5 steps) a 3D po
 <br>
 
 #### transform_point:
-> _`Input: Point, Coordinate system, Point, Vector3`_
+> _`Input: Point, Coordinate system, Point, Vector`_
 <br>
 
 ``` python
@@ -79,126 +79,126 @@ transformed_point = transform_point(p1, CSGlobal, p2, v1)
 ```
 <br>
 
-#### Vector3.sum:  
-> _`Input: Vector3, Vector3`_
+#### Vector.sum:  
+> _`Input: Vector, Vector`_
 <br>
 
 ``` python
-Vector3(0, 1, 0) # returns 3d-vector
-v1 = Vector3(0, 1, 0) # example vector1
-v2 = Vector3(1, 0, 0) # example vector2
-v10 = Vector3(0, 1000, 0) # example vector10
-v20 = Vector3(1000, 0, 0) # example vector20
+Vector(0, 1, 0) # returns 3d-vector
+v1 = Vector(0, 1, 0) # example vector1
+v2 = Vector(1, 0, 0) # example vector2
+v10 = Vector(0, 1000, 0) # example vector10
+v20 = Vector(1000, 0, 0) # example vector20
 
-Vector3.sum(v1, v2) # returns sum of 2 vectors
+Vector.sum(v1, v2) # returns sum of 2 vectors
 ```
 <br>
 
-#### Vector3.cross_product:  
-> _`Input: Vector3, Vector3`_
+#### Vector.cross_product:  
+> _`Input: Vector, Vector`_
 <br>
 
 ``` python
-Vector3.cross_product(v1, v2) # returns vector perpendicular on the two vectors
+Vector.cross_product(v1, v2) # returns vector perpendicular on the two vectors
 ```
 <br>
 
-#### Vector3.dot_product:  
-> _`Input: Vector3, Vector3`_
+#### Vector.dot_product:  
+> _`Input: Vector, Vector`_
 <br>
 
 ``` python
-Vector3.dot_product(v1, v2) # inner product, if zero, then vectors are 
+Vector.dot_product(v1, v2) # inner product, if zero, then vectors are 
 ```
 <br>
 
-#### Vector3.product:  
-> _`Input: (number/float), Vector3`_
+#### Vector.product:  
+> _`Input: (number/float), Vector`_
 <br>
 
 ``` python
-Vector3.product(5, v1) # Same as scale
+Vector.product(5, v1) # Same as scale
 ```
 <br>
 
-#### Vector3.length:  
-> _`Input: Vector3`_
+#### Vector.length:  
+> _`Input: Vector`_
 <br>
 
 ``` python
-Vector3.length(v1) # returns the length of a vector
+Vector.length(v1) # returns the length of a vector
 ```
 <br>
 
-#### Vector3.pitch:  
-> _`Input: Vector3, Degrees (1 to 360)`_
+#### Vector.pitch:  
+> _`Input: Vector, Degrees (1 to 360)`_
 <br>
 
 ``` python
-Vector3.pitch(v1, 45) # ??
+Vector.pitch(v1, 45) # ??
 ```
 <br>
 
-#### Vector3.angle_between:  
-> _`Input: Vector3, Vector3`_
+#### Vector.angle_between:  
+> _`Input: Vector, Vector`_
 <br>
 
 ``` python
-Vector3.angle_between(v1, v2) # returns the angle between two vectors
+Vector.angle_between(v1, v2) # returns the angle between two vectors
 ```
 <br>
 
-#### Vector3.reverse:  
-> _`Input: Vector3`_
+#### Vector.reverse:  
+> _`Input: Vector`_
 <br>
 
 ``` python
-Vector3.reverse(v1) # returns vector in the opposite direction
+Vector.reverse(v1) # returns vector in the opposite direction
 ```
 <br>
 
-#### Vector3.perpendicular:  
-> _`Input: Vector3`_
+#### Vector.perpendicular:  
+> _`Input: Vector`_
 <br>
 
 ``` python
-Vector3.perpendicular(v1) # Vector local X and local Y perpendicular to given vector and in global Z-direction
+Vector.perpendicular(v1) # Vector local X and local Y perpendicular to given vector and in global Z-direction
 ```
 <br>
 
-#### Vector3.normalize:  
-> _`Input: Vector3`_
+#### Vector.normalize:  
+> _`Input: Vector`_
 <br>
 
 ``` python
-Vector3.normalize(v1) # ??
+Vector.normalize(v1) # ??
 ```
 <br>
 
-#### Vector3.by_two_points:  
+#### Vector.by_two_points:  
 > _`Input: Point, Point`_
 <br>
 
 ``` python
-Vector3.by_two_points(Point1, Point2) # Subtracts Point1 x,y and z from Point2 x,y and z
+Vector.by_two_points(Point1, Point2) # Subtracts Point1 x,y and z from Point2 x,y and z
 ```
 <br>
 
-#### Vector3.to_point:  
-> _`Input: Vector3`_
+#### Vector.to_point:  
+> _`Input: Vector`_
 <br>
 
 ``` python
-Vector3.to_point(v1) # Translates a Vector to a Point
+Vector.to_point(v1) # Translates a Vector to a Point
 ```
 <br>
 
-#### Vector3.to_line:  
-> _`Input: Vector3, Vector3`_
+#### Vector.to_line:  
+> _`Input: Vector, Vector`_
 <br>
 
 ``` python
-Vector3.to_line(v10, v20) # Returns a Line from point v10, and Point v20
+Vector.to_line(v10, v20) # Returns a Line from point v10, and Point v20
 ```
 <br>
 
@@ -214,11 +214,11 @@ p2d3 = Point2D(0, 100) # returns Point2D
 <br>
 
 #### Point2D.translate:
-> _`Input: Point2d, Vector3`_
+> _`Input: Point2d, Vector`_
 <br>
 
 ``` python
-Point2D.translate(p2d, v1) # A new point is created by translating a Point2D by a Vector3
+Point2D.translate(p2d, v1) # A new point is created by translating a Point2D by a Vector
 ```
 <br>
 
@@ -368,7 +368,7 @@ PolyCurve.by_polycurve_2D(ply2D) # Creating a PolyCurve object from a 2D polygon
 <br>
 
 #### PolyCurve.translate:  
-> _`Input: Vector3`_
+> _`Input: Vector`_
 <br>
 
 ``` python
@@ -486,9 +486,9 @@ Ellipse(3, 5, plane_ex) # Create an ellipse
 <br>
 
 ``` python
-X_axis = Vector3(1, 0, 0)
-Y_Axis = Vector3(0, 1, 0)
-Z_Axis = Vector3(0, 0, 0)
+X_axis = Vector(1, 0, 0)
+Y_Axis = Vector(0, 1, 0)
+Z_Axis = Vector(0, 0, 0)
 
 CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis) # returns CoordinateSystem
 ```
@@ -504,7 +504,7 @@ BoundingBox3d(points=[POINTS]).perimeter() # returns 3d-perimeter
 ```
 
 #### Extrusion.by_polycurve_height_vector:  
-> _`Input: PolyCurve, Height, Coördinate system, Point, Vector3`_
+> _`Input: PolyCurve, Height, Coördinate system, Point, Vector`_
 <br>
 
 ``` python

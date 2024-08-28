@@ -10,7 +10,7 @@ Initializes a new Text instance
         - `type` (str): The class name, "Text".
         - `text` (str, optional): The text string to be represented.
         - `font_family` (str, optional): The font family of the text, defaulting to "Arial".
-        - `xyz` (Vector3): The origin point of the text in the coordinate system.
+        - `xyz` (Vector): The origin point of the text in the coordinate system.
         - `csglobal` (CoordinateSystem): The global coordinate system applied to the text.
         - `x`, `y`, `z` (float): The position offsets for the text within its coordinate system.
         - `scale` (float, optional): The scale factor applied to the text size.

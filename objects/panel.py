@@ -114,8 +114,8 @@ class Panel(Serializable):
         polycurve = PolyCurve.by_points(
             [baseline.start,
              baseline.end,
-             Point.translate(baseline.end, Vector3(0, 0, height)),
-             Point.translate(baseline.start, Vector3(0, 0, height))])
+             Point.translate(baseline.end, Vector(0, 0, height)),
+             Point.translate(baseline.start, Vector(0, 0, height))])
         p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):

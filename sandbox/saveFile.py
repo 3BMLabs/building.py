@@ -16,11 +16,11 @@ project = BuildingPy("TempCommit", "0")
 LoadXML(filepath, project)
 
 # p2 = Point(20, 3, 50)
-# v = Vector3(2,3,4)
+# v = Vector(2,3,4)
 # node1 = Node(p2, v, 0, 0, 50)
 # project.objects = [p2, v, node1]
 
-# cs = CoordinateSystem(p2, Vector3(0,2,9), Vector3(0,0,-10), Vector3(1,1,0))
+# cs = CoordinateSystem(p2, Vector(0,2,9), Vector(0,0,-10), Vector(1,1,0))
 
 # project.objects.append(cs)
 
@@ -38,7 +38,7 @@ project.save()
 
 
 
-# v2 = Vector3(20,10,30)
+# v2 = Vector(20,10,30)
 # serialized_vect = json.dumps(v2.serialize())
 
 # serialized_objects = [serialized_point1, serialized_point2, serialized_vect]

@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 import tkinter as tk
 import geometry.shape_fitter as sf
-from abstract import vector
+from abstract.vector import Vector
 
 root = tk.Tk()
 canvas_width = 2000
@@ -36,7 +36,7 @@ def keydown(e):
 		used = [False] * len(result)
 		#render parent rectangles
 		for parent_length in parent_lengths:
-			rect = canvas.create_rectangle(0,yoff, parent_length, yoff + vert_size, fill='red')
+			canvas.create_rectangle(0,yoff, parent_length, yoff + vert_size, fill='red')
 			yoff += vert_size
 
 		for (fit, child_length) in zip(result, child_lengths):
@@ -46,18 +46,40 @@ def keydown(e):
 					used[fit[0]] = True
 					cost += parent_lengths[fit[0]]
 				child_y_off = fit[0] * vert_size
-				rect = canvas.create_rectangle(fit[1],child_y_off, fit[1] + child_length, child_y_off + vert_size, fill='blue')
+				canvas.create_rectangle(fit[1],child_y_off, fit[1] + child_length, child_y_off + vert_size, fill='blue')
 			else:
-				rect = canvas.create_rectangle(0,yoff, child_length, yoff + vert_size, fill='orange')
+				canvas.create_rectangle(0,yoff, child_length, yoff + vert_size, fill='orange')
 				yoff += vert_size
 
 
 		canvas.create_text(0, yoff ,fill="black",font="Times 20 italic bold", text=f"minimum cost: {mincost}\tcost (including cutting cost): {cost}\tloss: {((cost / mincost) - 1) * 100}%", anchor="nw")
 	else:
 		#2d
-		parent_sizes = [vector( random.randrange(100, 1000, 100), random.randrange(100,1000,1)) for i in range(10)]
-		child_sizes = [vector( random.randrange(100, 400, 100), random.randrange(100,400,1)) for i in range(10)]
+		parent_sizes = [Vector( random.randrange(100, 1000, 100), random.randrange(100,1000,1)) for i in range(10)]
+		child_sizes = [Vector( random.randrange(100, 400, 100), random.randrange(100,400,1)) for i in range(10)]
 		result = sf.fit_boxes_2d(parent_sizes, child_sizes, 10)
+
+		mincost = 0
+		cost = 0
+		yoff = 0
+		used = [False] * len(result)
+		#render parent rectangles
+		for parent_size in parent_sizes:
+			canvas.create_rectangle(0,yoff, parent_size.x, yoff + parent_size.y, fill='red')
+			yoff += parent_size.y
+
+		for (fit, child_size) in zip(result, child_sizes):
+			mincost += child_size
+			if fit != None:
+				if not used[fit[0]]:
+					used[fit[0]] = True
+					cost += parent_lengths[fit[0]]
+				child_y_off = fit[0] * vert_size
+				canvas.create_rectangle(fit[1],child_y_off, fit[1] + child_length, child_y_off + vert_size, fill='blue')
+			else:
+				canvas.create_rectangle(0,yoff, child, yoff + vert_size, fill='orange')
+				yoff += vert_size
+		
 
 #frame = tk.Frame(root, width=100, height=100)
 canvas.bind("<KeyPress>", keydown)

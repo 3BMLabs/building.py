@@ -15,7 +15,7 @@ obj.append(Frame.by_startpoint_endpoint_profile(Point(0,2000,0),Point(2000,2000,
 #SURFACE LOAD
 obj.append(SurfaceLoad.by_load_case_polycurve_q(
     1,
-    Rect(Vector3(0,0,0),2000,2000),
+    Rect(Vector(0,0,0),2000,2000),
     2.5)
 )
 
@@ -33,7 +33,7 @@ obj.append(Support.pinned(Point(2000,2000,0)))
 
 #LOADPANELS
 LP = LoadPanel()
-LP.PolyCurve = Rect(Vector3(0,0,0),2000,2000)
+LP.PolyCurve = Rect(Vector(0,0,0),2000,2000)
 LP.SurfaceType = "Wall"
 LP.Description = "test"
 LP.LoadBearingDirection = "Y"

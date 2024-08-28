@@ -19,7 +19,7 @@ Initializes a Line object with the specified start and end points.
 
         
 
-- `by_startpoint_direction_length(start: Point, direction: Vector3, length: float) -> Line`: Creates a line segment starting from a given point in the direction of a given vector with a specified length.
+- `by_startpoint_direction_length(start: Point, direction: Vector, length: float) -> Line`: Creates a line segment starting from a given point in the direction of a given vector with a specified length.
 
         
 
@@ -35,7 +35,7 @@ Initializes a Line object with the specified start and end points.
 
         
 
-- `offset(line: Line, vector: Vector3) -> Line`: Offsets the Line object by a given vector.
+- `offset(line: Line, vector: Vector) -> Line`: Offsets the Line object by a given vector.
 
         
 
@@ -55,11 +55,11 @@ Initializes a Line object with the specified start and end points.
 
         
 
-- `translate(self, direction: Vector3) -> Line`: Translates the Line object by a given direction vector.
+- `translate(self, direction: Vector) -> Line`: Translates the Line object by a given direction vector.
 
         
 
-- `translate_2(line: Line, direction: Vector3) -> Line`: Translates the specified Line object by a given direction vector.
+- `translate_2(line: Line, direction: Vector) -> Line`: Translates the specified Line object by a given direction vector.
 
         
 
@@ -81,13 +81,13 @@ Returns a string representation of the Line object.
 
 ---
 
-#### `by_startpoint_direction_length(start: Point, direction: Vector3, length: float) -> Line`
+#### `by_startpoint_direction_length(start: Point, direction: Vector, length: float) -> Line`
 
 Creates a line segment starting from a given point in the direction of a given vector with a specified length.
 
 #### Parameters:
 - `start` (Point): The starting point of the line segment.
-- `direction` (Vector3): The direction vector of the line segment.
+- `direction` (Vector): The direction vector of the line segment.
 - `length` (float): The length of the line segment.
 
 #### Returns:
@@ -149,13 +149,13 @@ Computes the midpoint of the Line object.
 
 ---
 
-#### `offset(line: Line, vector: Vector3) -> Line`
+#### `offset(line: Line, vector: Vector) -> Line`
 
 Offsets the Line object by a given vector.
 
 #### Parameters:
 - `line` (Line): The Line object to be offset.
-- `vector` (Vector3): The vector by which the Line object will be offset.
+- `vector` (Vector): The vector by which the Line object will be offset.
 
 #### Returns:
 `Line`: The offset Line object.
@@ -238,12 +238,12 @@ Transforms the Line object to a new coordinate system.
 
 ---
 
-#### `translate(self, direction: Vector3) -> Line`
+#### `translate(self, direction: Vector) -> Line`
 
 Translates the Line object by a given direction vector.
 
 #### Parameters:
-- `direction` (Vector3): The direction vector by which the line segment will be translated.
+- `direction` (Vector): The direction vector by which the line segment will be translated.
 
 #### Returns:
 `Line`: The translated Line object.
@@ -256,13 +256,13 @@ Translates the Line object by a given direction vector.
 
 ---
 
-#### `translate_2(line: Line, direction: Vector3) -> Line`
+#### `translate_2(line: Line, direction: Vector) -> Line`
 
 Translates the specified Line object by a given direction vector.
 
 #### Parameters:
 - `line` (Line): The Line object to be translated.
-- `direction` (Vector3): The direction vector by which the line segment will be translated.
+- `direction` (Vector): The direction vector by which the line segment will be translated.
 
 #### Returns:
 `Line`: The translated Line object.

@@ -24,7 +24,7 @@ Initializes a new Point instance with the given x, y, and z coordinates.
         
         
 
-- `difference(point_1: Point, point_2: Point)`: Computes the difference between two points as a Vector3 object.
+- `difference(point_1: Point, point_2: Point)`: Computes the difference between two points as a Vector object.
                 
         
 
@@ -70,7 +70,7 @@ Initializes a new Point instance with the given x, y, and z coordinates.
         
         
 
-- `to_vector(point: Point)`: Converts the point to a Vector3 object.        
+- `to_vector(point: Point)`: Converts the point to a Vector object.        
         
         
 
@@ -117,21 +117,21 @@ output = Point.diff(point_1, point_2)
 
 #### `difference(point_1: Point, point_2: Point)`
 
-Computes the difference between two points as a Vector3 object.
+Computes the difference between two points as a Vector object.
 
 #### Parameters:
 - `point_1` (Point): First point.
 - `point_2` (Point): Second point.
 
 #### Returns:
-`Vector3`: Difference between the two input points as a Vector3 object.
+`Vector`: Difference between the two input points as a Vector object.
 
 #### Example usage:
 ```python
 point_1 = Point(23, 1, 23)
 point_2 = Point(93, 0, -19)
 output = Point.difference(point_1, point_2)
-# Vector3(X = 70.000, Y = -1.000, Z = -42.000)
+# Vector(X = 70.000, Y = -1.000, Z = -42.000)
 ```
 
 
@@ -358,19 +358,19 @@ output = Point.to_matrix(point_1)
 
 #### `to_vector(point: Point)`
 
-Converts the point to a Vector3 object.        
+Converts the point to a Vector object.        
 
 #### Parameters:
 - `point` (Point): Point to be converted.
 
 #### Returns:
-`Vector3`: Vector representation of the point.
+`Vector`: Vector representation of the point.
 
 #### Example usage:
 ```python
 point_1 = Point(9, 20, 10)
 output = Point.to_vector(point_1)
-# Vector3(X = 9.000, Y = 20.000, Z = 10.000)
+# Vector(X = 9.000, Y = 20.000, Z = 10.000)
 ```
 
 
@@ -382,7 +382,7 @@ Translates the point by a given vector.
 
 #### Parameters:
 - `point` (Point): The point to be translated.
-- `vector` (Vector3): The translation vector.
+- `vector` (Vector): The translation vector.
 
 #### Returns:
 `Point`: Translated point.
@@ -390,7 +390,7 @@ Translates the point by a given vector.
 #### Example usage:
 ```python
 point = Point(23, 1, 23)
-vector = Vector3(93, 0, -19)
+vector = Vector(93, 0, -19)
 output = Point.translate(point, vector)
 # Point(X = 116.000, Y = 1.000, Z = 4.000)
 ```

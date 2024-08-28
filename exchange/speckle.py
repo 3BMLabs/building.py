@@ -40,7 +40,7 @@ from BuildingPy import Point
 from BuildingPy import Line
 from BuildingPy import PolyCurve, Polygon
 from BuildingPy import Arc
-from BuildingPy import Vector3
+from BuildingPy import Vector
 from BuildingPy import Plane
 from BuildingPy import Interval
 from BuildingPy import Vector2, Point2D, Line2D, PolyCurve2D
@@ -108,8 +108,8 @@ def PointToSpecklePoint(point):
     return SpecklePnt
 
 
-def VectorToSpeckleVector(vector3: Vector3):
-    SpeckleVctr = SpeckleVector.from_coords(vector3.x, vector3.y, vector3.z)
+def VectorToSpeckleVector(Vector: Vector):
+    SpeckleVctr = SpeckleVector.from_coords(Vector.x, Vector.y, Vector.z)
     SpeckleVctr.units = project.units
     return SpeckleVctr
 

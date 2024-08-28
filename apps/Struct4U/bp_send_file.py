@@ -34,8 +34,8 @@ def PointToSpecklePoint(point):
     return SpecklePnt
 
 
-def VectorToSpeckleVector(vector3: Vector3):
-    SpeckleVctr = SpeckleVector.from_coords(vector3.x, vector3.y, vector3.z)
+def VectorToSpeckleVector(Vector: Vector):
+    SpeckleVctr = SpeckleVector.from_coords(Vector.x, Vector.y, Vector.z)
     SpeckleVctr.units = project.units
     return SpeckleVctr
 

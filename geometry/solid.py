@@ -207,7 +207,7 @@ class Extrusion:
             return extrusions
 
     @staticmethod
-    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector3) -> 'Extrusion':
+    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector) -> 'Extrusion':
         """Creates an extrusion from a 2D polycurve profile along a specified vector.
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -216,7 +216,7 @@ class Extrusion:
         - `height` (float): The height of the extrusion.
         - `cs_old` (CoordinateSystem): The original coordinate system of the polycurve.
         - `start_point` (Point): The start point for the extrusion in the new coordinate system.
-        - `direction_vector` (Vector3): The direction vector along which the polycurve is extruded.
+        - `direction_vector` (Vector): The direction vector along which the polycurve is extruded.
 
         #### Returns:
         `Extrusion`: An Extrusion object representing the 3D form of the extruded polycurve.
@@ -368,8 +368,8 @@ class Extrusion:
         # global len
         Extrus = Extrusion()
         Points = polycurve.points
-        V1 = Vector3.by_two_points(Points[0], Points[1])
-        V2 = Vector3.by_two_points(Points[-2], Points[-1])
+        V1 = Vector.by_two_points(Points[0], Points[1])
+        V2 = Vector.by_two_points(Points[-2], Points[-1])
 
         p1 = Plane.by_two_vectors_origin(
             V1, V2, Points[0])  # Workplane of PolyCurve
@@ -385,7 +385,7 @@ class Extrusion:
         # allverts
         for pnt in Points:
             # bottom side moves along the normal with dz_loc units
-            pnts.append(Point.translate(pnt, Vector3.product(dz_loc, norm)))
+            pnts.append(Point.translate(pnt, Vector.product(dz_loc, norm)))
         
         # Bottomface
         face = []
@@ -407,7 +407,7 @@ class Extrusion:
             for pnt in Points:
                 # Bovenzijde verplaatst met dz_loc
                 pnts.append(Point.translate(
-                    pnt, Vector3.product((dz_loc+height), norm)))
+                    pnt, Vector.product((dz_loc+height), norm)))
             #other faces
 
 

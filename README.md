@@ -22,7 +22,7 @@ Goals of the building.py Project:
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
 --- | --- | --- | --- | --- 
-Abstract | Vector3 | :heavy_check_mark: |  |  
+Abstract | Vector | :heavy_check_mark: |  |  
 &nbsp; | Vector2 | :heavy_check_mark: |  |  
 &nbsp; | Plane | :heavy_check_mark: |  |  
 &nbsp; | CoordinateSystem | :heavy_check_mark: |  |  
