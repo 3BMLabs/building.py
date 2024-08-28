@@ -689,11 +689,11 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
 
         ylst = []
         for k in range(ny):
-            yvector = Vector3.sum(yvectdisplacement, yvector)
+            yvector = yvectdisplacement + yvector
             for l in range(nx):
                 # Copy in x-direction
-                xvector = Vector3.sum(xvectdisplacement, xvector)
-                xyvector = Vector3.sum(yvector, xvector)
+                xvector = xvectdisplacement + xvector
+                xyvector = yvector + xvector
                 # translate curve in x and y-direction
                 PCNew = PolyCurve.copy_translate(PC, xyvector)
                 pan = Panel.by_polycurve_thickness(

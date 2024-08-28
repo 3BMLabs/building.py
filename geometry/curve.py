@@ -1605,7 +1605,7 @@ class Arc:
         vector_1 = Vector3.by_two_points(self.origin, self.end)
         vector_2 = Vector3.by_two_points(self.origin, self.start)
         vector_3 = Vector3.by_two_points(self.origin, self.mid)
-        vector_4 = Vector3.sum(vector_1, vector_2)
+        vector_4 = vector_1 + vector_2
         try:
             v4b = Vector3.new_length(vector_4, self.radius)
             if Vector3.value(vector_3) == Vector3.value(v4b):

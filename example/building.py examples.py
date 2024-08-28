@@ -47,7 +47,7 @@ plane_ex = Plane.by_two_vectors_origin(v1, v2, Point(0, 0, 0))
 
 # sum ↓
 # v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z
-test1 = Vector3.sum(v1, v2)
+test1 = v1 + v2
 
 # cross_product ↓
 # v1.Y*v2.Z - v1.Z*v2.Y, v1.Z*v2.X - v1.X*v2.Z, v1.X*v2.Y - v1.Y*v2.X

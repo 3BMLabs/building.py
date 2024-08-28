@@ -2,6 +2,7 @@
 
 
 from bisect import bisect, bisect_left, bisect_right
+from functools import cmp_to_key
 from math import inf
 from geometry.coords import Coords
 
@@ -30,7 +31,7 @@ def bisect_compare(a,compare=None, lo=0, hi=None):
         else: hi = mid
     return lo
 
-def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding: float):
+def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding: float)->tuple[int,Coords]:
     """this function tries to use the fewest base shapes possible when trying to fit child shapes inside them
 
     Args:
@@ -40,7 +41,9 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
     """
     
     #first, order them by x size. then, by y size.
-    #for now, we just use one parent shape
+    children = sorted(enumerate(child_shapes),key=cmp_to_key(lambda shape1, shape2: shape1[0] < shape2[0]))
+    parents = sorted(enumerate(parent_shapes),key=cmp_to_key(lambda shape1, shape2: shape1[0] < shape2[0]))
+    #'chop' the parent in smaller pieces
 
 #this function modifies the parents list!
 def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple[int,float]], child: tuple[int,float], allowed_error:float) -> tuple[int,float] | None:

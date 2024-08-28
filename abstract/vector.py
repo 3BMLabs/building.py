@@ -77,58 +77,6 @@ class Vector3(Coords):
         return Vector3(data['x'], data['y'], data['z'])
 
     @staticmethod
-    def sum(vector_1: 'Vector3', vector_2: 'Vector3') -> 'Vector3':
-        """Adds two vectors element-wise.        
-        
-        #### Parameters:
-        - `vector_1` (Vector3): First vector.
-        - `vector_2` (Vector3): Second vector.
-
-        Returns:
-        `Vector3`: Sum of the two input vectors.
-
-        #### Example usage:
-
-        ```python
-        vector_1 = Vector3(19, 18, 17)
-        vector_2 = Vector3(8, 17, 1)
-        output = Vector3.sum(vector_1, vector_2)
-        # Vector3(X = 27.000, Y = 35.000, Z = 18.000)
-        ```
-        """
-        return Vector3(
-            vector_1.x + vector_2.x,
-            vector_1.y + vector_2.y,
-            vector_1.z + vector_2.z
-        )
-
-    @staticmethod
-    def sum3(vector_1: 'Vector3', vector_2: 'Vector3', vector_3: 'Vector3') -> 'Vector3':
-        """Calculates the sum of three Vector3 objects.
-        This method returns a new Vector3 object whose components are the sum of the corresponding components of the three input vectors.
-
-        #### Parameters:
-        - `vector_1`, `vector_2`, `vector_3` (`Vector3`): The vectors to be summed.
-
-        #### Returns:
-        `Vector3`: A new Vector3 object resulting from the component-wise sum of the input vectors.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector3(1, 2, 3)
-        vector2 = Vector3(4, 5, 6)
-        vector3 = Vector3(-1, -2, -3)
-        result = Vector3.sum3(vector1, vector2, vector3)
-        # Vector3(X = 4.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector3(
-            vector_1.x + vector_2.x + vector_3.x,
-            vector_1.y + vector_2.y + vector_3.y,
-            vector_1.z + vector_2.z + vector_3.z
-        )
-
-    @staticmethod
     def diff(vector_1: 'Vector3', vector_2: 'Vector3') -> 'Vector3':
         """Calculates the difference between two Vector3 objects.
         This method returns a new Vector3 object that is the result of subtracting the components of `vector_2` from `vector_1`.

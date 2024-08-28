@@ -385,7 +385,7 @@ class CoordinateSystem:
         ydisp = Vector3.scale(yloc_vect_norm, y)
         zloc_vect_norm = cs_old.X_axis
         zdisp = Vector3.scale(zloc_vect_norm, z)
-        disp = Vector3.sum3(xdisp, ydisp, zdisp)
+        disp = xdisp + ydisp + zdisp
         CS = CoordinateSystem.translate(cs_old, disp)
         return CS
 
