@@ -37,7 +37,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image, ImageDraw
-from objects.steel_shapes import *
 from geometry.point import Point
 from geometry.curve import Arc
 
