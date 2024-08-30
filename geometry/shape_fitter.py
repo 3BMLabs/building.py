@@ -71,20 +71,35 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
             best_rect = left_over_parent_rects[best_fit_index][1]
             if best_rect.size.y >= child[1].y:
                 best_parent_index = left_over_parent_rects[best_fit_index][0]
+                
+                child_rect = Rect(best_rect.p0, child[1])
 
                 #slice the parent rectangle in three: this child and two leftover rectangles.
                 sliced_rects:list[tuple[int,Rect]] = []
                 #sliced on x
                 if best_rect.size.x > child[1].x:
-                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x + child[1].x, best_rect.p0.y), Coords(best_rect.size.x - child[1].x, child[1].y))))
+                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x + child[1].x, best_rect.p0.y), Coords(best_rect.size.x - child[1].x, best_rect.size.y))))
 
                 #sliced on y
                 if best_rect.size.y > child[1].y:
                     sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x, best_rect.p0.y + child[1].y), Coords(best_rect.size.x, best_rect.size.y - child[1].y))))
 
                 left_over_parent_rects.pop(best_fit_index)
-                for sliced_rect in sliced_rects:
-                    insort_left(left_over_parent_rects, sliced_rect,key=rect_order)
+                
+                #loop over the other rectangles and slice everything which collides with this rectangle.
+                for i in range(len(left_over_parent_rects)):
+                    rect_ref = left_over_parent_rects[i]
+                    rect_to_slice = rect_ref[1]
+                    if rect_ref[0] == best_parent_index and rect_to_slice.collides(child_rect):
+                        pieces:list[Rect] = child_rect.substractFrom(rect_to_slice)
+                        for piece in pieces:
+                            sliced_rects.append((rect_ref[0], piece))
+                    else:
+                        sliced_rects.append(left_over_parent_rects[i])
+                left_over_parent_rects = sorted(sliced_rects, key=rect_order)
+                
+                #for sliced_rect in sliced_rects:
+                #    insort_left(left_over_parent_rects, sliced_rect,key=rect_order)
                 fitted_children[child[0]] = (best_parent_index, best_rect.p0)
                 break
     return fitted_children
@@ -152,7 +167,7 @@ def fit_lengths_1d(parent_lengths:list[float], child_lengths: list[float], paddi
     #parent index, offset
     fitted_children:list[tuple[int,float]|None] = [None] * len(child_lengths)
     #child index, length
-    children_to_fit:list[tuple[int,float]|None]
+    #children_to_fit:list[tuple[int,float]|None]
     #first, fit the longest children. then, fit shorter children
     for child in children:
         padded_child = (child[0],child[1] + padding)

@@ -63,8 +63,8 @@ def keydown(e):
 		parent_count = 20
 		child_count = 100
 		#2d
-		parent_sizes = [Vector( random.randrange(10, 50, 10), random.randrange(10,50,5)) for i in range(parent_count)]
-		child_sizes = [Vector( random.randrange(10, 20, 10), random.randrange(10,20,5)) for i in range(child_count)]
+		parent_sizes = [Vector( random.randrange(10, 200, 10), random.randrange(10,200,5)) for i in range(parent_count)]
+		child_sizes = [Vector( random.randrange(10, 50, 10), random.randrange(10,50,5)) for i in range(child_count)]
 		child_offsets:list[tuple[int,Coords]] = sf.fit_boxes_2d(parent_sizes, child_sizes, 10)
 
 		for (off, size) in zip(child_offsets, child_sizes):
@@ -84,7 +84,7 @@ def keydown(e):
 		for (parent_offset,parent_size) in zip(parent_offsets, parent_sizes):
 			if parent_offset != None:
 				canvas.create_rectangle(parent_offset[1].x,parent_offset[1].y, parent_offset[1].x+parent_size.x, parent_offset[1].y + parent_size.y, fill=('red' if grandparent_array_off < parent_count else 'orange'))
-			grandparent_array_off+=1
+			grandparent_array_off += 1
 
 		for (child_off, child_size) in zip(child_offsets, child_sizes):
 			mincost += child_size.volume()

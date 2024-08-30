@@ -31,6 +31,7 @@ __title__ = "coordinatesystem"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/boundingbox.py"
 
+import copy
 import sys
 from pathlib import Path
 
@@ -164,7 +165,48 @@ class Rect(Serializable):
         self.length = length
         self.width = width
         return self
+    
+    def collides(self, other:'Rect')->bool:
+        for axis in range(len(self.p0)):
+            if self.p0[axis] + self.size[axis] <= other.p0[axis] or other.p0[axis] + other.size[axis] <= self.p0[axis]:
+                return False
+        return True
+    def substractFrom(self, other:'Rect')->list['Rect']:
+        """cut the 'other' rectangle in pieces by substracting this rectangle from it
 
+        Args:
+            other (Rect): the rectangle to substract this rectangle from
+
+        Returns:
+            list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center)
+        """
+        pieces:list[Rect] = []
+        to_clone = other
+        #check each axis
+        for axis in range(len(self.p0)):
+            p1 = self.p0[axis] + self.size[axis]
+            other_p1 = other.p0[axis] + other.size[axis]
+            if p1 < other_p1:
+                diff = other_p1 - p1
+                
+                piece:Rect = copy.deepcopy(to_clone)
+                
+                piece.p0[axis] = p1
+                
+                piece.size[axis] = diff
+                pieces.append(piece)
+                #also crop other.
+                to_clone.size[axis] -= diff
+            p0 = self.p0[axis]
+            other_p0 = other.p0[axis]
+            if p0 > other_p0:
+                diff = p0 - other_p0
+                piece:Rect = copy.deepcopy(to_clone)
+                piece.size[axis] = diff
+                pieces.append(piece)
+                to_clone.p0[axis] = p0
+                to_clone.size[axis] -= diff
+        return pieces
 
 class BoundingBox3d:
     def __init__(self, points=Point):
