@@ -44,7 +44,7 @@ from project.fileformat import *
 from abstract.coordinatesystem import CoordinateSystem
 from geometry.geometry2d import *
 from geometry.solid import *
-from abstract.boundingbox import *
+from abstract.rect import *
 from abstract.coordinatesystem import *
 from abstract.vector import *
 from geometry.point import *
@@ -304,7 +304,7 @@ class Text:
 
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = BoundingBox2d().by_points(ptList)
+        bounding_box_polyline = Rect().by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.length
 
     def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':

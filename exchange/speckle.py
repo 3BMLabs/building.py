@@ -578,7 +578,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'PolyCurve2D':
             SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))
 
-        elif nm == 'BoundingBox2d':
+        elif nm == 'Rect':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
         elif nm == 'ImagePyB':

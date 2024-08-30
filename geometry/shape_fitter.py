@@ -1,9 +1,10 @@
 
 
 
-from bisect import bisect, bisect_left, bisect_right
+from bisect import bisect, bisect_left, bisect_right, insort_left
 from functools import cmp_to_key
 from math import inf
+from abstract.rect import Rect
 from geometry.coords import Coords
 
 #compare: a function which should return true if the compared element is less than the search value, when sorted ascending.
@@ -41,9 +42,54 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
     """
     
     #first, order them by x size. then, by y size.
-    children = sorted(enumerate(child_shapes),key=cmp_to_key(lambda shape1, shape2: shape1[0] < shape2[0]))
-    parents = sorted(enumerate(parent_shapes),key=cmp_to_key(lambda shape1, shape2: shape1[0] < shape2[0]))
-    #'chop' the parent in smaller pieces
+    #todo: improve ordering
+    #order from biggest to smallest
+    #ascending: elem - search_for
+    #descending: search_for - elem
+    vector_cmp_desc = lambda elem, search_for: (search_for[0] - elem[0]) if (elem[0] != search_for[0]) else (search_for[1] - elem[1])
+    size_order = cmp_to_key( lambda elem, search_for: vector_cmp_desc(elem[1],search_for[1]))
+    # inverse! bisect_right!
+    rect_order_size = cmp_to_key(lambda elem, search_for: vector_cmp_desc(elem[1].size, search_for))
+    rect_order = cmp_to_key(lambda elem, search_for: vector_cmp_desc(elem[1].size, search_for[1].size))
+
+    children = sorted(enumerate(child_shapes),key=size_order)
+    parents = sorted(enumerate(parent_shapes),key=size_order)
+    
+    
+    left_over_parent_rects:list[tuple[int, Rect]] = []
+
+    fitted_children:list[tuple[int,Coords]|None] = [None] * len(child_shapes)
+    #convert all parents to rects
+    for parent in parents:
+        left_over_parent_rects.append((parent[0], Rect(Coords(0,0), parent[1])))
+    
+    for child in children:
+        #the smallest parent that can fit this child
+        best_fit_index = bisect_left(left_over_parent_rects, rect_order_size(child[1]), key=rect_order_size)
+        while best_fit_index > 0:
+            best_fit_index -= 1
+            best_rect = left_over_parent_rects[best_fit_index][1]
+            if best_rect.size.y >= child[1].y:
+                best_parent_index = left_over_parent_rects[best_fit_index][0]
+
+                #slice the parent rectangle in three: this child and two leftover rectangles.
+                sliced_rects:list[tuple[int,Rect]] = []
+                #sliced on x
+                if best_rect.size.x > child[1].x:
+                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x + child[1].x, best_rect.p0.y), Coords(best_rect.size.x - child[1].x, child[1].y))))
+
+                #sliced on y
+                if best_rect.size.y > child[1].y:
+                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x, best_rect.p0.y + child[1].y), Coords(best_rect.size.x, best_rect.size.y - child[1].y))))
+
+                left_over_parent_rects.pop(best_fit_index)
+                for sliced_rect in sliced_rects:
+                    insort_left(left_over_parent_rects, sliced_rect,key=rect_order)
+                fitted_children[child[0]] = (best_parent_index, best_rect.p0)
+                break
+    return fitted_children
+        
+    
 
 #this function modifies the parents list!
 def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple[int,float]], child: tuple[int,float], allowed_error:float) -> tuple[int,float] | None:
@@ -57,10 +103,12 @@ def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple
     Returns:
         tuple[int,float] | None: the resulting fit position. cutting from the back to the front so if there's a parent with length 300, the first child cut from it will have an offset of 300!
     """
+    #reverse the order: sorted from high to low
+    order = cmp_to_key(lambda elem, search_for:search_for[1] - elem[1])
     #check if the parent with the most remaining length can contain this child.
     if len(parents) > 0 and parents[0][1] >= child[1]:
         #find a parent in use which fits perfectly.
-        perfect_fit_index = bisect_compare(parents,compare=lambda compare:compare[1] >= child[1])
+        perfect_fit_index = bisect_left(parents, order(child),key=order)
         if perfect_fit_index <= len(parents) and perfect_fit_index > 0:
             perfect_fit_index -= 1
             #copy reference
@@ -78,8 +126,7 @@ def try_perfect_fit(parents:list[tuple[int,float]], move_leftovers_to:list[tuple
                     modified_parent = (perfect_fit_parent[0], perfect_fit_parent[1] - child[1])
                     #move the used parent to a new place in the array
                     parents.pop(perfect_fit_index)
-                    new_parent_index = bisect_compare(move_leftovers_to, compare=lambda x:x[1] > modified_parent[1])
-                    move_leftovers_to.insert(new_parent_index,modified_parent)
+                    insort_left(move_leftovers_to, modified_parent, key=order)
                     return result
     return None
 

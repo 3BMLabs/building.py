@@ -499,7 +499,7 @@ CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis) # returns CoordinateSys
 <br>
 
 ``` python
-BoundingBox2d(points=[POINTS]).perimeter() # returns 2d-perimeter
+Rect(points=[POINTS]).perimeter() # returns 2d-perimeter
 BoundingBox3d(points=[POINTS]).perimeter() # returns 3d-perimeter
 ```
 
@@ -608,12 +608,12 @@ Text(text="PyBuildingSystem1", font_family="arial", bounding_box=False, xyz=[0, 
 Text(text="PyBuildingSystem2", font_family="arial") # without optional parms
 ```
 
-#### BoundingBox2d:  
+#### Rect:  
 > _`Input: points=list[Point]`_
 <br>
 
 ``` python
-BoundingBox2d(points=[Point1, Point2, Point3 ,Point4]).perimeter() # Boundingbox
+Rect(points=[Point1, Point2, Point3 ,Point4]).perimeter() # Boundingbox
 ```
 
 #### BoundingBox3d:  

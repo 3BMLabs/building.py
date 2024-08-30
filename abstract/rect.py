@@ -36,6 +36,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from geometry.coords import Coords
 from packages.helper import *
 from geometry.solid import Extrusion
 from abstract.vector import Vector
@@ -43,65 +44,45 @@ from abstract.coordinatesystem import CoordinateSystem, CSGlobal
 from geometry.curve import PolyCurve, Line
 from geometry.point import Point
 from geometry.geometry2d import Point2D, PolyCurve2D
+from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
-class BoundingBox2d:
+class Rect(Serializable):
     """Represents a two-dimensional bounding box."""
-    def __init__(self):
+    def __init__(self, p0: Coords, size: Coords):
         self.id = generateID()
         self.type = __class__.__name__
         self.points = []
         self.corners = []
         self.isClosed = True
-        self.length = 0
-        self.width = 0
         self.z = 0
-
-    def serialize(self) -> dict:
-        """Serializes the bounding box's attributes into a dictionary.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized attributes of the bounding box.
-
-        #### Example usage:
-        ```python
-        bbox2d = BoundingBox2d()
-        serialized_bbox = bbox2d.serialize()
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'points': self.points,
-            'corners': self.corners,
-            'isClosed': self.isClosed,
-            'length': self.length,
-            'width': self.width,
-            'z': self.z
-        }
-
-    @staticmethod
-    def deserialize(data: dict):
-        bounding_box = BoundingBox2d()
-        bounding_box.id = data.get('id')
-        bounding_box.points = data.get('points', [])
-        bounding_box.corners = data.get('corners', [])
-        bounding_box.isClosed = data.get('isClosed', True)
-        bounding_box.length = data.get('length', 0)
-        bounding_box.width = data.get('width', 0)
-        bounding_box.z = data.get('z', 0)
-
-        return bounding_box
-
-    def _length(self):
-        return 0
-
+        self.p0 = p0
+        self.size = size
+        
+    @property
+    def length(self):
+        return self.size.y
+    @length.setter
+    def length(self, value):
+        self.size.y = value
+    
+    @property
+    def width(self):
+        return self.size.x
+    @width.setter
+    def width(self, value):
+        self.size.x = value
+        
     def area(self):
-        return 0
+        return self.size.volume()
+    
+    def __str__(self):
+        return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
+    def __repr__(self):
+        return str(self)
 
-    def by_points(self, points: list[Point]) -> 'BoundingBox2d':
+    def by_points(self, points: list[Point]) -> 'Rect':
         """Constructs a 2D bounding box based on a list of points.
 
         Calculates the minimum and maximum x and y values from the points to define the corners of the bounding box.
@@ -110,13 +91,13 @@ class BoundingBox2d:
         - `points` (list[Point]): A list of Point objects to calculate the bounding box from.
 
         #### Returns:
-        `BoundingBox2d`: The bounding box instance with updated corners based on the provided points.
+        `Rect`: The bounding box instance with updated corners based on the provided points.
 
         #### Example usage:
         ```python
         points = [Point(0, 0, 0), Point(2, 2, 0), Point(2, 0, 0), Point(0, 2, 0)]
-        bbox = BoundingBox2d().by_points(points)
-        # BoundingBox2d with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
+        bbox = Rect().by_points(points)
+        # Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
         ```
         """
 
@@ -141,7 +122,7 @@ class BoundingBox2d:
         self.corners.append(right_top)
         return self
 
-    def by_dimensions(self, length: float, width: float) -> 'BoundingBox2d':
+    def by_dimensions(self, length: float, width: float) -> 'Rect':
         """Constructs a 2D bounding box with specified dimensions, centered at the origin.
 
         #### Parameters:
@@ -149,12 +130,12 @@ class BoundingBox2d:
         - `width` (float): The width of the bounding box.
 
         #### Returns:
-        `BoundingBox2d`: The bounding box instance with dimensions centered at the origin.
+        `Rect`: The bounding box instance with dimensions centered at the origin.
 
         #### Example usage:
         ```python
-        bbox = BoundingBox2d().by_dimensions(length=100, width=50)
-        # BoundingBox2d centered at origin with specified length and width
+        bbox = Rect().by_dimensions(length=100, width=50)
+        # Rect centered at origin with specified length and width
         ```
         """
 
@@ -190,7 +171,7 @@ class BoundingBox3d:
         self.id = generateID()
         self.type = __class__.__name__
         self.points = points
-        self.boundingbox2d = None
+        self.Rect = None
         self.coordinatesystem = None
         self.height = None
 
@@ -249,11 +230,11 @@ class BoundingBox3d:
     def perimeter(self):
         return PolyCurve.by_points(self.corners(self.points))
 
-    def convert_boundingbox_2d(self, boundingbox2d: 'BoundingBox2d', coordinatesystem: 'CoordinateSystem', height: 'float') -> 'BoundingBox3d':
+    def convert_boundingbox_2d(self, Rect: 'Rect', coordinatesystem: 'CoordinateSystem', height: 'float') -> 'BoundingBox3d':
         """Converts a 2D bounding box into a 3D bounding box using a specified coordinate system and height.
 
         #### Parameters:
-        - `boundingbox2d` (BoundingBox2d): The 2D bounding box to be converted.
+        - `Rect` (Rect): The 2D bounding box to be converted.
         - `coordinatesystem` (CoordinateSystem): The coordinate system for the 3D bounding box.
         - `height` (float): The height of the 3D bounding box.
 
@@ -262,13 +243,13 @@ class BoundingBox3d:
 
         #### Example usage:
         ```python
-        bbox2d = BoundingBox2d().by_dimensions(length=100, width=50)
+        bbox2d = Rect().by_dimensions(length=100, width=50)
         cs = CoordinateSystem()
         bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
         # Converts bbox2d into a 3D bounding box with a specified height and coordinate system
         ```
         """
-        self.boundingbox2d = boundingbox2d
+        self.Rect = Rect
         self.coordinatesystem = coordinatesystem
         self.height = height
         return self
@@ -281,14 +262,14 @@ class BoundingBox3d:
 
         #### Example usage:
         ```python
-        bbox2d = BoundingBox2d().by_dimensions(length=100, width=50)
+        bbox2d = Rect().by_dimensions(length=100, width=50)
         cs = CoordinateSystem()
         bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
         cuboid = bbox3d.to_cuboid()
         # Generates a cuboid extrusion based on the 3D bounding box
         ```
         """
-        pts = self.boundingbox2d.corners
+        pts = self.Rect.corners
         pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem

@@ -740,21 +740,6 @@ class Vector(Coords):
             vector_list[2]
         )
 
-    def __str__(self):
-        """Returns a string representation of the vector.
-
-        #### Returns:
-        `str`: A string representation of the vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(1.234, 2.345, 3.456)
-        print(vector)
-        # Vector(X = 1.234, Y = 2.345, Z = 3.456)
-        ```
-        """
-        return f"{__class__.__name__}(" + f"X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-
 
 X_axis = Vector(1, 0, 0)
 

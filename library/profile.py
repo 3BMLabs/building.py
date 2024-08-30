@@ -137,7 +137,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
         xval.append(i.start.x)
         yval.append(i.start.y)
 
-    #Boundingbox2D
+    #Rect
     xmin = min(xval)
     xmax = max(xval)
     ymin = min(yval)

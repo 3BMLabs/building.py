@@ -43,7 +43,10 @@ import operator
 class Coords(list, Serializable):
     """a shared base class for point and vector. contains the x, y and z coordinates"""
     def __init__(self, *args) -> 'Coords':
-        arrayArgs : list = args if len(args) > 1 else args[0]
+        if len(args) == 1 and hasattr(args[0], "__getitem__"):
+            arrayArgs :list = args[0]
+        else:
+            arrayArgs : list = args
 
         list.__init__(self, arrayArgs)
         Serializable.__init__(self)
@@ -51,18 +54,18 @@ class Coords(list, Serializable):
 
     def __str__(self):
         length = len(self)
-        result = '['
+        result = self.__class__.__name__ + '('
         if length >= 1:
-            result += f'x: {self.x}'
+            result += f'x={self.x}'
             if length >= 2:
-                result += f', y: {self.y}'
+                result += f', y={self.y}'
                 if length >= 3:
-                    result += f', z: {self.z}'
+                    result += f', z={self.z}'
 
-        result += ']'
+        result += ')'
         return result
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
     
     @property
@@ -85,6 +88,13 @@ class Coords(list, Serializable):
     @z.setter
     def z(self, value):
         self[2] = value
+        
+    def volume(self):
+        result = 1
+        for val in self:
+            result *= val
+        return result
+        
         
     def operate(self, other, op:operator):
         result = Coords([0] * len(self))

@@ -38,7 +38,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.boundingbox import *
+from abstract.rect import *
 from objects.panel import *
 from objects.frame import *
 from objects.steel_shapes import *
@@ -721,7 +721,7 @@ def fillin(perimeter: PolyCurve2D, pattern: pattern_geom) -> pattern_system:
     ```
     """
 
-    bb = BoundingBox2d().by_points(perimeter.points)
+    bb = Rect().by_points(perimeter.points)
 
     for pt in bb.corners:
         project.objects.append(pt)

@@ -142,7 +142,7 @@ def translateObjectsToFreeCAD(Obj):
         elif nm == 'PolyCurve':
             test = "test"
 
-        elif nm == 'BoundingBox2d':
+        elif nm == 'Rect':
             test = "test"
 
         elif nm == 'ImagePyB':

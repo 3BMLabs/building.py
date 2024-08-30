@@ -18,7 +18,7 @@ bb = BoundingBox3d()
 height = 3675
 
 cs1 = CoordinateSystem(origin = Point(-16991.315, -3433.505, 1837.500), x_axis = Vector(0.766, 0.643, 0.000), y_axis = Vector(-0.643, 0.766, 0.000), z_axis = Vector(0.000, 0.000, 1.000))
-bb_2d = BoundingBox2d().by_dimensions(7350, 8550)
+bb_2d = Rect().by_dimensions(7350, 8550)
 bb_3d = BoundingBox3d().convert_boundingbox_2d(bb_2d, cs1, height)
 
 cbd_3d = bb_3d.to_cuboid()
