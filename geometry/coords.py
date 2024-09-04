@@ -32,7 +32,7 @@ __author__ = "JohnHeikens"
 __url__ = "./geometry/coords.py"
 
 from types import UnionType
-from typing import Any, SupportsIndex
+from typing import Any, Iterable, Self, SupportsIndex
 from packages.helper import generateID
 from abstract.serializable import Serializable
 
@@ -95,6 +95,12 @@ class Coords(list, Serializable):
             result *= val
         return result
         
+    #useful for sorting
+    def compare(self, other):
+        for axis in range(len(self)):
+            if self[axis] != other[axis]:
+                return other[axis] - self[axis]
+        return 0
         
     def operate(self, other, op:operator):
         result = Coords([0] * len(self))
@@ -120,3 +126,5 @@ class Coords(list, Serializable):
     def __mul__(self, other):
         return self.operate(other, operator.mul)
     __rmul__ = __mul__
+    def __iadd__(self, other) -> Self:
+        return self.operate(other, operator.iadd)

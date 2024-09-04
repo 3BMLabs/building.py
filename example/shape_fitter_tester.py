@@ -1,6 +1,8 @@
 import random
 import sys, os, math
 from pathlib import Path
+import copy
+
 
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -8,28 +10,37 @@ import tkinter as tk
 import geometry.shape_fitter as sf
 from abstract.vector import Vector
 from geometry.coords import Coords
+from abstract.rect import Rect
 
 root = tk.Tk()
 canvas_width = 2000
 canvas_height = 900
 root.geometry(f"{canvas_width}x{canvas_height}")
-canvas = tk.Canvas(root, width=canvas_width, height=canvas_height)
+canvas = tk.Canvas(root, width=canvas_width, height=canvas_height, bg= "black")
 canvas.pack()
+
+show_padding = True
+show_leftovers = False
+padding = 10
+allowed_error = 3
+parent_count = 90
+child_count = 1000
 
 def keydown(e):
 	canvas.delete('all')
+	global show_padding
+	global show_leftovers
  
-	padding = 3
-	allowed_error = 10
+	if e.char == 'p':
+		show_padding = not show_padding
+	if e.char == 'l':
+		show_leftovers = not show_leftovers
+ 
 	if e.char == 'a':
-		parent_counts = 8
-		child_counts = 10
-		parent_lengths = [random.randrange(100, 2000, 10) for i in range(parent_counts)]
-		child_lengths = [random.randrange(100, 1000, 10) for i in range(child_counts)]
+		parent_lengths = [random.randrange(100, 2000, 10) for i in range(parent_count)]
+		child_lengths = [random.randrange(100, 1000, 10) for i in range(child_count)]
 
 		#sf.fit_boxes_2d([Coords(20,20)],[Coords(10,20),Coords(10,10), Coords(10,10)], 0)
-
-		cost_function = lambda left_over_length:1 if left_over_length < 10 else left_over_length / 10
 
 
 		child_offsets: list[tuple[int,float]|None] = sf.fit_lengths_1d(parent_lengths,child_lengths, padding, allowed_error)
@@ -60,15 +71,15 @@ def keydown(e):
 
 		canvas.create_text(0, yoff ,fill="black",font="Times 20 italic bold", text=f"minimum cost: {mincost}\tcost (including cutting cost): {cost}\tloss: {((cost / mincost) - 1) * 100}%", anchor="nw")
 	else:
-		parent_count = 20
-		child_count = 100
 		#2d
 		parent_sizes = [Vector( random.randrange(10, 200, 10), random.randrange(10,200,5)) for i in range(parent_count)]
 		child_sizes = [Vector( random.randrange(10, 50, 10), random.randrange(10,50,5)) for i in range(child_count)]
-		child_offsets:list[tuple[int,Coords]] = sf.fit_boxes_2d(parent_sizes, child_sizes, 10)
+		fit_result = sf.fit_boxes_2d(parent_sizes, child_sizes, padding, allowed_error)
+		child_offsets:list[tuple[int,Coords]] = fit_result.fitted_boxes
 
 		for (off, size) in zip(child_offsets, child_sizes):
 			if off == None:
+				#this child didn't fit anywhere. therefore it should be fitted on screen with the parents
 				parent_sizes.append(size)
 		
 		vert_size = (canvas_height - 100) / len(parent_sizes)
@@ -78,7 +89,7 @@ def keydown(e):
 		yoff = 0
 		used = [False] * len(child_offsets)
   
-		parent_offsets = sf.fit_boxes_2d([Coords(canvas_width, canvas_height)], parent_sizes, padding)
+		parent_offsets = sf.fit_boxes_2d([Coords(canvas_width, canvas_height)], parent_sizes, 50, 100).fitted_boxes
 		grandparent_array_off = 0
 		#render parent rectangles
 		for (parent_offset,parent_size) in zip(parent_offsets, parent_sizes):
@@ -94,10 +105,27 @@ def keydown(e):
 						used[child_off[0]] = True
 						cost += parent_sizes[child_off[0]].volume()
 					child_off = parent_offsets[child_off[0]][1] + child_off[1]
-					canvas.create_rectangle(child_off.x,child_off.y, child_off.x + child_size.x, child_off.y + child_size.y, fill='blue')
-			#else:
-			#	grandparent_off = 
-			#	canvas.create_rectangle(0,0, child_size[0], child_size[1], fill='orange')
+					child_rect = Rect(child_off, child_size)
+					padded_rect = child_rect.expanded(padding)
+					if show_padding:
+						canvas.create_rectangle(padded_rect.x,padded_rect.y, padded_rect.x + padded_rect.size.x, padded_rect.y + padded_rect.size.y, fill='green')
+					canvas.create_rectangle(child_rect.x,child_rect.y, child_rect.x + child_rect.size.x, child_rect.y + child_rect.size.y, fill='blue')
+		if show_leftovers:
+			for leftover_box in fit_result.leftovers:
+				if parent_offsets[leftover_box[0]] != None:
+					rect = leftover_box[1]
+					#modify the reference to the leftover_box. that's okay
+					border_width = 2
+					rect.p0 += parent_offsets[leftover_box[0]][1]
+					rect = rect.expanded(border_width * -0.5)
+					#color="#" + ("%06x"%random.randint(0,16777215))
+					color = "white"
+					canvas.create_rectangle(rect.x,rect.y, rect.x + rect.width, rect.y + rect.length, outline=color, width=border_width)
+
+					#else:
+					#	grandparent_off = 
+					#	canvas.create_rectangle(0,0, child_size[0], child_size[1], fill='orange')
+		canvas.create_text(0, yoff ,fill="white",font="Times 20 italic bold", text=f"minimum cost: {mincost}\tcost (including cutting cost): {cost}\tloss: {((cost / mincost) - 1) * 100}%", anchor="nw")
 		
 
 #frame = tk.Frame(root, width=100, height=100)

@@ -32,7 +32,99 @@ def bisect_compare(a,compare=None, lo=0, hi=None):
         else: hi = mid
     return lo
 
-def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding: float)->tuple[int,Coords]:
+def try_perfect_fit_2d(parents:list[tuple[int, Rect]], move_slices_to:list[tuple[int, Rect]], child:tuple[int,Coords], padding:float, allowed_error:float) -> tuple[int, Coords] | None:
+
+    vector_cmp_desc = lambda elem, search_for: (search_for[0] - elem[0]) if (elem[0] != search_for[0]) else (search_for[1] - elem[1])
+    rect_order = cmp_to_key(lambda elem, search_for: elem[1].size.compare(search_for[1].size))
+    rect_order_size = cmp_to_key(lambda elem, search_for: vector_cmp_desc(elem[1].size, search_for))
+    contains = lambda rect1, rect2: rect1[0] == rect2[0] and rect1[1].contains(rect2[1])
+    
+    #the smallest parent that can fit this child
+    best_fit_index = bisect_left(parents, rect_order_size(child[1]), key=rect_order_size)
+    while best_fit_index > 0:
+        best_fit_index -= 1
+        best_rect = parents[best_fit_index][1]
+        #check if the rectangle isn't too big, that would be such a waste.
+        if best_rect.size.x > child[1].x + allowed_error:
+            #we went past the list of rectangles which aren't too big.
+            return None
+        #check if y falls in range too
+        if best_rect.size.y >= child[1].y:
+            if best_rect.size.y <= child[1].y + allowed_error:
+                # found a parent which can contain this child and isn't too big
+                best_parent_index = parents[best_fit_index][0]
+
+                #substract padding from rectangles already, so we don't have to bother about it later.
+                padded_child_rect = Rect(best_rect.p0, child[1]).expanded(padding)
+                
+                right_padded_size = child[1] + padding
+
+                #slice the parent rectangle in three: this child and two leftover rectangles.
+                sliced_rects:list[tuple[int,Rect]] = []
+                #sliced on x
+                if best_rect.size.x > right_padded_size.x:
+                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x + right_padded_size.x, best_rect.p0.y), Coords(best_rect.size.x - right_padded_size.x, best_rect.size.y))))
+                #sliced on y
+                if best_rect.size.y > right_padded_size.y:
+                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x, best_rect.p0.y + right_padded_size.y), Coords(best_rect.size.x, best_rect.size.y - right_padded_size.y))))
+                parents.pop(best_fit_index)
+
+                if parents == move_slices_to:
+
+                    #loop over the other rectangles and slice everything which collides with this rectangle.
+                    #loop reversed, because else we're sawing off the branch we're sitting on
+                    cutting_index = len(parents) - 1
+                    while cutting_index >= 0:
+                        rect_ref = parents[cutting_index]
+                        rect_to_slice = rect_ref[1]
+                        if rect_ref[0] == best_parent_index and rect_to_slice.collides(padded_child_rect):
+                            parents.pop(cutting_index)
+                            pieces:list[Rect] = padded_child_rect.substractFrom(rect_to_slice)
+                            for piece in pieces:
+                                sliced_rects.append((rect_ref[0], piece))
+                        cutting_index -= 1
+                                
+                    #now loop over the slices and see if they contain or are contained. in that case, remove the smallest element.
+                    while len(sliced_rects) > 0:
+                        sliced_rect = sliced_rects.pop(0)
+                        for slice in sliced_rects:
+                            #there's a bigger slice
+                            if contains(slice, sliced_rect):
+                                break
+                        #not broken out of loop
+                        else:
+                            for rect2 in parents:
+                                if contains(rect2, sliced_rect):
+                                    break
+                            #not broken out of loop
+                            else:
+                                #now we know for sure to 'approve' this piece. don't add it yet!
+                                #the slice might contain an existing or sliced rectangle
+                                #first slice other pieces
+                                #for other_slice_index in reversed(range(len(sliced_rects))):
+                                #    if contains(sliced_rect,sliced_rects[other_slice_index]):
+                                #        sliced_rects.pop(other_slice_index)
+                                #check if existing rectangles are contained by this slice
+                                for contained_rect_index in reversed(range(len(parents))):
+                                    if contains(sliced_rect, parents[contained_rect_index]):
+                                        parents.pop(contained_rect_index)
+
+                                #move slices to the move_slices_to array
+                                insort_left(move_slices_to, sliced_rect, key=rect_order)
+                else:
+                    for sliced_rect in sliced_rects:
+                        insort_left(move_slices_to, sliced_rect, key=rect_order)
+
+                #for sliced_rect in sliced_rects:
+                #    insort_left(left_over_parent_rects, sliced_rect,key=rect_order)
+                return (best_parent_index, best_rect.p0)
+
+class FitResult2D:
+    def __init__(self, fitted_boxes:list[tuple[int,Coords]|None], leftovers: list[tuple[int,Rect]|None]):
+        self.fitted_boxes = fitted_boxes
+        self.leftovers = leftovers
+
+def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding: float, allowed_error: float)->FitResult2D:
     """this function tries to use the fewest base shapes possible when trying to fit child shapes inside them
 
     Args:
@@ -42,67 +134,40 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
     """
     
     #first, order them by x size. then, by y size.
-    #todo: improve ordering
     #order from biggest to smallest
-    #ascending: elem - search_for
-    #descending: search_for - elem
-    vector_cmp_desc = lambda elem, search_for: (search_for[0] - elem[0]) if (elem[0] != search_for[0]) else (search_for[1] - elem[1])
-    size_order = cmp_to_key( lambda elem, search_for: vector_cmp_desc(elem[1],search_for[1]))
-    # inverse! bisect_right!
-    rect_order_size = cmp_to_key(lambda elem, search_for: vector_cmp_desc(elem[1].size, search_for))
-    rect_order = cmp_to_key(lambda elem, search_for: vector_cmp_desc(elem[1].size, search_for[1].size))
+    size_order = cmp_to_key(lambda elem, search_for: elem[1].compare(search_for[1]))
 
     children = sorted(enumerate(child_shapes),key=size_order)
     parents = sorted(enumerate(parent_shapes),key=size_order)
     
     
-    left_over_parent_rects:list[tuple[int, Rect]] = []
+    unused_parents:list[tuple[int, Rect]] = []
+    #these are slices of used parents which could still be used
+    used_parents:list[tuple[int, Rect]] = []
 
     fitted_children:list[tuple[int,Coords]|None] = [None] * len(child_shapes)
     #convert all parents to rects
     for parent in parents:
-        left_over_parent_rects.append((parent[0], Rect(Coords(0,0), parent[1])))
+        unused_parents.append((parent[0], Rect(Coords(0,0), parent[1])))
+        
+    #now try to use as few rectangles as possible, by checking if each new rect fits in a used rect first.
     
     for child in children:
-        #the smallest parent that can fit this child
-        best_fit_index = bisect_left(left_over_parent_rects, rect_order_size(child[1]), key=rect_order_size)
-        while best_fit_index > 0:
-            best_fit_index -= 1
-            best_rect = left_over_parent_rects[best_fit_index][1]
-            if best_rect.size.y >= child[1].y:
-                best_parent_index = left_over_parent_rects[best_fit_index][0]
-                
-                child_rect = Rect(best_rect.p0, child[1])
+        #find a good parent in the list of used parents
+        fit = try_perfect_fit_2d(used_parents, used_parents, child, padding, allowed_error)
+        
+        if fit == None:
+            #else, use a new parent of the remaining parents
 
-                #slice the parent rectangle in three: this child and two leftover rectangles.
-                sliced_rects:list[tuple[int,Rect]] = []
-                #sliced on x
-                if best_rect.size.x > child[1].x:
-                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x + child[1].x, best_rect.p0.y), Coords(best_rect.size.x - child[1].x, best_rect.size.y))))
-
-                #sliced on y
-                if best_rect.size.y > child[1].y:
-                    sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x, best_rect.p0.y + child[1].y), Coords(best_rect.size.x, best_rect.size.y - child[1].y))))
-
-                left_over_parent_rects.pop(best_fit_index)
-                
-                #loop over the other rectangles and slice everything which collides with this rectangle.
-                for i in range(len(left_over_parent_rects)):
-                    rect_ref = left_over_parent_rects[i]
-                    rect_to_slice = rect_ref[1]
-                    if rect_ref[0] == best_parent_index and rect_to_slice.collides(child_rect):
-                        pieces:list[Rect] = child_rect.substractFrom(rect_to_slice)
-                        for piece in pieces:
-                            sliced_rects.append((rect_ref[0], piece))
-                    else:
-                        sliced_rects.append(left_over_parent_rects[i])
-                left_over_parent_rects = sorted(sliced_rects, key=rect_order)
-                
-                #for sliced_rect in sliced_rects:
-                #    insort_left(left_over_parent_rects, sliced_rect,key=rect_order)
-                fitted_children[child[0]] = (best_parent_index, best_rect.p0)
-                break
-    return fitted_children
+            fit = try_perfect_fit_2d(unused_parents, used_parents, child, padding, allowed_error)
+            if fit == None:
+                fit = try_perfect_fit_2d(used_parents,used_parents, child, padding,inf)
+                if fit == None:
+                    fit = try_perfect_fit_2d(unused_parents, used_parents, child, padding, inf)
+        
+        fitted_children[child[0]] = fit
+        
+    return FitResult2D(fitted_children, used_parents)
         
     
 

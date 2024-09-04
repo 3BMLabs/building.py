@@ -75,6 +75,19 @@ class Rect(Serializable):
     def width(self, value):
         self.size.x = value
         
+    @property
+    def x(self):
+        return self.p0.x
+    @x.setter
+    def x(self, value):
+        self.p0.x = value
+    @property
+    def y(self):
+        return self.p0.y
+    @y.setter
+    def y(self, value):
+        self.p0.y = value
+        
     def area(self):
         return self.size.volume()
     
@@ -122,6 +135,9 @@ class Rect(Serializable):
         self.corners.append(right_bottom)
         self.corners.append(right_top)
         return self
+    
+    def expanded(self, border_size: float) -> 'Rect':
+        return Rect(self.p0 - border_size, self.size + border_size * 2)
 
     def by_dimensions(self, length: float, width: float) -> 'Rect':
         """Constructs a 2D bounding box with specified dimensions, centered at the origin.
@@ -171,6 +187,13 @@ class Rect(Serializable):
             if self.p0[axis] + self.size[axis] <= other.p0[axis] or other.p0[axis] + other.size[axis] <= self.p0[axis]:
                 return False
         return True
+    
+    def contains(self, other:'Rect')->bool:
+        for axis in range(len(self.p0)):
+            if other.p0[axis] < self.p0[axis] or other.p0[axis] + other.size[axis] > self.p0[axis] + self.size[axis]:
+                return False
+        return True
+    
     def substractFrom(self, other:'Rect')->list['Rect']:
         """cut the 'other' rectangle in pieces by substracting this rectangle from it
 
@@ -178,34 +201,34 @@ class Rect(Serializable):
             other (Rect): the rectangle to substract this rectangle from
 
         Returns:
-            list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center)
+            list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center). CAUTION: THEY OVERLAP!
         """
         pieces:list[Rect] = []
         to_clone = other
         #check each axis
         for axis in range(len(self.p0)):
-            p1 = self.p0[axis] + self.size[axis]
+            self_p1 = self.p0[axis] + self.size[axis]
             other_p1 = other.p0[axis] + other.size[axis]
-            if p1 < other_p1:
-                diff = other_p1 - p1
+            if self_p1 < other_p1:
+                diff = other_p1 - self_p1
                 
                 piece:Rect = copy.deepcopy(to_clone)
                 
-                piece.p0[axis] = p1
+                piece.p0[axis] = self_p1
                 
                 piece.size[axis] = diff
                 pieces.append(piece)
                 #also crop other.
-                to_clone.size[axis] -= diff
-            p0 = self.p0[axis]
+                #to_clone.size[axis] -= diff
+            self_p0 = self.p0[axis]
             other_p0 = other.p0[axis]
-            if p0 > other_p0:
-                diff = p0 - other_p0
+            if self_p0 > other_p0:
+                diff = self_p0 - other_p0
                 piece:Rect = copy.deepcopy(to_clone)
                 piece.size[axis] = diff
                 pieces.append(piece)
-                to_clone.p0[axis] = p0
-                to_clone.size[axis] -= diff
+                #to_clone.p0[axis] = self_p0
+                #to_clone.size[axis] -= diff
         return pieces
 
 class BoundingBox3d:
