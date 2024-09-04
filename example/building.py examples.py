@@ -8,7 +8,7 @@ sys.path.append(str(package_root_directory))
 
 from objects.panel import *
 from objects.frame import *
-from objects.steel_shapes import *
+from objects.shape3d import *
 from objects.datum import *
 from geometry.linestyle import *
 from geometry.curve import *
@@ -18,7 +18,7 @@ from exchange.speckle import *
 from abstract.color import *
 from abstract.plane import *
 from geometry.solid import Extrusion
-from abstract.rect import Rect, BoundingBox3d
+from abstract.rect import Rect
 
 # INITIALIZE
 pnt1 = Point(0, 0, 0)
@@ -339,6 +339,4 @@ p3 = Point(x=400, y=410, z=160)
 p4 = Point(x=650, y=800, z=0)
 obj = [p1,p2,p3,p4]
 
-bb = Rect(points=[p1,p2,p3,p4]).perimeter()
-bb = BoundingBox3d(points=[p1,p2,p3,p4]).perimeter()
-#Boundingbox
+bb = Rect.by_points(points=[p1,p2,p3,p4])

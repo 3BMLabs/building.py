@@ -41,10 +41,10 @@ from geometry.coords import Coords
 from packages.helper import *
 from geometry.solid import Extrusion
 from abstract.vector import Vector
-from abstract.coordinatesystem import CoordinateSystem, CSGlobal
+from abstract.coordinatesystem import CSGlobal
 from geometry.curve import PolyCurve, Line
 from geometry.point import Point
-from geometry.geometry2d import Point2D, PolyCurve2D
+from geometry.geometry2d import PolyCurve2D
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
@@ -61,12 +61,7 @@ class Rect(Serializable):
         self.p0 = p0
         self.size = size
         
-    @property
-    def length(self):
-        return self.size.y
-    @length.setter
-    def length(self, value):
-        self.size.y = value
+
     
     @property
     def width(self):
@@ -75,6 +70,20 @@ class Rect(Serializable):
     def width(self, value):
         self.size.x = value
         
+    @property
+    def length(self):
+        return self.size.y
+    @length.setter
+    def length(self, value):
+        self.size.y = value
+
+    @property
+    def height(self):
+        return self.size.z
+    @height.setter
+    def height(self, value):
+        self.size.z = value
+
     @property
     def x(self):
         return self.p0.x
@@ -87,6 +96,12 @@ class Rect(Serializable):
     @y.setter
     def y(self, value):
         self.p0.y = value
+    @property
+    def z(self):
+        return self.p0.z
+    @z.setter
+    def z(self, value):
+        self.p0.z = value
         
     def area(self):
         return self.size.volume()
@@ -97,9 +112,9 @@ class Rect(Serializable):
         return str(self)
 
     def by_points(self, points: list[Point]) -> 'Rect':
-        """Constructs a 2D bounding box based on a list of points.
+        """Constructs a bounding box based on a list of points.
 
-        Calculates the minimum and maximum x and y values from the points to define the corners of the bounding box.
+        Calculates the minimum and maximum values from the points to define the corners of the bounding box.
 
         #### Parameters:
         - `points` (list[Point]): A list of Point objects to calculate the bounding box from.
@@ -114,75 +129,54 @@ class Rect(Serializable):
         # Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
         ```
         """
+        axis_count = len(points[0])
+        if axis_count == 0: raise ValueError("please provide points")
 
         self.points = points
-        x_values = [point.x for point in self.points]
-        y_values = [point.y for point in self.points]
-
-        min_x = min(x_values)
-        max_x = max(x_values)
-        min_y = min(y_values)
-        max_y = max(y_values)
-
-        left_top = Point(x=min_x, y=max_y, z=self.z)
-        left_bottom = Point(x=min_x, y=min_y, z=self.z)
-        right_top = Point(x=max_x, y=max_y, z=self.z)
-        right_bottom = Point(x=max_x, y=min_y, z=self.z)
-        self.length = abs(Point.distance(left_top, left_bottom))
-        self.width = abs(Point.distance(left_top, right_top))
-        self.corners.append(left_top)
-        self.corners.append(left_bottom)
-        self.corners.append(right_bottom)
-        self.corners.append(right_top)
+        p0 = points[0]
+        p1 = points[0]
+        
+        #it's faster to not skipt the first point than to check if it's the first point or revert to an index-based loop
+        for p in points:
+            for axis in range(axis_count):
+                p0[axis] = min(p0[axis], p[axis])
+                p1[axis] = max(p1[axis], p[axis])
+                
+        self.size = p1 - p0
         return self
     
     def expanded(self, border_size: float) -> 'Rect':
         return Rect(self.p0 - border_size, self.size + border_size * 2)
-
-    def by_dimensions(self, length: float, width: float) -> 'Rect':
-        """Constructs a 2D bounding box with specified dimensions, centered at the origin.
+    
+    @staticmethod
+    def centered_at_origin(self, size: Vector) -> 'Rect':
+        """Constructs a rect with specified dimensions, centered at the origin.
 
         #### Parameters:
-        - `length` (float): The length of the bounding box.
-        - `width` (float): The width of the bounding box.
+        - `size` (Vector): The size of the bounding box.
 
         #### Returns:
         `Rect`: The bounding box instance with dimensions centered at the origin.
 
         #### Example usage:
         ```python
-        bbox = Rect().by_dimensions(length=100, width=50)
+        bbox = Rect().centered_at_origin(length=100, width=50)
         # Rect centered at origin with specified length and width
         ```
         """
-
-        # startpoint = Point2D(0,0)
-        # widthpoint = Point2D(0,width)
-        # widthlengthpoint = Point2D(length,width)
-        # lengthpoint = Point2D(length,0)
-
-        half_length = length / 2
-        half_width = width / 2
-
-        startpoint = Point2D(-half_length, -half_width)
-        widthpoint = Point2D(-half_length, half_width)
-        widthlengthpoint = Point2D(half_length, half_width)
-        lengthpoint = Point2D(half_length, -half_width)
-
-        self.points.append(startpoint)
-        self.corners.append(startpoint)
-        self.points.append(widthpoint)
-        self.corners.append(widthpoint)
-        self.points.append(widthlengthpoint)
-        self.corners.append(widthlengthpoint)
-        self.points.append(lengthpoint)
-        self.corners.append(lengthpoint)
-
-        self.length = length
-        self.width = width
-        return self
+        
+        return Rect(size * -0.5, size)
     
     def collides(self, other:'Rect')->bool:
+        """checks if two rectangles collide with eachother. <br>
+        when they touch eachother exactly (f.e. a Rect with position [0] and size [1] and a rect with position [1] and size [1]), the function will return false.
+
+        Args:
+            other (Rect): the rectangle which may collide with this rectangle
+
+        Returns:
+            bool: true if the two rectangles overlap
+        """
         for axis in range(len(self.p0)):
             if self.p0[axis] + self.size[axis] <= other.p0[axis] or other.p0[axis] + other.size[axis] <= self.p0[axis]:
                 return False
@@ -230,95 +224,46 @@ class Rect(Serializable):
                 #to_clone.p0[axis] = self_p0
                 #to_clone.size[axis] -= diff
         return pieces
+    
+    
+    def get_corner(self, corner_index: int) -> Point:
+        """
 
-class BoundingBox3d:
-    def __init__(self, points=Point):
-        self.id = generateID()
-        self.type = __class__.__name__
-        self.points = points
-        self.Rect = None
-        self.coordinatesystem = None
-        self.height = None
+        Args:
+            corner_index (int): corners are ordered like 0 -> 000, 1 -> 001, 2 -> 010, 011, 100 etc.
+            where 0 = the minimum and 1 = the maximum
 
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'points': [point.serialize() for point in self.points]
-        }
-
-    @staticmethod
-    def deserialize(data):
-        points = [Point.deserialize(point_data)
-                  for point_data in data.get('points', [])]
-        return BoundingBox3d(points)
+        Returns:
+            Point: a corner
+        """
+        corner : Point = Point()
+        for axis in range(len(self)):
+            corner.append(self.p0[axis] + self.size[axis] if corner_index & 1 << axis else self.p0[axis])
+        return corner
+        
 
     def corners(self) -> 'list[Point]':
-        """Calculates the eight corners of the 3D bounding box based on the contained points.
+        """Calculates the corners of the bounding.
 
         #### Returns:
-        `list[Point]`: A list of eight Point objects representing the corners of the bounding box.
+        `list[Point]`: A list of Point objects representing the corners of the bounding box.
 
         #### Example usage:
         ```python
-        bbox3d = BoundingBox3d(points=[Point(1, 1, 1), Point(2, 2, 2)])
+        bbox3d = Rect(Point(1, 1, 1), Vector(2, 2, 2))
         corners = bbox3d.corners()
-        # Returns a list of eight points representing the corners of the bounding box
+        Returns a list of eight points representing the corners of the bounding box
         ```
         """
-
-        x_values = [point.x for point in self.points]
-        y_values = [point.y for point in self.points]
-        z_values = [point.z for point in self.points]
-
-        min_x = min(x_values)
-        max_x = max(x_values)
-        min_y = min(y_values)
-        max_y = max(y_values)
-        min_z = min(z_values)
-        max_z = max(z_values)
-
-        left_top_bottom = Point(x=min_x, y=max_y, z=min_z)
-        left_bottom_bottom = Point(x=min_x, y=min_y, z=min_z)
-        right_top_bottom = Point(x=max_x, y=max_y, z=min_z)
-        right_bottom_bottom = Point(x=max_x, y=min_y, z=min_z)
-
-        left_top_top = Point(x=min_x, y=max_y, z=max_z)
-        left_bottom_top = Point(x=min_x, y=min_y, z=max_z)
-        right_top_top = Point(x=max_x, y=max_y, z=max_z)
-        right_bottom_top = Point(x=max_x, y=min_y, z=max_z)
-
-        return [left_top_bottom, left_top_top, right_top_top, right_top_bottom, left_top_bottom, left_bottom_bottom, left_bottom_top, left_top_top, left_bottom_top, right_bottom_top, right_bottom_bottom, left_bottom_bottom, right_bottom_bottom, right_top_bottom, right_top_top, right_bottom_top]
+        corners:list[Point] = []
+        axis_count = len(self.p0)
+        for corner_index in range(2 << axis_count):
+            corners.append(self.get_corner(corner_index))
+        return corners
 
     def perimeter(self):
-        return PolyCurve.by_points(self.corners(self.points))
-
-    def convert_boundingbox_2d(self, Rect: 'Rect', coordinatesystem: 'CoordinateSystem', height: 'float') -> 'BoundingBox3d':
-        """Converts a 2D bounding box into a 3D bounding box using a specified coordinate system and height.
-
-        #### Parameters:
-        - `Rect` (Rect): The 2D bounding box to be converted.
-        - `coordinatesystem` (CoordinateSystem): The coordinate system for the 3D bounding box.
-        - `height` (float): The height of the 3D bounding box.
-
-        #### Returns:
-        `BoundingBox3d`: The instance itself, now representing a 3D bounding box.
-
-        #### Example usage:
-        ```python
-        bbox2d = Rect().by_dimensions(length=100, width=50)
-        cs = CoordinateSystem()
-        bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
-        # Converts bbox2d into a 3D bounding box with a specified height and coordinate system
-        ```
-        """
-        self.Rect = Rect
-        self.coordinatesystem = coordinatesystem
-        self.height = height
-        return self
-
+        return PolyCurve.by_points(self.corners())
+    
     def to_cuboid(self) -> 'Extrusion':
         """Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
 
@@ -334,7 +279,7 @@ class BoundingBox3d:
         # Generates a cuboid extrusion based on the 3D bounding box
         ```
         """
-        pts = self.Rect.corners
+        pts = self.corners()
         pc = PolyCurve2D.by_points(pts)
         height = self.height
         cs = self.coordinatesystem
