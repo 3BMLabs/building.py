@@ -47,14 +47,14 @@ from packages.helper import *
 
 class Point(Coords):
     """Represents a point in 3D space with x, y, and z coordinates."""
-    def __init__(self, *args) -> 'Point':
+    def __init__(self, *args, **kwargs) -> 'Point':
         """Initializes a new Point instance with the given x, y, and z coordinates.
 
         - `x` (float): X-coordinate of the point.
         - `y` (float): Y-coordinate of the point.
         - `z` (float): Z-coordinate of the point.
         """
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
         self.type = __class__.__name__
         self.units = "mm"
 

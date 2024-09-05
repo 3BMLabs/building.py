@@ -51,17 +51,46 @@ from abstract.serializable import Serializable
 
 class Rect(Serializable):
     """Represents a two-dimensional bounding box."""
-    def __init__(self, p0: Coords, size: Coords):
+    def __init__(self, *args, **kwargs):
+        """@
+        #### Example usage:
+        ```python
+        rect = Rect(3, 4) # x 3, width 4
+        rect2 = Rect(z=10) # x 0, y 0, z 10, width 0, length 0, height 0
+        rect3 = Rect(Vector(y=8), Vector(x = 4)) # x 0, y 8, width 4, length 0
+        ```
+        """
+        self.id = generateID()
+        
+        #first half = for position
+        half:int = len(args) // 2
+        self.p0 = Point(args[0:half])
+        #second half for size
+        self.size = Vector(args[half:])
+        
+        for kwarg in kwargs.items():
+            try:
+                offset = self.p0.set_axis(kwarg[0], kwarg[1])
+                if offset != None:
+                    self.size.change_axis_count(offset)
+            except ValueError:
+                axis_index = Rect.size_axis_index(kwarg[0])
+                offset = self.size.set_axis(axis_index, kwarg[1])
+                if offset != None:
+                    self.p0.change_axis_count(offset)
+            
+        Serializable.__init__(self)
+
         self.id = generateID()
         self.type = __class__.__name__
-        self.points = []
-        self.corners = []
-        self.isClosed = True
-        self.z = 0
-        self.p0 = p0
-        self.size = size
         
-
+    def change_axis_count(self,axis_count: int):
+        self.p0.change_axis_count(axis_count)
+        self.size.change_axis_count(axis_count)
+    
+    @staticmethod
+    def size_axis_index(axis)->int:
+        return ["width", "length", "height"].index(axis)
     
     @property
     def width(self):
@@ -149,7 +178,7 @@ class Rect(Serializable):
         return Rect(self.p0 - border_size, self.size + border_size * 2)
     
     @staticmethod
-    def centered_at_origin(self, size: Vector) -> 'Rect':
+    def centered_at_origin(size: Vector) -> 'Rect':
         """Constructs a rect with specified dimensions, centered at the origin.
 
         #### Parameters:

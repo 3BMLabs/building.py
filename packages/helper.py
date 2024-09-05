@@ -30,7 +30,7 @@
 
 __title__= "shape"
 __author__ = "Maarten & Jonathan"
-__url__ = "./package/helper.py"
+__url__ = "./abstract/helper.py"
 
 
 import string, random, json
@@ -40,13 +40,6 @@ import xml.etree.ElementTree as ET
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
-
-
-def find_in_list_of_list(mylist, char):
-    for sub_list in mylist:
-        if char in sub_list:
-            return (mylist.index(sub_list))
-    raise ValueError("'{char}' is not in list".format(char=char))
 
 class ID(Serializable):
     def __init__(self) -> None:
@@ -71,6 +64,13 @@ class ID(Serializable):
 
 def generateID() -> ID:
     return ID()
+
+def find_in_list_of_list(mylist, char):
+    for sub_list in mylist:
+        if char in sub_list:
+            return (mylist.index(sub_list))
+    raise ValueError("'{char}' is not in list".format(char=char))
+
 
 def findjson(id, json_string):
     #faster way to search in json
@@ -131,17 +131,26 @@ def clean_list(input_list, preserve_indices=True):
             
     return culled_list
 
-def flatten(lst):
-    if type(lst) != list:
-        lst = [lst]
-    flat_list = []
-    for sublist in lst:
-        try:
-            for item in sublist:
-                flat_list.append(item)
-        except:
-            flat_list.append(sublist)
-    return flat_list
+def flatten(list:list[list]):
+    """convert 2d list to 1d list
+
+    Args:
+        list (list[list]): a list of lists
+
+    Returns:
+        a list containing all elements: _description_
+    """
+    return [elem for sublist in list for elem in sublist]
+    #if type(lst) != list:
+    #    lst = [lst]
+    #flat_list = []
+    #for sublist in lst:
+    #    try:
+    #        for item in sublist:
+    #            flat_list.append(item)
+    #    except:
+    #        flat_list.append(sublist)
+    #return flat_list
 
 def all_true(lst):
     for element in lst:

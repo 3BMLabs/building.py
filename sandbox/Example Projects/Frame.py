@@ -1,6 +1,6 @@
 from objects.panel import *
 from objects.frame import *
-from objects.steel_shapes import *
+from objects.profile import *
 from exchange.speckle import *
 from project import fileformat
 from objects.datum import *

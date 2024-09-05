@@ -46,14 +46,14 @@ from geometry.coords import Coords
 
 class Vector(Coords):
     """Represents a 3D vector with x, y, and z coordinates."""
-    def __init__(self, *args) -> 'Vector':
+    def __init__(self, *args, **kwargs) -> 'Vector':
         """Initializes a new Vector instance with the given x, y, and z coordinates.
 
         - `x` (float): X-coordinate of the vector.
         - `y` (float): Y-coordinate of the vector.
         - `z` (float): Z-coordinate of the vector.
         """
-        super().__init__(*args)
+        super().__init__(*args, **kwargs)
         self.type = __class__.__name__
 
     @staticmethod

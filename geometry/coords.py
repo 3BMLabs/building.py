@@ -42,15 +42,19 @@ import operator
 
 class Coords(list, Serializable):
     """a shared base class for point and vector. contains the x, y and z coordinates"""
-    def __init__(self, *args) -> 'Coords':
+    def __init__(self, *args, **kwargs) -> 'Coords':
+        arrayArgs:list
         if len(args) == 1 and hasattr(args[0], "__getitem__"):
             arrayArgs :list = args[0]
         else:
-            arrayArgs : list = args
+            arrayArgs : list = list(args)
 
         list.__init__(self, arrayArgs)
         Serializable.__init__(self)
+
         self.id = generateID()
+        for kwarg in kwargs.items():
+            self.set_axis(kwarg[0], kwarg[1])            
 
     def __str__(self):
         length = len(self)
@@ -88,7 +92,61 @@ class Coords(list, Serializable):
     @z.setter
     def z(self, value):
         self[2] = value
+    
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return ['x', 'y', 'z', 'w'].index(axis)
+
+    def change_axis_count(self,axis_count: int):
+        """in- or decreases the amount of axes to the preferred axis count.
+
+        Args:
+            axis_count (int): the new amount of axes
+        """
+        if axis_count > len(self):
+            diff = axis_count + 1 - len(self)
+            self.extend([0] * diff)
+        else:
+            self = self[:axis_count]
+    def set_axis(self, axis_index: int, value) -> int | None:
+        """sets an axis with the specified index to the value. will resize when the coords can't contain them.
+
+        Args:
+            axis_index (int): the index of the axis, for example 2
+            value: the value to set the axis to
+
+        Returns:
+            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
+        """
+
+        if axis_index >= len(self):
+            self.extend([0] * (axis_index - len(self)))
+            self.extend([value])
+            return axis_index
+        self[axis_index] = value
+        return None
         
+    def set_axis_by_name(self, axis_name: str, value) -> int | None:
+        """sets an axis with the specified name to the value. will resize when the coords can't contain them.
+
+        Args:
+            axis_name (str): the name of the axis, for example 'x'
+            value: the value to set the axis to
+
+        Returns:
+            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
+        """
+        return self.set_axis(Coords.axis_index(axis_name, value))
+                    
     def volume(self):
         result = 1
         for val in self:

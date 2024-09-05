@@ -1,3 +1,4 @@
+import os
 import glob, sys
 from glob import glob
 import re
@@ -7,124 +8,115 @@ def find_ext(dr, ext):
 	return glob(path.join(dr,"*.{}".format(ext)))
 
 def generate_single_file(output_filename, include_files=None):
-	pythonfiles = [
-		"abstract/serializable.py",
-		"packages/helper.py",
-		"packages/svg/path/parser.py",
-		"packages/svg/path/path.py",
-		"geometry/coords.py",
-		"abstract/vector.py",
-		"geometry/point.py",
-		"project/fileformat.py",
-		"abstract/coordinatesystem.py",
-		"abstract/matrix.py",
-		"geometry/curve.py",
-		"abstract/node.py",
-		"abstract/color.py",
-		"abstract/image.py",
-		"abstract/interval.py",
-		"abstract/plane.py",
-		"abstract/text.py",
-		"geometry/bmesh.py",
-		"geometry/geometry2d.py",
-		"abstract/intersect.py",
-		"abstract/intersect2d.py",
-		"geometry/linestyle.py",
-		"geometry/pointcloud.py",
-		"geometry/solid.py",
-		"geometry/surface.py",
-		"objects/panel.py",
-		"abstract/boundingbox.py",
-		"geometry/systemsimple.py",
-		"library/material.py",
-		"library/profile.py",
-		"objects/analytical.py",
-		"objects/annotation.py",
-		"objects/datum.py",
-		"objects/frame.py",
-		"objects/shape.py",
-		"objects/shape3d.py",
-		"objects/view.py",
-		"exchange/pat.py",
-	]
+    #constants
+	Includedstr = "# [included in BP singlefile]\n"
 
-	# Add the specified files if include_files is provided
-	if include_files:
-		for file in include_files:
-			pythonfiles.append(f"{file}")
 
-	BuildingPySingleFileStr = ""
-	Includedstr = "# [included in BP singlefile]"
+	no_copy_start = '# [!not included in BP singlefile - start]'
+	no_copy_end = '# [!not included in BP singlefile - end]'
+	from_start = 'from '
+	import_start = 'import '
+	import_mid = ' import '
+		
+	excluded_directories = ["exchange", "specklepy"]
+ 
+	header_file = "docs/single_file_header.py"
 
-	for i in pythonfiles:
-		with open(i) as f:
-			content = f.read()
-			if i == "packages/svg/path/parser.py":
-				content = content.replace("path.", "")
-			if Includedstr in content:
-				BuildingPySingleFileStr = BuildingPySingleFileStr + content
+	file_dict: dict = dict()
+	#files indiced by name. each file has a text node and a list of deps, relative paths to the other files.
+ 
+	global_deps:list[str] = []
+	#a list of import statements.
+		
+	for subdir, dirs, files in os.walk("."):
+		folder_included = True
+		for excluded_dir in excluded_directories:
+			if excluded_dir in subdir:
+				folder_included = False
+				break
 
-	start = '# [!not included in BP singlefile - start]'
-	end = '# [!not included in BP singlefile - end]'
-	s = BuildingPySingleFileStr
+		if (not folder_included) and include_files == None:
+			continue
 
-	try:
-		test2 = ((s.split(start))[1].split(end)[0])
-	except IndexError:
-		test2 = ""
+		for file_name in files:
+			#no file included
+			if file_name.endswith('.py'):
+				longer_path = os.path.join(subdir, file_name)
+				if folder_included or longer_path in include_files:
+					deps = []
+					with open(longer_path) as f:
+						#TODO: fix error can't decode bytes in position
+						lines = f.readlines()
+						file_str = ""
+						if len(lines) > 0 and  lines[0] == Includedstr:
+							copy_flag = True
+							#loop over lines, skip the first line
+							for line_index in range(1, len(lines)):
+								line = lines[line_index]
+								#check for import statements to determine order. let's also allow imports in included parts but just strip them away, for convenience.
+								#possible patterns: 'from a import b' or 'import c'
 
-	i = 0
-	max = BuildingPySingleFileStr.count(start)
+								module_name = ''
+								#we only need the first part
+								if line.startswith(import_start):
+									module_name = line[len(import_start):]
+								elif line.startswith(from_start):
+									sep_index = line.find(import_mid)
 
-	for j in range(max):
-		try:
-			substringtoremove = (BuildingPySingleFileStr.split(start))[1].split(end)[0]
-			BuildingPySingleFileStr = BuildingPySingleFileStr.replace(substringtoremove, "")
-			BuildingPySingleFileStr = BuildingPySingleFileStr.replace(start, "", 1)
-			BuildingPySingleFileStr = BuildingPySingleFileStr.replace(end, "", 1)
-		except:
-			print("out of range")
+									#this might cause an error. in that case there have a malformed import statement!
+									module_name = line[len(from_start):sep_index]
+         
+								if module_name != '':
+									file_name = '.'
+									for part in module_name.split('.'):
+										file_name = path.join(file_name, part)
+									file_name += '.py'
+									if os.path.isfile(file_name):
+										deps.append(file_name)
+									else:
+										if line not in global_deps:
+											#we may have multiple different import statements like 'from x import a' and 'from x import *', but that's okay
+											global_deps.append(line)
+									#strip away
+									continue
+								if copy_flag:
+									if no_copy_start in line: 
+										copy_flag = False
+										continue
+									if longer_path == "parser.py":
+										line = line.replace("path.", "")
+									file_str += line
+								else:
+									if no_copy_end in line:
+										copy_flag = True
+							file_dict[longer_path] = {}
+							file_dict[longer_path]["text"] = file_str
+							file_dict[longer_path]["deps"] = deps
+	hierarchy = enumerate(file_dict)
+ 
+	with open(header_file, 'r') as content_file:
+		merged_str = content_file.read() + '\n\n'
+		#the merged string which will be written to output_filename
+  
+	for global_dep in global_deps:
+		merged_str += global_dep
 
-	BuildingPySingleFileStr = BuildingPySingleFileStr.replace(Includedstr, "")
+	def add_file (relative_path: str):
+		if relative_path in file_dict:
+			if "added" not in file_dict[relative_path]:
+				file_dict[relative_path]["added"] = True
+				for dep in file_dict[relative_path]["deps"]:
+					add_file(dep)
+				nonlocal merged_str
+				merged_str += file_dict[relative_path]["text"]
 
-	BuildingPySingleFileStr_NoImports = ""
+	#now order files based on dependencies
+	for longer_path in file_dict:
+		add_file(longer_path)
+    
 
-	for line in BuildingPySingleFileStr.split("\n"):
-		if "from " in line and "#" not in line and len(line) < 20:
-			pass
-		elif "import " in line and "#" not in line:
-			pass
-		else:
-			BuildingPySingleFileStr_NoImports = BuildingPySingleFileStr_NoImports + "\n" + line
-	BuildingPySingleFileStr = BuildingPySingleFileStr_NoImports
-
-	startstr = """#[BuildingPy] DO NOT EDIT THIS FILE. IT IS GENERATED FROM THE SOURCE CODE
-import importlib, math
-from math import sqrt, cos, sin, acos, degrees, radians, log, pi
-import sys
-import re
-import json
-import bisect
-from abc import *
-from collections import defaultdict
-from collections.abc import MutableSequence
-import urllib
-import urllib.request
-import string
-import random
-from typing import List, Tuple, Union
-import xml.etree.ElementTree as ET
-from pathlib import Path
-import copy
-import pickle
-from functools import reduce
-import struct
-#import ezdxf"""
-
-	BuildingPySingleFileStr = startstr + BuildingPySingleFileStr
-
-	with open(output_filename, 'w+') as fh:
-		fh.write(BuildingPySingleFileStr)
+	with open(output_filename, 'w+') as dest_file:
+		dest_file.write(merged_str)
 
 
 generate_single_file('BuildingPy.py')
