@@ -574,36 +574,6 @@ class Vector(Coords):
         return lokX, lokZ
 
     @staticmethod
-    def normalize(vector_1: 'Vector') -> 'Vector':
-        """Returns the normalized form of the input vector.
-        The normalized form of a vector is a vector with the same direction but with a length (magnitude) of 1.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be normalized.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the normalized form of the input vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(3, 0, 4)
-        normalized_vector = Vector.normalize(vector1)
-        # Vector(X = 0.600, Y = 0.000, Z = 0.800)
-        ```
-        """
-        length = Vector.length(vector_1)
-        if length == 0:
-            return Vector(0, 0, 0)
-
-        normalized_vector = Vector(
-            vector_1.x / length,
-            vector_1.y / length,
-            vector_1.z / length
-        )
-
-        return normalized_vector
-
-    @staticmethod
     def by_two_points(point_1: 'Point', point_2: 'Point') -> 'Vector':
         """Computes the vector between two points.
 

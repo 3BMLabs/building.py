@@ -3,14 +3,15 @@ import sys, os, math
 from pathlib import Path
 import copy
 
-
-
 sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 import tkinter as tk
 import geometry.shape_fitter as sf
 from abstract.vector import Vector
 from geometry.coords import Coords
 from abstract.rect import Rect
+from geometry.point import Point
+from geometry.curve import Line, PolyCurve
 
 root = tk.Tk()
 canvas_width = 2000
@@ -25,6 +26,10 @@ padding = 10
 allowed_error = 3
 parent_count = 90
 child_count = 1000
+ctest = Coords(x = 3)
+ctest2 = Coords(4,3,2)
+ctest3 = Coords([3,5])
+test_angle = Line(Coords(1,2), Coords(1,4)).angle
 
 def keydown(e):
 	canvas.delete('all')
@@ -70,7 +75,7 @@ def keydown(e):
 
 
 		canvas.create_text(0, yoff ,fill="black",font="Times 20 italic bold", text=f"minimum cost: {mincost}\tcost (including cutting cost): {cost}\tloss: {((cost / mincost) - 1) * 100}%", anchor="nw")
-	else:
+	elif e.char == 's':
 		#2d
 		parent_sizes = [Vector( random.randrange(10, 200, 10), random.randrange(10,200,5)) for i in range(parent_count)]
 		child_sizes = [Vector( random.randrange(10, 50, 10), random.randrange(10,50,5)) for i in range(child_count)]
@@ -126,6 +131,24 @@ def keydown(e):
 					#	grandparent_off = 
 					#	canvas.create_rectangle(0,0, child_size[0], child_size[1], fill='orange')
 		canvas.create_text(0, yoff ,fill="white",font="Times 20 italic bold", text=f"minimum cost: {mincost}\tcost (including cutting cost): {cost}\tloss: {((cost / mincost) - 1) * 100}%", anchor="nw")
+	else:
+		parent_sizes = [Vector(random.randrange(100, 500, 100), random.randrange(100,500,100)) for i in range(parent_count)]
+		
+		child_polygons = [PolyCurve.rectangular_curve(Rect(0,0,400,400)), PolyCurve(Point(0,0), Point(300,500), Point(600, 0)).close()]
+		fit_result = sf.fit_polygons_2d(parent_sizes, child_polygons, allowed_error)
+  
+		parent_offsets = sf.fit_boxes_2d([Coords(canvas_width, canvas_height)], parent_sizes, 50, 100).fitted_boxes
+		
+		for (parent_offset,parent_size) in zip(parent_offsets, parent_sizes):
+			if parent_offset != None:
+				canvas.create_rectangle(parent_offset[1].x,parent_offset[1].y, parent_offset[1].x+parent_size.x, parent_offset[1].y + parent_size.y, fill='red')
+		for(child_off, child_poly) in zip(fit_result.fitted_children, child_polygons):
+			if child_off != None:
+				parent_off = parent_offsets[child_off[0]]
+				if parent_off != None:
+					child_poly.translate(parent_off)
+					canvas.create_polygon(child_poly.points, outline='pink', fill='magenta')
+  
 		
 
 #frame = tk.Frame(root, width=100, height=100)

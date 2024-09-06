@@ -4,8 +4,11 @@
 from bisect import bisect, bisect_left, bisect_right, insort_left
 from functools import cmp_to_key
 from math import inf
+import math
 from abstract.rect import Rect
 from geometry.coords import Coords
+from geometry.curve import PolyCurve, Line
+from abstract.vector import Vector
 
 #compare: a function which should return true if the compared element is less than the search value, when sorted ascending.
 #for e
@@ -260,3 +263,136 @@ def fit_lengths_1d(parent_lengths:list[float], child_lengths: list[float], paddi
 
     #finally, return the list
     return fitted_children
+
+class _SortedLineElement:
+    angle: float
+    child_index:int
+    fit_group_index:int
+    line: Line
+    def __init__(self, angle, child_index, fit_group_index, line) -> None:
+        self.angle = angle
+        self.child_index = child_index
+        self.fit_group_index = fit_group_index
+        self.line = line
+
+class _PolygonFitGroup:
+    parent_index: int
+    child_indexes: list[int]
+    relative_child_offsets:list[Vector]
+    bounds: Rect
+    lines: list[_SortedLineElement]
+    def __init__(self, parent_index,child_indexes: list[int], relative_child_offsets:list[Vector], lines: list[_SortedLineElement], bounds: Rect) -> None:
+        self.parent_index = parent_index
+        self.child_indexes = child_indexes
+        self.relative_child_offsets = relative_child_offsets
+        self.bounds = bounds
+        self.lines = lines
+    
+class PolygonFitResult2D:
+    
+    fitted_children: list[tuple[int, Vector | None]] = []
+    """a list of parent indexes and offsets from the 00 corner of the specified parent, ordered like the order of child_polygons"""
+    grouped_polygons: list[_PolygonFitGroup] = []
+    """a list of grouped polygons: these polygons are grouped because they fit into eachother nicely."""
+    ordered_parents: list[Vector] = []
+    
+    box_result:FitResult2D = None
+
+def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[PolyCurve], allowed_error) -> PolygonFitResult2D:
+    """fits polygons in a list of parent rectangles.<br>
+    will not rotate the polygons, only move them!
+    we expect the polygons to be closed.
+
+    Args:
+        parent_sizes (list[Vector]): the rectangles to fit the polygons in
+        child_polygons (list[PolyCurve]): the polygons to fit. we expect the 00 corner of the bounds of the child polygons to be aligned to 0 0.
+    """
+    
+    line_list: list[_SortedLineElement] = []
+    
+    fit: PolygonFitResult2D = PolygonFitResult2D()
+    
+    line_key = lambda elem: elem.angle
+    
+    
+    #first, order them by x size. then, by y size.
+    #order from biggest to smallest
+    size_order = cmp_to_key(lambda elem, search_for: elem[1].compare(search_for[1]))
+
+    parents = sorted(enumerate(parent_sizes),key=size_order)    
+    
+    #create a list of irregular lines and order them by angle and length
+    
+    child_index = 0
+    for poly in child_polygons:
+        group = _PolygonFitGroup(None, [child_index], [Vector(0,0)], [],poly.bounds)
+        for line in poly.curves:
+            angle = line.angle
+            line_elem = _SortedLineElement(angle, child_index, child_index, line)
+            group.lines.append(line_elem)
+            insort_left(line_list, line_elem, key=line_key)
+        
+        #convert all children to polygonfitgroups
+        fit.grouped_polygons.append(group)
+            
+        #try fitting as many polygons as possible
+        child_index += 1
+    
+    #now try to group polygons based on their fitting.
+    
+    #loop over half of the lines, and compare the other half
+    for sorted_line_index in range(len(line_list)):
+        
+        elem_a = line_list[sorted_line_index]
+        line_a = elem_a.line
+        #find lines with the opposite angle
+        
+        group_a = fit.grouped_polygons[elem_a.fit_group_index]
+        
+        target_angle = elem_a.angle + math.pi
+        opposite_angle_index = bisect_left(line_list, target_angle,key=line_key)
+        if opposite_angle_index < len(line_list):
+            elem_b = line_list[opposite_angle_index]
+            if(elem_b.angle == target_angle):
+                line_b = elem_b.line
+                group_b = fit.grouped_polygons[elem_b.fit_group_index]
+                #loop over all lines with the opposite angle and check polygon collision and bounds
+
+                #try merging at line_a.start and line_b.end
+                offset = line_b.end - line_a.start
+                relative_b_bounds = Rect(offset, group_b.bounds.size)
+                merged_bounds_relative_to_a = Rect.outer([group_a.bounds, relative_b_bounds])
+
+                #check if the biggest parent available can contain the merged rectangle
+                if parent_sizes[0].x >= merged_bounds_relative_to_a.size.x and parent_sizes[0].y >= merged_bounds_relative_to_a.size.y:
+
+                    #merge group b into group a
+
+                    translate_a = -merged_bounds_relative_to_a.p0
+                    translate_b = translate_a + offset
+                    
+                    for group, translation in zip([group_a,group_b], [translate_a, translate_b]):
+                        for line_elem in group.lines:
+                            line_elem.line.translate(translation)
+                        for i in range(len(group.relative_child_offsets)):
+                            group.relative_child_offsets[i] += translation
+
+                    group_a.lines.extend(group_b.lines)
+                    group_a.child_indexes.extend(group_b.child_indexes)
+                    group_a.relative_child_offsets.extend(group_b.relative_child_offsets)
+
+                    
+                    group_a.bounds = merged_bounds_relative_to_a
+                    group_a.bounds.p0 = Vector([0] * 2)
+                    
+    #finally, when done grouping, try fitting as many groups as possible into the rectangles provided using their bounding boxes.
+    child_sizes = [group.bounds.size for group in fit.grouped_polygons]
+    fit.box_result = fit_boxes_2d(parent_sizes, child_sizes, 0, allowed_error)
+    
+    fit.fitted_children = [None] * len(child_polygons)
+    for fitted_box, group in zip(fit.box_result.fitted_boxes, fit.grouped_polygons):
+        if fitted_box != None:
+            for group_child_index, fitted_child_index in enumerate(group.child_indexes):
+                fit.fitted_children[fitted_child_index] = (fitted_box[0], fitted_box[1] + group.relative_child_offsets[group_child_index])
+
+    return fit

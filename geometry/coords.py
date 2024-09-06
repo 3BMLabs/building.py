@@ -31,30 +31,34 @@ __title__ = "coords"
 __author__ = "JohnHeikens"
 __url__ = "./geometry/coords.py"
 
-from types import UnionType
-from typing import Any, Iterable, Self, SupportsIndex
+import math
+from typing import Self
 from packages.helper import generateID
 from abstract.serializable import Serializable
 
 import operator
+
+def to_array(*args) -> list:
+    """converts the arguments into an array.
+
+    Returns:
+        list: the arguments provided, converted to a list.
+    """
+    return args[0] if len(args) == 1 and hasattr(args[0], "__getitem__") else list(args)
 
 # [!not included in BP singlefile - end]
 
 class Coords(list, Serializable):
     """a shared base class for point and vector. contains the x, y and z coordinates"""
     def __init__(self, *args, **kwargs) -> 'Coords':
-        arrayArgs:list
-        if len(args) == 1 and hasattr(args[0], "__getitem__"):
-            arrayArgs :list = args[0]
-        else:
-            arrayArgs : list = list(args)
+        arrayArgs:list = to_array(*args)
 
         list.__init__(self, arrayArgs)
         Serializable.__init__(self)
 
         self.id = generateID()
         for kwarg in kwargs.items():
-            self.set_axis(kwarg[0], kwarg[1])            
+            self.set_axis_by_name(kwarg[0], kwarg[1])            
 
     def __str__(self):
         length = len(self)
@@ -73,25 +77,61 @@ class Coords(list, Serializable):
         return str(self)
     
     @property
-    def x(self):
-        return self[0]
+    def x(self): return self[0]
     @x.setter
-    def x(self, value):
-        self[0] = value
+    def x(self, value): self[0] = value
         
     @property
-    def y(self):
-        return self[1]
+    def y(self): return self[1]
     @y.setter
-    def y(self, value):
-        self[1] = value
+    def y(self, value): self[1] = value
 
     @property
-    def z(self):
-        return self[2]
+    def z(self): return self[2]
     @z.setter
-    def z(self, value):
-        self[2] = value
+    def z(self, value): self[2] = value
+    
+    @property
+    def squared_magnitude(self):
+        result = 0
+        for axis_value in self:
+            result += axis_value * axis_value
+        return result
+    
+    @property
+    def magnitude(self): 
+        """the 'length' could also mean the axis count. this makes it more clear.
+        Returns:
+            the length
+        """
+        return math.sqrt(self.squared_magnitude)
+        
+    
+    @property
+    def normalized(self):
+        """Returns the normalized form of the vector.
+        The normalized form of a vector is a vector with the same direction but with a length (magnitude) of 1.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the normalized form of the input vector.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(3, 0, 4)
+        normalized_vector = vector1.normalized
+        # Vector(X = 0.600, Y = 0.000, Z = 0.800)
+        ```
+        """
+        sqm = self.squared_magnitude
+        
+        return self / math.sqrt(sqm) if sqm > 0 else Coords()
+    
+    @property
+    def angle(self):
+        #treat this normal vector as a triangle. we know all sides but want to know the angle.
+        #tan(deg) = other side / straight side
+        #deg = atan(other side / straight side)
+        return math.atan2(self.x, self.y)
     
     @staticmethod
     def axis_index(axis:str) -> int:
@@ -145,7 +185,7 @@ class Coords(list, Serializable):
         Returns:
             int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
         """
-        return self.set_axis(Coords.axis_index(axis_name, value))
+        return self.set_axis(Coords.axis_index(axis_name), value)
                     
     def volume(self):
         result = 1
@@ -160,7 +200,7 @@ class Coords(list, Serializable):
                 return other[axis] - self[axis]
         return 0
         
-    def operate(self, other, op:operator):
+    def operate_2(self, op:operator, other):
         result = Coords([0] * len(self))
         try:
             for index in range(len(self)):
@@ -171,18 +211,25 @@ class Coords(list, Serializable):
             for index in range(len(self)):
                 result[index] = op(self[index], other)
         return result
-    
+    def operate_1(self, op:operator):
+        result = Coords([0] * len(self))
+        for index in range(len(self)):
+            result[index] = op(self[index])
+        return result
     def __add__(self, other):
-        return self.operate(other, operator.add)
+        return self.operate_2(operator.add,other)
 
     def __sub__(self, other):
-        return self.operate(other, operator.sub)
+        return self.operate_2(operator.sub,other)
     
     def __truediv__(self, other):
-        return self.operate(other, operator.truediv)
+        return self.operate_2(operator.truediv,other)
 
     def __mul__(self, other):
-        return self.operate(other, operator.mul)
+        return self.operate_2(operator.mul,other)
     __rmul__ = __mul__
+    
     def __iadd__(self, other) -> Self:
-        return self.operate(other, operator.iadd)
+        return self.operate_2(operator.iadd,other)
+    def __neg__(self) -> Self:
+        return self.operate_1(operator.neg)

@@ -34,15 +34,21 @@ __url__ = "./geometry/solid.py"
 
 import sys
 from pathlib import Path
+from typing import Self
+
+from abstract.coordinatesystem import CoordinateSystem
+from abstract.plane import Plane
+from abstract.rect import Rect
+from abstract.vector import Vector
+from geometry.curve import PolyCurve
+from geometry.point import Point, transform_point
+from packages.helper import flatten, generateID
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from geometry.curve import *
 from geometry.geometry2d import PolyCurve2D
-from abstract.plane import *
-import packages.helper as helper
 
 
 # [!not included in BP singlefile - end]
@@ -86,73 +92,6 @@ class Extrusion:
         self.outercurve = []
         self.bottomshape = []
         self.nested = []
-
-    def serialize(self) -> dict:
-        """Serializes the extrusion object into a dictionary.
-        This method facilitates the conversion of the Extrusion instance into a dictionary format, suitable for serialization to JSON or other data formats for storage or network transmission.
-
-        #### Returns:
-        `dict`: A dictionary representation of the Extrusion instance, including all relevant geometric and property data.
-    
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'verts': self.verts,
-            'faces': self.faces,
-            'numberFaces': self.numberFaces,
-            'countVertsFaces': self.countVertsFaces,
-            'name': self.name,
-            'color': self.color,
-            'colorlst': self.colorlst,
-            'topface': self.topface.serialize() if self.topface else None,
-            'bottomface': self.bottomface.serialize() if self.bottomface else None,
-            'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Extrusion':
-        """Reconstructs an Extrusion object from a dictionary.
-        This static method allows for the creation of an Extrusion instance from serialized data, enabling the loading of extrusion objects from file storage or network data.
-
-        #### Parameters:
-        - `data` (dict): A dictionary containing serialized Extrusion data.
-
-        #### Returns:
-        `Extrusion`: A newly constructed Extrusion instance based on the provided data.
-    
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        extrusion = Extrusion()
-        extrusion.id = data.get('id')
-        extrusion.verts = data.get('verts', [])
-        extrusion.faces = data.get('faces', [])
-        extrusion.numberFaces = data.get('numberFaces', 0)
-        extrusion.countVertsFaces = data.get('countVertsFaces', 0)
-        extrusion.name = data.get('name', "none")
-        extrusion.color = data.get('color', (255, 255, 0))
-        extrusion.colorlst = data.get('colorlst', [])
-
-        if data.get('topface'):
-            extrusion.topface = PolyCurve.deserialize(data['topface'])
-
-        if data.get('bottomface'):
-            extrusion.bottomface = PolyCurve.deserialize(data['bottomface'])
-
-        if data.get('polycurve_3d_translated'):
-            extrusion.polycurve_3d_translated = PolyCurve.deserialize(
-                data['polycurve_3d_translated'])
-
-        return extrusion
 
     def set_parameter(self, data: list) -> 'Extrusion':
         """Sets parameters for the extrusion.
@@ -452,3 +391,29 @@ class Extrusion:
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
         return Extrus
+    
+    @staticmethod
+    def from_3d_rect(rect:Rect) -> Self:
+        """Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
+
+        #### Returns:
+        `Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
+
+        #### Example usage:
+        ```python
+        bbox2d = Rect().by_dimensions(length=100, width=50)
+        cs = CoordinateSystem()
+        bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
+        cuboid = bbox3d.to_cuboid()
+        # Generates a cuboid extrusion based on the 3D bounding box
+        ```
+        """
+        pts = rect.corners()
+        pc = PolyCurve2D.by_points(pts)
+        height = rect.height
+        cs = rect.coordinatesystem
+        dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)
+        pcrot = pc.rotate(dirXvector)  # bug multi direction
+        cuboid = Extrusion.by_polycurve_height_vector(
+            pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
+        return cuboid

@@ -72,51 +72,10 @@ class CoordinateSystem:
         self.Xaxis = Vector.normalize(x_axis)
         self.Y_axis = Vector.normalize(y_axis)
         self.Z_axis = Vector.normalize(z_axis)
-
-    def serialize(self) -> dict:
-        """Serializes the coordinate system's attributes into a dictionary.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized attributes of the coordinate system.
-
-        #### Example usage:
-        ```python
-        coordinate_system = CoordinateSystem(...)
-        serialized_cs = coordinate_system.serialize()
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'Origin': self.Origin.serialize(),
-            'Xaxis': self.Xaxis.serialize(),
-            'Y_axis': self.Y_axis.serialize(),
-            'Z_axis': self.Z_axis.serialize()
-        }
-
+        
     @staticmethod
-    def deserialize(data: dict):
-        """Recreates a CoordinateSystem object from serialized data.
-
-        #### Parameters:
-        - `data` (dict): The dictionary containing the serialized data of a CoordinateSystem object.
-
-        #### Returns:
-        `CoordinateSystem`: A new CoordinateSystem object initialized with the data from the dictionary.
-
-        #### Example usage:
-        ```python
-        data = {...}
-        coordinate_system = CoordinateSystem.deserialize(data)
-        ```
-        """
-        origin = Point.deserialize(data['Origin'])
-        x_axis = Vector.deserialize(data['Xaxis'])
-        y_axis = Vector.deserialize(data['Y_axis'])
-        z_axis = Vector.deserialize(data['Z_axis'])
-        return CoordinateSystem(origin, x_axis, y_axis, z_axis)
+    def get_axis_color_name(axis_index: int) -> str:
+        return ["red", "green", "blue"][axis_index]
 
     # @classmethod
     # def by_origin(self, origin: Point):

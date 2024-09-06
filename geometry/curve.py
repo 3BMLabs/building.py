@@ -28,25 +28,27 @@
 """This module provides tools to create curves
 """
 
+import math
 import sys
 from pathlib import Path
-from typing import Union
+from typing import Self, Union
+
+from abstract.vector import Vector
+from geometry.coords import to_array
+from packages.helper import generateID
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from abstract.rect import Rect
 from abstract.plane import Plane
-from packages.helper import *
-from abstract.vector import *
 from geometry.point import Point
-from project.fileformat import project
-from abstract.coordinatesystem import CoordinateSystem, CSGlobal
 from geometry.point import transform_point
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
 class Line(Serializable):
-    def __init__(self, start: 'Point', end: 'Point') -> 'Line':
+    def __init__(self, start: Point, end: Point) -> 'Line':
         """Initializes a Line object with the specified start and end points.
 
         - `start` (Point): The starting point of the line segment.
@@ -56,106 +58,23 @@ class Line(Serializable):
         self.type = __class__.__name__
         self.start: Point = start
         self.end: Point = end
-        self.x = [self.start.x, self.end.x]
-        self.y = [self.start.y, self.end.y]
-        try:
-            self.z = [self.start.z, self.end.z]
-        except:
-            self.z = 0
-
-        self.dx = self.end.x-self.start.x
-        self.dy = self.end.y-self.start.y
-        try:
-            self.dz = self.end.z-self.start.z
-        except:
-            self.dz = 0
-        self.length = self.length()
-        self.vector: Vector = Vector.by_two_points(start, end)
-        self.vector_normalised = Vector.normalize(self.vector)
-
-    def serialize(self) -> 'dict':
-        """Serializes the Line object into a dictionary.
+    
+    @property
+    def mid(self) -> 'Point':
+        """Computes the midpoint of the Line object.
 
         #### Returns:
-        `dict`: A dictionary containing the serialized data of the Line object.
-
-        #### Example usage:
-        ```python
-
-        ```         
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        start_serialized = self.start.serialize() if hasattr(
-            self.start, 'serialize') else str(self.start)
-        end_serialized = self.end.serialize() if hasattr(
-            self.end, 'serialize') else str(self.end)
-
-        # Serialize vector if it has a serialize method, otherwise convert to string representation
-        vector_serialized = self.vector.serialize() if hasattr(
-            self.vector, 'serialize') else str(self.vector)
-        vector_normalized_serialized = self.vector_normalised.serialize() if hasattr(
-            self.vector_normalised, 'serialize') else str(self.vector_normalised)
-
-        return {
-            'id': id_value,
-            'type': self.type,
-            'start': start_serialized,
-            'end': end_serialized,
-            'x': self.x,
-            'y': self.y,
-            'z': self.z,
-            'dx': self.dx,
-            'dy': self.dy,
-            'dz': self.dz,
-            'length': self.length,
-            'vector': vector_serialized,
-            'vector_normalised': vector_normalized_serialized
-        }
-
-    @staticmethod
-    def deserialize(data: 'dict'):
-        """Deserializes the data dictionary into a Line object.
-
-        #### Parameters:
-        - `data` (dict): The dictionary containing the serialized data of the Line object.
-
-        #### Returns:
-        `Line`: A Line object reconstructed from the serialized data.
+        `Point`: The midpoint of the Line object.
 
         #### Example usage:
         ```python
 
         ```          
         """
-        start_point = Point.deserialize(data['start'])
-        end_point = Point.deserialize(data['end'])
-
-        instance = Line(start_point, end_point)
-
-        instance.id = data.get('id')
-        instance.type = data.get('type')
-        instance.x = data.get('x')
-        instance.y = data.get('y')
-        instance.z = data.get('z')
-        instance.dx = data.get('dx')
-        instance.dy = data.get('dy')
-        instance.dz = data.get('dz')
-        instance.length = data.get('length')
-
-        if 'vector' in data and hasattr(Vector, 'deserialize'):
-            instance.vector = Vector.deserialize(data['vector'])
-        else:
-            instance.vector = data['vector']
-
-        if 'vector_normalised' in data and hasattr(Vector, 'deserialize'):
-            instance.vector_normalised = Vector.deserialize(
-                data['vector_normalised'])
-        else:
-            instance.vector_normalised = data['vector_normalised']
-
-        return instance
-
+        return (self.start + self.end) / 2
+    @property
+    def angle(self) -> float:
+        return (self.end - self.start).angle
     @staticmethod
     def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
         """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
@@ -199,29 +118,9 @@ class Line(Serializable):
 
         ```          
         """
-        self.start = Point.translate(self.start, direction)
-        self.end = Point.translate(self.end, direction)
+        self.start += direction
+        self.end +=direction
         return self
-
-    @staticmethod
-    def translate_2(line: 'Line', direction: 'Vector') -> 'Line':
-        """Translates the specified Line object by a given direction vector.
-
-        #### Parameters:
-        - `line` (Line): The Line object to be translated.
-        - `direction` (Vector): The direction vector by which the line segment will be translated.
-
-        #### Returns:
-        `Line`: The translated Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        line.start = Point.translate(line.start, direction)
-        line.end = Point.translate(line.end, direction)
-        return line
 
     @staticmethod
     def transform(line: 'Line', cs_new: 'CoordinateSystem') -> 'Line':
@@ -290,20 +189,7 @@ class Line(Serializable):
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
 
-    def mid_point(self) -> 'Point':
-        """Computes the midpoint of the Line object.
-
-        #### Returns:
-        `Point`: The midpoint of the Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        vect = Vector.scale(self.vector, 0.5)
-        mid = Point.translate(self.start, vect)
-        return mid
+    
 
     def split(self, points: 'Union[Point, list[Point]]') -> 'list[Line]':
         """Splits the Line object at the specified point(s).
@@ -331,7 +217,8 @@ class Line(Serializable):
             lines.append(Line(start=self.start, end=point))
             lines.append(Line(start=point, end=self.end))
             return lines
-
+        
+    @property
     def length(self) -> 'float':
         """Computes the length of the Line object.
 
@@ -343,7 +230,7 @@ class Line(Serializable):
 
         ```          
         """
-        return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
+        return (self.end - self.start).magnitude
 
     def __str__(self) -> 'str':
         """Returns a string representation of the Line object.
@@ -382,8 +269,8 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
 
 
 class PolyCurve:
-    def __init__(self):
-        """Initializes a PolyCurve object.
+    def __init__(self, *args):
+        """Initializes a PolyCurve object, which is unclosed by default.
         
         - `id` (int): The unique identifier of the arc.
         - `type` (str): The type of the arc.
@@ -402,17 +289,11 @@ class PolyCurve:
         - `coordinatesystem` (CoordinateSystem): The coordinate system of the arc.
 
         """
+        
         self.id = generateID()
         self.type = __class__.__name__
-        self.curves = []
-        self.points = []
-        self.segmentcurves = None
-        self.width = None
-        self.height = None
-        # Methods ()
-        # self.close
-        # pointonperimeter
-        # Properties
+        self.points = to_array(*args)
+
         self.approximateLength = None
         self.graphicsStyleId = None
         self.isClosed = None
@@ -423,86 +304,20 @@ class PolyCurve:
         self.period = None
         self.reference = None
         self.visibility = None
+        
+    @property
+    def closed(self) -> bool: self.points[0] == self.points[-1]
+    @property
+    def bounds(self) -> 'Rect':
+        return Rect.by_points(self.points)
+    @property
+    def curves(self) -> list[Line]:
+        """this function won't close the polycurve!
 
-    def serialize(self) -> 'dict':
-        """Serializes the PolyCurve object.
-
-        #### Returns:
-        `dict`: Serialized data of the PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
+        Returns:
+            list[Line]: the curves connecting this polycurve
         """
-        curves_serialized = [curve.serialize() if hasattr(
-            curve, 'serialize') else str(curve) for curve in self.curves]
-        points_serialized = [point.serialize() if hasattr(
-            point, 'serialize') else str(point) for point in self.points]
-
-        return {
-            'type': self.type,
-            'curves': curves_serialized,
-            'points': points_serialized,
-            'segmentcurves': self.segmentcurves,
-            'width': self.width,
-            'height': self.height,
-            'approximateLength': self.approximateLength,
-            'graphicsStyleId': self.graphicsStyleId,
-            'id': self.id,
-            'isClosed': self.isClosed,
-            'isCyclic': self.isCyclic,
-            'isElementGeometry': self.isElementGeometry,
-            'isReadOnly': self.isReadOnly,
-            'period': self.period,
-            'reference': self.reference,
-            'visibility': self.visibility
-        }
-
-    @staticmethod
-    def deserialize(data):
-        """Deserializes the PolyCurve object.
-
-        #### Parameters:
-        - `data` (dict): Serialized data of the PolyCurve object.
-
-        #### Returns:
-        `PolyCurve`: Deserialized PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        polycurve = PolyCurve()
-        polycurve.segmentcurves = data.get('segmentcurves')
-        polycurve.width = data.get('width')
-        polycurve.height = data.get('height')
-        polycurve.approximateLength = data.get('approximateLength')
-        polycurve.graphicsStyleId = data.get('graphicsStyleId')
-        polycurve.id = data.get('id')
-        polycurve.isClosed = data.get('isClosed')
-        polycurve.isCyclic = data.get('isCyclic')
-        polycurve.isElementGeometry = data.get('isElementGeometry')
-        polycurve.isReadOnly = data.get('isReadOnly')
-        polycurve.period = data.get('period')
-        polycurve.reference = data.get('reference')
-        polycurve.visibility = data.get('visibility')
-
-        # Deserialize curves and points
-        if 'curves' in data:
-            for curve_data in data['curves']:
-                # Assuming a deserialize method exists for curve objects
-                curve = Line.deserialize(curve_data)
-                polycurve.curves.append(curve)
-
-        if 'points' in data:
-            for point_data in data['points']:
-                # Assuming a deserialize method exists for point objects
-                point = Point.deserialize(point_data)
-                polycurve.points.append(point)
-
-        return polycurve
+        return [Line(self.points[point_index], self.points[point_index + 1]) for point_index in range(len(self.points) - 1)]
 
     def scale(self, scale_factor: 'float') -> 'PolyCurve':
         """Scales the PolyCurve object by the given factor.
@@ -532,33 +347,6 @@ class PolyCurve:
                 print("Curvetype not found")
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
-
-    def get_width(self) -> 'float':
-        """Calculates the width of the PolyCurve.
-
-        #### Returns:
-        `float`: The width of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        x_values = [point.x for point in self.points]
-        y_values = [point.y for point in self.points]
-
-        min_x = min(x_values)
-        max_x = max(x_values)
-        min_y = min(y_values)
-        max_y = max(y_values)
-
-        left_top = Point(x=min_x, y=max_y, z=self.z)
-        left_bottom = Point(x=min_x, y=min_y, z=self.z)
-        right_top = Point(x=max_x, y=max_y, z=self.z)
-        right_bottom = Point(x=max_x, y=min_y, z=self.z)
-        self.width = abs(Point.distance(left_top, right_top))
-        self.height = abs(Point.distance(left_top, left_bottom))
-        return self.width
 
     def centroid(self) -> 'Point':
         """Calculates the centroid of the PolyCurve.
@@ -651,25 +439,16 @@ class PolyCurve:
 
         return sum(i.length for i in self.curves)
 
-    def close(self) -> 'bool':
+    def close(self) -> Self:
         """Closes the PolyCurve by connecting the last point to the first point.
-
-        #### Returns:
-        `bool`: True if the PolyCurve is successfully closed, False otherwise.
-
         #### Example usage:
         ```python
 
         ```        
         """
-        if self.curves[0] == self.curves[-1]:
-            return self
-        else:
+        if not self.closed:
             self.curves.append(self.curves[0])
-            plycrv = PolyCurve()
-            for curve in self.curves:
-                plycrv.curves.append(curve)
-        return plycrv
+        return self
 
     @classmethod
     def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
@@ -720,7 +499,7 @@ class PolyCurve:
         return plycrv
 
     @classmethod
-    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+    def by_points(self, points: 'list[Point]') -> Self:
         """Creates a PolyCurve from a list of points.
 
         #### Parameters:
@@ -976,7 +755,7 @@ class PolyCurve:
         project.objects.append(flatten(new_polygons))
         return flatten(new_polygons)
 
-    def translate(self, vector_3d: 'Vector') -> 'PolyCurve':
+    def translate(self, offset: 'Vector') -> 'PolyCurve':
         """Translates the PolyCurve by a 3D vector.
 
         #### Parameters:
@@ -990,20 +769,9 @@ class PolyCurve:
 
         ```        
         """
-        crvs = []
-        vector_1 = vector_3d
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                crvs.append(Arc(Point.translate(i.start, vector_1), Point.translate(
-                    i.middle, vector_1), Point.translate(i.end, vector_1)))
-            elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.translate(i.start, vector_1),
-                            Point.translate(i.end, vector_1)))
-            else:
-                print("Curvetype not found")
-        pc = PolyCurve()
-        pc.curves = crvs
-        return pc
+        for i in range(len(self.points)):
+            self.points[i] += offset
+        return self
 
     @staticmethod
     def copy_translate(pc: 'PolyCurve', vector_3d: 'Vector') -> 'PolyCurve':
@@ -1223,80 +991,42 @@ class PolyCurve:
         length = len(self.points)
         return f"{__class__.__name__}, ({length} points)"
 
-# 2D PolyCurve to 3D Polygon
+    @staticmethod
+    def rectangular_curve(rect: Rect) -> 'PolyCurve':
+        """Creates a rectangle in a given plane.
 
+        #### Parameters:
+        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
+        - `width` (float): The width of the rectangle.
+        - `height` (float): The height of the rectangle.
 
-def Rect(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
-    """Creates a rectangle in the XY-plane with a translation of vector.
+        #### Returns:
+        `PolyCurve`: The rectangle PolyCurve.
 
-    #### Parameters:
-    - `vector` (Vector): The translation vector.
-    - `width` (float): The width of the rectangle.
-    - `height` (float): The height of the rectangle.
+        #### Example usage:
+        ```python
+        ```    
+        """
+        try:
+            not_used_axis_index = rect.size.index(0)
+        except:
+            #2d rectangle
+            not_used_axis_index = 2
 
-    #### Returns:
-    `PolyCurve`: The rectangle PolyCurve.
+        axis0 = 1 if not_used_axis_index == 0 else 0
+        axis1 = 1 if not_used_axis_index == 2 else 2
 
-    #### Example usage:
-    ```python
+        rect_p1 = rect.p1
+        curve_p0 = rect.p0
+        #clone
+        curve_p1 = Point(rect.p0)
+        curve_p1 = Point(rect.p0)
+        curve_p1[axis0] = rect_p1[axis0]
 
-    ```    
-    """
-    point_1 = Point(0, 0, 0).translate(Point(0, 0, 0), vector)
-    point_2 = Point(0, 0, 0).translate(Point(width, 0, 0), vector)
-    point_3 = Point(0, 0, 0).translate(Point(width, height, 0), vector)
-    point_4 = Point(0, 0, 0).translate(Point(0, height, 0), vector)
-    crv = PolyCurve.by_points([point_1, point_2, point_3, point_4, point_1])
-    return crv
-
-
-def Rect_XY(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
-    """Creates a rectangle in the XY-plane.
-
-    #### Parameters:
-    - `vector` (Vector): The base vector of the rectangle.
-    - `width` (float): The width of the rectangle.
-    - `height` (float): The height of the rectangle.
-
-    #### Returns:
-    `PolyCurve`: The rectangle PolyCurve.
-
-    #### Example usage:
-    ```python
-
-    ```        
-    """
-    point_1 = Point(0, 0, 0).translate(Point(0, 0, 0), vector)
-    point_2 = Point(0, 0, 0).translate(Point(width, 0, 0), vector)
-    point_3 = Point(0, 0, 0).translate(Point(width, 0, height), vector)
-    point_4 = Point(0, 0, 0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.by_points([point_1, point_2, point_3, point_4])
-    return crv
-
-
-def Rect_YZ(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
-    """Creates a rectangle in the YZ-plane.
-
-    #### Parameters:
-    - `vector` (Vector): The base vector of the rectangle.
-    - `width` (float): The width of the rectangle.
-    - `height` (float): The height of the rectangle.
-
-    #### Returns:
-    `PolyCurve`: The rectangle PolyCurve.
-
-    #### Example usage:
-    ```python
-
-    ```        
-    """
-    point_1 = Point(0, 0, 0).translate(Point(0, 0, 0), vector)
-    point_2 = Point(0, 0, 0).translate(Point(0, width, 0), vector)
-    point_3 = Point(0, 0, 0).translate(Point(0, width, height), vector)
-    point_4 = Point(0, 0, 0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.by_points([point_1, point_2, point_3, point_4, point_1])
-    return crv
-
+        curve_p2 = Point(rect.p0)
+        curve_p2[axis1] = rect_p1[axis1]
+        curve_p3 = rect_p1
+        return PolyCurve(curve_p0, curve_p1, curve_p2, curve_p3)
 
 class Polygon:
     def __init__(self) -> 'Polygon':

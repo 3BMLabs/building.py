@@ -34,17 +34,13 @@ __url__ = "./abstract/boundingbox.py"
 import copy
 import sys
 from pathlib import Path
+from typing import Self
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.coords import Coords
 from packages.helper import *
-from geometry.solid import Extrusion
 from abstract.vector import Vector
-from abstract.coordinatesystem import CSGlobal
-from geometry.curve import PolyCurve, Line
 from geometry.point import Point
-from geometry.geometry2d import PolyCurve2D
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
@@ -64,9 +60,9 @@ class Rect(Serializable):
         
         #first half = for position
         half:int = len(args) // 2
-        self.p0 = Point(args[0:half])
+        self.p0 = Point(*args[0:half])
         #second half for size
-        self.size = Vector(args[half:])
+        self.size = Vector(*args[half:])
         
         for kwarg in kwargs.items():
             try:
@@ -134,13 +130,17 @@ class Rect(Serializable):
         
     def area(self):
         return self.size.volume()
+    @property
+    def p1(self):
+        return self.p0 + self.size
     
     def __str__(self):
         return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
     def __repr__(self):
         return str(self)
 
-    def by_points(self, points: list[Point]) -> 'Rect':
+    @staticmethod
+    def by_points(points: list[Point]) -> 'Rect':
         """Constructs a bounding box based on a list of points.
 
         Calculates the minimum and maximum values from the points to define the corners of the bounding box.
@@ -158,10 +158,10 @@ class Rect(Serializable):
         # Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
         ```
         """
+        
         axis_count = len(points[0])
         if axis_count == 0: raise ValueError("please provide points")
 
-        self.points = points
         p0 = points[0]
         p1 = points[0]
         
@@ -170,9 +170,7 @@ class Rect(Serializable):
             for axis in range(axis_count):
                 p0[axis] = min(p0[axis], p[axis])
                 p1[axis] = max(p1[axis], p[axis])
-                
-        self.size = p1 - p0
-        return self
+        return Rect(p0, p1 - p0)
     
     def expanded(self, border_size: float) -> 'Rect':
         return Rect(self.p0 - border_size, self.size + border_size * 2)
@@ -195,6 +193,24 @@ class Rect(Serializable):
         """
         
         return Rect(size * -0.5, size)
+    
+    @staticmethod
+    def by_size(size:Vector)->'Rect':
+        """Constructs a rect with specified dimensions, with its pos0 at the origin.
+
+        #### Parameters:
+        - `size` (Vector): The size of the rectangle
+
+        #### Returns:
+        `Rect`: The rect instance with dimensions centered at the origin.
+
+        #### Example usage:
+        ```python
+        rect = Rect().by_size(length=100, width=50)
+        # Rect(x=0, y=0, width = 100, length = 100)
+        ```
+        """
+        return Rect(Vector([0] * len(size)), size)
     
     def collides(self, other:'Rect')->bool:
         """checks if two rectangles collide with eachother. <br>
@@ -254,6 +270,25 @@ class Rect(Serializable):
                 #to_clone.size[axis] -= diff
         return pieces
     
+    @staticmethod
+    def outer(children: list['Rect']) -> 'Rect':
+        """creates a rectangle containing child rectangles.
+
+        Args:
+            children (list[&#39;Rect&#39;]): the children to contain in the rectangle
+
+        Returns:
+            Rect: the bounds
+        """
+        p0 = children[0].p0
+        p1 = children[0].p1
+        for i in range(1,len(children)):
+            child = children[i]
+            for axis_index in range(len(p0)):
+                p0[axis_index] = min(child.p0[axis_index], p0[axis_index])
+                p1[axis_index] = max(child.p0[axis_index] + child.size[axis_index], p1[axis_index])
+        return Rect(p0, p1 - p0)
+                
     
     def get_corner(self, corner_index: int) -> Point:
         """
@@ -289,57 +324,3 @@ class Rect(Serializable):
         for corner_index in range(2 << axis_count):
             corners.append(self.get_corner(corner_index))
         return corners
-
-    def perimeter(self):
-        return PolyCurve.by_points(self.corners())
-    
-    def to_cuboid(self) -> 'Extrusion':
-        """Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
-
-        #### Returns:
-        `Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
-
-        #### Example usage:
-        ```python
-        bbox2d = Rect().by_dimensions(length=100, width=50)
-        cs = CoordinateSystem()
-        bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
-        cuboid = bbox3d.to_cuboid()
-        # Generates a cuboid extrusion based on the 3D bounding box
-        ```
-        """
-        pts = self.corners()
-        pc = PolyCurve2D.by_points(pts)
-        height = self.height
-        cs = self.coordinatesystem
-        dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)
-        pcrot = pc.rotate(dirXvector)  # bug multi direction
-        cuboid = Extrusion.by_polycurve_height_vector(
-            pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
-        return cuboid
-
-    def to_axis(self, length: 'float' = 1000) -> 'list':
-        """Generates lines representing the coordinate axes of the bounding box's coordinate system.
-
-        This method creates three Line objects corresponding to the X, Y, and Z axes of the bounding box's coordinate system. Each line extends from the origin of the coordinate system in the direction of the respective axis.
-
-        #### Parameters:
-        - `length` (float, optional): The length of each axis line. Defaults to 1000 units.
-
-        #### Returns:
-        `list`: A list containing three Line objects representing the X, Y, and Z axes.
-
-        #### Example usage:
-        ```python
-        # Assuming `bbox3d` is an instance of BoundingBox3d with a defined coordinate system
-        axes_lines = bbox3d.to_axis(length=500)
-        # This returns a list of three Line objects representing the X, Y, and Z axes of the bounding box's coordinate system, each 500 units long.
-        ```
-        """
-        if length == None:
-            length = 1000
-        cs = self.coordinatesystem
-        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.X_axis, length)
-        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Y_axis, length)
-        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Z_axis, length)
-        return [lnX, lnY, lnZ]
