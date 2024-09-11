@@ -24,7 +24,7 @@ show_padding = True
 show_leftovers = False
 padding = 10
 allowed_error = 3
-parent_count = 90
+parent_count = 5
 child_count = 1000
 ctest = Coords(x = 3)
 ctest2 = Coords(4,3,2)
@@ -134,7 +134,9 @@ def keydown(e):
 	else:
 		parent_sizes = [Vector(random.randrange(100, 500, 100), random.randrange(100,500,100)) for i in range(parent_count)]
 		
-		child_polygons = [PolyCurve.rectangular_curve(Rect(0,0,400,400)), PolyCurve(Point(0,0), Point(300,500), Point(600, 0)).close()]
+		child_polygons = [PolyCurve.rectangular_curve(Rect(0,0,200,200)), PolyCurve(Point(0,0), Point(200, 0), Point(0,200)), PolyCurve(Point(200,0), Point(200, 200), Point(0,200)), PolyCurve(Point(0,0), Point(50,0), Point(70,50), Point(0, 50)), PolyCurve(Point(0,0), Point(70,0), Point(70,50), Point(20, 50))]
+		for poly in child_polygons:
+			poly.closed = True
 		fit_result = sf.fit_polygons_2d(parent_sizes, child_polygons, allowed_error)
   
 		parent_offsets = sf.fit_boxes_2d([Coords(canvas_width, canvas_height)], parent_sizes, 50, 100).fitted_boxes
@@ -142,11 +144,18 @@ def keydown(e):
 		for (parent_offset,parent_size) in zip(parent_offsets, parent_sizes):
 			if parent_offset != None:
 				canvas.create_rectangle(parent_offset[1].x,parent_offset[1].y, parent_offset[1].x+parent_size.x, parent_offset[1].y + parent_size.y, fill='red')
+
+		for group, box in zip(fit_result.grouped_polygons, fit_result.box_result.fitted_boxes):
+			if box != None:
+				parent_off = parent_offsets[box[0]][1]
+				group_off = parent_off + box[1]
+				canvas.create_rectangle(group_off.x,group_off.y, group_off.x+group.bounds.size.x, group_off.y + group.bounds.size.y, fill='green')
+    
 		for(child_off, child_poly) in zip(fit_result.fitted_children, child_polygons):
 			if child_off != None:
 				parent_off = parent_offsets[child_off[0]]
 				if parent_off != None:
-					child_poly.translate(parent_off)
+					child_poly.translate(parent_off[1] + child_off[1])
 					canvas.create_polygon(child_poly.points, outline='pink', fill='magenta')
   
 		

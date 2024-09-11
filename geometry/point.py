@@ -58,10 +58,6 @@ class Point(Coords):
         self.type = __class__.__name__
         self.units = "mm"
 
-    def __str__(self) -> str:
-        """Converts the point to its string representation."""
-        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-
     @staticmethod
     def deserialize(data):
         """Deserializes the point object from the provided data."""
@@ -501,9 +497,6 @@ class CoordinateSystem:
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.z == other.z
-
-    def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.X_axis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):

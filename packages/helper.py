@@ -59,7 +59,7 @@ class ID(Serializable):
         self.id = f"#"+"".join(id_list)
         return f"test {self.__class__.__name__}"
 
-    def __repr__(self) -> str:
+    def str(self) -> str:
         return f"{self.id}"
 
 def generateID() -> ID:

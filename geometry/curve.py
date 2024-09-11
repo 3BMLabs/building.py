@@ -58,7 +58,7 @@ class Line(Serializable):
         self.type = __class__.__name__
         self.start: Point = start
         self.end: Point = end
-    
+        
     @property
     def mid(self) -> 'Point':
         """Computes the midpoint of the Line object.
@@ -189,7 +189,53 @@ class Line(Serializable):
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
 
-    
+    def intersects(self, other: 'Line') -> bool:
+        """checks if two lines intersect with eachother.
+
+        Args:
+            other (Line): the line which may intersect with this rectangle
+
+        Returns:
+            bool: true if the lines cross eachother.
+        """
+        #ax + b = cx + d
+        #ax = cx + d - b
+        #ax - cx = d - b
+        #(a - c)x = d - b
+        #x = (d - b) / (a - c)
+        
+        #calculate a and c
+        
+        diff_self = self.end - self.start
+        diff_other = other.end - other.start
+        #a
+        slope_self = diff_self.y / diff_self.x
+        
+        #c
+        slope_other = diff_other.y / diff_other.x
+        #handle edge cases
+        #colinear
+        if(slope_self == slope_other) :
+            return False
+
+        #b
+        self_y_at_0 = self.start.y - self.start.x * slope_self
+        
+        #check if one slope is infinite (both infinite is handled by colinear)
+        if other.start.x == other.end.x:
+            self_y_at_line = self_y_at_0 + slope_self * other.start.x
+            return other.start.y < self_y_at_line < other.end.y
+
+        #d
+        other_y_at_0 = other.start.y - other.start.x * slope_other
+
+        if self.start.x == self.end.x:
+            other_y_at_line = other_y_at_0 + slope_other * self.start.x
+            return self.start.y < other_y_at_line < self.end.y
+        
+        intersection_x = (other_y_at_0 - self_y_at_0 / slope_self - slope_other)
+        
+        return self.start.x < intersection_x < self.end.x
 
     def split(self, points: 'Union[Point, list[Point]]') -> 'list[Line]':
         """Splits the Line object at the specified point(s).
@@ -268,7 +314,7 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve:
+class PolyCurve(Serializable):
     def __init__(self, *args):
         """Initializes a PolyCurve object, which is unclosed by default.
         
@@ -292,11 +338,10 @@ class PolyCurve:
         
         self.id = generateID()
         self.type = __class__.__name__
-        self.points = to_array(*args)
+        self.points:list[Point] = to_array(*args)
 
         self.approximateLength = None
         self.graphicsStyleId = None
-        self.isClosed = None
         self.isCyclic = None
         self.isElementGeometry = None
         self.isReadOnly = None
@@ -306,7 +351,24 @@ class PolyCurve:
         self.visibility = None
         
     @property
-    def closed(self) -> bool: self.points[0] == self.points[-1]
+    def closed(self) -> bool: return self.points[0] == self.points[-1]
+    
+    @closed.setter
+    def closed(self, value) -> Self:
+        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
+        #### Example usage:
+        ```python
+            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
+            c.closed = true #Point(1,3) just got added to the back of the list
+        ```
+        """
+        if value != self.closed:
+            if value:
+                self.points.append(self.points[0]) 
+            else:
+                del self.points[-1]
+        return self
+    
     @property
     def bounds(self) -> 'Rect':
         return Rect.by_points(self.points)
@@ -318,6 +380,18 @@ class PolyCurve:
             list[Line]: the curves connecting this polycurve
         """
         return [Line(self.points[point_index], self.points[point_index + 1]) for point_index in range(len(self.points) - 1)]
+
+    @property
+    def is_rectangle(self) -> bool:
+        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
+
+        Returns:
+            bool: if this curve is a rectangle, i.e. it has 4 corner points
+        """
+        if len(self.points) == 4 or self.closed and len(self.points) == 5:
+            if self.points[0].y == self.points[1].y and self.points[1].x == self.points[2].x and self.points[2].y == self.points[3].y and self.points[3].x == self.points[0].x:
+                return True
+        else: return False
 
     def scale(self, scale_factor: 'float') -> 'PolyCurve':
         """Scales the PolyCurve object by the given factor.
@@ -359,7 +433,7 @@ class PolyCurve:
 
         ```        
         """
-        if self.isClosed:
+        if self.closed:
             num_points = len(self.points)
             if num_points < 3:
                 return "Polygon has less than 3 points!"
@@ -399,7 +473,7 @@ class PolyCurve:
 
         ```        
         """
-        if self.isClosed:
+        if self.closed:
             if len(self.points) < 3:
                 return "Polygon has less than 3 points!"
 
@@ -439,17 +513,6 @@ class PolyCurve:
 
         return sum(i.length for i in self.curves)
 
-    def close(self) -> Self:
-        """Closes the PolyCurve by connecting the last point to the first point.
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if not self.closed:
-            self.curves.append(self.curves[0])
-        return self
-
     @classmethod
     def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
         """Creates a PolyCurve from a list of joined Line curves.
@@ -465,36 +528,19 @@ class PolyCurve:
 
         ```        
         """
-        for crv in curvelst:
-            if crv.length == 0:
-                curvelst.remove(crv)
+        for curve in curvelst:
+            if curve.length == 0:
+                curvelst.remove(curve)
                 # print("Error: Curve length cannot be zero.")
                 # sys.exit()
 
-        projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
             if index == 0:
-                plycrv.curves.append(curve)
                 plycrv.points.append(curve.start)
                 plycrv.points.append(curve.end)
             else:
-                plycrv.curves.append(curve)
                 plycrv.points.append(curve.end)
-        if projectClosed:
-            if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.isClosed = True
-            else:
-                # plycrv.points.append(curvelst[0].start)
-                plycrv.curves.append(curve)
-                plycrv.isClosed = True
-        elif projectClosed == False:
-            if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.isClosed = True
-            else:
-                plycrv.isClosed = False
-        if plycrv.points[-2].value == plycrv.points[0].value:
-            plycrv.curves = plycrv.curves.pop(-1)
 
         return plycrv
 
@@ -577,6 +623,8 @@ class PolyCurve:
             except:
                 pass
         return plycrv
+    
+
 
     @staticmethod
     # Create segmented polycurve. Arcs, elips will be translated to straight lines
@@ -720,6 +768,66 @@ class PolyCurve:
         else:
             print(
                 f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
+    
+    def contains(self, p: 'Point') -> bool:
+        """checks if the point is inside the polygon
+
+        Args:
+            p (Point): _description_
+
+        Returns:
+            bool: _description_
+        """
+        #yoinked this from stack overflow, looks clean
+        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
+        
+        # Ray tracing
+        n = len(self.points)
+        inside = False
+    
+        p1 = self.points[0]
+        for i in range(n + 1 if self.closed else n):
+            p2 = self.points[i % n]
+            if p.y > min(p1.y,p2.y):
+                if p.y <= max(p1.y,p2.y):
+                    if p.x <= max(p1.x,p2.x):
+                        if p1.y != p2.y:
+                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
+                        if p1.x == p2.x or p.x <= xints:
+                            inside = not inside
+            p1 = p2
+    
+        return inside
+
+    def intersects(self, other: 'PolyCurve') -> bool:
+        """checks if two polycurves intersect with eachother. caution! this is brute force.
+
+        Args:
+            other (PolyCurve): the PolyCurve which may intersect with this rectangle
+
+        Returns:
+            bool: true if any of the lines of the two polygons cross eachother.
+        """
+        #before doing such an expensive method, let's check if our bounds cross first.
+        if self.bounds.collides(other.bounds):
+            other_curves = other.curves
+            for c in self.curves:
+                for other_c in other_curves:
+                    if(c.intersects(other_c)):return True
+        return False
+    
+    def collides(self, other: 'PolyCurve') -> bool:
+        """checks if two polycurves collide with eachother.
+
+        Args:
+            other (PolyCurve): the PolyCurve which may collide with this rectangle
+
+        Returns:
+            bool: true if two polygons overlap
+        """
+        #hopefully, most of the time we contain a point of the other.
+        return self.contains(other.points[0]) or other.contains(self.points[0]) or self.intersects(other)
+        
 
     def multi_split(self, lines: 'Line') -> 'list[PolyCurve]':  # SLOW, MUST INCREASE SPEAD
         """Splits the PolyCurve by multiple lines.
@@ -989,7 +1097,7 @@ class PolyCurve:
         ```        
         """
         length = len(self.points)
-        return f"{__class__.__name__}, ({length} points)"
+        return f"{__class__.__name__} (points: {self.points})"
 
     @staticmethod
     def rectangular_curve(rect: Rect) -> 'PolyCurve':
@@ -1020,20 +1128,16 @@ class PolyCurve:
         curve_p0 = rect.p0
         #clone
         curve_p1 = Point(rect.p0)
-        curve_p1 = Point(rect.p0)
         curve_p1[axis0] = rect_p1[axis0]
 
-        curve_p2 = Point(rect.p0)
-        curve_p2[axis1] = rect_p1[axis1]
-        curve_p3 = rect_p1
-        return PolyCurve(curve_p0, curve_p1, curve_p2, curve_p3)
+        curve_p2 = rect_p1
+        curve_p3 = Point(rect.p0)
+        curve_p3[axis1] = rect_p1[axis1]
+        return PolyCurve(curve_p0, curve_p1, curve_p2, curve_p3, curve_p0)
 
-class Polygon:
+class Polygon(PolyCurve):
+    """Represents a polygon composed of points."""
     def __init__(self) -> 'Polygon':
-        """Represents a polygon composed of lines.
-
-        - `lines` (list[Line]): List of lines composing the polygon.
-        """
         self.id = generateID()
         self.type = __class__.__name__
         self.curves = []

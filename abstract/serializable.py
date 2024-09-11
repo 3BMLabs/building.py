@@ -112,3 +112,5 @@ class Serializable:
         with open(file_name) as file:
             self.deserialize_members(json.load(file))
             # self.__dict__ = json.load(file)
+    def __repr__(self) -> str:
+        return str(self)

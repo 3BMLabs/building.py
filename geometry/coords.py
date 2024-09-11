@@ -48,7 +48,7 @@ def to_array(*args) -> list:
 
 # [!not included in BP singlefile - end]
 
-class Coords(list, Serializable):
+class Coords(Serializable, list):
     """a shared base class for point and vector. contains the x, y and z coordinates"""
     def __init__(self, *args, **kwargs) -> 'Coords':
         arrayArgs:list = to_array(*args)
@@ -73,8 +73,6 @@ class Coords(list, Serializable):
         result += ')'
         return result
     
-    def __repr__(self) -> str:
-        return str(self)
     
     @property
     def x(self): return self[0]
@@ -127,7 +125,12 @@ class Coords(list, Serializable):
         return self / math.sqrt(sqm) if sqm > 0 else Coords()
     
     @property
-    def angle(self):
+    def angle(self) -> float:
+        """output range: -PI to PI
+
+        Returns:
+            float: the arc tangent of y / x in radians
+        """
         #treat this normal vector as a triangle. we know all sides but want to know the angle.
         #tan(deg) = other side / straight side
         #deg = atan(other side / straight side)

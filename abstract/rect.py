@@ -136,8 +136,6 @@ class Rect(Serializable):
     
     def __str__(self):
         return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
-    def __repr__(self):
-        return str(self)
 
     @staticmethod
     def by_points(points: list[Point]) -> 'Rect':
@@ -161,9 +159,10 @@ class Rect(Serializable):
         
         axis_count = len(points[0])
         if axis_count == 0: raise ValueError("please provide points")
-
-        p0 = points[0]
-        p1 = points[0]
+        
+        #copy
+        p0 = Point(points[0])
+        p1 = Point(points[0])
         
         #it's faster to not skipt the first point than to check if it's the first point or revert to an index-based loop
         for p in points:
