@@ -57,104 +57,6 @@ class Vector(Coords):
         self.type = __class__.__name__
 
     @staticmethod
-    def deserialize(data):
-        """Converts a dictionary representation of a vector into a Vector object.
-        This method takes a dictionary containing 'x', 'y', and 'z' keys with numeric values and creates a new Vector instance representing the vector described by these values. It's particularly useful for converting serialized vector data back into Vector objects, for instance, when loading vectors from a file or a database.
-
-        #### Parameters:
-        - `data` (dict): A dictionary with keys 'x', 'y', and 'z', corresponding to the components of the vector. Each key's value should be a number (int or float).
-
-        #### Returns:
-        Vector: A new Vector object initialized with the x, y, and z values from the input dictionary.
-
-        #### Example usage:
-        ```python
-        data = {'x': 1.0, 'y': 2.0, 'z': 3.0}
-        vector = Vector.deserialize(data)
-        # Vector object with x=1.0, y=2.0, z=3.0
-        ```
-        """
-        return Vector(data['x'], data['y'], data['z'])
-
-    @staticmethod
-    def diff(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Calculates the difference between two Vector objects.
-        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The minuend vector.
-        - `vector_2` (`Vector`): The subtrahend vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(5, 7, 9)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.diff(vector1, vector2)
-        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector(
-            vector_1.x - vector_2.x,
-            vector_1.y - vector_2.y,
-            vector_1.z - vector_2.z
-        )
-
-    @staticmethod
-    def subtract(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Subtracts the components of the second vector from the first.
-        This method is synonymous with `diff` and serves the same purpose, providing an alternative naming convention.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector from which to subtract.
-        - `vector_2` (`Vector`): The vector to be subtracted.
-
-        #### Returns:
-        `Vector`: The result of the component-wise subtraction.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.subtract(vector1, vector2)
-        # Vector(X = 9.000, Y = 18.000, Z = 27.000)
-        ```
-        """
-        return Vector(
-            vector_1.x - vector_2.x,
-            vector_1.y - vector_2.y,
-            vector_1.z - vector_2.z
-        )
-
-    @staticmethod
-    def divide(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Divides the components of the first vector by the corresponding components of the second vector.
-        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The numerator vector.
-        - `vector_2` (`Vector`): The denominator vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise division.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(2, 4, 5)
-        result = Vector.divide(vector1, vector2)
-        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector(
-            vector_1.x / vector_2.x,
-            vector_1.y / vector_2.y,
-            vector_1.z / vector_2.z
-        )
-
-    @staticmethod
     def square(vector_1: 'Vector') -> 'Vector':
         """
         Computes the square of each component of the input vector.
@@ -177,26 +79,6 @@ class Vector(Coords):
             vector_1.y ** 2,
             vector_1.z ** 2
         )
-
-    @staticmethod
-    def to_point(vector_1: 'Vector') -> 'Vector':
-        """Converts the vector to a Point object.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be converted to a Point object.
-
-        #### Returns:
-        `Point`: A Point object with coordinates same as the vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        point = Vector.to_point(vector1)
-        # Point(X = 10.000, Y = 20.000, Z = 30.000)
-        ```
-        """
-        from geometry.point import Point
-        return Point(x=vector_1.x, y=vector_1.y, z=vector_1.z)
 
     @staticmethod
     def to_line(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
@@ -623,52 +505,6 @@ class Vector(Coords):
         )
 
     @staticmethod
-    def scale(vector: 'Vector', scalefactor: float) -> 'Vector':
-        """Scales the vector by the specified scale factor.
-
-        #### Parameters:
-        - `vector` (`Vector`): The vector to be scaled.
-        - `scalefactor` (float): The scale factor.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the scaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(1, 2, 3)
-        scaled_vector = Vector.scale(vector, 2)
-        # Vector(X = 2, Y = 4, Z = 6)
-        ```
-        """
-        return Vector(
-            vector.x * scalefactor,
-            vector.y * scalefactor,
-            vector.z * scalefactor
-        )
-
-    @staticmethod
-    def new_length(vector_1: 'Vector', newlength: float) -> 'Vector':
-        """Rescales the vector to have the specified length.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be rescaled.
-        - `newlength` (float): The desired length of the vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the rescaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(3, 4, 0)
-        new_vector = Vector.new_length(vector, 5)
-        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
-        ```
-        """
-        scale = newlength / Vector.length(vector_1)
-
-        return Vector.scale(vector_1, scale)
-
-    @staticmethod
     def to_matrix(vector: 'Vector') -> list:
         """Converts the vector to a list representation.
 
@@ -709,10 +545,3 @@ class Vector(Coords):
             vector_list[1],
             vector_list[2]
         )
-
-
-X_axis = Vector(1, 0, 0)
-
-Y_Axis = Vector(0, 1, 0)
-
-Z_Axis = Vector(0, 0, 1)

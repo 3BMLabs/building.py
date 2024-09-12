@@ -387,7 +387,4 @@ class CoordinateSystem:
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
 
-X_axis = Vector(1, 0, 0)
-Vector(0, 1, 0)
-Vector(0, 0, 1)
 CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)

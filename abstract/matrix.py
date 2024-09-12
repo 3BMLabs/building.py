@@ -40,8 +40,8 @@ import struct
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from project.fileformat import *
 from geometry.point import Point
+from geometry.curve import Line
 from abstract.vector import *
 from typing import Self
 
@@ -101,7 +101,7 @@ class Matrix(list[list]):
         dimensions:int = len(toAdd) + 1
         return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
     
-    def __mul__(self, other:Self | Coords):
+    def __mul__(self, other:Self | Coords | Line):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
         for example: translate * rotate (rotate first, translate after)
         and: matrix * point (point first, multiplied by matrix after)"""
@@ -161,7 +161,8 @@ class Matrix(list[list]):
                     for row in range(self.rows):
                         result[row] += self[row][col]
             return result
-
+        elif isinstance(other, Line):
+            return Line(self * other.start, self * other.end)
         return result
 
     def add(self, other: 'Matrix'):

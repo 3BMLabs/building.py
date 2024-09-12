@@ -103,7 +103,26 @@ class Coords(Serializable, list):
             the length
         """
         return math.sqrt(self.squared_magnitude)
-        
+    
+    @magnitude.setter
+    def magnitude(self, value):
+        """Rescales the vector to have the specified length.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The vector to be rescaled.
+        - `newlength` (float): The desired length of the vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the rescaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(3, 4, 0)
+        new_vector = Vector.new_length(vector, 5)
+        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
+        ```
+        """
+        self *= value / self.magnitude
     
     @property
     def normalized(self):
@@ -223,16 +242,106 @@ class Coords(Serializable, list):
         return self.operate_2(operator.add,other)
 
     def __sub__(self, other):
+        """Calculates the difference between two Vector objects.
+        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The minuend vector.
+        - `vector_2` (`Vector`): The subtrahend vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(5, 7, 9)
+        vector2 = Vector(1, 2, 3)
+        result = Vector.diff(vector1, vector2)
+        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
+        ```
+        """
         return self.operate_2(operator.sub,other)
     
+
+    difference = substract = __sub__
+    
     def __truediv__(self, other):
+        """Divides the components of the first vector by the corresponding components of the second vector.
+        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The numerator vector.
+        - `vector_2` (`Vector`): The denominator vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise division.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(10, 20, 30)
+        vector2 = Vector(2, 4, 5)
+        result = Vector.divide(vector1, vector2)
+        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
+        ```
+        """
         return self.operate_2(operator.truediv,other)
+    
+    divide = __truediv__
 
     def __mul__(self, other):
+        """Scales the vector by the specified scale factor.
+
+        #### Parameters:
+        - `vector` (`Vector`): The vector to be scaled.
+        - `scalefactor` (float): The scale factor.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the scaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(1, 2, 3)
+        scaled_vector = Vector.scale(vector, 2)
+        # Vector(X = 2, Y = 4, Z = 6)
+        ```
+        """
         return self.operate_2(operator.mul,other)
-    __rmul__ = __mul__
+    scale = __rmul__ = __mul__
     
     def __iadd__(self, other) -> Self:
+        """Translates the point by a given vector.        
+        
+        #### Parameters:
+        - `point` (Point): The point to be translated.
+        - `vector` (Vector): The translation vector.
+
+        #### Returns:
+        `Point`: Translated point.
+
+        #### Example usage:
+    	```python
+        point = Point(23, 1, 23)
+        vector = Vector(93, 0, -19)
+        output = Point.translate(point, vector)
+        # Point(X = 116.000, Y = 1.000, Z = 4.000)
+        ```
+        """
         return self.operate_2(operator.iadd,other)
+    
+    translate = __iadd__
+    
+    
     def __neg__(self) -> Self:
+        """negates this vector.
+
+        Returns:
+            Self: a vector with all components negated.
+        """
         return self.operate_1(operator.neg)
+    
+    reverse = __neg__
+X_axis = Coords(1, 0, 0)
+
+Y_Axis = Coords(0, 1, 0)
+
+Z_Axis = Coords(0, 0, 1)

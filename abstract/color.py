@@ -34,20 +34,74 @@ __url__ = "./geometry/color.py"
 import sys
 from pathlib import Path
 
+from geometry.coords import Coords
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # [!not included in BP singlefile - end]
 
 
-class Color:
+class Color(Coords):
     """Documentation: output returns [r, g, b]"""
 
-    def __init__(self, colorInput=None):
-        self.colorInput = colorInput
+    def __init__(self, *args, **kwargs):
+        Coords.__init__(self, *args,**kwargs)
+    
+    @property
+    def r(self): return self[0]
+    @r.setter
+    def r(self, value): self[0] = value
+        
+    @property
+    def g(self): return self[1]
+    @g.setter
+    def g(self, value): self[1] = value
 
-    red = [255, 0, 0]
-    green = [0, 255, 0]
-    blue = [0, 0, 255]
+    @property
+    def b(self): return self[2]
+    @b.setter
+    def b(self, value): self[2] = value
+
+    @property
+    def a(self): return self[3]
+    @a.setter
+    def a(self, value): self[3] = value
+    
+    @property
+    def int(self) -> int:
+        """converts this color into an integer value
+
+        Returns:
+            int: the merged integer.
+            this is assuming the color elements are whole integer values from 0 - 255
+        """
+        int_val = elem
+        mult = 0x100
+        for elem in self[1:]:
+            int_val += elem * mult
+            mult *= 0x100
+        return int_val
+    
+    def rgb_to_int(rgb):
+        r, g, b = [max(0, min(255, c)) for c in rgb]
+        return (255 << 24) | (r << 16) | (g << 8) | b
+    
+    @property
+    def hex(self):
+        return '#%02x%02x%02x%02x' % (self.r,self.g,self.b,self.a)
+        
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return ['r', 'g', 'b', 'a'].index(axis)
 
     def Components(self, colorInput=None):
         """1"""
@@ -67,73 +121,18 @@ class Color:
                         return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
             except:
                 return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def Hex(hex:str) -> 'Color':
+        """converts a heximal string to a color object.
 
-    def Hex(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                colorInput = colorInput.split("#")[1]
-                rgb_color = list(int(colorInput[i:i+2], 16) for i in (1, 3, 5))
-                return [rgb_color[0], rgb_color[1], rgb_color[2], 255]
+        Args:
+            hex (str): a heximal string, for example '#FF00FF88'
 
-                # colorInput = colorInput.lstrip('#')
-                # return list(int(colorInput[i:i+2], 16) for i in (0, 2, 4))
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def rgba_to_hex(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                red_i = int(colorInput[0] * 255)
-                green_i = int(colorInput[1] * 255)
-                blue_i = int(colorInput[2] * 255)
-                alpha_i = int(colorInput[3] * 255)
-
-                red_hex = hex(red_i)[2:].zfill(2)
-                green_hex = hex(green_i)[2:].zfill(2)
-                blue_hex = hex(blue_i)[2:].zfill(2)
-                alpha_hex = hex(alpha_i)[2:].zfill(2)
-
-                colorInput = "#" + red_hex + green_hex + blue_hex + alpha_hex
-
-                return colorInput.upper()
-
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def hex_to_rgba(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                colorInput = colorInput.lstrip('#')
-                red_int = int(colorInput[0:2], 16)
-                green_int = int(colorInput[2:4], 16)
-                blue_int = int(colorInput[4:6], 16)
-
-                if len(colorInput) == 8:
-                    alpha_int = int(colorInput[6:8], 16)
-                    alpha = round(alpha_int / 255, 2)
-                else:
-                    alpha = 1.0
-
-                red = round(red_int / 255, 2)
-                green = round(green_int / 255, 2)
-                blue = round(blue_int / 255, 2)
-
-                return [red, green, blue, alpha]
-
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+        Returns:
+            Color: the color object
+        """
+        return Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16),int(hex[7:9], 16)) if len(hex) > 7 else Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16))
 
     def CMYK(self, colorInput=None):
         """NAN"""
@@ -174,7 +173,8 @@ class Color:
                     return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
             except:
                 return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
+            
+    @staticmethod
     def RGB(self, colorInput=None):
         """NAN"""
         if colorInput is None:
@@ -292,9 +292,6 @@ class Color:
             except:
                 return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
-    def rgb_to_int(rgb):
-        r, g, b = [max(0, min(255, c)) for c in rgb]
-        return (255 << 24) | (r << 16) | (g << 8) | b
 
     def __str__(self, colorInput=None):
         colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
@@ -307,3 +304,7 @@ class Color:
 
     def Info(self, colorInput=None):
         pass
+
+Color.red = Color(255, 0, 0)
+Color.green = Color(0, 255, 0)
+Color.blue = Color(0, 0, 255)

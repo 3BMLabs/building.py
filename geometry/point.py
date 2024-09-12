@@ -59,11 +59,6 @@ class Point(Coords):
         self.units = "mm"
 
     @staticmethod
-    def deserialize(data):
-        """Deserializes the point object from the provided data."""
-        return Point(data['x'], data['y'], data['z'])
-
-    @staticmethod
     def distance_squared(point_1: 'Point', point_2: 'Point') -> float:
         """Computes the Euclidean distance between two 3D points.
 
@@ -132,32 +127,6 @@ class Point(Coords):
                     (points[i], points[j], Point.distance(points[i], points[j])))
         distances.sort(key=lambda x: x[2])
         return distances
-
-    @staticmethod
-    def difference(point_1: 'Point', point_2: 'Point'):
-        """Computes the difference between two points as a Vector object.
-                
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Vector`: Difference between the two input points as a Vector object.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        point_2 = Point(93, 0, -19)
-        output = Point.difference(point_1, point_2)
-        # Vector(X = 70.000, Y = -1.000, Z = -42.000)
-        ```
-        """
-        from abstract.vector import Vector
-        return Vector(
-            point_2.x - point_1.x,
-            point_2.y - point_1.y,
-            point_2.z - point_1.z
-        )
 
     @staticmethod
     def translate(point: 'Point', vector) -> 'Point':
