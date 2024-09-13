@@ -36,312 +36,6 @@ import sys, os, math, json
 from collections import defaultdict
 
 
-class Color:
-    """Documentation: output returns [r, g, b]"""
-
-    def __init__(self, colorInput=None):
-        self.colorInput = colorInput
-
-    red = [255, 0, 0]
-    green = [0, 255, 0]
-    blue = [0, 0, 255]
-
-    def Components(self, colorInput=None):
-        """1"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
-        else:
-            try:
-                import json
-                JSONfile = "library/color/colorComponents.json"
-                with open(JSONfile, 'r') as file:
-                    components_dict = json.load(file)
-                    checkExist = components_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        r, g, b, a = components_dict[colorInput]
-                        return [r, g, b]
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Hex(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                colorInput = colorInput.split("#")[1]
-                rgb_color = list(int(colorInput[i:i+2], 16) for i in (1, 3, 5))
-                return [rgb_color[0], rgb_color[1], rgb_color[2], 255]
-
-                # colorInput = colorInput.lstrip('#')
-                # return list(int(colorInput[i:i+2], 16) for i in (0, 2, 4))
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def rgba_to_hex(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                red_i = int(colorInput[0] * 255)
-                green_i = int(colorInput[1] * 255)
-                blue_i = int(colorInput[2] * 255)
-                alpha_i = int(colorInput[3] * 255)
-
-                red_hex = hex(red_i)[2:].zfill(2)
-                green_hex = hex(green_i)[2:].zfill(2)
-                blue_hex = hex(blue_i)[2:].zfill(2)
-                alpha_hex = hex(alpha_i)[2:].zfill(2)
-
-                colorInput = "#" + red_hex + green_hex + blue_hex + alpha_hex
-
-                return colorInput.upper()
-
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def hex_to_rgba(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                colorInput = colorInput.lstrip('#')
-                red_int = int(colorInput[0:2], 16)
-                green_int = int(colorInput[2:4], 16)
-                blue_int = int(colorInput[4:6], 16)
-
-                if len(colorInput) == 8:
-                    alpha_int = int(colorInput[6:8], 16)
-                    alpha = round(alpha_int / 255, 2)
-                else:
-                    alpha = 1.0
-
-                red = round(red_int / 255, 2)
-                green = round(green_int / 255, 2)
-                blue = round(blue_int / 255, 2)
-
-                return [red, green, blue, alpha]
-
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def CMYK(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
-        else:
-            try:
-                c, m, y, k = colorInput
-                r = int((1-c) * (1-k) * 255)
-                g = int((1-m) * (1-k) * 255)
-                b = int((1-y) * (1-k) * 255)
-                return [r, g, b]
-            except:
-                # add check help attribute
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Alpha(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-        else:
-            try:
-                r, g, b, a = colorInput
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Brightness(self, colorInput=None):
-        """Expected value is int(0) - int(1)"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-        else:
-            try:
-                if colorInput >= 0 and colorInput <= 1:
-                    r = g = b = int(255 * colorInput)
-                    return [r, g, b]
-                else:
-                    return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def RGB(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
-        else:
-            try:
-                r, g, b = colorInput
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def HSV(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                h, s, v = colorInput
-                h /= 60.0
-                c = v * s
-                x = c * (1 - abs(h % 2 - 1))
-                m = v - c
-                if 0 <= h < 1:
-                    r, g, b = c, x, 0
-                elif 1 <= h < 2:
-                    r, g, b = x, c, 0
-                elif 2 <= h < 3:
-                    r, g, b = 0, c, x
-                elif 3 <= h < 4:
-                    r, g, b = 0, x, c
-                elif 4 <= h < 5:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def HSL(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                h, s, l = colorInput
-                c = (1 - abs(2 * l - 1)) * s
-                x = c * (1 - abs(h / 60 % 2 - 1))
-                m = l - c / 2
-                if h < 60:
-                    r, g, b = c, x, 0
-                elif h < 120:
-                    r, g, b = x, c, 0
-                elif h < 180:
-                    r, g, b = 0, c, x
-                elif h < 240:
-                    r, g, b = 0, x, c
-                elif h < 300:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                r, g, b = int((r + m) * 255), int((g + m)
-                                                  * 255), int((b + m) * 255)
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def RAL(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
-        else:
-            try:
-                # validate if value is correct/found
-                import json
-                JSONfile = "library/color/colorRAL.json"
-                with open(JSONfile, 'r') as file:
-                    ral_dict = json.load(file)
-                    checkExist = ral_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
-                        return [int(r), int(g), int(b), 100]
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Pantone(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                import json
-                JSONfile = "library/color/colorPantone.json"
-                with open(JSONfile, 'r') as file:
-                    pantone_dict = json.load(file)
-                    checkExist = pantone_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        PantoneHex = pantone_dict[str(colorInput)]['hex']
-                        return Color().Hex(PantoneHex)
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def LRV(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
-                b = int(max(0, min(255, b)))
-                return [255, 255, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def rgb_to_int(rgb):
-        r, g, b = [max(0, min(255, c)) for c in rgb]
-        return (255 << 24) | (r << 16) | (g << 8) | b
-
-    def __str__(self, colorInput=None):
-        colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
-                           "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
-        if colorInput is None:
-            header = "Available attributes: \n"
-            footer = "\nColor().red | Color().green | Color().blue"
-            return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
-        return f"Color().{colorInput}"
-
-    def Info(self, colorInput=None):
-        pass
-
-def rgb_to_int(rgb):
-    r, g, b = [max(0, min(255, c)) for c in rgb]
-
-    return (255 << 24) | (r << 16) | (g << 8) | b
-
-class Material:
-    def __init__(self):
-        self.name = "none"
-        self.color = None
-        self.colorint = None
-
-    @classmethod
-    def byNameColor(cls, name, color):
-        M1 = Material()
-        M1.name = name
-        M1.color = color
-        M1.colorint = rgb_to_int(color)
-        return M1
-
-
-#Building Materials
-BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
-BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
-BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
-BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
-BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
-BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
-
-#GIS Materials
-BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
-BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
-BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
-BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
-BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
-
-#class Materialfinish
-
 class Serializable:
 
     @staticmethod
@@ -607,7 +301,26 @@ class Coords(Serializable, list):
             the length
         """
         return math.sqrt(self.squared_magnitude)
-        
+    
+    @magnitude.setter
+    def magnitude(self, value):
+        """Rescales the vector to have the specified length.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The vector to be rescaled.
+        - `newlength` (float): The desired length of the vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the rescaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(3, 4, 0)
+        new_vector = Vector.new_length(vector, 5)
+        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
+        ```
+        """
+        self *= value / self.magnitude
     
     @property
     def normalized(self):
@@ -727,19 +440,413 @@ class Coords(Serializable, list):
         return self.operate_2(operator.add,other)
 
     def __sub__(self, other):
+        """Calculates the difference between two Vector objects.
+        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The minuend vector.
+        - `vector_2` (`Vector`): The subtrahend vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(5, 7, 9)
+        vector2 = Vector(1, 2, 3)
+        result = Vector.diff(vector1, vector2)
+        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
+        ```
+        """
         return self.operate_2(operator.sub,other)
     
+
+    difference = substract = __sub__
+    
     def __truediv__(self, other):
+        """Divides the components of the first vector by the corresponding components of the second vector.
+        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The numerator vector.
+        - `vector_2` (`Vector`): The denominator vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise division.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(10, 20, 30)
+        vector2 = Vector(2, 4, 5)
+        result = Vector.divide(vector1, vector2)
+        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
+        ```
+        """
         return self.operate_2(operator.truediv,other)
+    
+    divide = __truediv__
 
     def __mul__(self, other):
+        """Scales the vector by the specified scale factor.
+
+        #### Parameters:
+        - `vector` (`Vector`): The vector to be scaled.
+        - `scalefactor` (float): The scale factor.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the scaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(1, 2, 3)
+        scaled_vector = Vector.scale(vector, 2)
+        # Vector(X = 2, Y = 4, Z = 6)
+        ```
+        """
         return self.operate_2(operator.mul,other)
-    __rmul__ = __mul__
+    scale = __rmul__ = __mul__
     
     def __iadd__(self, other) -> Self:
+        """Translates the point by a given vector.        
+        
+        #### Parameters:
+        - `point` (Point): The point to be translated.
+        - `vector` (Vector): The translation vector.
+
+        #### Returns:
+        `Point`: Translated point.
+
+        #### Example usage:
+    	```python
+        point = Point(23, 1, 23)
+        vector = Vector(93, 0, -19)
+        output = Point.translate(point, vector)
+        # Point(X = 116.000, Y = 1.000, Z = 4.000)
+        ```
+        """
         return self.operate_2(operator.iadd,other)
+    
+    translate = __iadd__
+    
+    
     def __neg__(self) -> Self:
+        """negates this vector.
+
+        Returns:
+            Self: a vector with all components negated.
+        """
         return self.operate_1(operator.neg)
+    
+    reverse = __neg__
+X_axis = Coords(1, 0, 0)
+
+Y_Axis = Coords(0, 1, 0)
+
+Z_Axis = Coords(0, 0, 1)
+
+class Color(Coords):
+    """Documentation: output returns [r, g, b]"""
+
+    def __init__(self, *args, **kwargs):
+        Coords.__init__(self, *args,**kwargs)
+    
+    @property
+    def r(self): return self[0]
+    @r.setter
+    def r(self, value): self[0] = value
+        
+    @property
+    def g(self): return self[1]
+    @g.setter
+    def g(self, value): self[1] = value
+
+    @property
+    def b(self): return self[2]
+    @b.setter
+    def b(self, value): self[2] = value
+
+    @property
+    def a(self): return self[3]
+    @a.setter
+    def a(self, value): self[3] = value
+    
+    @property
+    def int(self) -> int:
+        """converts this color into an integer value
+
+        Returns:
+            int: the merged integer.
+            this is assuming the color elements are whole integer values from 0 - 255
+        """
+        int_val = elem
+        mult = 0x100
+        for elem in self[1:]:
+            int_val += elem * mult
+            mult *= 0x100
+        return int_val
+    
+    def rgb_to_int(rgb):
+        r, g, b = [max(0, min(255, c)) for c in rgb]
+        return (255 << 24) | (r << 16) | (g << 8) | b
+    
+    @property
+    def hex(self):
+        return '#%02x%02x%02x%02x' % (self.r,self.g,self.b,self.a)
+        
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return ['r', 'g', 'b', 'a'].index(axis)
+
+    def Components(self, colorInput=None):
+        """1"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
+        else:
+            try:
+                import json
+                JSONfile = "library/color/colorComponents.json"
+                with open(JSONfile, 'r') as file:
+                    components_dict = json.load(file)
+                    checkExist = components_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        r, g, b, a = components_dict[colorInput]
+                        return [r, g, b]
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def Hex(hex:str) -> 'Color':
+        """converts a heximal string to a color object.
+
+        Args:
+            hex (str): a heximal string, for example '#FF00FF88'
+
+        Returns:
+            Color: the color object
+        """
+        return Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16),int(hex[7:9], 16)) if len(hex) > 7 else Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16))
+
+    def CMYK(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
+        else:
+            try:
+                c, m, y, k = colorInput
+                r = int((1-c) * (1-k) * 255)
+                g = int((1-m) * (1-k) * 255)
+                b = int((1-y) * (1-k) * 255)
+                return [r, g, b]
+            except:
+                # add check help attribute
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Alpha(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+        else:
+            try:
+                r, g, b, a = colorInput
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Brightness(self, colorInput=None):
+        """Expected value is int(0) - int(1)"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+        else:
+            try:
+                if colorInput >= 0 and colorInput <= 1:
+                    r = g = b = int(255 * colorInput)
+                    return [r, g, b]
+                else:
+                    return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def RGB(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
+        else:
+            try:
+                r, g, b = colorInput
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def HSV(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                h, s, v = colorInput
+                h /= 60.0
+                c = v * s
+                x = c * (1 - abs(h % 2 - 1))
+                m = v - c
+                if 0 <= h < 1:
+                    r, g, b = c, x, 0
+                elif 1 <= h < 2:
+                    r, g, b = x, c, 0
+                elif 2 <= h < 3:
+                    r, g, b = 0, c, x
+                elif 3 <= h < 4:
+                    r, g, b = 0, x, c
+                elif 4 <= h < 5:
+                    r, g, b = x, 0, c
+                else:
+                    r, g, b = c, 0, x
+                return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def HSL(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                h, s, l = colorInput
+                c = (1 - abs(2 * l - 1)) * s
+                x = c * (1 - abs(h / 60 % 2 - 1))
+                m = l - c / 2
+                if h < 60:
+                    r, g, b = c, x, 0
+                elif h < 120:
+                    r, g, b = x, c, 0
+                elif h < 180:
+                    r, g, b = 0, c, x
+                elif h < 240:
+                    r, g, b = 0, x, c
+                elif h < 300:
+                    r, g, b = x, 0, c
+                else:
+                    r, g, b = c, 0, x
+                r, g, b = int((r + m) * 255), int((g + m)
+                                                  * 255), int((b + m) * 255)
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def RAL(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
+        else:
+            try:
+                # validate if value is correct/found
+                import json
+                JSONfile = "library/color/colorRAL.json"
+                with open(JSONfile, 'r') as file:
+                    ral_dict = json.load(file)
+                    checkExist = ral_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
+                        return [int(r), int(g), int(b), 100]
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Pantone(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                import json
+                JSONfile = "library/color/colorPantone.json"
+                with open(JSONfile, 'r') as file:
+                    pantone_dict = json.load(file)
+                    checkExist = pantone_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        PantoneHex = pantone_dict[str(colorInput)]['hex']
+                        return Color().Hex(PantoneHex)
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def LRV(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
+                b = int(max(0, min(255, b)))
+                return [255, 255, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+
+    def __str__(self, colorInput=None):
+        colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
+                           "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
+        if colorInput is None:
+            header = "Available attributes: \n"
+            footer = "\nColor().red | Color().green | Color().blue"
+            return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
+        return f"Color().{colorInput}"
+
+    def Info(self, colorInput=None):
+        pass
+
+Color.red = Color(255, 0, 0)
+Color.green = Color(0, 255, 0)
+Color.blue = Color(0, 0, 255)
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+
+    return (255 << 24) | (r << 16) | (g << 8) | b
+
+class Material:
+    def __init__(self):
+        self.name = "none"
+        self.color = None
+        self.colorint = None
+
+    @classmethod
+    def byNameColor(cls, name, color):
+        M1 = Material()
+        M1.name = name
+        M1.color = color
+        M1.colorint = rgb_to_int(color)
+        return M1
+
+
+#Building Materials
+BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
+BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
+BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
+BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
+BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
+BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
+
+#GIS Materials
+BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
+BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
+BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
+BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
+BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
+
+#class Materialfinish
 # from project.fileformat import project
 
 
@@ -755,11 +862,6 @@ class Point(Coords):
         super().__init__(*args, **kwargs)
         self.type = __class__.__name__
         self.units = "mm"
-
-    @staticmethod
-    def deserialize(data):
-        """Deserializes the point object from the provided data."""
-        return Point(data['x'], data['y'], data['z'])
 
     @staticmethod
     def distance_squared(point_1: 'Point', point_2: 'Point') -> float:
@@ -830,32 +932,6 @@ class Point(Coords):
                     (points[i], points[j], Point.distance(points[i], points[j])))
         distances.sort(key=lambda x: x[2])
         return distances
-
-    @staticmethod
-    def difference(point_1: 'Point', point_2: 'Point'):
-        """Computes the difference between two points as a Vector object.
-                
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Vector`: Difference between the two input points as a Vector object.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        point_2 = Point(93, 0, -19)
-        output = Point.difference(point_1, point_2)
-        # Vector(X = 70.000, Y = -1.000, Z = -42.000)
-        ```
-        """
-        from abstract.vector import Vector
-        return Vector(
-            point_2.x - point_1.x,
-            point_2.y - point_1.y,
-            point_2.z - point_1.z
-        )
 
     @staticmethod
     def translate(point: 'Point', vector) -> 'Point':
@@ -1427,104 +1503,6 @@ class Vector(Coords):
         self.type = __class__.__name__
 
     @staticmethod
-    def deserialize(data):
-        """Converts a dictionary representation of a vector into a Vector object.
-        This method takes a dictionary containing 'x', 'y', and 'z' keys with numeric values and creates a new Vector instance representing the vector described by these values. It's particularly useful for converting serialized vector data back into Vector objects, for instance, when loading vectors from a file or a database.
-
-        #### Parameters:
-        - `data` (dict): A dictionary with keys 'x', 'y', and 'z', corresponding to the components of the vector. Each key's value should be a number (int or float).
-
-        #### Returns:
-        Vector: A new Vector object initialized with the x, y, and z values from the input dictionary.
-
-        #### Example usage:
-        ```python
-        data = {'x': 1.0, 'y': 2.0, 'z': 3.0}
-        vector = Vector.deserialize(data)
-        # Vector object with x=1.0, y=2.0, z=3.0
-        ```
-        """
-        return Vector(data['x'], data['y'], data['z'])
-
-    @staticmethod
-    def diff(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Calculates the difference between two Vector objects.
-        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The minuend vector.
-        - `vector_2` (`Vector`): The subtrahend vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(5, 7, 9)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.diff(vector1, vector2)
-        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector(
-            vector_1.x - vector_2.x,
-            vector_1.y - vector_2.y,
-            vector_1.z - vector_2.z
-        )
-
-    @staticmethod
-    def subtract(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Subtracts the components of the second vector from the first.
-        This method is synonymous with `diff` and serves the same purpose, providing an alternative naming convention.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector from which to subtract.
-        - `vector_2` (`Vector`): The vector to be subtracted.
-
-        #### Returns:
-        `Vector`: The result of the component-wise subtraction.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.subtract(vector1, vector2)
-        # Vector(X = 9.000, Y = 18.000, Z = 27.000)
-        ```
-        """
-        return Vector(
-            vector_1.x - vector_2.x,
-            vector_1.y - vector_2.y,
-            vector_1.z - vector_2.z
-        )
-
-    @staticmethod
-    def divide(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Divides the components of the first vector by the corresponding components of the second vector.
-        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The numerator vector.
-        - `vector_2` (`Vector`): The denominator vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise division.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(2, 4, 5)
-        result = Vector.divide(vector1, vector2)
-        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector(
-            vector_1.x / vector_2.x,
-            vector_1.y / vector_2.y,
-            vector_1.z / vector_2.z
-        )
-
-    @staticmethod
     def square(vector_1: 'Vector') -> 'Vector':
         """
         Computes the square of each component of the input vector.
@@ -1547,26 +1525,6 @@ class Vector(Coords):
             vector_1.y ** 2,
             vector_1.z ** 2
         )
-
-    @staticmethod
-    def to_point(vector_1: 'Vector') -> 'Vector':
-        """Converts the vector to a Point object.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be converted to a Point object.
-
-        #### Returns:
-        `Point`: A Point object with coordinates same as the vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        point = Vector.to_point(vector1)
-        # Point(X = 10.000, Y = 20.000, Z = 30.000)
-        ```
-        """
-        from geometry.point import Point
-        return Point(x=vector_1.x, y=vector_1.y, z=vector_1.z)
 
     @staticmethod
     def to_line(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
@@ -1993,52 +1951,6 @@ class Vector(Coords):
         )
 
     @staticmethod
-    def scale(vector: 'Vector', scalefactor: float) -> 'Vector':
-        """Scales the vector by the specified scale factor.
-
-        #### Parameters:
-        - `vector` (`Vector`): The vector to be scaled.
-        - `scalefactor` (float): The scale factor.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the scaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(1, 2, 3)
-        scaled_vector = Vector.scale(vector, 2)
-        # Vector(X = 2, Y = 4, Z = 6)
-        ```
-        """
-        return Vector(
-            vector.x * scalefactor,
-            vector.y * scalefactor,
-            vector.z * scalefactor
-        )
-
-    @staticmethod
-    def new_length(vector_1: 'Vector', newlength: float) -> 'Vector':
-        """Rescales the vector to have the specified length.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be rescaled.
-        - `newlength` (float): The desired length of the vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the rescaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(3, 4, 0)
-        new_vector = Vector.new_length(vector, 5)
-        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
-        ```
-        """
-        scale = newlength / Vector.length(vector_1)
-
-        return Vector.scale(vector_1, scale)
-
-    @staticmethod
     def to_matrix(vector: 'Vector') -> list:
         """Converts the vector to a list representation.
 
@@ -2079,14 +1991,6 @@ class Vector(Coords):
             vector_list[1],
             vector_list[2]
         )
-
-
-X_axis = Vector(1, 0, 0)
-
-Y_Axis = Vector(0, 1, 0)
-
-Z_Axis = Vector(0, 0, 1)
-
 
 class Plane:
     # Plane is an infinite element in space defined by a point and a normal
@@ -2535,9 +2439,6 @@ class CoordinateSystem:
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
 
-X_axis = Vector(1, 0, 0)
-Vector(0, 1, 0)
-Vector(0, 0, 1)
 CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
@@ -6852,7 +6753,7 @@ class Matrix(list[list]):
         dimensions:int = len(toAdd) + 1
         return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
     
-    def __mul__(self, other:Self | Coords):
+    def __mul__(self, other:Self | Coords | Line):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
         for example: translate * rotate (rotate first, translate after)
         and: matrix * point (point first, multiplied by matrix after)"""
@@ -6912,7 +6813,8 @@ class Matrix(list[list]):
                     for row in range(self.rows):
                         result[row] += self[row][col]
             return result
-
+        elif isinstance(other, Line):
+            return Line(self * other.start, self * other.end)
         return result
 
     def add(self, other: 'Matrix'):
