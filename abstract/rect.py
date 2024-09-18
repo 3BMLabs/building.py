@@ -78,7 +78,6 @@ class Rect(Serializable):
         Serializable.__init__(self)
 
         self.id = generateID()
-        self.type = __class__.__name__
         
     def change_axis_count(self,axis_count: int):
         self.p0.change_axis_count(axis_count)

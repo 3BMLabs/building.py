@@ -1,14 +1,14 @@
-import sys, os, math
+import sys
 from pathlib import Path
-
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.color import Color
-from geometry.curve import Line
+from geometry.curve import Line, PolyCurve
 from abstract.matrix import Matrix
 from geometry.point import Point
 from abstract.vector import Vector
+from geometry.curve import Arc
 
 point = Point(1, 2, 3)
 point2 : Point = Point([4,3,2])
@@ -34,3 +34,8 @@ result.magnitude = 1
 
 c  = Color(23,42,43,255)
 print(c.hex)
+
+l1 = Line(Point(1,2), Point(1, 5))
+l2 = Arc(Point(1,5), Point(1.8, 6.2), Point(3,7))
+l3 = Line(Point(3,7), Point(7,7))
+curve = PolyCurve(l1,l2,l3)

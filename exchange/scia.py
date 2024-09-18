@@ -48,7 +48,6 @@ from project.fileformat import BuildingPy
 class Scia_Params:
     def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None, profile_data=None):
         self.id = id
-        self.type = __class__.__name__
         self.name = name
         self.layer = layer
         self.perpendicular_alignment = perpendicular_alignment

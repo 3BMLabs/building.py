@@ -58,7 +58,6 @@ class Node:
         - `comments` (str, optional): Additional comments or notes about the node.
         """
         self.id = generateID()
-        self.type = __class__.__name__
         self.point = point if isinstance(point, Point) else None
         self.vector = vector if isinstance(vector, Vector) else None
         self.number = number

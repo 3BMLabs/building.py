@@ -54,7 +54,6 @@ class Vector(Coords):
         - `z` (float): Z-coordinate of the vector.
         """
         super().__init__(*args, **kwargs)
-        self.type = __class__.__name__
 
     @staticmethod
     def square(vector_1: 'Vector') -> 'Vector':
@@ -455,30 +454,7 @@ class Vector(Coords):
             lokZ = Vector.reverse(lokZ)
         return lokX, lokZ
 
-    @staticmethod
-    def by_two_points(point_1: 'Point', point_2: 'Point') -> 'Vector':
-        """Computes the vector between two points.
 
-        #### Parameters:
-        - `point_1` (`Point`): The starting point.
-        - `point_2` (`Point`): The ending point.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the vector between the two points.
-
-        #### Example usage:
-        ```python
-        point1 = Point(1, 2, 3)
-        point2 = Point(4, 6, 8)
-        vector = Vector.by_two_points(point1, point2)
-        # Vector(X = 3, Y = 4, Z = 5)
-        ```
-        """
-        return Vector(
-            point_2.x-point_1.x,
-            point_2.y-point_1.y,
-            point_2.z-point_1.z
-        )
 
     @staticmethod
     def rotate_XY(vector: 'Vector', Beta: float) -> 'Vector':

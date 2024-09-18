@@ -51,7 +51,6 @@ class PointCloud:
 
         Initializes the PointCloud's attributes and sets up the list of points based on the input provided. The ID is generated to uniquely identify the point cloud.
         """
-        self.type = __class__.__name__
         self.points = []
         self.id = generateID()
 

@@ -49,7 +49,6 @@ seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 class GridheadType(Serializable):
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.name = None
         self.curves = []
         self.diameter = 150
@@ -112,7 +111,6 @@ GHT50 = GridheadType().by_diam("GHT50", 600, "calibri", 350)
 class GridHead:
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.grid_name: str = "A"
         self.grid_head_type = GHT50
         self.radius = GHT50.radius
@@ -260,7 +258,6 @@ class GridSystem:
     # rectangle Gridsystem
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.gridsX = None
         self.gridsY = None
         self.dimensions = []

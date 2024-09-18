@@ -49,7 +49,6 @@ from project.fileformat import project
 class Vector2:
     def __init__(self, x, y) -> None:
         self.id = generateID()
-        self.type = __class__.__name__
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -170,7 +169,6 @@ class Vector2:
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
         self.id = generateID()
-        self.type = __class__.__name__
         self.x = x
         self.y = y
         self.x = float(x)
@@ -257,7 +255,6 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
 
 class Line2D:
     def __init__(self, start, end) -> None:
-        self.type = __class__.__name__
         self.start: Point2D = start
         self.end: Point2D = end
         self.x = [self.start.x, self.end.x]
@@ -440,7 +437,6 @@ class Arc2D:
         - `endPoint` (Point2D): The ending point of the arc.
         """
         self.id = generateID()
-        self.type = __class__.__name__
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -708,7 +704,6 @@ class Arc2D:
 class PolyCurve2D:
     def __init__(self) -> None:
         self.id = generateID()
-        self.type = __class__.__name__
         self.curves = []
         self.points2D = []
         self.segmentcurves = None
@@ -1137,7 +1132,6 @@ class Surface2D:
     def __init__(self) -> None:
         pass  # PolyCurve2D
         self.id = generateID()
-        self.type = __class__.__name__
 
     def __id__(self):
         return f"id:{self.id}"
@@ -1149,7 +1143,6 @@ class Surface2D:
 class Profile2D:
     def __init__(self) -> None:
         self.id = generateID()
-        self.type = __class__.__name__
 
     def __id__(self):
         return f"id:{self.id}"
@@ -1160,7 +1153,6 @@ class Profile2D:
 
 class ParametricProfile2D:
     def __init__(self) -> None:
-        self.type = __class__.__name__
         self.id = generateID()
 
     def __id__(self):

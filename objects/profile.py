@@ -120,7 +120,6 @@ class CChannelParallelFlange(Profile):
 class CChannelSlopedFlange(Profile):
     def __init__(self, name, height, width, tw, tf, r1, r2, tl, sa, ex):
         super().__init__(name, "C-channel with sloped flange", "IfcUShapeProfileDef", height, width, tw, tf)
-        self.type = __class__.__name__
 
         self.r1 = r1  # web fillet
         r11 = r1 / sqrt2
@@ -176,7 +175,6 @@ class IShapeParallelFlange(Profile):
         super().__init__(name, "I Shape profile with parallel flange", "IfcUShapeProfileDef", height, width, tw,
                          tf)
 
-        self.type = __class__.__name__
 
         self.r = r  # web fillet
         self.r1 = r1 = r / sqrt2
@@ -229,7 +227,6 @@ class Rectangle(Profile):
     def __init__(self, name, width, height):
         super().__init__(name, "Rectangle", "IfcRectangleProfileDef", height, width)
 
-        self.type = __class__.__name__
 
         # describe points
         p1 = Point2D(width / 2, -height / 2)  # right bottom
@@ -249,7 +246,6 @@ class Round(Profile):
     def __init__(self, name, r):
         super().__init__(name, "Round", "IfcCircleProfileDef", r*2, r*2)
 
-        self.type = __class__.__name__
         self.r = r
 
         dr = r / sqrt2  # grootste deel
@@ -372,7 +368,6 @@ class TProfileRounded(Profile):
     def __init__(self, name, height, width, tw, tf, r, r1, r2, ex, ey):
         super().__init__(name, "TProfile", "IfcTShapeProfileDef", height, width, tw, tf)
 
-        self.type = __class__.__name__
 
         self.r = r  # inner fillet
         self.r01 = r / sqrt2
@@ -1019,7 +1014,6 @@ class ArrowProfile(Profile):
         
         # parameters
         self.id = generateID()
-        self.type = __class__.__name__
         self.length = length  # length
         self.b1 = b1
         self.l1 = l1

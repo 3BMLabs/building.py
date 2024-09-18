@@ -58,7 +58,6 @@ class System:
         - `polycurve` (PolyCurve, optional): An optional PolyCurve associated with the system.
         - `direction` (Vector): A Vector indicating the primary direction of the system.
         """
-        self.type = __class__.__name__
         self.name = None
         self.id = generateID()
         self.polycurve = None
@@ -84,7 +83,6 @@ class DivisionSystem:
         - `spaces` (list): A list containing the spaces between each division.
         - `system` (str): A string indicating the current system strategy (e.g., "fixed_distance_unequal_division").
         """
-        self.type = __class__.__name__
         self.name = None
         self.id = generateID()
         self.system_length: float = 100
@@ -271,7 +269,6 @@ class RectangleSystem:
         - `symbolic_outer_grids` (list): Symbolic representations of outer grids.
         - `symbolic_inner_grids` (list): Symbolic representations of inner grids.
         """
-        self.type = __class__.__name__
         self.name = None
         self.id = generateID()
         self.height = 3000
@@ -481,7 +478,6 @@ class pattern_system:
     """The `pattern_system` class is designed to define and manipulate patterns for architectural or design applications. It is capable of generating various patterns based on predefined or dynamically generated parameters."""
     def __init__(self):
         """Initializes a new pattern_system instance."""
-        self.type = __class__.__name__
         self.name = None
         self.id = generateID()
         self.pattern = None
