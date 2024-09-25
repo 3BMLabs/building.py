@@ -3,18 +3,10 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from objects.panel import *
-from objects.frame import *
-from objects.profile import *
-from exchange.speckle import *
-from library.profile import data as jsondata
-from library.material import *
-from library.profile import nameToProfile
-from objects.annotation import *
-from abstract.intersect2d import *
-from geometry.systemsimple import *
-from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
 
+from geometry.curve import Line, PolyCurve
+from geometry.point import Point
+from project.fileformat import BuildingPy
 
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"

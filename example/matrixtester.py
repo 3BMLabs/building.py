@@ -32,5 +32,6 @@ print(result / 5)
 #normalize
 result.magnitude = 1
 
-c  = Color(23,42,43,255)
+c = Color(23,42,43,255)
 print(c.hex)
+c.b += 5

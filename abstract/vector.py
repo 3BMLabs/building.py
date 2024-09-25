@@ -57,30 +57,6 @@ class Vector(Coords):
         self.type = __class__.__name__
 
     @staticmethod
-    def square(vector_1: 'Vector') -> 'Vector':
-        """
-        Computes the square of each component of the input vector.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The input vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the square of each component of the input vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(2, 3, 4)
-        squared_vector = Vector.square(vector)
-        # Vector(X = 4, Y = 9, Z = 16)
-        ```
-        """
-        return Vector(
-            vector_1.x ** 2,
-            vector_1.y ** 2,
-            vector_1.z ** 2
-        )
-
-    @staticmethod
     def to_line(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
         """Creates a Line object from two vectors.
 
@@ -540,8 +516,4 @@ class Vector(Coords):
         # Vector(X = 1, Y = 2, Z = 3)
         ```
         """
-        return Vector(
-            vector_list[0],
-            vector_list[1],
-            vector_list[2]
-        )
+        return Vector(vector_list)

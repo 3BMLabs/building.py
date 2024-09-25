@@ -88,6 +88,11 @@ class Coords(Serializable, list):
     def z(self): return self[2]
     @z.setter
     def z(self, value): self[2] = value
+
+    @property
+    def w(self): return self[3]
+    @w.setter
+    def w(self, value): self[3] = value
     
     @property
     def squared_magnitude(self):
@@ -330,6 +335,13 @@ class Coords(Serializable, list):
     
     translate = __iadd__
     
+    def __pow__(self, power: float) -> Self:
+        """raises the vector to a certain power.
+
+        Returns:
+            Self: a vector with all components raised to the specified power
+        """
+        return self.operate_2(operator.__pow__)
     
     def __neg__(self) -> Self:
         """negates this vector.
@@ -340,6 +352,27 @@ class Coords(Serializable, list):
         return self.operate_1(operator.neg)
     
     reverse = __neg__
+    
+    @staticmethod
+    def square(self) -> 'Coords':
+        """
+        Computes the square of each component of the input vector.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The input vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the square of each component of the input vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(2, 3, 4)
+        squared_vector = Vector.square(vector)
+        # Vector(X = 4, Y = 9, Z = 16)
+        ```
+        """
+        return self ** 2
+    
 X_axis = Coords(1, 0, 0)
 
 Y_Axis = Coords(0, 1, 0)

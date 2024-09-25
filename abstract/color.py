@@ -47,25 +47,10 @@ class Color(Coords):
     def __init__(self, *args, **kwargs):
         Coords.__init__(self, *args,**kwargs)
     
-    @property
-    def r(self): return self[0]
-    @r.setter
-    def r(self, value): self[0] = value
-        
-    @property
-    def g(self): return self[1]
-    @g.setter
-    def g(self, value): self[1] = value
-
-    @property
-    def b(self): return self[2]
-    @b.setter
-    def b(self, value): self[2] = value
-
-    @property
-    def a(self): return self[3]
-    @a.setter
-    def a(self, value): self[3] = value
+    red = r = Coords.x
+    green = g = Coords.y
+    blue = b = Coords.z
+    alpha = a = Coords.w
     
     @property
     def int(self) -> int:
@@ -81,10 +66,6 @@ class Color(Coords):
             int_val += elem * mult
             mult *= 0x100
         return int_val
-    
-    def rgb_to_int(rgb):
-        r, g, b = [max(0, min(255, c)) for c in rgb]
-        return (255 << 24) | (r << 16) | (g << 8) | b
     
     @property
     def hex(self):

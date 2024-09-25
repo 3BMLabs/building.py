@@ -164,6 +164,8 @@ class Matrix(list[list]):
         elif isinstance(other, Line):
             return Line(self * other.start, self * other.end)
         return result
+    
+    transform = multiply = __mul__
 
     def add(self, other: 'Matrix'):
         if self.shape() != other.shape():
