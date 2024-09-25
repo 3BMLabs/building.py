@@ -35,6 +35,7 @@ from typing import Self, Union
 
 from abstract.vector import Vector
 from geometry.coords import to_array
+from geometry.pointlist import PointList
 from packages.helper import generateID
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -208,10 +209,10 @@ class Line(Serializable):
         diff_self = self.end - self.start
         diff_other = other.end - other.start
         #a
-        slope_self = diff_self.y / diff_self.x
+        slope_self = math.inf if diff_self.x == 0 else diff_self.y / diff_self.x
         
         #c
-        slope_other = diff_other.y / diff_other.x
+        slope_other = math.inf if diff_other.x == 0 else diff_other.y / diff_other.x
         #handle edge cases
         #colinear
         if(slope_self == slope_other) :
@@ -232,7 +233,7 @@ class Line(Serializable):
             other_y_at_line = other_y_at_0 + slope_other * self.start.x
             return self.start.y < other_y_at_line < self.end.y
         
-        intersection_x = (other_y_at_0 - self_y_at_0 / slope_self - slope_other)
+        intersection_x = (other_y_at_0 - self_y_at_0) / (slope_self - slope_other)
         
         return self.start.x < intersection_x < self.end.x
 
@@ -318,21 +319,6 @@ class PolyCurve(Serializable, list[Line]):
     def __init__(self, *args):
         """Initializes a PolyCurve object, which is unclosed by default.
         
-        - `id` (int): The unique identifier of the arc.
-        - `type` (str): The type of the arc.
-        - `start` (Point): The start point of the arc.
-        - `mid` (Point): The mid point of the arc.
-        - `end` (Point): The end point of the arc.
-        - `origin` (Point): The origin point of the arc.
-        - `plane` (Plane): The plane containing the arc.
-        - `radius` (float): The radius of the arc.
-        - `startAngle` (float): The start angle of the arc in radians.
-        - `endAngle` (float): The end angle of the arc in radians.
-        - `angle_radian` (float): The total angle of the arc in radians.
-        - `area` (float): The area of the arc.
-        - `length` (float): The length of the arc.
-        - `units` (str): The units used for measurement.
-        - `coordinatesystem` (CoordinateSystem): The coordinate system of the arc.
 
         """
         
@@ -351,9 +337,6 @@ class PolyCurve(Serializable, list[Line]):
         super().__init__(to_array(*args))
         
     @property
-    def closed(self) -> bool: return self.points[0] == self.points[-1]
-    
-    @property
     def length(self) -> 'float':
         """Calculates the total length of the PolyCurve.
 
@@ -370,46 +353,6 @@ class PolyCurve(Serializable, list[Line]):
             lst.append(line.length)
 
         return sum(i.length for i in self.curves)
-    
-    @closed.setter
-    def closed(self, value) -> Self:
-        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
-        #### Example usage:
-        ```python
-            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
-            c.closed = true #Point(1,3) just got added to the back of the list
-        ```
-        """
-        if value != self.closed:
-            if value:
-                self.points.append(self.points[0]) 
-            else:
-                del self.points[-1]
-        return self
-    
-    @property
-    def bounds(self) -> 'Rect':
-        return Rect.by_points(self.points)
-    @property
-    def curves(self) -> list[Line]:
-        """this function won't close the polycurve!
-
-        Returns:
-            list[Line]: the curves connecting this polycurve
-        """
-        return [Line(self.points[point_index], self.points[point_index + 1]) for point_index in range(len(self.points) - 1)]
-
-    @property
-    def is_rectangle(self) -> bool:
-        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
-
-        Returns:
-            bool: if this curve is a rectangle, i.e. it has 4 corner points
-        """
-        if len(self.points) == 4 or self.closed and len(self.points) == 5:
-            if self.points[0].y == self.points[1].y and self.points[1].x == self.points[2].x and self.points[2].y == self.points[3].y and self.points[3].x == self.points[0].x:
-                return True
-        else: return False
 
     def scale(self, scale_factor: 'float') -> 'PolyCurve':
         """Scales the PolyCurve object by the given factor.
@@ -771,67 +714,7 @@ class PolyCurve(Serializable, list[Line]):
         else:
             print(
                 f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
-    
-    def contains(self, p: 'Point') -> bool:
-        """checks if the point is inside the polygon
-
-        Args:
-            p (Point): _description_
-
-        Returns:
-            bool: _description_
-        """
-        #yoinked this from stack overflow, looks clean
-        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
-        
-        # Ray tracing
-        n = len(self.points)
-        inside = False
-    
-        p1 = self.points[0]
-        for i in range(n + 1 if self.closed else n):
-            p2 = self.points[i % n]
-            if p.y > min(p1.y,p2.y):
-                if p.y <= max(p1.y,p2.y):
-                    if p.x <= max(p1.x,p2.x):
-                        if p1.y != p2.y:
-                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
-                        if p1.x == p2.x or p.x <= xints:
-                            inside = not inside
-            p1 = p2
-    
-        return inside
-
-    def intersects(self, other: 'PolyCurve') -> bool:
-        """checks if two polycurves intersect with eachother. caution! this is brute force.
-
-        Args:
-            other (PolyCurve): the PolyCurve which may intersect with this rectangle
-
-        Returns:
-            bool: true if any of the lines of the two polygons cross eachother.
-        """
-        #before doing such an expensive method, let's check if our bounds cross first.
-        if self.bounds.collides(other.bounds):
-            other_curves = other.curves
-            for c in self.curves:
-                for other_c in other_curves:
-                    if(c.intersects(other_c)):return True
-        return False
-    
-    def collides(self, other: 'PolyCurve') -> bool:
-        """checks if two polycurves collide with eachother.
-
-        Args:
-            other (PolyCurve): the PolyCurve which may collide with this rectangle
-
-        Returns:
-            bool: true if two polygons overlap
-        """
-        #hopefully, most of the time we contain a point of the other.
-        return self.contains(other.points[0]) or other.contains(self.points[0]) or self.intersects(other)
-        
-
+     
     def multi_split(self, lines: 'Line') -> 'list[PolyCurve]':  # SLOW, MUST INCREASE SPEAD
         """Splits the PolyCurve by multiple lines.
         This method splits the PolyCurve by multiple lines and adds the resulting PolyCurves to the project.
@@ -1088,32 +971,113 @@ class PolyCurve(Serializable, list[Line]):
         pc.curves = crvs
         return pc
 
-    def __str__(self) -> 'str':
-        """Returns a string representation of the PolyCurve.
+class Polygon(PointList):
+    """Represents a polygon composed of points."""
+    def __init__(self, *args) -> 'Polygon':
+        self.id = generateID()
+        super().__init__(to_array(*args))
 
-        #### Returns:
-        `str`: The string representation of the PolyCurve.
 
+    @property
+    def closed(self) -> bool: return self[0] == self[-1]
+    
+    @closed.setter
+    def closed(self, value) -> Self:
+        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
         #### Example usage:
         ```python
-
-        ```        
+            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
+            c.closed = true #Point(1,3) just got added to the back of the list
+        ```
         """
-        length = len(self.points)
-        return f"{__class__.__name__} (points: {self.points})"
+        if value != self.closed:
+            if value:
+                #copy. else, when operators are executed, it will execute the operator twice on the same reference
+                self.append(Vector(self[0]))
+            else:
+                del self[-1]
+        return self
+    
 
+    @property
+    def curves(self) -> list[Line]:
+        """this function won't close the polycurve!
 
-class Polygon(Serializable, list[Point]):
-    """Represents a polygon composed of points."""
-    def __init__(self) -> 'Polygon':
-        self.id = generateID()
-        super()
-        self.points:list[Point] = to_array(*args)
-        self.type = __class__.__name__
-        self.curves = []
-        self.points = []
-        self.lines = []
-        self.isClosed = True
+        Returns:
+            list[Line]: the curves connecting this polycurve
+        """
+        return [Line(self[point_index], self[point_index + 1]) for point_index in range(len(self) - 1)]
+
+    @property
+    def is_rectangle(self) -> bool:
+        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
+
+        Returns:
+            bool: if this curve is a rectangle, i.e. it has 4 corner points
+        """
+        if len(self) == 4 or self.closed and len(self) == 5:
+            if self[0].y == self[1].y and self[1].x == self[2].x and self[2].y == self[3].y and self[3].x == self[0].x:
+                return True
+        else: return False
+
+    def contains(self, p: 'Point') -> bool:
+        """checks if the point is inside the polygon
+
+        Args:
+            p (Point): _description_
+
+        Returns:
+            bool: _description_
+        """
+        #yoinked this from stack overflow, looks clean
+        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
+        
+        # Ray tracing
+        n = len(self)
+        inside = False
+    
+        p1 = self[0]
+        for i in range(n + 1 if self.closed else n):
+            p2 = self[i % n]
+            if p.y > min(p1.y,p2.y):
+                if p.y <= max(p1.y,p2.y):
+                    if p.x <= max(p1.x,p2.x):
+                        if p1.y != p2.y:
+                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
+                        if p1.x == p2.x or p.x <= xints:
+                            inside = not inside
+            p1 = p2
+    
+        return inside
+
+    def intersects(self, other: 'PolyCurve') -> bool:
+        """checks if two polycurves intersect with eachother. caution! this is brute force.
+
+        Args:
+            other (PolyCurve): the PolyCurve which may intersect with this rectangle
+
+        Returns:
+            bool: true if any of the lines of the two polygons cross eachother.
+        """
+        #before doing such an expensive method, let's check if our bounds cross first.
+        if self.bounds.collides(other.bounds):
+            other_curves = other.curves
+            for c in self.curves:
+                for other_c in other_curves:
+                    if(c.intersects(other_c)):return True
+        return False
+    
+    def collides(self, other: 'Polygon') -> bool:
+        """checks if two polygons collide with eachother.
+
+        Args:
+            other (Polygon): the polygon which may collide with this rectangle
+
+        Returns:
+            bool: true if two polygons overlap
+        """
+        #hopefully, most of the time we contain a point of the other.
+        return self.contains(other[0]) or other.contains(self[0]) or self.intersects(other)
 
     @classmethod
     def by_points(self, points: 'list[Point]') -> 'Polygon':
@@ -1192,33 +1156,31 @@ class Polygon(Serializable, list[Point]):
         curve_p2 = rect_p1
         curve_p3 = Point(rect.p0)
         curve_p3[axis1] = rect_p1[axis1]
-        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3, curve_p0)
+        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3)
 
-    @classmethod
-    def by_joined_curves(cls, curves: 'list[Line]') -> 'Polygon':
-        if not curves:
+    @staticmethod
+    def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
+        """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
+
+        Args:
+            lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
+
+        Returns:
+            Polygon: an unclosed polygon.
+        """
+        if not lines:
             print("Error: At least one curve is required to form a Polygon.")
             sys.exit()
 
-        for i in range(len(curves) - 1):
-            if curves[i].end != curves[i+1].start:
+        for i in range(len(lines) - 1):
+            if lines[i].end != lines[i+1].start:
                 print("Error: Curves must be contiguous to form a Polygon.")
                 sys.exit()
 
-        if Point.to_matrix(curves[0].start) != Point.to_matrix(curves[-1].end):
-            curves.append(Line(curves[-1].end, curves[0].start))
+        #if lines[0].start != lines[-1].end:
+        #    lines.append(Line(lines[-1].end, lines[0].start))
 
-        polygon = cls()
-        polygon.curves = curves
-
-        for crv in polygon.curves:
-            if Point.to_matrix(crv.start) not in polygon.points:
-                polygon.points.append(crv.start)
-            elif Point.to_matrix(crv.end) not in polygon.points:
-                polygon.points.append(crv.end)
-
-        return polygon
-
+        return Polygon([line.start for line in lines])
 
     def area(self) -> 'float':  # shoelace formula
         """Calculates the area enclosed by the Polygon using the shoelace formula.
@@ -1231,7 +1193,7 @@ class Polygon(Serializable, list[Point]):
 
         ```        
         """
-        if len(self.points) < 3:
+        if len(self) < 3:
             return "Polygon has less than 3 points!"
 
         num_points = len(self.points)
@@ -1268,56 +1230,20 @@ class Polygon(Serializable, list[Point]):
         return sum(i.length for i in self.curves)
 
 
-    def translate(self, vector_3d: 'Vector') -> 'Polygon':
-        """Translates the Polygon by a 3D vector.
 
-        #### Parameters:
-        - `vector_3d` (Vector): The 3D vector by which to translate the Polygon.
+
+    def __str__(self) -> 'str':
+        """Returns a string representation of the PolyCurve.
 
         #### Returns:
-        `Polygon`: The translated Polygon.
+        `str`: The string representation of the PolyCurve.
 
         #### Example usage:
         ```python
 
         ```        
         """
-        # Create a new Polygon instance to hold the translated polygon
-        translated_polygon = Polygon()
-        translated_curves = []
-        translated_points = []
-
-        # Translate all curves
-        for curve in self.curves:
-            if curve.__class__.__name__ == "Arc":
-                # Translate the start, middle, and end points of the arc
-                new_start = Point.translate(curve.start, vector_3d)
-                new_middle = Point.translate(curve.middle, vector_3d)
-                new_end = Point.translate(curve.end, vector_3d)
-                translated_curves.append(Arc(new_start, new_middle, new_end))
-            elif curve.__class__.__name__ == "Line":
-                # Translate the start and end points of the line
-                new_start = Point.translate(curve.start, vector_3d)
-                new_end = Point.translate(curve.end, vector_3d)
-                translated_curves.append(Line(new_start, new_end))
-            else:
-                print("Curve type not found")
-
-        # Ensure that translated_curves are assigned back to the translated_polygon
-        translated_polygon.curves = translated_curves
-
-        # Translate all points
-        for point in self.points:
-            translated_points.append(Point.translate(point, vector_3d))
-
-        # Ensure that translated_points are assigned back to the translated_polygon
-        translated_polygon.points = translated_points
-
-        return translated_polygon
-
-
-    def __str__(self) -> str:
-        return f"{self.type}"
+        return f"{__class__.__name__} (points: {list.__str__(self)})"
 
 
 class Arc:

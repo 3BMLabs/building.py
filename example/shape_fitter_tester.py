@@ -1,3 +1,4 @@
+import operator
 import random
 import sys, os, math
 from pathlib import Path
@@ -11,7 +12,7 @@ from abstract.vector import Vector
 from geometry.coords import Coords
 from abstract.rect import Rect
 from geometry.point import Point
-from geometry.curve import Line, PolyCurve
+from geometry.curve import Line, Polygon
 
 root = tk.Tk()
 canvas_width = 2000
@@ -134,7 +135,7 @@ def keydown(e):
 	else:
 		parent_sizes = [Vector(random.randrange(100, 500, 100), random.randrange(100,500,100)) for i in range(parent_count)]
 		
-		child_polygons = [PolyCurve.rectangular_curve(Rect(0,0,200,200)), PolyCurve(Point(0,0), Point(200, 0), Point(0,200)), PolyCurve(Point(200,0), Point(200, 200), Point(0,200)), PolyCurve(Point(0,0), Point(50,0), Point(70,50), Point(0, 50)), PolyCurve(Point(0,0), Point(70,0), Point(70,50), Point(20, 50))]
+		child_polygons = [Polygon.rectangular(Rect(0,0,200,200)), Polygon(Point(0,0), Point(200, 0), Point(0,200)), Polygon(Point(200,0), Point(200, 200), Point(0,200)), Polygon(Point(0,0), Point(50,0), Point(70,50), Point(0, 50)), Polygon(Point(0,0), Point(70,0), Point(70,50), Point(20, 50))]
 		for poly in child_polygons:
 			poly.closed = True
 		fit_result = sf.fit_polygons_2d(parent_sizes, child_polygons, allowed_error)
@@ -156,7 +157,7 @@ def keydown(e):
 				parent_off = parent_offsets[child_off[0]]
 				if parent_off != None:
 					child_poly.translate(parent_off[1] + child_off[1])
-					canvas.create_polygon(child_poly.points, outline='pink', fill='magenta')
+					canvas.create_polygon(child_poly, outline='pink', fill='magenta')
   
 		
 

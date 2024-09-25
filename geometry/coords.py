@@ -49,7 +49,13 @@ def to_array(*args) -> list:
 # [!not included in BP singlefile - end]
 
 class Coords(Serializable, list):
-    """a shared base class for point and vector. contains the x, y and z coordinates"""
+    """
+    a shared base class for point and vector. contains the x, y and z coordinates.
+    operations you do with these coords will apply for the children.
+    for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
+    or: Vector(2,5) ** 2 = Vector(4, 25)
+    Vectors can also be nested.
+    """
     def __init__(self, *args, **kwargs) -> 'Coords':
         arrayArgs:list = to_array(*args)
 
@@ -289,7 +295,18 @@ class Coords(Serializable, list):
             if self[axis] != other[axis]:
                 return other[axis] - self[axis]
         return 0
-        
+    
+    def ioperate_2(self, op: operator, other):
+        try:
+            for index in range(len(self)):
+                self[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                self[index] = op(self[index], other)
+        return self
+    
     def operate_2(self, op:operator, other):
         result = Coords([0] * len(self))
         try:
@@ -306,12 +323,22 @@ class Coords(Serializable, list):
         for index in range(len(self)):
             result[index] = op(self[index])
         return result
+    
     def __add__(self, other):
-        return self.operate_2(operator.add,other)
-
+        """Calculates the sum of two vectors.
+        
+        equivalent to the + operator.
+        
+        """
+        return self.operate_2(operator.__add__,other)
+    
+    sum = __add__
+    
     def __sub__(self, other):
         """Calculates the difference between two Vector objects.
         This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
+
+        equivalent to the - operator.
 
         #### Parameters:
         - `vector_1` (`Vector`): The minuend vector.
@@ -328,7 +355,7 @@ class Coords(Serializable, list):
         # Vector(X = 4.000, Y = 5.000, Z = 6.000)
         ```
         """
-        return self.operate_2(operator.sub,other)
+        return self.operate_2(operator.__sub__,other)
     
 
     difference = diff = substract = __sub__
@@ -336,6 +363,8 @@ class Coords(Serializable, list):
     def __truediv__(self, other):
         """Divides the components of the first vector by the corresponding components of the second vector.
         This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
+
+        equivalent to the / operator.
 
         #### Parameters:
         - `vector_1` (`Vector`): The numerator vector.
@@ -352,12 +381,14 @@ class Coords(Serializable, list):
         # Vector(X = 5.000, Y = 5.000, Z = 6.000)
         ```
         """
-        return self.operate_2(operator.truediv,other)
+        return self.operate_2(operator.__truediv__,other)
     
     divide = __truediv__
-
+    
     def __mul__(self, other):
         """Scales the vector by the specified scale factor.
+
+        equivalent to the * operator.
 
         #### Parameters:
         - `vector` (`Vector`): The vector to be scaled.
@@ -373,46 +404,30 @@ class Coords(Serializable, list):
         # Vector(X = 2, Y = 4, Z = 6)
         ```
         """
-        return self.operate_2(operator.mul,other)
+        return self.operate_2(operator.__mul__,other)
     product = scale = __rmul__ = __mul__
     
-    def __iadd__(self, other) -> Self:
-        """Translates the point by a given vector.        
-        
-        #### Parameters:
-        - `point` (Point): The point to be translated.
-        - `vector` (Vector): The translation vector.
-
-        #### Returns:
-        `Point`: Translated point.
-
-        #### Example usage:
-    	```python
-        point = Point(23, 1, 23)
-        vector = Vector(93, 0, -19)
-        output = Point.translate(point, vector)
-        # Point(X = 116.000, Y = 1.000, Z = 4.000)
-        ```
-        """
-        return self.operate_2(operator.iadd,other)
     
-    translate = sum = __iadd__
     
     def __pow__(self, power: float) -> Self:
         """raises the vector to a certain power.
+        
+        equivalent to the ** operator.
 
         Returns:
             Self: a vector with all components raised to the specified power
         """
-        return self.operate_2(operator.__pow__)
+        return self.ioperate_2(operator.__pow__)
     
     def __neg__(self) -> Self:
         """negates this vector.
 
+        equivalent to the - operator.
+
         Returns:
             Self: a vector with all components negated.
         """
-        return self.operate_1(operator.neg)
+        return self.operate_1(operator.__neg__)
     
     reverse = __neg__
     
@@ -435,6 +450,39 @@ class Coords(Serializable, list):
         ```
         """
         return self ** 2
+    
+    
+    #i operators. these operate on self (+=, *=, etc)
+    
+    def __iadd__(self, other) -> Self:
+        """Translates the point by a given vector.        
+
+        equivalent to the += operator.
+        
+        #### Parameters:
+        - `point` (Point): The point to be translated.
+        - `vector` (Vector): The translation vector.
+
+        #### Returns:
+        `Point`: Translated point.
+
+        #### Example usage:
+    	```python
+        point = Point(23, 1, 23)
+        vector = Vector(93, 0, -19)
+        output = Point.translate(point, vector)
+        # Point(X = 116.000, Y = 1.000, Z = 4.000)
+        ```
+        """
+        return self.ioperate_2(operator.__iadd__,other)
+
+    translate = __iadd__
+    
+    def __imul__(self, other) -> Self:
+        return self.ioperate_2(operator.__imul__,other)
+    
+    def __itruediv__(self, other) -> Self:
+        return self.ioperate_2(operator.__itruediv__,other)
     
 X_axis = Coords(1, 0, 0)
 

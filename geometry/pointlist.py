@@ -22,14 +22,15 @@
 # ***************************************************************************
 
 
-"""This module provides tools to create a pointcloud
+"""This module provides tools to create a PointList
 """
 
-__title__ = "pointcloud"
+__title__ = "PointList"
 __author__ = "Maarten & Jonathan"
-__url__ = "./geometry/pointcloud.py"
+__url__ = "./geometry/PointList.py"
 
 
+import operator
 import sys
 from pathlib import Path
 
@@ -37,29 +38,39 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
+from abstract.rect import Rect
+from abstract.vector import Vector
 from packages.helper import *
 
-
-class PointCloud:
+class PointList(Vector[Vector]):
     """Represents a collection of points in space as a point cloud."""
     
-    def __init__(self, points: list) -> 'PointCloud':
-        """Initializes a PointCloud object with a list of points.
+    def __init__(self, points: list) -> 'PointList':
+        """Initializes a PointList object with a list of points.
 
         #### Parameters:
         - `points` (list): An optional list of points to initialize the point cloud. Each point can be an instance of a Point class or a tuple/list of coordinates.
 
-        Initializes the PointCloud's attributes and sets up the list of points based on the input provided. The ID is generated to uniquely identify the point cloud.
+        Initializes the PointList's attributes and sets up the list of points based on the input provided. The ID is generated to uniquely identify the point cloud.
         """
-        self.points = []
+        super().__init__(points)
         self.id = generateID()
+    
+    #just execute the operator for all list members
+    def operate_2(self, op:operator, other):
+        return self.__class__([self[index].operate_2(op, other) for index in range(len(self))])
+    
+    def ioperate_2(self, op:operator, other):
+        for index in range(len(self)):
+            self[index].ioperate_2(op, other)
+        return self
 
-    def __str__(self) -> str:
-        """Generates a string representation of the PointCloud object.
+    def operate_1(self, op:operator):
+        return self.__class__([self[index].operate_1(op) for index in range(len(self))])
+    
+    @property
+    def bounds(self) -> 'Rect':
+        return Rect.by_points(self)
 
-        #### Returns:
-        `str`: A string representation of the PointCloud, including its class name and the list of points it contains.
-
-        This method facilitates easy printing and logging of PointCloud objects, showing the collection of points within the cloud in a readable format.
-        """
-        return f"{__class__.__name__}({self.points})"
+#alternative naming
+PointCloud = PointList

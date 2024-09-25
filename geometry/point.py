@@ -158,25 +158,6 @@ class Point(Coords):
         return point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z
 
     @staticmethod
-    def to_matrix(point: 'Point') -> 'Point':
-        """Converts the point to a list.        
-        
-        #### Parameters:
-        Converts the point to a list.
-
-        #### Returns:
-        `list`: List representation of the point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        output = Point.to_matrix(point_1)
-        # [23.0, 1.0, 23.0]
-        ```
-        """
-        return [point.x, point.y, point.z]
-
-    @staticmethod
     def from_matrix(list: list) -> 'Point':
         """Converts a list to a Point object.        
         
@@ -193,11 +174,7 @@ class Point(Coords):
         # Point(X = 19.000, Y = 30.000, Z = 12.300)
         ```
         """
-        return Point(
-            list[0],
-            list[1],
-            list[2]
-        )
+        return Point(list)
 
 
 class CoordinateSystem:

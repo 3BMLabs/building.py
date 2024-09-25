@@ -275,14 +275,15 @@ class _SortedLineElement:
         self.line = line
 
 class _PolygonFitGroup:
-    def __init__(self,child_indexes: list[int], relative_child_offsets:list[Vector], lines: list[_SortedLineElement], bounds: Rect, is_box: bool) -> None:
+    def __init__(self,child_indexes: list[int], relative_child_offsets:list[Vector], polygon: Polygon) -> None:
         self.parent_index:int = 0
         self.offset_in_parent:Vector = Vector()
         self.child_indexes = child_indexes
         self.relative_child_offsets = relative_child_offsets
-        self.bounds = bounds
-        self.lines = lines
-        self.is_box = is_box
+        self.bounds = polygon.bounds
+        self.lines = []
+        self.is_box = polygon.is_rectangle
+        self.polygon = polygon
     
 class PolygonFitResult2D:
     def __init__(self) -> None:
@@ -321,7 +322,7 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
     
     child_index = 0
     for poly in child_polygons:
-        group = _PolygonFitGroup([child_index], [Vector(0,0)], [],poly.bounds, poly.is_rectangle)
+        group = _PolygonFitGroup([child_index], [Vector(0,0)], poly)
         for line in poly.curves:
             angle = line.angle
             line_elem = _SortedLineElement(angle, child_index, child_index, line)
@@ -367,35 +368,41 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
                     if(group_a.bounds.collides(relative_b_bounds)):
                         merged_bounds_relative_to_a = Rect.outer([group_a.bounds, relative_b_bounds])
                         
-                        #is the merged rectangle too big?
+                        #check if the polygons don't intersect
+                        polygon_b_relative_to_a = group_b.polygon + b_to_a_offset
+                        if not group_a.polygon.collides(polygon_b_relative_to_a):
+                            
+                            #is the merged rectangle too big?
 
-                        #check if the biggest parent available can contain the merged rectangle
-                        if True: #parents[0][1].x >= merged_bounds_relative_to_a.size.x and parent_sizes[0].y >= merged_bounds_relative_to_a.size.y:
+                            #check if the biggest parent available can contain the merged rectangle
+                            if True: #parents[0][1].x >= merged_bounds_relative_to_a.size.x and parent_sizes[0].y >= merged_bounds_relative_to_a.size.y:
 
-                            #don't delete the array element, because we would have to update all fit group indexes.
-                            #we still have the group caught in group_b
-                            fit.grouped_polygons[elem_b.fit_group_index] = None
+                                #don't delete the array element, because we would have to update all fit group indexes.
+                                #we still have the group caught in group_b
+                                fit.grouped_polygons[elem_b.fit_group_index] = None
 
-                            #merge group b into group a
+                                #merge group b into group a
 
-                            translate_a = -merged_bounds_relative_to_a.p0
-                            translate_b = translate_a + b_to_a_offset
+                                translate_a = -merged_bounds_relative_to_a.p0
+                                translate_b = translate_a + b_to_a_offset
 
-                            for group, translation in zip([group_a,group_b], [translate_a, translate_b]):
-                                for line_elem in group.lines:
-                                    line_elem.line.translate(translation)
-                                for i in range(len(group.relative_child_offsets)):
-                                    group.relative_child_offsets[i] += translation
-                            for line_elem in group_b.lines:
-                                line_elem.fit_group_index = elem_a.fit_group_index
+                                for group, translation in zip([group_a,group_b], [translate_a, translate_b]):
+                                    for line_elem in group.lines:
+                                        line_elem.line.translate(translation)
+                                    for i in range(len(group.relative_child_offsets)):
+                                        group.relative_child_offsets[i] += translation
+                                for line_elem in group_b.lines:
+                                    line_elem.fit_group_index = elem_a.fit_group_index
 
-                            group_a.lines.extend(group_b.lines)
-                            group_a.child_indexes.extend(group_b.child_indexes)
-                            group_a.relative_child_offsets.extend(group_b.relative_child_offsets)
+                                group_a.lines.extend(group_b.lines)
+                                group_a.child_indexes.extend(group_b.child_indexes)
+                                group_a.relative_child_offsets.extend(group_b.relative_child_offsets)
 
-                            group_a.bounds = merged_bounds_relative_to_a
-                            group_a.bounds.p0 = Vector([0] * 2)
-                            break
+                                group_a.bounds = merged_bounds_relative_to_a
+                                group_a.bounds.p0 = Vector([0] * 2)
+
+                                #todo: merge polygons
+                                break
     #remove the merged groups and adjust indexes
     
     #inactive_to_active = []
