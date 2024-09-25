@@ -7,7 +7,7 @@ from math import inf
 import math
 from abstract.rect import Rect
 from geometry.coords import Coords
-from geometry.curve import PolyCurve, Line
+from geometry.curve import PolyCurve, Line, Polygon
 from abstract.vector import Vector
 
 #compare: a function which should return true if the compared element is less than the search value, when sorted ascending.
@@ -294,7 +294,7 @@ class PolygonFitResult2D:
 
         self.box_result:FitResult2D = None
 
-def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[PolyCurve], allowed_error) -> PolygonFitResult2D:
+def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], allowed_error) -> PolygonFitResult2D:
     """fits polygons in a list of parent rectangles.<br>
     will not rotate the polygons, only move them!
     we expect the polygons to be closed.

@@ -33,9 +33,12 @@ __url__ = "./objects/profile.py"
 
 import sys, os, math
 from pathlib import Path
+
+from abstract.serializable import Serializable
+from geometry.curve import Line
+from geometry.point import Point
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
 
@@ -52,14 +55,14 @@ sqrt2 = math.sqrt(2)
 
 class Profile(Serializable):
 
-    def __init__(self, name: string, description: string, IFC_profile_def: string, height: float, width: float,
+    def __init__(self, name: str, description: str, IFC_profile_def: str, height: float, width: float,
                  tw: float = None, tf: float = None):
         """Creates a profile profile.
 
         Args:
-            name (string): _description_
-            description (string): _description_
-            IFC_profile_def (string): _description_
+            name (str): _description_
+            description (str): _description_
+            IFC_profile_def (str): _description_
             height (_type_): _description_
             width (_type_): _description_
         """
@@ -89,32 +92,32 @@ class CChannelParallelFlange(Profile):
         self.ex = ex  # centroid horizontal
 
         # describe points
-        p1 = Point2D(-ex, -height / 2)  # left bottom
-        p2 = Point2D(width - ex, -height / 2)  # right bottom
-        p3 = Point2D(width - ex, -height / 2 + tf)
-        p4 = Point2D(-ex + tw + r, -height / 2 + tf)  # start arc
-        p5 = Point2D(-ex + tw + r, -height / 2 + tf + r)  # second point arc
-        p6 = Point2D(-ex + tw, -height / 2 + tf + r)  # end arc
-        p7 = Point2D(-ex + tw, height / 2 - tf - r)  # start arc
-        p8 = Point2D(-ex + tw + r, height / 2 - tf - r)  # second point arc
-        p9 = Point2D(-ex + tw + r, height / 2 - tf)  # end arc
-        p10 = Point2D(width - ex, height / 2 - tf)
-        p11 = Point2D(width - ex, height / 2)  # right top
-        p12 = Point2D(-ex, height / 2)  # left top
+        p1 = Point(-ex, -height / 2)  # left bottom
+        p2 = Point(width - ex, -height / 2)  # right bottom
+        p3 = Point(width - ex, -height / 2 + tf)
+        p4 = Point(-ex + tw + r, -height / 2 + tf)  # start arc
+        p5 = Point(-ex + tw + r, -height / 2 + tf + r)  # second point arc
+        p6 = Point(-ex + tw, -height / 2 + tf + r)  # end arc
+        p7 = Point(-ex + tw, height / 2 - tf - r)  # start arc
+        p8 = Point(-ex + tw + r, height / 2 - tf - r)  # second point arc
+        p9 = Point(-ex + tw + r, height / 2 - tf)  # end arc
+        p10 = Point(width - ex, height / 2 - tf)
+        p11 = Point(width - ex, height / 2)  # right top
+        p12 = Point(-ex, height / 2)  # left top
 
         # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
         l4 = Arc2D(p4, p5, p6)
-        l5 = Line2D(p6, p7)
+        l5 = Line(p6, p7)
         l6 = Arc2D(p7, p8, p9)
-        l7 = Line2D(p9, p10)
-        l8 = Line2D(p10, p11)
-        l9 = Line2D(p11, p12)
-        l10 = Line2D(p12, p1)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p11)
+        l9 = Line(p11, p12)
+        l10 = Line(p12, p1)
 
-        self.curve = PolyCurve2D().by_joined_curves(
+        self.curve = PolyCurve.by_joined_curves(
             [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
 class CChannelSlopedFlange(Profile):

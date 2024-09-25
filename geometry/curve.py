@@ -314,7 +314,8 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve(Serializable):
+class PolyCurve(Serializable, list[Line]):
+    """Stores lines, which could possibly be arcs"""
     def __init__(self, *args):
         """Initializes a PolyCurve object, which is unclosed by default.
         
@@ -338,7 +339,7 @@ class PolyCurve(Serializable):
         
         self.id = generateID()
         self.type = __class__.__name__
-        self.points:list[Point] = to_array(*args)
+        self.curves: list[Line] = to_array(*args)
 
         self.approximateLength = None
         self.graphicsStyleId = None
@@ -1099,46 +1100,13 @@ class PolyCurve(Serializable):
         length = len(self.points)
         return f"{__class__.__name__} (points: {self.points})"
 
-    @staticmethod
-    def rectangular_curve(rect: Rect) -> 'PolyCurve':
-        """Creates a rectangle in a given plane.
 
-        #### Parameters:
-        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
-        - `width` (float): The width of the rectangle.
-        - `height` (float): The height of the rectangle.
-
-        #### Returns:
-        `PolyCurve`: The rectangle PolyCurve.
-
-        #### Example usage:
-        ```python
-        ```    
-        """
-        try:
-            not_used_axis_index = rect.size.index(0)
-        except:
-            #2d rectangle
-            not_used_axis_index = 2
-
-        axis0 = 1 if not_used_axis_index == 0 else 0
-        axis1 = 1 if not_used_axis_index == 2 else 2
-
-        rect_p1 = rect.p1
-        curve_p0 = rect.p0
-        #clone
-        curve_p1 = Point(rect.p0)
-        curve_p1[axis0] = rect_p1[axis0]
-
-        curve_p2 = rect_p1
-        curve_p3 = Point(rect.p0)
-        curve_p3[axis1] = rect_p1[axis1]
-        return PolyCurve(curve_p0, curve_p1, curve_p2, curve_p3, curve_p0)
-
-class Polygon(PolyCurve):
+class Polygon(Serializable, list[Point]):
     """Represents a polygon composed of points."""
     def __init__(self) -> 'Polygon':
         self.id = generateID()
+        super()
+        self.points:list[Point] = to_array(*args)
         self.type = __class__.__name__
         self.curves = []
         self.points = []
@@ -1146,7 +1114,7 @@ class Polygon(PolyCurve):
         self.isClosed = True
 
     @classmethod
-    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+    def by_points(self, points: 'list[Point]') -> 'Polygon':
         """Creates a Polygon from a list of points.
 
         #### Parameters:
@@ -1188,6 +1156,41 @@ class Polygon(PolyCurve):
 
         return polygon
 
+    @staticmethod
+    def rectangular(rect: Rect) -> 'Polygon':
+        """Creates a rectangle in a given plane.
+
+        #### Parameters:
+        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
+        - `width` (float): The width of the rectangle.
+        - `height` (float): The height of the rectangle.
+
+        #### Returns:
+        `Polygon`: The rectangle Polygon.
+
+        #### Example usage:
+        ```python
+        ```    
+        """
+        try:
+            not_used_axis_index = rect.size.index(0)
+        except:
+            #2d rectangle
+            not_used_axis_index = 2
+
+        axis0 = 1 if not_used_axis_index == 0 else 0
+        axis1 = 1 if not_used_axis_index == 2 else 2
+
+        rect_p1 = rect.p1
+        curve_p0 = rect.p0
+        #clone
+        curve_p1 = Point(rect.p0)
+        curve_p1[axis0] = rect_p1[axis0]
+
+        curve_p2 = rect_p1
+        curve_p3 = Point(rect.p0)
+        curve_p3[axis1] = rect_p1[axis1]
+        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3, curve_p0)
 
     @classmethod
     def by_joined_curves(cls, curves: 'list[Line]') -> 'Polygon':
@@ -1411,16 +1414,18 @@ class Arc:
         # origin will be the calculated origin point of the arc
         ```
         """
-        start_to_end = Vector.by_two_points(self.start, self.end)
-        half_start_end = Vector.scale(start_to_end, 0.5)
-        b = Vector.length(half_start_end)
+        start_to_end = self.end - self.start
+        half_start_end = start_to_end * 0.5
+        b = half_start_end.magnitude
         radius = Arc.radius_arc(self)
         x = math.sqrt(radius * radius - b * b)
-        mid = Point.translate(self.start, half_start_end)
-        vector_2 = Vector.by_two_points(self.mid, mid)
-        vector_3 = Vector.normalize(vector_2)
-        tocenter = Vector.scale(vector_3, x)
-        center = Point.translate(mid, tocenter)
+        #mid point as if this was a straight line
+        mid = self.start + half_start_end
+        #substract the curved mid point from the straight line mid point
+        to_center = mid - self.mid
+        #change length to x
+        to_center.magnitude = x
+        center = mid + to_center
         return center
 
     def angle_radian(self) -> 'float':

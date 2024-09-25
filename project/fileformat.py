@@ -47,10 +47,12 @@ class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
+        #settings
         self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet
+
         self.origin = Point(0,0,0)
         self.default_font = "calibri"
         self.scale = 1000
@@ -95,14 +97,12 @@ class BuildingPy(Serializable):
         self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
     def save(self, file_name = 'project/data.json'):
-        super().save(file_name)
+        Serializable.save(file_name)
         
         type_count = defaultdict(int)
         for serialized_item in self.objects:
             #item = json.loads(serialized_item)
-            item_type = serialized_item.type
-            if item_type:
-                type_count[item_type] += 1
+            type_count[serialized_item.__class__.__name__] += 1
 
         total_items = len(self.objects)
 
@@ -111,7 +111,7 @@ class BuildingPy(Serializable):
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
     def open(self, file_name = 'project/data.json'):
-        super().open(file_name)
+        Serializable.open(file_name)
 
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle

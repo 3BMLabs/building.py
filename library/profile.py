@@ -41,8 +41,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
-from objects.profile import *
-from geometry.geometry2d import *
+from BuildingPy import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
 from geometry.curve import PolyCurve
 
 # [!not included in BP singlefile - end]
