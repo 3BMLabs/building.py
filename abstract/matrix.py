@@ -38,8 +38,11 @@ import pickle
 from functools import reduce
 import struct
 
+from geometry.pointlist import PointList
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from abstract.rect import Rect
 from geometry.point import Point
 from geometry.curve import Line
 from abstract.vector import *
@@ -101,7 +104,7 @@ class Matrix(list[list]):
         dimensions:int = len(toAdd) + 1
         return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
     
-    def __mul__(self, other:Self | Coords | Line):
+    def __mul__(self, other:Self | Coords | Line | Rect | PointList):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
         for example: translate * rotate (rotate first, translate after)
         and: matrix * point (point first, multiplied by matrix after)"""
@@ -144,6 +147,8 @@ class Matrix(list[list]):
                             otherValue = other[multiplyIndex][col] if col < other.cols and multiplyIndex < other.rows else 1 if multiplyIndex == col else 0
                             result[row][col] += selfValue * otherValue
 
+        elif isinstance(other, PointList):
+            return other.__class__([self * p for p in other])
         #point comes in from top and comes out to the right:
         # |
         # v
@@ -163,6 +168,10 @@ class Matrix(list[list]):
             return result
         elif isinstance(other, Line):
             return Line(self * other.start, self * other.end)
+        elif isinstance(other, Rect):
+            mp0 = self * other.p0
+            mp1 = self * other.p1
+            return Rect.by_points([mp0, mp1])
         return result
     
     transform = multiply = __mul__

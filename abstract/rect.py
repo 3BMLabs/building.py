@@ -163,7 +163,7 @@ class Rect(Serializable):
         p0 = Point(points[0])
         p1 = Point(points[0])
         
-        #it's faster to not skipt the first point than to check if it's the first point or revert to an index-based loop
+        #it's faster to not skip the first point than to check if it's the first point or revert to an index-based loop
         for p in points:
             for axis in range(axis_count):
                 p0[axis] = min(p0[axis], p[axis])

@@ -402,6 +402,8 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
                                 group_a.bounds.p0 = Vector([0] * 2)
 
                                 #todo: merge polygons
+                                #merge polygons
+                                
                                 break
     #remove the merged groups and adjust indexes
     

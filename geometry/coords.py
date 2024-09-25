@@ -219,7 +219,7 @@ class Coords(Serializable, list):
         Returns:
             int: the index
         """
-        return ['x', 'y', 'z', 'w'].index(axis)
+        return ['x', 'y', 'z', 'w'].index(axis.lower())
 
     def change_axis_count(self,axis_count: int):
         """in- or decreases the amount of axes to the preferred axis count.
@@ -477,6 +477,9 @@ class Coords(Serializable, list):
         return self.ioperate_2(operator.__iadd__,other)
 
     translate = __iadd__
+    
+    def __isub__(self, other) -> Self:
+        return self.ioperate_2(operator.__isub__,other)
     
     def __imul__(self, other) -> Self:
         return self.ioperate_2(operator.__imul__,other)

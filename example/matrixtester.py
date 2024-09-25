@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from geometry.pointlist import PointCloud
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.color import Color
@@ -39,3 +41,6 @@ l1 = Line(Point(1,2), Point(1, 5))
 l2 = Arc(Point(1,5), Point(1.8, 6.2), Point(3,7))
 l3 = Line(Point(3,7), Point(7,7))
 curve = PolyCurve(l1,l2,l3)
+
+pc = PointCloud([l.start, l.end])
+transformed_pointcloud = combined2 * pc
