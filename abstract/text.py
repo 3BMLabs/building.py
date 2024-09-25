@@ -75,7 +75,6 @@ class Text:
         - `path_list` (list): A list containing the path data for each character.
         """
         self.id = generateID()
-        self.type = __class__.__name__
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin

@@ -161,6 +161,48 @@ class Coords(Serializable, list):
         return math.atan2(self.x, self.y)
     
     @staticmethod
+    def distance_squared(point_1: 'Coords', point_2: 'Coords') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Coords): The first point.
+        - `point_2` (Coords): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Coords(0, 0, 400)
+        point_2 = Coords(300, 0, 400)
+        output = Coords.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_2 - point_1).squared_magnitude
+    
+    @staticmethod
+    def distance(point_1: 'Coords', point_2: 'Coords') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Coords): The first point.
+        - `point_2` (Coords): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Coords(0, 0, 400)
+        point_2 = Coords(300, 0, 400)
+        output = Coords.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_2 - point_1).magnitude
+    
+    @staticmethod
     def axis_index(axis:str) -> int:
         """returns index of axis name.<br>
         raises a valueError when the name isn't valid.
@@ -213,7 +255,28 @@ class Coords(Serializable, list):
             int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
         """
         return self.set_axis(Coords.axis_index(axis_name), value)
-                    
+    
+    @staticmethod
+    def by_two_points(point_1: 'Coords', point_2: 'Coords') -> 'Coords':
+        """Computes the vector between two points.
+
+        #### Parameters:
+        - `point_1` (`Coords`): The starting point.
+        - `point_2` (`Coords`): The ending point.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the vector between the two points.
+
+        #### Example usage:
+        ```python
+        point1 = Point(1, 2, 3)
+        point2 = Point(4, 6, 8)
+        vector = Vector.by_two_points(point1, point2)
+        # Vector(X = 3, Y = 4, Z = 5)
+        ```
+        """
+        return point_2 - point_1
+        
     def volume(self):
         result = 1
         for val in self:
@@ -268,7 +331,7 @@ class Coords(Serializable, list):
         return self.operate_2(operator.sub,other)
     
 
-    difference = substract = __sub__
+    difference = diff = substract = __sub__
     
     def __truediv__(self, other):
         """Divides the components of the first vector by the corresponding components of the second vector.
@@ -311,7 +374,7 @@ class Coords(Serializable, list):
         ```
         """
         return self.operate_2(operator.mul,other)
-    scale = __rmul__ = __mul__
+    product = scale = __rmul__ = __mul__
     
     def __iadd__(self, other) -> Self:
         """Translates the point by a given vector.        
@@ -333,7 +396,7 @@ class Coords(Serializable, list):
         """
         return self.operate_2(operator.iadd,other)
     
-    translate = __iadd__
+    translate = sum = __iadd__
     
     def __pow__(self, power: float) -> Self:
         """raises the vector to a certain power.

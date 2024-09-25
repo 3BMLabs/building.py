@@ -67,7 +67,6 @@ class CoordinateSystem:
         """
 
         self.id = generateID()
-        self.type = __class__.__name__
         self.Origin = origin
         self.Xaxis = Vector.normalize(x_axis)
         self.Y_axis = Vector.normalize(y_axis)

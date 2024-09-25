@@ -287,7 +287,6 @@ def rgb_to_int(rgb):
 
 class Sphere:
     def __init__(self, point=Point, diameter=int, tag: None = string, comments: None = string):
-        self.type = __class__.__name__
         self.point = point
         self.diameter = diameter
         self.id = generateID()

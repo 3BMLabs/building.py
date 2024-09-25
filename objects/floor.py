@@ -38,7 +38,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.coordinatesystem import CoordinateSystem
 from abstract.coordinatesystem import CSGlobal
-from geometry.solid import Extrusion
 from geometry.curve import *
 
 # [!not included in BP singlefile - end]
@@ -47,7 +46,6 @@ from geometry.curve import *
 class Floor:
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.extrusion = None
         self.thickness = 0
         self.name = None

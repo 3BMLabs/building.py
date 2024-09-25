@@ -48,7 +48,6 @@ class Panel(Serializable):
     # Panel
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.extrusion = None
         self.thickness = 0
         self.name = None

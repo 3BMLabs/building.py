@@ -46,7 +46,6 @@ from geometry.curve import *
 class Room:
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.name = None
         self.extrusion = None
         self.verts = None

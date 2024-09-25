@@ -64,7 +64,6 @@ class DimensionType:
     def __init__(self):
         self.name = None
         self.id = generateID()
-        self.type = __class__.__name__
         self.font = None
         self.text_height = 2.5
         self.tick_mark: TickMark = TMDiagonal
@@ -120,7 +119,6 @@ DT1_8_mm = DimensionType.by_name_font_textheight_tick_mark_extension(
 class Dimension:
     def __init__(self, start: Point, end: Point, dimension_type) -> None:
         self.id = generateID()
-        self.type = __class__.__name__
         self.start: Point = start
         self.text_height = 100
         self.end: Point = end
@@ -213,7 +211,6 @@ class FrameTag:
     def __init__(self):
         # Dimensions in 1/100 scale
         self.id = generateID()
-        self.type = __class__.__name__
         self.scale = 0.1
         self.cs: CoordinateSystem = CSGlobal
         self.offset_x = 500
@@ -293,7 +290,6 @@ class ColumnTag:
     def __init__(self):
         # Dimensions in 1/100 scale
         self.id = generateID()
-        self.type = __class__.__name__
         self.width = 700
         self.height = 500
         self.factor = 3  # hellingsfacor leader

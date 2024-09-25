@@ -55,7 +55,6 @@ class Line(Serializable):
         - `end` (Point): The ending point of the line segment.
         """
         self.id = generateID()
-        self.type = __class__.__name__
         self.start: Point = start
         self.end: Point = end
         
@@ -338,21 +337,39 @@ class PolyCurve(Serializable, list[Line]):
         """
         
         self.id = generateID()
-        self.type = __class__.__name__
-        self.curves: list[Line] = to_array(*args)
+        #self.points:list[Point] = to_array(*args)
 
-        self.approximateLength = None
-        self.graphicsStyleId = None
-        self.isCyclic = None
-        self.isElementGeometry = None
-        self.isReadOnly = None
-        self.length = self.length()
-        self.period = None
-        self.reference = None
-        self.visibility = None
+        #self.approximateLength = None
+        #self.graphicsStyleId = None
+        #self.isCyclic = None
+        #self.isElementGeometry = None
+        #self.isReadOnly = None
+        #self.length = self.length()
+        #self.period = None
+        #self.reference = None
+        #self.visibility = None
+        super().__init__(to_array(*args))
         
     @property
     def closed(self) -> bool: return self.points[0] == self.points[-1]
+    
+    @property
+    def length(self) -> 'float':
+        """Calculates the total length of the PolyCurve.
+
+        #### Returns:
+        `float`: The total length of the PolyCurve.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
+        return sum(i.length for i in self.curves)
     
     @closed.setter
     def closed(self, value) -> Self:
@@ -496,23 +513,8 @@ class PolyCurve(Serializable, list[Line]):
         else:
             print("Polycurve is not closed, no area!")
             return None
+        
 
-    def length(self) -> 'float':
-        """Calculates the total length of the PolyCurve.
-
-        #### Returns:
-        `float`: The total length of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        lst = []
-        for line in self.curves:
-            lst.append(line.length)
-
-        return sum(i.length for i in self.curves)
 
     @classmethod
     def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
@@ -1330,30 +1332,29 @@ class Arc:
         - `endPoint` (Point): The ending point of the arc.
         """
         #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
-        if Point.distance_squared(startPoint, midPoint) != Point.distance_squared(midPoint, endPoint):
+        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
             raise ValueError('midpoint is not in the center')
         
         self.id = generateID()
-        self.type = __class__.__name__
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
-        self.origin = self.origin_arc()
-        vector_1 = Vector(x=1, y=0, z=0)
-        vector_2 = Vector(x=0, y=1, z=0)
-        self.plane = Plane.by_two_vectors_origin(
-            vector_1,
-            vector_2,
-            self.origin
-        )
-        self.radius = self.radius_arc()
-        self.startAngle = 0
-        self.endAngle = 0
-        self.angle_radian = self.angle_radian()
-        self.area = 0
-        self.length = self.length()
-        self.units = project.units
-        self.coordinatesystem = self.coordinatesystem_arc()
+        #self.origin = self.origin_arc()
+        #vector_1 = Vector(x=1, y=0, z=0)
+        #vector_2 = Vector(x=0, y=1, z=0)
+        #self.plane = Plane.by_two_vectors_origin(
+        #    vector_1,
+        #    vector_2,
+        #    self.origin
+        #)
+        #self.radius = self.radius_arc()
+        #self.startAngle = 0
+        #self.endAngle = 0
+        #self.angle_radian = self.angle_radian()
+        #self.area = 0
+        #self.length = self.length()
+        #self.units = project.units
+        #self.coordinatesystem = self.coordinatesystem_arc()
 
     def coordinatesystem_arc(self) -> 'CoordinateSystem':
         """Calculates and returns the coordinate system of the arc.
@@ -1600,7 +1601,6 @@ class Circle:
         - `plane` (Plane): The plane in which the circle lies.
         - `length` (float): The length (circumference) of the circle. Automatically calculated during initialization.
         """
-        self.type = __class__.__name__
         self.radius = radius
         self.plane = plane
         self.length = length
@@ -1638,7 +1638,6 @@ class Ellipse:
         - `secondRadius` (float): The second (minor) radius of the ellipse.
         - `plane` (Plane): The plane in which the ellipse lies.
         """
-        self.type = __class__.__name__
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane

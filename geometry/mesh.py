@@ -44,7 +44,6 @@ class MeshPB:
         - `material` (Material): The material assigned to the mesh.
         - `colorlst` (list): A list of colors for the mesh, derived from the material.
         """
-        self.type = __class__.__name__
         self.verts = []
         self.faces = []
         self.numberFaces = 0

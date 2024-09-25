@@ -39,7 +39,6 @@ class View(Serializable):
     def __init__(self):
         self.name = None
         self.id = generateID()
-        self.type = __class__.__name__
         self.origin = Point(0, 0, 0)
         self.cutplane: CoordinateSystem = None
         self.visibility = None
@@ -75,7 +74,6 @@ class Visibility(Serializable):
     def __init__(self):
         self.name = None
         self.id = generateID()
-        self.type = __class__.__name__
         self.origin = Point(0, 0, 0)
         self.cutplane: CoordinateSystem = None
         self.visibility = None

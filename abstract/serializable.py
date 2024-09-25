@@ -38,7 +38,9 @@ import importlib
 
 
 class Serializable:
-
+    @property
+    def type(self):
+        return __class__.__name__
     @staticmethod
     def serialize_type(obj) -> dict:
         """Save the type of an object to a dictionary.

@@ -675,7 +675,6 @@ class Point(Coords):
         - `z` (float): Z-coordinate of the point.
         """
         super().__init__(*args, **kwargs)
-        self.type = __class__.__name__
         self.units = "mm"
 
     def __str__(self) -> str:
@@ -1063,7 +1062,6 @@ class CoordinateSystem:
         """
         from abstract.vector import Vector
         self.id = generateID()
-        self.type = __class__.__name__
         self.Origin = origin
         self.X_axis = Vector.normalize(x_axis)
         self.Y_axis = Vector.normalize(y_axis)
@@ -2970,7 +2968,7 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve:
+class PolyCurve(list[Line]):
     def __init__(self):
         """Initializes a PolyCurve object.
         
@@ -2992,7 +2990,6 @@ class PolyCurve:
 
         """
         self.id = generateID()
-        self.type = __class__.__name__
         self.curves = []
         self.points = []
         self.segmentcurves = None

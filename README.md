@@ -28,7 +28,7 @@ Abstract | Vector | :heavy_check_mark: |  |
 &nbsp; | CoordinateSystem | :heavy_check_mark: |  |  
 &nbsp; | Color | :heavy_check_mark: | :heavy_check_mark: |  
 &nbsp; | Material | :heavy_check_mark: | |  
-Geometry | Point3D | :heavy_check_mark: | :heavy_check_mark:  |  
+Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Line | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Arc | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | PolyCurve | :heavy_check_mark: | :heavy_check_mark:  |  

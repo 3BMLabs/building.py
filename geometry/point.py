@@ -55,51 +55,7 @@ class Point(Coords):
         - `z` (float): Z-coordinate of the point.
         """
         super().__init__(*args, **kwargs)
-        self.type = __class__.__name__
         self.units = "mm"
-
-    @staticmethod
-    def distance_squared(point_1: 'Point', point_2: 'Point') -> float:
-        """Computes the Euclidean distance between two 3D points.
-
-        #### Parameters:
-        - `point_1` (Point): The first point.
-        - `point_2` (Point): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(0, 0, 400)
-        point_2 = Point(300, 0, 400)
-        output = Point.distance(point_1, point_2) 
-        # 90000
-        ```
-        """
-        return (point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2
-        
-    @staticmethod
-    def distance(point_1: 'Point', point_2: 'Point') -> float:
-        """Computes the Euclidean distance between two 3D points.
-
-        #### Parameters:
-        - `point_1` (Point): The first point.
-        - `point_2` (Point): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(100.23, 182, 19)
-        point_2 = Point(81, 0.1, -901)
-        output = Point.distance(point_1, point_2) 
-        # 938.0071443757771
-        ```
-        """
-        
-        return math.sqrt(Point.distance_squared(point_1, point_2))
 
     @staticmethod
     def distance_list(points: list['Point']) -> float:
@@ -129,36 +85,6 @@ class Point(Coords):
         return distances
 
     @staticmethod
-    def translate(point: 'Point', vector) -> 'Point':
-        """Translates the point by a given vector.        
-        
-        #### Parameters:
-        - `point` (Point): The point to be translated.
-        - `vector` (Vector): The translation vector.
-
-        #### Returns:
-        `Point`: Translated point.
-
-        #### Example usage:
-    	```python
-        point = Point(23, 1, 23)
-        vector = Vector(93, 0, -19)
-        output = Point.translate(point, vector)
-        # Point(X = 116.000, Y = 1.000, Z = 4.000)
-        ```
-        """
-        from abstract.vector import Vector
-
-        ar1 = Point.to_matrix(point)
-        ar2 = Vector.to_matrix(vector)
-        if len(ar1) == len(ar2):
-            c = [ar1[i] + ar2[i] for i in range(len(ar1))]
-        else:
-            c = [0, 0, 0]
-            raise ValueError("Arrays must have the same size")
-        return Point(c[0], c[1], c[2])
-
-    @staticmethod
     def origin(point_1: 'Point', point_2: 'Point') -> 'Point':
         """Computes the midpoint between two points.        
         
@@ -181,103 +107,6 @@ class Point(Coords):
             (point_1.x + point_2.x) / 2,
             (point_1.y + point_2.y) / 2,
             (point_1.z + point_2.z) / 2
-        )
-
-    @staticmethod
-    def point_2D_to_3D(point_2D) -> 'Point':
-        """Converts a 2D point to a 3D point with zero z-coordinate.        
-        
-        #### Parameters:
-        - `point2D` (Point): 2D point to be converted.
-
-        #### Returns:
-        `Point`: 3D point with zero z-coordinate.
-
-        #### Example usage:
-    	```python
-        point_1 = Point2D(19, 30)
-        output = Point.point_2D_to_3D(point_1)
-        # Point(X = 19.000, Y = 30.000, Z = 0.000)
-        ```
-        """
-        return Point(
-            point_2D.x,
-            point_2D.y,
-            0
-        )
-
-    @staticmethod
-    def to_vector(point: 'Point'):
-        """Converts the point to a Vector object.        
-        
-        #### Parameters:
-        - `point` (Point): Point to be converted.
-
-        #### Returns:
-        `Vector`: Vector representation of the point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(9, 20, 10)
-        output = Point.to_vector(point_1)
-        # Vector(X = 9.000, Y = 20.000, Z = 10.000)
-        ```
-        """
-        from abstract.vector import Vector
-        return Vector(
-            point.x,
-            point.y,
-            point.z
-        )
-
-    @staticmethod
-    def sum(point_1: 'Point', point_2: 'Point') -> 'Point':
-        """Computes the sum of two points.        
-        
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Point`: Sum of the two input points.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        point_2 = Point(93, 0, -19)
-        output = Point.sum(point_1, point_2)
-        # Point(X = 116.000, Y = 1.000, Z = 4.000)
-        ```
-        """
-        return Point(
-            point_1.x + point_2.x,
-            point_1.y + point_2.y,
-            point_1.z + point_2.z
-        )
-
-    @staticmethod
-    def diff(point_1: 'Point', point_2: 'Point') -> 'Point':
-        """Computes the difference between two points.        
-        
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Point`: Difference between the two input points.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(100.23, 182, 19)
-        point_2 = Point(81, 0.1, -901)
-        output = Point.diff(point_1, point_2)
-        # Point(X = 19.230, Y = 181.900, Z = 920.000)
-        ```
-        """
-        return Point(
-            point_1.x - point_2.x,
-            point_1.y - point_2.y,
-            point_1.z - point_2.z
         )
 
     @staticmethod
@@ -305,30 +134,6 @@ class Point(Coords):
             math.sin(math.radians(beta))*point.x +
             math.cos(math.radians(beta))*point.y,
             point.z + dz
-        )
-
-    @staticmethod
-    def product(number: float, point: 'Point') -> 'Point':
-        """Scales the point by a given factor.        
-        
-        #### Parameters:
-        - `number` (float): Scaling factor.
-        - `point` (Point): Point to be scaled.
-
-        #### Returns:
-        `Point`: Scaled point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(9, 20, 10)
-        output = Point.product(12, point_1)
-        # Point(X = 108.000, Y = 240.000, Z = 120.000)
-        ```
-        """
-        return Point(
-            point.x*number,
-            point.y*number,
-            point.z*number
         )
 
     @staticmethod
@@ -408,7 +213,6 @@ class CoordinateSystem:
         """
         from abstract.vector import Vector
         self.id = generateID()
-        self.type = __class__.__name__
         self.Origin = origin
         self.X_axis = Vector.normalize(x_axis)
         self.Y_axis = Vector.normalize(y_axis)

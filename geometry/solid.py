@@ -76,7 +76,6 @@ class Extrusion:
         - `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
         """
         self.id = generateID()
-        self.type = __class__.__name__
         self.parameters = []
         self.verts = []
         self.faces = []

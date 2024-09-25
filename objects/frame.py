@@ -63,7 +63,6 @@ def colorlist(extrus, color):
 class Frame(Serializable):
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.name = "None"
         self.profileName = "None"
         self.extrusion = None

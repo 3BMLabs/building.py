@@ -37,7 +37,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.coordinatesystem import CoordinateSystem
 from abstract.coordinatesystem import CSGlobal
-from geometry.solid import Extrusion
 from geometry.curve import *
 from project.fileformat import *
 
@@ -46,7 +45,6 @@ from project.fileformat import *
 class Level:
     def __init__(self):
         self.id = generateID()
-        self.type = __class__.__name__
         self.name = None
         self.polycurve = None
         self.plane = None
