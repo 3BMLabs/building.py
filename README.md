@@ -40,6 +40,7 @@ Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Text | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Mesh | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | BREP | | |  
+&nbsp; | PointCloud | | |  
 &nbsp; | Extrusion | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Sweep | | |  
 Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |  
