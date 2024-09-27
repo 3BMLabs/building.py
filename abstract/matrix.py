@@ -50,7 +50,7 @@ from typing import Self
 
 # [!not included in BP singlefile - end]
 
-class Matrix(list[list]):
+class Matrix(Serializable, list[list]):
     """
     elements are ordered like [row][column] or [y][x]
     """
@@ -614,10 +614,11 @@ class Matrix(list[list]):
             for row in self:
                 line = sep.join(format % item for item in row) + "\n"
                 file.write(line)
-
-    def tostring(self):
-        for row in self:
-            print(' '.join(map(str, row)))
+                
+    def __str__(self):
+        # '\n'.join([str(row) for row in self])
+        #vs code doesn't work with new lines
+        return 'Matrix(' + list.__str__(self) + ')'
 
     def trace(self, offset=0):
         rows, cols = len(self), len(self[0])

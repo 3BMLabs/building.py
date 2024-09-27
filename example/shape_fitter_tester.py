@@ -171,7 +171,7 @@ def keydown(e):
 				if parent_offsets[box[0]] != None:
 					parent_off = parent_offsets[box[0]][1]
 					group_off = parent_off + box[1]
-					final_rect = Rect(group_off.x,group_off.y, group_off.x+group.bounds.size.x, group_off.y + group.bounds.size.y)
+					final_rect = Rect(group_off, group.bounds.size)
 					final_rect = area_to_screen * final_rect
 					canvas.create_rectangle(final_rect.x, final_rect.y, final_rect.p1.x, final_rect.p1.y, outline= 'green') # fill='green'
     

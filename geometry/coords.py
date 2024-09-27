@@ -62,23 +62,13 @@ class Coords(Serializable, list):
         list.__init__(self, arrayArgs)
         Serializable.__init__(self)
 
-        self.id = generateID()
         for kwarg in kwargs.items():
             self.set_axis_by_name(kwarg[0], kwarg[1])            
 
     def __str__(self):
-        length = len(self)
-        result = self.__class__.__name__ + '('
-        if length >= 1:
-            result += f'x={self.x}'
-            if length >= 2:
-                result += f', y={self.y}'
-                if length >= 3:
-                    result += f', z={self.z}'
-
-        result += ')'
-        return result
+        return self.__class__.__name__ + '(' + ','.join([f'{axis_name}={((v * 100) // 1 ) / 100 }' for v, axis_name in zip(self, self.axis_names)]) + ')'
     
+    axis_names = ['x', 'y', 'z', 'w']
     
     @property
     def x(self): return self[0]
@@ -219,7 +209,7 @@ class Coords(Serializable, list):
         Returns:
             int: the index
         """
-        return ['x', 'y', 'z', 'w'].index(axis.lower())
+        return Coords.axis_names.index(axis.lower())
 
     def change_axis_count(self,axis_count: int):
         """in- or decreases the amount of axes to the preferred axis count.

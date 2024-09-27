@@ -281,7 +281,7 @@ class _PolygonFitGroup:
         self.child_indexes = child_indexes
         self.relative_child_offsets = relative_child_offsets
         self.bounds = polygon.bounds
-        self.lines = []
+        self.lines : list[_SortedLineElement] = []
         self.is_box = polygon.is_rectangle
         self.polygon = polygon
     
@@ -298,7 +298,8 @@ class PolygonFitResult2D:
 def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], allowed_error) -> PolygonFitResult2D:
     """fits polygons in a list of parent rectangles.<br>
     will not rotate the polygons, only move them!
-    we expect the polygons to be closed.
+    the polygons are expected to be closed and to be wound counter clockwise (assuming that +x = right and +y = down).
+    each point is expected to be unique, so no duplicate references.
 
     Args:
         parent_sizes (list[Vector]): the rectangles to fit the polygons in
@@ -306,6 +307,7 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
     """
     
     line_list: list[_SortedLineElement] = []
+    """a list of references to line elements, sorted by angles"""
     
     fit: PolygonFitResult2D = PolygonFitResult2D()
     
@@ -353,15 +355,26 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
 
             target_angle = elem_a.angle + math.pi
             opposite_angle_index = bisect_left(line_list, target_angle,key=line_key)
-            if opposite_angle_index < len(line_list):
+            opposite_angle_end_index = bisect_right(line_list, target_angle, key=line_key)
+            
+            keep_fitting_this_line = True
+            #it's possible that there are multiple lines with the right angle
+            while keep_fitting_this_line and opposite_angle_index < opposite_angle_end_index:
                 elem_b = line_list[opposite_angle_index]
-                if(elem_a.fit_group_index != elem_b.fit_group_index and elem_b.angle == target_angle):
+                exact_match = elem_b.angle == target_angle
+                
+                if(elem_a.fit_group_index != elem_b.fit_group_index and exact_match):
                     line_b = elem_b.line
                     group_b = fit.grouped_polygons[elem_b.fit_group_index]
+                    
+                    #fitting boxes is done by the box fitting algorithm later. we fit complex shapes here.
+                    if group_a.is_box and group_b.is_box: continue
+                    
                     #loop over all lines with the opposite angle and check polygon collision and bounds
 
                     #try merging at line_a.start and line_b.end
                     b_to_a_offset = line_a.start - line_b.end
+                    
                     relative_b_bounds = Rect(b_to_a_offset, group_b.bounds.size)
 
                     #check if their bounding boxes intersect. what would be the gain, otherwise?
@@ -387,24 +400,63 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
                                 translate_b = translate_a + b_to_a_offset
 
                                 for group, translation in zip([group_a,group_b], [translate_a, translate_b]):
+                                    
                                     for line_elem in group.lines:
                                         line_elem.line.translate(translation)
                                     for i in range(len(group.relative_child_offsets)):
                                         group.relative_child_offsets[i] += translation
                                 for line_elem in group_b.lines:
                                     line_elem.fit_group_index = elem_a.fit_group_index
+                                    
+                                if exact_match:
+                                    #merge polygons at intersection
+                                    line_a_index = group_a.lines.index(elem_a) 
+                                    line_b_index = group_b.lines.index(elem_b) 
+                                    
+                                    #the cull index, assuming both lines get culled
+                                    a_cull_index = line_a_index + 1
+                                    b_cull_index = line_b_index
+                                    if line_b.start == line_a.end:
+                                        #we don't need to connect from line_b.start to line_a.end, so we'll remove line_a and line_b
+                                        line_list.pop(sorted_line_index)
+                                        line_list.pop(opposite_angle_index)
+                                    elif line_a.length > line_b.length:
+                                        #modify line_a to fill the gap, while preserving angle (from line_b.start to line_a.end)
+                                        line_a.start = line_b.start
+                                        #keep a
+                                        a_cull_index -= 1
+                                        line_list.pop(opposite_angle_index)
+                                    else:
+                                        #modify line_b to fill the gap, while preserving angle (from line_b.start to line_a.end)                                        
+                                        line_b.end = line_a.end
+                                        #keep b
+                                        b_cull_index += 1
+                                        line_list.pop(sorted_line_index)
+                                        
+                                    
+                                    #insert line segments of group b from line_b ('rotate' segments of group b so borders match)
+                                    group_a.lines = (group_a.lines[:line_a_index] + group_b.lines[line_b_index + 1:] + 
+                                    group_b.lines[:b_cull_index] + group_a.lines[a_cull_index:])
 
-                                group_a.lines.extend(group_b.lines)
+                                else:
+                                    #order doesn't matter, as they don't match exactly
+                                    group_a.lines.extend(group_b.lines)
+
                                 group_a.child_indexes.extend(group_b.child_indexes)
                                 group_a.relative_child_offsets.extend(group_b.relative_child_offsets)
+                                #now 
 
                                 group_a.bounds = merged_bounds_relative_to_a
                                 group_a.bounds.p0 = Vector([0] * 2)
-
-                                #todo: merge polygons
                                 #merge polygons
+                                group_a.polygon = Polygon.by_joined_curves([l.line for l in group_a.lines])
+                                group_a.polygon.closed = True
                                 
+                                group_a.is_box = group_a.polygon.is_rectangle
+
+                                keep_fitting_this_line = False
                                 break
+                opposite_angle_index += 1
     #remove the merged groups and adjust indexes
     
     #inactive_to_active = []

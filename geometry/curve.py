@@ -55,9 +55,9 @@ class Line(Serializable):
         - `start` (Point): The starting point of the line segment.
         - `end` (Point): The ending point of the line segment.
         """
-        self.id = generateID()
-        self.start: Point = start
-        self.end: Point = end
+        #copy
+        self.start = Point(start)
+        self.end = Point(end)
         
     @property
     def mid(self) -> 'Point':
@@ -1161,6 +1161,7 @@ class Polygon(PointList):
     @staticmethod
     def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
         """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
+        creates a shallow copy of the lines provided!
 
         Args:
             lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
@@ -1174,8 +1175,7 @@ class Polygon(PointList):
 
         for i in range(len(lines) - 1):
             if lines[i].end != lines[i+1].start:
-                print("Error: Curves must be contiguous to form a Polygon.")
-                sys.exit()
+                raise ValueError("Error: Curves must be contiguous to form a Polygon.")
 
         #if lines[0].start != lines[-1].end:
         #    lines.append(Line(lines[-1].end, lines[0].start))
