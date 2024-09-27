@@ -249,7 +249,13 @@ def xmldata(myurl, xPathStrings):
         xPathResults.append(xPathResulttemp2)
     return xPathResults
 class Coords(Serializable, list):
-    """a shared base class for point and vector. contains the x, y and z coordinates"""
+    """
+    a shared base class for point and vector. contains the x, y and z coordinates.
+    operations you do with these coords will apply for the children.
+    for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
+    or: Vector(2,5) ** 2 = Vector(4, 25)
+    Vectors can also be nested.
+    """
     def __init__(self, *args, **kwargs) -> 'Coords':
         arrayArgs:list = to_array(*args)
 
@@ -288,6 +294,11 @@ class Coords(Serializable, list):
     def z(self): return self[2]
     @z.setter
     def z(self, value): self[2] = value
+
+    @property
+    def w(self): return self[3]
+    @w.setter
+    def w(self, value): self[3] = value
     
     @property
     def squared_magnitude(self):
@@ -408,7 +419,7 @@ class Coords(Serializable, list):
         Returns:
             int: the index
         """
-        return ['x', 'y', 'z', 'w'].index(axis)
+        return ['x', 'y', 'z', 'w'].index(axis.lower())
 
     def change_axis_count(self,axis_count: int):
         """in- or decreases the amount of axes to the preferred axis count.
@@ -484,7 +495,18 @@ class Coords(Serializable, list):
             if self[axis] != other[axis]:
                 return other[axis] - self[axis]
         return 0
-        
+    
+    def ioperate_2(self, op: operator, other):
+        try:
+            for index in range(len(self)):
+                self[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                self[index] = op(self[index], other)
+        return self
+    
     def operate_2(self, op:operator, other):
         result = Coords([0] * len(self))
         try:
@@ -501,12 +523,22 @@ class Coords(Serializable, list):
         for index in range(len(self)):
             result[index] = op(self[index])
         return result
+    
     def __add__(self, other):
-        return self.operate_2(operator.add,other)
-
+        """Calculates the sum of two vectors.
+        
+        equivalent to the + operator.
+        
+        """
+        return self.operate_2(operator.__add__,other)
+    
+    sum = __add__
+    
     def __sub__(self, other):
         """Calculates the difference between two Vector objects.
         This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
+
+        equivalent to the - operator.
 
         #### Parameters:
         - `vector_1` (`Vector`): The minuend vector.
@@ -523,7 +555,7 @@ class Coords(Serializable, list):
         # Vector(X = 4.000, Y = 5.000, Z = 6.000)
         ```
         """
-        return self.operate_2(operator.sub,other)
+        return self.operate_2(operator.__sub__,other)
     
 
     difference = diff = substract = __sub__
@@ -531,6 +563,8 @@ class Coords(Serializable, list):
     def __truediv__(self, other):
         """Divides the components of the first vector by the corresponding components of the second vector.
         This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
+
+        equivalent to the / operator.
 
         #### Parameters:
         - `vector_1` (`Vector`): The numerator vector.
@@ -547,12 +581,14 @@ class Coords(Serializable, list):
         # Vector(X = 5.000, Y = 5.000, Z = 6.000)
         ```
         """
-        return self.operate_2(operator.truediv,other)
+        return self.operate_2(operator.__truediv__,other)
     
     divide = __truediv__
-
+    
     def __mul__(self, other):
         """Scales the vector by the specified scale factor.
+
+        equivalent to the * operator.
 
         #### Parameters:
         - `vector` (`Vector`): The vector to be scaled.
@@ -568,11 +604,60 @@ class Coords(Serializable, list):
         # Vector(X = 2, Y = 4, Z = 6)
         ```
         """
-        return self.operate_2(operator.mul,other)
+        return self.operate_2(operator.__mul__,other)
     product = scale = __rmul__ = __mul__
+    
+    
+    
+    def __pow__(self, power: float) -> Self:
+        """raises the vector to a certain power.
+        
+        equivalent to the ** operator.
+
+        Returns:
+            Self: a vector with all components raised to the specified power
+        """
+        return self.ioperate_2(operator.__pow__)
+    
+    def __neg__(self) -> Self:
+        """negates this vector.
+
+        equivalent to the - operator.
+
+        Returns:
+            Self: a vector with all components negated.
+        """
+        return self.operate_1(operator.__neg__)
+    
+    reverse = __neg__
+    
+    @staticmethod
+    def square(self) -> 'Coords':
+        """
+        Computes the square of each component of the input vector.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The input vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the square of each component of the input vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(2, 3, 4)
+        squared_vector = Vector.square(vector)
+        # Vector(X = 4, Y = 9, Z = 16)
+        ```
+        """
+        return self ** 2
+    
+    
+    #i operators. these operate on self (+=, *=, etc)
     
     def __iadd__(self, other) -> Self:
         """Translates the point by a given vector.        
+
+        equivalent to the += operator.
         
         #### Parameters:
         - `point` (Point): The point to be translated.
@@ -589,20 +674,19 @@ class Coords(Serializable, list):
         # Point(X = 116.000, Y = 1.000, Z = 4.000)
         ```
         """
-        return self.operate_2(operator.iadd,other)
-    
-    translate = sum = __iadd__
-    
-    
-    def __neg__(self) -> Self:
-        """negates this vector.
+        return self.ioperate_2(operator.__iadd__,other)
 
-        Returns:
-            Self: a vector with all components negated.
-        """
-        return self.operate_1(operator.neg)
+    translate = __iadd__
     
-    reverse = __neg__
+    def __isub__(self, other) -> Self:
+        return self.ioperate_2(operator.__isub__,other)
+    
+    def __imul__(self, other) -> Self:
+        return self.ioperate_2(operator.__imul__,other)
+    
+    def __itruediv__(self, other) -> Self:
+        return self.ioperate_2(operator.__itruediv__,other)
+    
 X_axis = Coords(1, 0, 0)
 
 Y_Axis = Coords(0, 1, 0)
@@ -724,25 +808,6 @@ class Point(Coords):
         return point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z
 
     @staticmethod
-    def to_matrix(point: 'Point') -> 'Point':
-        """Converts the point to a list.        
-        
-        #### Parameters:
-        Converts the point to a list.
-
-        #### Returns:
-        `list`: List representation of the point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        output = Point.to_matrix(point_1)
-        # [23.0, 1.0, 23.0]
-        ```
-        """
-        return [point.x, point.y, point.z]
-
-    @staticmethod
     def from_matrix(list: list) -> 'Point':
         """Converts a list to a Point object.        
         
@@ -759,11 +824,7 @@ class Point(Coords):
         # Point(X = 19.000, Y = 30.000, Z = 12.300)
         ```
         """
-        return Point(
-            list[0],
-            list[1],
-            list[2]
-        )
+        return Point(list)
 
 
 class CoordinateSystem:
@@ -1065,30 +1126,6 @@ class Vector(Coords):
         - `z` (float): Z-coordinate of the vector.
         """
         super().__init__(*args, **kwargs)
-
-    @staticmethod
-    def square(vector_1: 'Vector') -> 'Vector':
-        """
-        Computes the square of each component of the input vector.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The input vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the square of each component of the input vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(2, 3, 4)
-        squared_vector = Vector.square(vector)
-        # Vector(X = 4, Y = 9, Z = 16)
-        ```
-        """
-        return Vector(
-            vector_1.x ** 2,
-            vector_1.y ** 2,
-            vector_1.z ** 2
-        )
 
     @staticmethod
     def to_line(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
@@ -1527,11 +1564,7 @@ class Vector(Coords):
         # Vector(X = 1, Y = 2, Z = 3)
         ```
         """
-        return Vector(
-            vector_list[0],
-            vector_list[1],
-            vector_list[2]
-        )
+        return Vector(vector_list)
 
 class Plane:
     # Plane is an infinite element in space defined by a point and a normal
@@ -1984,10 +2017,12 @@ class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
+        #settings
         self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet
+
         self.origin = Point(0,0,0)
         self.default_font = "calibri"
         self.scale = 1000
@@ -2032,14 +2067,12 @@ class BuildingPy(Serializable):
         self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
     def save(self, file_name = 'project/data.json'):
-        super().save(file_name)
+        Serializable.save(file_name)
         
         type_count = defaultdict(int)
         for serialized_item in self.objects:
             #item = json.loads(serialized_item)
-            item_type = serialized_item.type
-            if item_type:
-                type_count[item_type] += 1
+            type_count[serialized_item.__class__.__name__] += 1
 
         total_items = len(self.objects)
 
@@ -2048,7 +2081,7 @@ class BuildingPy(Serializable):
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
     def open(self, file_name = 'project/data.json'):
-        super().open(file_name)
+        Serializable.open(file_name)
 
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
@@ -3309,7 +3342,7 @@ class Rect(Serializable):
         p0 = Point(points[0])
         p1 = Point(points[0])
         
-        #it's faster to not skipt the first point than to check if it's the first point or revert to an index-based loop
+        #it's faster to not skip the first point than to check if it's the first point or revert to an index-based loop
         for p in points:
             for axis in range(axis_count):
                 p0[axis] = min(p0[axis], p[axis])
@@ -3629,10 +3662,10 @@ class Line(Serializable):
         diff_self = self.end - self.start
         diff_other = other.end - other.start
         #a
-        slope_self = diff_self.y / diff_self.x
+        slope_self = math.inf if diff_self.x == 0 else diff_self.y / diff_self.x
         
         #c
-        slope_other = diff_other.y / diff_other.x
+        slope_other = math.inf if diff_other.x == 0 else diff_other.y / diff_other.x
         #handle edge cases
         #colinear
         if(slope_self == slope_other) :
@@ -3653,7 +3686,7 @@ class Line(Serializable):
             other_y_at_line = other_y_at_0 + slope_other * self.start.x
             return self.start.y < other_y_at_line < self.end.y
         
-        intersection_x = (other_y_at_0 - self_y_at_0 / slope_self - slope_other)
+        intersection_x = (other_y_at_0 - self_y_at_0) / (slope_self - slope_other)
         
         return self.start.x < intersection_x < self.end.x
 
@@ -3735,24 +3768,10 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
 
 
 class PolyCurve(Serializable, list[Line]):
+    """Stores lines, which could possibly be arcs"""
     def __init__(self, *args):
         """Initializes a PolyCurve object, which is unclosed by default.
         
-        - `id` (int): The unique identifier of the arc.
-        - `type` (str): The type of the arc.
-        - `start` (Point): The start point of the arc.
-        - `mid` (Point): The mid point of the arc.
-        - `end` (Point): The end point of the arc.
-        - `origin` (Point): The origin point of the arc.
-        - `plane` (Plane): The plane containing the arc.
-        - `radius` (float): The radius of the arc.
-        - `startAngle` (float): The start angle of the arc in radians.
-        - `endAngle` (float): The end angle of the arc in radians.
-        - `angle_radian` (float): The total angle of the arc in radians.
-        - `area` (float): The area of the arc.
-        - `length` (float): The length of the arc.
-        - `units` (str): The units used for measurement.
-        - `coordinatesystem` (CoordinateSystem): The coordinate system of the arc.
 
         """
         
@@ -3771,9 +3790,6 @@ class PolyCurve(Serializable, list[Line]):
         super().__init__(to_array(*args))
         
     @property
-    def closed(self) -> bool: return self.points[0] == self.points[-1]
-    
-    @property
     def length(self) -> 'float':
         """Calculates the total length of the PolyCurve.
 
@@ -3790,46 +3806,6 @@ class PolyCurve(Serializable, list[Line]):
             lst.append(line.length)
 
         return sum(i.length for i in self.curves)
-    
-    @closed.setter
-    def closed(self, value) -> Self:
-        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
-        #### Example usage:
-        ```python
-            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
-            c.closed = true #Point(1,3) just got added to the back of the list
-        ```
-        """
-        if value != self.closed:
-            if value:
-                self.points.append(self.points[0]) 
-            else:
-                del self.points[-1]
-        return self
-    
-    @property
-    def bounds(self) -> 'Rect':
-        return Rect.by_points(self.points)
-    @property
-    def curves(self) -> list[Line]:
-        """this function won't close the polycurve!
-
-        Returns:
-            list[Line]: the curves connecting this polycurve
-        """
-        return [Line(self.points[point_index], self.points[point_index + 1]) for point_index in range(len(self.points) - 1)]
-
-    @property
-    def is_rectangle(self) -> bool:
-        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
-
-        Returns:
-            bool: if this curve is a rectangle, i.e. it has 4 corner points
-        """
-        if len(self.points) == 4 or self.closed and len(self.points) == 5:
-            if self.points[0].y == self.points[1].y and self.points[1].x == self.points[2].x and self.points[2].y == self.points[3].y and self.points[3].x == self.points[0].x:
-                return True
-        else: return False
 
     def scale(self, scale_factor: 'float') -> 'PolyCurve':
         """Scales the PolyCurve object by the given factor.
@@ -4191,67 +4167,7 @@ class PolyCurve(Serializable, list[Line]):
         else:
             print(
                 f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
-    
-    def contains(self, p: 'Point') -> bool:
-        """checks if the point is inside the polygon
-
-        Args:
-            p (Point): _description_
-
-        Returns:
-            bool: _description_
-        """
-        #yoinked this from stack overflow, looks clean
-        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
-        
-        # Ray tracing
-        n = len(self.points)
-        inside = False
-    
-        p1 = self.points[0]
-        for i in range(n + 1 if self.closed else n):
-            p2 = self.points[i % n]
-            if p.y > min(p1.y,p2.y):
-                if p.y <= max(p1.y,p2.y):
-                    if p.x <= max(p1.x,p2.x):
-                        if p1.y != p2.y:
-                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
-                        if p1.x == p2.x or p.x <= xints:
-                            inside = not inside
-            p1 = p2
-    
-        return inside
-
-    def intersects(self, other: 'PolyCurve') -> bool:
-        """checks if two polycurves intersect with eachother. caution! this is brute force.
-
-        Args:
-            other (PolyCurve): the PolyCurve which may intersect with this rectangle
-
-        Returns:
-            bool: true if any of the lines of the two polygons cross eachother.
-        """
-        #before doing such an expensive method, let's check if our bounds cross first.
-        if self.bounds.collides(other.bounds):
-            other_curves = other.curves
-            for c in self.curves:
-                for other_c in other_curves:
-                    if(c.intersects(other_c)):return True
-        return False
-    
-    def collides(self, other: 'PolyCurve') -> bool:
-        """checks if two polycurves collide with eachother.
-
-        Args:
-            other (PolyCurve): the PolyCurve which may collide with this rectangle
-
-        Returns:
-            bool: true if two polygons overlap
-        """
-        #hopefully, most of the time we contain a point of the other.
-        return self.contains(other.points[0]) or other.contains(self.points[0]) or self.intersects(other)
-        
-
+     
     def multi_split(self, lines: 'Line') -> 'list[PolyCurve]':  # SLOW, MUST INCREASE SPEAD
         """Splits the PolyCurve by multiple lines.
         This method splits the PolyCurve by multiple lines and adds the resulting PolyCurves to the project.
@@ -4508,67 +4424,116 @@ class PolyCurve(Serializable, list[Line]):
         pc.curves = crvs
         return pc
 
-    def __str__(self) -> 'str':
-        """Returns a string representation of the PolyCurve.
-
-        #### Returns:
-        `str`: The string representation of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        length = len(self.points)
-        return f"{__class__.__name__} (points: {self.points})"
-
-    @staticmethod
-    def rectangular_curve(rect: Rect) -> 'PolyCurve':
-        """Creates a rectangle in a given plane.
-
-        #### Parameters:
-        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
-        - `width` (float): The width of the rectangle.
-        - `height` (float): The height of the rectangle.
-
-        #### Returns:
-        `PolyCurve`: The rectangle PolyCurve.
-
-        #### Example usage:
-        ```python
-        ```    
-        """
-        try:
-            not_used_axis_index = rect.size.index(0)
-        except:
-            #2d rectangle
-            not_used_axis_index = 2
-
-        axis0 = 1 if not_used_axis_index == 0 else 0
-        axis1 = 1 if not_used_axis_index == 2 else 2
-
-        rect_p1 = rect.p1
-        curve_p0 = rect.p0
-        #clone
-        curve_p1 = Point(rect.p0)
-        curve_p1[axis0] = rect_p1[axis0]
-
-        curve_p2 = rect_p1
-        curve_p3 = Point(rect.p0)
-        curve_p3[axis1] = rect_p1[axis1]
-        return PolyCurve(curve_p0, curve_p1, curve_p2, curve_p3, curve_p0)
-
-class Polygon:
+class Polygon(PointList):
     """Represents a polygon composed of points."""
-    def __init__(self) -> 'Polygon':
+    def __init__(self, *args) -> 'Polygon':
         self.id = generateID()
-        self.curves = []
-        self.points = []
-        self.lines = []
-        self.isClosed = True
+        super().__init__(to_array(*args))
+
+
+    @property
+    def closed(self) -> bool: return self[0] == self[-1]
+    
+    @closed.setter
+    def closed(self, value) -> Self:
+        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
+        #### Example usage:
+        ```python
+            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
+            c.closed = true #Point(1,3) just got added to the back of the list
+        ```
+        """
+        if value != self.closed:
+            if value:
+                #copy. else, when operators are executed, it will execute the operator twice on the same reference
+                self.append(Vector(self[0]))
+            else:
+                del self[-1]
+        return self
+    
+
+    @property
+    def curves(self) -> list[Line]:
+        """this function won't close the polycurve!
+
+        Returns:
+            list[Line]: the curves connecting this polycurve
+        """
+        return [Line(self[point_index], self[point_index + 1]) for point_index in range(len(self) - 1)]
+
+    @property
+    def is_rectangle(self) -> bool:
+        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
+
+        Returns:
+            bool: if this curve is a rectangle, i.e. it has 4 corner points
+        """
+        if len(self) == 4 or self.closed and len(self) == 5:
+            if self[0].y == self[1].y and self[1].x == self[2].x and self[2].y == self[3].y and self[3].x == self[0].x:
+                return True
+        else: return False
+
+    def contains(self, p: 'Point') -> bool:
+        """checks if the point is inside the polygon
+
+        Args:
+            p (Point): _description_
+
+        Returns:
+            bool: _description_
+        """
+        #yoinked this from stack overflow, looks clean
+        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
+        
+        # Ray tracing
+        n = len(self)
+        inside = False
+    
+        p1 = self[0]
+        for i in range(n + 1 if self.closed else n):
+            p2 = self[i % n]
+            if p.y > min(p1.y,p2.y):
+                if p.y <= max(p1.y,p2.y):
+                    if p.x <= max(p1.x,p2.x):
+                        if p1.y != p2.y:
+                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
+                        if p1.x == p2.x or p.x <= xints:
+                            inside = not inside
+            p1 = p2
+    
+        return inside
+
+    def intersects(self, other: 'PolyCurve') -> bool:
+        """checks if two polycurves intersect with eachother. caution! this is brute force.
+
+        Args:
+            other (PolyCurve): the PolyCurve which may intersect with this rectangle
+
+        Returns:
+            bool: true if any of the lines of the two polygons cross eachother.
+        """
+        #before doing such an expensive method, let's check if our bounds cross first.
+        if self.bounds.collides(other.bounds):
+            other_curves = other.curves
+            for c in self.curves:
+                for other_c in other_curves:
+                    if(c.intersects(other_c)):return True
+        return False
+    
+    def collides(self, other: 'Polygon') -> bool:
+        """checks if two polygons collide with eachother.
+
+        Args:
+            other (Polygon): the polygon which may collide with this rectangle
+
+        Returns:
+            bool: true if two polygons overlap
+        """
+        #hopefully, most of the time we contain a point of the other.
+        return self.contains(other[0]) or other.contains(self[0]) or self.intersects(other)
 
     @classmethod
-    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+    def by_points(self, points: 'list[Point]') -> 'Polygon':
         """Creates a Polygon from a list of points.
 
         #### Parameters:
@@ -4610,32 +4575,65 @@ class Polygon:
 
         return polygon
 
+    @staticmethod
+    def rectangular(rect: Rect) -> 'Polygon':
+        """Creates a rectangle in a given plane.
 
-    @classmethod
-    def by_joined_curves(cls, curves: 'list[Line]') -> 'Polygon':
-        if not curves:
+        #### Parameters:
+        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
+        - `width` (float): The width of the rectangle.
+        - `height` (float): The height of the rectangle.
+
+        #### Returns:
+        `Polygon`: The rectangle Polygon.
+
+        #### Example usage:
+        ```python
+        ```    
+        """
+        try:
+            not_used_axis_index = rect.size.index(0)
+        except:
+            #2d rectangle
+            not_used_axis_index = 2
+
+        axis0 = 1 if not_used_axis_index == 0 else 0
+        axis1 = 1 if not_used_axis_index == 2 else 2
+
+        rect_p1 = rect.p1
+        curve_p0 = rect.p0
+        #clone
+        curve_p1 = Point(rect.p0)
+        curve_p1[axis0] = rect_p1[axis0]
+
+        curve_p2 = rect_p1
+        curve_p3 = Point(rect.p0)
+        curve_p3[axis1] = rect_p1[axis1]
+        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3)
+
+    @staticmethod
+    def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
+        """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
+
+        Args:
+            lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
+
+        Returns:
+            Polygon: an unclosed polygon.
+        """
+        if not lines:
             print("Error: At least one curve is required to form a Polygon.")
             sys.exit()
 
-        for i in range(len(curves) - 1):
-            if curves[i].end != curves[i+1].start:
+        for i in range(len(lines) - 1):
+            if lines[i].end != lines[i+1].start:
                 print("Error: Curves must be contiguous to form a Polygon.")
                 sys.exit()
 
-        if Point.to_matrix(curves[0].start) != Point.to_matrix(curves[-1].end):
-            curves.append(Line(curves[-1].end, curves[0].start))
+        #if lines[0].start != lines[-1].end:
+        #    lines.append(Line(lines[-1].end, lines[0].start))
 
-        polygon = cls()
-        polygon.curves = curves
-
-        for crv in polygon.curves:
-            if Point.to_matrix(crv.start) not in polygon.points:
-                polygon.points.append(crv.start)
-            elif Point.to_matrix(crv.end) not in polygon.points:
-                polygon.points.append(crv.end)
-
-        return polygon
-
+        return Polygon([line.start for line in lines])
 
     def area(self) -> 'float':  # shoelace formula
         """Calculates the area enclosed by the Polygon using the shoelace formula.
@@ -4648,7 +4646,7 @@ class Polygon:
 
         ```        
         """
-        if len(self.points) < 3:
+        if len(self) < 3:
             return "Polygon has less than 3 points!"
 
         num_points = len(self.points)
@@ -4685,56 +4683,20 @@ class Polygon:
         return sum(i.length for i in self.curves)
 
 
-    def translate(self, vector_3d: 'Vector') -> 'Polygon':
-        """Translates the Polygon by a 3D vector.
 
-        #### Parameters:
-        - `vector_3d` (Vector): The 3D vector by which to translate the Polygon.
+
+    def __str__(self) -> 'str':
+        """Returns a string representation of the PolyCurve.
 
         #### Returns:
-        `Polygon`: The translated Polygon.
+        `str`: The string representation of the PolyCurve.
 
         #### Example usage:
         ```python
 
         ```        
         """
-        # Create a new Polygon instance to hold the translated polygon
-        translated_polygon = Polygon()
-        translated_curves = []
-        translated_points = []
-
-        # Translate all curves
-        for curve in self.curves:
-            if curve.__class__.__name__ == "Arc":
-                # Translate the start, middle, and end points of the arc
-                new_start = Point.translate(curve.start, vector_3d)
-                new_middle = Point.translate(curve.middle, vector_3d)
-                new_end = Point.translate(curve.end, vector_3d)
-                translated_curves.append(Arc(new_start, new_middle, new_end))
-            elif curve.__class__.__name__ == "Line":
-                # Translate the start and end points of the line
-                new_start = Point.translate(curve.start, vector_3d)
-                new_end = Point.translate(curve.end, vector_3d)
-                translated_curves.append(Line(new_start, new_end))
-            else:
-                print("Curve type not found")
-
-        # Ensure that translated_curves are assigned back to the translated_polygon
-        translated_polygon.curves = translated_curves
-
-        # Translate all points
-        for point in self.points:
-            translated_points.append(Point.translate(point, vector_3d))
-
-        # Ensure that translated_points are assigned back to the translated_polygon
-        translated_polygon.points = translated_points
-
-        return translated_polygon
-
-
-    def __str__(self) -> str:
-        return f"{self.type}"
+        return f"{__class__.__name__} (points: {list.__str__(self)})"
 
 
 class Arc:
@@ -4837,10 +4799,13 @@ class Arc:
         b = half_start_end.magnitude
         radius = Arc.radius_arc(self)
         x = math.sqrt(radius * radius - b * b)
+        #mid point as if this was a straight line
         mid = self.start + half_start_end
-        vector_2 = mid - self.mid
-        tocenter = vector_2.normalized * x
-        center = mid + tocenter
+        #substract the curved mid point from the straight line mid point
+        to_center = mid - self.mid
+        #change length to x
+        to_center.magnitude = x
+        center = mid + to_center
         return center
 
     def angle_radian(self) -> 'float':
@@ -5525,25 +5490,10 @@ class Color(Coords):
     def __init__(self, *args, **kwargs):
         Coords.__init__(self, *args,**kwargs)
     
-    @property
-    def r(self): return self[0]
-    @r.setter
-    def r(self, value): self[0] = value
-        
-    @property
-    def g(self): return self[1]
-    @g.setter
-    def g(self, value): self[1] = value
-
-    @property
-    def b(self): return self[2]
-    @b.setter
-    def b(self, value): self[2] = value
-
-    @property
-    def a(self): return self[3]
-    @a.setter
-    def a(self, value): self[3] = value
+    red = r = Coords.x
+    green = g = Coords.y
+    blue = b = Coords.z
+    alpha = a = Coords.w
     
     @property
     def int(self) -> int:
@@ -5559,10 +5509,6 @@ class Color(Coords):
             int_val += elem * mult
             mult *= 0x100
         return int_val
-    
-    def rgb_to_int(rgb):
-        r, g, b = [max(0, min(255, c)) for c in rgb]
-        return (255 << 24) | (r << 16) | (g << 8) | b
     
     @property
     def hex(self):
@@ -6684,6 +6630,595 @@ class Panel(Serializable):
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
         return p1
+jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
+url = urllib.request.urlopen(jsonFile)
+data = json.loads(url.read())
+
+
+def is_rectangle_format(shape_name):
+    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
+    if match:
+        width, height = int(match.group(1)), int(match.group(2))
+        if 0 <= width <= 10000 and 0 <= height <= 10000:
+            return True, width, height
+    return False, 0, 0
+
+
+class _getProfileDataFromDatabase:
+    def __init__(self, name):
+        self.name = name
+        self.shape_coords = None
+        self.shape_name = None
+        self.synonyms = None
+        for item in data:
+            for i in item.values():
+                synonymList = i[0]["synonyms"]
+                if self.name.lower() in [synonym.lower() for synonym in synonymList]:
+                    self.shape_coords = i[0]["shape_coords"]
+                    self.shape_name = i[0]["shape_name"]
+                    self.synonyms = i[0]["synonyms"]
+        if self.shape_coords == None:
+            check_rect, width, height = is_rectangle_format(name)
+            if check_rect:
+                self.shape_coords = [width, height]
+                self.shape_name = "Rectangle"
+                self.synonyms = name
+
+
+class nameToProfile:
+    def __init__(self, name1, segmented = True):
+        profile_data = _getProfileDataFromDatabase(name1)
+        if profile_data == None:
+            print(f"profile {name1} not recognised")
+        profile_name = profile_data.shape_name
+        if profile_name == None:
+            profile_data = _getProfileDataFromDatabase(project.structural_fallback_element)
+            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
+            profile_name = profile_data.shape_name
+        self.profile_data = profile_data
+        self.profile_name = profile_name
+        name = profile_data.name
+        self.d1 = profile_data.shape_coords
+        d1 = self.d1
+        if profile_name == "C-channel parallel flange":
+            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
+        elif profile_name == "C-channel sloped flange":
+            prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
+        elif profile_name == "I-shape parallel flange":
+            prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+        elif profile_name == "I-shape sloped flange":
+            prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
+            #Todo: add sloped flange shape
+        elif profile_name == "Rectangle":
+            prof = Rectangle(name,d1[0], d1[1])
+        elif profile_name == "Round":
+            prof = Round(name, d1[1])
+        elif profile_name == "Round tube profile":
+            prof = Roundtube(name, d1[0], d1[1])
+        elif profile_name == "LAngle":
+            prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
+        elif profile_name == "TProfile":
+            prof = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
+        elif profile_name == "Rectangle Hollow Section":
+            prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+        self.profile = prof
+        self.data = d1
+        pc2d = self.profile.curve  # 2D polycurve
+        if segmented == True:
+            pc3d = PolyCurve.by_polycurve_2D(pc2d)
+            pcsegment = PolyCurve.segment(pc3d, 10)
+            pc2d2 = pcsegment.to_polycurve_2D()
+        else:
+            pc2d2 = pc2d
+        self.polycurve2d = pc2d2
+
+def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
+    
+    # print(XJustifiction)
+    xval = []
+    yval = []
+    for i in plycrv2D.curves:
+        xval.append(i.start.x)
+        yval.append(i.start.y)
+
+    #Rect
+    xmin = min(xval)
+    xmax = max(xval)
+    ymin = min(yval)
+    ymax = max(yval)
+
+    b = xmax-xmin
+    h = ymax-ymin
+
+    # print(b, h)
+
+    dxleft = -xmax
+    dxright = -xmin
+    dxcenter = dxleft - 0.5 * b #CHECK
+    dxorigin = 0
+
+    dytop = -ymax
+    dybottom = -ymin
+    dycenter = dytop - 0.5 * h #CHECK
+    dyorigin = 0
+
+    if XJustifiction == "center":
+        dx = dxorigin #TODO
+    elif XJustifiction == "left":
+        dx = dxleft
+    elif XJustifiction == "right":  
+        dx = dxright
+    elif XJustifiction == "origin":
+        dx = dxorigin #TODO
+    else:
+        dx = 0
+
+    if Yjustification == "center":
+        dy = dyorigin   #TODO
+    elif Yjustification == "top":
+        dy = dytop
+    elif Yjustification == "bottom":
+        dy = dybottom
+    elif Yjustification == "origin":
+        dy = dyorigin #TODO
+    else:
+        dy = 0
+
+    # print(dx, dy)
+    v1 = Vector2(dx, dy)
+    # v1 = Vector2(0, 0)
+
+    return v1
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+
+    return (255 << 24) | (r << 16) | (g << 8) | b
+
+class Material:
+    def __init__(self):
+        self.name = "none"
+        self.color = None
+        self.colorint = None
+
+    @classmethod
+    def byNameColor(cls, name, color):
+        M1 = Material()
+        M1.name = name
+        M1.color = color
+        M1.colorint = rgb_to_int(color)
+        return M1
+
+
+#Building Materials
+BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
+BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
+BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
+BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
+BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
+BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
+
+#GIS Materials
+BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
+BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
+BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
+BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
+BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
+
+#class Materialfinish
+
+class Node:
+    """The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
+    def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
+        """"Initializes a new Node instance.
+        
+        - `id` (str): A unique identifier for the node.
+        - `type` (str): The class name, "Node".
+        - `point` (Point, optional): The location of the node in 3D space.
+        - `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
+        - `number` (any, optional): An identifying number or label for the node.
+        - `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
+        - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
+        - `comments` (str, optional): Additional comments or notes about the node.
+        """
+        self.id = generateID()
+        self.point = point if isinstance(point, Point) else None
+        self.vector = vector if isinstance(vector, Vector) else None
+        self.number = number
+        self.distance = distance
+        self.diameter = diameter
+        self.comments = comments
+
+    def serialize(self) -> dict:
+        """Serializes the node's attributes into a dictionary.
+
+        This method allows for the node's properties to be easily stored or transmitted in a dictionary format.
+
+        #### Returns:
+        `dict`: A dictionary containing the serialized attributes of the node.
+        """
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
+        return {
+            'id': id_value,
+            'type': self.type,
+            'point': self.point.serialize() if self.point else None,
+            'vector': self.vector.serialize() if self.vector else None,
+            'number': self.number,
+            'distance': self.distance,
+            'diameter': self.diameter,
+            'comments': self.comments
+        }
+
+    @staticmethod
+    def deserialize(data: dict) -> 'Node':
+        """Recreates a Node object from a dictionary of serialized data.
+
+        #### Parameters:
+        - data (dict): The dictionary containing the node's serialized data.
+
+        #### Returns:
+        `Node`: A new Node object initialized with the data from the dictionary.
+        """
+        node = Node()
+        node.id = data.get('id')
+        node.type = data.get('type')
+        node.point = Point.deserialize(
+            data['point']) if data.get('point') else None
+        node.vector = Vector.deserialize(
+            data['vector']) if data.get('vector') else None
+        node.number = data.get('number')
+        node.distance = data.get('distance')
+        node.diameter = data.get('diameter')
+        node.comments = data.get('comments')
+
+        return node
+
+    # merge
+    def merge(self):
+        """Merges this node with others in a project according to defined rules.
+
+        The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
+        """
+        if project.node_merge == True:
+            pass
+        else:
+            pass
+
+    # snap
+    def snap(self):
+        """Adjusts the node's position based on snapping criteria.
+
+        This could involve aligning the node to a grid, other nodes, or specific geometric entities.
+        """
+        pass
+
+    def __str__(self) -> str:
+        """Generates a string representation of the Node.
+
+        #### Returns:
+        `str`: A string that represents the Node, including its type and potentially other identifying information.
+        """
+
+        return f"{self.type}"
+
+def colorlist(extrus, color):
+    colorlst = []
+    for j in range(int(len(extrus.verts) / 3)):
+        colorlst.append(color)
+    return (colorlst)
+
+
+# ToDo Na update van color moet ook de colorlist geupdate worden
+class Frame(Serializable):
+    def __init__(self):
+        self.id = generateID()
+        self.name = "None"
+        self.profileName = "None"
+        self.extrusion = None
+        self.comments = None
+        self.structuralType = None
+        self.start = None
+        self.end = None
+        self.curve = None  # 2D polycurve of the sectionprofile
+        self.curve3d = None  # Translated 3D polycurve of the sectionprofile
+        self.length = 0
+        self.points = []
+        self.coordinateSystem: CoordinateSystem = CSGlobal
+        self.YJustification = "Origin"  # Top, Center, Origin, Bottom
+        self.ZJustification = "Origin"  # Left, Center, Origin, Right
+        self.YOffset = 0
+        self.ZOffset = 0
+        self.rotation = 0
+        self.material : Material = None
+        self.color = BaseOther.color
+        self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
+        self.profile = None #object of 2D profile
+        self.colorlst = []
+        self.vector = None
+        self.vector_normalised = None
+        self.centerbottom = None
+
+    def props(self):
+        self.vector = Vector(self.end.x-self.start.x,
+                              self.end.y-self.start.y, self.end.z-self.start.z)
+        self.vector_normalised = Vector.normalize(self.vector)
+        self.length = Vector.length(self.vector)
+
+    @classmethod
+    def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+
+        if isinstance(profile,Profile):
+            f1.curve = profile.curve
+            f1.profile = profile
+        elif type(profile).__name__ == "str":
+            res = nameToProfile(profile)
+            f1.curve = res.polycurve2d  # polycurve2d
+            f1.points = res.polycurve2d.points
+            f1.profile = res.profile
+        else:
+            print("[by_startpoint_endpoint_profile], input is not correct.")
+            sys.exit()
+
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
+        f1.profileName = profile
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+    @classmethod
+    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+            
+        #try:
+        curv = nameToProfile(profile_name).polycurve2d
+        #except Exception as e:
+            # Profile does not exist
+        #print(f"Profile does not exist: {profile_name}\nError: {e}")
+
+        f1.rotation = rotation
+        curvrot = curv.rotate(rotation)  # rotation in degrees
+        f1.curve = curvrot.translate(vector2d)
+        f1.XOffset = vector2d.x
+        f1.YOffset = vector2d.y
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+    @classmethod
+    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+
+        f1.structuralType = structuralType
+        f1.rotation = rotation
+
+        if type(profile).__name__ == "PolyCurve2D":
+            profile_name = "None"
+            f1.profile_data = profile
+            curve = f1.profile_data
+        elif type(profile).__name__ == "Polygon":
+            profile_name = "None"
+            f1.profile_data = PolyCurve2D.by_points(profile.points)
+            curve = f1.profile_data
+        elif type(profile).__name__ == "str":
+            profile_name = profile
+            f1.profile_data = nameToProfile(profile).polycurve2d  # polycurve2d
+            curve = f1.profile_data
+        else:
+            print("[by_startpoint_endpoint_profile], input is not correct.")
+            sys.exit()
+
+        # curve = f1.profile_data.polycurve2d
+
+        v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
+        f1.XOffset = v1.x
+        f1.YOffset = v1.y
+        curve = curve.translate(v1)
+        curve = curve.translate(Vector2(ey, ez))  # 2
+        curve = curve.rotate(f1.rotation)  # 3
+        f1.curve = curve
+
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = f1.extrusion.polycurve_3d_translated
+
+        try:
+            pnew = PolyCurve.by_joined_curves(f1.curve3d.curves)
+            f1.centerbottom = PolyCurve.centroid(pnew)
+        except:
+            pass
+
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+    @classmethod
+    def by_startpoint_endpoint_rect(cls, start: Union[Point, Node], end: Union[Point, Node], width: float, height: float, name: str, rotation: float, material=None, comments=None):
+        # 2D polycurve
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = name
+
+        prof = Rectangle(str(width)+"x"+str(height),width,height)
+        polycurve = prof.curve
+        f1.profile = prof
+        curvrot = polycurve.rotate(rotation)
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.curve3d = curvrot
+        f1.profileName = name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+
+    @classmethod
+    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
+        # 2D polycurve
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+
+        f1.end = Point.translate(f1.start, Vector(0, 0.00001, height))
+
+        # self.curve = Line(start, end)
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = frame_name
+        f1.profileName = frame_name
+        curvrot = polycurve.rotate(rotation)  # rotation in degrees
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = frame_name
+        f1.curve3d = curvrot
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+    @classmethod
+    def by_point_profile_height_rotation(cls, start: Union[Point, Node], height: float, profile_name: str, rotation: float, material=None, comments=None):
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        # TODO vertical column not possible
+        f1.end = Point.translate(f1.start, Vector(0, height))
+
+        # self.curve = Line(start, end)
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = profile_name
+        f1.profileName = profile_name
+        curv = nameToProfile(profile_name).polycurve2d
+        curvrot = curv.rotate(rotation)  # rotation in degrees
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = profile_name
+        f1.curve3d = curvrot
+        f1.profileName = profile_name
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+    @classmethod
+    def by_startpoint_endpoint_curve_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
+        f1 = Frame()
+        f1.comments = comments
+
+        if start.type == 'Point':
+            f1.start = start
+        elif start.type == 'Node':
+            f1.start = start.point
+        if end.type == 'Point':
+            f1.end = end
+        elif end.type == 'Node':
+            f1.end = end.point
+
+        f1.rotation = rotation
+        curv = polycurve
+        curvrot = curv.rotate(rotation)  # rotation in degrees
+        # center, left, right, origin / center, top bottom, origin
+        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        f1.XOffset = v1.x
+        f1.YOffset = v1.y
+        f1.curve = curv.translate(v1)
+        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
+        f1.length = Vector.length(f1.directionVector)
+        f1.name = name
+        f1.extrusion = Extrusion.by_polycurve_height_vector(
+            f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+        f1.extrusion.name = name
+        f1.profileName = "none"
+        f1.material = material
+        f1.color = material.colorint
+        f1.colorlst = colorlist(f1.extrusion, f1.color)
+        f1.props()
+        return f1
+
+    def write(self, project):
+        project.objects.append(self)
+        return self
 
 sqrt2 = math.sqrt(2)
 
@@ -6698,14 +7233,14 @@ sqrt2 = math.sqrt(2)
 
 class Profile(Serializable):
 
-    def __init__(self, name: string, description: string, IFC_profile_def: string, height: float, width: float,
+    def __init__(self, name: str, description: str, IFC_profile_def: str, height: float, width: float,
                  tw: float = None, tf: float = None):
         """Creates a profile profile.
 
         Args:
-            name (string): _description_
-            description (string): _description_
-            IFC_profile_def (string): _description_
+            name (str): _description_
+            description (str): _description_
+            IFC_profile_def (str): _description_
             height (_type_): _description_
             width (_type_): _description_
         """
@@ -6735,32 +7270,32 @@ class CChannelParallelFlange(Profile):
         self.ex = ex  # centroid horizontal
 
         # describe points
-        p1 = Point2D(-ex, -height / 2)  # left bottom
-        p2 = Point2D(width - ex, -height / 2)  # right bottom
-        p3 = Point2D(width - ex, -height / 2 + tf)
-        p4 = Point2D(-ex + tw + r, -height / 2 + tf)  # start arc
-        p5 = Point2D(-ex + tw + r, -height / 2 + tf + r)  # second point arc
-        p6 = Point2D(-ex + tw, -height / 2 + tf + r)  # end arc
-        p7 = Point2D(-ex + tw, height / 2 - tf - r)  # start arc
-        p8 = Point2D(-ex + tw + r, height / 2 - tf - r)  # second point arc
-        p9 = Point2D(-ex + tw + r, height / 2 - tf)  # end arc
-        p10 = Point2D(width - ex, height / 2 - tf)
-        p11 = Point2D(width - ex, height / 2)  # right top
-        p12 = Point2D(-ex, height / 2)  # left top
+        p1 = Point(-ex, -height / 2)  # left bottom
+        p2 = Point(width - ex, -height / 2)  # right bottom
+        p3 = Point(width - ex, -height / 2 + tf)
+        p4 = Point(-ex + tw + r, -height / 2 + tf)  # start arc
+        p5 = Point(-ex + tw + r, -height / 2 + tf + r)  # second point arc
+        p6 = Point(-ex + tw, -height / 2 + tf + r)  # end arc
+        p7 = Point(-ex + tw, height / 2 - tf - r)  # start arc
+        p8 = Point(-ex + tw + r, height / 2 - tf - r)  # second point arc
+        p9 = Point(-ex + tw + r, height / 2 - tf)  # end arc
+        p10 = Point(width - ex, height / 2 - tf)
+        p11 = Point(width - ex, height / 2)  # right top
+        p12 = Point(-ex, height / 2)  # left top
 
         # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
         l4 = Arc2D(p4, p5, p6)
-        l5 = Line2D(p6, p7)
+        l5 = Line(p6, p7)
         l6 = Arc2D(p7, p8, p9)
-        l7 = Line2D(p9, p10)
-        l8 = Line2D(p10, p11)
-        l9 = Line2D(p11, p12)
-        l10 = Line2D(p12, p1)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p11)
+        l9 = Line(p11, p12)
+        l10 = Line(p12, p1)
 
-        self.curve = PolyCurve2D().by_joined_curves(
+        self.curve = PolyCurve.by_joined_curves(
             [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
 class CChannelSlopedFlange(Profile):
@@ -7686,595 +8221,6 @@ class ArrowProfile(Profile):
 
         self.curve = PolyCurve2D().by_joined_curves(
             [l1, l2, l3, l4, l5, l6, l7])
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
-url = urllib.request.urlopen(jsonFile)
-data = json.loads(url.read())
-
-
-def is_rectangle_format(shape_name):
-    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
-    if match:
-        width, height = int(match.group(1)), int(match.group(2))
-        if 0 <= width <= 10000 and 0 <= height <= 10000:
-            return True, width, height
-    return False, 0, 0
-
-
-class _getProfileDataFromDatabase:
-    def __init__(self, name):
-        self.name = name
-        self.shape_coords = None
-        self.shape_name = None
-        self.synonyms = None
-        for item in data:
-            for i in item.values():
-                synonymList = i[0]["synonyms"]
-                if self.name.lower() in [synonym.lower() for synonym in synonymList]:
-                    self.shape_coords = i[0]["shape_coords"]
-                    self.shape_name = i[0]["shape_name"]
-                    self.synonyms = i[0]["synonyms"]
-        if self.shape_coords == None:
-            check_rect, width, height = is_rectangle_format(name)
-            if check_rect:
-                self.shape_coords = [width, height]
-                self.shape_name = "Rectangle"
-                self.synonyms = name
-
-
-class nameToProfile:
-    def __init__(self, name1, segmented = True):
-        profile_data = _getProfileDataFromDatabase(name1)
-        if profile_data == None:
-            print(f"profile {name1} not recognised")
-        profile_name = profile_data.shape_name
-        if profile_name == None:
-            profile_data = _getProfileDataFromDatabase(project.structural_fallback_element)
-            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
-            profile_name = profile_data.shape_name
-        self.profile_data = profile_data
-        self.profile_name = profile_name
-        name = profile_data.name
-        self.d1 = profile_data.shape_coords
-        d1 = self.d1
-        if profile_name == "C-channel parallel flange":
-            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
-        elif profile_name == "C-channel sloped flange":
-            prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
-        elif profile_name == "I-shape parallel flange":
-            prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        elif profile_name == "I-shape sloped flange":
-            prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
-            #Todo: add sloped flange shape
-        elif profile_name == "Rectangle":
-            prof = Rectangle(name,d1[0], d1[1])
-        elif profile_name == "Round":
-            prof = Round(name, d1[1])
-        elif profile_name == "Round tube profile":
-            prof = Roundtube(name, d1[0], d1[1])
-        elif profile_name == "LAngle":
-            prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
-        elif profile_name == "TProfile":
-            prof = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
-        elif profile_name == "Rectangle Hollow Section":
-            prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        self.profile = prof
-        self.data = d1
-        pc2d = self.profile.curve  # 2D polycurve
-        if segmented == True:
-            pc3d = PolyCurve.by_polycurve_2D(pc2d)
-            pcsegment = PolyCurve.segment(pc3d, 10)
-            pc2d2 = pcsegment.to_polycurve_2D()
-        else:
-            pc2d2 = pc2d
-        self.polycurve2d = pc2d2
-
-def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
-    
-    # print(XJustifiction)
-    xval = []
-    yval = []
-    for i in plycrv2D.curves:
-        xval.append(i.start.x)
-        yval.append(i.start.y)
-
-    #Rect
-    xmin = min(xval)
-    xmax = max(xval)
-    ymin = min(yval)
-    ymax = max(yval)
-
-    b = xmax-xmin
-    h = ymax-ymin
-
-    # print(b, h)
-
-    dxleft = -xmax
-    dxright = -xmin
-    dxcenter = dxleft - 0.5 * b #CHECK
-    dxorigin = 0
-
-    dytop = -ymax
-    dybottom = -ymin
-    dycenter = dytop - 0.5 * h #CHECK
-    dyorigin = 0
-
-    if XJustifiction == "center":
-        dx = dxorigin #TODO
-    elif XJustifiction == "left":
-        dx = dxleft
-    elif XJustifiction == "right":  
-        dx = dxright
-    elif XJustifiction == "origin":
-        dx = dxorigin #TODO
-    else:
-        dx = 0
-
-    if Yjustification == "center":
-        dy = dyorigin   #TODO
-    elif Yjustification == "top":
-        dy = dytop
-    elif Yjustification == "bottom":
-        dy = dybottom
-    elif Yjustification == "origin":
-        dy = dyorigin #TODO
-    else:
-        dy = 0
-
-    # print(dx, dy)
-    v1 = Vector2(dx, dy)
-    # v1 = Vector2(0, 0)
-
-    return v1
-def rgb_to_int(rgb):
-    r, g, b = [max(0, min(255, c)) for c in rgb]
-
-    return (255 << 24) | (r << 16) | (g << 8) | b
-
-class Material:
-    def __init__(self):
-        self.name = "none"
-        self.color = None
-        self.colorint = None
-
-    @classmethod
-    def byNameColor(cls, name, color):
-        M1 = Material()
-        M1.name = name
-        M1.color = color
-        M1.colorint = rgb_to_int(color)
-        return M1
-
-
-#Building Materials
-BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
-BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
-BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
-BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
-BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
-BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
-
-#GIS Materials
-BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
-BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
-BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
-BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
-BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
-
-#class Materialfinish
-
-class Node:
-    """The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
-    def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
-        """"Initializes a new Node instance.
-        
-        - `id` (str): A unique identifier for the node.
-        - `type` (str): The class name, "Node".
-        - `point` (Point, optional): The location of the node in 3D space.
-        - `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
-        - `number` (any, optional): An identifying number or label for the node.
-        - `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
-        - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
-        - `comments` (str, optional): Additional comments or notes about the node.
-        """
-        self.id = generateID()
-        self.point = point if isinstance(point, Point) else None
-        self.vector = vector if isinstance(vector, Vector) else None
-        self.number = number
-        self.distance = distance
-        self.diameter = diameter
-        self.comments = comments
-
-    def serialize(self) -> dict:
-        """Serializes the node's attributes into a dictionary.
-
-        This method allows for the node's properties to be easily stored or transmitted in a dictionary format.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized attributes of the node.
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'point': self.point.serialize() if self.point else None,
-            'vector': self.vector.serialize() if self.vector else None,
-            'number': self.number,
-            'distance': self.distance,
-            'diameter': self.diameter,
-            'comments': self.comments
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Node':
-        """Recreates a Node object from a dictionary of serialized data.
-
-        #### Parameters:
-        - data (dict): The dictionary containing the node's serialized data.
-
-        #### Returns:
-        `Node`: A new Node object initialized with the data from the dictionary.
-        """
-        node = Node()
-        node.id = data.get('id')
-        node.type = data.get('type')
-        node.point = Point.deserialize(
-            data['point']) if data.get('point') else None
-        node.vector = Vector.deserialize(
-            data['vector']) if data.get('vector') else None
-        node.number = data.get('number')
-        node.distance = data.get('distance')
-        node.diameter = data.get('diameter')
-        node.comments = data.get('comments')
-
-        return node
-
-    # merge
-    def merge(self):
-        """Merges this node with others in a project according to defined rules.
-
-        The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
-        """
-        if project.node_merge == True:
-            pass
-        else:
-            pass
-
-    # snap
-    def snap(self):
-        """Adjusts the node's position based on snapping criteria.
-
-        This could involve aligning the node to a grid, other nodes, or specific geometric entities.
-        """
-        pass
-
-    def __str__(self) -> str:
-        """Generates a string representation of the Node.
-
-        #### Returns:
-        `str`: A string that represents the Node, including its type and potentially other identifying information.
-        """
-
-        return f"{self.type}"
-
-def colorlist(extrus, color):
-    colorlst = []
-    for j in range(int(len(extrus.verts) / 3)):
-        colorlst.append(color)
-    return (colorlst)
-
-
-# ToDo Na update van color moet ook de colorlist geupdate worden
-class Frame(Serializable):
-    def __init__(self):
-        self.id = generateID()
-        self.name = "None"
-        self.profileName = "None"
-        self.extrusion = None
-        self.comments = None
-        self.structuralType = None
-        self.start = None
-        self.end = None
-        self.curve = None  # 2D polycurve of the sectionprofile
-        self.curve3d = None  # Translated 3D polycurve of the sectionprofile
-        self.length = 0
-        self.points = []
-        self.coordinateSystem: CoordinateSystem = CSGlobal
-        self.YJustification = "Origin"  # Top, Center, Origin, Bottom
-        self.ZJustification = "Origin"  # Left, Center, Origin, Right
-        self.YOffset = 0
-        self.ZOffset = 0
-        self.rotation = 0
-        self.material : Material = None
-        self.color = BaseOther.color
-        self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
-        self.profile = None #object of 2D profile
-        self.colorlst = []
-        self.vector = None
-        self.vector_normalised = None
-        self.centerbottom = None
-
-    def props(self):
-        self.vector = Vector(self.end.x-self.start.x,
-                              self.end.y-self.start.y, self.end.z-self.start.z)
-        self.vector_normalised = Vector.normalize(self.vector)
-        self.length = Vector.length(self.vector)
-
-    @classmethod
-    def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-        if end.type == 'Point':
-            f1.end = end
-        elif end.type == 'Node':
-            f1.end = end.point
-
-        if isinstance(profile,Profile):
-            f1.curve = profile.curve
-            f1.profile = profile
-        elif type(profile).__name__ == "str":
-            res = nameToProfile(profile)
-            f1.curve = res.polycurve2d  # polycurve2d
-            f1.points = res.polycurve2d.points
-            f1.profile = res.profile
-        else:
-            print("[by_startpoint_endpoint_profile], input is not correct.")
-            sys.exit()
-
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = name
-        f1.curve3d = f1.extrusion.polycurve_3d_translated
-        f1.profileName = profile
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-        if end.type == 'Point':
-            f1.end = end
-        elif end.type == 'Node':
-            f1.end = end.point
-            
-        #try:
-        curv = nameToProfile(profile_name).polycurve2d
-        #except Exception as e:
-            # Profile does not exist
-        #print(f"Profile does not exist: {profile_name}\nError: {e}")
-
-        f1.rotation = rotation
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.curve = curvrot.translate(vector2d)
-        f1.XOffset = vector2d.x
-        f1.YOffset = vector2d.y
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = name
-        f1.curve3d = f1.extrusion.polycurve_3d_translated
-        f1.profileName = profile_name
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-        if end.type == 'Point':
-            f1.end = end
-        elif end.type == 'Node':
-            f1.end = end.point
-
-        f1.structuralType = structuralType
-        f1.rotation = rotation
-
-        if type(profile).__name__ == "PolyCurve2D":
-            profile_name = "None"
-            f1.profile_data = profile
-            curve = f1.profile_data
-        elif type(profile).__name__ == "Polygon":
-            profile_name = "None"
-            f1.profile_data = PolyCurve2D.by_points(profile.points)
-            curve = f1.profile_data
-        elif type(profile).__name__ == "str":
-            profile_name = profile
-            f1.profile_data = nameToProfile(profile).polycurve2d  # polycurve2d
-            curve = f1.profile_data
-        else:
-            print("[by_startpoint_endpoint_profile], input is not correct.")
-            sys.exit()
-
-        # curve = f1.profile_data.polycurve2d
-
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
-        f1.XOffset = v1.x
-        f1.YOffset = v1.y
-        curve = curve.translate(v1)
-        curve = curve.translate(Vector2(ey, ez))  # 2
-        curve = curve.rotate(f1.rotation)  # 3
-        f1.curve = curve
-
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = name
-        f1.curve3d = f1.extrusion.polycurve_3d_translated
-
-        try:
-            pnew = PolyCurve.by_joined_curves(f1.curve3d.curves)
-            f1.centerbottom = PolyCurve.centroid(pnew)
-        except:
-            pass
-
-        f1.profileName = profile_name
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_rect(cls, start: Union[Point, Node], end: Union[Point, Node], width: float, height: float, name: str, rotation: float, material=None, comments=None):
-        # 2D polycurve
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-        if end.type == 'Point':
-            f1.end = end
-        elif end.type == 'Node':
-            f1.end = end.point
-
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = name
-
-        prof = Rectangle(str(width)+"x"+str(height),width,height)
-        polycurve = prof.curve
-        f1.profile = prof
-        curvrot = polycurve.rotate(rotation)
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = name
-        f1.curve3d = curvrot
-        f1.profileName = name
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-
-    @classmethod
-    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
-        # 2D polycurve
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-
-        f1.end = Point.translate(f1.start, Vector(0, 0.00001, height))
-
-        # self.curve = Line(start, end)
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = frame_name
-        f1.profileName = frame_name
-        curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = frame_name
-        f1.curve3d = curvrot
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-    @classmethod
-    def by_point_profile_height_rotation(cls, start: Union[Point, Node], height: float, profile_name: str, rotation: float, material=None, comments=None):
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-        # TODO vertical column not possible
-        f1.end = Point.translate(f1.start, Vector(0, height))
-
-        # self.curve = Line(start, end)
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = profile_name
-        f1.profileName = profile_name
-        curv = nameToProfile(profile_name).polycurve2d
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = profile_name
-        f1.curve3d = curvrot
-        f1.profileName = profile_name
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_curve_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
-        f1 = Frame()
-        f1.comments = comments
-
-        if start.type == 'Point':
-            f1.start = start
-        elif start.type == 'Node':
-            f1.start = start.point
-        if end.type == 'Point':
-            f1.end = end
-        elif end.type == 'Node':
-            f1.end = end.point
-
-        f1.rotation = rotation
-        curv = polycurve
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-        # center, left, right, origin / center, top bottom, origin
-        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
-        f1.XOffset = v1.x
-        f1.YOffset = v1.y
-        f1.curve = curv.translate(v1)
-        f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
-        f1.name = name
-        f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
-        f1.extrusion.name = name
-        f1.profileName = "none"
-        f1.material = material
-        f1.color = material.colorint
-        f1.colorlst = colorlist(f1.extrusion, f1.color)
-        f1.props()
-        return f1
-
-    def write(self, project):
-        project.objects.append(self)
-        return self
 
 
 class Interval:
@@ -9107,7 +9053,7 @@ class Matrix(list[list]):
         dimensions:int = len(toAdd) + 1
         return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
     
-    def __mul__(self, other:Self | Coords | Line):
+    def __mul__(self, other:Self | Coords | Line | Rect | PointList):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
         for example: translate * rotate (rotate first, translate after)
         and: matrix * point (point first, multiplied by matrix after)"""
@@ -9150,6 +9096,8 @@ class Matrix(list[list]):
                             otherValue = other[multiplyIndex][col] if col < other.cols and multiplyIndex < other.rows else 1 if multiplyIndex == col else 0
                             result[row][col] += selfValue * otherValue
 
+        elif isinstance(other, PointList):
+            return other.__class__([self * p for p in other])
         #point comes in from top and comes out to the right:
         # |
         # v
@@ -9169,7 +9117,13 @@ class Matrix(list[list]):
             return result
         elif isinstance(other, Line):
             return Line(self * other.start, self * other.end)
+        elif isinstance(other, Rect):
+            mp0 = self * other.p0
+            mp1 = self * other.p1
+            return Rect.by_points([mp0, mp1])
         return result
+    
+    transform = multiply = __mul__
 
     def add(self, other: 'Matrix'):
         if self.shape() != other.shape():
