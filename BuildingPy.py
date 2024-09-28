@@ -262,23 +262,13 @@ class Coords(Serializable, list):
         list.__init__(self, arrayArgs)
         Serializable.__init__(self)
 
-        self.id = generateID()
         for kwarg in kwargs.items():
             self.set_axis_by_name(kwarg[0], kwarg[1])            
 
     def __str__(self):
-        length = len(self)
-        result = self.__class__.__name__ + '('
-        if length >= 1:
-            result += f'x={self.x}'
-            if length >= 2:
-                result += f', y={self.y}'
-                if length >= 3:
-                    result += f', z={self.z}'
-
-        result += ')'
-        return result
+        return self.__class__.__name__ + '(' + ','.join([f'{axis_name}={((v * 100) // 1 ) / 100 }' for v, axis_name in zip(self, self.axis_names)]) + ')'
     
+    axis_names = ['x', 'y', 'z', 'w']
     
     @property
     def x(self): return self[0]
@@ -419,7 +409,7 @@ class Coords(Serializable, list):
         Returns:
             int: the index
         """
-        return ['x', 'y', 'z', 'w'].index(axis.lower())
+        return Coords.axis_names.index(axis.lower())
 
     def change_axis_count(self,axis_count: int):
         """in- or decreases the amount of axes to the preferred axis count.
@@ -3508,9 +3498,9 @@ class Line(Serializable):
         - `start` (Point): The starting point of the line segment.
         - `end` (Point): The ending point of the line segment.
         """
-        self.id = generateID()
-        self.start: Point = start
-        self.end: Point = end
+        #copy
+        self.start = Point(start)
+        self.end = Point(end)
         
     @property
     def mid(self) -> 'Point':
@@ -4614,6 +4604,7 @@ class Polygon(PointList):
     @staticmethod
     def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
         """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
+        creates a shallow copy of the lines provided!
 
         Args:
             lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
@@ -4627,8 +4618,7 @@ class Polygon(PointList):
 
         for i in range(len(lines) - 1):
             if lines[i].end != lines[i+1].start:
-                print("Error: Curves must be contiguous to form a Polygon.")
-                sys.exit()
+                raise ValueError("Error: Curves must be contiguous to form a Polygon.")
 
         #if lines[0].start != lines[-1].end:
         #    lines.append(Line(lines[-1].end, lines[0].start))
@@ -8999,7 +8989,7 @@ def fillin(perimeter: PolyCurve2D, pattern: pattern_geom) -> pattern_system:
 
     return [bb_perimeter]
 
-class Matrix(list[list]):
+class Matrix(Serializable, list[list]):
     """
     elements are ordered like [row][column] or [y][x]
     """
@@ -9563,10 +9553,11 @@ class Matrix(list[list]):
             for row in self:
                 line = sep.join(format % item for item in row) + "\n"
                 file.write(line)
-
-    def tostring(self):
-        for row in self:
-            print(' '.join(map(str, row)))
+                
+    def __str__(self):
+        # '\n'.join([str(row) for row in self])
+        #vs code doesn't work with new lines
+        return 'Matrix(' + list.__str__(self) + ')'
 
     def trace(self, offset=0):
         rows, cols = len(self), len(self[0])
