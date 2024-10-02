@@ -157,15 +157,18 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
     
     for child in children:
         #find a good parent in the list of used parents
+        #try to find a leftover to fit in perfectly
         fit = try_perfect_fit_2d(used_parents, used_parents, child, padding, allowed_error)
         
         if fit == None:
-            #else, use a new parent of the remaining parents
-
+            #try to find a new parent of the remaining parents to fit in perfectly
             fit = try_perfect_fit_2d(unused_parents, used_parents, child, padding, allowed_error)
+
             if fit == None:
+                #try to find a leftover parent to fit in. we accept anything, to not waste a new plank. if there still is place, it fits.
                 fit = try_perfect_fit_2d(used_parents,used_parents, child, padding,inf)
                 if fit == None:
+                    #try to find a new parent of the remaining parents to fit in. hopefully, we have other children which will make use of this parent. otherwise, a lot of space would be wasted.
                     fit = try_perfect_fit_2d(unused_parents, used_parents, child, padding, inf)
                     if fit == None and return_when_failed:
                         #return none
@@ -408,6 +411,7 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
                                 for line_elem in group_b.lines:
                                     line_elem.fit_group_index = elem_a.fit_group_index
                                     
+                                #todo: add option for imprecise match
                                 if exact_match:
                                     #merge polygons at intersection
                                     line_a_index = group_a.lines.index(elem_a) 
@@ -418,20 +422,21 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
                                     b_cull_index = line_b_index
                                     if line_b.start == line_a.end:
                                         #we don't need to connect from line_b.start to line_a.end, so we'll remove line_a and line_b
-                                        line_list.pop(sorted_line_index)
-                                        line_list.pop(opposite_angle_index)
+                                        #first, pop the latter list index. when we'd pop the first list index 
+                                        del line_list[opposite_angle_index]
+                                        del line_list[sorted_line_index]
                                     elif line_a.length > line_b.length:
                                         #modify line_a to fill the gap, while preserving angle (from line_b.start to line_a.end)
                                         line_a.start = line_b.start
                                         #keep a
                                         a_cull_index -= 1
-                                        line_list.pop(opposite_angle_index)
+                                        del line_list[opposite_angle_index]
                                     else:
                                         #modify line_b to fill the gap, while preserving angle (from line_b.start to line_a.end)                                        
                                         line_b.end = line_a.end
                                         #keep b
                                         b_cull_index += 1
-                                        line_list.pop(sorted_line_index)
+                                        del line_list[sorted_line_index]
                                         
                                     
                                     #insert line segments of group b from line_b ('rotate' segments of group b so borders match)
@@ -439,8 +444,7 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
                                     group_b.lines[:b_cull_index] + group_a.lines[a_cull_index:])
 
                                 else:
-                                    #order doesn't matter, as they don't match exactly
-                                    group_a.lines.extend(group_b.lines)
+                                    raise NotImplementedError()
 
                                 group_a.child_indexes.extend(group_b.child_indexes)
                                 group_a.relative_child_offsets.extend(group_b.relative_child_offsets)

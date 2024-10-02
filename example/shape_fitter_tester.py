@@ -138,12 +138,16 @@ def keydown(e):
 					#	canvas.create_rectangle(0,0, child_size[0], child_size[1], fill='orange')
 		canvas.create_text(0, yoff ,fill="white",font="Times 20 italic bold", text=f"minimum cost: {mincost}\tcost (including cutting cost): {cost}\tloss: {((cost / mincost) - 1) * 100}%", anchor="nw")
 	else:
-		parent_sizes = [Vector(random.randrange(5000, 8000, 100), random.randrange(1000,5000,100)) for i in range(parent_count)]
+		available_parent_invoicing_widths = [2450, 2500, 2730, 2950, 3100, 3200, 3300, 3400, 3500]
+		min_length = 8500
+		max_length = 16500
+		parent_sizes = [Vector(random.uniform(min_length, max_length), random.choice(available_parent_invoicing_widths)) for i in range(parent_count)]
 		
 		#child_polygons = [Polygon.rectangular(Rect(0,0,200,200)), Polygon(Point(0,0), Point(200, 0), Point(0,200)), Polygon(Point(200,0), Point(200, 200), Point(0,200)), Polygon(Point(0,0), Point(50,0), Point(70,50), Point(0, 50)), Polygon(Point(0,0), Point(70,0), Point(70,50), Point(20, 50))]
-		child_polygons = test_data
+
+		#get first 30 polygons from test data
+		child_polygons = random.sample(test_data, 30)
 		#adjust the test data to make it valid
-		
   
 		for poly in child_polygons:
 			#first of all, move each polygon so the mimimum corner is at 0,0,0
@@ -164,25 +168,25 @@ def keydown(e):
 			if parent_offset != None:
 				final_rect = Rect(parent_offset[1].x,parent_offset[1].y, parent_offset[1].x+parent_size.x, parent_offset[1].y + parent_size.y)
 				final_rect = area_to_screen * final_rect
-				canvas.create_rectangle(final_rect.x, final_rect.y, final_rect.p1.x, final_rect.p1.y, fill='red')
+				canvas.create_rectangle(final_rect.x, final_rect.y, final_rect.p1.x, final_rect.p1.y, fill='red', outline='purple')
 
-		for group, box in zip(fit_result.grouped_polygons, fit_result.box_result.fitted_boxes):
-			if box != None:
-				if parent_offsets[box[0]] != None:
-					parent_off = parent_offsets[box[0]][1]
-					group_off = parent_off + box[1]
-					final_rect = Rect(group_off, group.bounds.size)
-					final_rect = area_to_screen * final_rect
-					canvas.create_rectangle(final_rect.x, final_rect.y, final_rect.p1.x, final_rect.p1.y, outline= 'green') # fill='green'
-    
-		for(child_off, child_poly) in zip(fit_result.fitted_children, child_polygons):
-			if child_off != None:
-				parent_off = parent_offsets[child_off[0]]
-				if parent_off != None:
-					child_poly.translate(parent_off[1] + child_off[1])
-					final_poly = area_to_screen * child_poly
-					
-					canvas.create_polygon(final_poly, outline='pink', fill='magenta')
+		#for group, box in zip(fit_result.grouped_polygons, fit_result.box_result.fitted_boxes):
+		#	if box != None:
+		#		if parent_offsets[box[0]] != None:
+		#			parent_off = parent_offsets[box[0]][1]
+		#			group_off = parent_off + box[1]
+		#			final_rect = Rect(group_off, group.bounds.size)
+		#			final_rect = area_to_screen * final_rect
+		#			canvas.create_rectangle(final_rect.x, final_rect.y, final_rect.p1.x, final_rect.p1.y, outline= 'green') # fill='green'
+    #
+		#for(child_off, child_poly) in zip(fit_result.fitted_children, child_polygons):
+		#	if child_off != None:
+		#		parent_off = parent_offsets[child_off[0]]
+		#		if parent_off != None:
+		#			child_poly.translate(parent_off[1] + child_off[1])
+		#			final_poly = area_to_screen * child_poly
+		#			
+		#			canvas.create_polygon(final_poly, outline='pink', fill='magenta')
   
 		
 
