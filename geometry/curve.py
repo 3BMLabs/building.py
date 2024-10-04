@@ -335,7 +335,27 @@ class PolyCurve(Serializable, list[Line]):
         #self.reference = None
         #self.visibility = None
         super().__init__(to_array(*args))
+    
+    @property
+    def area(self) -> 'float':
+        """Calculates the area of the 2d PolyCurve.
+
+        Returns:
+            float: The area of the 2d poly curve.
         
+        we are assuming the PolyCurve is wound counter-clockwise.
+        """
+        for line in self:
+            #if isinstance(line, Arc):
+            #    
+            #else:
+                #check direction of line
+                #start - end, for counterclockwiseness
+                #when start.x < end.x, this is a bottom line. we'll substract this from the area.
+                dx = line.start.x - line.end.x
+                averagey = (line.start.y + line.end.y) / 2
+                area = dx * averagey
+    
     @property
     def length(self) -> 'float':
         """Calculates the total length of the PolyCurve.

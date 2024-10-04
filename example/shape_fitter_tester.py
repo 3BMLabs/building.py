@@ -162,8 +162,6 @@ def keydown(e):
 		
 		area_to_screen = Matrix.scale(2, 1.0 / scale_factor)
 		
-		
-  
 		for (parent_offset,parent_size) in zip(parent_offsets, parent_sizes):
 			if parent_offset != None:
 				final_rect = Rect(parent_offset[1].x,parent_offset[1].y, parent_offset[1].x+parent_size.x, parent_offset[1].y + parent_size.y)
