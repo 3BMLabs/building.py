@@ -385,5 +385,9 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
+from abstract.vector import *
+X_Axis = Vector(1,0,0)
+Y_Axis = Vector(0,1,0)
+Z_Axis = Vector(0,0,1)
 
-CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_Axis, Y_Axis, Z_Axis)

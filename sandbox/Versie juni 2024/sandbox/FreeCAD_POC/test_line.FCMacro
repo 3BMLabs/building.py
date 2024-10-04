@@ -1,0 +1,7 @@
+#import FreeCAD
+import Draft
+
+p1 = FreeCAD.Vector(0,0,0)
+p2 = FreeCAD.Vector(1000,0,0)
+Draft.makeWire([p1,p2],False)
+

@@ -191,9 +191,9 @@ class CoordinateSystem:
         from abstract.vector import Vector
         self.id = generateID()
         self.Origin = origin
-        self.X_axis = Vector.normalize(x_axis)
-        self.Y_axis = Vector.normalize(y_axis)
-        self.Z_axis = Vector.normalize(z_axis)
+        self.X_axis = x_axis
+        self.Y_axis = y_axis
+        self.Z_axis = z_axis
 
     @classmethod
     def by_origin(coordinate_system, origin: Point) -> 'CoordinateSystem':
