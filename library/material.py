@@ -58,9 +58,8 @@ class Material:
         M1 = Material()
         M1.name = name
         M1.color = color
-        M1.colorint = rgb_to_int(color)
+        #M1.colorint = rgb_to_int(color)
         return M1
-
 
 #Building Materials
 BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))

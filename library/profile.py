@@ -41,8 +41,9 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
-from BuildingPy import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
+from objects.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
 from geometry.curve import PolyCurve
+from geometry.geometry2d import PolyCurve2D
 
 # [!not included in BP singlefile - end]
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
@@ -128,7 +129,7 @@ class nameToProfile:
         self.polycurve2d = pc2d2
 
 def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
-    
+
     # print(XJustifiction)
     xval = []
     yval = []
