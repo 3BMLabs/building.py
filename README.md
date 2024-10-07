@@ -3,8 +3,6 @@
 # building.py
 A Python library for creating buildings, building systems, objects, and exporting them to various programs such as Blender, Revit, and Speckle.
 
-Supports Python 3.10 or higher.
-
 # Why?
 In the realm of building design, almost everything can be categorized as a frame or a panel – from windows and curtain walls to floor systems. The aim of the building.py project is to automate the creation of these systems.
 
@@ -22,13 +20,13 @@ Goals of the building.py Project:
 
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
 --- | --- | --- | --- | --- 
-Abstract | Vector | :heavy_check_mark: |  |  
+Abstract | Vector3 | :heavy_check_mark: |  |  
 &nbsp; | Vector2 | :heavy_check_mark: |  |  
 &nbsp; | Plane | :heavy_check_mark: |  |  
 &nbsp; | CoordinateSystem | :heavy_check_mark: |  |  
 &nbsp; | Color | :heavy_check_mark: | :heavy_check_mark: |  
 &nbsp; | Material | :heavy_check_mark: | |  
-Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |  
+Geometry | Point3D | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Line | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Arc | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | PolyCurve | :heavy_check_mark: | :heavy_check_mark:  |  
@@ -40,7 +38,6 @@ Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Text | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Mesh | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | BREP | | |  
-&nbsp; | PointCloud | | |  
 &nbsp; | Extrusion | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Sweep | | |  
 Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |  

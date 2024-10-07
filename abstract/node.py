@@ -51,15 +51,16 @@ class Node:
         - `id` (str): A unique identifier for the node.
         - `type` (str): The class name, "Node".
         - `point` (Point, optional): The location of the node in 3D space.
-        - `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
+        - `vector` (Vector3, optional): A vector indicating the orientation or direction associated with the node.
         - `number` (any, optional): An identifying number or label for the node.
         - `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
         - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
         - `comments` (str, optional): Additional comments or notes about the node.
         """
         self.id = generateID()
+        self.type = __class__.__name__
         self.point = point if isinstance(point, Point) else None
-        self.vector = vector if isinstance(vector, Vector) else None
+        self.vector = vector if isinstance(vector, Vector3) else None
         self.number = number
         self.distance = distance
         self.diameter = diameter
@@ -101,7 +102,7 @@ class Node:
         node.type = data.get('type')
         node.point = Point.deserialize(
             data['point']) if data.get('point') else None
-        node.vector = Vector.deserialize(
+        node.vector = Vector3.deserialize(
             data['vector']) if data.get('vector') else None
         node.number = data.get('number')
         node.distance = data.get('distance')

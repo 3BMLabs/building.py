@@ -1,11 +1,9 @@
 from packages.GIS2BIM.GIS2BIM_NL import *
-from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from exchange.GIS2BIM import *
 from geometry.mesh import MeshPB
 from library.material import *
 from abstract.image import *
-#from GIS2BIM_single_file import *
 
 # Description
 # This script creates lines for the cadastral parcels and a mesh for a building footprint for any building in
@@ -24,11 +22,11 @@ Centerline2 = ["Center Line 2", [8, 4, 4, 4], 500]  # Rule: line, whitespace, li
 # BASE VALUES
 RdX = lst[0]
 RdY = lst[1]
-Bbox = CreateBoundingBox(RdX, RdY, Bboxwidth, Bboxwidth, 0)
+Bbox = GIS2BIM.CreateBoundingBox(RdX, RdY, Bboxwidth, Bboxwidth, 0)
 
 # Aerialphoto
 fileLocationWMS = tempfolder + "luchtfoto_2020_2.png"
-a = WMSRequest(GetWebServerData("NL_PDOK_Luchtfoto_2020_28992", "webserverRequests",
+a = GIS2BIM.WMSRequest(GIS2BIM.GetWebServerData("NL_PDOK_Luchtfoto_2020_28992", "webserverRequests",
                                                 "serverrequestprefix"), Bbox, fileLocationWMS,
                        1500, 1500)
 
@@ -36,14 +34,14 @@ a = WMSRequest(GetWebServerData("NL_PDOK_Luchtfoto_2020_28992", "webserverReques
 # GISProject.objects.append(img)
 
 # KADASTRALE GRENZEN
-curvesCadaster = PointsFromWFS(NLPDOKCadastreCadastralParcels, Bbox, NLPDOKxPathOpenGISposList, -RdX, -RdY,
+curvesCadaster = GIS2BIM.PointsFromWFS(NLPDOKCadastreCadastralParcels, Bbox, NLPDOKxPathOpenGISposList, -RdX, -RdY,
                                        1000, 2)
 # for i in WFSCurvesToBPCurvesLinePattern(curvesCadaster, Centerline):
 for i in WFSCurvesToBPCurves(curvesCadaster):
     GISProject.objects.append(i)
 
 # GEBOUWEN
-curvesBAG = PointsFromWFS(NLPDOKBAGBuildingCountour, Bbox, NLPDOKxPathOpenGISposList, -RdX, -RdY, 1000,
+curvesBAG = GIS2BIM.PointsFromWFS(NLPDOKBAGBuildingCountour, Bbox, NLPDOKxPathOpenGISposList, -RdX, -RdY, 1000,
                                   2)
 BPCurvesBAG = WFSCurvesToBPCurves(curvesBAG)
 # for i in WFSCurvesToBPCurves(curvesBAG):

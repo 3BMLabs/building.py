@@ -44,10 +44,11 @@ from geometry.curve import *
 # [!not included in BP singlefile - end]
 
 
-class Panel(Serializable):
+class Panel:
     # Panel
     def __init__(self):
         self.id = generateID()
+        self.type = __class__.__name__
         self.extrusion = None
         self.thickness = 0
         self.name = None
@@ -113,8 +114,8 @@ class Panel(Serializable):
         polycurve = PolyCurve.by_points(
             [baseline.start,
              baseline.end,
-             Point.translate(baseline.end, Vector(0, 0, height)),
-             Point.translate(baseline.start, Vector(0, 0, height))])
+             Point.translate(baseline.end, Vector3(0, 0, height)),
+             Point.translate(baseline.start, Vector3(0, 0, height))])
         p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
         p1.origincurve = polycurve
         for j in range(int(len(p1.extrusion.verts) / 3)):

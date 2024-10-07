@@ -20,7 +20,7 @@ def process_entities(dxf_path, index, name):
     only_polycurves = []
     for polycurve, layer in dxf_reader:
         if polycurve is not None:
-            translated_polycurve = Polygon.translate(polycurve, Vector(0, index*1000, 0))
+            translated_polycurve = Polygon.translate(polycurve, Vector3(0, index*1000, 0))
             only_polycurves.append(translated_polycurve)
             project.objects.append(translated_polycurve)
             print(f"{index}: Translated object on layer {layer}: {translated_polycurve}")
@@ -45,7 +45,7 @@ def process_directory(dxf_directory):
 dxf_input_path = 'library\\object_database\\DXF\\'
 
 process_directory(dxf_input_path)
-project.toSpeckle("29a6c39880")
+project.toSpeckle("7603a8603c")
 
 ifc_project = CreateIFC()
 

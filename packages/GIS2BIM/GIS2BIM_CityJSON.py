@@ -1,14 +1,14 @@
-# [included in GIS2BIM singlefile]
-# [!not included in GIS2BIM singlefile - start]
 from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from packages.GIS2BIM.GIS2BIM_NL_helpers import *
 import json
+import os
 import time
 import ijson
+import sys
+import random
 
-# [!not included in GIS2BIM singlefile - end]
 maximumLoD = 2.2
 
 def translateVertex(vertices, index, transform,projectLocation,scaleFactor):

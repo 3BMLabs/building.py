@@ -37,25 +37,22 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from abstract.serializable import Serializable
 from geometry.point import Point
 from abstract.coordinatesystem import CoordinateSystem
-from abstract.vector import Vector
+from abstract.vector import Vector3
 
 # [!not included in BP singlefile - end]
-class BuildingPy(Serializable):
+class BuildingPy:
     def __init__(self, name=None, number=None):
         self.name: str = name
         self.number: str = number
-        #settings
         self.debug: bool = True
         self.objects = []
         self.units = "mm"
         self.decimals = 3 #not fully implemented yet
-
         self.origin = Point(0,0,0)
         self.default_font = "calibri"
-        self.scale = 1000
+        self.scale = 1
         self.font_height = 500
         self.repr_round = 3
         #prefix objects (name)
@@ -91,27 +88,43 @@ class BuildingPy(Serializable):
 
         #FreeCAD settings
 
-        X_axis = Vector(1, 0, 0)
-        Y_Axis = Vector(0, 1, 0)
-        Z_Axis = Vector(0, 0, 1)
+        X_axis = Vector3(1, 0, 0)
+        Y_Axis = Vector3(0, 1, 0)
+        Z_Axis = Vector3(0, 0, 1)
         self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
-    def save(self, file_name = 'project/data.json'):
-        Serializable.save(file_name)
-        
-        type_count = defaultdict(int)
-        for serialized_item in self.objects:
-            #item = json.loads(serialized_item)
-            type_count[serialized_item.__class__.__name__] += 1
+    def save(self):
+        # print(self.objects)
+        serialized_objects = []
+        for obj in self.objects:
+            try:
+                # print(obj)
+                serialized_objects.append(json.dumps(obj.serialize()))
+            except:
+                print(obj)
 
-        total_items = len(self.objects)
+        serialized_data = json.dumps(serialized_objects)
+        file_name = 'project/data.json'
+        with open(file_name, 'w') as file:
+            file.write(serialized_data)
+
+
+        type_count = defaultdict(int)
+        for serialized_item in serialized_objects:
+            item = json.loads(serialized_item)
+            item_type = item.get("type")
+            if item_type:
+                type_count[item_type] += 1
+
+        total_items = len(serialized_objects)
 
         print(f"\nTotal saved items to '{file_name}': {total_items}")
         print("Type counts:")
         for item_type, count in type_count.items():
             print(f"{item_type}: {count}")
-    def open(self, file_name = 'project/data.json'):
-        Serializable.open(file_name)
+
+    def open(self):
+        pass  # open data.json objects in here
 
     def toSpeckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle

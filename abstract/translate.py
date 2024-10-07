@@ -48,10 +48,10 @@ class Geometry:
     def Translate(object, v):
         if object.type == 'Point':
             p1 = Point.to_matrix(object)
-            v1 = Vector.to_matrix(v)
+            v1 = Vector3.to_matrix(v)
 
             ar1 = Point.to_matrix(p1)
-            ar2 = Vector.to_matrix(v1)
+            ar2 = Vector3.to_matrix(v1)
 
             c = [ar1[i] + ar2[i] for i in range(len(ar1))]
 
@@ -63,7 +63,7 @@ class Geometry:
         elif object.type == "PolyCurve":
             translated_points = []
 
-            # Extract the direction components from the Vector object
+            # Extract the direction components from the Vector3 object
             direction_x, direction_y, direction_z = v.x, v.y, v.z
 
             for point in object.points:

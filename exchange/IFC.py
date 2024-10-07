@@ -189,7 +189,9 @@ class CreateIFC:
             UnitsInContext=None
         )
 
-        run("unit.assign_unit", self.model)
+        #run("unit.assign_unit", self.model)
+        ifcopenshell.api.run("unit.assign_unit", self.model,length={"is_metric": True, "raw": "MILLIMETERS"})  # METERS OR MILLIMETERS
+
         self.context = run("context.add_context", self.model, context_type="Model")
         self.body = run("context.add_context", self.model, context_type="Model",
             context_identifier="Body", target_view="MODEL_VIEW", parent=self.context)
@@ -357,11 +359,11 @@ def translateObjectsToIFC(objects, ifc_creator):
             externe_punten = []
             if len(object_type.curve.points2D) == 0:
                 for pt in object_type.curve.points:
-                    externe_punten.append((pt.x*1000, pt.y*1000))
+                    externe_punten.append((pt.x, pt.y))
                 # externe_punten = object_type.curve.points
             else:
                 for pt in object_type.curve.points2D:
-                    externe_punten.append((pt.x*1000, pt.y*1000))
+                    externe_punten.append((pt.x, pt.y))
             # sys.exit()
             externe_ifc_punten = [ifc_creator.model.create_entity('IfcCartesianPoint', Coordinates=p) for p in externe_punten]
             polyline = ifc_creator.model.create_entity('IfcPolyline', Points=externe_ifc_punten)

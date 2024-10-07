@@ -31,7 +31,7 @@ obj = grids[0] + grids[1] #list with objects
 
 #Concretefloor
 obj.append(Panel.by_polycurve_thickness(
-    Rect(Vector(0,0,0),width,height),
+    Rect(Vector3(0,0,0),width,height),
     floorthickness,
     0,
     "Concrete Floor",
@@ -86,6 +86,7 @@ obj.append(LC2)
 obj.append(LC3)
 
 #Surfaceload
+
 obj.append(chess_board_surface_loads_rectangle(0,0,spac_x*2,spac_y*2,6,6,spac_x,spac_y,1,-20,obj))
 
 print(obj)
@@ -99,7 +100,7 @@ xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Concrete floor with loads")
 xmlS4U.addGrids(spacX,seqX,spacY,seqY,0) # Grids
-
+xmlS4U.addLoadCasesCombinations()
 xmlS4U.addSurfaceLoad(obj)
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr

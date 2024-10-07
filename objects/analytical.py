@@ -47,6 +47,7 @@ class Support:
         self.Number = None
         self.Point: Point = Point(0, 0, 0)
         self.id = generateID()
+        self.type = __class__.__name__
         self.Tx: str = " "  # A, P, N, S
         self.Ty: str = " "  # A, P, N, S
         self.Tz: str = " "  # A, P, N, S

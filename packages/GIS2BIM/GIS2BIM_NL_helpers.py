@@ -1,10 +1,6 @@
-# [included in GIS2BIM singlefile]
-# [!not included in GIS2BIM singlefile - start]
-
 from geometry.geometry2d import *
+# from abstract.intersect2d import * WEGGEHAALD
 from packages.GIS2BIM.GIS2BIM import GisRectBoundingBox
-# [!not included in GIS2BIM singlefile - end]
-
 lstkaartbladenpolygons = \
     [[[175000, 600000], [175000, 606250], [180000, 606250], [180000, 600000], [175000, 600000]],
 [[165000, 600000], [165000, 606250], [170000, 606250], [170000, 600000], [165000, 600000]],

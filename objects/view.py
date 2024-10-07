@@ -35,10 +35,11 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.curve import *
 
-class View(Serializable):
+class View:
     def __init__(self):
         self.name = None
         self.id = generateID()
+        self.type = __class__.__name__
         self.origin = Point(0, 0, 0)
         self.cutplane: CoordinateSystem = None
         self.visibility = None
@@ -70,10 +71,11 @@ class View(Serializable):
         return view
 
 
-class Visibility(Serializable):
+class Visibility:
     def __init__(self):
         self.name = None
         self.id = generateID()
+        self.type = __class__.__name__
         self.origin = Point(0, 0, 0)
         self.cutplane: CoordinateSystem = None
         self.visibility = None

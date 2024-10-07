@@ -3,7 +3,7 @@ import urllib.request
 import json
 sqrt2 = math.sqrt(2)
 
-class Vector:
+class Vector3:
     def __init__(self, x, y, z):
         self.x: float = 0.0
         self.y: float = 0.0
@@ -15,7 +15,7 @@ class Vector:
 
     @staticmethod
     def sum(v1, v2):
-        return Vector(
+        return Vector3(
             v1.x + v2.x,
             v1.y + v2.y,
             v1.z + v2.z
@@ -23,7 +23,7 @@ class Vector:
 
     @staticmethod
     def sum3(v1, v2, v3):
-        return Vector(
+        return Vector3(
             v1.x + v2.x + v3.x,
             v1.y + v2.y + v3.y,
             v1.z + v2.z + v3.z
@@ -31,7 +31,7 @@ class Vector:
 
     @staticmethod
     def diff(v1, v2):
-        return Vector(
+        return Vector3(
             v1.x - v2.x,
             v1.y - v2.y,
             v1.z - v2.z
@@ -39,7 +39,7 @@ class Vector:
 
     @staticmethod
     def divide(v1, v2):
-        return Vector(
+        return Vector3(
             v1.x / v2.x,
             v1.y / v2.y,
             v1.z / v2.z
@@ -47,7 +47,7 @@ class Vector:
 
     @staticmethod
     def square(v1):
-        return Vector(
+        return Vector3(
             v1.x ** 2,
             v1.y ** 2,
             v1.z ** 2
@@ -67,7 +67,7 @@ class Vector:
     @staticmethod
     def by_line(l1):
         from geometry.curve import Line
-        return Vector(l1.dx, l1.dy, l1.dz)
+        return Vector3(l1.dx, l1.dy, l1.dz)
 
     @staticmethod
     def line_by_length(v1, length: float):
@@ -78,7 +78,7 @@ class Vector:
 
     @staticmethod  # Returns vector perpendicular on the two vectors
     def cross_product(v1, v2):
-        return Vector(
+        return Vector3(
             v1.y * v2.z - v1.z * v2.y,
             v1.z * v2.x - v1.x * v2.z,
             v1.x * v2.y - v1.y * v2.x
@@ -90,7 +90,7 @@ class Vector:
 
     @staticmethod
     def product(n, v1):  # Same as scale
-        return Vector(
+        return Vector3(
             v1.x * n,
             v1.y * n,
             v1.z * n
@@ -106,7 +106,7 @@ class Vector:
 
     @staticmethod
     def pitch(v1, angle):
-        return Vector(
+        return Vector3(
             v1.x,
             v1.y * math.cos(angle) - v1.z * math.sin(angle),
             v1.y * math.sin(angle) + v1.z * math.cos(angle)
@@ -114,11 +114,11 @@ class Vector:
 
     @staticmethod
     def angle_between(v1, v2):
-        return math.degrees(math.acos((Vector.dot_product(v1, v2) / (Vector.length(v1) * Vector.length(v2)))))
+        return math.degrees(math.acos((Vector3.dot_product(v1, v2) / (Vector3.length(v1) * Vector3.length(v2)))))
 
     @staticmethod
     def angle_radian_between(v1, v2):
-        return math.acos((Vector.dot_product(v1, v2) / (Vector.length(v1) * Vector.length(v2))))
+        return math.acos((Vector3.dot_product(v1, v2) / (Vector3.length(v1) * Vector3.length(v2))))
 
     @staticmethod
     def value(v1):
@@ -127,7 +127,7 @@ class Vector:
 
     @staticmethod
     def reverse(v1):
-        return Vector(
+        return Vector3(
             v1.x * -1,
             v1.y * -1,
             v1.z * -1
@@ -136,24 +136,24 @@ class Vector:
     @staticmethod
     def perpendicular(v1):
         # Vector Lokale x en Lokale y haaks op gegeven vector en in globale z-richting.
-        lokX = Vector(v1.y, -v1.x, 0)
-        lokZ = Vector.cross_product(v1, lokX)
+        lokX = Vector3(v1.y, -v1.x, 0)
+        lokZ = Vector3.cross_product(v1, lokX)
         if lokZ.z < 0:
-            lokZ = Vector.reverse(lokZ)
+            lokZ = Vector3.reverse(lokZ)
         return lokX, lokZ
 
     @staticmethod
     def normalize(v1):
-        length = Vector.length(v1)
+        length = Vector3.length(v1)
         if length == 0:
             scale = 1
         else:
             scale = 1 / length
-        return Vector(v1.x * scale, v1.y * scale, v1.z * scale)
+        return Vector3(v1.x * scale, v1.y * scale, v1.z * scale)
 
     @staticmethod
     def by_two_points(p1, p2):
-        return Vector(
+        return Vector3(
             p2.x - p1.x,
             p2.y - p1.y,
             p2.z - p1.z
@@ -161,7 +161,7 @@ class Vector:
 
     @staticmethod
     def rotate_XY(v1, Beta):
-        return Vector(
+        return Vector3(
             math.cos(Beta) * v1.x - math.sin(Beta) * v1.y,
             math.sin(Beta) * v1.x + math.cos(Beta) * v1.y,
             v1.z
@@ -169,7 +169,7 @@ class Vector:
 
     @staticmethod
     def scale(v1, scalefactor):
-        return Vector(
+        return Vector3(
             v1.x * scalefactor,
             v1.y * scalefactor,
             v1.z * scalefactor
@@ -177,19 +177,19 @@ class Vector:
 
     @staticmethod
     def new_length(v1, newlength: float):
-        scale = newlength / Vector.length(v1)
+        scale = newlength / Vector3.length(v1)
 
-        return Vector.scale(v1, scale)
+        return Vector3.scale(v1, scale)
 
     def __str__(self):
         return f"{__class__.__name__}(" + f"{self.x},{self.y},{self.z})"
 
 
-X_axis = Vector(1, 0, 0)
+X_axis = Vector3(1, 0, 0)
 
-Y_Axis = Vector(0, 1, 0)
+Y_Axis = Vector3(0, 1, 0)
 
-Z_Axis = Vector(0, 0, 1)
+Z_Axis = Vector3(0, 0, 1)
 
 
 class Point:
@@ -221,8 +221,8 @@ class Point:
 
     @staticmethod
     def difference(pointxyz1, pointxyz2):
-        from abstract.vector import Vector
-        return Vector(
+        from abstract.vector import Vector3
+        return Vector3(
             pointxyz2.x - pointxyz1.x,
             pointxyz2.y - pointxyz1.y,
             pointxyz2.z - pointxyz1.z
@@ -255,8 +255,8 @@ class Point:
 
     @staticmethod
     def to_vector(point1):
-        from abstract.vector import Vector
-        return Vector(
+        from abstract.vector import Vector3
+        return Vector3(
             point1.x,
             point1.y,
             point1.z
@@ -307,9 +307,9 @@ class CoordinateSystem:
     #UNITY VECTORS REQUIRED #TOdo organize resic
     def __init__(self, origin: Point, x_axis, y_axis, z_axis):
         self.Origin = origin
-        self.Xaxis = Vector.normalize(x_axis)
-        self.Y_axis = Vector.normalize(y_axis)
-        self.Z_axis = Vector.normalize(z_axis)
+        self.Xaxis = Vector3.normalize(x_axis)
+        self.Y_axis = Vector3.normalize(y_axis)
+        self.Z_axis = Vector3.normalize(z_axis)
 
     @classmethod
     def by_origin(self, origin: Point):
@@ -321,7 +321,7 @@ class CoordinateSystem:
 
     @staticmethod
     def translate(CSOld, direction):
-        CSNew = CoordinateSystem(CSOld.Origin, CSOld.X_axis, CSOld.Y_axis, CSOld.Z_axis)
+        CSNew = CoordinateSystem(CSOld.Origin, CSOld.Xaxis, CSOld.Y_axis, CSOld.Z_axis)
         new_origin = Point.translate(CSNew.Origin, direction)
         CSNew.Origin = new_origin
         return CSNew
@@ -329,30 +329,30 @@ class CoordinateSystem:
     @staticmethod
     def move_local(CSOld,x: float, y:float, z:float):
         #move coordinatesystem by y in local coordinates(not global)
-        xloc_vect_norm = CSOld.X_axis
-        xdisp = Vector.scale(xloc_vect_norm,x)
-        yloc_vect_norm = CSOld.X_axis
-        ydisp = Vector.scale(yloc_vect_norm, y)
-        zloc_vect_norm = CSOld.X_axis
-        zdisp = Vector.scale(zloc_vect_norm, z)
-        disp = Vector.sum3(xdisp,ydisp,zdisp)
+        xloc_vect_norm = CSOld.Xaxis
+        xdisp = Vector3.scale(xloc_vect_norm,x)
+        yloc_vect_norm = CSOld.Xaxis
+        ydisp = Vector3.scale(yloc_vect_norm, y)
+        zloc_vect_norm = CSOld.Xaxis
+        zdisp = Vector3.scale(zloc_vect_norm, z)
+        disp = Vector3.sum3(xdisp,ydisp,zdisp)
         CS = CoordinateSystem.translate(CSOld,disp)
         return CS
 
     @staticmethod
     def by_point_main_vector(self, NewOriginCoordinateSystem: Point, DirectionVectorZ):
         vz = DirectionVectorZ  # LineVector and new Z-axis
-        vz = Vector.normalize(vz)  # NewZAxis
-        vx = Vector.perpendicular(vz)[0]  # NewXAxis
+        vz = Vector3.normalize(vz)  # NewZAxis
+        vx = Vector3.perpendicular(vz)[0]  # NewXAxis
         try:
-            vx = Vector.normalize(vx)  # NewXAxisnormalized
+            vx = Vector3.normalize(vx)  # NewXAxisnormalized
         except:
-            vx = Vector(1, 0, 0) #In case of vertical element the length is zero
-        vy = Vector.perpendicular(vz)[1]  # NewYAxis
+            vx = Vector3(1, 0, 0) #In case of vertical element the length is zero
+        vy = Vector3.perpendicular(vz)[1]  # NewYAxis
         try:
-            vy = Vector.normalize(vy)  # NewYAxisnormalized
+            vy = Vector3.normalize(vy)  # NewYAxisnormalized
         except:
-            vy = Vector(0, 1, 0)  #In case of vertical element the length is zero
+            vy = Vector3(0, 1, 0)  #In case of vertical element the length is zero
         CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
         return CSNew
 
@@ -364,26 +364,26 @@ CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 
 def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point,
                    DirectionVector):
-    from abstract.vector import Vector
+    from abstract.vector import Vector3
     vz = DirectionVector  # LineVector and new Z-axis
-    vz = Vector.normalize(vz)  # NewZAxis
-    vx = Vector.perpendicular(vz)[0]  # NewXAxis
+    vz = Vector3.normalize(vz)  # NewZAxis
+    vx = Vector3.perpendicular(vz)[0]  # NewXAxis
     try:
-        vx = Vector.normalize(vx)  # NewXAxisnormalized
+        vx = Vector3.normalize(vx)  # NewXAxisnormalized
     except:
-        vx = Vector(1, 0, 0)  # In case of vertical element the length is zero
-    vy = Vector.perpendicular(vz)[1]  # NewYAxis
+        vx = Vector3(1, 0, 0)  # In case of vertical element the length is zero
+    vy = Vector3.perpendicular(vz)[1]  # NewYAxis
     try:
-        vy = Vector.normalize(vy)  # NewYAxisnormalized
+        vy = Vector3.normalize(vy)  # NewYAxisnormalized
     except:
-        vy = Vector(0, 1, 0)  # In case of vertical element the length is zero
+        vy = Vector3(0, 1, 0)  # In case of vertical element the length is zero
     P1 = PointLocal  # point to transform
     CSNew = CoordinateSystem(NewOriginCoordinateSystem, vx, vy, vz)
     v1 = Point.difference(CoordinateSystemOld.Origin, CSNew.Origin)
-    v2 = Vector.product(P1.x, CSNew.Xaxis)  # local transformation van X
-    v3 = Vector.product(P1.y, CSNew.Y_axis)  # local transformation van Y
-    v4 = Vector.product(P1.z, CSNew.Z_axis)  # local transformation van Z
-    vtot = Vector(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
+    v2 = Vector3.product(P1.x, CSNew.Xaxis)  # local transformation van X
+    v3 = Vector3.product(P1.y, CSNew.Y_axis)  # local transformation van Y
+    v4 = Vector3.product(P1.z, CSNew.Z_axis)  # local transformation van Z
+    vtot = Vector3(v1.x + v2.x + v3.x + v4.x, v1.y + v2.y + v3.y + v4.y, v1.z + v2.z + v3.z + v4.z)
     pointNew = Point.translate(Point(0, 0, 0), vtot)  # Point 0,0,0 have to be checked
     return pointNew
 
@@ -391,10 +391,10 @@ def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, Ne
 def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     # Transfrom point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
-    from abstract.vector import Vector
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
-    pn3 = Point.translate(pn2, Vector.scale(CoordinateSystemNew.Z_axis, PointLocal.z))
+    from abstract.vector import Vector3
+    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    pn3 = Point.translate(pn2, Vector3.scale(CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
 
 class Vector2:
@@ -501,11 +501,11 @@ class Point2D:
 def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
-    from abstract.vector import Vector
+    from abstract.vector import Vector3
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    pn2 = Point.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D(pn.x, pn.y)
     return pn3
 
@@ -549,11 +549,11 @@ class Arc2D:
 
     def coordinatesystem_arc(self):
         vx2d = Vector2.by_two_points(self.origin, self.start)  # Local X-axe
-        vx = Vector(vx2d.x, vx2d.y, 0)
-        vy = Vector(vx.y, vx.x * -1, 0)
-        vz = Vector(0, 0, 1)
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
-                                                 Vector.normalize(vz))
+        vx = Vector3(vx2d.x, vx2d.y, 0)
+        vy = Vector3(vx.y, vx.x * -1, 0)
+        vz = Vector3(0, 0, 1)
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(vx), Vector3.normalize(vy),
+                                                 Vector3.normalize(vz))
         return self.coordinatesystem
 
     def angle_radian(self):
@@ -1265,7 +1265,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
         xval.append(i.start.x)
         yval.append(i.start.y)
 
-    #Rect
+    #Boundingbox2D
     xmin = min(xval)
     xmax = max(xval)
     ymin = min(yval)

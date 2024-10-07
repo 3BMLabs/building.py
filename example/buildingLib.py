@@ -5,11 +5,11 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from objects.panel import *
 from objects.frame import *
-from objects.profile import *
+from objects.steelshape import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
-from library.profile import nameToProfile
+from library.profile import profiledataToShape
 from objects.annotation import *
 import threading
 
@@ -21,7 +21,7 @@ for item in jsondata:
     for i in item.values():
         lst.append(i[0]["synonyms"][0])
 
-test = nameToProfile("HEA200")
+test = profiledataToShape("HEA200")
 
 #sys.exit()
 #3D Frames

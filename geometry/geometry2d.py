@@ -38,7 +38,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from packages.helper import *
-from abstract.vector import Vector
+from abstract.vector import Vector3
 from geometry.point import transform_point_2
 from abstract.plane import Plane
 from abstract.coordinatesystem import CoordinateSystem
@@ -49,6 +49,7 @@ from project.fileformat import project
 class Vector2:
     def __init__(self, x, y) -> None:
         self.id = generateID()
+        self.type = __class__.__name__
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -121,7 +122,7 @@ class Vector2:
 
     @staticmethod  # Returns vector perpendicular on the two vectors
     def cross_product(v1, v2):
-        return Vector(
+        return Vector3(
             v1.y - v2.y,
             v2.x - v1.x,
             v1.x*v2.y - v1.y*v2.x
@@ -151,7 +152,7 @@ class Vector2:
         vector_1 = Vector2(19, 18)
         vector_2 = Vector2(8, 17)
         output = Vector2.sum(vector_1, vector_2)
-        # Vector()
+        # Vector3()
         ```
         """
         return Vector2(
@@ -169,6 +170,7 @@ class Vector2:
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
         self.id = generateID()
+        self.type = __class__.__name__
         self.x = x
         self.y = y
         self.x = float(x)
@@ -242,11 +244,11 @@ class Point2D:
 def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
-    from abstract.vector import Vector
+    from abstract.vector import Vector3
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
-    # pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
-    # pn2 = Point2D.translate(pn, Vector.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
+    # pn = Point.translate(CoordinateSystemNew.Origin, Vector3.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
+    # pn2 = Point2D.translate(pn, Vector3.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point2D.translate(PointLocal, Vector2(
         CoordinateSystemNew.Origin.x, CoordinateSystemNew.Origin.y))
     # pn3 = Point2D(pn.x,pn.y)
@@ -255,6 +257,7 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
 
 class Line2D:
     def __init__(self, start, end) -> None:
+        self.type = __class__.__name__
         self.start: Point2D = start
         self.end: Point2D = end
         self.x = [self.start.x, self.end.x]
@@ -314,9 +317,9 @@ class Line2D:
 #         self.origin = self.origin_arc()
 #         self.angle_radian = self.angle_radian()
 #         self.radius = self.radius_arc()
-#         self.normal = Vector(0, 0, 1)
-#         self.xdir = Vector(1, 0, 0)
-#         self.ydir = Vector(0, 1, 0)
+#         self.normal = Vector3(0, 0, 1)
+#         self.xdir = Vector3(1, 0, 0)
+#         self.ydir = Vector3(0, 1, 0)
 #         self.coordinatesystem = self.coordinatesystem_arc()
 
 #     def serialize(self):
@@ -355,11 +358,11 @@ class Line2D:
 
 #     def coordinatesystem_arc(self):
 #         vx2d = Vector2.by_two_points(self.origin, self.start)  # Local X-axe
-#         vx = Vector(vx2d.x, vx2d.y, 0)
-#         vy = Vector(vx.y, vx.x * -1, 0)
-#         vz = Vector(0, 0, 1)
-#         self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(
-#             vx), Vector.normalize(vy), Vector.normalize(vz))
+#         vx = Vector3(vx2d.x, vx2d.y, 0)
+#         vy = Vector3(vx.y, vx.x * -1, 0)
+#         vz = Vector3(0, 0, 1)
+#         self.coordinatesystem = CoordinateSystem(self.origin, Vector3.normalize(
+#             vx), Vector3.normalize(vy), Vector3.normalize(vz))
 #         return self.coordinatesystem
 
 #     def angle_radian(self):
@@ -437,12 +440,13 @@ class Arc2D:
         - `endPoint` (Point2D): The ending point of the arc.
         """
         self.id = generateID()
+        self.type = __class__.__name__
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
         self.origin = self.origin_arc()
-        vector_1 = Vector(x=1, y=0, z=0)
-        vector_2 = Vector(x=0, y=1, z=0)
+        vector_1 = Vector3(x=1, y=0, z=0)
+        vector_2 = Vector3(x=0, y=1, z=0)
         self.plane = Plane.by_two_vectors_origin(
             vector_1,
             vector_2,
@@ -704,6 +708,7 @@ class Arc2D:
 class PolyCurve2D:
     def __init__(self) -> None:
         self.id = generateID()
+        self.type = __class__.__name__
         self.curves = []
         self.points2D = []
         self.segmentcurves = None
@@ -983,7 +988,7 @@ class PolyCurve2D:
         return crv
 
     @staticmethod
-    def copy_translate(pc, vector3d: Vector):
+    def copy_translate(pc, vector3d: Vector3):
         crvs = []
         v1 = vector3d
         for i in pc.curves:
@@ -1102,7 +1107,7 @@ class PolyCurve2D:
         return p1
 
     @staticmethod
-    def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector):
+    def transform_from_origin(polycurve, startpoint: Point2D, directionvector: Vector3):
         crvs = []
         for i in polycurve.curves:
             if i.__class__.__name__ == "Arc2D":
@@ -1132,6 +1137,7 @@ class Surface2D:
     def __init__(self) -> None:
         pass  # PolyCurve2D
         self.id = generateID()
+        self.type = __class__.__name__
 
     def __id__(self):
         return f"id:{self.id}"
@@ -1143,6 +1149,7 @@ class Surface2D:
 class Profile2D:
     def __init__(self) -> None:
         self.id = generateID()
+        self.type = __class__.__name__
 
     def __id__(self):
         return f"id:{self.id}"
@@ -1153,6 +1160,7 @@ class Profile2D:
 
 class ParametricProfile2D:
     def __init__(self) -> None:
+        self.type = __class__.__name__
         self.id = generateID()
 
     def __id__(self):

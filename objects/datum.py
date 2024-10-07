@@ -46,9 +46,10 @@ seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
 
-class GridheadType(Serializable):
+class GridheadType:
     def __init__(self):
         self.id = generateID()
+        self.type = __class__.__name__
         self.name = None
         self.curves = []
         self.diameter = 150
@@ -111,6 +112,7 @@ GHT50 = GridheadType().by_diam("GHT50", 600, "calibri", 350)
 class GridHead:
     def __init__(self):
         self.id = generateID()
+        self.type = __class__.__name__
         self.grid_name: str = "A"
         self.grid_head_type = GHT50
         self.radius = GHT50.radius
@@ -158,7 +160,7 @@ class GridHead:
         return grid_head
 
     def __geom(self):
-        # CStot = CoordinateSystem.translate(self.CS,Vector(0,self.grid_head_type.radius,0))
+        # CStot = CoordinateSystem.translate(self.CS,Vector3(0,self.grid_head_type.radius,0))
         for i in self.grid_head_type.curves:
             self.curves.append(transform_arc(i, (self.CS)))
 
@@ -195,7 +197,7 @@ class Grid:
         self.line = None
         self.start = None
         self.end = None
-        self.direction: Vector = Vector(0, 1, 0)
+        self.direction: Vector3 = Vector3(0, 1, 0)
         self.grid_head_type = GHT50
         self.name = None
         self.bulbStart = False
@@ -205,7 +207,7 @@ class Grid:
 
     def __cs(self, line):
         self.direction = line.vector_normalised
-        vect3 = Vector.rotate_XY(self.direction, math.radians(-90))
+        vect3 = Vector3.rotate_XY(self.direction, math.radians(-90))
         self.cs_end = CoordinateSystem(line.end, vect3, self.direction, Z_Axis)
 
     @classmethod
@@ -217,7 +219,7 @@ class Grid:
         g1.name = name
         g1.__cs(line)
         g1.line = line_to_pattern(line, Centerline)
-        # g1.__grid_heads()
+        g1.__grid_heads()
         return g1
 
     def __grid_heads(self):
@@ -258,6 +260,7 @@ class GridSystem:
     # rectangle Gridsystem
     def __init__(self):
         self.id = generateID()
+        self.type = __class__.__name__
         self.gridsX = None
         self.gridsY = None
         self.dimensions = []

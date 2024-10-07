@@ -10,7 +10,7 @@ Initializes a new System instance.
         - `name` (str, optional): The name of the system.
         - `id` (str): A unique identifier for the system instance.
         - `polycurve` (PolyCurve, optional): An optional PolyCurve associated with the system.
-        - `direction` (Vector): A Vector indicating the primary direction of the system.
+        - `direction` (Vector3): A Vector3 indicating the primary direction of the system.
         
 
 ---

@@ -1,5 +1,4 @@
-# [included in GIS2BIM singlefile]
-# input = "28992"
+input = "28992"
 inputChars = (
 '2000' ,
 '2001' ,

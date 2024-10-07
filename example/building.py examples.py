@@ -1,14 +1,9 @@
 import sys, os, math, random
 from pathlib import Path
-#import geometry.geometry2d
-
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
+import geometry.geometry2d
 from objects.panel import *
 from objects.frame import *
-from objects.shape3d import *
+from objects.steelshape import *
 from objects.datum import *
 from geometry.linestyle import *
 from geometry.curve import *
@@ -18,7 +13,12 @@ from exchange.speckle import *
 from abstract.color import *
 from abstract.plane import *
 from geometry.solid import Extrusion
-from abstract.rect import Rect
+from abstract.boundingbox import BoundingBox2d, BoundingBox3d
+
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
 
 # INITIALIZE
 pnt1 = Point(0, 0, 0)
@@ -38,54 +38,54 @@ CS = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 CSGlobal
 
 # CLASS: PLANE
-v1 = Vector(0, 100, 0)
-v2 = Vector(100, 100, 0)
+v1 = Vector3(0, 100, 0)
+v2 = Vector3(100, 100, 0)
 
 plane_ex = Plane.by_two_vectors_origin(v1, v2, Point(0, 0, 0))
 
-# CLASS: Vector
+# CLASS: Vector3
 
 # sum ↓
 # v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z
-test1 = v1 + v2
+test1 = Vector3.sum(v1, v2)
 
 # cross_product ↓
 # v1.Y*v2.Z - v1.Z*v2.Y, v1.Z*v2.X - v1.X*v2.Z, v1.X*v2.Y - v1.Y*v2.X
-test2 = Vector.cross_product(v1, v2)
+test2 = Vector3.cross_product(v1, v2)
 
 # dot_product ↓
 # v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z
-test3 = Vector.dot_product(v1, v2)
+test3 = Vector3.dot_product(v1, v2)
 
 # product ↓
 # v1.X * n, v1.Y * n, v1.Z * n
-test4 = Vector.product(5, v1)
+test4 = Vector3.product(5, v1)
 
 # length ↓
 # math.sqrt(v1.X * v1.X + v1.Y * v1.Y + v1.Z * v1.Z)
-test5 = Vector.length(v1)
+test5 = Vector3.length(v1)
 
 # pitch ↓
 # v1.X, v1.Y*math.cos(angle) - v1.Z*math.sin(angle), v1.Y*math.sin(angle) + v1.Z*math.cos(angle)
-test6 = Vector.pitch(v1, 45)
+test6 = Vector3.pitch(v1, 45)
 
 # angle_between ↓
-# math.degrees(math.acos((Vector.dot_product(v1, v2) / (Vector.length(v1) * Vector.length(v2)))))
+# math.degrees(math.acos((Vector3.dot_product(v1, v2) / (Vector3.length(v1) * Vector3.length(v2)))))
 # (Calculate the angle of two vectors)
-test7 = Vector.angle_between(v1, v2)
+test7 = Vector3.angle_between(v1, v2)
 
 # reverse ↓
 # Turn positive into negative and the other way around
-test8 = Vector.reverse(v1)
+test8 = Vector3.reverse(v1)
 
 # perpendicular ↓
 # Vector Local X and Local Y perpendicular to given vector and in global Z direction
-test9 = Vector.perpendicular(v1)
+test9 = Vector3.perpendicular(v1)
 
 # normalize ↓
-# scale = 1 / Vector.length(v1)
+# scale = 1 / Vector3.length(v1)
 # v1.X * scale, v1.Y * scale, v1.Z * scale
-test10 = Vector.normalize(v1)
+test10 = Vector3.normalize(v1)
 
 # Point
 p1 = Point(0, 100, 0)
@@ -93,7 +93,7 @@ p2 = Point(0, 300, 0)
 
 # by_two_points ↓
 # Subtracts point1 x,y and z from point2 x,y and z
-test11 = Vector.by_two_points(p1, p2)
+test11 = Vector3.by_two_points(p1, p2)
 
 # FILE : CURVE
 # CLASS: Line
@@ -244,12 +244,12 @@ LTP = line_to_pattern(Line(start=Point(0, 1200, 0), end=Point(11400, 1200, 0)), 
 
 # FILE: POINT
 # Class Point
-# calculate the difference between two 3D points and return a Vector.
+# calculate the difference between two 3D points and return a Vector3.
 exam = Point(0, 0, 0)
 
 Point.difference(p1, p2)
 
-# translates a 3D point (p1) by a given Vector (v1) and returns a new Point.
+# translates a 3D point (p1) by a given Vector3 (v1) and returns a new Point.
 Point.translate(p1, v1)
 
 # Transforms a 2D point into a 3D point
@@ -305,6 +305,9 @@ pan2 = Panel.by_baseline_height(Line(start=Point(0, -1000, 0),
 
 # ------------------------
 
+data = searchProfile("HE120A").shape_coords
+
+
 # Color
 c = Color()
 print(c.red)
@@ -339,4 +342,6 @@ p3 = Point(x=400, y=410, z=160)
 p4 = Point(x=650, y=800, z=0)
 obj = [p1,p2,p3,p4]
 
-bb = Rect.by_points(points=[p1,p2,p3,p4])
+bb = BoundingBox2d(points=[p1,p2,p3,p4]).perimeter()
+bb = BoundingBox3d(points=[p1,p2,p3,p4]).perimeter()
+#Boundingbox

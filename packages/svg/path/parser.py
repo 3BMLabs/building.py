@@ -4,7 +4,7 @@
 
 import re
 # from svg.path import path
-from packages.svg.path import path
+from . import path
 
 # [!not included in BP singlefile - end]
 

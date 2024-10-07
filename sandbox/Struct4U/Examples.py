@@ -15,7 +15,7 @@ obj.append(Frame.by_startpoint_endpoint_profile(Point(0,2000,0),Point(2000,2000,
 #SURFACE LOAD
 obj.append(SurfaceLoad.by_load_case_polycurve_q(
     1,
-    Rect(Vector(0,0,0),2000,2000),
+    Rect(Vector3(0,0,0),2000,2000),
     2.5)
 )
 
@@ -33,7 +33,7 @@ obj.append(Support.pinned(Point(2000,2000,0)))
 
 #LOADPANELS
 LP = LoadPanel()
-LP.PolyCurve = Rect(Vector(0,0,0),2000,2000)
+LP.PolyCurve = Rect(Vector3(0,0,0),2000,2000)
 LP.SurfaceType = "Wall"
 LP.Description = "test"
 LP.LoadBearingDirection = "Y"
@@ -47,9 +47,9 @@ SpeckleObj = translateObjectsToSpeckleObjects(obj)
 xmlS4U = xmlXFEM4U() # Create XML object with standard values
 xmlS4U.addBeamsPlates(obj) #Add Beams, Profiles, Plates, Beamgroups, Nodes
 xmlS4U.addProject("Examples of building.py")
-xmlS4U.convert_panels_to_xml(obj) #add Load Panels
+xmlS4U.addPanels(obj) #add Load Panels
 xmlS4U.addSurfaceLoad(obj)
-
+xmlS4U.addLoadCasesCombinations()
 xmlS4U.XML()
 XMLString = xmlS4U.xmlstr
 

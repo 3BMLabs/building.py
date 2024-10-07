@@ -2,13 +2,17 @@ import sys, os, math
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from geometry.curve import Line, PolyCurve
+
+from objects.panel import *
+from objects.frame import *
+from objects.steelshape import *
+from exchange.speckle import *
 from library.profile import data as jsondata
-
-from project.fileformat import BuildingPy
-from abstract.intersect2d import split_polycurve_by_line
-from geometry.point import Point
-
+from library.material import *
+from library.profile import profiledataToShape
+from objects.annotation import *
+from abstract.intersect2d import *
+from geometry.systemsimple import *
 
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"

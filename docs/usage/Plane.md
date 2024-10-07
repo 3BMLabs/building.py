@@ -7,9 +7,9 @@ The `Plane` class represents an infinite plane in 3D space, defined uniquely by 
 "Initializes a new Plane instance.
 
         - `Origin` (Point): The origin point of the plane, which also lies on the plane.
-        - `Normal` (Vector): A vector perpendicular to the plane, defining its orientation.
-        - `v1` (Vector): A vector lying on the plane, typically representing the "x" direction on the plane.
-        - `v2` (Vector): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
+        - `Normal` (Vector3): A vector perpendicular to the plane, defining its orientation.
+        - `v1` (Vector3): A vector lying on the plane, typically representing the "x" direction on the plane.
+        - `v2` (Vector3): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
         
 
 ---

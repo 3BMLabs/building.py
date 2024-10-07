@@ -17,7 +17,7 @@ sys.path.append(str(package_root_directory))
 
 # Building Py Imports
 from objects.frame import *
-from objects.profile import *
+from objects.steelshape import *
 from project.fileformat import *
 from objects.datum import *
 # from exchange.Freecad_Bupy import *
@@ -102,8 +102,8 @@ def wire_to_solid(wire, FCVector):
     sld = Part.show(solid)
 
 
-def Vector3ToFreeCADVector(Vector):
-    vect = FreeCAD.Vector(Vector.x, Vector.y, Vector.z)
+def Vector3ToFreeCADVector(vector3):
+    vect = FreeCAD.Vector(vector3.x, vector3.y, vector3.z)
     return vect
 
 
@@ -142,7 +142,7 @@ def translateObjectsToFreeCAD(Obj):
         elif nm == 'PolyCurve':
             test = "test"
 
-        elif nm == 'Rect':
+        elif nm == 'BoundingBox2d':
             test = "test"
 
         elif nm == 'ImagePyB':

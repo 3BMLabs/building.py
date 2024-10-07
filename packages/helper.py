@@ -30,18 +30,23 @@
 
 __title__= "shape"
 __author__ = "Maarten & Jonathan"
-__url__ = "./abstract/helper.py"
+__url__ = "./package/helper.py"
 
 
 import string, random, json
 import urllib
 import xml.etree.ElementTree as ET
 
-from abstract.serializable import Serializable
-
 # [!not included in BP singlefile - end]
 
-class ID(Serializable):
+
+def find_in_list_of_list(mylist, char):
+    for sub_list in mylist:
+        if char in sub_list:
+            return (mylist.index(sub_list))
+    raise ValueError("'{char}' is not in list".format(char=char))
+
+class generateID:
     def __init__(self) -> None:
         self.id = None
         self.object = None
@@ -59,17 +64,8 @@ class ID(Serializable):
         self.id = f"#"+"".join(id_list)
         return f"test {self.__class__.__name__}"
 
-    def str(self) -> str:
+    def __repr__(self) -> str:
         return f"{self.id}"
-
-def generateID() -> ID:
-    return ID()
-
-def find_in_list_of_list(mylist, char):
-    for sub_list in mylist:
-        if char in sub_list:
-            return (mylist.index(sub_list))
-    raise ValueError("'{char}' is not in list".format(char=char))
 
 
 def findjson(id, json_string):
@@ -131,26 +127,17 @@ def clean_list(input_list, preserve_indices=True):
             
     return culled_list
 
-def flatten(list:list[list]):
-    """convert 2d list to 1d list
-
-    Args:
-        list (list[list]): a list of lists
-
-    Returns:
-        a list containing all elements: _description_
-    """
-    return [elem for sublist in list for elem in sublist]
-    #if type(lst) != list:
-    #    lst = [lst]
-    #flat_list = []
-    #for sublist in lst:
-    #    try:
-    #        for item in sublist:
-    #            flat_list.append(item)
-    #    except:
-    #        flat_list.append(sublist)
-    #return flat_list
+def flatten(lst):
+    if type(lst) != list:
+        lst = [lst]
+    flat_list = []
+    for sublist in lst:
+        try:
+            for item in sublist:
+                flat_list.append(item)
+        except:
+            flat_list.append(sublist)
+    return flat_list
 
 def all_true(lst):
     for element in lst:

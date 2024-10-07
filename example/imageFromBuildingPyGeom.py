@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 import PIL
 from PIL import Image, ImageDraw
 from geometry.geometry2d import *
-from objects.profile import *
+from objects.steelshape import *
 from geometry.curve import Arc
 from geometry.point import Point
 

@@ -8,7 +8,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from objects.panel import *
 from objects.frame import *
-from objects.profile import *
+from objects.steelshape import *
 from exchange.speckle import *
 from project import fileformat
 from objects.datum import *
@@ -49,7 +49,7 @@ x = 0
 
 for i in lst:
     x = x+spacing
-    f = Frame.by_point_height_rotation(Point(x, 0, 0), 3000, nameToProfile(i).polycurve2d, i, 0, BaseSteel).write(project)
+    f = Frame.by_point_height_rotation(Point(x, 0, 0), 3000, profiledataToShape(i).polycurve2d, i, 0, BaseSteel).write(project)
     ColumnTag.by_frame(f).write(project)
 
 

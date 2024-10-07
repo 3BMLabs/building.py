@@ -158,7 +158,7 @@ write_to_log(log_filename, f"Generated BuildingPy Objects.")
 # convert the buildingpy objects to speckle objects
 SpeckleObj = bp_send_file.translateObjectsToSpeckleObjects(obj)
 write_to_log(log_filename, f"Translated BuildingPy objects to Speckle Objects.")
-# sys.exit()
+
 # convert to speckle objects and return browser link
 commit = bp_send_file.TransportToSpeckle(credential_data, SpeckleObj)
 

@@ -11,6 +11,7 @@ from project.fileformat import *
 
 class Trimesh:
     def __init__(self, name, mesh) -> None:
+        self.type = __class__.__name__
         self.name = name or ""
         self.vertices = np.array([coord for vertex in mesh.vertices for coord in vertex], dtype=float).tolist()
         self.faces = np.array([index for face in mesh.faces for index in face], dtype=int).tolist()

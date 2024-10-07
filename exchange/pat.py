@@ -418,8 +418,8 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
     lines = []
     n = 0
     for i in range(nlines):
-        Xn = Vector.rotate_XY(X_axis, math.radians(patrow.angle))
-        Yn = Vector.rotate_XY(Y_Axis, math.radians(patrow.angle))
+        Xn = Vector3.rotate_XY(X_axis, math.radians(patrow.angle))
+        Yn = Vector3.rotate_XY(Y_Axis, math.radians(patrow.angle))
         CSNewLn = CoordinateSystem(Point(0, 0, 0), Xn, Yn, Z_Axis)
         x_start = 0
         y_start = 0
@@ -427,26 +427,26 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
         y_end = 0
         l1 = Line(Point(x_start, y_start, 0), Point(x_end, y_end, 0)) # baseline
         l2 = Line.transform(l1, CSNewLn) # rotation
-        v1 = Vector.by_two_points(l2.start,l2.end)
-        v1 = Vector.normalize(v1)
-        v2 = Vector.scale(v1, patrow.shift_pattern * n)
+        v1 = Vector3.by_two_points(l2.start,l2.end)
+        v1 = Vector3.normalize(v1)
+        v2 = Vector3.scale(v1, patrow.shift_pattern * n)
         l3 = Line.translate_2(l2, v2)  # shift of line for pattern
         #if patrow.shift_pattern == 0:
         #    l3 = l2
         #else:
-        #    v2 = Vector.scale(v1, patrow.shift_pattern*(n+1))
+        #    v2 = Vector3.scale(v1, patrow.shift_pattern*(n+1))
         #    l3 = Line.translate_2(l2,v2) # shift of line for pattern
-        v3 = Vector.normalize(Vector.cross_product(v1,Z_Axis)) #Eenheidsvector haaks op lijn
+        v3 = Vector3.normalize(Vector3.cross_product(v1,Z_Axis)) #Eenheidsvector haaks op lijn
         if patrow.angle == 0:
-            v4 = Vector.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
-            v4 = Vector.reverse(v4)
+            v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
+            v4 = Vector3.reverse(v4)
         else:
-            v4 = Vector.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing
+            v4 = Vector3.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing
         if n * patrow.offset_spacing == 0: # eerste lijn heeft geen verplaatsing
             l4 = l3
         else:
             l4 = l3.translate(v4)
-        v6 = Vector(dx + patrow.x_orig,dy + patrow.y_orig,0)
+        v6 = Vector3(dx + patrow.x_orig,dy + patrow.y_orig,0)
         print(v6)
         l5 = Line.translate_2(l4,v6)
 

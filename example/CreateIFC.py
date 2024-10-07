@@ -5,12 +5,12 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from objects.panel import *
 from objects.frame import *
-from objects.profile import *
+from objects.steelshape import *
 from exchange.speckle import *
 from exchange.IFC import *
 from library.profile import data as jsondata
 from library.material import *
-from library.profile import nameToProfile
+from library.profile import profiledataToShape
 from objects.annotation import *
 from geometry.solid import *
 from exchange.DXF import *

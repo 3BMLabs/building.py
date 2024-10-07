@@ -64,6 +64,7 @@ class Surface:
         - `color` (int): The color of the surface, represented as an integer.
         - `colorlst` (list): A list of color values associated with the surface.
         """       
+        self.type = __class__.__name__
         self.mesh = []
         self.offset = 0
         self.name = None
@@ -216,6 +217,7 @@ class NurbsSurface:  # based on point data / degreeU&countU / degreeV&countV?
         - `type` (str): Class name, "NurbsSurface".
         """
         self.id = generateID()
+        self.type = __class__.__name__
 
     def __id__(self) -> 'str':
         """Returns the unique identifier of the NurbsSurface object.
@@ -259,6 +261,7 @@ class PolySurface:
         - `type` (str): Class name, "PolySurface".
         """
         self.id = generateID()
+        self.type = __class__.__name__
 
     def __id__(self) -> 'str':
         """Returns the unique identifier of the PolySurface object.

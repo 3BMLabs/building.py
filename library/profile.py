@@ -35,15 +35,13 @@ import sys
 from pathlib import Path
 import urllib.request
 import json
-import re
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
-from objects.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
-from geometry.curve import PolyCurve
-from geometry.geometry2d import PolyCurve2D
+from objects.steelshape import *
+from geometry.geometry2d import *
 
 # [!not included in BP singlefile - end]
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
@@ -51,16 +49,7 @@ url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
 
-def is_rectangle_format(shape_name):
-    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
-    if match:
-        width, height = int(match.group(1)), int(match.group(2))
-        if 0 <= width <= 10000 and 0 <= height <= 10000:
-            return True, width, height
-    return False, 0, 0
-
-
-class _getProfileDataFromDatabase:
+class searchProfile:
     def __init__(self, name):
         self.name = name
         self.shape_coords = None
@@ -69,57 +58,57 @@ class _getProfileDataFromDatabase:
         for item in data:
             for i in item.values():
                 synonymList = i[0]["synonyms"]
+                #if self.name in synonymList:
+                #bools = [self.name.lower() in e for e in [synonym.lower() for synonym in synonymList]]
+                #if True in bools:
                 if self.name.lower() in [synonym.lower() for synonym in synonymList]:
                     self.shape_coords = i[0]["shape_coords"]
                     self.shape_name = i[0]["shape_name"]
                     self.synonyms = i[0]["synonyms"]
-        if self.shape_coords == None:
-            check_rect, width, height = is_rectangle_format(name)
-            if check_rect:
-                self.shape_coords = [width, height]
-                self.shape_name = "Rectangle"
-                self.synonyms = name
 
 
-class nameToProfile:
+class profiledataToShape:
     def __init__(self, name1, segmented = True):
-        profile_data = _getProfileDataFromDatabase(name1)
+        from geometry.curve import PolyCurve
+        profile_data = searchProfile(name1)
         if profile_data == None:
             print(f"profile {name1} not recognised")
-        profile_name = profile_data.shape_name
-        if profile_name == None:
-            profile_data = _getProfileDataFromDatabase(project.structural_fallback_element)
-            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
-            profile_name = profile_data.shape_name
+        shape_name = profile_data.shape_name
+        if shape_name == None:
+            profile_data = searchProfile(project.structural_fallback_element)
+            err = f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'"
+            print(err)
+            shape_name = profile_data.shape_name
         self.profile_data = profile_data
-        self.profile_name = profile_name
+        self.shape_name = shape_name
         name = profile_data.name
         self.d1 = profile_data.shape_coords
+        #self.d1.insert(0,name)
         d1 = self.d1
-        if profile_name == "C-channel parallel flange":
+        if shape_name == "C-channel parallel flange":
             prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
-        elif profile_name == "C-channel sloped flange":
+        elif shape_name == "C-channel sloped flange":
             prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
-        elif profile_name == "I-shape parallel flange":
+        elif shape_name == "I-shape parallel flange":
             prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        elif profile_name == "I-shape sloped flange":
+        elif shape_name == "I-shape sloped flange":
             prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
             #Todo: add sloped flange shape
-        elif profile_name == "Rectangle":
+        elif shape_name == "Rectangle":
             prof = Rectangle(name,d1[0], d1[1])
-        elif profile_name == "Round":
+        elif shape_name == "Round":
             prof = Round(name, d1[1])
-        elif profile_name == "Round tube profile":
+        elif shape_name == "Round tube profile":
             prof = Roundtube(name, d1[0], d1[1])
-        elif profile_name == "LAngle":
+        elif shape_name == "LAngle":
             prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
-        elif profile_name == "TProfile":
-            prof = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
-        elif profile_name == "Rectangle Hollow Section":
+        elif shape_name == "TProfile":
+            prof = TProfile(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
+        elif shape_name == "Rectangle Hollow Section":
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        self.profile = prof
+        self.prof = prof
         self.data = d1
-        pc2d = self.profile.curve  # 2D polycurve
+        pc2d = self.prof.curve  # 2D polycurve
         if segmented == True:
             pc3d = PolyCurve.by_polycurve_2D(pc2d)
             pcsegment = PolyCurve.segment(pc3d, 10)
@@ -129,7 +118,7 @@ class nameToProfile:
         self.polycurve2d = pc2d2
 
 def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
-
+    
     # print(XJustifiction)
     xval = []
     yval = []
@@ -137,7 +126,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
         xval.append(i.start.x)
         yval.append(i.start.y)
 
-    #Rect
+    #Boundingbox2D
     xmin = min(xval)
     xmax = max(xval)
     ymin = min(yval)

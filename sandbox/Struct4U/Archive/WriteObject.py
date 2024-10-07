@@ -7,7 +7,7 @@ from objects.frame import *
 from exchange.IFC import *
 from exchange.struct4U import *
 
-tree = ET.parse("C:/Users/Jonathan/Desktop/TEMP/test1.xml")
+tree = ET.parse("C:/Users/Jonathan/Documents/Struct4U/W1KAU.xml")
 root = tree.getroot()
 
 #convert .xml to buildingpy objects.

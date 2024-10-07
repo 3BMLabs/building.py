@@ -29,9 +29,9 @@ p2 = Point(x, Radius, z)
 ddeg = DegreesSpiral / NumberOfTreads
 
 p1 = Point(0, RadiasSpiral, z)
-p11 = Point.translate(p1,Vector(0,0,-HeightTreadSupportStart))
+p11 = Point.translate(p1,Vector3(0,0,-HeightTreadSupportStart))
 p4 = Point(0, Radius, z)
-p41 = Point.translate(p4,Vector(0,0,-HeightTreadSupportEnd))
+p41 = Point.translate(p4,Vector3(0,0,-HeightTreadSupportEnd))
 
 p2 = Point.rotate_XY(p1, ddeg * 0.5, 0)
 p3 = Point.rotate_XY(p1, -ddeg * 0.5, 0)
@@ -40,7 +40,7 @@ p6 = Point.rotate_XY(p4, -ddeg * 0.5, 0)
 TreadCurve = PolyCurve.by_points([p2,p5,p6,p3,p2])
 TreadSupportCurve = PolyCurve.by_points([p1,p4,p41,p11,p1])
 
-SpiralSegmentCurve = PolyCurve.by_points([p3, p2, Point.translate(p2,Vector(0,0,Height)),Point.translate(p3,Vector(0,0,Height)),p3])
+SpiralSegmentCurve = PolyCurve.by_points([p3, p2, Point.translate(p2,Vector3(0,0,Height)),Point.translate(p3,Vector3(0,0,Height)),p3])
 
 for i in range(NumberOfTreads):
     obj.append(Panel.by_polycurve_thickness(TreadCurve, ThicknessTread, 0, "Tread", BaseSteel.colorint))

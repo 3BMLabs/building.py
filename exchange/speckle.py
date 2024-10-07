@@ -36,16 +36,18 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from BuildingPy import Point
-from BuildingPy import Line
-from BuildingPy import PolyCurve, Polygon
-from BuildingPy import Arc
-from BuildingPy import Vector
-from BuildingPy import Plane
-from BuildingPy import Interval
-from BuildingPy import Vector2, Point2D, Line2D, PolyCurve2D
+from geometry.point import Point
+from geometry.curve import Line
+from geometry.curve import PolyCurve, Polygon
+from geometry.curve import Arc
+from geometry.geometry2d import Point2D
+from abstract.vector import Vector3
+from abstract.plane import Plane
+from abstract.interval import Interval
+from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
+from abstract.color import *
 from packages.helper import *
-from BuildingPy import project
+from project.fileformat import project
 
 # [!not included in BP singlefile - end]
 
@@ -108,8 +110,8 @@ def PointToSpecklePoint(point):
     return SpecklePnt
 
 
-def VectorToSpeckleVector(Vector: Vector):
-    SpeckleVctr = SpeckleVector.from_coords(Vector.x, Vector.y, Vector.z)
+def VectorToSpeckleVector(vector3: Vector3):
+    SpeckleVctr = SpeckleVector.from_coords(vector3.x, vector3.y, vector3.z)
     SpeckleVctr.units = project.units
     return SpeckleVctr
 
@@ -155,7 +157,7 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
 
     return SpecklePolyln
 
-def SpecklePolygonBySpecklePoints(polycurve): #fixed
+def SpecklePolygonBySpecklePoints(polycurve: Polygon): #fixed
     SpecklePoints = [PointToSpecklePoint(point) for point in polycurve.points]
     SpecklePolygon = SpecklePolyLine.from_points(points=SpecklePoints)
     SpecklePolygon.id = polycurve.id
@@ -436,8 +438,7 @@ def translateObjectsToSpeckleObjects(Obj):
                                           faces=i.outer_Surface.faces, 
                                           name=i.type,
                                           units= project.units,
-                                          textureCoordinates = [],
-                                          colors = i.colorlst
+                                          textureCoordinates = []
                                           ))
             
 
@@ -578,7 +579,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'PolyCurve2D':
             SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(i))
 
-        elif nm == 'Rect':
+        elif nm == 'BoundingBox2d':
             SpeckleObj.append(SpecklePolylineBySpecklePoints(i))
 
         elif nm == 'ImagePyB':

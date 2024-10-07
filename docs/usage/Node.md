@@ -9,7 +9,7 @@ The `Node` class represents a geometric or structural node within a system, defi
         - `id` (str): A unique identifier for the node.
         - `type` (str): The class name, "Node".
         - `point` (Point, optional): The location of the node in 3D space.
-        - `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
+        - `vector` (Vector3, optional): A vector indicating the orientation or direction associated with the node.
         - `number` (any, optional): An identifying number or label for the node.
         - `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
         - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.

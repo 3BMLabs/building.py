@@ -33,7 +33,7 @@ __url__ = "./geometry/text.py"
 
 import sys
 from pathlib import Path
-#import requests
+import requests
 from typing import List
 import json
 
@@ -44,7 +44,7 @@ from project.fileformat import *
 from abstract.coordinatesystem import CoordinateSystem
 from geometry.geometry2d import *
 from geometry.solid import *
-from abstract.rect import *
+from abstract.boundingbox import *
 from abstract.coordinatesystem import *
 from abstract.vector import *
 from geometry.point import *
@@ -61,7 +61,7 @@ class Text:
         - `type` (str): The class name, "Text".
         - `text` (str, optional): The text string to be represented.
         - `font_family` (str, optional): The font family of the text, defaulting to "Arial".
-        - `xyz` (Vector): The origin point of the text in the coordinate system.
+        - `xyz` (Vector3): The origin point of the text in the coordinate system.
         - `csglobal` (CoordinateSystem): The global coordinate system applied to the text.
         - `x`, `y`, `z` (float): The position offsets for the text within its coordinate system.
         - `scale` (float, optional): The scale factor applied to the text size.
@@ -75,6 +75,7 @@ class Text:
         - `path_list` (list): A list containing the path data for each character.
         """
         self.id = generateID()
+        self.type = __class__.__name__
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin
@@ -138,7 +139,7 @@ class Text:
 
         ```
         """
-        with open('library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
+        with open('C:/Users/mikev/Downloads/building.py3/building.py/library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
             response = file.read()
         glyph_data = json.loads(response)        
         output = []
@@ -161,7 +162,7 @@ class Text:
 
         ```
         """
-        with open('library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
+        with open('C:/Users/mikev/Downloads/building.py3/building.py/library/text/json/Calibri.json', 'r', encoding='utf-8') as file:
             response = file.read()
         glyph_data = json.loads(response)
         load_o = []
@@ -303,7 +304,7 @@ class Text:
 
         points = [elem for elem in points if elem != 'M']
         ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = Rect().by_points(ptList)
+        bounding_box_polyline = BoundingBox2d().by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.length
 
     def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':

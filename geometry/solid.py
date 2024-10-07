@@ -34,21 +34,15 @@ __url__ = "./geometry/solid.py"
 
 import sys
 from pathlib import Path
-from typing import Self
-
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.plane import Plane
-from abstract.rect import Rect
-from abstract.vector import Vector
-from geometry.curve import PolyCurve
-from geometry.point import Point, transform_point
-from packages.helper import flatten, generateID
 
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
+from geometry.curve import *
 from geometry.geometry2d import PolyCurve2D
+from abstract.plane import *
+import packages.helper as helper
 
 
 # [!not included in BP singlefile - end]
@@ -76,6 +70,7 @@ class Extrusion:
         - `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
         """
         self.id = generateID()
+        self.type = __class__.__name__
         self.parameters = []
         self.verts = []
         self.faces = []
@@ -91,6 +86,73 @@ class Extrusion:
         self.outercurve = []
         self.bottomshape = []
         self.nested = []
+
+    def serialize(self) -> dict:
+        """Serializes the extrusion object into a dictionary.
+        This method facilitates the conversion of the Extrusion instance into a dictionary format, suitable for serialization to JSON or other data formats for storage or network transmission.
+
+        #### Returns:
+        `dict`: A dictionary representation of the Extrusion instance, including all relevant geometric and property data.
+    
+        #### Example usage:
+        ```python
+
+        ```
+        """
+        id_value = str(self.id) if not isinstance(
+            self.id, (str, int, float)) else self.id
+        return {
+            'id': id_value,
+            'type': self.type,
+            'verts': self.verts,
+            'faces': self.faces,
+            'numberFaces': self.numberFaces,
+            'countVertsFaces': self.countVertsFaces,
+            'name': self.name,
+            'color': self.color,
+            'colorlst': self.colorlst,
+            'topface': self.topface.serialize() if self.topface else None,
+            'bottomface': self.bottomface.serialize() if self.bottomface else None,
+            'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
+        }
+
+    @staticmethod
+    def deserialize(data: dict) -> 'Extrusion':
+        """Reconstructs an Extrusion object from a dictionary.
+        This static method allows for the creation of an Extrusion instance from serialized data, enabling the loading of extrusion objects from file storage or network data.
+
+        #### Parameters:
+        - `data` (dict): A dictionary containing serialized Extrusion data.
+
+        #### Returns:
+        `Extrusion`: A newly constructed Extrusion instance based on the provided data.
+    
+        #### Example usage:
+        ```python
+
+        ```
+        """
+        extrusion = Extrusion()
+        extrusion.id = data.get('id')
+        extrusion.verts = data.get('verts', [])
+        extrusion.faces = data.get('faces', [])
+        extrusion.numberFaces = data.get('numberFaces', 0)
+        extrusion.countVertsFaces = data.get('countVertsFaces', 0)
+        extrusion.name = data.get('name', "none")
+        extrusion.color = data.get('color', (255, 255, 0))
+        extrusion.colorlst = data.get('colorlst', [])
+
+        if data.get('topface'):
+            extrusion.topface = PolyCurve.deserialize(data['topface'])
+
+        if data.get('bottomface'):
+            extrusion.bottomface = PolyCurve.deserialize(data['bottomface'])
+
+        if data.get('polycurve_3d_translated'):
+            extrusion.polycurve_3d_translated = PolyCurve.deserialize(
+                data['polycurve_3d_translated'])
+
+        return extrusion
 
     def set_parameter(self, data: list) -> 'Extrusion':
         """Sets parameters for the extrusion.
@@ -145,7 +207,7 @@ class Extrusion:
             return extrusions
 
     @staticmethod
-    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector) -> 'Extrusion':
+    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector3) -> 'Extrusion':
         """Creates an extrusion from a 2D polycurve profile along a specified vector.
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -154,7 +216,7 @@ class Extrusion:
         - `height` (float): The height of the extrusion.
         - `cs_old` (CoordinateSystem): The original coordinate system of the polycurve.
         - `start_point` (Point): The start point for the extrusion in the new coordinate system.
-        - `direction_vector` (Vector): The direction vector along which the polycurve is extruded.
+        - `direction_vector` (Vector3): The direction vector along which the polycurve is extruded.
 
         #### Returns:
         `Extrusion`: An Extrusion object representing the 3D form of the extruded polycurve.
@@ -306,8 +368,8 @@ class Extrusion:
         # global len
         Extrus = Extrusion()
         Points = polycurve.points
-        V1 = Vector.by_two_points(Points[0], Points[1])
-        V2 = Vector.by_two_points(Points[-2], Points[-1])
+        V1 = Vector3.by_two_points(Points[0], Points[1])
+        V2 = Vector3.by_two_points(Points[-2], Points[-1])
 
         p1 = Plane.by_two_vectors_origin(
             V1, V2, Points[0])  # Workplane of PolyCurve
@@ -318,67 +380,60 @@ class Extrusion:
 
         Extrus.polycurve_3d_translated = polycurve
 
-        numPoints = len(Points)
-        
         # allverts
         for pnt in Points:
-            # bottom side moves along the normal with dz_loc units
-            pnts.append(Point.translate(pnt, Vector.product(dz_loc, norm)))
-        
+            # Onderzijde verplaatst met dz_loc
+            pnts.append(Point.translate(pnt, Vector3.product(dz_loc, norm)))
+        for pnt in Points:
+            # Bovenzijde verplaatst met dz_loc
+            pnts.append(Point.translate(
+                pnt, Vector3.product((dz_loc+height), norm)))
+
+        numPoints = len(Points)
+
         # Bottomface
+        count = 0
         face = []
-        for x in reversed(range(numPoints)):
-            face.append(x)
+        for x in range(numPoints):
+            face.append(count)
+            count = count + 1
         faces.append(face)
-        
-        
+
         # Topface
-        # TODO: correct winding
+        count = 0
         face = []
-        start = numPoints if height else 0
-        for x in range(start, start + numPoints):
-            face.append(x)
+        for x in range(numPoints):
+            face.append(count+numPoints)
+            count = count + 1
         faces.append(face)
-            
-        # when the height of an extrusion is 0, we only have to add the top / bottom (it doesn't really matter) side mesh. it would just cause z-buffer glitching
-        if height:
-            for pnt in Points:
-                # Bovenzijde verplaatst met dz_loc
-                pnts.append(Point.translate(
-                    pnt, Vector.product((dz_loc+height), norm)))
-            #other faces
 
-
-
-            # Sides
-            count = 0
-            length = len(faces[0])
-            for i, j in zip(faces[0], faces[1]):
-                face = []
+        # Sides
+        count = 0
+        length = len(faces[0])
+        for i, j in zip(faces[0], faces[1]):
+            face = []
+            face.append(i)
+            face.append(faces[0][count + 1])
+            face.append(faces[1][count + 1])
+            face.append(j)
+            count = count + 1
+            if count == length-1:
                 face.append(i)
-                face.append(faces[0][count + 1])
-                face.append(faces[1][count + 1])
+                face.append(faces[0][0])
+                face.append(faces[1][0])
                 face.append(j)
-                count = count + 1
-                if count == length-1:
-                    face.append(i)
-                    face.append(faces[0][0])
-                    face.append(faces[1][0])
-                    face.append(j)
-                    faces.append(face)
-                    break
-                else:
-                    pass
                 faces.append(face)
+                break
+            else:
+                pass
+            faces.append(face)
 
         # toMeshStructure
         for i in pnts:
             Extrus.verts.append(i.x)
             Extrus.verts.append(i.y)
             Extrus.verts.append(i.z)
-            
-        # faces are laid out like this: face 0 vert count, face 0 vert 0 index, vert ...count index, face 1 vert count etc.
-        # for example: 4, 0, 1, 2, 3, 3, 4, 5, 6 => 4, (0, 1, 2, 3), 3, (4, 5, 6)
+
         for x in faces:
             Extrus.faces.append(len(x))  # Number of verts in face
             for y in x:
@@ -390,29 +445,3 @@ class Extrusion:
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
         return Extrus
-    
-    @staticmethod
-    def from_3d_rect(rect:Rect) -> Self:
-        """Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
-
-        #### Returns:
-        `Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
-
-        #### Example usage:
-        ```python
-        bbox2d = Rect().by_dimensions(length=100, width=50)
-        cs = CoordinateSystem()
-        bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
-        cuboid = bbox3d.to_cuboid()
-        # Generates a cuboid extrusion based on the 3D bounding box
-        ```
-        """
-        pts = rect.corners()
-        pc = PolyCurve2D.by_points(pts)
-        height = rect.height
-        cs = rect.coordinatesystem
-        dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)
-        pcrot = pc.rotate(dirXvector)  # bug multi direction
-        cuboid = Extrusion.by_polycurve_height_vector(
-            pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
-        return cuboid
