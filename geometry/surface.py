@@ -67,7 +67,7 @@ class Surface:
         self.mesh = []
         self.offset = 0
         self.name = None
-        self.id = generateID()
+        
         self.outer_Polygon = None
         self.inner_Polygon = []
         self.colorlst = []
@@ -215,7 +215,7 @@ class NurbsSurface:  # based on point data / degreeU&countU / degreeV&countV?
         - `id` (str): A unique identifier for the NurbsSurface.
         - `type` (str): Class name, "NurbsSurface".
         """
-        self.id = generateID()
+        
 
     def __id__(self) -> 'str':
         """Returns the unique identifier of the NurbsSurface object.
@@ -258,7 +258,7 @@ class PolySurface:
         - `id` (str): A unique identifier for the PolySurface.
         - `type` (str): Class name, "PolySurface".
         """
-        self.id = generateID()
+        
 
     def __id__(self) -> 'str':
         """Returns the unique identifier of the PolySurface object.

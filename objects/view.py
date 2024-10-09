@@ -38,7 +38,7 @@ from geometry.curve import *
 class View(Serializable):
     def __init__(self):
         self.name = None
-        self.id = generateID()
+        
         self.origin = Point(0, 0, 0)
         self.cutplane: CoordinateSystem = None
         self.visibility = None
@@ -73,7 +73,7 @@ class View(Serializable):
 class Visibility(Serializable):
     def __init__(self):
         self.name = None
-        self.id = generateID()
+        
         self.origin = Point(0, 0, 0)
         self.cutplane: CoordinateSystem = None
         self.visibility = None

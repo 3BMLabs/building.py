@@ -45,7 +45,7 @@ from project.fileformat import *
 
 class Wall:
     def __init__(self):
-        self.id = generateID()
+        
         self.name = None
         self.verts = None
         self.faces = None

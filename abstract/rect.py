@@ -56,7 +56,7 @@ class Rect(Serializable):
         rect3 = Rect(Vector(y=8), Vector(x = 4)) # x 0, y 8, width 4, length 0
         ```
         """
-        self.id = generateID()
+        
         
         #first half = for position
         half:int = len(args) // 2
@@ -77,7 +77,7 @@ class Rect(Serializable):
             
         Serializable.__init__(self)
 
-        self.id = generateID()
+        
         
     def change_axis_count(self,axis_count: int):
         self.p0.change_axis_count(axis_count)

@@ -46,7 +46,7 @@ class Support:
     def __init__(self):
         self.Number = None
         self.Point: Point = Point(0, 0, 0)
-        self.id = generateID()
+        
         self.Tx: str = " "  # A, P, N, S
         self.Ty: str = " "  # A, P, N, S
         self.Tz: str = " "  # A, P, N, S

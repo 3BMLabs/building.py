@@ -74,7 +74,7 @@ class Text:
         - `points` (list): A list of points derived from the text geometry.
         - `path_list` (list): A list containing the path data for each character.
         """
-        self.id = generateID()
+        
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin

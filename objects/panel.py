@@ -47,7 +47,7 @@ from geometry.curve import *
 class Panel(Serializable):
     # Panel
     def __init__(self):
-        self.id = generateID()
+        
         self.extrusion = None
         self.thickness = 0
         self.name = None

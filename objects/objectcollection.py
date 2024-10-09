@@ -49,7 +49,7 @@ from packages.helper import *
 
 class WurksRaster3d(Serializable):
     def __init__(self):
-        self.id = generateID()
+        
         self.bottom = None
         self.top = None
         self.name = "x"

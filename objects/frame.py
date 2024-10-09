@@ -62,7 +62,7 @@ def colorlist(extrus, color):
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Frame(Serializable):
     def __init__(self):
-        self.id = generateID()
+        
         self.name = "None"
         self.profileName = "None"
         self.extrusion = None

@@ -68,7 +68,7 @@ class Profile(Serializable):
         """
 
         self.IFC_profile_def = IFC_profile_def
-        self.ID = generateID()
+        
         self.name = name
         self.description = description
         self.curve = []
@@ -1016,7 +1016,7 @@ class ArrowProfile(Profile):
         super().__init__(name, "Arrow-profile", "Unknown", length, width)
         
         # parameters
-        self.id = generateID()
+        
         self.length = length  # length
         self.b1 = b1
         self.l1 = l1

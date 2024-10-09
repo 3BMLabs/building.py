@@ -59,7 +59,7 @@ class System:
         - `direction` (Vector): A Vector indicating the primary direction of the system.
         """
         self.name = None
-        self.id = generateID()
+        
         self.polycurve = None
         self.direction: Vector = Vector(1, 0, 0)
 
@@ -84,7 +84,7 @@ class DivisionSystem:
         - `system` (str): A string indicating the current system strategy (e.g., "fixed_distance_unequal_division").
         """
         self.name = None
-        self.id = generateID()
+        
         self.system_length: float = 100
         self.spacing: float = 10
         self.distance_first: float = 5
@@ -270,7 +270,7 @@ class RectangleSystem:
         - `symbolic_inner_grids` (list): Symbolic representations of inner grids.
         """
         self.name = None
-        self.id = generateID()
+        
         self.height = 3000
         self.width = 2000
         self.bottom_frame_type = Rectangle("bottom_frame_type", 38, 184)
@@ -479,7 +479,7 @@ class pattern_system:
     def __init__(self):
         """Initializes a new pattern_system instance."""
         self.name = None
-        self.id = generateID()
+        
         self.pattern = None
         self.basepanels = []  # contains a list with basepanels of the system
         # contains a list sublists with Vector which represent the repetition of the system

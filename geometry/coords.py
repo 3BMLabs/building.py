@@ -33,6 +33,7 @@ __url__ = "./geometry/coords.py"
 
 import math
 from typing import Self
+from abstract.vector import Vector
 from packages.helper import generateID
 from abstract.serializable import Serializable
 
@@ -156,6 +157,37 @@ class Coords(Serializable, list):
         #deg = atan(other side / straight side)
         return math.atan2(self.x, self.y)
     
+    @staticmethod
+    def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
+        """Computes the angle in degrees between two coords.
+        The angle between two coords is the angle required to rotate one vector onto the other, measured in degrees.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The first vector.
+        - `vector_2` (`Vector`): The second vector.
+
+        #### Returns:
+        `float`: The angle in degrees between the input coords.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(1, 0, 0)
+        vector2 = Vector(0, 1, 0)
+        angle = Vector.angle_between(vector1, vector2)
+        # 90
+        ```
+        """
+        dot_product = Vector.dot_product(vector_1, vector_2)
+        length_vector_1 = Vector.length(vector_1)
+        length_vector_2 = Vector.length(vector_2)
+
+        if length_vector_1 == 0 or length_vector_2 == 0:
+            return 0
+
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
+        return math.acos(cos_angle)
+
     @staticmethod
     def distance_squared(point_1: 'Coords', point_2: 'Coords') -> float:
         """Computes the Euclidean distance between two 3D points.

@@ -54,7 +54,7 @@ class PointList(Vector[Vector]):
         Initializes the PointList's attributes and sets up the list of points based on the input provided. The ID is generated to uniquely identify the point cloud.
         """
         super().__init__(points)
-        self.id = generateID()
+        
     
     #just execute the operator for all list members
     def operate_2(self, op:operator, other):

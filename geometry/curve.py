@@ -322,7 +322,7 @@ class PolyCurve(Serializable, list[Line]):
 
         """
         
-        self.id = generateID()
+        
         #self.points:list[Point] = to_array(*args)
 
         #self.approximateLength = None
@@ -337,24 +337,59 @@ class PolyCurve(Serializable, list[Line]):
         super().__init__(to_array(*args))
     
     @property
-    def area(self) -> 'float':
+    def closed(self) -> 'bool':
+        return self[0].start == self[-1].end
+    @closed.setter
+    def closed(self, value : bool):
+        if value != self.closed:
+            if value:
+                #just fill the gap using a straight line
+                self.append(Line(self[-1].end, self[0].start))
+            else:
+                del self[-1]    
+    
+    @property
+    def area(self):
         """Calculates the area of the 2d PolyCurve.
 
         Returns:
             float: The area of the 2d poly curve.
         
-        we are assuming the PolyCurve is wound counter-clockwise.
+        we are assuming the PolyCurve is wound counter-clockwise and is closed.
         """
+        if not self.closed:
+            raise ValueError("the polycurve needs to be closed in order to calculate its area")
+        area:float = 0
         for line in self:
-            #if isinstance(line, Arc):
-            #    
-            #else:
+            if isinstance(line, Arc):
+                origin = line.origin
+                area += (line.start.x - line.end.x) * origin.y
+                #now that we added the 'rectangle', let's add the sine wave
+                
+                #the arc is part of a circle. the circle can be represented as two opposite cosine waves, with the circle center being at 0, 0.
+                #to calculate the area, we'll be using the integral of the cosine wave, which is the sine wave.
+                radius = (line.origin - line.start).magnitude
+                
+                #area is negative if y < 0
+                #area is measured from the -x side here, so at -radius, area == 0 and at +radius, area == circle_area
+                #https://www.desmos.com/calculator/ykynwhoue6
+                get_area = lambda pos : math.copysign((math.sin(((pos.x - origin.x) / radius) * (math.pi / 2)) + 1) * radius, pos.y - origin.y)
+                start_area = get_area(line.start)
+                end_area = get_area(line.end)
+                
+                integral_area = start_area - end_area
+                if integral_area < 0:
+                    circle_area = (radius * radius) * math.pi
+                    integral_area += circle_area
+                area += integral_area
+            else:
                 #check direction of line
                 #start - end, for counterclockwiseness
                 #when start.x < end.x, this is a bottom line. we'll substract this from the area.
                 dx = line.start.x - line.end.x
                 averagey = (line.start.y + line.end.y) / 2
-                area = dx * averagey
+                area += dx * averagey
+        return area
     
     @property
     def length(self) -> 'float':
@@ -402,9 +437,11 @@ class PolyCurve(Serializable, list[Line]):
                 print("Curvetype not found")
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
-
+    
+    #TODO finish function
+    @property
     def centroid(self) -> 'Point':
-        """Calculates the centroid of the PolyCurve.
+        """Calculates the centroid of the PolyCurve. in 2D
 
         #### Returns:
         `Point`: The centroid point of the PolyCurve.
@@ -414,68 +451,55 @@ class PolyCurve(Serializable, list[Line]):
 
         ```        
         """
-        if self.closed:
-            num_points = len(self.points)
-            if num_points < 3:
-                return "Polygon has less than 3 points!"
+        poly = Polygon.by_joined_curves(self)
+        centroid = poly.centroid
+        
+        #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
+        
+        for i in range(len(self)):
+            current_line = self[i]
+            if isinstance(current_line, Arc):
+                #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
+                #calculate the centroid
+                arc_centroid = current_line.centroid
+                raise NotImplementedError("this code isn't done yet!")
+                
+                #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
+                
 
-            A = 0.0
-            for i in range(num_points):
-                x0, y0 = self.points[i].x, self.points[i].y
-                x1, y1 = self.points[(
-                    i + 1) % num_points].x, self.points[(i + 1) % num_points].y
-                A += x0 * y1 - x1 * y0
-            A *= 0.5
-
-            Cx, Cy = 0.0, 0.0
-            for i in range(num_points):
-                x0, y0 = self.points[i].x, self.points[i].y
-                x1, y1 = self.points[(
-                    i + 1) % num_points].x, self.points[(i + 1) % num_points].y
-                factor = (x0 * y1 - x1 * y0)
-                Cx += (x0 + x1) * factor
-                Cy += (y0 + y1) * factor
-
-            Cx /= (6.0 * A)
-            Cy /= (6.0 * A)
-
-            return Point(x=round(Cx, project.decimals), y=round(Cy, project.decimals), z=self.points[0].z)
-        else:
-            return None
-
-    def area(self) -> 'float':  # shoelace formula
-        """Calculates the area enclosed by the PolyCurve using the shoelace formula.
-
-        #### Returns:
-        `float`: The area enclosed by the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if self.closed:
-            if len(self.points) < 3:
-                return "Polygon has less than 3 points!"
-
-            num_points = len(self.points)
-            S1, S2 = 0, 0
-
-            for i in range(num_points):
-                x, y = self.points[i].x, self.points[i].y
-                if i == num_points - 1:
-                    x_next, y_next = self.points[0].x, self.points[0].y
-                else:
-                    x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-
-                S1 += x * y_next
-                S2 += y * x_next
-
-            area = 0.5 * abs(S1 - S2)
-            return area
-        else:
-            print("Polycurve is not closed, no area!")
-            return None
+    #def area(self) -> 'float':  # shoelace formula
+    #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
+#
+    #    #### Returns:
+    #    `float`: The area enclosed by the PolyCurve.
+#
+    #    #### Example usage:
+    #    ```python
+#
+    #    ```        
+    #    """
+    #    if self.closed:
+    #        if len(self.points) < 3:
+    #            return "Polygon has less than 3 points!"
+#
+    #        num_points = len(self.points)
+    #        S1, S2 = 0, 0
+#
+    #        for i in range(num_points):
+    #            x, y = self.points[i].x, self.points[i].y
+    #            if i == num_points - 1:
+    #                x_next, y_next = self.points[0].x, self.points[0].y
+    #            else:
+    #                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
+#
+    #            S1 += x * y_next
+    #            S2 += y * x_next
+#
+    #        area = 0.5 * abs(S1 - S2)
+    #        return area
+    #    else:
+    #        print("Polycurve is not closed, no area!")
+    #        return None
         
 
 
@@ -994,7 +1018,7 @@ class PolyCurve(Serializable, list[Line]):
 class Polygon(PointList):
     """Represents a polygon composed of points."""
     def __init__(self, *args) -> 'Polygon':
-        self.id = generateID()
+        
         super().__init__(to_array(*args))
 
 
@@ -1231,6 +1255,43 @@ class Polygon(PointList):
 
         area = 0.5 * abs(S1 - S2)
         return area
+    
+    @property
+    def centroid(self) -> 'Point':
+        """Calculates the centroid of the Polygon in 2D. we assume that the polygon doesn't intersect itself.
+
+        #### Returns:
+        `Point`: The centroid point of the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        if self.closed:
+            num_points = len(self)
+            if num_points < 3:
+                return "Polygon has less than 3 points!"
+            
+            area = self.area
+            
+            #https://stackoverflow.com/questions/5271583/center-of-gravity-of-a-polygon
+            
+
+            Cx, Cy = 0.0, 0.0
+            for i in range(num_points):
+                x0, y0 = self[i-1].x, self[i-1].y
+                x1, y1 = self[i].x, self[i].y
+                factor = (x0 * y1 - x1 * y0)
+                Cx += (x0 + x1) * factor
+                Cy += (y0 + y1) * factor
+
+            Cx /= (6.0 * area)
+            Cy /= (6.0 * area)
+
+            return Point(Cx, Cy)
+        else:
+            raise ValueError("this polycurve is not closed")
 
     def length(self) -> 'float':
         """Calculates the total length of the Polygon.
@@ -1281,7 +1342,7 @@ class Arc:
         if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
             raise ValueError('midpoint is not in the center')
         
-        self.id = generateID()
+        
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -1322,8 +1383,9 @@ class Arc:
         self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
                                                  Vector.normalize(vz))
         return self.coordinatesystem
-
-    def radius_arc(self) -> 'float':
+    
+    @property
+    def radius(self) -> 'float':
         """Calculates and returns the radius of the arc.
         The radius is computed based on the distances between the start, mid, and end points of the arc.
 
@@ -1347,8 +1409,9 @@ class Arc:
         else:
             R = (a * b * c) / (4 * A)
             return R
-
-    def origin_arc(self) -> 'Point':
+        
+    @property
+    def origin(self) -> 'Point':
         """Calculates and returns the origin of the arc.
         The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
 
@@ -1364,7 +1427,7 @@ class Arc:
         start_to_end = self.end - self.start
         half_start_end = start_to_end * 0.5
         b = half_start_end.magnitude
-        radius = Arc.radius_arc(self)
+        radius = Arc.radius(self)
         x = math.sqrt(radius * radius - b * b)
         #mid point as if this was a straight line
         mid = self.start + half_start_end
@@ -1374,8 +1437,16 @@ class Arc:
         to_center.magnitude = x
         center = mid + to_center
         return center
-
-    def angle_radian(self) -> 'float':
+    def centroid(self) -> 'Point':
+        origin = self.origin
+        radius = self.radius
+        angle = self.angle
+        #the distance of the centroid of the arc to its origin
+        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
+        centroid = origin + centroid_distance * ((self.mid - origin) / radius)
+        
+    @property
+    def angle(self) -> 'float':
         """Calculates and returns the total angle of the arc in radians.
         The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
 
@@ -1388,9 +1459,10 @@ class Arc:
         # angle will be the total angle of the arc in radians
         ```
         """
-        vector_1 = Vector.by_two_points(self.origin, self.end)
-        vector_2 = Vector.by_two_points(self.origin, self.start)
-        vector_3 = Vector.by_two_points(self.origin, self.mid)
+        origin = self.origin
+        vector_1 = self.end - origin
+        vector_2 = self.start - origin
+        vector_3 = self.mid - origin
         vector_4 = vector_1 + vector_2
         try:
             v4b = Vector.new_length(vector_4, self.radius)
@@ -1402,7 +1474,8 @@ class Arc:
         except:
             angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
             return angle
-
+        
+    @property
     def length(self) -> 'float':
         """Calculates and returns the length of the arc.
         The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
@@ -1550,7 +1623,7 @@ class Circle:
         self.radius = radius
         self.plane = plane
         self.length = length
-        self.id = generateID()
+        
         pass  # Curve
 
     def __id__(self):
@@ -1587,7 +1660,7 @@ class Ellipse:
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane
-        self.id = generateID()
+        
         pass  # Curve
 
     def __id__(self):

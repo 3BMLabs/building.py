@@ -44,7 +44,7 @@ from project.fileformat import *
 
 class Level:
     def __init__(self):
-        self.id = generateID()
+        
         self.name = None
         self.polycurve = None
         self.plane = None

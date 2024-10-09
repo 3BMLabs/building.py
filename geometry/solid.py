@@ -75,7 +75,7 @@ class Extrusion:
         - `polycurve_3d_translated` (PolyCurve): A polycurve representing the translated 3D profile of the extrusion.
         - `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
         """
-        self.id = generateID()
+        
         self.parameters = []
         self.verts = []
         self.faces = []

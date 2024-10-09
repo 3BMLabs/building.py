@@ -48,7 +48,7 @@ from project.fileformat import project
 
 class Vector2:
     def __init__(self, x, y) -> None:
-        self.id = generateID()
+        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -168,7 +168,7 @@ class Vector2:
 
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
-        self.id = generateID()
+        
         self.x = x
         self.y = y
         self.x = float(x)
@@ -264,7 +264,7 @@ class Line2D:
         self.vector2: Vector2 = Vector2.by_two_points(self.start, self.end)
         self.vector2_normalised = Vector2.normalize(self.vector2)
         self.length = self.length()
-        self.id = generateID()
+        
 
     def serialize(self):
         return {
@@ -306,7 +306,7 @@ class Line2D:
 
 # class Arc2D:
 #     def __init__(self, pntxy1, pntxy2, pntxy3) -> None:
-#         self.id = generateID()
+#         
 #         self.type = __class__.__name__
 #         self.start: Point2D = pntxy1
 #         self.mid: Point2D = pntxy2
@@ -436,7 +436,7 @@ class Arc2D:
         - `midPoint` (Point2D): The mid point of the arc which defines its curvature.
         - `endPoint` (Point2D): The ending point of the arc.
         """
-        self.id = generateID()
+        
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -703,7 +703,7 @@ class Arc2D:
 
 class PolyCurve2D:
     def __init__(self) -> None:
-        self.id = generateID()
+        
         self.curves = []
         self.points2D = []
         self.segmentcurves = None
@@ -1131,7 +1131,7 @@ class PolyCurve2D:
 class Surface2D:
     def __init__(self) -> None:
         pass  # PolyCurve2D
-        self.id = generateID()
+        
 
     def __id__(self):
         return f"id:{self.id}"
@@ -1142,7 +1142,7 @@ class Surface2D:
 
 class Profile2D:
     def __init__(self) -> None:
-        self.id = generateID()
+        pass
 
     def __id__(self):
         return f"id:{self.id}"
@@ -1150,10 +1150,9 @@ class Profile2D:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
 
-
 class ParametricProfile2D:
     def __init__(self) -> None:
-        self.id = generateID()
+        pass
 
     def __id__(self):
         return f"id:{self.id}"
