@@ -6,6 +6,25 @@ from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from packages.GIS2BIM.GIS2BIM_NL_helpers import *
+
+import ssl
+
+#SETTINGS BASIS
+GISProject = BuildingPy("test")
+ProjectDrive = "E:/"
+ProjectFolder = ProjectDrive + "GIS2BIM/"
+City = "Lekkerkerk"
+Street = "Voorstraat"
+HouseNumber = "172"
+ProjectName = City + "_" + Street  + "_" + HouseNumber
+lst = NL_GetLocationData(NLPDOKServerURL, City, Street, HouseNumber)
+Bboxwidth = 200#m
+#BOUNDINGBOX
+RdX = lst[0]
+RdY = lst[1]
+Bbox = GIS2BIM.CreateBoundingBox(RdX,RdY,Bboxwidth,Bboxwidth,0)
+print(Bbox)
+=======
 from packages.GIS2BIM.GIS2BIM_CityJSON import *
 import time
 import ijson
@@ -14,6 +33,7 @@ from geometry.mesh import *
 import certifi
 import ssl
 
+
 def CreateFolder(Folder):
     #check and ccreate folders
     if not os.path.isdir(Folder):
@@ -21,8 +41,13 @@ def CreateFolder(Folder):
         os.mkdir(Folder)
 
 #CITYJSON DOWNLOAD
+
+def DownloadCityJSON():
+    kaartbladenres = kaartbladenBbox(Bbox, FolderCityJSON)
+=======
 def DownloadCityJSON(Bbox, FolderCityJSON):
     kaartbladenres = kaartbladenBbox(Bbox)
+
     print(kaartbladenres)
     for i in kaartbladenres:
         downloadlink = NLPDOKKadasterBasisvoorziening3DCityJSONVolledig + i[0] + "_2020_volledig.zip"
@@ -66,6 +91,19 @@ def GetWebServerDataCategorised(obj1, obj2, obj3):
 	jsonData = json.loads(url.read())[obj1][obj2][obj3]
 	return jsonData
 
+
+#WMS
+jsonobj=GetWebServerDataCategorised("GIS2BIMserversRequests", "NLwebserverRequests", "NLWMS")
+serverrequestprefix= extract_values(jsonobj, 'serverrequestprefix')
+title = extract_values(jsonobj, 'title')
+print("ItemsToDownload: " + str(len(serverrequestprefix)))
+print(FolderImages)
+for i in range(len(serverrequestprefix)):
+    itemserverrequestprefix=serverrequestprefix[i]
+    itemtitle=title[i]
+    print(itemtitle)
+    WMSRequestNew(itemserverrequestprefix, Bbox, FolderImages + "/"+ itemtitle +".png", 1500, 1500)
+=======
 def GetWebServerDataSettings(SettingsfileLocation):
     #get settings
     url = urllib.request.urlopen(SettingsfileLocation)
