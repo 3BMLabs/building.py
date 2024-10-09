@@ -18,7 +18,7 @@ def generate_single_file(output_filename, include_files=None):
 	import_start = 'import '
 	import_mid = ' import '
 		
-	excluded_directories = ["exchange", "specklepy"]
+	excluded_directories = ["exchange", "specklepy", "sandbox"]
  
 	header_file = "docs/single_file_header.py"
 

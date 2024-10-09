@@ -16,16 +16,14 @@ import json
 import importlib
 from typing import List
 from packages.svg.path import parse_path
-from types import UnionType
-from typing import Any, Iterable, Self, SupportsIndex
-import operator
-from typing import Union
-import sys, math
 import math
-import packages.helper as helper
+import operator
+from typing import Self, Union
+import sys, math
 import sys, os, math
 import urllib.request
 import re
+from typing import Union
 from objects import profile
 import string, random, json
 import urllib
@@ -38,278 +36,10 @@ import sys, os, math, json
 from collections import defaultdict
 
 
-class Color:
-    """Documentation: output returns [r, g, b]"""
-
-    def __init__(self, colorInput=None):
-        self.colorInput = colorInput
-
-    red = [255, 0, 0]
-    green = [0, 255, 0]
-    blue = [0, 0, 255]
-
-    def Components(self, colorInput=None):
-        """1"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
-        else:
-            try:
-                import json
-                JSONfile = "library/color/colorComponents.json"
-                with open(JSONfile, 'r') as file:
-                    components_dict = json.load(file)
-                    checkExist = components_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        r, g, b, a = components_dict[colorInput]
-                        return [r, g, b]
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Hex(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                colorInput = colorInput.split("#")[1]
-                rgb_color = list(int(colorInput[i:i+2], 16) for i in (1, 3, 5))
-                return [rgb_color[0], rgb_color[1], rgb_color[2], 255]
-
-                # colorInput = colorInput.lstrip('#')
-                # return list(int(colorInput[i:i+2], 16) for i in (0, 2, 4))
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def rgba_to_hex(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                red_i = int(colorInput[0] * 255)
-                green_i = int(colorInput[1] * 255)
-                blue_i = int(colorInput[2] * 255)
-                alpha_i = int(colorInput[3] * 255)
-
-                red_hex = hex(red_i)[2:].zfill(2)
-                green_hex = hex(green_i)[2:].zfill(2)
-                blue_hex = hex(blue_i)[2:].zfill(2)
-                alpha_hex = hex(alpha_i)[2:].zfill(2)
-
-                colorInput = "#" + red_hex + green_hex + blue_hex + alpha_hex
-
-                return colorInput.upper()
-
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def hex_to_rgba(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('#2ba4ff')"
-        else:
-            # validate if value is correct/found
-            try:
-                colorInput = colorInput.lstrip('#')
-                red_int = int(colorInput[0:2], 16)
-                green_int = int(colorInput[2:4], 16)
-                blue_int = int(colorInput[4:6], 16)
-
-                if len(colorInput) == 8:
-                    alpha_int = int(colorInput[6:8], 16)
-                    alpha = round(alpha_int / 255, 2)
-                else:
-                    alpha = 1.0
-
-                red = round(red_int / 255, 2)
-                green = round(green_int / 255, 2)
-                blue = round(blue_int / 255, 2)
-
-                return [red, green, blue, alpha]
-
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def CMYK(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
-        else:
-            try:
-                c, m, y, k = colorInput
-                r = int((1-c) * (1-k) * 255)
-                g = int((1-m) * (1-k) * 255)
-                b = int((1-y) * (1-k) * 255)
-                return [r, g, b]
-            except:
-                # add check help attribute
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Alpha(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-        else:
-            try:
-                r, g, b, a = colorInput
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Brightness(self, colorInput=None):
-        """Expected value is int(0) - int(1)"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-        else:
-            try:
-                if colorInput >= 0 and colorInput <= 1:
-                    r = g = b = int(255 * colorInput)
-                    return [r, g, b]
-                else:
-                    return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def RGB(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
-        else:
-            try:
-                r, g, b = colorInput
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def HSV(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                h, s, v = colorInput
-                h /= 60.0
-                c = v * s
-                x = c * (1 - abs(h % 2 - 1))
-                m = v - c
-                if 0 <= h < 1:
-                    r, g, b = c, x, 0
-                elif 1 <= h < 2:
-                    r, g, b = x, c, 0
-                elif 2 <= h < 3:
-                    r, g, b = 0, c, x
-                elif 3 <= h < 4:
-                    r, g, b = 0, x, c
-                elif 4 <= h < 5:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def HSL(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                h, s, l = colorInput
-                c = (1 - abs(2 * l - 1)) * s
-                x = c * (1 - abs(h / 60 % 2 - 1))
-                m = l - c / 2
-                if h < 60:
-                    r, g, b = c, x, 0
-                elif h < 120:
-                    r, g, b = x, c, 0
-                elif h < 180:
-                    r, g, b = 0, c, x
-                elif h < 240:
-                    r, g, b = 0, x, c
-                elif h < 300:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                r, g, b = int((r + m) * 255), int((g + m)
-                                                  * 255), int((b + m) * 255)
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def RAL(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
-        else:
-            try:
-                # validate if value is correct/found
-                import json
-                JSONfile = "library/color/colorRAL.json"
-                with open(JSONfile, 'r') as file:
-                    ral_dict = json.load(file)
-                    checkExist = ral_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
-                        return [int(r), int(g), int(b), 100]
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Pantone(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                import json
-                JSONfile = "library/color/colorPantone.json"
-                with open(JSONfile, 'r') as file:
-                    pantone_dict = json.load(file)
-                    checkExist = pantone_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        PantoneHex = pantone_dict[str(colorInput)]['hex']
-                        return Color().Hex(PantoneHex)
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def LRV(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
-                b = int(max(0, min(255, b)))
-                return [255, 255, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def rgb_to_int(rgb):
-        r, g, b = [max(0, min(255, c)) for c in rgb]
-        return (255 << 24) | (r << 16) | (g << 8) | b
-
-    def __str__(self, colorInput=None):
-        colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
-                           "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
-        if colorInput is None:
-            header = "Available attributes: \n"
-            footer = "\nColor().red | Color().green | Color().blue"
-            return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
-        return f"Color().{colorInput}"
-
-    def Info(self, colorInput=None):
-        pass
-
-
 class Serializable:
-
+    @property
+    def type(self):
+        return __class__.__name__
     @staticmethod
     def serialize_type(obj) -> dict:
         """Save the type of an object to a dictionary.
@@ -383,6 +113,8 @@ class Serializable:
         with open(file_name) as file:
             self.deserialize_members(json.load(file))
             # self.__dict__ = json.load(file)
+    def __repr__(self) -> str:
+        return str(self)
 class ID(Serializable):
     def __init__(self) -> None:
         self.id = None
@@ -401,7 +133,7 @@ class ID(Serializable):
         self.id = f"#"+"".join(id_list)
         return f"test {self.__class__.__name__}"
 
-    def __repr__(self) -> str:
+    def str(self) -> str:
         return f"{self.id}"
 
 def generateID() -> ID:
@@ -516,152 +248,6 @@ def xmldata(myurl, xPathStrings):
             xPathResulttemp2.append(xPathResult.text)
         xPathResults.append(xPathResulttemp2)
     return xPathResults
-class Coords(list, Serializable):
-    """a shared base class for point and vector. contains the x, y and z coordinates"""
-    def __init__(self, *args, **kwargs) -> 'Coords':
-        arrayArgs:list
-        if len(args) == 1 and hasattr(args[0], "__getitem__"):
-            arrayArgs :list = args[0]
-        else:
-            arrayArgs : list = list(args)
-
-        list.__init__(self, arrayArgs)
-        Serializable.__init__(self)
-
-        self.id = generateID()
-        for kwarg in kwargs.items():
-            self.set_axis(kwarg[0], kwarg[1])            
-
-    def __str__(self):
-        length = len(self)
-        result = self.__class__.__name__ + '('
-        if length >= 1:
-            result += f'x={self.x}'
-            if length >= 2:
-                result += f', y={self.y}'
-                if length >= 3:
-                    result += f', z={self.z}'
-
-        result += ')'
-        return result
-    
-    def __repr__(self) -> str:
-        return str(self)
-    
-    @property
-    def x(self):
-        return self[0]
-    @x.setter
-    def x(self, value):
-        self[0] = value
-        
-    @property
-    def y(self):
-        return self[1]
-    @y.setter
-    def y(self, value):
-        self[1] = value
-
-    @property
-    def z(self):
-        return self[2]
-    @z.setter
-    def z(self, value):
-        self[2] = value
-    
-    @staticmethod
-    def axis_index(axis:str) -> int:
-        """returns index of axis name.<br>
-        raises a valueError when the name isn't valid.
-
-        Args:
-            axis (str): the name of the axis
-
-        Returns:
-            int: the index
-        """
-        return ['x', 'y', 'z', 'w'].index(axis)
-
-    def change_axis_count(self,axis_count: int):
-        """in- or decreases the amount of axes to the preferred axis count.
-
-        Args:
-            axis_count (int): the new amount of axes
-        """
-        if axis_count > len(self):
-            diff = axis_count + 1 - len(self)
-            self.extend([0] * diff)
-        else:
-            self = self[:axis_count]
-    def set_axis(self, axis_index: int, value) -> int | None:
-        """sets an axis with the specified index to the value. will resize when the coords can't contain them.
-
-        Args:
-            axis_index (int): the index of the axis, for example 2
-            value: the value to set the axis to
-
-        Returns:
-            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
-        """
-
-        if axis_index >= len(self):
-            self.extend([0] * (axis_index - len(self)))
-            self.extend([value])
-            return axis_index
-        self[axis_index] = value
-        return None
-        
-    def set_axis_by_name(self, axis_name: str, value) -> int | None:
-        """sets an axis with the specified name to the value. will resize when the coords can't contain them.
-
-        Args:
-            axis_name (str): the name of the axis, for example 'x'
-            value: the value to set the axis to
-
-        Returns:
-            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
-        """
-        return self.set_axis(Coords.axis_index(axis_name, value))
-                    
-    def volume(self):
-        result = 1
-        for val in self:
-            result *= val
-        return result
-        
-    #useful for sorting
-    def compare(self, other):
-        for axis in range(len(self)):
-            if self[axis] != other[axis]:
-                return other[axis] - self[axis]
-        return 0
-        
-    def operate(self, other, op:operator):
-        result = Coords([0] * len(self))
-        try:
-            for index in range(len(self)):
-                result[index] = op(self[index], other[index])
-        except TypeError:
-            #variable doesn't support index
-            #https://stackoverflow.com/questions/7604380/check-for-operator
-            for index in range(len(self)):
-                result[index] = op(self[index], other)
-        return result
-    
-    def __add__(self, other):
-        return self.operate(other, operator.add)
-
-    def __sub__(self, other):
-        return self.operate(other, operator.sub)
-    
-    def __truediv__(self, other):
-        return self.operate(other, operator.truediv)
-
-    def __mul__(self, other):
-        return self.operate(other, operator.mul)
-    __rmul__ = __mul__
-    def __iadd__(self, other) -> Self:
-        return self.operate(other, operator.iadd)
 # from project.fileformat import project
 
 
@@ -675,60 +261,7 @@ class Point(Coords):
         - `z` (float): Z-coordinate of the point.
         """
         super().__init__(*args, **kwargs)
-        self.type = __class__.__name__
         self.units = "mm"
-
-    def __str__(self) -> str:
-        """Converts the point to its string representation."""
-        return f"{__class__.__name__}(X = {self.x:.3f}, Y = {self.y:.3f}, Z = {self.z:.3f})"
-
-    @staticmethod
-    def deserialize(data):
-        """Deserializes the point object from the provided data."""
-        return Point(data['x'], data['y'], data['z'])
-
-    @staticmethod
-    def distance_squared(point_1: 'Point', point_2: 'Point') -> float:
-        """Computes the Euclidean distance between two 3D points.
-
-        #### Parameters:
-        - `point_1` (Point): The first point.
-        - `point_2` (Point): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(0, 0, 400)
-        point_2 = Point(300, 0, 400)
-        output = Point.distance(point_1, point_2) 
-        # 90000
-        ```
-        """
-        return (point_1.x - point_2.x)**2 + (point_1.y - point_2.y)**2 + (point_1.z - point_2.z)**2
-        
-    @staticmethod
-    def distance(point_1: 'Point', point_2: 'Point') -> float:
-        """Computes the Euclidean distance between two 3D points.
-
-        #### Parameters:
-        - `point_1` (Point): The first point.
-        - `point_2` (Point): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(100.23, 182, 19)
-        point_2 = Point(81, 0.1, -901)
-        output = Point.distance(point_1, point_2) 
-        # 938.0071443757771
-        ```
-        """
-        
-        return math.sqrt(Point.distance_squared(point_1, point_2))
 
     @staticmethod
     def distance_list(points: list['Point']) -> float:
@@ -758,62 +291,6 @@ class Point(Coords):
         return distances
 
     @staticmethod
-    def difference(point_1: 'Point', point_2: 'Point'):
-        """Computes the difference between two points as a Vector object.
-                
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Vector`: Difference between the two input points as a Vector object.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        point_2 = Point(93, 0, -19)
-        output = Point.difference(point_1, point_2)
-        # Vector(X = 70.000, Y = -1.000, Z = -42.000)
-        ```
-        """
-        from abstract.vector import Vector
-        return Vector(
-            point_2.x - point_1.x,
-            point_2.y - point_1.y,
-            point_2.z - point_1.z
-        )
-
-    @staticmethod
-    def translate(point: 'Point', vector) -> 'Point':
-        """Translates the point by a given vector.        
-        
-        #### Parameters:
-        - `point` (Point): The point to be translated.
-        - `vector` (Vector): The translation vector.
-
-        #### Returns:
-        `Point`: Translated point.
-
-        #### Example usage:
-    	```python
-        point = Point(23, 1, 23)
-        vector = Vector(93, 0, -19)
-        output = Point.translate(point, vector)
-        # Point(X = 116.000, Y = 1.000, Z = 4.000)
-        ```
-        """
-        from abstract.vector import Vector
-
-        ar1 = Point.to_matrix(point)
-        ar2 = Vector.to_matrix(vector)
-        if len(ar1) == len(ar2):
-            c = [ar1[i] + ar2[i] for i in range(len(ar1))]
-        else:
-            c = [0, 0, 0]
-            raise ValueError("Arrays must have the same size")
-        return Point(c[0], c[1], c[2])
-
-    @staticmethod
     def origin(point_1: 'Point', point_2: 'Point') -> 'Point':
         """Computes the midpoint between two points.        
         
@@ -836,103 +313,6 @@ class Point(Coords):
             (point_1.x + point_2.x) / 2,
             (point_1.y + point_2.y) / 2,
             (point_1.z + point_2.z) / 2
-        )
-
-    @staticmethod
-    def point_2D_to_3D(point_2D) -> 'Point':
-        """Converts a 2D point to a 3D point with zero z-coordinate.        
-        
-        #### Parameters:
-        - `point2D` (Point): 2D point to be converted.
-
-        #### Returns:
-        `Point`: 3D point with zero z-coordinate.
-
-        #### Example usage:
-    	```python
-        point_1 = Point2D(19, 30)
-        output = Point.point_2D_to_3D(point_1)
-        # Point(X = 19.000, Y = 30.000, Z = 0.000)
-        ```
-        """
-        return Point(
-            point_2D.x,
-            point_2D.y,
-            0
-        )
-
-    @staticmethod
-    def to_vector(point: 'Point'):
-        """Converts the point to a Vector object.        
-        
-        #### Parameters:
-        - `point` (Point): Point to be converted.
-
-        #### Returns:
-        `Vector`: Vector representation of the point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(9, 20, 10)
-        output = Point.to_vector(point_1)
-        # Vector(X = 9.000, Y = 20.000, Z = 10.000)
-        ```
-        """
-        from abstract.vector import Vector
-        return Vector(
-            point.x,
-            point.y,
-            point.z
-        )
-
-    @staticmethod
-    def sum(point_1: 'Point', point_2: 'Point') -> 'Point':
-        """Computes the sum of two points.        
-        
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Point`: Sum of the two input points.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        point_2 = Point(93, 0, -19)
-        output = Point.sum(point_1, point_2)
-        # Point(X = 116.000, Y = 1.000, Z = 4.000)
-        ```
-        """
-        return Point(
-            point_1.x + point_2.x,
-            point_1.y + point_2.y,
-            point_1.z + point_2.z
-        )
-
-    @staticmethod
-    def diff(point_1: 'Point', point_2: 'Point') -> 'Point':
-        """Computes the difference between two points.        
-        
-        #### Parameters:
-        - `point_1` (Point): First point.
-        - `point_2` (Point): Second point.
-
-        #### Returns:
-        `Point`: Difference between the two input points.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(100.23, 182, 19)
-        point_2 = Point(81, 0.1, -901)
-        output = Point.diff(point_1, point_2)
-        # Point(X = 19.230, Y = 181.900, Z = 920.000)
-        ```
-        """
-        return Point(
-            point_1.x - point_2.x,
-            point_1.y - point_2.y,
-            point_1.z - point_2.z
         )
 
     @staticmethod
@@ -963,30 +343,6 @@ class Point(Coords):
         )
 
     @staticmethod
-    def product(number: float, point: 'Point') -> 'Point':
-        """Scales the point by a given factor.        
-        
-        #### Parameters:
-        - `number` (float): Scaling factor.
-        - `point` (Point): Point to be scaled.
-
-        #### Returns:
-        `Point`: Scaled point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(9, 20, 10)
-        output = Point.product(12, point_1)
-        # Point(X = 108.000, Y = 240.000, Z = 120.000)
-        ```
-        """
-        return Point(
-            point.x*number,
-            point.y*number,
-            point.z*number
-        )
-
-    @staticmethod
     def intersect(point_1: 'Point', point_2: 'Point') -> 'bool':
         """Checks if two points intersect.        
         
@@ -1008,25 +364,6 @@ class Point(Coords):
         return point_1.x == point_2.x and point_1.y == point_2.y and point_1.z == point_2.z
 
     @staticmethod
-    def to_matrix(point: 'Point') -> 'Point':
-        """Converts the point to a list.        
-        
-        #### Parameters:
-        Converts the point to a list.
-
-        #### Returns:
-        `list`: List representation of the point.
-
-        #### Example usage:
-    	```python
-        point_1 = Point(23, 1, 23)
-        output = Point.to_matrix(point_1)
-        # [23.0, 1.0, 23.0]
-        ```
-        """
-        return [point.x, point.y, point.z]
-
-    @staticmethod
     def from_matrix(list: list) -> 'Point':
         """Converts a list to a Point object.        
         
@@ -1043,11 +380,7 @@ class Point(Coords):
         # Point(X = 19.000, Y = 30.000, Z = 12.300)
         ```
         """
-        return Point(
-            list[0],
-            list[1],
-            list[2]
-        )
+        return Point(list)
 
 
 class CoordinateSystem:
@@ -1062,12 +395,11 @@ class CoordinateSystem:
         - `z_axis` (Vector): The initial vector representing the Z-axis before normalization.
         """
         from abstract.vector import Vector
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.Origin = origin
-        self.X_axis = Vector.normalize(x_axis)
-        self.Y_axis = Vector.normalize(y_axis)
-        self.Z_axis = Vector.normalize(z_axis)
+        self.X_axis = x_axis
+        self.Y_axis = y_axis
+        self.Z_axis = z_axis
 
     @classmethod
     def by_origin(coordinate_system, origin: Point) -> 'CoordinateSystem':
@@ -1121,9 +453,6 @@ class CoordinateSystem:
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.z == other.z
-
-    def __str__(self):
-        return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.X_axis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
     @staticmethod
     def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
@@ -1353,149 +682,6 @@ class Vector(Coords):
         - `z` (float): Z-coordinate of the vector.
         """
         super().__init__(*args, **kwargs)
-        self.type = __class__.__name__
-
-    @staticmethod
-    def deserialize(data):
-        """Converts a dictionary representation of a vector into a Vector object.
-        This method takes a dictionary containing 'x', 'y', and 'z' keys with numeric values and creates a new Vector instance representing the vector described by these values. It's particularly useful for converting serialized vector data back into Vector objects, for instance, when loading vectors from a file or a database.
-
-        #### Parameters:
-        - `data` (dict): A dictionary with keys 'x', 'y', and 'z', corresponding to the components of the vector. Each key's value should be a number (int or float).
-
-        #### Returns:
-        Vector: A new Vector object initialized with the x, y, and z values from the input dictionary.
-
-        #### Example usage:
-        ```python
-        data = {'x': 1.0, 'y': 2.0, 'z': 3.0}
-        vector = Vector.deserialize(data)
-        # Vector object with x=1.0, y=2.0, z=3.0
-        ```
-        """
-        return Vector(data['x'], data['y'], data['z'])
-
-    @staticmethod
-    def diff(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Calculates the difference between two Vector objects.
-        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The minuend vector.
-        - `vector_2` (`Vector`): The subtrahend vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(5, 7, 9)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.diff(vector1, vector2)
-        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector(
-            vector_1.x - vector_2.x,
-            vector_1.y - vector_2.y,
-            vector_1.z - vector_2.z
-        )
-
-    @staticmethod
-    def subtract(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Subtracts the components of the second vector from the first.
-        This method is synonymous with `diff` and serves the same purpose, providing an alternative naming convention.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector from which to subtract.
-        - `vector_2` (`Vector`): The vector to be subtracted.
-
-        #### Returns:
-        `Vector`: The result of the component-wise subtraction.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.subtract(vector1, vector2)
-        # Vector(X = 9.000, Y = 18.000, Z = 27.000)
-        ```
-        """
-        return Vector(
-            vector_1.x - vector_2.x,
-            vector_1.y - vector_2.y,
-            vector_1.z - vector_2.z
-        )
-
-    @staticmethod
-    def divide(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Divides the components of the first vector by the corresponding components of the second vector.
-        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The numerator vector.
-        - `vector_2` (`Vector`): The denominator vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise division.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(2, 4, 5)
-        result = Vector.divide(vector1, vector2)
-        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return Vector(
-            vector_1.x / vector_2.x,
-            vector_1.y / vector_2.y,
-            vector_1.z / vector_2.z
-        )
-
-    @staticmethod
-    def square(vector_1: 'Vector') -> 'Vector':
-        """
-        Computes the square of each component of the input vector.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The input vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the square of each component of the input vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(2, 3, 4)
-        squared_vector = Vector.square(vector)
-        # Vector(X = 4, Y = 9, Z = 16)
-        ```
-        """
-        return Vector(
-            vector_1.x ** 2,
-            vector_1.y ** 2,
-            vector_1.z ** 2
-        )
-
-    @staticmethod
-    def to_point(vector_1: 'Vector') -> 'Vector':
-        """Converts the vector to a Point object.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be converted to a Point object.
-
-        #### Returns:
-        `Point`: A Point object with coordinates same as the vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        point = Vector.to_point(vector1)
-        # Point(X = 10.000, Y = 20.000, Z = 30.000)
-        ```
-        """
-        from geometry.point import Point
-        return Point(x=vector_1.x, y=vector_1.y, z=vector_1.z)
 
     @staticmethod
     def to_line(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
@@ -1659,154 +845,6 @@ class Vector(Coords):
         )
 
     @staticmethod
-    def angle_between(vector_1: 'Vector', vector_2: 'Vector') -> float:
-        """Computes the angle in degrees between two vectors.
-        The angle between two vectors is the angle required to rotate one vector onto the other, measured in degrees.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The angle in degrees between the input vectors.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 0, 0)
-        vector2 = Vector(0, 1, 0)
-        angle = Vector.angle_between(vector1, vector2)
-        # 90
-        ```
-        """
-        proj_vector_1 = Vector.to_matrix(vector_1)
-        proj_vector_2 = Vector.to_matrix(vector_2)
-        dot_product = Vector.dot_product(vector_1, vector_2)
-        length_vector_1 = Vector.length(vector_1)
-        length_vector_2 = Vector.length(vector_2)
-
-        if length_vector_1 == 0 or length_vector_2 == 0:
-            return 0
-
-        cos_angle = dot_product / (length_vector_1 * length_vector_2)
-        cos_angle = max(-1.0, min(cos_angle, 1.0))
-        angle = math.acos(cos_angle)
-        return math.degrees(angle)
-
-    @staticmethod
-    def angle_radian_between(vector_1: 'Vector', vector_2: 'Vector') -> float:
-        """Computes the angle in radians between two vectors.
-        The angle between two vectors is the angle required to rotate one vector onto the other, measured in radians.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The angle in radians between the input vectors.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 0, 0)
-        vector2 = Vector(0, 1, 0)
-        angle = Vector.angle_radian_between(vector1, vector2)
-        # 1.5707963267948966
-        ```
-        """
-        return math.acos((Vector.dot_product(vector_1, vector_2)/(Vector.length(vector_1)*Vector.length(vector_2))))
-
-    @staticmethod
-    def angle_between_YZ(vector_1: 'Vector', vector_2: 'Vector') -> float:
-        """Computes the angle in degrees between two vectors projected onto the YZ plane (X-axis rotation).
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The angle in degrees between the input vectors projected onto the YZ plane (X-axis rotation).
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 1, 0)
-        vector2 = Vector(1, 0, 1)
-        angle = Vector.angle_between_YZ(vector1, vector2)
-        # 90
-        ```
-        """
-        dot_product = Vector.dot_product(vector_1, vector_2)
-        length_vector_1 = Vector.length(Vector(0, vector_1.y, vector_1.z))
-        length_vector_2 = Vector.length(Vector(0, vector_2.y, vector_2.z))
-        if length_vector_1 == 0 or length_vector_2 == 0:
-            return 0
-
-        cos_angle = dot_product / (length_vector_1 * length_vector_2)
-        cos_angle = max(-1.0, min(cos_angle, 1.0))
-        angle = math.acos(cos_angle)
-        return math.degrees(angle)
-
-    @staticmethod
-    def angle_between_XZ(vector_1: 'Vector', vector_2: 'Vector') -> float:
-        """Computes the angle in degrees between two vectors projected onto the XZ plane (Y-axis rotation).
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The angle in degrees between the input vectors projected onto the XZ plane (Y-axis rotation).
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 0, 1)
-        vector2 = Vector(0, 1, 1)
-        angle = Vector.angle_between_XZ(vector1, vector2)
-        # 90
-        ```
-        """
-        dot_product = Vector.dot_product(vector_1, vector_2)
-        length_vector_1 = Vector.length(Vector(vector_1.x, 0, vector_1.z))
-        length_vector_2 = Vector.length(Vector(vector_2.x, 0, vector_2.z))
-
-        if length_vector_1 == 0 or length_vector_2 == 0:
-            return 0
-
-        cos_angle = dot_product / (length_vector_1 * length_vector_2)
-        cos_angle = max(-1.0, min(cos_angle, 1.0))
-        angle = math.acos(cos_angle)
-        return math.degrees(angle)
-
-    @staticmethod
-    def angle_between_XY(vector_1: 'Vector', vector_2: 'Vector') -> float:
-        """Computes the angle in degrees between two vectors projected onto the XY plane (Z-axis rotation).
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The angle in degrees between the input vectors projected onto the XY plane (Z-axis rotation).
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 0, 1)
-        vector2 = Vector(0, 1, 1)
-        angle = Vector.angle_between_XY(vector1, vector2)
-        # 45
-        ```
-        """
-        dot_product = Vector.dot_product(vector_1, vector_2)
-        length_vector_1 = Vector.length(Vector(vector_1.x, vector_1.y, 0))
-        length_vector_2 = Vector.length(Vector(vector_2.x, vector_2.y, 0))
-
-        if length_vector_1 == 0 or length_vector_2 == 0:
-            return 0
-
-        cos_angle = dot_product / (length_vector_1 * length_vector_2)
-        cos_angle = max(-1.0, min(cos_angle, 1.0))
-        angle = math.acos(cos_angle)
-        return math.degrees(angle)
-
-    @staticmethod
     def value(vector_1: 'Vector') -> tuple:
         """Returns the rounded values of the vector's components.
 
@@ -1872,60 +910,7 @@ class Vector(Coords):
             lokZ = Vector.reverse(lokZ)
         return lokX, lokZ
 
-    @staticmethod
-    def normalize(vector_1: 'Vector') -> 'Vector':
-        """Returns the normalized form of the input vector.
-        The normalized form of a vector is a vector with the same direction but with a length (magnitude) of 1.
 
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be normalized.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the normalized form of the input vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(3, 0, 4)
-        normalized_vector = Vector.normalize(vector1)
-        # Vector(X = 0.600, Y = 0.000, Z = 0.800)
-        ```
-        """
-        length = Vector.length(vector_1)
-        if length == 0:
-            return Vector(0, 0, 0)
-
-        normalized_vector = Vector(
-            vector_1.x / length,
-            vector_1.y / length,
-            vector_1.z / length
-        )
-
-        return normalized_vector
-
-    @staticmethod
-    def by_two_points(point_1: 'Point', point_2: 'Point') -> 'Vector':
-        """Computes the vector between two points.
-
-        #### Parameters:
-        - `point_1` (`Point`): The starting point.
-        - `point_2` (`Point`): The ending point.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the vector between the two points.
-
-        #### Example usage:
-        ```python
-        point1 = Point(1, 2, 3)
-        point2 = Point(4, 6, 8)
-        vector = Vector.by_two_points(point1, point2)
-        # Vector(X = 3, Y = 4, Z = 5)
-        ```
-        """
-        return Vector(
-            point_2.x-point_1.x,
-            point_2.y-point_1.y,
-            point_2.z-point_1.z
-        )
 
     @staticmethod
     def rotate_XY(vector: 'Vector', Beta: float) -> 'Vector':
@@ -1950,52 +935,6 @@ class Vector(Coords):
             math.sin(Beta)*vector.x + math.cos(Beta)*vector.y,
             vector.z
         )
-
-    @staticmethod
-    def scale(vector: 'Vector', scalefactor: float) -> 'Vector':
-        """Scales the vector by the specified scale factor.
-
-        #### Parameters:
-        - `vector` (`Vector`): The vector to be scaled.
-        - `scalefactor` (float): The scale factor.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the scaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(1, 2, 3)
-        scaled_vector = Vector.scale(vector, 2)
-        # Vector(X = 2, Y = 4, Z = 6)
-        ```
-        """
-        return Vector(
-            vector.x * scalefactor,
-            vector.y * scalefactor,
-            vector.z * scalefactor
-        )
-
-    @staticmethod
-    def new_length(vector_1: 'Vector', newlength: float) -> 'Vector':
-        """Rescales the vector to have the specified length.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be rescaled.
-        - `newlength` (float): The desired length of the vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the rescaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(3, 4, 0)
-        new_vector = Vector.new_length(vector, 5)
-        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
-        ```
-        """
-        scale = newlength / Vector.length(vector_1)
-
-        return Vector.scale(vector_1, scale)
 
     @staticmethod
     def to_matrix(vector: 'Vector') -> list:
@@ -2033,19 +972,721 @@ class Vector(Coords):
         # Vector(X = 1, Y = 2, Z = 3)
         ```
         """
-        return Vector(
-            vector_list[0],
-            vector_list[1],
-            vector_list[2]
-        )
+        return Vector(vector_list)
+class Coords(Serializable, list):
+    """
+    a shared base class for point and vector. contains the x, y and z coordinates.
+    operations you do with these coords will apply for the children.
+    for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
+    or: Vector(2,5) ** 2 = Vector(4, 25)
+    Vectors can also be nested.
+    """
+    def __init__(self, *args, **kwargs) -> 'Coords':
+        arrayArgs:list = to_array(*args)
+
+        list.__init__(self, arrayArgs)
+        Serializable.__init__(self)
+
+        for kwarg in kwargs.items():
+            self.set_axis_by_name(kwarg[0], kwarg[1])            
+
+    def __str__(self):
+        return self.__class__.__name__ + '(' + ','.join([f'{axis_name}={((v * 100) // 1 ) / 100 }' for v, axis_name in zip(self, self.axis_names)]) + ')'
+    
+    axis_names = ['x', 'y', 'z', 'w']
+    
+    @property
+    def x(self): return self[0]
+    @x.setter
+    def x(self, value): self[0] = value
+        
+    @property
+    def y(self): return self[1]
+    @y.setter
+    def y(self, value): self[1] = value
+
+    @property
+    def z(self): return self[2]
+    @z.setter
+    def z(self, value): self[2] = value
+
+    @property
+    def w(self): return self[3]
+    @w.setter
+    def w(self, value): self[3] = value
+    
+    @property
+    def squared_magnitude(self):
+        result = 0
+        for axis_value in self:
+            result += axis_value * axis_value
+        return result
+    
+    @property
+    def magnitude(self): 
+        """the 'length' could also mean the axis count. this makes it more clear.
+        Returns:
+            the length
+        """
+        return math.sqrt(self.squared_magnitude)
+    
+    @magnitude.setter
+    def magnitude(self, value):
+        """Rescales the vector to have the specified length.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The vector to be rescaled.
+        - `newlength` (float): The desired length of the vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the rescaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(3, 4, 0)
+        new_vector = Vector.new_length(vector, 5)
+        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
+        ```
+        """
+        self *= value / self.magnitude
+    
+    @property
+    def normalized(self):
+        """Returns the normalized form of the vector.
+        The normalized form of a vector is a vector with the same direction but with a length (magnitude) of 1.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the normalized form of the input vector.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(3, 0, 4)
+        normalized_vector = vector1.normalized
+        # Vector(X = 0.600, Y = 0.000, Z = 0.800)
+        ```
+        """
+        sqm = self.squared_magnitude
+        
+        return self / math.sqrt(sqm) if sqm > 0 else Coords()
+    
+    @property
+    def angle(self) -> float:
+        """output range: -PI to PI
+
+        Returns:
+            float: the arc tangent of y / x in radians
+        """
+        #treat this normal vector as a triangle. we know all sides but want to know the angle.
+        #tan(deg) = other side / straight side
+        #deg = atan(other side / straight side)
+        return math.atan2(self.x, self.y)
+    
+    @staticmethod
+    def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
+        """Computes the angle in degrees between two coords.
+        The angle between two coords is the angle required to rotate one vector onto the other, measured in degrees.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The first vector.
+        - `vector_2` (`Vector`): The second vector.
+
+        #### Returns:
+        `float`: The angle in degrees between the input coords.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(1, 0, 0)
+        vector2 = Vector(0, 1, 0)
+        angle = Vector.angle_between(vector1, vector2)
+        # 90
+        ```
+        """
+        dot_product = Vector.dot_product(vector_1, vector_2)
+        length_vector_1 = Vector.length(vector_1)
+        length_vector_2 = Vector.length(vector_2)
+
+        if length_vector_1 == 0 or length_vector_2 == 0:
+            return 0
+
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
+        return math.acos(cos_angle)
+
+    @staticmethod
+    def distance_squared(point_1: 'Coords', point_2: 'Coords') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Coords): The first point.
+        - `point_2` (Coords): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Coords(0, 0, 400)
+        point_2 = Coords(300, 0, 400)
+        output = Coords.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_2 - point_1).squared_magnitude
+    
+    @staticmethod
+    def distance(point_1: 'Coords', point_2: 'Coords') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Coords): The first point.
+        - `point_2` (Coords): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Coords(0, 0, 400)
+        point_2 = Coords(300, 0, 400)
+        output = Coords.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_2 - point_1).magnitude
+    
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return Coords.axis_names.index(axis.lower())
+
+    def change_axis_count(self,axis_count: int):
+        """in- or decreases the amount of axes to the preferred axis count.
+
+        Args:
+            axis_count (int): the new amount of axes
+        """
+        if axis_count > len(self):
+            diff = axis_count + 1 - len(self)
+            self.extend([0] * diff)
+        else:
+            self = self[:axis_count]
+    def set_axis(self, axis_index: int, value) -> int | None:
+        """sets an axis with the specified index to the value. will resize when the coords can't contain them.
+
+        Args:
+            axis_index (int): the index of the axis, for example 2
+            value: the value to set the axis to
+
+        Returns:
+            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
+        """
+
+        if axis_index >= len(self):
+            self.extend([0] * (axis_index - len(self)))
+            self.extend([value])
+            return axis_index
+        self[axis_index] = value
+        return None
+        
+    def set_axis_by_name(self, axis_name: str, value) -> int | None:
+        """sets an axis with the specified name to the value. will resize when the coords can't contain them.
+
+        Args:
+            axis_name (str): the name of the axis, for example 'x'
+            value: the value to set the axis to
+
+        Returns:
+            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
+        """
+        return self.set_axis(Coords.axis_index(axis_name), value)
+    
+    @staticmethod
+    def by_two_points(point_1: 'Coords', point_2: 'Coords') -> 'Coords':
+        """Computes the vector between two points.
+
+        #### Parameters:
+        - `point_1` (`Coords`): The starting point.
+        - `point_2` (`Coords`): The ending point.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the vector between the two points.
+
+        #### Example usage:
+        ```python
+        point1 = Point(1, 2, 3)
+        point2 = Point(4, 6, 8)
+        vector = Vector.by_two_points(point1, point2)
+        # Vector(X = 3, Y = 4, Z = 5)
+        ```
+        """
+        return point_2 - point_1
+        
+    def volume(self):
+        result = 1
+        for val in self:
+            result *= val
+        return result
+        
+    #useful for sorting
+    def compare(self, other):
+        for axis in range(len(self)):
+            if self[axis] != other[axis]:
+                return other[axis] - self[axis]
+        return 0
+    
+    def ioperate_2(self, op: operator, other):
+        try:
+            for index in range(len(self)):
+                self[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                self[index] = op(self[index], other)
+        return self
+    
+    def operate_2(self, op:operator, other):
+        result = Coords([0] * len(self))
+        try:
+            for index in range(len(self)):
+                result[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                result[index] = op(self[index], other)
+        return result
+    def operate_1(self, op:operator):
+        result = Coords([0] * len(self))
+        for index in range(len(self)):
+            result[index] = op(self[index])
+        return result
+    
+    def __add__(self, other):
+        """Calculates the sum of two vectors.
+        
+        equivalent to the + operator.
+        
+        """
+        return self.operate_2(operator.__add__,other)
+    
+    sum = __add__
+    
+    def __sub__(self, other):
+        """Calculates the difference between two Vector objects.
+        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
+
+        equivalent to the - operator.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The minuend vector.
+        - `vector_2` (`Vector`): The subtrahend vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(5, 7, 9)
+        vector2 = Vector(1, 2, 3)
+        result = Vector.diff(vector1, vector2)
+        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
+        ```
+        """
+        return self.operate_2(operator.__sub__,other)
+    
+
+    difference = diff = substract = __sub__
+    
+    def __truediv__(self, other):
+        """Divides the components of the first vector by the corresponding components of the second vector.
+        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
+
+        equivalent to the / operator.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The numerator vector.
+        - `vector_2` (`Vector`): The denominator vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise division.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(10, 20, 30)
+        vector2 = Vector(2, 4, 5)
+        result = Vector.divide(vector1, vector2)
+        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
+        ```
+        """
+        return self.operate_2(operator.__truediv__,other)
+    
+    divide = __truediv__
+    
+    def __mul__(self, other):
+        """Scales the vector by the specified scale factor.
+
+        equivalent to the * operator.
+
+        #### Parameters:
+        - `vector` (`Vector`): The vector to be scaled.
+        - `scalefactor` (float): The scale factor.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the scaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(1, 2, 3)
+        scaled_vector = Vector.scale(vector, 2)
+        # Vector(X = 2, Y = 4, Z = 6)
+        ```
+        """
+        return self.operate_2(operator.__mul__,other)
+    product = scale = __rmul__ = __mul__
+    
+    
+    
+    def __pow__(self, power: float) -> Self:
+        """raises the vector to a certain power.
+        
+        equivalent to the ** operator.
+
+        Returns:
+            Self: a vector with all components raised to the specified power
+        """
+        return self.ioperate_2(operator.__pow__)
+    
+    def __neg__(self) -> Self:
+        """negates this vector.
+
+        equivalent to the - operator.
+
+        Returns:
+            Self: a vector with all components negated.
+        """
+        return self.operate_1(operator.__neg__)
+    
+    reverse = __neg__
+    
+    @staticmethod
+    def square(self) -> 'Coords':
+        """
+        Computes the square of each component of the input vector.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The input vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the square of each component of the input vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(2, 3, 4)
+        squared_vector = Vector.square(vector)
+        # Vector(X = 4, Y = 9, Z = 16)
+        ```
+        """
+        return self ** 2
+    
+    
+    #i operators. these operate on self (+=, *=, etc)
+    
+    def __iadd__(self, other) -> Self:
+        """Translates the point by a given vector.        
+
+        equivalent to the += operator.
+        
+        #### Parameters:
+        - `point` (Point): The point to be translated.
+        - `vector` (Vector): The translation vector.
+
+        #### Returns:
+        `Point`: Translated point.
+
+        #### Example usage:
+    	```python
+        point = Point(23, 1, 23)
+        vector = Vector(93, 0, -19)
+        output = Point.translate(point, vector)
+        # Point(X = 116.000, Y = 1.000, Z = 4.000)
+        ```
+        """
+        return self.ioperate_2(operator.__iadd__,other)
+
+    translate = __iadd__
+    
+    def __isub__(self, other) -> Self:
+        return self.ioperate_2(operator.__isub__,other)
+    
+    def __imul__(self, other) -> Self:
+        return self.ioperate_2(operator.__imul__,other)
+    
+    def __itruediv__(self, other) -> Self:
+        return self.ioperate_2(operator.__itruediv__,other)
+    
+X_axis = Coords(1, 0, 0)
+
+Y_Axis = Coords(0, 1, 0)
+
+Z_Axis = Coords(0, 0, 1)
+
+class Color(Coords):
+    """Documentation: output returns [r, g, b]"""
+
+    def __init__(self, *args, **kwargs):
+        Coords.__init__(self, *args,**kwargs)
+    
+    red = r = Coords.x
+    green = g = Coords.y
+    blue = b = Coords.z
+    alpha = a = Coords.w
+    
+    @property
+    def int(self) -> int:
+        """converts this color into an integer value
+
+        Returns:
+            int: the merged integer.
+            this is assuming the color elements are whole integer values from 0 - 255
+        """
+        int_val = elem
+        mult = 0x100
+        for elem in self[1:]:
+            int_val += elem * mult
+            mult *= 0x100
+        return int_val
+    
+    @property
+    def hex(self):
+        return '#%02x%02x%02x%02x' % (self.r,self.g,self.b,self.a)
+        
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return ['r', 'g', 'b', 'a'].index(axis)
+
+    def Components(self, colorInput=None):
+        """1"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
+        else:
+            try:
+                import json
+                JSONfile = "library/color/colorComponents.json"
+                with open(JSONfile, 'r') as file:
+                    components_dict = json.load(file)
+                    checkExist = components_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        r, g, b, a = components_dict[colorInput]
+                        return [r, g, b]
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def Hex(hex:str) -> 'Color':
+        """converts a heximal string to a color object.
+
+        Args:
+            hex (str): a heximal string, for example '#FF00FF88'
+
+        Returns:
+            Color: the color object
+        """
+        return Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16),int(hex[7:9], 16)) if len(hex) > 7 else Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16))
+
+    def CMYK(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
+        else:
+            try:
+                c, m, y, k = colorInput
+                r = int((1-c) * (1-k) * 255)
+                g = int((1-m) * (1-k) * 255)
+                b = int((1-y) * (1-k) * 255)
+                return [r, g, b]
+            except:
+                # add check help attribute
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Alpha(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+        else:
+            try:
+                r, g, b, a = colorInput
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Brightness(self, colorInput=None):
+        """Expected value is int(0) - int(1)"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+        else:
+            try:
+                if colorInput >= 0 and colorInput <= 1:
+                    r = g = b = int(255 * colorInput)
+                    return [r, g, b]
+                else:
+                    return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def RGB(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
+        else:
+            try:
+                r, g, b = colorInput
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def HSV(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                h, s, v = colorInput
+                h /= 60.0
+                c = v * s
+                x = c * (1 - abs(h % 2 - 1))
+                m = v - c
+                if 0 <= h < 1:
+                    r, g, b = c, x, 0
+                elif 1 <= h < 2:
+                    r, g, b = x, c, 0
+                elif 2 <= h < 3:
+                    r, g, b = 0, c, x
+                elif 3 <= h < 4:
+                    r, g, b = 0, x, c
+                elif 4 <= h < 5:
+                    r, g, b = x, 0, c
+                else:
+                    r, g, b = c, 0, x
+                return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def HSL(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                h, s, l = colorInput
+                c = (1 - abs(2 * l - 1)) * s
+                x = c * (1 - abs(h / 60 % 2 - 1))
+                m = l - c / 2
+                if h < 60:
+                    r, g, b = c, x, 0
+                elif h < 120:
+                    r, g, b = x, c, 0
+                elif h < 180:
+                    r, g, b = 0, c, x
+                elif h < 240:
+                    r, g, b = 0, x, c
+                elif h < 300:
+                    r, g, b = x, 0, c
+                else:
+                    r, g, b = c, 0, x
+                r, g, b = int((r + m) * 255), int((g + m)
+                                                  * 255), int((b + m) * 255)
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def RAL(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
+        else:
+            try:
+                # validate if value is correct/found
+                import json
+                JSONfile = "library/color/colorRAL.json"
+                with open(JSONfile, 'r') as file:
+                    ral_dict = json.load(file)
+                    checkExist = ral_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
+                        return [int(r), int(g), int(b), 100]
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Pantone(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                import json
+                JSONfile = "library/color/colorPantone.json"
+                with open(JSONfile, 'r') as file:
+                    pantone_dict = json.load(file)
+                    checkExist = pantone_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        PantoneHex = pantone_dict[str(colorInput)]['hex']
+                        return Color().Hex(PantoneHex)
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def LRV(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
+                b = int(max(0, min(255, b)))
+                return [255, 255, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
 
 
-X_axis = Vector(1, 0, 0)
+    def __str__(self, colorInput=None):
+        colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
+                           "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
+        if colorInput is None:
+            header = "Available attributes: \n"
+            footer = "\nColor().red | Color().green | Color().blue"
+            return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
+        return f"Color().{colorInput}"
 
-Y_Axis = Vector(0, 1, 0)
+    def Info(self, colorInput=None):
+        pass
 
-Z_Axis = Vector(0, 0, 1)
-
+Color.red = Color(255, 0, 0)
+Color.green = Color(0, 255, 0)
+Color.blue = Color(0, 0, 255)
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED #TOdo organize resic
@@ -2069,57 +1710,15 @@ class CoordinateSystem:
         ```
         """
 
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.Origin = origin
         self.Xaxis = Vector.normalize(x_axis)
         self.Y_axis = Vector.normalize(y_axis)
         self.Z_axis = Vector.normalize(z_axis)
-
-    def serialize(self) -> dict:
-        """Serializes the coordinate system's attributes into a dictionary.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized attributes of the coordinate system.
-
-        #### Example usage:
-        ```python
-        coordinate_system = CoordinateSystem(...)
-        serialized_cs = coordinate_system.serialize()
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'Origin': self.Origin.serialize(),
-            'Xaxis': self.Xaxis.serialize(),
-            'Y_axis': self.Y_axis.serialize(),
-            'Z_axis': self.Z_axis.serialize()
-        }
-
+        
     @staticmethod
-    def deserialize(data: dict):
-        """Recreates a CoordinateSystem object from serialized data.
-
-        #### Parameters:
-        - `data` (dict): The dictionary containing the serialized data of a CoordinateSystem object.
-
-        #### Returns:
-        `CoordinateSystem`: A new CoordinateSystem object initialized with the data from the dictionary.
-
-        #### Example usage:
-        ```python
-        data = {...}
-        coordinate_system = CoordinateSystem.deserialize(data)
-        ```
-        """
-        origin = Point.deserialize(data['Origin'])
-        x_axis = Vector.deserialize(data['Xaxis'])
-        y_axis = Vector.deserialize(data['Y_axis'])
-        z_axis = Vector.deserialize(data['Z_axis'])
-        return CoordinateSystem(origin, x_axis, y_axis, z_axis)
+    def get_axis_color_name(axis_index: int) -> str:
+        return ["red", "green", "blue"][axis_index]
 
     # @classmethod
     # def by_origin(self, origin: Point):
@@ -2430,12 +2029,289 @@ class CoordinateSystem:
     def __str__(self):
         return f"{__class__.__name__}(Origin = " + f"{self.Origin}, X_axis = {self.Xaxis}, Y_Axis = {self.Y_axis}, Z_Axis = {self.Z_axis})"
 
+X_Axis = Vector(1,0,0)
+Y_Axis = Vector(0,1,0)
+Z_Axis = Vector(0,0,1)
 
-X_axis = Vector(1, 0, 0)
-Vector(0, 1, 0)
-Vector(0, 0, 1)
-CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
+CSGlobal = CoordinateSystem(Point(0, 0, 0), X_Axis, Y_Axis, Z_Axis)
 
+class Rect(Serializable):
+    """Represents a two-dimensional bounding box."""
+    def __init__(self, *args, **kwargs):
+        """@
+        #### Example usage:
+        ```python
+        rect = Rect(3, 4) # x 3, width 4
+        rect2 = Rect(z=10) # x 0, y 0, z 10, width 0, length 0, height 0
+        rect3 = Rect(Vector(y=8), Vector(x = 4)) # x 0, y 8, width 4, length 0
+        ```
+        """
+        
+        
+        #first half = for position
+        half:int = len(args) // 2
+        self.p0 = Point(*args[0:half])
+        #second half for size
+        self.size = Vector(*args[half:])
+        
+        for kwarg in kwargs.items():
+            try:
+                offset = self.p0.set_axis(kwarg[0], kwarg[1])
+                if offset != None:
+                    self.size.change_axis_count(offset)
+            except ValueError:
+                axis_index = Rect.size_axis_index(kwarg[0])
+                offset = self.size.set_axis(axis_index, kwarg[1])
+                if offset != None:
+                    self.p0.change_axis_count(offset)
+            
+        Serializable.__init__(self)
+
+        
+        
+    def change_axis_count(self,axis_count: int):
+        self.p0.change_axis_count(axis_count)
+        self.size.change_axis_count(axis_count)
+    
+    @staticmethod
+    def size_axis_index(axis)->int:
+        return ["width", "length", "height"].index(axis)
+    
+    @property
+    def width(self):
+        return self.size.x
+    @width.setter
+    def width(self, value):
+        self.size.x = value
+        
+    @property
+    def length(self):
+        return self.size.y
+    @length.setter
+    def length(self, value):
+        self.size.y = value
+
+    @property
+    def height(self):
+        return self.size.z
+    @height.setter
+    def height(self, value):
+        self.size.z = value
+
+    @property
+    def x(self):
+        return self.p0.x
+    @x.setter
+    def x(self, value):
+        self.p0.x = value
+    @property
+    def y(self):
+        return self.p0.y
+    @y.setter
+    def y(self, value):
+        self.p0.y = value
+    @property
+    def z(self):
+        return self.p0.z
+    @z.setter
+    def z(self, value):
+        self.p0.z = value
+        
+    def area(self):
+        return self.size.volume()
+    @property
+    def p1(self):
+        return self.p0 + self.size
+    
+    def __str__(self):
+        return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
+
+    @staticmethod
+    def by_points(points: list[Point]) -> 'Rect':
+        """Constructs a bounding box based on a list of points.
+
+        Calculates the minimum and maximum values from the points to define the corners of the bounding box.
+
+        #### Parameters:
+        - `points` (list[Point]): A list of Point objects to calculate the bounding box from.
+
+        #### Returns:
+        `Rect`: The bounding box instance with updated corners based on the provided points.
+
+        #### Example usage:
+        ```python
+        points = [Point(0, 0, 0), Point(2, 2, 0), Point(2, 0, 0), Point(0, 2, 0)]
+        bbox = Rect().by_points(points)
+        # Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
+        ```
+        """
+        
+        axis_count = len(points[0])
+        if axis_count == 0: raise ValueError("please provide points")
+        
+        #copy
+        p0 = Point(points[0])
+        p1 = Point(points[0])
+        
+        #it's faster to not skip the first point than to check if it's the first point or revert to an index-based loop
+        for p in points:
+            for axis in range(axis_count):
+                p0[axis] = min(p0[axis], p[axis])
+                p1[axis] = max(p1[axis], p[axis])
+        return Rect(p0, p1 - p0)
+    
+    def expanded(self, border_size: float) -> 'Rect':
+        return Rect(self.p0 - border_size, self.size + border_size * 2)
+    
+    @staticmethod
+    def centered_at_origin(size: Vector) -> 'Rect':
+        """Constructs a rect with specified dimensions, centered at the origin.
+
+        #### Parameters:
+        - `size` (Vector): The size of the bounding box.
+
+        #### Returns:
+        `Rect`: The bounding box instance with dimensions centered at the origin.
+
+        #### Example usage:
+        ```python
+        bbox = Rect().centered_at_origin(length=100, width=50)
+        # Rect centered at origin with specified length and width
+        ```
+        """
+        
+        return Rect(size * -0.5, size)
+    
+    @staticmethod
+    def by_size(size:Vector)->'Rect':
+        """Constructs a rect with specified dimensions, with its pos0 at the origin.
+
+        #### Parameters:
+        - `size` (Vector): The size of the rectangle
+
+        #### Returns:
+        `Rect`: The rect instance with dimensions centered at the origin.
+
+        #### Example usage:
+        ```python
+        rect = Rect().by_size(length=100, width=50)
+        # Rect(x=0, y=0, width = 100, length = 100)
+        ```
+        """
+        return Rect(Vector([0] * len(size)), size)
+    
+    def collides(self, other:'Rect')->bool:
+        """checks if two rectangles collide with eachother. <br>
+        when they touch eachother exactly (f.e. a Rect with position [0] and size [1] and a rect with position [1] and size [1]), the function will return false.
+
+        Args:
+            other (Rect): the rectangle which may collide with this rectangle
+
+        Returns:
+            bool: true if the two rectangles overlap
+        """
+        for axis in range(len(self.p0)):
+            if self.p0[axis] + self.size[axis] <= other.p0[axis] or other.p0[axis] + other.size[axis] <= self.p0[axis]:
+                return False
+        return True
+    
+    def contains(self, other:'Rect')->bool:
+        for axis in range(len(self.p0)):
+            if other.p0[axis] < self.p0[axis] or other.p0[axis] + other.size[axis] > self.p0[axis] + self.size[axis]:
+                return False
+        return True
+    
+    def substractFrom(self, other:'Rect')->list['Rect']:
+        """cut the 'other' rectangle in pieces by substracting this rectangle from it
+
+        Args:
+            other (Rect): the rectangle to substract this rectangle from
+
+        Returns:
+            list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center). CAUTION: THEY OVERLAP!
+        """
+        pieces:list[Rect] = []
+        to_clone = other
+        #check each axis
+        for axis in range(len(self.p0)):
+            self_p1 = self.p0[axis] + self.size[axis]
+            other_p1 = other.p0[axis] + other.size[axis]
+            if self_p1 < other_p1:
+                diff = other_p1 - self_p1
+                
+                piece:Rect = copy.deepcopy(to_clone)
+                
+                piece.p0[axis] = self_p1
+                
+                piece.size[axis] = diff
+                pieces.append(piece)
+                #also crop other.
+                #to_clone.size[axis] -= diff
+            self_p0 = self.p0[axis]
+            other_p0 = other.p0[axis]
+            if self_p0 > other_p0:
+                diff = self_p0 - other_p0
+                piece:Rect = copy.deepcopy(to_clone)
+                piece.size[axis] = diff
+                pieces.append(piece)
+                #to_clone.p0[axis] = self_p0
+                #to_clone.size[axis] -= diff
+        return pieces
+    
+    @staticmethod
+    def outer(children: list['Rect']) -> 'Rect':
+        """creates a rectangle containing child rectangles.
+
+        Args:
+            children (list[&#39;Rect&#39;]): the children to contain in the rectangle
+
+        Returns:
+            Rect: the bounds
+        """
+        p0 = children[0].p0
+        p1 = children[0].p1
+        for i in range(1,len(children)):
+            child = children[i]
+            for axis_index in range(len(p0)):
+                p0[axis_index] = min(child.p0[axis_index], p0[axis_index])
+                p1[axis_index] = max(child.p0[axis_index] + child.size[axis_index], p1[axis_index])
+        return Rect(p0, p1 - p0)
+                
+    
+    def get_corner(self, corner_index: int) -> Point:
+        """
+
+        Args:
+            corner_index (int): corners are ordered like 0 -> 000, 1 -> 001, 2 -> 010, 011, 100 etc.
+            where 0 = the minimum and 1 = the maximum
+
+        Returns:
+            Point: a corner
+        """
+        corner : Point = Point()
+        for axis in range(len(self)):
+            corner.append(self.p0[axis] + self.size[axis] if corner_index & 1 << axis else self.p0[axis])
+        return corner
+        
+
+    def corners(self) -> 'list[Point]':
+        """Calculates the corners of the bounding.
+
+        #### Returns:
+        `list[Point]`: A list of Point objects representing the corners of the bounding box.
+
+        #### Example usage:
+        ```python
+        bbox3d = Rect(Point(1, 1, 1), Vector(2, 2, 2))
+        corners = bbox3d.corners()
+        Returns a list of eight points representing the corners of the bounding box
+        ```
+        """
+        corners:list[Point] = []
+        axis_count = len(self.p0)
+        for corner_index in range(2 << axis_count):
+            corners.append(self.get_corner(corner_index))
+        return corners
 
 class Plane:
     # Plane is an infinite element in space defined by a point and a normal
@@ -2539,212 +2415,34 @@ class Plane:
     # byLineAndPoint
     # byOriginNormal
     # byThreePoints
-class BuildingPy(Serializable):
-    def __init__(self, name=None, number=None):
-        self.name: str = name
-        self.number: str = number
-        self.debug: bool = True
-        self.objects = []
-        self.units = "mm"
-        self.decimals = 3 #not fully implemented yet
-        self.origin = Point(0,0,0)
-        self.default_font = "calibri"
-        self.scale = 1000
-        self.font_height = 500
-        self.repr_round = 3
-        #prefix objects (name)
-        #Geometry settings
-
-        #export selection info
-        self.domain = None
-        self.applicationId = "OPEN-AEC BuildingPy"
-
-        #different settings for company's?
-
-        #rename this to autoclose?
-        self.closed: bool = True #auto close polygons? By default true, else overwrite
-        self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
-
-        #functie polycurve of iets van een class/def
-        self.autoclose: bool = True #new self.closed
-
-        #nodes
-        self.node_merge = True #False not yet created
-        self.node_diameter = 250
-        self.node_threshold = 50
-        
-        #text
-        self.createdTxt = "has been created"
-
-        #structural elements
-        self.structural_fallback_element = "HEA100"
-
-        #Speckle settings
-        self.speckleserver = "speckle.xyz"
-        self.specklestream = None
-
-        #FreeCAD settings
-
-        X_axis = Vector(1, 0, 0)
-        Y_Axis = Vector(0, 1, 0)
-        Z_Axis = Vector(0, 0, 1)
-        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
-        
-    def save(self, file_name = 'project/data.json'):
-        super().save(file_name)
-        
-        type_count = defaultdict(int)
-        for serialized_item in self.objects:
-            #item = json.loads(serialized_item)
-            item_type = serialized_item.type
-            if item_type:
-                type_count[item_type] += 1
-
-        total_items = len(self.objects)
-
-        print(f"\nTotal saved items to '{file_name}': {total_items}")
-        print("Type counts:")
-        for item_type, count in type_count.items():
-            print(f"{item_type}: {count}")
-    def open(self, file_name = 'project/data.json'):
-        super().open(file_name)
-
-    def toSpeckle(self, streamid, commitstring=None):
-        from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
-        self.specklestream = streamid
-        speckleobj = translateObjectsToSpeckleObjects(self.objects)
-        TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
-
-    def toFreeCAD(self):
-        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
-        translateObjectsToFreeCAD(self.objects)
-
-    def toIFC(self, name):
-        from exchange.IFC import translateObjectsToIFC, CreateIFC
-        ifc_project = CreateIFC()
-        ifc_project.add_project(name)
-        ifc_project.add_site("My Site")
-        ifc_project.add_building("Building A")
-        ifc_project.add_storey("Ground Floor")
-        ifc_project.add_storey("G2Floor")     
-        translateObjectsToIFC(self.objects, ifc_project)
-        ifc_project.export(f"{name}.ifc")
-# [!not included in BP singlefile - end]
-
-
-project = BuildingPy("Project", "0")
 
 class Line(Serializable):
-    def __init__(self, start: 'Point', end: 'Point') -> 'Line':
+    def __init__(self, start: Point, end: Point) -> 'Line':
         """Initializes a Line object with the specified start and end points.
 
         - `start` (Point): The starting point of the line segment.
         - `end` (Point): The ending point of the line segment.
         """
-        self.id = generateID()
-        self.type = __class__.__name__
-        self.start: Point = start
-        self.end: Point = end
-        self.x = [self.start.x, self.end.x]
-        self.y = [self.start.y, self.end.y]
-        try:
-            self.z = [self.start.z, self.end.z]
-        except:
-            self.z = 0
-
-        self.dx = self.end.x-self.start.x
-        self.dy = self.end.y-self.start.y
-        try:
-            self.dz = self.end.z-self.start.z
-        except:
-            self.dz = 0
-        self.length = self.length()
-        self.vector: Vector = Vector.by_two_points(start, end)
-        self.vector_normalised = Vector.normalize(self.vector)
-
-    def serialize(self) -> 'dict':
-        """Serializes the Line object into a dictionary.
+        #copy
+        self.start = Point(start)
+        self.end = Point(end)
+        
+    @property
+    def mid(self) -> 'Point':
+        """Computes the midpoint of the Line object.
 
         #### Returns:
-        `dict`: A dictionary containing the serialized data of the Line object.
-
-        #### Example usage:
-        ```python
-
-        ```         
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        start_serialized = self.start.serialize() if hasattr(
-            self.start, 'serialize') else str(self.start)
-        end_serialized = self.end.serialize() if hasattr(
-            self.end, 'serialize') else str(self.end)
-
-        # Serialize vector if it has a serialize method, otherwise convert to string representation
-        vector_serialized = self.vector.serialize() if hasattr(
-            self.vector, 'serialize') else str(self.vector)
-        vector_normalized_serialized = self.vector_normalised.serialize() if hasattr(
-            self.vector_normalised, 'serialize') else str(self.vector_normalised)
-
-        return {
-            'id': id_value,
-            'type': self.type,
-            'start': start_serialized,
-            'end': end_serialized,
-            'x': self.x,
-            'y': self.y,
-            'z': self.z,
-            'dx': self.dx,
-            'dy': self.dy,
-            'dz': self.dz,
-            'length': self.length,
-            'vector': vector_serialized,
-            'vector_normalised': vector_normalized_serialized
-        }
-
-    @staticmethod
-    def deserialize(data: 'dict'):
-        """Deserializes the data dictionary into a Line object.
-
-        #### Parameters:
-        - `data` (dict): The dictionary containing the serialized data of the Line object.
-
-        #### Returns:
-        `Line`: A Line object reconstructed from the serialized data.
+        `Point`: The midpoint of the Line object.
 
         #### Example usage:
         ```python
 
         ```          
         """
-        start_point = Point.deserialize(data['start'])
-        end_point = Point.deserialize(data['end'])
-
-        instance = Line(start_point, end_point)
-
-        instance.id = data.get('id')
-        instance.type = data.get('type')
-        instance.x = data.get('x')
-        instance.y = data.get('y')
-        instance.z = data.get('z')
-        instance.dx = data.get('dx')
-        instance.dy = data.get('dy')
-        instance.dz = data.get('dz')
-        instance.length = data.get('length')
-
-        if 'vector' in data and hasattr(Vector, 'deserialize'):
-            instance.vector = Vector.deserialize(data['vector'])
-        else:
-            instance.vector = data['vector']
-
-        if 'vector_normalised' in data and hasattr(Vector, 'deserialize'):
-            instance.vector_normalised = Vector.deserialize(
-                data['vector_normalised'])
-        else:
-            instance.vector_normalised = data['vector_normalised']
-
-        return instance
-
+        return (self.start + self.end) / 2
+    @property
+    def angle(self) -> float:
+        return (self.end - self.start).angle
     @staticmethod
     def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
         """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
@@ -2788,29 +2486,9 @@ class Line(Serializable):
 
         ```          
         """
-        self.start = Point.translate(self.start, direction)
-        self.end = Point.translate(self.end, direction)
+        self.start += direction
+        self.end +=direction
         return self
-
-    @staticmethod
-    def translate_2(line: 'Line', direction: 'Vector') -> 'Line':
-        """Translates the specified Line object by a given direction vector.
-
-        #### Parameters:
-        - `line` (Line): The Line object to be translated.
-        - `direction` (Vector): The direction vector by which the line segment will be translated.
-
-        #### Returns:
-        `Line`: The translated Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        line.start = Point.translate(line.start, direction)
-        line.end = Point.translate(line.end, direction)
-        return line
 
     @staticmethod
     def transform(line: 'Line', cs_new: 'CoordinateSystem') -> 'Line':
@@ -2879,20 +2557,53 @@ class Line(Serializable):
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
 
-    def mid_point(self) -> 'Point':
-        """Computes the midpoint of the Line object.
+    def intersects(self, other: 'Line') -> bool:
+        """checks if two lines intersect with eachother.
 
-        #### Returns:
-        `Point`: The midpoint of the Line object.
+        Args:
+            other (Line): the line which may intersect with this rectangle
 
-        #### Example usage:
-        ```python
-
-        ```          
+        Returns:
+            bool: true if the lines cross eachother.
         """
-        vect = Vector.scale(self.vector, 0.5)
-        mid = Point.translate(self.start, vect)
-        return mid
+        #ax + b = cx + d
+        #ax = cx + d - b
+        #ax - cx = d - b
+        #(a - c)x = d - b
+        #x = (d - b) / (a - c)
+        
+        #calculate a and c
+        
+        diff_self = self.end - self.start
+        diff_other = other.end - other.start
+        #a
+        slope_self = math.inf if diff_self.x == 0 else diff_self.y / diff_self.x
+        
+        #c
+        slope_other = math.inf if diff_other.x == 0 else diff_other.y / diff_other.x
+        #handle edge cases
+        #colinear
+        if(slope_self == slope_other) :
+            return False
+
+        #b
+        self_y_at_0 = self.start.y - self.start.x * slope_self
+        
+        #check if one slope is infinite (both infinite is handled by colinear)
+        if other.start.x == other.end.x:
+            self_y_at_line = self_y_at_0 + slope_self * other.start.x
+            return other.start.y < self_y_at_line < other.end.y
+
+        #d
+        other_y_at_0 = other.start.y - other.start.x * slope_other
+
+        if self.start.x == self.end.x:
+            other_y_at_line = other_y_at_0 + slope_other * self.start.x
+            return self.start.y < other_y_at_line < self.end.y
+        
+        intersection_x = (other_y_at_0 - self_y_at_0) / (slope_self - slope_other)
+        
+        return self.start.x < intersection_x < self.end.x
 
     def split(self, points: 'Union[Point, list[Point]]') -> 'list[Line]':
         """Splits the Line object at the specified point(s).
@@ -2920,7 +2631,8 @@ class Line(Serializable):
             lines.append(Line(start=self.start, end=point))
             lines.append(Line(start=point, end=self.end))
             return lines
-
+        
+    @property
     def length(self) -> 'float':
         """Computes the length of the Line object.
 
@@ -2932,7 +2644,7 @@ class Line(Serializable):
 
         ```          
         """
-        return math.sqrt(math.sqrt(self.dx * self.dx + self.dy * self.dy) * math.sqrt(self.dx * self.dx + self.dy * self.dy) + self.dz * self.dz)
+        return (self.end - self.start).magnitude
 
     def __str__(self) -> 'str':
         """Returns a string representation of the Line object.
@@ -2970,128 +2682,100 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve:
-    def __init__(self):
-        """Initializes a PolyCurve object.
+class PolyCurve(Serializable, list[Line]):
+    """Stores lines, which could possibly be arcs"""
+    def __init__(self, *args):
+        """Initializes a PolyCurve object, which is unclosed by default.
         
-        - `id` (int): The unique identifier of the arc.
-        - `type` (str): The type of the arc.
-        - `start` (Point): The start point of the arc.
-        - `mid` (Point): The mid point of the arc.
-        - `end` (Point): The end point of the arc.
-        - `origin` (Point): The origin point of the arc.
-        - `plane` (Plane): The plane containing the arc.
-        - `radius` (float): The radius of the arc.
-        - `startAngle` (float): The start angle of the arc in radians.
-        - `endAngle` (float): The end angle of the arc in radians.
-        - `angle_radian` (float): The total angle of the arc in radians.
-        - `area` (float): The area of the arc.
-        - `length` (float): The length of the arc.
-        - `units` (str): The units used for measurement.
-        - `coordinatesystem` (CoordinateSystem): The coordinate system of the arc.
 
         """
-        self.id = generateID()
-        self.type = __class__.__name__
-        self.curves = []
-        self.points = []
-        self.segmentcurves = None
-        self.width = None
-        self.height = None
-        # Methods ()
-        # self.close
-        # pointonperimeter
-        # Properties
-        self.approximateLength = None
-        self.graphicsStyleId = None
-        self.isClosed = None
-        self.isCyclic = None
-        self.isElementGeometry = None
-        self.isReadOnly = None
-        self.length = self.length()
-        self.period = None
-        self.reference = None
-        self.visibility = None
+        
+        
+        #self.points:list[Point] = to_array(*args)
 
-    def serialize(self) -> 'dict':
-        """Serializes the PolyCurve object.
+        #self.approximateLength = None
+        #self.graphicsStyleId = None
+        #self.isCyclic = None
+        #self.isElementGeometry = None
+        #self.isReadOnly = None
+        #self.length = self.length()
+        #self.period = None
+        #self.reference = None
+        #self.visibility = None
+        super().__init__(to_array(*args))
+    
+    @property
+    def closed(self) -> 'bool':
+        return self[0].start == self[-1].end
+    @closed.setter
+    def closed(self, value : bool):
+        if value != self.closed:
+            if value:
+                #just fill the gap using a straight line
+                self.append(Line(self[-1].end, self[0].start))
+            else:
+                del self[-1]    
+    
+    @property
+    def area(self):
+        """Calculates the area of the 2d PolyCurve.
+
+        Returns:
+            float: The area of the 2d poly curve.
+        
+        we are assuming the PolyCurve is wound counter-clockwise and is closed.
+        """
+        if not self.closed:
+            raise ValueError("the polycurve needs to be closed in order to calculate its area")
+        area:float = 0
+        for line in self:
+            if isinstance(line, Arc):
+                origin = line.origin
+                area += (line.start.x - line.end.x) * origin.y
+                #now that we added the 'rectangle', let's add the sine wave
+                
+                #the arc is part of a circle. the circle can be represented as two opposite cosine waves, with the circle center being at 0, 0.
+                #to calculate the area, we'll be using the integral of the cosine wave, which is the sine wave.
+                radius = (line.origin - line.start).magnitude
+                
+                #area is negative if y < 0
+                #area is measured from the -x side here, so at -radius, area == 0 and at +radius, area == circle_area
+                #https://www.desmos.com/calculator/ykynwhoue6
+                get_area = lambda pos : math.copysign((math.sin(((pos.x - origin.x) / radius) * (math.pi / 2)) + 1) * radius, pos.y - origin.y)
+                start_area = get_area(line.start)
+                end_area = get_area(line.end)
+                
+                integral_area = start_area - end_area
+                if integral_area < 0:
+                    circle_area = (radius * radius) * math.pi
+                    integral_area += circle_area
+                area += integral_area
+            else:
+                #check direction of line
+                #start - end, for counterclockwiseness
+                #when start.x < end.x, this is a bottom line. we'll substract this from the area.
+                dx = line.start.x - line.end.x
+                averagey = (line.start.y + line.end.y) / 2
+                area += dx * averagey
+        return area
+    
+    @property
+    def length(self) -> 'float':
+        """Calculates the total length of the PolyCurve.
 
         #### Returns:
-        `dict`: Serialized data of the PolyCurve object.
+        `float`: The total length of the PolyCurve.
 
         #### Example usage:
         ```python
 
         ```        
         """
-        curves_serialized = [curve.serialize() if hasattr(
-            curve, 'serialize') else str(curve) for curve in self.curves]
-        points_serialized = [point.serialize() if hasattr(
-            point, 'serialize') else str(point) for point in self.points]
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
 
-        return {
-            'type': self.type,
-            'curves': curves_serialized,
-            'points': points_serialized,
-            'segmentcurves': self.segmentcurves,
-            'width': self.width,
-            'height': self.height,
-            'approximateLength': self.approximateLength,
-            'graphicsStyleId': self.graphicsStyleId,
-            'id': self.id,
-            'isClosed': self.isClosed,
-            'isCyclic': self.isCyclic,
-            'isElementGeometry': self.isElementGeometry,
-            'isReadOnly': self.isReadOnly,
-            'period': self.period,
-            'reference': self.reference,
-            'visibility': self.visibility
-        }
-
-    @staticmethod
-    def deserialize(data):
-        """Deserializes the PolyCurve object.
-
-        #### Parameters:
-        - `data` (dict): Serialized data of the PolyCurve object.
-
-        #### Returns:
-        `PolyCurve`: Deserialized PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        polycurve = PolyCurve()
-        polycurve.segmentcurves = data.get('segmentcurves')
-        polycurve.width = data.get('width')
-        polycurve.height = data.get('height')
-        polycurve.approximateLength = data.get('approximateLength')
-        polycurve.graphicsStyleId = data.get('graphicsStyleId')
-        polycurve.id = data.get('id')
-        polycurve.isClosed = data.get('isClosed')
-        polycurve.isCyclic = data.get('isCyclic')
-        polycurve.isElementGeometry = data.get('isElementGeometry')
-        polycurve.isReadOnly = data.get('isReadOnly')
-        polycurve.period = data.get('period')
-        polycurve.reference = data.get('reference')
-        polycurve.visibility = data.get('visibility')
-
-        # Deserialize curves and points
-        if 'curves' in data:
-            for curve_data in data['curves']:
-                # Assuming a deserialize method exists for curve objects
-                curve = Line.deserialize(curve_data)
-                polycurve.curves.append(curve)
-
-        if 'points' in data:
-            for point_data in data['points']:
-                # Assuming a deserialize method exists for point objects
-                point = Point.deserialize(point_data)
-                polycurve.points.append(point)
-
-        return polycurve
+        return sum(i.length for i in self.curves)
 
     def scale(self, scale_factor: 'float') -> 'PolyCurve':
         """Scales the PolyCurve object by the given factor.
@@ -3121,36 +2805,11 @@ class PolyCurve:
                 print("Curvetype not found")
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
-
-    def get_width(self) -> 'float':
-        """Calculates the width of the PolyCurve.
-
-        #### Returns:
-        `float`: The width of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        x_values = [point.x for point in self.points]
-        y_values = [point.y for point in self.points]
-
-        min_x = min(x_values)
-        max_x = max(x_values)
-        min_y = min(y_values)
-        max_y = max(y_values)
-
-        left_top = Point(x=min_x, y=max_y, z=self.z)
-        left_bottom = Point(x=min_x, y=min_y, z=self.z)
-        right_top = Point(x=max_x, y=max_y, z=self.z)
-        right_bottom = Point(x=max_x, y=min_y, z=self.z)
-        self.width = abs(Point.distance(left_top, right_top))
-        self.height = abs(Point.distance(left_top, left_bottom))
-        return self.width
-
+    
+    #TODO finish function
+    @property
     def centroid(self) -> 'Point':
-        """Calculates the centroid of the PolyCurve.
+        """Calculates the centroid of the PolyCurve. in 2D
 
         #### Returns:
         `Point`: The centroid point of the PolyCurve.
@@ -3160,105 +2819,57 @@ class PolyCurve:
 
         ```        
         """
-        if self.isClosed:
-            num_points = len(self.points)
-            if num_points < 3:
-                return "Polygon has less than 3 points!"
+        poly = Polygon.by_joined_curves(self)
+        centroid = poly.centroid
+        
+        #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
+        
+        for i in range(len(self)):
+            current_line = self[i]
+            if isinstance(current_line, Arc):
+                #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
+                #calculate the centroid
+                arc_centroid = current_line.centroid
+                raise NotImplementedError("this code isn't done yet!")
+                
+                #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
+                
 
-            A = 0.0
-            for i in range(num_points):
-                x0, y0 = self.points[i].x, self.points[i].y
-                x1, y1 = self.points[(
-                    i + 1) % num_points].x, self.points[(i + 1) % num_points].y
-                A += x0 * y1 - x1 * y0
-            A *= 0.5
+    #def area(self) -> 'float':  # shoelace formula
+    #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
+#
+    #    #### Returns:
+    #    `float`: The area enclosed by the PolyCurve.
+#
+    #    #### Example usage:
+    #    ```python
+#
+    #    ```        
+    #    """
+    #    if self.closed:
+    #        if len(self.points) < 3:
+    #            return "Polygon has less than 3 points!"
+#
+    #        num_points = len(self.points)
+    #        S1, S2 = 0, 0
+#
+    #        for i in range(num_points):
+    #            x, y = self.points[i].x, self.points[i].y
+    #            if i == num_points - 1:
+    #                x_next, y_next = self.points[0].x, self.points[0].y
+    #            else:
+    #                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
+#
+    #            S1 += x * y_next
+    #            S2 += y * x_next
+#
+    #        area = 0.5 * abs(S1 - S2)
+    #        return area
+    #    else:
+    #        print("Polycurve is not closed, no area!")
+    #        return None
+        
 
-            Cx, Cy = 0.0, 0.0
-            for i in range(num_points):
-                x0, y0 = self.points[i].x, self.points[i].y
-                x1, y1 = self.points[(
-                    i + 1) % num_points].x, self.points[(i + 1) % num_points].y
-                factor = (x0 * y1 - x1 * y0)
-                Cx += (x0 + x1) * factor
-                Cy += (y0 + y1) * factor
-
-            Cx /= (6.0 * A)
-            Cy /= (6.0 * A)
-
-            return Point(x=round(Cx, project.decimals), y=round(Cy, project.decimals), z=self.points[0].z)
-        else:
-            return None
-
-    def area(self) -> 'float':  # shoelace formula
-        """Calculates the area enclosed by the PolyCurve using the shoelace formula.
-
-        #### Returns:
-        `float`: The area enclosed by the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if self.isClosed:
-            if len(self.points) < 3:
-                return "Polygon has less than 3 points!"
-
-            num_points = len(self.points)
-            S1, S2 = 0, 0
-
-            for i in range(num_points):
-                x, y = self.points[i].x, self.points[i].y
-                if i == num_points - 1:
-                    x_next, y_next = self.points[0].x, self.points[0].y
-                else:
-                    x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-
-                S1 += x * y_next
-                S2 += y * x_next
-
-            area = 0.5 * abs(S1 - S2)
-            return area
-        else:
-            print("Polycurve is not closed, no area!")
-            return None
-
-    def length(self) -> 'float':
-        """Calculates the total length of the PolyCurve.
-
-        #### Returns:
-        `float`: The total length of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        lst = []
-        for line in self.curves:
-            lst.append(line.length)
-
-        return sum(i.length for i in self.curves)
-
-    def close(self) -> 'bool':
-        """Closes the PolyCurve by connecting the last point to the first point.
-
-        #### Returns:
-        `bool`: True if the PolyCurve is successfully closed, False otherwise.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if self.curves[0] == self.curves[-1]:
-            return self
-        else:
-            self.curves.append(self.curves[0])
-            plycrv = PolyCurve()
-            for curve in self.curves:
-                plycrv.curves.append(curve)
-        return plycrv
 
     @classmethod
     def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
@@ -3275,41 +2886,24 @@ class PolyCurve:
 
         ```        
         """
-        for crv in curvelst:
-            if crv.length == 0:
-                curvelst.remove(crv)
+        for curve in curvelst:
+            if curve.length == 0:
+                curvelst.remove(curve)
                 # print("Error: Curve length cannot be zero.")
                 # sys.exit()
 
-        projectClosed = project.closed
         plycrv = PolyCurve()
         for index, curve in enumerate(curvelst):
             if index == 0:
-                plycrv.curves.append(curve)
                 plycrv.points.append(curve.start)
                 plycrv.points.append(curve.end)
             else:
-                plycrv.curves.append(curve)
                 plycrv.points.append(curve.end)
-        if projectClosed:
-            if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.isClosed = True
-            else:
-                # plycrv.points.append(curvelst[0].start)
-                plycrv.curves.append(curve)
-                plycrv.isClosed = True
-        elif projectClosed == False:
-            if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.isClosed = True
-            else:
-                plycrv.isClosed = False
-        if plycrv.points[-2].value == plycrv.points[0].value:
-            plycrv.curves = plycrv.curves.pop(-1)
 
         return plycrv
 
     @classmethod
-    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+    def by_points(self, points: 'list[Point]') -> Self:
         """Creates a PolyCurve from a list of points.
 
         #### Parameters:
@@ -3387,6 +2981,8 @@ class PolyCurve:
             except:
                 pass
         return plycrv
+    
+
 
     @staticmethod
     # Create segmented polycurve. Arcs, elips will be translated to straight lines
@@ -3530,7 +3126,7 @@ class PolyCurve:
         else:
             print(
                 f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
-
+     
     def multi_split(self, lines: 'Line') -> 'list[PolyCurve]':  # SLOW, MUST INCREASE SPEAD
         """Splits the PolyCurve by multiple lines.
         This method splits the PolyCurve by multiple lines and adds the resulting PolyCurves to the project.
@@ -3565,7 +3161,7 @@ class PolyCurve:
         project.objects.append(flatten(new_polygons))
         return flatten(new_polygons)
 
-    def translate(self, vector_3d: 'Vector') -> 'PolyCurve':
+    def translate(self, offset: 'Vector') -> 'PolyCurve':
         """Translates the PolyCurve by a 3D vector.
 
         #### Parameters:
@@ -3579,20 +3175,9 @@ class PolyCurve:
 
         ```        
         """
-        crvs = []
-        vector_1 = vector_3d
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                crvs.append(Arc(Point.translate(i.start, vector_1), Point.translate(
-                    i.middle, vector_1), Point.translate(i.end, vector_1)))
-            elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.translate(i.start, vector_1),
-                            Point.translate(i.end, vector_1)))
-            else:
-                print("Curvetype not found")
-        pc = PolyCurve()
-        pc.curves = crvs
-        return pc
+        for i in range(len(self.points)):
+            self.points[i] += offset
+        return self
 
     @staticmethod
     def copy_translate(pc: 'PolyCurve', vector_3d: 'Vector') -> 'PolyCurve':
@@ -3798,110 +3383,116 @@ class PolyCurve:
         pc.curves = crvs
         return pc
 
-    def __str__(self) -> 'str':
-        """Returns a string representation of the PolyCurve.
+class Polygon(PointList):
+    """Represents a polygon composed of points."""
+    def __init__(self, *args) -> 'Polygon':
+        
+        super().__init__(to_array(*args))
 
-        #### Returns:
-        `str`: The string representation of the PolyCurve.
 
+    @property
+    def closed(self) -> bool: return self[0] == self[-1]
+    
+    @closed.setter
+    def closed(self, value) -> Self:
+        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
         #### Example usage:
         ```python
-
-        ```        
+            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
+            c.closed = true #Point(1,3) just got added to the back of the list
+        ```
         """
-        length = len(self.points)
-        return f"{__class__.__name__}, ({length} points)"
+        if value != self.closed:
+            if value:
+                #copy. else, when operators are executed, it will execute the operator twice on the same reference
+                self.append(Vector(self[0]))
+            else:
+                del self[-1]
+        return self
+    
 
-# 2D PolyCurve to 3D Polygon
+    @property
+    def curves(self) -> list[Line]:
+        """this function won't close the polycurve!
 
-
-def Rect(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
-    """Creates a rectangle in the XY-plane with a translation of vector.
-
-    #### Parameters:
-    - `vector` (Vector): The translation vector.
-    - `width` (float): The width of the rectangle.
-    - `height` (float): The height of the rectangle.
-
-    #### Returns:
-    `PolyCurve`: The rectangle PolyCurve.
-
-    #### Example usage:
-    ```python
-
-    ```    
-    """
-    point_1 = Point(0, 0, 0).translate(Point(0, 0, 0), vector)
-    point_2 = Point(0, 0, 0).translate(Point(width, 0, 0), vector)
-    point_3 = Point(0, 0, 0).translate(Point(width, height, 0), vector)
-    point_4 = Point(0, 0, 0).translate(Point(0, height, 0), vector)
-    crv = PolyCurve.by_points([point_1, point_2, point_3, point_4, point_1])
-    return crv
-
-
-def Rect_XY(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
-    """Creates a rectangle in the XY-plane.
-
-    #### Parameters:
-    - `vector` (Vector): The base vector of the rectangle.
-    - `width` (float): The width of the rectangle.
-    - `height` (float): The height of the rectangle.
-
-    #### Returns:
-    `PolyCurve`: The rectangle PolyCurve.
-
-    #### Example usage:
-    ```python
-
-    ```        
-    """
-    point_1 = Point(0, 0, 0).translate(Point(0, 0, 0), vector)
-    point_2 = Point(0, 0, 0).translate(Point(width, 0, 0), vector)
-    point_3 = Point(0, 0, 0).translate(Point(width, 0, height), vector)
-    point_4 = Point(0, 0, 0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.by_points([point_1, point_2, point_3, point_4])
-    return crv
-
-
-def Rect_YZ(vector: 'Vector', width: 'float', height: 'float') -> 'PolyCurve':
-    """Creates a rectangle in the YZ-plane.
-
-    #### Parameters:
-    - `vector` (Vector): The base vector of the rectangle.
-    - `width` (float): The width of the rectangle.
-    - `height` (float): The height of the rectangle.
-
-    #### Returns:
-    `PolyCurve`: The rectangle PolyCurve.
-
-    #### Example usage:
-    ```python
-
-    ```        
-    """
-    point_1 = Point(0, 0, 0).translate(Point(0, 0, 0), vector)
-    point_2 = Point(0, 0, 0).translate(Point(0, width, 0), vector)
-    point_3 = Point(0, 0, 0).translate(Point(0, width, height), vector)
-    point_4 = Point(0, 0, 0).translate(Point(0, 0, height), vector)
-    crv = PolyCurve.by_points([point_1, point_2, point_3, point_4, point_1])
-    return crv
-
-
-class Polygon:
-    def __init__(self) -> 'Polygon':
-        """Represents a polygon composed of lines.
-
-        - `lines` (list[Line]): List of lines composing the polygon.
+        Returns:
+            list[Line]: the curves connecting this polycurve
         """
-        self.id = generateID()
-        self.type = __class__.__name__
-        self.curves = []
-        self.points = []
-        self.lines = []
-        self.isClosed = True
+        return [Line(self[point_index], self[point_index + 1]) for point_index in range(len(self) - 1)]
+
+    @property
+    def is_rectangle(self) -> bool:
+        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
+
+        Returns:
+            bool: if this curve is a rectangle, i.e. it has 4 corner points
+        """
+        if len(self) == 4 or self.closed and len(self) == 5:
+            if self[0].y == self[1].y and self[1].x == self[2].x and self[2].y == self[3].y and self[3].x == self[0].x:
+                return True
+        else: return False
+
+    def contains(self, p: 'Point') -> bool:
+        """checks if the point is inside the polygon
+
+        Args:
+            p (Point): _description_
+
+        Returns:
+            bool: _description_
+        """
+        #yoinked this from stack overflow, looks clean
+        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
+        
+        # Ray tracing
+        n = len(self)
+        inside = False
+    
+        p1 = self[0]
+        for i in range(n + 1 if self.closed else n):
+            p2 = self[i % n]
+            if p.y > min(p1.y,p2.y):
+                if p.y <= max(p1.y,p2.y):
+                    if p.x <= max(p1.x,p2.x):
+                        if p1.y != p2.y:
+                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
+                        if p1.x == p2.x or p.x <= xints:
+                            inside = not inside
+            p1 = p2
+    
+        return inside
+
+    def intersects(self, other: 'PolyCurve') -> bool:
+        """checks if two polycurves intersect with eachother. caution! this is brute force.
+
+        Args:
+            other (PolyCurve): the PolyCurve which may intersect with this rectangle
+
+        Returns:
+            bool: true if any of the lines of the two polygons cross eachother.
+        """
+        #before doing such an expensive method, let's check if our bounds cross first.
+        if self.bounds.collides(other.bounds):
+            other_curves = other.curves
+            for c in self.curves:
+                for other_c in other_curves:
+                    if(c.intersects(other_c)):return True
+        return False
+    
+    def collides(self, other: 'Polygon') -> bool:
+        """checks if two polygons collide with eachother.
+
+        Args:
+            other (Polygon): the polygon which may collide with this rectangle
+
+        Returns:
+            bool: true if two polygons overlap
+        """
+        #hopefully, most of the time we contain a point of the other.
+        return self.contains(other[0]) or other.contains(self[0]) or self.intersects(other)
 
     @classmethod
-    def by_points(self, points: 'list[Point]') -> 'PolyCurve':
+    def by_points(self, points: 'list[Point]') -> 'Polygon':
         """Creates a Polygon from a list of points.
 
         #### Parameters:
@@ -3943,32 +3534,65 @@ class Polygon:
 
         return polygon
 
+    @staticmethod
+    def rectangular(rect: Rect) -> 'Polygon':
+        """Creates a rectangle in a given plane.
 
-    @classmethod
-    def by_joined_curves(cls, curves: 'list[Line]') -> 'Polygon':
-        if not curves:
+        #### Parameters:
+        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
+        - `width` (float): The width of the rectangle.
+        - `height` (float): The height of the rectangle.
+
+        #### Returns:
+        `Polygon`: The rectangle Polygon.
+
+        #### Example usage:
+        ```python
+        ```    
+        """
+        try:
+            not_used_axis_index = rect.size.index(0)
+        except:
+            #2d rectangle
+            not_used_axis_index = 2
+
+        axis0 = 1 if not_used_axis_index == 0 else 0
+        axis1 = 1 if not_used_axis_index == 2 else 2
+
+        rect_p1 = rect.p1
+        curve_p0 = rect.p0
+        #clone
+        curve_p1 = Point(rect.p0)
+        curve_p1[axis0] = rect_p1[axis0]
+
+        curve_p2 = rect_p1
+        curve_p3 = Point(rect.p0)
+        curve_p3[axis1] = rect_p1[axis1]
+        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3)
+
+    @staticmethod
+    def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
+        """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
+        creates a shallow copy of the lines provided!
+
+        Args:
+            lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
+
+        Returns:
+            Polygon: an unclosed polygon.
+        """
+        if not lines:
             print("Error: At least one curve is required to form a Polygon.")
             sys.exit()
 
-        for i in range(len(curves) - 1):
-            if curves[i].end != curves[i+1].start:
-                print("Error: Curves must be contiguous to form a Polygon.")
-                sys.exit()
+        for i in range(len(lines) - 1):
+            if lines[i].end != lines[i+1].start:
+                raise ValueError("Error: Curves must be contiguous to form a Polygon.")
 
-        if Point.to_matrix(curves[0].start) != Point.to_matrix(curves[-1].end):
-            curves.append(Line(curves[-1].end, curves[0].start))
+        #if lines[0].start != lines[-1].end:
+        #    lines.append(Line(lines[-1].end, lines[0].start))
 
-        polygon = cls()
-        polygon.curves = curves
-
-        for crv in polygon.curves:
-            if Point.to_matrix(crv.start) not in polygon.points:
-                polygon.points.append(crv.start)
-            elif Point.to_matrix(crv.end) not in polygon.points:
-                polygon.points.append(crv.end)
-
-        return polygon
-
+        return Polygon([line.start for line in lines])
 
     def area(self) -> 'float':  # shoelace formula
         """Calculates the area enclosed by the Polygon using the shoelace formula.
@@ -3981,7 +3605,7 @@ class Polygon:
 
         ```        
         """
-        if len(self.points) < 3:
+        if len(self) < 3:
             return "Polygon has less than 3 points!"
 
         num_points = len(self.points)
@@ -3999,6 +3623,43 @@ class Polygon:
 
         area = 0.5 * abs(S1 - S2)
         return area
+    
+    @property
+    def centroid(self) -> 'Point':
+        """Calculates the centroid of the Polygon in 2D. we assume that the polygon doesn't intersect itself.
+
+        #### Returns:
+        `Point`: The centroid point of the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        if self.closed:
+            num_points = len(self)
+            if num_points < 3:
+                return "Polygon has less than 3 points!"
+            
+            area = self.area
+            
+            #https://stackoverflow.com/questions/5271583/center-of-gravity-of-a-polygon
+            
+
+            Cx, Cy = 0.0, 0.0
+            for i in range(num_points):
+                x0, y0 = self[i-1].x, self[i-1].y
+                x1, y1 = self[i].x, self[i].y
+                factor = (x0 * y1 - x1 * y0)
+                Cx += (x0 + x1) * factor
+                Cy += (y0 + y1) * factor
+
+            Cx /= (6.0 * area)
+            Cy /= (6.0 * area)
+
+            return Point(Cx, Cy)
+        else:
+            raise ValueError("this polycurve is not closed")
 
     def length(self) -> 'float':
         """Calculates the total length of the Polygon.
@@ -4018,56 +3679,20 @@ class Polygon:
         return sum(i.length for i in self.curves)
 
 
-    def translate(self, vector_3d: 'Vector') -> 'Polygon':
-        """Translates the Polygon by a 3D vector.
 
-        #### Parameters:
-        - `vector_3d` (Vector): The 3D vector by which to translate the Polygon.
+
+    def __str__(self) -> 'str':
+        """Returns a string representation of the PolyCurve.
 
         #### Returns:
-        `Polygon`: The translated Polygon.
+        `str`: The string representation of the PolyCurve.
 
         #### Example usage:
         ```python
 
         ```        
         """
-        # Create a new Polygon instance to hold the translated polygon
-        translated_polygon = Polygon()
-        translated_curves = []
-        translated_points = []
-
-        # Translate all curves
-        for curve in self.curves:
-            if curve.__class__.__name__ == "Arc":
-                # Translate the start, middle, and end points of the arc
-                new_start = Point.translate(curve.start, vector_3d)
-                new_middle = Point.translate(curve.middle, vector_3d)
-                new_end = Point.translate(curve.end, vector_3d)
-                translated_curves.append(Arc(new_start, new_middle, new_end))
-            elif curve.__class__.__name__ == "Line":
-                # Translate the start and end points of the line
-                new_start = Point.translate(curve.start, vector_3d)
-                new_end = Point.translate(curve.end, vector_3d)
-                translated_curves.append(Line(new_start, new_end))
-            else:
-                print("Curve type not found")
-
-        # Ensure that translated_curves are assigned back to the translated_polygon
-        translated_polygon.curves = translated_curves
-
-        # Translate all points
-        for point in self.points:
-            translated_points.append(Point.translate(point, vector_3d))
-
-        # Ensure that translated_points are assigned back to the translated_polygon
-        translated_polygon.points = translated_points
-
-        return translated_polygon
-
-
-    def __str__(self) -> str:
-        return f"{self.type}"
+        return f"{__class__.__name__} (points: {list.__str__(self)})"
 
 
 class Arc:
@@ -4082,30 +3707,29 @@ class Arc:
         - `endPoint` (Point): The ending point of the arc.
         """
         #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
-        if Point.distance_squared(startPoint, midPoint) != Point.distance_squared(midPoint, endPoint):
+        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
             raise ValueError('midpoint is not in the center')
         
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
-        self.origin = self.origin_arc()
-        vector_1 = Vector(x=1, y=0, z=0)
-        vector_2 = Vector(x=0, y=1, z=0)
-        self.plane = Plane.by_two_vectors_origin(
-            vector_1,
-            vector_2,
-            self.origin
-        )
-        self.radius = self.radius_arc()
-        self.startAngle = 0
-        self.endAngle = 0
-        self.angle_radian = self.angle_radian()
-        self.area = 0
-        self.length = self.length()
-        self.units = project.units
-        self.coordinatesystem = self.coordinatesystem_arc()
+        #self.origin = self.origin_arc()
+        #vector_1 = Vector(x=1, y=0, z=0)
+        #vector_2 = Vector(x=0, y=1, z=0)
+        #self.plane = Plane.by_two_vectors_origin(
+        #    vector_1,
+        #    vector_2,
+        #    self.origin
+        #)
+        #self.radius = self.radius_arc()
+        #self.startAngle = 0
+        #self.endAngle = 0
+        #self.angle_radian = self.angle_radian()
+        #self.area = 0
+        #self.length = self.length()
+        #self.units = project.units
+        #self.coordinatesystem = self.coordinatesystem_arc()
 
     def coordinatesystem_arc(self) -> 'CoordinateSystem':
         """Calculates and returns the coordinate system of the arc.
@@ -4127,8 +3751,9 @@ class Arc:
         self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
                                                  Vector.normalize(vz))
         return self.coordinatesystem
-
-    def radius_arc(self) -> 'float':
+    
+    @property
+    def radius(self) -> 'float':
         """Calculates and returns the radius of the arc.
         The radius is computed based on the distances between the start, mid, and end points of the arc.
 
@@ -4152,8 +3777,9 @@ class Arc:
         else:
             R = (a * b * c) / (4 * A)
             return R
-
-    def origin_arc(self) -> 'Point':
+        
+    @property
+    def origin(self) -> 'Point':
         """Calculates and returns the origin of the arc.
         The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
 
@@ -4166,19 +3792,29 @@ class Arc:
         # origin will be the calculated origin point of the arc
         ```
         """
-        start_to_end = Vector.by_two_points(self.start, self.end)
-        half_start_end = Vector.scale(start_to_end, 0.5)
-        b = Vector.length(half_start_end)
-        radius = Arc.radius_arc(self)
+        start_to_end = self.end - self.start
+        half_start_end = start_to_end * 0.5
+        b = half_start_end.magnitude
+        radius = Arc.radius(self)
         x = math.sqrt(radius * radius - b * b)
-        mid = Point.translate(self.start, half_start_end)
-        vector_2 = Vector.by_two_points(self.mid, mid)
-        vector_3 = Vector.normalize(vector_2)
-        tocenter = Vector.scale(vector_3, x)
-        center = Point.translate(mid, tocenter)
+        #mid point as if this was a straight line
+        mid = self.start + half_start_end
+        #substract the curved mid point from the straight line mid point
+        to_center = mid - self.mid
+        #change length to x
+        to_center.magnitude = x
+        center = mid + to_center
         return center
-
-    def angle_radian(self) -> 'float':
+    def centroid(self) -> 'Point':
+        origin = self.origin
+        radius = self.radius
+        angle = self.angle
+        #the distance of the centroid of the arc to its origin
+        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
+        centroid = origin + centroid_distance * ((self.mid - origin) / radius)
+        
+    @property
+    def angle(self) -> 'float':
         """Calculates and returns the total angle of the arc in radians.
         The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
 
@@ -4191,9 +3827,10 @@ class Arc:
         # angle will be the total angle of the arc in radians
         ```
         """
-        vector_1 = Vector.by_two_points(self.origin, self.end)
-        vector_2 = Vector.by_two_points(self.origin, self.start)
-        vector_3 = Vector.by_two_points(self.origin, self.mid)
+        origin = self.origin
+        vector_1 = self.end - origin
+        vector_2 = self.start - origin
+        vector_3 = self.mid - origin
         vector_4 = vector_1 + vector_2
         try:
             v4b = Vector.new_length(vector_4, self.radius)
@@ -4205,7 +3842,8 @@ class Arc:
         except:
             angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
             return angle
-
+        
+    @property
     def length(self) -> 'float':
         """Calculates and returns the length of the arc.
         The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
@@ -4350,11 +3988,10 @@ class Circle:
         - `plane` (Plane): The plane in which the circle lies.
         - `length` (float): The length (circumference) of the circle. Automatically calculated during initialization.
         """
-        self.type = __class__.__name__
         self.radius = radius
         self.plane = plane
         self.length = length
-        self.id = generateID()
+        
         pass  # Curve
 
     def __id__(self):
@@ -4388,11 +4025,10 @@ class Ellipse:
         - `secondRadius` (float): The second (minor) radius of the ellipse.
         - `plane` (Plane): The plane in which the ellipse lies.
         """
-        self.type = __class__.__name__
         self.firstRadius = firstRadius
         self.secondRadius = secondRadius
         self.plane = plane
-        self.id = generateID()
+        
         pass  # Curve
 
     def __id__(self):
@@ -4433,12 +4069,105 @@ class Intersect:
         p4X, p4Y, P4Z = p4.x, p4.y, p4.z
 
         print(p1X, p1Y, P1Z)
+class BuildingPy(Serializable):
+    def __init__(self, name=None, number=None):
+        self.name: str = name
+        self.number: str = number
+        #settings
+        self.debug: bool = True
+        self.objects = []
+        self.units = "mm"
+        self.decimals = 3 #not fully implemented yet
+
+        self.origin = Point(0,0,0)
+        self.default_font = "calibri"
+        self.scale = 1000
+        self.font_height = 500
+        self.repr_round = 3
+        #prefix objects (name)
+        #Geometry settings
+
+        #export selection info
+        self.domain = None
+        self.applicationId = "OPEN-AEC BuildingPy"
+
+        #different settings for company's?
+
+        #rename this to autoclose?
+        self.closed: bool = True #auto close polygons? By default true, else overwrite
+        self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+
+        #functie polycurve of iets van een class/def
+        self.autoclose: bool = True #new self.closed
+
+        #nodes
+        self.node_merge = True #False not yet created
+        self.node_diameter = 250
+        self.node_threshold = 50
+        
+        #text
+        self.createdTxt = "has been created"
+
+        #structural elements
+        self.structural_fallback_element = "HEA100"
+
+        #Speckle settings
+        self.speckleserver = "speckle.xyz"
+        self.specklestream = None
+
+        #FreeCAD settings
+
+        X_axis = Vector(1, 0, 0)
+        Y_Axis = Vector(0, 1, 0)
+        Z_Axis = Vector(0, 0, 1)
+        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
+        
+    def save(self, file_name = 'project/data.json'):
+        Serializable.save(file_name)
+        
+        type_count = defaultdict(int)
+        for serialized_item in self.objects:
+            #item = json.loads(serialized_item)
+            type_count[serialized_item.__class__.__name__] += 1
+
+        total_items = len(self.objects)
+
+        print(f"\nTotal saved items to '{file_name}': {total_items}")
+        print("Type counts:")
+        for item_type, count in type_count.items():
+            print(f"{item_type}: {count}")
+    def open(self, file_name = 'project/data.json'):
+        Serializable.open(file_name)
+
+    def toSpeckle(self, streamid, commitstring=None):
+        from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
+        self.specklestream = streamid
+        speckleobj = translateObjectsToSpeckleObjects(self.objects)
+        TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+
+    def toFreeCAD(self):
+        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
+        translateObjectsToFreeCAD(self.objects)
+
+    def toIFC(self, name):
+        from exchange.IFC import translateObjectsToIFC, CreateIFC
+        ifc_project = CreateIFC()
+        ifc_project.add_project(name)
+        ifc_project.add_site("My Site")
+        ifc_project.add_building("Building A")
+        ifc_project.add_storey("Ground Floor")
+        ifc_project.add_storey("G2Floor")     
+        translateObjectsToIFC(self.objects, ifc_project)
+        ifc_project.export(f"{name}.ifc")
+# [!not included in BP singlefile - end]
+
+
+project = BuildingPy("Project", "0")
 
 
 class Vector2:
     def __init__(self, x, y) -> None:
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.x: float = 0.0
         self.y: float = 0.0
         self.x = x
@@ -4558,8 +4287,7 @@ class Vector2:
 
 class Point2D:
     def __init__(self, x: float, y: float) -> None:
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.x = x
         self.y = y
         self.x = float(x)
@@ -4646,7 +4374,6 @@ def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSyst
 
 class Line2D:
     def __init__(self, start, end) -> None:
-        self.type = __class__.__name__
         self.start: Point2D = start
         self.end: Point2D = end
         self.x = [self.start.x, self.end.x]
@@ -4656,7 +4383,7 @@ class Line2D:
         self.vector2: Vector2 = Vector2.by_two_points(self.start, self.end)
         self.vector2_normalised = Vector2.normalize(self.vector2)
         self.length = self.length()
-        self.id = generateID()
+        
 
     def serialize(self):
         return {
@@ -4698,7 +4425,7 @@ class Line2D:
 
 # class Arc2D:
 #     def __init__(self, pntxy1, pntxy2, pntxy3) -> None:
-#         self.id = generateID()
+#         
 #         self.type = __class__.__name__
 #         self.start: Point2D = pntxy1
 #         self.mid: Point2D = pntxy2
@@ -4828,8 +4555,7 @@ class Arc2D:
         - `midPoint` (Point2D): The mid point of the arc which defines its curvature.
         - `endPoint` (Point2D): The ending point of the arc.
         """
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.start = startPoint
         self.mid = midPoint
         self.end = endPoint
@@ -5096,8 +4822,7 @@ class Arc2D:
 
 class PolyCurve2D:
     def __init__(self) -> None:
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.curves = []
         self.points2D = []
         self.segmentcurves = None
@@ -5525,8 +5250,7 @@ class PolyCurve2D:
 class Surface2D:
     def __init__(self) -> None:
         pass  # PolyCurve2D
-        self.id = generateID()
-        self.type = __class__.__name__
+        
 
     def __id__(self):
         return f"id:{self.id}"
@@ -5537,8 +5261,7 @@ class Surface2D:
 
 class Profile2D:
     def __init__(self) -> None:
-        self.id = generateID()
-        self.type = __class__.__name__
+        pass
 
     def __id__(self):
         return f"id:{self.id}"
@@ -5546,11 +5269,9 @@ class Profile2D:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
 
-
 class ParametricProfile2D:
     def __init__(self) -> None:
-        self.type = __class__.__name__
-        self.id = generateID()
+        pass
 
     def __id__(self):
         return f"id:{self.id}"
@@ -6230,7 +5951,7 @@ class Interval:
         """
         return f"{__class__.__name__}"
 
-class Matrix(list[list]):
+class Matrix(Serializable, list[list]):
     """
     elements are ordered like [row][column] or [y][x]
     """
@@ -6284,7 +6005,7 @@ class Matrix(list[list]):
         dimensions:int = len(toAdd) + 1
         return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
     
-    def __mul__(self, other:Self | Coords):
+    def __mul__(self, other:Self | Coords | Line | Rect | PointList):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
         for example: translate * rotate (rotate first, translate after)
         and: matrix * point (point first, multiplied by matrix after)"""
@@ -6327,6 +6048,8 @@ class Matrix(list[list]):
                             otherValue = other[multiplyIndex][col] if col < other.cols and multiplyIndex < other.rows else 1 if multiplyIndex == col else 0
                             result[row][col] += selfValue * otherValue
 
+        elif isinstance(other, PointList):
+            return other.__class__([self * p for p in other])
         #point comes in from top and comes out to the right:
         # |
         # v
@@ -6344,8 +6067,15 @@ class Matrix(list[list]):
                     for row in range(self.rows):
                         result[row] += self[row][col]
             return result
-
+        elif isinstance(other, Line):
+            return Line(self * other.start, self * other.end)
+        elif isinstance(other, Rect):
+            mp0 = self * other.p0
+            mp1 = self * other.p1
+            return Rect.by_points([mp0, mp1])
         return result
+    
+    transform = multiply = __mul__
 
     def add(self, other: 'Matrix'):
         if self.shape() != other.shape():
@@ -6785,10 +6515,11 @@ class Matrix(list[list]):
             for row in self:
                 line = sep.join(format % item for item in row) + "\n"
                 file.write(line)
-
-    def tostring(self):
-        for row in self:
-            print(' '.join(map(str, row)))
+                
+    def __str__(self):
+        # '\n'.join([str(row) for row in self])
+        #vs code doesn't work with new lines
+        return 'Matrix(' + list.__str__(self) + ')'
 
     def trace(self, offset=0):
         rows, cols = len(self), len(self[0])
@@ -6832,8 +6563,7 @@ class Node:
         - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
         - `comments` (str, optional): Additional comments or notes about the node.
         """
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.point = point if isinstance(point, Point) else None
         self.vector = vector if isinstance(vector, Vector) else None
         self.number = number
@@ -6936,8 +6666,7 @@ class Extrusion:
         - `polycurve_3d_translated` (PolyCurve): A polycurve representing the translated 3D profile of the extrusion.
         - `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
         """
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.parameters = []
         self.verts = []
         self.faces = []
@@ -6953,73 +6682,6 @@ class Extrusion:
         self.outercurve = []
         self.bottomshape = []
         self.nested = []
-
-    def serialize(self) -> dict:
-        """Serializes the extrusion object into a dictionary.
-        This method facilitates the conversion of the Extrusion instance into a dictionary format, suitable for serialization to JSON or other data formats for storage or network transmission.
-
-        #### Returns:
-        `dict`: A dictionary representation of the Extrusion instance, including all relevant geometric and property data.
-    
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'verts': self.verts,
-            'faces': self.faces,
-            'numberFaces': self.numberFaces,
-            'countVertsFaces': self.countVertsFaces,
-            'name': self.name,
-            'color': self.color,
-            'colorlst': self.colorlst,
-            'topface': self.topface.serialize() if self.topface else None,
-            'bottomface': self.bottomface.serialize() if self.bottomface else None,
-            'polycurve_3d_translated': self.polycurve_3d_translated.serialize() if self.polycurve_3d_translated else None
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Extrusion':
-        """Reconstructs an Extrusion object from a dictionary.
-        This static method allows for the creation of an Extrusion instance from serialized data, enabling the loading of extrusion objects from file storage or network data.
-
-        #### Parameters:
-        - `data` (dict): A dictionary containing serialized Extrusion data.
-
-        #### Returns:
-        `Extrusion`: A newly constructed Extrusion instance based on the provided data.
-    
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        extrusion = Extrusion()
-        extrusion.id = data.get('id')
-        extrusion.verts = data.get('verts', [])
-        extrusion.faces = data.get('faces', [])
-        extrusion.numberFaces = data.get('numberFaces', 0)
-        extrusion.countVertsFaces = data.get('countVertsFaces', 0)
-        extrusion.name = data.get('name', "none")
-        extrusion.color = data.get('color', (255, 255, 0))
-        extrusion.colorlst = data.get('colorlst', [])
-
-        if data.get('topface'):
-            extrusion.topface = PolyCurve.deserialize(data['topface'])
-
-        if data.get('bottomface'):
-            extrusion.bottomface = PolyCurve.deserialize(data['bottomface'])
-
-        if data.get('polycurve_3d_translated'):
-            extrusion.polycurve_3d_translated = PolyCurve.deserialize(
-                data['polycurve_3d_translated'])
-
-        return extrusion
 
     def set_parameter(self, data: list) -> 'Extrusion':
         """Sets parameters for the extrusion.
@@ -7319,250 +6981,9 @@ class Extrusion:
         for j in range(int(len(Extrus.verts) / 3)):
             Extrus.colorlst.append(Extrus.color)
         return Extrus
-
-class Rect(Serializable):
-    """Represents a two-dimensional bounding box."""
-    def __init__(self, *args, **kwargs):
-        """@
-        #### Example usage:
-        ```python
-        rect = Rect(3, 4) # x 3, width 4
-        rect2 = Rect(z=10) # x 0, y 0, z 10, width 0, length 0, height 0
-        ```
-        """
-        self.id = generateID()
-        
-        
-        axis_count = len(args) / 2
-        self.p0 = Point([0] * axis_count)
-        self.size = Vector([0] * axis_count)
-        
-        for kwarg in kwargs.items():
-            try:
-                offset = self.p0.set_axis(kwarg[0], kwarg[1])
-                if offset != None:
-                    self.size.change_axis_count(offset)
-            except ValueError:
-                axis_index = Rect.size_axis_index(kwarg[0])
-                offset = self.size.set_axis(axis_index, kwarg[1])
-                if offset != None:
-                    self.p0.change_axis_count(offset)
-            
-        Serializable.__init__(self)
-
-        self.id = generateID()
-        self.type = __class__.__name__
-        
-    def change_axis_count(self,axis_count: int):
-        self.p0.change_axis_count(axis_count)
-        self.size.change_axis_count(axis_count)
     
     @staticmethod
-    def size_axis_index(axis)->int:
-        return ["width", "length", "height"].index(axis)
-    
-    @property
-    def width(self):
-        return self.size.x
-    @width.setter
-    def width(self, value):
-        self.size.x = value
-        
-    @property
-    def length(self):
-        return self.size.y
-    @length.setter
-    def length(self, value):
-        self.size.y = value
-
-    @property
-    def height(self):
-        return self.size.z
-    @height.setter
-    def height(self, value):
-        self.size.z = value
-
-    @property
-    def x(self):
-        return self.p0.x
-    @x.setter
-    def x(self, value):
-        self.p0.x = value
-    @property
-    def y(self):
-        return self.p0.y
-    @y.setter
-    def y(self, value):
-        self.p0.y = value
-    @property
-    def z(self):
-        return self.p0.z
-    @z.setter
-    def z(self, value):
-        self.p0.z = value
-        
-    def area(self):
-        return self.size.volume()
-    
-    def __str__(self):
-        return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
-    def __repr__(self):
-        return str(self)
-
-    def by_points(self, points: list[Point]) -> 'Rect':
-        """Constructs a bounding box based on a list of points.
-
-        Calculates the minimum and maximum values from the points to define the corners of the bounding box.
-
-        #### Parameters:
-        - `points` (list[Point]): A list of Point objects to calculate the bounding box from.
-
-        #### Returns:
-        `Rect`: The bounding box instance with updated corners based on the provided points.
-
-        #### Example usage:
-        ```python
-        points = [Point(0, 0, 0), Point(2, 2, 0), Point(2, 0, 0), Point(0, 2, 0)]
-        bbox = Rect().by_points(points)
-        # Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
-        ```
-        """
-        axis_count = len(points[0])
-        if axis_count == 0: raise ValueError("please provide points")
-
-        self.points = points
-        p0 = points[0]
-        p1 = points[0]
-        
-        #it's faster to not skipt the first point than to check if it's the first point or revert to an index-based loop
-        for p in points:
-            for axis in range(axis_count):
-                p0[axis] = min(p0[axis], p[axis])
-                p1[axis] = max(p1[axis], p[axis])
-                
-        self.size = p1 - p0
-        return self
-    
-    def expanded(self, border_size: float) -> 'Rect':
-        return Rect(self.p0 - border_size, self.size + border_size * 2)
-    
-    @staticmethod
-    def centered_at_origin(self, size: Vector) -> 'Rect':
-        """Constructs a rect with specified dimensions, centered at the origin.
-
-        #### Parameters:
-        - `size` (Vector): The size of the bounding box.
-
-        #### Returns:
-        `Rect`: The bounding box instance with dimensions centered at the origin.
-
-        #### Example usage:
-        ```python
-        bbox = Rect().centered_at_origin(length=100, width=50)
-        # Rect centered at origin with specified length and width
-        ```
-        """
-        
-        return Rect(size * -0.5, size)
-    
-    def collides(self, other:'Rect')->bool:
-        """checks if two rectangles collide with eachother. <br>
-        when they touch eachother exactly (f.e. a Rect with position [0] and size [1] and a rect with position [1] and size [1]), the function will return false.
-
-        Args:
-            other (Rect): the rectangle which may collide with this rectangle
-
-        Returns:
-            bool: true if the two rectangles overlap
-        """
-        for axis in range(len(self.p0)):
-            if self.p0[axis] + self.size[axis] <= other.p0[axis] or other.p0[axis] + other.size[axis] <= self.p0[axis]:
-                return False
-        return True
-    
-    def contains(self, other:'Rect')->bool:
-        for axis in range(len(self.p0)):
-            if other.p0[axis] < self.p0[axis] or other.p0[axis] + other.size[axis] > self.p0[axis] + self.size[axis]:
-                return False
-        return True
-    
-    def substractFrom(self, other:'Rect')->list['Rect']:
-        """cut the 'other' rectangle in pieces by substracting this rectangle from it
-
-        Args:
-            other (Rect): the rectangle to substract this rectangle from
-
-        Returns:
-            list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center). CAUTION: THEY OVERLAP!
-        """
-        pieces:list[Rect] = []
-        to_clone = other
-        #check each axis
-        for axis in range(len(self.p0)):
-            self_p1 = self.p0[axis] + self.size[axis]
-            other_p1 = other.p0[axis] + other.size[axis]
-            if self_p1 < other_p1:
-                diff = other_p1 - self_p1
-                
-                piece:Rect = copy.deepcopy(to_clone)
-                
-                piece.p0[axis] = self_p1
-                
-                piece.size[axis] = diff
-                pieces.append(piece)
-                #also crop other.
-                #to_clone.size[axis] -= diff
-            self_p0 = self.p0[axis]
-            other_p0 = other.p0[axis]
-            if self_p0 > other_p0:
-                diff = self_p0 - other_p0
-                piece:Rect = copy.deepcopy(to_clone)
-                piece.size[axis] = diff
-                pieces.append(piece)
-                #to_clone.p0[axis] = self_p0
-                #to_clone.size[axis] -= diff
-        return pieces
-    
-    
-    def get_corner(self, corner_index: int) -> Point:
-        """
-
-        Args:
-            corner_index (int): corners are ordered like 0 -> 000, 1 -> 001, 2 -> 010, 011, 100 etc.
-            where 0 = the minimum and 1 = the maximum
-
-        Returns:
-            Point: a corner
-        """
-        corner : Point = Point()
-        for axis in range(len(self)):
-            corner.append(self.p0[axis] + self.size[axis] if corner_index & 1 << axis else self.p0[axis])
-        return corner
-        
-
-    def corners(self) -> 'list[Point]':
-        """Calculates the corners of the bounding.
-
-        #### Returns:
-        `list[Point]`: A list of Point objects representing the corners of the bounding box.
-
-        #### Example usage:
-        ```python
-        bbox3d = Rect(Point(1, 1, 1), Vector(2, 2, 2))
-        corners = bbox3d.corners()
-        Returns a list of eight points representing the corners of the bounding box
-        ```
-        """
-        corners:list[Point] = []
-        axis_count = len(self.p0)
-        for corner_index in range(2 << axis_count):
-            corners.append(self.get_corner(corner_index))
-        return corners
-
-    def perimeter(self):
-        return PolyCurve.by_points(self.corners())
-    
-    def to_cuboid(self) -> 'Extrusion':
+    def from_3d_rect(rect:Rect) -> Self:
         """Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
 
         #### Returns:
@@ -7577,42 +6998,15 @@ class Rect(Serializable):
         # Generates a cuboid extrusion based on the 3D bounding box
         ```
         """
-        pts = self.corners()
+        pts = rect.corners()
         pc = PolyCurve2D.by_points(pts)
-        height = self.height
-        cs = self.coordinatesystem
+        height = rect.height
+        cs = rect.coordinatesystem
         dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)
         pcrot = pc.rotate(dirXvector)  # bug multi direction
         cuboid = Extrusion.by_polycurve_height_vector(
             pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
         return cuboid
-
-    def to_axis(self, length: 'float' = 1000) -> 'list':
-        """Generates lines representing the coordinate axes of the bounding box's coordinate system.
-
-        This method creates three Line objects corresponding to the X, Y, and Z axes of the bounding box's coordinate system. Each line extends from the origin of the coordinate system in the direction of the respective axis.
-
-        #### Parameters:
-        - `length` (float, optional): The length of each axis line. Defaults to 1000 units.
-
-        #### Returns:
-        `list`: A list containing three Line objects representing the X, Y, and Z axes.
-
-        #### Example usage:
-        ```python
-        # Assuming `bbox3d` is an instance of BoundingBox3d with a defined coordinate system
-        axes_lines = bbox3d.to_axis(length=500)
-        # This returns a list of three Line objects representing the X, Y, and Z axes of the bounding box's coordinate system, each 500 units long.
-        ```
-        """
-        if length == None:
-            length = 1000
-        cs = self.coordinatesystem
-        lnX = Line.by_startpoint_direction_length(cs.Origin, cs.X_axis, length)
-        lnY = Line.by_startpoint_direction_length(cs.Origin, cs.Y_axis, length)
-        lnZ = Line.by_startpoint_direction_length(cs.Origin, cs.Z_axis, length)
-        return [lnX, lnY, lnZ]
-
 
 class Text:
     """The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
@@ -7636,8 +7030,7 @@ class Text:
         - `points` (list): A list of points derived from the text geometry.
         - `path_list` (list): A list containing the path data for each character.
         """
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.text = text
         self.font_family = font_family or "arial"
         self.xyz = cs.Origin
@@ -8040,11 +7433,10 @@ class Surface:
         - `color` (int): The color of the surface, represented as an integer.
         - `colorlst` (list): A list of color values associated with the surface.
         """       
-        self.type = __class__.__name__
         self.mesh = []
         self.offset = 0
         self.name = None
-        self.id = generateID()
+        
         self.outer_Polygon = None
         self.inner_Polygon = []
         self.colorlst = []
@@ -8192,8 +7584,7 @@ class NurbsSurface:  # based on point data / degreeU&countU / degreeV&countV?
         - `id` (str): A unique identifier for the NurbsSurface.
         - `type` (str): Class name, "NurbsSurface".
         """
-        self.id = generateID()
-        self.type = __class__.__name__
+        
 
     def __id__(self) -> 'str':
         """Returns the unique identifier of the NurbsSurface object.
@@ -8236,8 +7627,7 @@ class PolySurface:
         - `id` (str): A unique identifier for the PolySurface.
         - `type` (str): Class name, "PolySurface".
         """
-        self.id = generateID()
-        self.type = __class__.__name__
+        
 
     def __id__(self) -> 'str':
         """Returns the unique identifier of the PolySurface object.
@@ -8275,8 +7665,7 @@ class PolySurface:
 class Panel(Serializable):
     # Panel
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.extrusion = None
         self.thickness = 0
         self.name = None
@@ -8363,20 +7752,20 @@ sqrt2 = math.sqrt(2)
 
 class Profile(Serializable):
 
-    def __init__(self, name: string, description: string, IFC_profile_def: string, height: float, width: float,
+    def __init__(self, name: str, description: str, IFC_profile_def: str, height: float, width: float,
                  tw: float = None, tf: float = None):
         """Creates a profile profile.
 
         Args:
-            name (string): _description_
-            description (string): _description_
-            IFC_profile_def (string): _description_
+            name (str): _description_
+            description (str): _description_
+            IFC_profile_def (str): _description_
             height (_type_): _description_
             width (_type_): _description_
         """
 
         self.IFC_profile_def = IFC_profile_def
-        self.ID = generateID()
+        
         self.name = name
         self.description = description
         self.curve = []
@@ -8400,38 +7789,37 @@ class CChannelParallelFlange(Profile):
         self.ex = ex  # centroid horizontal
 
         # describe points
-        p1 = Point2D(-ex, -height / 2)  # left bottom
-        p2 = Point2D(width - ex, -height / 2)  # right bottom
-        p3 = Point2D(width - ex, -height / 2 + tf)
-        p4 = Point2D(-ex + tw + r, -height / 2 + tf)  # start arc
-        p5 = Point2D(-ex + tw + r, -height / 2 + tf + r)  # second point arc
-        p6 = Point2D(-ex + tw, -height / 2 + tf + r)  # end arc
-        p7 = Point2D(-ex + tw, height / 2 - tf - r)  # start arc
-        p8 = Point2D(-ex + tw + r, height / 2 - tf - r)  # second point arc
-        p9 = Point2D(-ex + tw + r, height / 2 - tf)  # end arc
-        p10 = Point2D(width - ex, height / 2 - tf)
-        p11 = Point2D(width - ex, height / 2)  # right top
-        p12 = Point2D(-ex, height / 2)  # left top
+        p1 = Point(-ex, -height / 2)  # left bottom
+        p2 = Point(width - ex, -height / 2)  # right bottom
+        p3 = Point(width - ex, -height / 2 + tf)
+        p4 = Point(-ex + tw + r, -height / 2 + tf)  # start arc
+        p5 = Point(-ex + tw + r, -height / 2 + tf + r)  # second point arc
+        p6 = Point(-ex + tw, -height / 2 + tf + r)  # end arc
+        p7 = Point(-ex + tw, height / 2 - tf - r)  # start arc
+        p8 = Point(-ex + tw + r, height / 2 - tf - r)  # second point arc
+        p9 = Point(-ex + tw + r, height / 2 - tf)  # end arc
+        p10 = Point(width - ex, height / 2 - tf)
+        p11 = Point(width - ex, height / 2)  # right top
+        p12 = Point(-ex, height / 2)  # left top
 
         # describe curves
-        l1 = Line2D(p1, p2)
-        l2 = Line2D(p2, p3)
-        l3 = Line2D(p3, p4)
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
         l4 = Arc2D(p4, p5, p6)
-        l5 = Line2D(p6, p7)
+        l5 = Line(p6, p7)
         l6 = Arc2D(p7, p8, p9)
-        l7 = Line2D(p9, p10)
-        l8 = Line2D(p10, p11)
-        l9 = Line2D(p11, p12)
-        l10 = Line2D(p12, p1)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p11)
+        l9 = Line(p11, p12)
+        l10 = Line(p12, p1)
 
-        self.curve = PolyCurve2D().by_joined_curves(
+        self.curve = PolyCurve.by_joined_curves(
             [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
 class CChannelSlopedFlange(Profile):
     def __init__(self, name, height, width, tw, tf, r1, r2, tl, sa, ex):
         super().__init__(name, "C-channel with sloped flange", "IfcUShapeProfileDef", height, width, tw, tf)
-        self.type = __class__.__name__
 
         self.r1 = r1  # web fillet
         r11 = r1 / sqrt2
@@ -8487,7 +7875,6 @@ class IShapeParallelFlange(Profile):
         super().__init__(name, "I Shape profile with parallel flange", "IfcUShapeProfileDef", height, width, tw,
                          tf)
 
-        self.type = __class__.__name__
 
         self.r = r  # web fillet
         self.r1 = r1 = r / sqrt2
@@ -8540,7 +7927,6 @@ class Rectangle(Profile):
     def __init__(self, name, width, height):
         super().__init__(name, "Rectangle", "IfcRectangleProfileDef", height, width)
 
-        self.type = __class__.__name__
 
         # describe points
         p1 = Point2D(width / 2, -height / 2)  # right bottom
@@ -8560,7 +7946,6 @@ class Round(Profile):
     def __init__(self, name, r):
         super().__init__(name, "Round", "IfcCircleProfileDef", r*2, r*2)
 
-        self.type = __class__.__name__
         self.r = r
 
         dr = r / sqrt2  # grootste deel
@@ -8683,7 +8068,6 @@ class TProfileRounded(Profile):
     def __init__(self, name, height, width, tw, tf, r, r1, r2, ex, ey):
         super().__init__(name, "TProfile", "IfcTShapeProfileDef", height, width, tw, tf)
 
-        self.type = __class__.__name__
 
         self.r = r  # inner fillet
         self.r01 = r / sqrt2
@@ -9329,8 +8713,7 @@ class ArrowProfile(Profile):
         super().__init__(name, "Arrow-profile", "Unknown", length, width)
         
         # parameters
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.length = length  # length
         self.b1 = b1
         self.l1 = l1
@@ -9440,7 +8823,7 @@ class nameToProfile:
         self.polycurve2d = pc2d2
 
 def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
-    
+
     # print(XJustifiction)
     xval = []
     yval = []
@@ -9512,9 +8895,8 @@ class Material:
         M1 = Material()
         M1.name = name
         M1.color = color
-        M1.colorint = rgb_to_int(color)
+        #M1.colorint = rgb_to_int(color)
         return M1
-
 
 #Building Materials
 BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
@@ -9542,8 +8924,7 @@ def colorlist(extrus, color):
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Frame(Serializable):
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.name = "None"
         self.profileName = "None"
         self.extrusion = None
@@ -9864,9 +9245,8 @@ class System:
         - `polycurve` (PolyCurve, optional): An optional PolyCurve associated with the system.
         - `direction` (Vector): A Vector indicating the primary direction of the system.
         """
-        self.type = __class__.__name__
         self.name = None
-        self.id = generateID()
+        
         self.polycurve = None
         self.direction: Vector = Vector(1, 0, 0)
 
@@ -9890,9 +9270,8 @@ class DivisionSystem:
         - `spaces` (list): A list containing the spaces between each division.
         - `system` (str): A string indicating the current system strategy (e.g., "fixed_distance_unequal_division").
         """
-        self.type = __class__.__name__
         self.name = None
-        self.id = generateID()
+        
         self.system_length: float = 100
         self.spacing: float = 10
         self.distance_first: float = 5
@@ -10077,9 +9456,8 @@ class RectangleSystem:
         - `symbolic_outer_grids` (list): Symbolic representations of outer grids.
         - `symbolic_inner_grids` (list): Symbolic representations of inner grids.
         """
-        self.type = __class__.__name__
         self.name = None
-        self.id = generateID()
+        
         self.height = 3000
         self.width = 2000
         self.bottom_frame_type = Rectangle("bottom_frame_type", 38, 184)
@@ -10287,9 +9665,8 @@ class pattern_system:
     """The `pattern_system` class is designed to define and manipulate patterns for architectural or design applications. It is capable of generating various patterns based on predefined or dynamically generated parameters."""
     def __init__(self):
         """Initializes a new pattern_system instance."""
-        self.type = __class__.__name__
         self.name = None
-        self.id = generateID()
+        
         self.pattern = None
         self.basepanels = []  # contains a list with basepanels of the system
         # contains a list sublists with Vector which represent the repetition of the system
@@ -10540,8 +9917,7 @@ class Support:
     def __init__(self):
         self.Number = None
         self.Point: Point = Point(0, 0, 0)
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.Tx: str = " "  # A, P, N, S
         self.Ty: str = " "  # A, P, N, S
         self.Tz: str = " "  # A, P, N, S
@@ -10721,7 +10097,7 @@ class TickMark:
     # Dimension Tick Mark
     def __init__(self):
         self.name = None
-        self.id = generateID()
+        
         self.curves = []
 
     @staticmethod
@@ -10739,8 +10115,7 @@ TMDiagonal = TickMark.by_curves(
 class DimensionType:
     def __init__(self):
         self.name = None
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.font = None
         self.text_height = 2.5
         self.tick_mark: TickMark = TMDiagonal
@@ -10795,8 +10170,7 @@ DT1_8_mm = DimensionType.by_name_font_textheight_tick_mark_extension(
 
 class Dimension:
     def __init__(self, start: Point, end: Point, dimension_type) -> None:
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.start: Point = start
         self.text_height = 100
         self.end: Point = end
@@ -10888,8 +10262,7 @@ class Dimension:
 class FrameTag:
     def __init__(self):
         # Dimensions in 1/100 scale
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.scale = 0.1
         self.cs: CoordinateSystem = CSGlobal
         self.offset_x = 500
@@ -10968,8 +10341,7 @@ class FrameTag:
 class ColumnTag:
     def __init__(self):
         # Dimensions in 1/100 scale
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.width = 700
         self.height = 500
         self.factor = 3  # hellingsfacor leader
@@ -11085,8 +10457,7 @@ seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
 class GridheadType(Serializable):
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.name = None
         self.curves = []
         self.diameter = 150
@@ -11148,8 +10519,7 @@ GHT50 = GridheadType().by_diam("GHT50", 600, "calibri", 350)
 
 class GridHead:
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.grid_name: str = "A"
         self.grid_head_type = GHT50
         self.radius = GHT50.radius
@@ -11296,8 +10666,7 @@ def get_grid_distances(Grids):
 class GridSystem:
     # rectangle Gridsystem
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.gridsX = None
         self.gridsY = None
         self.dimensions = []
@@ -11403,8 +10772,7 @@ class GridSystem:
 
 class Door:
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.name = None
         self.verts = None
         self.faces = None
@@ -11428,8 +10796,7 @@ class Door:
 
 class Floor:
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.extrusion = None
         self.thickness = 0
         self.name = None
@@ -11443,8 +10810,7 @@ class Floor:
         self.thickness = None
 class Level:
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.name = None
         self.polycurve = None
         self.plane = None
@@ -11474,8 +10840,7 @@ class Level:
 
 class WurksRaster3d(Serializable):
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.bottom = None
         self.top = None
         self.name = "x"
@@ -11623,8 +10988,7 @@ WorkPlane = WorkPlane()
 
 class Room:
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.name = None
         self.extrusion = None
         self.verts = None
@@ -11637,8 +11001,7 @@ class Room:
 
 class Wall:
     def __init__(self):
-        self.id = generateID()
-        self.type = __class__.__name__
+        
         self.name = None
         self.verts = None
         self.faces = None
