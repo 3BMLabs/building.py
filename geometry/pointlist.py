@@ -1,3 +1,5 @@
+# [included in BP singlefile]
+# [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
 # *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
@@ -42,6 +44,7 @@ from abstract.rect import Rect
 from abstract.vector import Vector
 from packages.helper import *
 
+# [!not included in BP singlefile - end]
 class PointList(Vector[Vector]):
     """Represents a collection of points in space as a point cloud."""
     

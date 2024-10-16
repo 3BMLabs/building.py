@@ -36,8 +36,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
 from geometry.curve import *
 
 # [!not included in BP singlefile - end]
@@ -51,7 +49,6 @@ class Floor:
         self.name = None
         self.description = None
         self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorint = None
         self.colorlst = []
         self.origincurve = None

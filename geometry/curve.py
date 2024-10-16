@@ -697,8 +697,6 @@ class PolyCurve(Serializable, list[Line], Shape):
 
         ```        
         """
-        from abstract.intersect2d import is_point_on_line_segment
-        from abstract.intersect2d import get_intersect_polycurve_lines
 
         allLines = self.curves.copy()
 

@@ -36,8 +36,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
 from geometry.solid import Extrusion
 from geometry.curve import *
 
@@ -52,43 +50,9 @@ class Panel(Serializable):
         self.thickness = 0
         self.name = None
         self.perimeter: float = 0
-        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorint = None
         self.colorlst = []
         self.origincurve = None
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'extrusion': self.extrusion,
-            'thickness': self.thickness,
-            'name': self.name,
-            'perimeter': self.perimeter,
-            'coordinatesystem': self.coordinatesystem.serialize(),
-            'color': self.color,
-            'colorlst': self.colorlst,
-            'origincurve': self.origincurve
-        }
-
-    @staticmethod
-    def deserialize(data):
-        panel = Panel()
-        panel.id = data.get('id')
-        panel.type = data.get('type')
-        panel.extrusion = data.get('extrusion')
-        panel.thickness = data.get('thickness', 0)
-        panel.name = data.get('name', "none")
-        panel.perimeter = data.get('perimeter', 0)
-        panel.coordinatesystem = CoordinateSystem.deserialize(
-            data['coordinatesystem'])
-        panel.color = data.get('color')
-        panel.colorlst = data.get('colorlst', [])
-        panel.origincurve = data.get('origincurve')
-
-        return panel
 
     @classmethod
     def by_polycurve_thickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):

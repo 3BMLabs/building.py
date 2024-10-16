@@ -36,8 +36,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
 from geometry.solid import Extrusion
 from geometry.curve import *
 
@@ -53,5 +51,4 @@ class Room:
         self.topsurface = None
         self.bottomsurface = None
         self.parms = None
-        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorlst = None

@@ -35,8 +35,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
 from geometry.curve import *
 from project.fileformat import *
 
@@ -50,7 +48,6 @@ class Level:
         self.plane = None
         self.parms = None
         self.elevation = None
-        self.coordinatesystem: CoordinateSystem = CSGlobal
 
     @classmethod
     def by_point(self, point=Point, name=str):

@@ -40,14 +40,6 @@ import json
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from packages.svg.path import parse_path
-from project.fileformat import *
-from abstract.coordinatesystem import CoordinateSystem
-from geometry.geometry2d import *
-from geometry.solid import *
-from abstract.rect import *
-from abstract.coordinatesystem import *
-from abstract.vector import *
-from geometry.point import *
 
 # [!not included in BP singlefile - end]
 

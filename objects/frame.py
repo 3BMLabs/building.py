@@ -40,10 +40,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from library.profile import *
 from library.profile import nameToProfile, justifictionToVector
-from geometry.geometry2d import *
 from library.material import *
 from abstract.vector import *
-from abstract.coordinatesystem import *
 from objects import profile
 
 from abstract.node import *
@@ -139,7 +137,7 @@ class Frame(Serializable):
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector, rotation: float, material: None, comments: None):
         f1 = Frame()
         f1.comments = comments
 
@@ -167,7 +165,7 @@ class Frame(Serializable):
         f1.length = Vector.length(f1.directionVector)
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+            f1.curve, f1.length, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile_name

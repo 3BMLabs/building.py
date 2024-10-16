@@ -40,7 +40,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.curve import *
 from geometry.solid import Extrusion
 from abstract.color import Color
-from abstract.intersect2d import *
 
 
 # [!not included in BP singlefile - end]

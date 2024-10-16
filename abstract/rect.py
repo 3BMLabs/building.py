@@ -24,11 +24,11 @@
 # ***************************************************************************
 
 
-"""This module provides tools for boundingbox
+"""This module provides tools for boundingboxes and rectangles
 """
 
-__title__ = "coordinatesystem"
-__author__ = "Maarten & Jonathan"
+__title__ = "rect"
+__author__ = "Maarten & Jonathan & JohnHeikens"
 __url__ = "./abstract/boundingbox.py"
 
 import copy

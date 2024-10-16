@@ -647,3 +647,5 @@ class Matrix(Serializable, list[list]):
         rows = len(self)
         cols = len(self[0]) if rows > 0 else 0
         return rows, cols
+
+CoordinateSystem = Matrix

@@ -39,7 +39,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.serializable import Serializable
 from geometry.point import Point
-from abstract.coordinatesystem import CoordinateSystem
 from abstract.vector import Vector
 
 # [!not included in BP singlefile - end]
@@ -90,11 +89,6 @@ class BuildingPy(Serializable):
         self.specklestream = None
 
         #FreeCAD settings
-
-        X_axis = Vector(1, 0, 0)
-        Y_Axis = Vector(0, 1, 0)
-        Z_Axis = Vector(0, 0, 1)
-        self.CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
         
     def save(self, file_name = 'project/data.json'):
         Serializable.save(file_name)

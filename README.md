@@ -25,7 +25,7 @@ Group | Part | Implemented | ToSpeckle | ToFreeCAD
 Abstract | Vector | :heavy_check_mark: |  |  
 &nbsp; | Vector2 | :heavy_check_mark: |  |  
 &nbsp; | Plane | :heavy_check_mark: |  |  
-&nbsp; | CoordinateSystem | :heavy_check_mark: |  |  
+&nbsp; | Matrix | :heavy_check_mark: |  |  
 &nbsp; | Color | :heavy_check_mark: | :heavy_check_mark: |  
 &nbsp; | Material | :heavy_check_mark: | |  
 Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |  

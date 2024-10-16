@@ -35,8 +35,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.coordinatesystem import CoordinateSystem
-from abstract.coordinatesystem import CSGlobal
 from geometry.solid import Extrusion
 from geometry.curve import *
 from project.fileformat import *
@@ -53,7 +51,6 @@ class Door:
         self.bottomsurface = None
         # self.polycurve = None or self.profile
         self.parms = None
-        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorlst = None
 
     @classmethod

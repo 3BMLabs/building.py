@@ -36,28 +36,27 @@ import sys
 from pathlib import Path
 from typing import Self
 
-from abstract.coordinatesystem import CoordinateSystem
+
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
+from BuildingPy import Matrix
 from abstract.plane import Plane
 from abstract.rect import Rect
 from abstract.vector import Vector
 from geometry.curve import PolyCurve
 from geometry.point import Point, transform_point
 from packages.helper import flatten, generateID
-
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
-from geometry.geometry2d import PolyCurve2D
-
-
+from objects.profile import Profile
 # [!not included in BP singlefile - end]
 
 
 class Extrusion:
     # Extrude a 2D profile to a 3D mesh or solid
     """The Extrusion class represents the process of extruding a 2D profile into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process."""
-    def __init__(self):
+    def __init__(self, polycurve: PolyCurve, start: Vector, end: Vector):
         """The Extrusion class represents the process of extruding a 2D profile into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process.
         
         - `id` (str): A unique identifier for the extrusion instance.
@@ -76,21 +75,9 @@ class Extrusion:
         - `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
         """
         
-        self.parameters = []
-        self.verts = []
-        self.faces = []
-        self.numberFaces = 0
-        # total number of verts per face (not the same as total verts)
-        self.countVertsFaces = 0
-        self.name = None
-        self.color = (255, 255, 0)
-        self.colorlst = []
-        self.topface = None  # return polycurve -> surface
-        self.bottomface = None  # return polycurve -> surface
-        self.polycurve_3d_translated = None
-        self.outercurve = []
-        self.bottomshape = []
-        self.nested = []
+        self.polycurve = polycurve
+        self.start = start
+        self.end = end
 
     def set_parameter(self, data: list) -> 'Extrusion':
         """Sets parameters for the extrusion.
@@ -109,43 +96,9 @@ class Extrusion:
         """
         self.parameters = data
         return self
-
+        
     @staticmethod
-    def merge(extrusions: list, name: str = None) -> 'Extrusion':
-        """Merges multiple Extrusion instances into a single one.
-        This class method combines several extrusions into a single Extrusion object, potentially useful for operations requiring unified geometric manipulation.
-
-        #### Parameters:
-        - `extrusions` (list): A list of Extrusion instances to be merged.
-        - `name` (str, optional): The name for the merged extrusion.
-
-        #### Returns:
-        `Extrusion`: A new Extrusion instance resulting from the merger of the provided extrusions.
-    
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        Outrus = Extrusion()
-        if isinstance(extrusions, list):
-            Outrus.verts = []
-            Outrus.faces = []
-            Outrus.colorlst = []
-            for ext in extrusions:
-                Outrus.verts.append(ext.verts)
-                Outrus.faces.append(ext.faces)
-                Outrus.colorlst.append(ext.colorlst)
-            Outrus.verts = flatten(Outrus.verts)
-            Outrus.faces = flatten(Outrus.faces)
-            Outrus.colorlst = flatten(Outrus.colorlst)
-            return Outrus
-
-        elif isinstance(extrusions, Extrusion):
-            return extrusions
-
-    @staticmethod
-    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector) -> 'Extrusion':
+    def by_polycurve_height_vector(polycurve: PolyCurve, height: float, start_point: Point, direction_vector: Vector) -> 'Extrusion':
         """Creates an extrusion from a 2D polycurve profile along a specified vector.
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -164,126 +117,7 @@ class Extrusion:
         extrusion = Extrusion.by_polycurve_height_vector(polycurve_2d, 10, oldCS, startPoint, directionVec)
         ```
         """
-        Extrus = Extrusion()
-        # 2D PolyCurve @ Global origin
-        count = 0
-
-        Extrus.polycurve_3d_translated = PolyCurve.transform_from_origin(
-            polycurve_2d, start_point, direction_vector)
-
-        try:
-            for i in polycurve_2d.curves:
-                startpointLow = transform_point(
-                    Point(i.start.x, i.start.y, 0), cs_old, start_point, direction_vector)
-                endpointLow = transform_point(
-                    Point(i.end.x, i.end.y, 0), cs_old, start_point, direction_vector)
-                endpointHigh = transform_point(
-                    Point(i.end.x, i.end.y, height), cs_old, start_point, direction_vector)
-                startpointHigh = transform_point(
-                    Point(i.start.x, i.start.y, height), cs_old, start_point, direction_vector)
-
-                # Construct faces perpendicular on polycurve
-                Extrus.faces.append(4)
-                Extrus.verts.append(startpointLow.x)
-                Extrus.verts.append(startpointLow.y)
-                Extrus.verts.append(startpointLow.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.verts.append(endpointLow.x)
-                Extrus.verts.append(endpointLow.y)
-                Extrus.verts.append(endpointLow.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.verts.append(endpointHigh.x)
-                Extrus.verts.append(endpointHigh.y)
-                Extrus.verts.append(endpointHigh.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.verts.append(startpointHigh.x)
-                Extrus.verts.append(startpointHigh.y)
-                Extrus.verts.append(startpointHigh.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.numberFaces = Extrus.numberFaces + 1
-
-            # bottomface
-            Extrus.faces.append(len(polycurve_2d.curves))
-
-            count = 0
-            for i in polycurve_2d.curves:
-                Extrus.faces.append(count)
-                Extrus.bottomshape.append(i)
-                count = count + 4
-
-            # topface
-            Extrus.faces.append(len(polycurve_2d.curves))
-            count = 3
-            for i in polycurve_2d.curves:
-                Extrus.faces.append(count)
-                count = count + 4
-        except:
-            for i in polycurve_2d.curves:
-                startpointLow = transform_point(
-                    Point(i.start.x, i.start.y, 0), cs_old, start_point, direction_vector)
-                endpointLow = transform_point(
-                    Point(i.end.x, i.end.y, 0), cs_old, start_point, direction_vector)
-                endpointHigh = transform_point(
-                    Point(i.end.x, i.end.y, height), cs_old, start_point, direction_vector)
-                startpointHigh = transform_point(
-                    Point(i.start.x, i.start.y, height), cs_old, start_point, direction_vector)
-
-                # Construct faces perpendicular on polycurve
-                Extrus.faces.append(4)
-                Extrus.verts.append(startpointLow.x)
-                Extrus.verts.append(startpointLow.y)
-                Extrus.verts.append(startpointLow.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.verts.append(endpointLow.x)
-                Extrus.verts.append(endpointLow.y)
-                Extrus.verts.append(endpointLow.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.verts.append(endpointHigh.x)
-                Extrus.verts.append(endpointHigh.y)
-                Extrus.verts.append(endpointHigh.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.verts.append(startpointHigh.x)
-                Extrus.verts.append(startpointHigh.y)
-                Extrus.verts.append(startpointHigh.z)
-                Extrus.faces.append(count)
-                count += 1
-                Extrus.numberFaces = Extrus.numberFaces + 1
-
-            # bottomface
-            Extrus.faces.append(len(polycurve_2d.curves))
-
-            count = 0
-            for i in polycurve_2d.curves:
-                Extrus.faces.append(count)
-                Extrus.bottomshape.append(i)
-                count = count + 4
-
-            # topface
-            Extrus.faces.append(len(polycurve_2d.curves))
-            count = 3
-            for i in polycurve_2d.curves:
-                Extrus.faces.append(count)
-                count = count + 4
-
-        Extrus.countVertsFaces = (4 * Extrus.numberFaces)
-
-        Extrus.countVertsFaces = Extrus.countVertsFaces + \
-            len(polycurve_2d.curves)*2
-        Extrus.numberFaces = Extrus.numberFaces + 2
-
-        Extrus.outercurve = polycurve_2d
-
-        for j in range(int(len(Extrus.verts) / 3)):
-            Extrus.colorlst.append(Extrus.color)
-
-        return Extrus
+        return Extrusion(polycurve, start_point, start_point + direction_vector * height)
 
     @staticmethod
     def by_polycurve_height(polycurve: PolyCurve, height: float, dz_loc: float) -> 'Extrusion':

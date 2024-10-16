@@ -27,7 +27,7 @@
 """This module brings functions on geometric types
 """
 
-__title__ = "coordinatesystem"
+__title__ = "shape"
 __author__ = "JohnHeikens"
 __url__ = "./abstract/physics.py"
 
