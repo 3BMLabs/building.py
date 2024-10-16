@@ -48,7 +48,7 @@ def generate_single_file(output_filename, include_files=None):
 						#TODO: fix error can't decode bytes in position
 						lines = f.readlines()
 						file_str = ""
-						if len(lines) > 0 and  lines[0] == Includedstr:
+						if len(lines) > 0 and lines[0] == Includedstr:
 							copy_flag = True
 							#loop over lines, skip the first line
 							for line_index in range(1, len(lines)):
@@ -108,7 +108,7 @@ def generate_single_file(output_filename, include_files=None):
 				for dep in file_dict[relative_path]["deps"]:
 					add_file(dep)
 				nonlocal merged_str
-				merged_str += file_dict[relative_path]["text"]
+				merged_str += file_dict[relative_path]["text"] + '\n'
 
 	#now order files based on dependencies
 	for longer_path in file_dict:

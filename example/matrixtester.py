@@ -50,3 +50,9 @@ transformed_pointcloud = combined2 * pc
 curve.closed = True
 area = curve.area
 print(area)
+
+centroid = curve.centroid
+print(centroid)
+
+sm = curve.statical_moment
+print(sm)

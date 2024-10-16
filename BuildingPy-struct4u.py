@@ -115,6 +115,756 @@ class Serializable:
             # self.__dict__ = json.load(file)
     def __repr__(self) -> str:
         return str(self)
+def to_array(*args) -> list:
+    """converts the arguments into an array.
+
+    Returns:
+        list: the arguments provided, converted to a list.
+    """
+    return args[0] if len(args) == 1 and hasattr(args[0], "__getitem__") else list(args)
+
+
+class Coords(Serializable, list):
+    """
+    a shared base class for point and vector. contains the x, y and z coordinates.
+    operations you do with these coords will apply for the children.
+    for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
+    or: Vector(2,5) ** 2 = Vector(4, 25)
+    Vectors can also be nested.
+    """
+    def __init__(self, *args, **kwargs) -> 'Coords':
+        arrayArgs:list = to_array(*args)
+
+        list.__init__(self, arrayArgs)
+        Serializable.__init__(self)
+
+        for kwarg in kwargs.items():
+            self.set_axis_by_name(kwarg[0], kwarg[1])            
+
+    def __str__(self):
+        return self.__class__.__name__ + '(' + ','.join([f'{axis_name}={((v * 100) // 1 ) / 100 }' for v, axis_name in zip(self, self.axis_names)]) + ')'
+    
+    axis_names = ['x', 'y', 'z', 'w']
+    
+    @property
+    def x(self): return self[0]
+    @x.setter
+    def x(self, value): self[0] = value
+        
+    @property
+    def y(self): return self[1]
+    @y.setter
+    def y(self, value): self[1] = value
+
+    @property
+    def z(self): return self[2]
+    @z.setter
+    def z(self, value): self[2] = value
+
+    @property
+    def w(self): return self[3]
+    @w.setter
+    def w(self, value): self[3] = value
+    
+    @property
+    def squared_magnitude(self):
+        result = 0
+        for axis_value in self:
+            result += axis_value * axis_value
+        return result
+    
+    @property
+    def magnitude(self): 
+        """the 'length' could also mean the axis count. this makes it more clear.
+        Returns:
+            the length
+        """
+        return math.sqrt(self.squared_magnitude)
+    
+    @magnitude.setter
+    def magnitude(self, value):
+        """Rescales the vector to have the specified length.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The vector to be rescaled.
+        - `newlength` (float): The desired length of the vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the rescaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(3, 4, 0)
+        new_vector = Vector.new_length(vector, 5)
+        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
+        ```
+        """
+        self *= value / self.magnitude
+    
+    @property
+    def normalized(self):
+        """Returns the normalized form of the vector.
+        The normalized form of a vector is a vector with the same direction but with a length (magnitude) of 1.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the normalized form of the input vector.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(3, 0, 4)
+        normalized_vector = vector1.normalized
+        # Vector(X = 0.600, Y = 0.000, Z = 0.800)
+        ```
+        """
+        sqm = self.squared_magnitude
+        
+        return self / math.sqrt(sqm) if sqm > 0 else Coords()
+    
+    @property
+    def angle(self) -> float:
+        """output range: -PI to PI
+
+        Returns:
+            float: the arc tangent of y / x in radians
+        """
+        #treat this normal vector as a triangle. we know all sides but want to know the angle.
+        #tan(deg) = other side / straight side
+        #deg = atan(other side / straight side)
+        return math.atan2(self.x, self.y)
+    
+    @staticmethod
+    def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
+        """Computes the angle in degrees between two coords.
+        The angle between two coords is the angle required to rotate one vector onto the other, measured in degrees.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The first vector.
+        - `vector_2` (`Vector`): The second vector.
+
+        #### Returns:
+        `float`: The angle in degrees between the input coords.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(1, 0, 0)
+        vector2 = Vector(0, 1, 0)
+        angle = Vector.angle_between(vector1, vector2)
+        # 90
+        ```
+        """
+        dot_product = Coords.dot_product(vector_1, vector_2)
+        length_vector_1 = vector_1.magnitude
+        length_vector_2 = vector_2.magnitude
+
+        if length_vector_1 == 0 or length_vector_2 == 0:
+            return 0
+
+        cos_angle = dot_product / (length_vector_1 * length_vector_2)
+        cos_angle = max(-1.0, min(cos_angle, 1.0))
+        return math.acos(cos_angle)
+
+    @staticmethod
+    def dot_product(vector_1: 'Coords', vector_2: 'Coords') -> 'float':
+        """Computes the dot product of two vectors.
+        The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
+
+        #### Parameters:
+        - `vector_1` (`Coords`): The first vector.
+        - `vector_2` (`Coords`): The second vector.
+
+        #### Returns:
+        `float`: The dot product of the input vectors.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(1, 2, 3)
+        vector2 = Vector(4, 5, 6)
+        dot_product = Vector.dot_product(vector1, vector2)
+        # 32
+        ```
+        """
+        total = 0
+        for i in range(len(vector_1)):
+            total += vector_1[i] * vector_2 [i]
+        return total
+    
+    @staticmethod
+    def distance_squared(point_1: 'Coords', point_2: 'Coords') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Coords): The first point.
+        - `point_2` (Coords): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Coords(0, 0, 400)
+        point_2 = Coords(300, 0, 400)
+        output = Coords.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_2 - point_1).squared_magnitude
+    
+    @staticmethod
+    def distance(point_1: 'Coords', point_2: 'Coords') -> float:
+        """Computes the Euclidean distance between two 3D points.
+
+        #### Parameters:
+        - `point_1` (Coords): The first point.
+        - `point_2` (Coords): The second point.
+
+        #### Returns:
+        `float`: The Euclidean distance between `point_1` and `point_2`.
+
+        #### Example usage:
+    	```python
+        point_1 = Coords(0, 0, 400)
+        point_2 = Coords(300, 0, 400)
+        output = Coords.distance(point_1, point_2) 
+        # 90000
+        ```
+        """
+        return (point_2 - point_1).magnitude
+    
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return Coords.axis_names.index(axis.lower())
+
+    def change_axis_count(self,axis_count: int):
+        """in- or decreases the amount of axes to the preferred axis count.
+
+        Args:
+            axis_count (int): the new amount of axes
+        """
+        if axis_count > len(self):
+            diff = axis_count + 1 - len(self)
+            self.extend([0] * diff)
+        else:
+            self = self[:axis_count]
+    def set_axis(self, axis_index: int, value) -> int | None:
+        """sets an axis with the specified index to the value. will resize when the coords can't contain them.
+
+        Args:
+            axis_index (int): the index of the axis, for example 2
+            value: the value to set the axis to
+
+        Returns:
+            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
+        """
+
+        if axis_index >= len(self):
+            self.extend([0] * (axis_index - len(self)))
+            self.extend([value])
+            return axis_index
+        self[axis_index] = value
+        return None
+        
+    def set_axis_by_name(self, axis_name: str, value) -> int | None:
+        """sets an axis with the specified name to the value. will resize when the coords can't contain them.
+
+        Args:
+            axis_name (str): the name of the axis, for example 'x'
+            value: the value to set the axis to
+
+        Returns:
+            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
+        """
+        return self.set_axis(Coords.axis_index(axis_name), value)
+    
+    @staticmethod
+    def by_two_points(point_1: 'Coords', point_2: 'Coords') -> 'Coords':
+        """Computes the vector between two points.
+
+        #### Parameters:
+        - `point_1` (`Coords`): The starting point.
+        - `point_2` (`Coords`): The ending point.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the vector between the two points.
+
+        #### Example usage:
+        ```python
+        point1 = Point(1, 2, 3)
+        point2 = Point(4, 6, 8)
+        vector = Vector.by_two_points(point1, point2)
+        # Vector(X = 3, Y = 4, Z = 5)
+        ```
+        """
+        return point_2 - point_1
+        
+    def volume(self):
+        result = 1
+        for val in self:
+            result *= val
+        return result
+        
+    #useful for sorting
+    def compare(self, other):
+        for axis in range(len(self)):
+            if self[axis] != other[axis]:
+                return other[axis] - self[axis]
+        return 0
+    
+    def ioperate_2(self, op: operator, other):
+        try:
+            for index in range(len(self)):
+                self[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                self[index] = op(self[index], other)
+        return self
+    
+    def operate_2(self, op:operator, other):
+        result = Coords([0] * len(self))
+        try:
+            for index in range(len(self)):
+                result[index] = op(self[index], other[index])
+        except TypeError:
+            #variable doesn't support index
+            #https://stackoverflow.com/questions/7604380/check-for-operator
+            for index in range(len(self)):
+                result[index] = op(self[index], other)
+        return result
+    def operate_1(self, op:operator):
+        result = Coords([0] * len(self))
+        for index in range(len(self)):
+            result[index] = op(self[index])
+        return result
+    
+    def __add__(self, other):
+        """Calculates the sum of two vectors.
+        
+        equivalent to the + operator.
+        
+        """
+        return self.operate_2(operator.__add__,other)
+    
+    sum = __add__
+    
+    def __sub__(self, other):
+        """Calculates the difference between two Vector objects.
+        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
+
+        equivalent to the - operator.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The minuend vector.
+        - `vector_2` (`Vector`): The subtrahend vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(5, 7, 9)
+        vector2 = Vector(1, 2, 3)
+        result = Vector.diff(vector1, vector2)
+        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
+        ```
+        """
+        return self.operate_2(operator.__sub__,other)
+    
+
+    difference = diff = substract = __sub__
+    
+    def __truediv__(self, other):
+        """Divides the components of the first vector by the corresponding components of the second vector.
+        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
+
+        equivalent to the / operator.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The numerator vector.
+        - `vector_2` (`Vector`): The denominator vector.
+
+        #### Returns:
+        `Vector`: A new Vector object resulting from the component-wise division.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(10, 20, 30)
+        vector2 = Vector(2, 4, 5)
+        result = Vector.divide(vector1, vector2)
+        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
+        ```
+        """
+        return self.operate_2(operator.__truediv__,other)
+    
+    divide = __truediv__
+    
+    def __mul__(self, other):
+        """Scales the vector by the specified scale factor.
+
+        equivalent to the * operator.
+
+        #### Parameters:
+        - `vector` (`Vector`): The vector to be scaled.
+        - `scalefactor` (float): The scale factor.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the scaled vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(1, 2, 3)
+        scaled_vector = Vector.scale(vector, 2)
+        # Vector(X = 2, Y = 4, Z = 6)
+        ```
+        """
+        return self.operate_2(operator.__mul__,other)
+    product = scale = __rmul__ = __mul__
+    
+    
+    
+    def __pow__(self, power: float) -> Self:
+        """raises the vector to a certain power.
+        
+        equivalent to the ** operator.
+
+        Returns:
+            Self: a vector with all components raised to the specified power
+        """
+        return self.ioperate_2(operator.__pow__)
+    
+    def __neg__(self) -> Self:
+        """negates this vector.
+
+        equivalent to the - operator.
+
+        Returns:
+            Self: a vector with all components negated.
+        """
+        return self.operate_1(operator.__neg__)
+    
+    reverse = __neg__
+    
+    @staticmethod
+    def square(self) -> 'Coords':
+        """
+        Computes the square of each component of the input vector.
+
+        #### Parameters:
+        - `vector_1` (`Vector`): The input vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the square of each component of the input vector.
+
+        #### Example usage:
+        ```python
+        vector = Vector(2, 3, 4)
+        squared_vector = Vector.square(vector)
+        # Vector(X = 4, Y = 9, Z = 16)
+        ```
+        """
+        return self ** 2
+    
+    
+    #i operators. these operate on self (+=, *=, etc)
+    
+    def __iadd__(self, other) -> Self:
+        """Translates the point by a given vector.        
+
+        equivalent to the += operator.
+        
+        #### Parameters:
+        - `point` (Point): The point to be translated.
+        - `vector` (Vector): The translation vector.
+
+        #### Returns:
+        `Point`: Translated point.
+
+        #### Example usage:
+    	```python
+        point = Point(23, 1, 23)
+        vector = Vector(93, 0, -19)
+        output = Point.translate(point, vector)
+        # Point(X = 116.000, Y = 1.000, Z = 4.000)
+        ```
+        """
+        return self.ioperate_2(operator.__iadd__,other)
+
+    translate = __iadd__
+    
+    def __isub__(self, other) -> Self:
+        return self.ioperate_2(operator.__isub__,other)
+    
+    def __imul__(self, other) -> Self:
+        return self.ioperate_2(operator.__imul__,other)
+    
+    def __itruediv__(self, other) -> Self:
+        return self.ioperate_2(operator.__itruediv__,other)
+    
+X_axis = Coords(1, 0, 0)
+
+Y_Axis = Coords(0, 1, 0)
+
+Z_Axis = Coords(0, 0, 1)
+
+
+class Color(Coords):
+    """Documentation: output returns [r, g, b]"""
+
+    def __init__(self, *args, **kwargs):
+        Coords.__init__(self, *args,**kwargs)
+    
+    red = r = Coords.x
+    green = g = Coords.y
+    blue = b = Coords.z
+    alpha = a = Coords.w
+    
+    @property
+    def int(self) -> int:
+        """converts this color into an integer value
+
+        Returns:
+            int: the merged integer.
+            this is assuming the color elements are whole integer values from 0 - 255
+        """
+        int_val = elem
+        mult = 0x100
+        for elem in self[1:]:
+            int_val += elem * mult
+            mult *= 0x100
+        return int_val
+    
+    @property
+    def hex(self):
+        return '#%02x%02x%02x%02x' % (self.r,self.g,self.b,self.a)
+        
+    @staticmethod
+    def axis_index(axis:str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+            axis (str): the name of the axis
+
+        Returns:
+            int: the index
+        """
+        return ['r', 'g', 'b', 'a'].index(axis)
+
+    def Components(self, colorInput=None):
+        """1"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
+        else:
+            try:
+                import json
+                JSONfile = "library/color/colorComponents.json"
+                with open(JSONfile, 'r') as file:
+                    components_dict = json.load(file)
+                    checkExist = components_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        r, g, b, a = components_dict[colorInput]
+                        return [r, g, b]
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def Hex(hex:str) -> 'Color':
+        """converts a heximal string to a color object.
+
+        Args:
+            hex (str): a heximal string, for example '#FF00FF88'
+
+        Returns:
+            Color: the color object
+        """
+        return Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16),int(hex[7:9], 16)) if len(hex) > 7 else Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16))
+
+    def CMYK(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
+        else:
+            try:
+                c, m, y, k = colorInput
+                r = int((1-c) * (1-k) * 255)
+                g = int((1-m) * (1-k) * 255)
+                b = int((1-y) * (1-k) * 255)
+                return [r, g, b]
+            except:
+                # add check help attribute
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Alpha(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+        else:
+            try:
+                r, g, b, a = colorInput
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Brightness(self, colorInput=None):
+        """Expected value is int(0) - int(1)"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+        else:
+            try:
+                if colorInput >= 0 and colorInput <= 1:
+                    r = g = b = int(255 * colorInput)
+                    return [r, g, b]
+                else:
+                    return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+            
+    @staticmethod
+    def RGB(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
+        else:
+            try:
+                r, g, b = colorInput
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def HSV(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                h, s, v = colorInput
+                h /= 60.0
+                c = v * s
+                x = c * (1 - abs(h % 2 - 1))
+                m = v - c
+                if 0 <= h < 1:
+                    r, g, b = c, x, 0
+                elif 1 <= h < 2:
+                    r, g, b = x, c, 0
+                elif 2 <= h < 3:
+                    r, g, b = 0, c, x
+                elif 3 <= h < 4:
+                    r, g, b = 0, x, c
+                elif 4 <= h < 5:
+                    r, g, b = x, 0, c
+                else:
+                    r, g, b = c, 0, x
+                return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def HSL(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                h, s, l = colorInput
+                c = (1 - abs(2 * l - 1)) * s
+                x = c * (1 - abs(h / 60 % 2 - 1))
+                m = l - c / 2
+                if h < 60:
+                    r, g, b = c, x, 0
+                elif h < 120:
+                    r, g, b = x, c, 0
+                elif h < 180:
+                    r, g, b = 0, c, x
+                elif h < 240:
+                    r, g, b = 0, x, c
+                elif h < 300:
+                    r, g, b = x, 0, c
+                else:
+                    r, g, b = c, 0, x
+                r, g, b = int((r + m) * 255), int((g + m)
+                                                  * 255), int((b + m) * 255)
+                return [r, g, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def RAL(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
+        else:
+            try:
+                # validate if value is correct/found
+                import json
+                JSONfile = "library/color/colorRAL.json"
+                with open(JSONfile, 'r') as file:
+                    ral_dict = json.load(file)
+                    checkExist = ral_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
+                        return [int(r), int(g), int(b), 100]
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def Pantone(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                import json
+                JSONfile = "library/color/colorPantone.json"
+                with open(JSONfile, 'r') as file:
+                    pantone_dict = json.load(file)
+                    checkExist = pantone_dict.get(str(colorInput))
+                    if checkExist is not None:
+                        PantoneHex = pantone_dict[str(colorInput)]['hex']
+                        return Color().Hex(PantoneHex)
+                    else:
+                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+    def LRV(self, colorInput=None):
+        """NAN"""
+        if colorInput is None:
+            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+        else:
+            try:
+                b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
+                b = int(max(0, min(255, b)))
+                return [255, 255, b]
+            except:
+                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+
+
+    def __str__(self, colorInput=None):
+        colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
+                           "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
+        if colorInput is None:
+            header = "Available attributes: \n"
+            footer = "\nColor().red | Color().green | Color().blue"
+            return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
+        return f"Color().{colorInput}"
+
+    def Info(self, colorInput=None):
+        pass
+
+Color.red = Color(255, 0, 0)
+Color.green = Color(0, 255, 0)
+Color.blue = Color(0, 0, 255)
+
 class ID(Serializable):
     def __init__(self) -> None:
         self.id = None
@@ -248,6 +998,7 @@ def xmldata(myurl, xPathStrings):
             xPathResulttemp2.append(xPathResult.text)
         xPathResults.append(xPathResulttemp2)
     return xPathResults
+
 # from project.fileformat import project
 
 
@@ -672,6 +1423,7 @@ def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem) 
         CoordinateSystemNew.Z_axis, PointLocal.z))
     return pn3
 
+
 class Vector(Coords):
     """Represents a 3D vector with x, y, and z coordinates."""
     def __init__(self, *args, **kwargs) -> 'Vector':
@@ -752,27 +1504,6 @@ class Vector(Coords):
             vector_1.x*vector_2.y - vector_1.y*vector_2.x
         )
 
-    @staticmethod
-    def dot_product(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Computes the dot product of two vectors.
-        The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The dot product of the input vectors.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 2, 3)
-        vector2 = Vector(4, 5, 6)
-        dot_product = Vector.dot_product(vector1, vector2)
-        # 32
-        ```
-        """
-        return vector_1.x*vector_2.x+vector_1.y*vector_2.y+vector_1.z*vector_2.z
 
     @staticmethod
     def product(number: float, vector_1: 'Vector') -> 'Vector':
@@ -973,720 +1704,7 @@ class Vector(Coords):
         ```
         """
         return Vector(vector_list)
-class Coords(Serializable, list):
-    """
-    a shared base class for point and vector. contains the x, y and z coordinates.
-    operations you do with these coords will apply for the children.
-    for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
-    or: Vector(2,5) ** 2 = Vector(4, 25)
-    Vectors can also be nested.
-    """
-    def __init__(self, *args, **kwargs) -> 'Coords':
-        arrayArgs:list = to_array(*args)
 
-        list.__init__(self, arrayArgs)
-        Serializable.__init__(self)
-
-        for kwarg in kwargs.items():
-            self.set_axis_by_name(kwarg[0], kwarg[1])            
-
-    def __str__(self):
-        return self.__class__.__name__ + '(' + ','.join([f'{axis_name}={((v * 100) // 1 ) / 100 }' for v, axis_name in zip(self, self.axis_names)]) + ')'
-    
-    axis_names = ['x', 'y', 'z', 'w']
-    
-    @property
-    def x(self): return self[0]
-    @x.setter
-    def x(self, value): self[0] = value
-        
-    @property
-    def y(self): return self[1]
-    @y.setter
-    def y(self, value): self[1] = value
-
-    @property
-    def z(self): return self[2]
-    @z.setter
-    def z(self, value): self[2] = value
-
-    @property
-    def w(self): return self[3]
-    @w.setter
-    def w(self, value): self[3] = value
-    
-    @property
-    def squared_magnitude(self):
-        result = 0
-        for axis_value in self:
-            result += axis_value * axis_value
-        return result
-    
-    @property
-    def magnitude(self): 
-        """the 'length' could also mean the axis count. this makes it more clear.
-        Returns:
-            the length
-        """
-        return math.sqrt(self.squared_magnitude)
-    
-    @magnitude.setter
-    def magnitude(self, value):
-        """Rescales the vector to have the specified length.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector to be rescaled.
-        - `newlength` (float): The desired length of the vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the rescaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(3, 4, 0)
-        new_vector = Vector.new_length(vector, 5)
-        # Vector(X = 3.000, Y = 4.000, Z = 0.000)
-        ```
-        """
-        self *= value / self.magnitude
-    
-    @property
-    def normalized(self):
-        """Returns the normalized form of the vector.
-        The normalized form of a vector is a vector with the same direction but with a length (magnitude) of 1.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the normalized form of the input vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(3, 0, 4)
-        normalized_vector = vector1.normalized
-        # Vector(X = 0.600, Y = 0.000, Z = 0.800)
-        ```
-        """
-        sqm = self.squared_magnitude
-        
-        return self / math.sqrt(sqm) if sqm > 0 else Coords()
-    
-    @property
-    def angle(self) -> float:
-        """output range: -PI to PI
-
-        Returns:
-            float: the arc tangent of y / x in radians
-        """
-        #treat this normal vector as a triangle. we know all sides but want to know the angle.
-        #tan(deg) = other side / straight side
-        #deg = atan(other side / straight side)
-        return math.atan2(self.x, self.y)
-    
-    @staticmethod
-    def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
-        """Computes the angle in degrees between two coords.
-        The angle between two coords is the angle required to rotate one vector onto the other, measured in degrees.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The angle in degrees between the input coords.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 0, 0)
-        vector2 = Vector(0, 1, 0)
-        angle = Vector.angle_between(vector1, vector2)
-        # 90
-        ```
-        """
-        dot_product = Vector.dot_product(vector_1, vector_2)
-        length_vector_1 = Vector.length(vector_1)
-        length_vector_2 = Vector.length(vector_2)
-
-        if length_vector_1 == 0 or length_vector_2 == 0:
-            return 0
-
-        cos_angle = dot_product / (length_vector_1 * length_vector_2)
-        cos_angle = max(-1.0, min(cos_angle, 1.0))
-        return math.acos(cos_angle)
-
-    @staticmethod
-    def distance_squared(point_1: 'Coords', point_2: 'Coords') -> float:
-        """Computes the Euclidean distance between two 3D points.
-
-        #### Parameters:
-        - `point_1` (Coords): The first point.
-        - `point_2` (Coords): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-    	```python
-        point_1 = Coords(0, 0, 400)
-        point_2 = Coords(300, 0, 400)
-        output = Coords.distance(point_1, point_2) 
-        # 90000
-        ```
-        """
-        return (point_2 - point_1).squared_magnitude
-    
-    @staticmethod
-    def distance(point_1: 'Coords', point_2: 'Coords') -> float:
-        """Computes the Euclidean distance between two 3D points.
-
-        #### Parameters:
-        - `point_1` (Coords): The first point.
-        - `point_2` (Coords): The second point.
-
-        #### Returns:
-        `float`: The Euclidean distance between `point_1` and `point_2`.
-
-        #### Example usage:
-    	```python
-        point_1 = Coords(0, 0, 400)
-        point_2 = Coords(300, 0, 400)
-        output = Coords.distance(point_1, point_2) 
-        # 90000
-        ```
-        """
-        return (point_2 - point_1).magnitude
-    
-    @staticmethod
-    def axis_index(axis:str) -> int:
-        """returns index of axis name.<br>
-        raises a valueError when the name isn't valid.
-
-        Args:
-            axis (str): the name of the axis
-
-        Returns:
-            int: the index
-        """
-        return Coords.axis_names.index(axis.lower())
-
-    def change_axis_count(self,axis_count: int):
-        """in- or decreases the amount of axes to the preferred axis count.
-
-        Args:
-            axis_count (int): the new amount of axes
-        """
-        if axis_count > len(self):
-            diff = axis_count + 1 - len(self)
-            self.extend([0] * diff)
-        else:
-            self = self[:axis_count]
-    def set_axis(self, axis_index: int, value) -> int | None:
-        """sets an axis with the specified index to the value. will resize when the coords can't contain them.
-
-        Args:
-            axis_index (int): the index of the axis, for example 2
-            value: the value to set the axis to
-
-        Returns:
-            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
-        """
-
-        if axis_index >= len(self):
-            self.extend([0] * (axis_index - len(self)))
-            self.extend([value])
-            return axis_index
-        self[axis_index] = value
-        return None
-        
-    def set_axis_by_name(self, axis_name: str, value) -> int | None:
-        """sets an axis with the specified name to the value. will resize when the coords can't contain them.
-
-        Args:
-            axis_name (str): the name of the axis, for example 'x'
-            value: the value to set the axis to
-
-        Returns:
-            int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
-        """
-        return self.set_axis(Coords.axis_index(axis_name), value)
-    
-    @staticmethod
-    def by_two_points(point_1: 'Coords', point_2: 'Coords') -> 'Coords':
-        """Computes the vector between two points.
-
-        #### Parameters:
-        - `point_1` (`Coords`): The starting point.
-        - `point_2` (`Coords`): The ending point.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the vector between the two points.
-
-        #### Example usage:
-        ```python
-        point1 = Point(1, 2, 3)
-        point2 = Point(4, 6, 8)
-        vector = Vector.by_two_points(point1, point2)
-        # Vector(X = 3, Y = 4, Z = 5)
-        ```
-        """
-        return point_2 - point_1
-        
-    def volume(self):
-        result = 1
-        for val in self:
-            result *= val
-        return result
-        
-    #useful for sorting
-    def compare(self, other):
-        for axis in range(len(self)):
-            if self[axis] != other[axis]:
-                return other[axis] - self[axis]
-        return 0
-    
-    def ioperate_2(self, op: operator, other):
-        try:
-            for index in range(len(self)):
-                self[index] = op(self[index], other[index])
-        except TypeError:
-            #variable doesn't support index
-            #https://stackoverflow.com/questions/7604380/check-for-operator
-            for index in range(len(self)):
-                self[index] = op(self[index], other)
-        return self
-    
-    def operate_2(self, op:operator, other):
-        result = Coords([0] * len(self))
-        try:
-            for index in range(len(self)):
-                result[index] = op(self[index], other[index])
-        except TypeError:
-            #variable doesn't support index
-            #https://stackoverflow.com/questions/7604380/check-for-operator
-            for index in range(len(self)):
-                result[index] = op(self[index], other)
-        return result
-    def operate_1(self, op:operator):
-        result = Coords([0] * len(self))
-        for index in range(len(self)):
-            result[index] = op(self[index])
-        return result
-    
-    def __add__(self, other):
-        """Calculates the sum of two vectors.
-        
-        equivalent to the + operator.
-        
-        """
-        return self.operate_2(operator.__add__,other)
-    
-    sum = __add__
-    
-    def __sub__(self, other):
-        """Calculates the difference between two Vector objects.
-        This method returns a new Vector object that is the result of subtracting the components of `vector_2` from `vector_1`.
-
-        equivalent to the - operator.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The minuend vector.
-        - `vector_2` (`Vector`): The subtrahend vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise subtraction of `vector_2` from `vector_1`.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(5, 7, 9)
-        vector2 = Vector(1, 2, 3)
-        result = Vector.diff(vector1, vector2)
-        # Vector(X = 4.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return self.operate_2(operator.__sub__,other)
-    
-
-    difference = diff = substract = __sub__
-    
-    def __truediv__(self, other):
-        """Divides the components of the first vector by the corresponding components of the second vector.
-        This method performs component-wise division. If any component of `vector_2` is 0, the result for that component will be undefined.
-
-        equivalent to the / operator.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The numerator vector.
-        - `vector_2` (`Vector`): The denominator vector.
-
-        #### Returns:
-        `Vector`: A new Vector object resulting from the component-wise division.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(10, 20, 30)
-        vector2 = Vector(2, 4, 5)
-        result = Vector.divide(vector1, vector2)
-        # Vector(X = 5.000, Y = 5.000, Z = 6.000)
-        ```
-        """
-        return self.operate_2(operator.__truediv__,other)
-    
-    divide = __truediv__
-    
-    def __mul__(self, other):
-        """Scales the vector by the specified scale factor.
-
-        equivalent to the * operator.
-
-        #### Parameters:
-        - `vector` (`Vector`): The vector to be scaled.
-        - `scalefactor` (float): The scale factor.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the scaled vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(1, 2, 3)
-        scaled_vector = Vector.scale(vector, 2)
-        # Vector(X = 2, Y = 4, Z = 6)
-        ```
-        """
-        return self.operate_2(operator.__mul__,other)
-    product = scale = __rmul__ = __mul__
-    
-    
-    
-    def __pow__(self, power: float) -> Self:
-        """raises the vector to a certain power.
-        
-        equivalent to the ** operator.
-
-        Returns:
-            Self: a vector with all components raised to the specified power
-        """
-        return self.ioperate_2(operator.__pow__)
-    
-    def __neg__(self) -> Self:
-        """negates this vector.
-
-        equivalent to the - operator.
-
-        Returns:
-            Self: a vector with all components negated.
-        """
-        return self.operate_1(operator.__neg__)
-    
-    reverse = __neg__
-    
-    @staticmethod
-    def square(self) -> 'Coords':
-        """
-        Computes the square of each component of the input vector.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The input vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the square of each component of the input vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(2, 3, 4)
-        squared_vector = Vector.square(vector)
-        # Vector(X = 4, Y = 9, Z = 16)
-        ```
-        """
-        return self ** 2
-    
-    
-    #i operators. these operate on self (+=, *=, etc)
-    
-    def __iadd__(self, other) -> Self:
-        """Translates the point by a given vector.        
-
-        equivalent to the += operator.
-        
-        #### Parameters:
-        - `point` (Point): The point to be translated.
-        - `vector` (Vector): The translation vector.
-
-        #### Returns:
-        `Point`: Translated point.
-
-        #### Example usage:
-    	```python
-        point = Point(23, 1, 23)
-        vector = Vector(93, 0, -19)
-        output = Point.translate(point, vector)
-        # Point(X = 116.000, Y = 1.000, Z = 4.000)
-        ```
-        """
-        return self.ioperate_2(operator.__iadd__,other)
-
-    translate = __iadd__
-    
-    def __isub__(self, other) -> Self:
-        return self.ioperate_2(operator.__isub__,other)
-    
-    def __imul__(self, other) -> Self:
-        return self.ioperate_2(operator.__imul__,other)
-    
-    def __itruediv__(self, other) -> Self:
-        return self.ioperate_2(operator.__itruediv__,other)
-    
-X_axis = Coords(1, 0, 0)
-
-Y_Axis = Coords(0, 1, 0)
-
-Z_Axis = Coords(0, 0, 1)
-
-class Color(Coords):
-    """Documentation: output returns [r, g, b]"""
-
-    def __init__(self, *args, **kwargs):
-        Coords.__init__(self, *args,**kwargs)
-    
-    red = r = Coords.x
-    green = g = Coords.y
-    blue = b = Coords.z
-    alpha = a = Coords.w
-    
-    @property
-    def int(self) -> int:
-        """converts this color into an integer value
-
-        Returns:
-            int: the merged integer.
-            this is assuming the color elements are whole integer values from 0 - 255
-        """
-        int_val = elem
-        mult = 0x100
-        for elem in self[1:]:
-            int_val += elem * mult
-            mult *= 0x100
-        return int_val
-    
-    @property
-    def hex(self):
-        return '#%02x%02x%02x%02x' % (self.r,self.g,self.b,self.a)
-        
-    @staticmethod
-    def axis_index(axis:str) -> int:
-        """returns index of axis name.<br>
-        raises a valueError when the name isn't valid.
-
-        Args:
-            axis (str): the name of the axis
-
-        Returns:
-            int: the index
-        """
-        return ['r', 'g', 'b', 'a'].index(axis)
-
-    def Components(self, colorInput=None):
-        """1"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
-        else:
-            try:
-                import json
-                JSONfile = "library/color/colorComponents.json"
-                with open(JSONfile, 'r') as file:
-                    components_dict = json.load(file)
-                    checkExist = components_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        r, g, b, a = components_dict[colorInput]
-                        return [r, g, b]
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-            
-    @staticmethod
-    def Hex(hex:str) -> 'Color':
-        """converts a heximal string to a color object.
-
-        Args:
-            hex (str): a heximal string, for example '#FF00FF88'
-
-        Returns:
-            Color: the color object
-        """
-        return Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16),int(hex[7:9], 16)) if len(hex) > 7 else Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16))
-
-    def CMYK(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
-        else:
-            try:
-                c, m, y, k = colorInput
-                r = int((1-c) * (1-k) * 255)
-                g = int((1-m) * (1-k) * 255)
-                b = int((1-y) * (1-k) * 255)
-                return [r, g, b]
-            except:
-                # add check help attribute
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Alpha(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-        else:
-            try:
-                r, g, b, a = colorInput
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Brightness(self, colorInput=None):
-        """Expected value is int(0) - int(1)"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-        else:
-            try:
-                if colorInput >= 0 and colorInput <= 1:
-                    r = g = b = int(255 * colorInput)
-                    return [r, g, b]
-                else:
-                    return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-            
-    @staticmethod
-    def RGB(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
-        else:
-            try:
-                r, g, b = colorInput
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def HSV(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                h, s, v = colorInput
-                h /= 60.0
-                c = v * s
-                x = c * (1 - abs(h % 2 - 1))
-                m = v - c
-                if 0 <= h < 1:
-                    r, g, b = c, x, 0
-                elif 1 <= h < 2:
-                    r, g, b = x, c, 0
-                elif 2 <= h < 3:
-                    r, g, b = 0, c, x
-                elif 3 <= h < 4:
-                    r, g, b = 0, x, c
-                elif 4 <= h < 5:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def HSL(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                h, s, l = colorInput
-                c = (1 - abs(2 * l - 1)) * s
-                x = c * (1 - abs(h / 60 % 2 - 1))
-                m = l - c / 2
-                if h < 60:
-                    r, g, b = c, x, 0
-                elif h < 120:
-                    r, g, b = x, c, 0
-                elif h < 180:
-                    r, g, b = 0, c, x
-                elif h < 240:
-                    r, g, b = 0, x, c
-                elif h < 300:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                r, g, b = int((r + m) * 255), int((g + m)
-                                                  * 255), int((b + m) * 255)
-                return [r, g, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def RAL(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
-        else:
-            try:
-                # validate if value is correct/found
-                import json
-                JSONfile = "library/color/colorRAL.json"
-                with open(JSONfile, 'r') as file:
-                    ral_dict = json.load(file)
-                    checkExist = ral_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
-                        return [int(r), int(g), int(b), 100]
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def Pantone(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                import json
-                JSONfile = "library/color/colorPantone.json"
-                with open(JSONfile, 'r') as file:
-                    pantone_dict = json.load(file)
-                    checkExist = pantone_dict.get(str(colorInput))
-                    if checkExist is not None:
-                        PantoneHex = pantone_dict[str(colorInput)]['hex']
-                        return Color().Hex(PantoneHex)
-                    else:
-                        return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-    def LRV(self, colorInput=None):
-        """NAN"""
-        if colorInput is None:
-            return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
-        else:
-            try:
-                b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
-                b = int(max(0, min(255, b)))
-                return [255, 255, b]
-            except:
-                return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
-
-
-    def __str__(self, colorInput=None):
-        colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
-                           "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
-        if colorInput is None:
-            header = "Available attributes: \n"
-            footer = "\nColor().red | Color().green | Color().blue"
-            return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
-        return f"Color().{colorInput}"
-
-    def Info(self, colorInput=None):
-        pass
-
-Color.red = Color(255, 0, 0)
-Color.green = Color(0, 255, 0)
-Color.blue = Color(0, 0, 255)
 
 class CoordinateSystem:
     # UNITY VECTORS REQUIRED #TOdo organize resic
@@ -2035,7 +2053,13 @@ Z_Axis = Vector(0,0,1)
 
 CSGlobal = CoordinateSystem(Point(0, 0, 0), X_Axis, Y_Axis, Z_Axis)
 
-class Rect(Serializable):
+class Shape:
+	"""this class defines functions and properties for geometric shapes."""
+	@property
+	def statical_moment(self) -> float:
+		return self.area * self.centroid.y
+
+class Rect(Serializable, Shape):
     """Represents a two-dimensional bounding box."""
     def __init__(self, *args, **kwargs):
         """@
@@ -2066,8 +2090,6 @@ class Rect(Serializable):
                     self.p0.change_axis_count(offset)
             
         Serializable.__init__(self)
-
-        
         
     def change_axis_count(self,axis_count: int):
         self.p0.change_axis_count(axis_count)
@@ -2097,6 +2119,14 @@ class Rect(Serializable):
     @height.setter
     def height(self, value):
         self.size.z = value
+    
+    @property
+    def center(self):
+        return self.p0 + self.size * 0.5
+    @center.setter
+    def center(self, value):
+        self.p0 += self.value - (self.size * 0.5)
+    centroid = center
 
     @property
     def x(self):
@@ -2125,6 +2155,8 @@ class Rect(Serializable):
     
     def __str__(self):
         return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
+    
+
 
     @staticmethod
     def by_points(points: list[Point]) -> 'Rect':
@@ -2313,6 +2345,7 @@ class Rect(Serializable):
             corners.append(self.get_corner(corner_index))
         return corners
 
+
 class Plane:
     # Plane is an infinite element in space defined by a point and a normal
     """The `Plane` class represents an infinite plane in 3D space, defined uniquely by an origin point and a normal vector, along with two other vectors lying on the plane, providing a complete basis for defining plane orientation and position."""
@@ -2415,6 +2448,7 @@ class Plane:
     # byLineAndPoint
     # byOriginNormal
     # byThreePoints
+
 
 class Line(Serializable):
     def __init__(self, start: Point, end: Point) -> 'Line':
@@ -2682,7 +2716,7 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve(Serializable, list[Line]):
+class PolyCurve(Serializable, list[Line], Shape):
     """Stores lines, which could possibly be arcs"""
     def __init__(self, *args):
         """Initializes a PolyCurve object, which is unclosed by default.
@@ -2820,7 +2854,8 @@ class PolyCurve(Serializable, list[Line]):
         ```        
         """
         poly = Polygon.by_joined_curves(self)
-        centroid = poly.centroid
+        total_area = poly.area
+        weighted_centroid = poly.centroid * total_area
         
         #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
         
@@ -2830,11 +2865,14 @@ class PolyCurve(Serializable, list[Line]):
                 #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
                 #calculate the centroid
                 arc_centroid = current_line.centroid
-                raise NotImplementedError("this code isn't done yet!")
+                arc_area = current_line.area
                 
+                total_area += arc_area
                 #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
-                
-
+                weighted_centroid += arc_centroid * arc_area
+        
+        return weighted_centroid / total_area
+    
     #def area(self) -> 'float':  # shoelace formula
     #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
 #
@@ -3239,43 +3277,6 @@ class PolyCurve(Serializable, list[Line]):
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
 
-    def to_polycurve_2D(self):
-        """Converts the PolyCurve to a PolyCurve2D.
-
-        #### Returns:
-        `PolyCurve2D`: The converted PolyCurve2D.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        # by points,
-        from geometry.geometry2d import PolyCurve2D
-        from geometry.geometry2d import Point2D
-        from geometry.geometry2d import Line2D
-        from geometry.geometry2d import Arc2D
-
-        point_1 = PolyCurve2D()
-        count = 0
-        curves = []
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
-                                    Point2D(i.end.x, i.end.y)))
-            elif i.__class__.__name__ == "Line":
-                curves.append(
-                    Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
-            else:
-                print("Curvetype not found")
-        pnts = []
-        for i in curves:
-            pnts.append(i.start)
-        pnts.append(curves[0].start)
-        point_1.points = pnts
-        point_1.curves = curves
-        return point_1
-
     @staticmethod
     def transform_from_origin(polycurve: 'PolyCurve', startpoint: 'Point', directionvector: 'Vector') -> 'PolyCurve':
         """Transforms a PolyCurve from a given origin point and direction vector.
@@ -3592,8 +3593,9 @@ class Polygon(PointList):
         #if lines[0].start != lines[-1].end:
         #    lines.append(Line(lines[-1].end, lines[0].start))
 
-        return Polygon([line.start for line in lines])
-
+        return Polygon([line.start for line in lines] + [lines[-1].end])
+    
+    @property
     def area(self) -> 'float':  # shoelace formula
         """Calculates the area enclosed by the Polygon using the shoelace formula.
 
@@ -3608,18 +3610,12 @@ class Polygon(PointList):
         if len(self) < 3:
             return "Polygon has less than 3 points!"
 
-        num_points = len(self.points)
+        num_points = len(self)
         S1, S2 = 0, 0
 
         for i in range(num_points):
-            x, y = self.points[i].x, self.points[i].y
-            if i == num_points - 1:
-                x_next, y_next = self.points[0].x, self.points[0].y
-            else:
-                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-
-            S1 += x * y_next
-            S2 += y * x_next
+            S1 += self[i - 1].x * self[i].y
+            S2 += self[i - 1].y * self[i].x
 
         area = 0.5 * abs(S1 - S2)
         return area
@@ -3778,6 +3774,11 @@ class Arc:
             R = (a * b * c) / (4 * A)
             return R
         
+    #https://calcresource.com/geom-circularsegment.html
+    @property
+    def area(self) -> 'float':
+        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
+    
     @property
     def origin(self) -> 'Point':
         """Calculates and returns the origin of the arc.
@@ -3795,7 +3796,7 @@ class Arc:
         start_to_end = self.end - self.start
         half_start_end = start_to_end * 0.5
         b = half_start_end.magnitude
-        radius = Arc.radius(self)
+        radius = self.radius
         x = math.sqrt(radius * radius - b * b)
         #mid point as if this was a straight line
         mid = self.start + half_start_end
@@ -3805,13 +3806,15 @@ class Arc:
         to_center.magnitude = x
         center = mid + to_center
         return center
+
+    @property
     def centroid(self) -> 'Point':
         origin = self.origin
         radius = self.radius
         angle = self.angle
         #the distance of the centroid of the arc to its origin
         centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
-        centroid = origin + centroid_distance * ((self.mid - origin) / radius)
+        return origin + centroid_distance * ((self.mid - origin) / radius)
         
     @property
     def angle(self) -> 'float':
@@ -3835,12 +3838,12 @@ class Arc:
         try:
             v4b = Vector.new_length(vector_4, self.radius)
             if Vector.value(vector_3) == Vector.value(v4b):
-                angle = Vector.angle_radian_between(vector_1, vector_2)
+                angle = Vector.angle_between(vector_1, vector_2)
             else:
-                angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
+                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
             return angle
         except:
-            angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
+            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
             return angle
         
     @property
@@ -4055,6 +4058,7 @@ class Ellipse:
         return f"{__class__.__name__}({self})"
 
 
+
 class Intersect:
     def __init__(self):
         pass
@@ -4069,6 +4073,7 @@ class Intersect:
         p4X, p4Y, P4Z = p4.x, p4.y, p4.z
 
         print(p1X, p1Y, P1Z)
+
 class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
         self.name: str = name
@@ -4163,6 +4168,7 @@ class BuildingPy(Serializable):
 
 
 project = BuildingPy("Project", "0")
+
 
 
 class Vector2:
@@ -5279,6 +5285,7 @@ class ParametricProfile2D:
     def __str__(self) -> str:
         return f"{__class__.__name__}({self})"
 
+
 #intersect class?
 def perp(a):
     """Calculates a perpendicular vector to the given vector `a`.
@@ -5854,6 +5861,7 @@ def split_polycurve_by_line(polycurve: 'PolyCurve2D', line: 'Line2D') -> 'dict':
     return dict
 
 
+
 class Interval:
     """The `Interval` class is designed to represent a mathematical interval, providing a start and end value along with functionalities to handle intervals more comprehensively in various applications."""
     def __init__(self, start: float, end: float):
@@ -5950,6 +5958,7 @@ class Interval:
         ```
         """
         return f"{__class__.__name__}"
+
 
 class Matrix(Serializable, list[list]):
     """
@@ -6549,6 +6558,7 @@ class Matrix(Serializable, list[list]):
         cols = len(self[0]) if rows > 0 else 0
         return rows, cols
 
+
 class Node:
     """The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
     def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
@@ -6643,6 +6653,7 @@ class Node:
         """
 
         return f"{self.type}"
+
 
 
 class Extrusion:
@@ -7008,6 +7019,7 @@ class Extrusion:
             pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
         return cuboid
 
+
 class Text:
     """The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
     def __init__(self, text: str = None, font_family: 'str' = None, cs='CoordinateSystem', height=None) -> "Text":
@@ -7306,6 +7318,7 @@ class Text:
         return polyline_list
 
 
+
 class Geometry:
     def Translate(object, v):
         if object.type == 'Point':
@@ -7339,6 +7352,7 @@ class Geometry:
             return PolyCurve.by_points(translated_points)
         else:
             print(f"[translate] '{object.type}' object is not added yet")
+
 
 # Rule: line, whitespace, line whitespace etc., scale
 HiddenLine1 = ["Hidden Line 1", [1, 1], 100]
@@ -7413,7 +7427,9 @@ def polycurve_to_pattern(polycurve: 'PolyCurve', pattern_obj) -> 'list':
     res = []
     for i in polycurve.curves:
        res.append(line_to_pattern(i,pattern_obj))
-    return res# check if there are innercurves inside the outer curve.
+    return res
+
+# check if there are innercurves inside the outer curve.
 
 
 class Surface:
@@ -7662,6 +7678,7 @@ class PolySurface:
         return f"{__class__.__name__}({self})"
 
 
+
 class Panel(Serializable):
     # Panel
     def __init__(self):
@@ -7738,6 +7755,7 @@ class Panel(Serializable):
         for j in range(int(len(p1.extrusion.verts) / 3)):
             p1.colorlst.append(colorrgbint)
         return p1
+
 
 sqrt2 = math.sqrt(2)
 
@@ -8740,6 +8758,7 @@ class ArrowProfile(Profile):
 
         self.curve = PolyCurve2D().by_joined_curves(
             [l1, l2, l3, l4, l5, l6, l7])
+
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
@@ -8879,6 +8898,7 @@ def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, e
     # v1 = Vector2(0, 0)
 
     return v1
+
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]
 
@@ -8914,6 +8934,7 @@ BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
 BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
 
 #class Materialfinish
+
 def colorlist(extrus, color):
     colorlst = []
     for j in range(int(len(extrus.verts) / 3)):
@@ -9232,6 +9253,7 @@ class Frame(Serializable):
     def write(self, project):
         project.objects.append(self)
         return self
+
 
 
 class System:
@@ -9913,6 +9935,7 @@ def fillin(perimeter: PolyCurve2D, pattern: pattern_geom) -> pattern_system:
     return [bb_perimeter]
 
 
+
 class Support:
     def __init__(self):
         self.Number = None
@@ -10091,6 +10114,7 @@ def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, h
             x = x + dx
         y = y + dy
     return SurfaceLoads
+
 
 
 class TickMark:
@@ -10451,6 +10475,7 @@ class ColumnTag:
 # class Label:
 # class LabelType:
 # class TextType:
+
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
@@ -10770,6 +10795,7 @@ class GridSystem:
             z.write(project)
         return self
 
+
 class Door:
     def __init__(self):
         
@@ -10794,6 +10820,7 @@ class Door:
         return f"{self.type}(Name={self.name})"
 
 
+
 class Floor:
     def __init__(self):
         
@@ -10808,6 +10835,7 @@ class Floor:
         self.origincurve = None
         self.points = None
         self.thickness = None
+
 class Level:
     def __init__(self):
         
@@ -10835,6 +10863,7 @@ class Level:
 
     def __str__(self) -> str:
         return f"{self.type}(Name={self.name}, Elevation={self.elevation})"
+
 # EVERYWHERE FOR EACH OBJECT A ROTATION/POSITION
 # Make sure that the objects can be merged!
 
@@ -10986,6 +11015,7 @@ class WorkPlane():
 WorkPlane = WorkPlane()
 # rotation(Vector)/#volume/#scale
 
+
 class Room:
     def __init__(self):
         
@@ -10998,6 +11028,8 @@ class Room:
         self.parms = None
         self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorlst = None
+
+
 
 class Wall:
     def __init__(self):
@@ -11019,6 +11051,7 @@ class Wall:
 
     def __str__(self) -> str:
         return f"{self.type}(Name={self.name})"
+
 
 COMMANDS = set("MmZzLlHhVvCcSsQqTtAa")
 UPPERCASE = set("MZLHVCSQTA")
@@ -11314,6 +11347,7 @@ def parse_path(pathdef):
         last_command = command
 
     return segments
+
 
 MIN_DEPTH = 5
 ERROR = 1e-12
@@ -11993,3 +12027,4 @@ class Path(MutableSequence):
             previous_segment = segment
 
         return " ".join(parts)
+

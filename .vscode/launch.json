@@ -8,6 +8,14 @@
             "program": "${file}",
             "console": "integratedTerminal",
 			"justMyCode": false,
+        },
+        {
+            "name": "Generate Single File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "docs/write_BuildingPy.py",
+            "console": "integratedTerminal",
+			"justMyCode": false,
         }
     ]
 }
