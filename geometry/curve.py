@@ -33,6 +33,7 @@ import sys
 from pathlib import Path
 from typing import Self, Union
 
+from abstract.shape import Shape
 from abstract.vector import Vector
 from geometry.coords import to_array
 from geometry.pointlist import PointList
@@ -314,7 +315,7 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve(Serializable, list[Line]):
+class PolyCurve(Serializable, list[Line], Shape):
     """Stores lines, which could possibly be arcs"""
     def __init__(self, *args):
         """Initializes a PolyCurve object, which is unclosed by default.
@@ -452,7 +453,8 @@ class PolyCurve(Serializable, list[Line]):
         ```        
         """
         poly = Polygon.by_joined_curves(self)
-        centroid = poly.centroid
+        total_area = poly.area
+        weighted_centroid = poly.centroid * total_area
         
         #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
         
@@ -462,11 +464,14 @@ class PolyCurve(Serializable, list[Line]):
                 #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
                 #calculate the centroid
                 arc_centroid = current_line.centroid
-                raise NotImplementedError("this code isn't done yet!")
+                arc_area = current_line.area
                 
+                total_area += arc_area
                 #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
-                
-
+                weighted_centroid += arc_centroid * arc_area
+        
+        return weighted_centroid / total_area
+    
     #def area(self) -> 'float':  # shoelace formula
     #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
 #
@@ -871,43 +876,6 @@ class PolyCurve(Serializable, list[Line]):
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
 
-    def to_polycurve_2D(self):
-        """Converts the PolyCurve to a PolyCurve2D.
-
-        #### Returns:
-        `PolyCurve2D`: The converted PolyCurve2D.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        # by points,
-        from geometry.geometry2d import PolyCurve2D
-        from geometry.geometry2d import Point2D
-        from geometry.geometry2d import Line2D
-        from geometry.geometry2d import Arc2D
-
-        point_1 = PolyCurve2D()
-        count = 0
-        curves = []
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                curves.append(Arc2D(Point2D(i.start.x, i.start.y), Point2D(i.middle.x, i.middle.y),
-                                    Point2D(i.end.x, i.end.y)))
-            elif i.__class__.__name__ == "Line":
-                curves.append(
-                    Line2D(Point2D(i.start.x, i.start.y), Point2D(i.end.x, i.end.y)))
-            else:
-                print("Curvetype not found")
-        pnts = []
-        for i in curves:
-            pnts.append(i.start)
-        pnts.append(curves[0].start)
-        point_1.points = pnts
-        point_1.curves = curves
-        return point_1
-
     @staticmethod
     def transform_from_origin(polycurve: 'PolyCurve', startpoint: 'Point', directionvector: 'Vector') -> 'PolyCurve':
         """Transforms a PolyCurve from a given origin point and direction vector.
@@ -1224,8 +1192,9 @@ class Polygon(PointList):
         #if lines[0].start != lines[-1].end:
         #    lines.append(Line(lines[-1].end, lines[0].start))
 
-        return Polygon([line.start for line in lines])
-
+        return Polygon([line.start for line in lines] + [lines[-1].end])
+    
+    @property
     def area(self) -> 'float':  # shoelace formula
         """Calculates the area enclosed by the Polygon using the shoelace formula.
 
@@ -1240,18 +1209,12 @@ class Polygon(PointList):
         if len(self) < 3:
             return "Polygon has less than 3 points!"
 
-        num_points = len(self.points)
+        num_points = len(self)
         S1, S2 = 0, 0
 
         for i in range(num_points):
-            x, y = self.points[i].x, self.points[i].y
-            if i == num_points - 1:
-                x_next, y_next = self.points[0].x, self.points[0].y
-            else:
-                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-
-            S1 += x * y_next
-            S2 += y * x_next
+            S1 += self[i - 1].x * self[i].y
+            S2 += self[i - 1].y * self[i].x
 
         area = 0.5 * abs(S1 - S2)
         return area
@@ -1410,6 +1373,11 @@ class Arc:
             R = (a * b * c) / (4 * A)
             return R
         
+    #https://calcresource.com/geom-circularsegment.html
+    @property
+    def area(self) -> 'float':
+        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
+    
     @property
     def origin(self) -> 'Point':
         """Calculates and returns the origin of the arc.
@@ -1427,7 +1395,7 @@ class Arc:
         start_to_end = self.end - self.start
         half_start_end = start_to_end * 0.5
         b = half_start_end.magnitude
-        radius = Arc.radius(self)
+        radius = self.radius
         x = math.sqrt(radius * radius - b * b)
         #mid point as if this was a straight line
         mid = self.start + half_start_end
@@ -1437,13 +1405,15 @@ class Arc:
         to_center.magnitude = x
         center = mid + to_center
         return center
+
+    @property
     def centroid(self) -> 'Point':
         origin = self.origin
         radius = self.radius
         angle = self.angle
         #the distance of the centroid of the arc to its origin
         centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
-        centroid = origin + centroid_distance * ((self.mid - origin) / radius)
+        return origin + centroid_distance * ((self.mid - origin) / radius)
         
     @property
     def angle(self) -> 'float':
@@ -1467,12 +1437,12 @@ class Arc:
         try:
             v4b = Vector.new_length(vector_4, self.radius)
             if Vector.value(vector_3) == Vector.value(v4b):
-                angle = Vector.angle_radian_between(vector_1, vector_2)
+                angle = Vector.angle_between(vector_1, vector_2)
             else:
-                angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
+                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
             return angle
         except:
-            angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
+            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
             return angle
         
     @property

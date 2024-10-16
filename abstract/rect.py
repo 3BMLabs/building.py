@@ -38,6 +38,7 @@ from typing import Self
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from abstract.shape import Shape
 from packages.helper import *
 from abstract.vector import Vector
 from geometry.point import Point
@@ -45,7 +46,7 @@ from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
-class Rect(Serializable):
+class Rect(Serializable, Shape):
     """Represents a two-dimensional bounding box."""
     def __init__(self, *args, **kwargs):
         """@
@@ -76,8 +77,6 @@ class Rect(Serializable):
                     self.p0.change_axis_count(offset)
             
         Serializable.__init__(self)
-
-        
         
     def change_axis_count(self,axis_count: int):
         self.p0.change_axis_count(axis_count)
@@ -107,6 +106,14 @@ class Rect(Serializable):
     @height.setter
     def height(self, value):
         self.size.z = value
+    
+    @property
+    def center(self):
+        return self.p0 + self.size * 0.5
+    @center.setter
+    def center(self, value):
+        self.p0 += self.value - (self.size * 0.5)
+    centroid = center
 
     @property
     def x(self):
@@ -135,6 +142,8 @@ class Rect(Serializable):
     
     def __str__(self):
         return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
+    
+
 
     @staticmethod
     def by_points(points: list[Point]) -> 'Rect':

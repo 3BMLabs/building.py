@@ -124,27 +124,6 @@ class Vector(Coords):
             vector_1.x*vector_2.y - vector_1.y*vector_2.x
         )
 
-    @staticmethod
-    def dot_product(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Computes the dot product of two vectors.
-        The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `float`: The dot product of the input vectors.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 2, 3)
-        vector2 = Vector(4, 5, 6)
-        dot_product = Vector.dot_product(vector1, vector2)
-        # 32
-        ```
-        """
-        return vector_1.x*vector_2.x+vector_1.y*vector_2.y+vector_1.z*vector_2.z
 
     @staticmethod
     def product(number: float, vector_1: 'Vector') -> 'Vector':

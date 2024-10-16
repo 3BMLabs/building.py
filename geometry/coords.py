@@ -33,12 +33,11 @@ __url__ = "./geometry/coords.py"
 
 import math
 from typing import Self
-from abstract.vector import Vector
-from packages.helper import generateID
 from abstract.serializable import Serializable
 
 import operator
 
+# [!not included in BP singlefile - end]
 def to_array(*args) -> list:
     """converts the arguments into an array.
 
@@ -47,7 +46,6 @@ def to_array(*args) -> list:
     """
     return args[0] if len(args) == 1 and hasattr(args[0], "__getitem__") else list(args)
 
-# [!not included in BP singlefile - end]
 
 class Coords(Serializable, list):
     """
@@ -177,9 +175,9 @@ class Coords(Serializable, list):
         # 90
         ```
         """
-        dot_product = Vector.dot_product(vector_1, vector_2)
-        length_vector_1 = Vector.length(vector_1)
-        length_vector_2 = Vector.length(vector_2)
+        dot_product = Coords.dot_product(vector_1, vector_2)
+        length_vector_1 = vector_1.magnitude
+        length_vector_2 = vector_2.magnitude
 
         if length_vector_1 == 0 or length_vector_2 == 0:
             return 0
@@ -188,6 +186,31 @@ class Coords(Serializable, list):
         cos_angle = max(-1.0, min(cos_angle, 1.0))
         return math.acos(cos_angle)
 
+    @staticmethod
+    def dot_product(vector_1: 'Coords', vector_2: 'Coords') -> 'float':
+        """Computes the dot product of two vectors.
+        The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
+
+        #### Parameters:
+        - `vector_1` (`Coords`): The first vector.
+        - `vector_2` (`Coords`): The second vector.
+
+        #### Returns:
+        `float`: The dot product of the input vectors.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(1, 2, 3)
+        vector2 = Vector(4, 5, 6)
+        dot_product = Vector.dot_product(vector1, vector2)
+        # 32
+        ```
+        """
+        total = 0
+        for i in range(len(vector_1)):
+            total += vector_1[i] * vector_2 [i]
+        return total
+    
     @staticmethod
     def distance_squared(point_1: 'Coords', point_2: 'Coords') -> float:
         """Computes the Euclidean distance between two 3D points.
