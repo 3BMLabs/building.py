@@ -1,13 +1,13 @@
 import sys, os, math
 from pathlib import Path
+from abstract.rect import Rect
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import PIL
 from PIL import Image, ImageDraw
-from geometry.geometry2d import *
 from objects.profile import *
-from geometry.curve import Arc
+from geometry.curve import Arc, Polygon
 from geometry.point import Point
 
 PC = IShapeParallelFlange("test",200,200,10,15,15).curve
@@ -19,7 +19,8 @@ scalefactor = SF = 3
 img = Image.new("RGB", (widthpix,heightpix))
 img1 = ImageDraw.Draw(img)
 
-bounds = PolyCurve2D.bounds(PC)
+bounds = Rect.by_points(Polygon.by_joined_curves(PC))
+
 dx = 50
 xmin = bounds[0] - dx
 ymin = bounds[2] - dx

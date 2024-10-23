@@ -24,6 +24,3 @@ project.objects.append(PC1)
 LN1 = Line(p2, p3)
 
 print(PC1.length)
-
-i = PolyCurve.length(PC1)
-print(i)
