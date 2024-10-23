@@ -313,7 +313,7 @@ class Rect(Serializable, Shape):
         return corner
         
 
-    def corners(self) -> 'list[Point]':
+    def corners(self, axis_count = None) -> 'list[Point]':
         """Calculates the corners of the bounding.
 
         #### Returns:
@@ -327,7 +327,8 @@ class Rect(Serializable, Shape):
         ```
         """
         corners:list[Point] = []
-        axis_count = len(self.p0)
+        if axis_count == None:
+            axis_count = len(self.p0)
         for corner_index in range(2 << axis_count):
             corners.append(self.get_corner(corner_index))
         return corners

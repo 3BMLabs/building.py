@@ -321,7 +321,7 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     # try:
-                                    el = Frame.by_startpoint_endpoint_profile_justifiction(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                    el = Frame.by_startpoint_endpoint_profile_justification(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
                                     comments.profile_data = el.profile_data
                                     self.project.objects.append(el)
                                     comments.centerbottom = el.centerbottom

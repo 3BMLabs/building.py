@@ -39,7 +39,7 @@ from typing import Union
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from library.profile import *
-from library.profile import nameToProfile, justifictionToVector
+from library.profile import nameToProfile, justificationToVector
 from library.material import *
 from abstract.vector import *
 from objects import profile
@@ -72,7 +72,6 @@ class Frame(Serializable):
         self.curve3d = None  # Translated 3D polycurve of the sectionprofile
         self.length = 0
         self.points = []
-        self.coordinateSystem: CoordinateSystem = CSGlobal
         self.YJustification = "Origin"  # Top, Center, Origin, Bottom
         self.ZJustification = "Origin"  # Left, Center, Origin, Right
         self.YOffset = 0
@@ -126,7 +125,7 @@ class Frame(Serializable):
         f1.length = Vector.length(f1.directionVector)
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+            f1.curve, f1.length, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = f1.extrusion.polycurve_3d_translated
         f1.profileName = profile
@@ -176,7 +175,7 @@ class Frame(Serializable):
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_justification(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -198,7 +197,7 @@ class Frame(Serializable):
             curve = f1.profile_data
         elif type(profile).__name__ == "Polygon":
             profile_name = "None"
-            f1.profile_data = PolyCurve2D.by_points(profile.points)
+            f1.profile_data = PolyCurve.by_points(profile.points)
             curve = f1.profile_data
         elif type(profile).__name__ == "str":
             profile_name = profile
@@ -210,7 +209,7 @@ class Frame(Serializable):
 
         # curve = f1.profile_data.polycurve2d
 
-        v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
+        v1 = justificationToVector(curve, XJustifiction, YJustifiction)  # 1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
@@ -263,7 +262,7 @@ class Frame(Serializable):
         f1.profile = prof
         curvrot = polycurve.rotate(rotation)
         f1.extrusion = Extrusion.by_polycurve_height_vector(
-            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+            curvrot, f1.length, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.curve3d = curvrot
         f1.profileName = name
@@ -275,7 +274,7 @@ class Frame(Serializable):
 
 
     @classmethod
-    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
+    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve, frame_name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -294,7 +293,7 @@ class Frame(Serializable):
         f1.profileName = frame_name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
         f1.extrusion = Extrusion.by_polycurve_height_vector(
-            curvrot, f1.length, CSGlobal, f1.start, f1.directionVector)
+            curvrot, f1.length, f1.start, f1.directionVector)
         f1.extrusion.name = frame_name
         f1.curve3d = curvrot
         f1.material = material
@@ -334,7 +333,7 @@ class Frame(Serializable):
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_curve_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
+    def by_startpoint_endpoint_curve_justification(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -351,7 +350,7 @@ class Frame(Serializable):
         curv = polycurve
         curvrot = curv.rotate(rotation)  # rotation in degrees
         # center, left, right, origin / center, top bottom, origin
-        v1 = justifictionToVector(curvrot, XJustifiction, YJustifiction)
+        v1 = justificationToVector(curvrot, XJustifiction, YJustifiction)
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         f1.curve = curv.translate(v1)
@@ -359,7 +358,7 @@ class Frame(Serializable):
         f1.length = Vector.length(f1.directionVector)
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
-            f1.curve.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+            f1.curve.curves, f1.length, f1.start, f1.directionVector)
         f1.extrusion.name = name
         f1.profileName = "none"
         f1.material = material

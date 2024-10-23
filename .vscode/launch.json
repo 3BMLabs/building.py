@@ -16,6 +16,12 @@
             "program": "docs/write_BuildingPy.py",
             "console": "integratedTerminal",
 			"justMyCode": false,
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Update and test",
+            "configurations": ["Generate Single File", "Python: Current File"]
         }
     ]
 }

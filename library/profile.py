@@ -127,7 +127,7 @@ class nameToProfile:
             pc2d2 = pc2d
         self.polycurve2d = pc2d2
 
-def justifictionToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
+def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
 
     # print(XJustifiction)
     xval = []

@@ -103,7 +103,7 @@ class Extrusion:
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
         #### Parameters:
-        - `polycurve_2d` (PolyCurve2D): The 2D polycurve to be extruded.
+        - `polycurve_2d` (PolyCurve): The 2D polycurve to be extruded.
         - `height` (float): The height of the extrusion.
         - `cs_old` (CoordinateSystem): The original coordinate system of the polycurve.
         - `start_point` (Point): The start point for the extrusion in the new coordinate system.
@@ -241,12 +241,4 @@ class Extrusion:
         # Generates a cuboid extrusion based on the 3D bounding box
         ```
         """
-        pts = rect.corners()
-        pc = PolyCurve2D.by_points(pts)
-        height = rect.height
-        cs = rect.coordinatesystem
-        dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)
-        pcrot = pc.rotate(dirXvector)  # bug multi direction
-        cuboid = Extrusion.by_polycurve_height_vector(
-            pcrot, height, CSGlobal, cs.Origin, cs.Z_axis)
-        return cuboid
+        return Extrusion(PolyCurve.by_points(rect.corners(2)), Vector(0,0,rect.p0.z), Vector(0,0,rect.p0.z + rect.size.z))

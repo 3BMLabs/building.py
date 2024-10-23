@@ -391,7 +391,7 @@ class RectangleSystem:
             end_point = Point.translate(
                 self.mother_surface_origin_point_x_zero, Vector(i, self.inner_height, 0))
             self.inner_frame_objects.append(
-                Frame.by_start_point_endpoint_curve_justifiction(
+                Frame.by_start_point_endpoint_curve_justification(
                     start_point, end_point, self.inner_frame_type.curve, "innerframe", "center", "top", 0, self.material)
             )
             self.symbolic_inner_grids.append(
@@ -405,22 +405,22 @@ class RectangleSystem:
         - Creates Frame instances for the outer boundaries of the rectangle system and adds them to `outer_frame_objects`.
         - Generates symbolic Line instances for each outer frame and adds them to `symbolic_outer_grids`.
         """
-        bottomframe = Frame.by_start_point_endpoint_curve_justifiction(Point(0, 0, 0), Point(
+        bottomframe = Frame.by_start_point_endpoint_curve_justification(Point(0, 0, 0), Point(
             self.width, 0, 0), self.bottom_frame_type.curve, "bottomframe", "left", "top", 0, self.material)
         self.symbolic_outer_grids.append(
             Line(start=Point(0, 0, 0), end=Point(self.width, 0, 0)))
 
-        topframe = Frame.by_start_point_endpoint_curve_justifiction(Point(0, self.height, 0), Point(
+        topframe = Frame.by_start_point_endpoint_curve_justification(Point(0, self.height, 0), Point(
             self.width, self.height, 0), self.top_frame_type.curve, "bottomframe", "right", "top", 0, self.material)
         self.symbolic_outer_grids.append(
             Line(start=Point(0, self.height, 0), end=Point(self.width, self.height, 0)))
 
-        leftframe = Frame.by_start_point_endpoint_curve_justifiction(Point(0, self.bottom_frame_type.b, 0), Point(
+        leftframe = Frame.by_start_point_endpoint_curve_justification(Point(0, self.bottom_frame_type.b, 0), Point(
             0, self.height-self.top_frame_type.b, 0), self.left_frame_type.curve, "leftframe", "right", "top", 0, self.material)
         self.symbolic_outer_grids.append(Line(start=Point(
             0, self.bottom_frame_type.b, 0), end=Point(0, self.height-self.top_frame_type.b, 0)))
 
-        rightframe = Frame.by_start_point_endpoint_curve_justifiction(Point(self.width, self.bottom_frame_type.b, 0), Point(
+        rightframe = Frame.by_start_point_endpoint_curve_justification(Point(self.width, self.bottom_frame_type.b, 0), Point(
             self.width, self.height-self.top_frame_type.b, 0), self.right_frame_type.curve, "leftframe", "left", "top", 0, self.material)
         self.symbolic_outer_grids.append(Line(start=Point(self.width, self.bottom_frame_type.b, 0), end=Point(
             self.width, self.height-self.top_frame_type.b, 0)))
@@ -700,7 +700,7 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
     return panels
 
 
-def fillin(perimeter: PolyCurve2D, pattern: pattern_geom) -> pattern_system:
+def fillin(perimeter: PolyCurve, pattern: pattern_geom) -> pattern_system:
     """Fills in a given perimeter with a specified pattern.
     Uses a bounding box to define the perimeter within which a pattern is applied, based on a geometric pattern generation function.
 

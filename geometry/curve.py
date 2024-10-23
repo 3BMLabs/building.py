@@ -647,40 +647,6 @@ class PolyCurve(Serializable, list[Line], Shape):
         pc = PolyCurve.by_joined_curves(crv)
         return pc
 
-    @staticmethod
-    def by_polycurve_2D(PolyCurve2D) -> 'PolyCurve':
-        """Creates a 3D PolyCurve from a 2D PolyCurve.
-
-        #### Parameters:
-        - `PolyCurve2D`: The 2D PolyCurve object.
-
-        #### Returns:
-        `PolyCurve`: The created 3D PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        plycrv = PolyCurve()
-        curves = []
-        for i in PolyCurve2D.curves:
-            if i.__class__.__name__ == "Arc2D":
-                curves.append(Arc(Point(i.start.x, i.start.y, 0), Point(
-                    i.mid.x, i.mid.y, 0), Point(i.end.x, i.end.y, 0)))
-            elif i.__class__.__name__ == "Line2D":
-                curves.append(Line(Point(i.start.x, i.start.y, 0),
-                              Point(i.end.x, i.end.y, 0)))
-            else:
-                print("Curvetype not found")
-        pnts = []
-        for i in curves:
-            pnts.append(i.start)
-        pnts.append(curves[0].start)
-        plycrv.points = pnts
-        plycrv.curves = curves
-        return plycrv
-
     # make sure that the lines start/stop already on the edge of the polycurve
     def split(self, line: 'Line', returnlines=None) -> 'list[PolyCurve]':
         """Splits the PolyCurve by a line and returns the split parts.

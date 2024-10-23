@@ -1258,7 +1258,7 @@ class profiledataToShape:
         pc2d2 = pcsegment.to_polycurve_2D()
         self.polycurve2d = pc2d2
 
-def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
+def justificationToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification):
     xval = []
     yval = []
     for i in plycrv2D.curves:

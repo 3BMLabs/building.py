@@ -29,7 +29,7 @@ p2 = Point(x, y, z)
 ddeg = DegreesSpiral / NumberOfTreads
 
 for i in range(NumberOfTreads):
-    obj.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0, 0, z), p2, Tread, "Tread","Center","Center",0, BaseSteel))  # Treads
+    obj.append(Frame.by_startpoint_endpoint_profile_justification(Point(0, 0, z), p2, Tread, "Tread","Center","Center",0, BaseSteel))  # Treads
     p2 = Point.rotate_XY(p2, ddeg, dz)
     z = z + dz
 
