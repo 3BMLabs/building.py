@@ -27,9 +27,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from exchange.speckle import *
-from abstract.color import *
-
 @staticmethod
 def rgb_to_int(rgb):
     r, g, b = [max(0, min(255, c)) for c in rgb]

@@ -92,7 +92,6 @@ def generate_single_file(output_filename, include_files=None):
 							file_dict[longer_path] = {}
 							file_dict[longer_path]["text"] = file_str
 							file_dict[longer_path]["deps"] = deps
-	hierarchy = enumerate(file_dict)
  
 	with open(header_file, 'r') as content_file:
 		merged_str = content_file.read() + '\n\n'
@@ -100,7 +99,8 @@ def generate_single_file(output_filename, include_files=None):
   
 	for global_dep in global_deps:
 		merged_str += global_dep
-
+  
+	#recursively add files to merged_str
 	def add_file (relative_path: str):
 		if relative_path in file_dict:
 			if "added" not in file_dict[relative_path]:
@@ -114,7 +114,7 @@ def generate_single_file(output_filename, include_files=None):
 	for longer_path in file_dict:
 		add_file(longer_path)
     
-
+    #finally, write the merged, correctly ordered file to the destination file
 	with open(output_filename, 'w+') as dest_file:
 		dest_file.write(merged_str)
 

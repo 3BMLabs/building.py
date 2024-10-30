@@ -95,6 +95,7 @@ class Coords(Serializable, list):
         for axis_value in self:
             result += axis_value * axis_value
         return result
+    squared_length = squared_magnitude
     
     @property
     def magnitude(self): 
@@ -103,6 +104,7 @@ class Coords(Serializable, list):
             the length
         """
         return math.sqrt(self.squared_magnitude)
+    length = magnitude
     
     @magnitude.setter
     def magnitude(self, value):
@@ -154,6 +156,14 @@ class Coords(Serializable, list):
         #tan(deg) = other side / straight side
         #deg = atan(other side / straight side)
         return math.atan2(self.x, self.y)
+    
+    @staticmethod
+    def by_coordinates(x: float, y: float, z:float = None):
+        return Coords(x, y, z) if z is not None else Coords(x, y)
+    
+    @staticmethod
+    def by_list(coordinate_list: list):
+        return Coords(coordinate_list)
     
     @staticmethod
     def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:

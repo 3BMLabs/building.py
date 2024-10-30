@@ -1,6 +1,15 @@
-from library.profile import *
-from objects.profile import *
-from objects.frame import *
+
+from pathlib import Path
+import sys
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+from geometry.point import Point
+from library.profile import nameToProfile
+from objects.profile import TProfile
+from project.fileformat import BuildingPy
+from objects.frame import Frame
+from library.material import BaseSteel
+
+
 from project import fileformat
 
 project = BuildingPy("Jan zijn ligger project", "0")
