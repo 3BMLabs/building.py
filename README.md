@@ -23,7 +23,6 @@ Goals of the building.py Project:
 Group | Part | Implemented | ToSpeckle | ToFreeCAD 
 --- | --- | --- | --- | --- 
 Abstract | Vector | :heavy_check_mark: |  |  
-&nbsp; | Vector2 | :heavy_check_mark: |  |  
 &nbsp; | Plane | :heavy_check_mark: |  |  
 &nbsp; | Matrix | :heavy_check_mark: |  |  
 &nbsp; | Color | :heavy_check_mark: | :heavy_check_mark: |  
@@ -32,10 +31,6 @@ Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Line | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Arc | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | PolyCurve | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | Point2D | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | Line2D | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | Arc2D | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | PolyCurve2D | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | LineStyle | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Text | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Mesh | :heavy_check_mark: | :heavy_check_mark:  |  
@@ -48,8 +43,6 @@ Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | Panel | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Dimension | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Tag | :heavy_check_mark: | :heavy_check_mark:  |  
-&nbsp; | Component3D | | |  
-&nbsp; | Component2D | | |  
 &nbsp; | Hatch | :heavy_check_mark: | :heavy_check_mark:  |  
 Library | Steelprofiles | :heavy_check_mark: |  |  
 &nbsp; | Materials | |  |  
