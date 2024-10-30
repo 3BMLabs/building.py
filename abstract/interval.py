@@ -57,48 +57,6 @@ class Interval:
         self.end = end
         self.interval = None
 
-    def serialize(self) -> dict:
-        """Serializes the interval's attributes into a dictionary.
-
-        This method facilitates converting the interval's properties into a format that can be easily stored or transmitted.
-
-        #### Returns:
-            dict: A dictionary containing the serialized attributes of the interval.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-
-        return {
-            'start': self.start,
-            'end': self.end,
-            'interval': self.interval
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Interval':
-        """Reconstructs an Interval object from serialized data contained in a dictionary.
-
-        #### Parameters:
-            data (dict): The dictionary containing serialized data of an Interval object.
-
-        #### Returns:
-            Interval: A new Interval object initialized with the data from the dictionary.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-
-        start = data.get('start')
-        end = data.get('end')
-        interval = Interval(start, end)
-        interval.interval = data.get('interval')
-        return interval
-
     @classmethod
     def by_start_end_count(self, start: float, end: float, count: int) -> 'Interval':
         """Generates a list of equidistant points within the interval.

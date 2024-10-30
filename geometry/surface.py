@@ -80,68 +80,6 @@ class Surface:
 
 
 
-    def serialize(self) -> dict:
-        """Serializes the Surface object into a dictionary for storage or transfer.
-        This method converts the Surface object's properties into a dictionary format, making it suitable for serialization processes like saving to a file or sending over a network.
-
-        #### Returns:
-        `dict`: A dictionary representation of the Surface object, containing all relevant data such as type, mesh, dimensions, name, ID, PolyCurve list, origin curve, color, and color list.
-
-        #### Example usage:
-        ```python
-        surface = Surface(polyCurves, color)
-        serialized_surface = surface.serialize()
-        # serialized_surface is now a dictionary representation of the surface object
-        ```
-        """
-        return {
-            'type': self.type,
-            'mesh': self.mesh,
-            'length': self.length,
-            'area': self.area,
-            'offset': self.offset,
-            'name': self.name,
-            'id': self.id,
-            'PolyCurveList': [polycurve.serialize() for polycurve in self.PolyCurveList],
-            'origincurve': self.origincurve.serialize() if self.origincurve else None,
-            'color': self.color,
-            'colorlst': self.colorlst
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Surface':
-        """Creates a Surface object from a serialized data dictionary.
-        This static method reconstructs a Surface object from a dictionary containing serialized surface data. It is particularly useful for loading surfaces from storage or reconstructing them from data received over a network.
-
-        #### Parameters:
-        - `data` (`dict`): The dictionary containing the serialized data of a Surface object.
-
-        #### Returns:
-        `Surface`: A new Surface object initialized with the data from the dictionary.
-
-        #### Example usage:
-        ```python
-        data = { ... }  # Serialized Surface data
-        surface = Surface.deserialize(data)
-        # surface is now a fully reconstructed Surface object
-        ```
-        """
-        polycurves = [PolyCurve.deserialize(
-            pc_data) for pc_data in data.get('PolyCurveList', [])]
-        surface = Surface(polycurves, data.get('color'))
-
-        surface.mesh = data.get('mesh', [])
-        surface.length = data.get('length', 0)
-        surface.area = data.get('area', 0)
-        surface.offset = data.get('offset', 0)
-        surface.name = data.get('name', "test2")
-        surface.id = data.get('id')
-        surface.colorlst = data.get('colorlst', [])
-
-        if data.get('origincurve'):
-            surface.origincurve = PolyCurve.deserialize(data['origincurve'])
-
-        return surface
     @classmethod
     def by_patch_inner_and_outer(self, Polygons: 'list[Polygon]') -> 'Surface':
         valid_polygons = [p for p in Polygons if p is not None]

@@ -44,31 +44,6 @@ class View(Serializable):
         self.visibility = None
         self.scale = 0.01
 
-    def serialize(self):
-        return {
-            'name': self.name,
-            'id': self.id,
-            'type': self.type,
-            'origin': self.origin.serialize(),
-            'cutplane': self.cutplane.serialize() if self.cutplane else None,
-            'visibility': self.visibility,
-            'scale': self.scale
-        }
-
-    @staticmethod
-    def deserialize(data):
-        view = View()
-        view.name = data.get('name')
-        view.id = data.get('id')
-        view.type = data.get('type')
-        view.origin = Point.deserialize(data['origin'])
-        view.cutplane = CoordinateSystem.deserialize(
-            data['cutplane']) if data.get('cutplane') else None
-        view.visibility = data.get('visibility')
-        view.scale = data.get('scale', 0.01)
-
-        return view
-
 
 class Visibility(Serializable):
     def __init__(self):
@@ -78,28 +53,3 @@ class Visibility(Serializable):
         self.cutplane: CoordinateSystem = None
         self.visibility = None
         self.scale = 0.01
-
-    def serialize(self):
-        return {
-            'name': self.name,
-            'id': self.id,
-            'type': self.type,
-            'origin': self.origin.serialize(),
-            'cutplane': self.cutplane.serialize() if self.cutplane else None,
-            'visibility': self.visibility,
-            'scale': self.scale
-        }
-
-    @staticmethod
-    def deserialize(data):
-        visibility = Visibility()
-        visibility.name = data.get('name')
-        visibility.id = data.get('id')
-        visibility.type = data.get('type')
-        visibility.origin = Point.deserialize(data['origin'])
-        visibility.cutplane = CoordinateSystem.deserialize(
-            data['cutplane']) if data.get('cutplane') else None
-        visibility.visibility = data.get('visibility')
-        visibility.scale = data.get('scale', 0.01)
-
-        return visibility

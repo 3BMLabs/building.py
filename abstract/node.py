@@ -65,51 +65,6 @@ class Node:
         self.diameter = diameter
         self.comments = comments
 
-    def serialize(self) -> dict:
-        """Serializes the node's attributes into a dictionary.
-
-        This method allows for the node's properties to be easily stored or transmitted in a dictionary format.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized attributes of the node.
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'point': self.point.serialize() if self.point else None,
-            'vector': self.vector.serialize() if self.vector else None,
-            'number': self.number,
-            'distance': self.distance,
-            'diameter': self.diameter,
-            'comments': self.comments
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Node':
-        """Recreates a Node object from a dictionary of serialized data.
-
-        #### Parameters:
-        - data (dict): The dictionary containing the node's serialized data.
-
-        #### Returns:
-        `Node`: A new Node object initialized with the data from the dictionary.
-        """
-        node = Node()
-        node.id = data.get('id')
-        node.type = data.get('type')
-        node.point = Point.deserialize(
-            data['point']) if data.get('point') else None
-        node.vector = Vector.deserialize(
-            data['vector']) if data.get('vector') else None
-        node.number = data.get('number')
-        node.distance = data.get('distance')
-        node.diameter = data.get('diameter')
-        node.comments = data.get('comments')
-
-        return node
-
     # merge
     def merge(self):
         """Merges this node with others in a project according to defined rules.

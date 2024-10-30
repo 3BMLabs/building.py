@@ -58,49 +58,6 @@ class Plane:
         self.vector_1 = Vector(x=1, y=0, z=0)
         self.vector_2 = Vector(x=0, y=1, z=0)
 
-    def serialize(self) -> dict:
-        """Serializes the plane's attributes into a dictionary.
-        This method facilitates the conversion of the plane's properties into a format that can be easily stored or transmitted.
-
-        #### Returns:
-            dict: A dictionary containing the serialized attributes of the plane.
-        
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        return {
-            'Origin': self.Origin.serialize(),
-            'Normal': self.Normal.serialize(),
-            'vector_1': self.vector_1.serialize(),
-            'vector_2': self.vector_2.serialize()
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Plane':
-        """Creates a Plane object from a serialized data dictionary.
-        This method allows for the reconstruction of a Plane instance from data previously serialized into a dictionary format, typically after storage or transmission.
-
-        #### Parameters:
-            data (dict): The dictionary containing the serialized data of a Plane object.
-
-        #### Returns:
-            Plane: A new Plane object initialized with the data from the dictionary.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-        plane = Plane()
-        plane.Origin = Point.deserialize(data['Origin'])
-        plane.Normal = Vector.deserialize(data['Normal'])
-        plane.vector_1 = Vector.deserialize(data['vector_1'])
-        plane.vector_2 = Vector.deserialize(data['vector_2'])
-
-        return plane
-
     @classmethod
     def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
         """Creates a Plane defined by two vectors and an origin point.

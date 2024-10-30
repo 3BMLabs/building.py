@@ -69,35 +69,6 @@ class DimensionType:
         self.tick_mark: TickMark = TMDiagonal
         self.line_extension = 100
 
-    def serialize(self):
-        return {
-            'name': self.name,
-            'id': self.id,
-            'type': self.type,
-            'font': self.font,
-            'text_height': self.text_height,
-            'tick_mark': str(self.tick_mark),
-            'line_extension': self.line_extension
-        }
-
-    @staticmethod
-    def deserialize(data):
-        dimension_type = DimensionType()
-        dimension_type.name = data.get('name')
-        dimension_type.id = data.get('id')
-        dimension_type.type = data.get('type')
-        dimension_type.font = data.get('font')
-        dimension_type.text_height = data.get('text_height', 2.5)
-
-        # Handle TickMark deserialization
-        tick_mark_str = data.get('tick_mark')
-        # Adjust according to your TickMark implementation
-        dimension_type.tick_mark = TickMark(tick_mark_str)
-
-        dimension_type.line_extension = data.get('line_extension', 100)
-
-        return dimension_type
-
     @staticmethod
     def by_name_font_textheight_tick_mark_extension(name: str, font: str, text_height: float, tick_mark: TickMark, line_extension: float):
         DT = DimensionType()
@@ -128,37 +99,6 @@ class Dimension:
         self.length: float = Line(start=self.start, end=self.end).length
         self.text = None
         self.geom()
-
-    def serialize(self):
-        return {
-            'type': self.type,
-            'start': self.start.serialize(),
-            'end': self.end.serialize(),
-            'text_height': self.text_height,
-            'id': self.id,
-            'scale': self.scale,
-            'dimension_type': self.dimension_type.serialize(),
-            'curves': [curve.serialize() for curve in self.curves],
-            'length': self.length,
-            'text': self.text
-        }
-
-    @staticmethod
-    def deserialize(data):
-        start = Point.deserialize(data['start'])
-        end = Point.deserialize(data['end'])
-        dimension_type = DimensionType.deserialize(data['dimension_type'])
-        dimension = Dimension(start, end, dimension_type)
-
-        dimension.text_height = data.get('text_height', 100)
-        dimension.id = data.get('id')
-        dimension.scale = data.get('scale', 0.1)
-        dimension.curves = [Line.deserialize(
-            curve_data) for curve_data in data.get('curves', [])]
-        dimension.length = data.get('length')
-        dimension.text = data.get('text')
-
-        return dimension
 
     @staticmethod
     def by_startpoint_endpoint_offset(start: Point, end: Point, dimension_type: DimensionType, offset: float):
@@ -220,36 +160,6 @@ class FrameTag:
         self.text_curves = None
         self.text_height = 100
 
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'scale': self.scale,
-            'cs': self.cs.serialize(),
-            'offset_x': self.offset_x,
-            'offset_y': self.offset_y,
-            'font_family': self.font_family,
-            'text': self.text,
-            'text_curves': self.text_curves,
-            'text_height': self.text_height
-        }
-
-    @staticmethod
-    def deserialize(data):
-        frame_tag = FrameTag()
-        frame_tag.scale = data.get('scale', 0.1)
-        frame_tag.cs = CoordinateSystem.deserialize(data['cs'])
-        frame_tag.offset_x = data.get('offset_x', 500)
-        frame_tag.offset_y = data.get('offset_y', 100)
-        frame_tag.font_family = data.get('font_family', "calibri")
-        frame_tag.text = data.get('text', "text")
-        frame_tag.text_curves = data.get('text_curves')
-        frame_tag.text_height = data.get('text_height', 100)
-
-        return frame_tag
-
     def __textobject(self):
         cstext = self.cs
         # cstextnew = cstext.translate(self.textoff_vector_local)
@@ -308,48 +218,6 @@ class ColumnTag:
             self.height/self.factor, self.height+self.height/self.text_offset_factor, 0)
         self.text_curves = None
         # self.textobject()
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'width': self.width,
-            'height': self.height,
-            'factor': self.factor,
-            'scale': self.scale,
-            'position': self.position,
-            'cs': self.cs.serialize(),
-            'font_family': self.font_family,
-            'curves': [curve.serialize() for curve in self.curves],
-            'text': self.text,
-            'text_height': self.text_height,
-            'text_offset_factor': self.text_offset_factor,
-            'textoff_vector_local': self.textoff_vector_local.serialize(),
-            'text_curves': self.text_curves
-        }
-
-    @staticmethod
-    def deserialize(data):
-        column_tag = ColumnTag()
-        column_tag.width = data.get('width', 700)
-        column_tag.height = data.get('height', 500)
-        column_tag.factor = data.get('factor', 3)
-        column_tag.scale = data.get('scale', 0.1)
-        column_tag.position = data.get('position', "TL")
-        column_tag.cs = CoordinateSystem.deserialize(data['cs'])
-        column_tag.font_family = data.get('font_family', "calibri")
-        column_tag.curves = [Line.deserialize(
-            curve_data) for curve_data in data.get('curves', [])]
-        column_tag.text = data.get('text', "text")
-        column_tag.text_height = data.get('text_height', 100)
-        column_tag.text_offset_factor = data.get('text_offset_factor', 5)
-        column_tag.textoff_vector_local = Vector.deserialize(
-            data['textoff_vector_local'])
-        column_tag.text_curves = data.get('text_curves')
-
-        return column_tag
 
     def __leadercurves(self):
         self.startpoint = Point(0, 0, 0)

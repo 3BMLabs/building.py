@@ -55,37 +55,6 @@ class WurksRaster3d(Serializable):
         self.name = "x"
         self.lines = None
 
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'bottom': self.bottom.serialize() if self.bottom else None,
-            'top': self.top.serialize() if self.top else None,
-            'name': self.name,
-            'lines': [line.serialize() for line in self.lines] if self.lines else None
-        }
-
-    @staticmethod
-    def deserialize(data):
-        wurks_raster3d = WurksRaster3d()
-        wurks_raster3d.id = data.get('id')
-        wurks_raster3d.type = data.get('type')
-        wurks_raster3d.bottom = Surface.deserialize(
-            data['bottom']) if 'bottom' in data else None
-        wurks_raster3d.top = Surface.deserialize(
-            data['top']) if 'top' in data else None
-        wurks_raster3d.name = data.get('name', "x")
-
-        if 'lines' in data and data['lines'] is not None:
-            wurks_raster3d.lines = [PolyCurve.deserialize(
-                line_data) for line_data in data['lines']]
-        else:
-            wurks_raster3d.lines = None
-
-        return wurks_raster3d
-
     def by_line(self, lines: Line, bottom: float, top: float):
         self.bottom = Vector(0, 0, bottom)
         self.top = Vector(0, 0, top)

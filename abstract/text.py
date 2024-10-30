@@ -83,40 +83,6 @@ class Text:
         self.path_list = self.load_path()
         self.load_o_example = self.load_o()
 
-    def serialize(self) -> 'dict':
-        """Serializes the text object's attributes into a dictionary.
-        This method is useful for exporting the text object's properties, making it easier to save or transmit as JSON.
-
-        #### Returns:
-            dict: A dictionary containing the serialized attributes of the text object.
-        
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'text': self.text,
-            'font_family': self.font_family,
-            'xyz': self.xyz,
-            'csglobal': self.csglobal.serialize(),
-            'x': self.x,
-            'y': self.y,
-            'z': self.z,
-            'scale': self.scale,
-            'height': self.height,
-            'bbHeight': self.bbHeight,
-            'width': self.width,
-            'character_offset': self.character_offset,
-            'space': self.space,
-            'curves': [curve.serialize() for curve in self.curves],
-            'points': self.points,
-            'path_list': self.path_list,
-        }
 
     def load_path(self) -> 'str':
         """Loads the glyph paths for the specified text from a JSON file.
