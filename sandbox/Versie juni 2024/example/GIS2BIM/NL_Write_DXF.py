@@ -4,7 +4,7 @@ from packages.GIS2BIM import *
 from project.fileformat import *
 from exchange.GIS2BIM import *
 
-from geometry.mesh import MeshPB
+from geometry.mesh import Mesh
 from library.material import *
 import ezdxf
 

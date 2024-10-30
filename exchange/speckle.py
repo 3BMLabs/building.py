@@ -34,9 +34,11 @@ __url__ = "./exchange/speckle.py"
 import sys
 from pathlib import Path
 
+from geometry.mesh import Mesh
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from BuildingPy import Point
+from BuildingPy import BuildingPy, Coords, Panel, Point
 from BuildingPy import Line
 from BuildingPy import PolyCurve, Polygon
 from BuildingPy import Arc
@@ -45,6 +47,7 @@ from BuildingPy import Plane
 from BuildingPy import Interval
 from BuildingPy import Vector, Point, Line, PolyCurve
 from BuildingPy import project
+from packages.helper import flatten
 
 # [!not included in BP singlefile - end]
 
@@ -68,7 +71,7 @@ from specklepy.objects.primitive import Interval as SpeckleInterval
 from specklepy.objects.geometry import Spiral as SpeckleSpiral
 from specklepy.objects.geometry import SpiralType as SpeckleSpiralType
 
-def toSpeckle(self, streamid, commitstring=None):
+def toSpeckle(self: BuildingPy, streamid, commitstring=None):
     try:
         import specklepy
     except ImportError:
@@ -96,11 +99,8 @@ def IntervalToSpeckleInterval(interval: Interval):
     return SpeckleInt
 
 
-def PointToSpecklePoint(point):
-    if point.type == "Point":
-        SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    elif point.type == "Point":
-        SpecklePnt = SpecklePoint.from_coords(point.x, point.y, 0)
+def PointToSpecklePoint(point: Coords):
+    SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
     SpecklePnt.id = point.id
     SpecklePnt.units = project.units
     SpecklePnt.applicationId = project.applicationId
@@ -148,7 +148,7 @@ def SpecklePolylineBySpecklePoints(polycurve: PolyCurve):
     try:
         SpecklePolyln.area = polycurve.area()
         SpecklePolyln.length = PolyCurve.length(polycurve)
-        SpecklePolyln.closed = polycurve.isClosed
+        SpecklePolyln.closed = polycurve.closed
     except Exception as e:
         print(e)
 
@@ -170,7 +170,7 @@ def SpecklePolygonBySpecklePoints(polycurve): #fixed
 
     return SpecklePolygon
 
-def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve2D):
+def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve):
     SpecklePl = [PointToSpecklePoint(point) for point in polycurve.points2D]
     SpecklePolyln = SpecklePolyLine.from_points(SpecklePl)
     SpecklePolyln.id = polycurve.id
@@ -179,7 +179,7 @@ def SpecklePolyline2DBySpecklePoints2D(polycurve: PolyCurve2D):
     SpecklePolyln.applicationId = project.applicationId
     try:
         SpecklePolyln.area = polycurve.area()
-        SpecklePolyln.length = PolyCurve2D.length(polycurve)
+        SpecklePolyln.length = PolyCurve.length(polycurve)
         SpecklePolyln.closed = polycurve.isClosed
     except Exception as e:
         print(e)
@@ -229,17 +229,14 @@ def Point2DToSpecklePoint(Point: Point):
     return SpecklePnt
 
 
-def SpeckleMeshByMesh(MeshPB):
+def SpeckleMeshByMesh(mesh:Mesh):
     color = -1762845660
-    colrs = []
-    for i in range(MeshPB.countVertsFaces):
-        colrs.append(color)
 
     SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, 
-                             vertices = MeshPB.verts, 
-                             faces = MeshPB.faces, 
-                             name = MeshPB.name, 
-                             colors = colrs, 
+                             vertices = mesh.vertices, 
+                             faces = [[len(face)].extend(face) for face in mesh.faces],
+                             name = mesh.name,
+                             colors = [color] * len(mesh.faces), 
                              units = project.units,
                              textureCoordinates = []
                              )
@@ -383,7 +380,7 @@ def translateObjectsToSpeckleObjects(Obj):
             if current_object == []:
                 print(f"'{nm}' Object not yet added to translateObjectsToSpeckleObjects")
 
-        elif nm == 'Panel':
+        elif isinstance(current_object, Panel):
             colrs = current_object.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=current_object.extrusion.verts, 
@@ -574,7 +571,7 @@ def translateObjectsToSpeckleObjects(Obj):
             except:
                 print("Polygon could not be exported")
 
-        elif nm == 'PolyCurve2D':
+        elif nm == 'PolyCurve':
             SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(current_object))
 
         elif nm == 'Rect':
@@ -609,7 +606,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Line2D':
             SpeckleObj.append(Line2DToSpeckleLine3D(current_object))
 
-        elif nm == 'Point':
+        elif isinstance(current_object, Coords):
             SpeckleObj.append(PointToSpecklePoint(current_object))
 
         elif nm == 'Node':
@@ -632,16 +629,8 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(current_object))
 
-        elif nm == 'MeshPB':
-            clrs = current_object.colorlst
-            SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
-                                          vertices=current_object.verts, 
-                                          faces=current_object.faces, 
-                                          colors = clrs, 
-                                          name = current_object.name, 
-                                          units = project.units,
-                                          textureCoordinates = []
-                                          ))
+        elif isinstance(current_object, Mesh):
+            SpeckleObj.append(SpeckleMeshByMesh(current_object))
 
         elif nm == 'Trimesh':
             clrs = []

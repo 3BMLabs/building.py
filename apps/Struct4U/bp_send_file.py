@@ -156,16 +156,16 @@ def Point2DToSpecklePoint(Point: Point):
     return SpecklePnt
 
 
-def SpeckleMeshByMesh(MeshPB):
+def SpeckleMeshByMesh(Mesh):
     color = -1762845660
     colrs = []
-    for i in range(MeshPB.countVertsFaces):
+    for i in range(Mesh.countVertsFaces):
         colrs.append(color)
 
     SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, 
-                             vertices = MeshPB.verts, 
-                             faces = MeshPB.faces, 
-                             name = MeshPB.name, 
+                             vertices = Mesh.verts, 
+                             faces = Mesh.faces, 
+                             name = Mesh.name, 
                              colors = colrs, 
                              units = project.units,
                              textureCoordinates = []
@@ -574,7 +574,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))
 
-        elif nm == 'MeshPB':
+        elif nm == 'Mesh':
             clrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=i.verts, 

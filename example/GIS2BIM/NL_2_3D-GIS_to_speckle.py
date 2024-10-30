@@ -50,7 +50,7 @@ for i in filePaths:
     names = cityjson_res[1]
     for i, j in zip(buildings, names):
         name = j
-        m = MeshPB().by_coords(i, name, BaseBuilding, False)
+        m = Mesh().by_coords(i, name, BaseBuilding, False)
         GISProject.objects.append(m)
 
 # 3D KADASTER BASISVOORZIENING
@@ -70,63 +70,63 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
     for i in result[1]:
         geom = i
         name = "bridge"
-        m = MeshPB().by_coords(geom, name, BaseInfra, False)
+        m = Mesh().by_coords(geom, name, BaseInfra, False)
         GISProject.objects.append(m)
 
     # 2 roads
     for i in result[2]:
         geom = i
         name = "roads"
-        m = MeshPB().by_coords(geom, name, BaseRoads, False)
+        m = Mesh().by_coords(geom, name, BaseRoads, False)
         GISProject.objects.append(m)
 
     # 3 railways
     for i in result[3]:
         geom = i
         name = "railways"
-        m = MeshPB().by_coords(geom, name, BaseInfra, False)
+        m = Mesh().by_coords(geom, name, BaseInfra, False)
         GISProject.objects.append(m)
 
     # 4 landuses
     for i in result[4]:
         geom = i
         name = "landuses"
-        m = MeshPB().by_coords(geom, name, BaseGreen, False)
+        m = Mesh().by_coords(geom, name, BaseGreen, False)
         GISProject.objects.append(m)
 
     # 5 plantcovers
     for i in result[5]:
         geom = i
         name = "plantcovers"
-        m = MeshPB().by_coords(geom, name, BaseGreen, False)
+        m = Mesh().by_coords(geom, name, BaseGreen, False)
         GISProject.objects.append(m)
 
     # 6 waterways
     for i in result[6]:
         geom = i
         name = "waterways"
-        m = MeshPB().by_coords(geom, name, BaseWater, True)
+        m = Mesh().by_coords(geom, name, BaseWater, True)
         GISProject.objects.append(m)
 
     # 7 waterbodies
     for i in result[7]:
         geom = i
         name = "waterbodies"
-        m = MeshPB().by_coords(geom, name, BaseWater, False)
+        m = Mesh().by_coords(geom, name, BaseWater, False)
         GISProject.objects.append(m)
 
     # 8 generics
     for i in result[8]:
         geom = i
         name = "generics"
-        m = MeshPB().by_coords(geom, name, BaseOther, False)
+        m = Mesh().by_coords(geom, name, BaseOther, False)
         GISProject.objects.append(m)
 
     # 9 reliefs
     for i in result[9]:
         geom = i
         name = "generics"
-        m = MeshPB().by_coords(geom, name, BaseOther, False)
+        m = Mesh().by_coords(geom, name, BaseOther, False)
         GISProject.objects.append(m)
 
 

@@ -52,8 +52,8 @@ def generate_single_file(output_filename, include_files=None):
 							copy_flag = True
 							#loop over lines, skip the first line
 							for line_index in range(1, len(lines)):
-								line = lines[line_index].rstrip()
-								if line == '': continue
+								line = lines[line_index].rstrip('\n')
+
 								#check for import statements to determine order. let's also allow imports in included parts but just strip them away, for convenience.
 								#possible patterns: 'from a import b' or 'import c'
 

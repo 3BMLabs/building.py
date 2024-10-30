@@ -32,10 +32,15 @@ __author__ = "Maarten"
 __url__ = "./geometry/solid.py"
 
 
-class MeshPB:
+from abstract.serializable import Serializable
+from geometry.curve import PolyCurve
+from library.material import Material
+
+
+class Mesh(Serializable):
     """Represents a mesh object with vertices, faces, and other attributes."""
     def __init__(self):
-        """The MeshPB class is designed to construct mesh objects from vertices and faces. It supports creating meshes from a variety of inputs including vertex-face lists, polycurves, and coordinate lists with support for nested structures.
+        """The Mesh class is designed to construct mesh objects from vertices and faces. It supports creating meshes from a variety of inputs including vertex-face lists, polycurves, and coordinate lists with support for nested structures.
         
         - `verts` (list): A list of vertices that make up the mesh.
         - `faces` (list): A list defining the faces of the mesh. Each face is represented by indices into the `verts` list.
@@ -44,14 +49,18 @@ class MeshPB:
         - `material` (Material): The material assigned to the mesh.
         - `colorlst` (list): A list of colors for the mesh, derived from the material.
         """
-        self.verts = []
-        self.faces = []
+        self.vertices = []
+        
+        #this nested list contains indices for every face. for example:
+        #[[0, 1, 2], [3, 0, 4]] -> 2 faces. the first face connects the points 0, 1 and 2, while the second face connects the points 3, 0 and 4.
+        self.faces: list[list] = []
+        
         self.numberFaces = 0
         self.name = None
         self.material = None
         self.colorlst = []
 
-    def by_verts_faces(self, verts: 'list', faces: 'list') -> 'MeshPB':
+    def by_verts_faces(self, verts: 'list', faces: 'list') -> 'Mesh':
         """Initializes the mesh with vertices and faces.
 
         #### Parameters:
@@ -65,11 +74,11 @@ class MeshPB:
 
         ```
         """
-        self.verts = verts
+        self.vertices = verts
         self.faces = faces
 
     #create material class; Material
-    def by_polycurve(self, PC, name: 'str', material) -> 'MeshPB':
+    def by_polycurve(self, PC:PolyCurve, name: 'str', material:Material) -> 'Mesh':
         """Creates a mesh from a polycurve object.
 
         #### Parameters:
@@ -90,22 +99,24 @@ class MeshPB:
         # numberFaces = 0
         n = 0  # number of vert. Every vert has a unique number in the list
         pnts = PC.points  # points in every polycurve
-        faces.append(len(pnts))  # number of verts in face
+        
+        current_face = []
+
         for j in pnts:
-            faces.append(n)
+            current_face.append(n)
             verts.append(j.x)
             verts.append(j.y)
             verts.append(j.z)
             n = n + 1
-        self.verts = verts
-        self.faces = faces
+        self.vertices = verts
+        self.faces = [current_face]
         # ex.numberFaces = numberFaces
         self.name = name
         self.material = material
         self.colorlst = [material.colorint]
         return self
 
-    def by_coords(self, lsts: 'list', name: 'str', material, doublenest: 'bool') -> 'MeshPB':
+    def by_coords(self, lsts: 'list', name: 'str', material, doublenest: 'bool') -> 'Mesh':
         """Creates a mesh from a list of coordinates.
 
         #### Parameters:
@@ -143,7 +154,7 @@ class MeshPB:
             self.numberFaces = + 1
         for j in range(int(len(verts) / 3)):
             self.colorlst.append(material.colorint)
-        self.verts = verts
+        self.vertices = verts
         self.faces = faces
         self.name = name
         self.material = material

@@ -2,7 +2,7 @@ from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from exchange.GIS2BIM import *
-from geometry.mesh import MeshPB
+from geometry.mesh import Mesh
 from library.material import *
 from abstract.image import *
 #from GIS2BIM_single_file import *
@@ -50,7 +50,7 @@ BPCurvesBAG = WFSCurvesToBPCurves(curvesBAG)
 #     GISProject.objects.append(i)
 
 for i in BPCurvesBAG:
-    m = MeshPB().by_polycurve(i, "BAG:pand", BaseBuilding)
+    m = Mesh().by_polycurve(i, "BAG:pand", BaseBuilding)
     GISProject.objects.append(m)
 
 GISProject.toSpeckle("30185b86c3", "Kadaster")

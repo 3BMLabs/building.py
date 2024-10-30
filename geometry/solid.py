@@ -47,7 +47,7 @@ from abstract.plane import Plane
 from abstract.rect import Rect
 from abstract.vector import Vector
 from geometry.curve import PolyCurve
-from geometry.point import Point, transform_point
+from geometry.point import Point
 from packages.helper import flatten, generateID
 from objects.profile import Profile
 # [!not included in BP singlefile - end]

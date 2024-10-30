@@ -44,7 +44,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.rect import Rect
 from abstract.plane import Plane
 from geometry.point import Point
-from geometry.point import transform_point
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
@@ -76,6 +75,11 @@ class Line(Serializable):
     @property
     def angle(self) -> float:
         return (self.end - self.start).angle
+    
+    @property
+    def points(self) -> list[Point]:
+        return[Point(self.start), Point(self.end)]
+    
     @staticmethod
     def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
         """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
@@ -260,6 +264,216 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
         lines.append(line)
     return lines
 
+
+class Arc(Line):
+    def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
+        """Initializes an Arc object with start, mid, and end points.
+        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
+        
+        the mid point should really be in the center; we don't support warped arcs.
+
+        - `startPoint` (Point): The starting point of the arc.
+        - `midPoint` (Point): The mid point of the arc which defines its curvature.
+        - `endPoint` (Point): The ending point of the arc.
+        """
+        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
+        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
+            raise ValueError('midpoint is not in the center')
+        super().__init__(startPoint, endPoint)
+        
+        self.mid = midPoint
+
+        #self.origin = self.origin_arc()
+        #vector_1 = Vector(x=1, y=0, z=0)
+        #vector_2 = Vector(x=0, y=1, z=0)
+        #self.plane = Plane.by_two_vectors_origin(
+        #    vector_1,
+        #    vector_2,
+        #    self.origin
+        #)
+        #self.radius = self.radius_arc()
+        #self.startAngle = 0
+        #self.endAngle = 0
+        #self.angle_radian = self.angle_radian()
+        #self.area = 0
+        #self.length = self.length()
+        #self.units = project.units
+        
+    @property
+    def radius(self) -> 'float':
+        """Calculates and returns the radius of the arc.
+        The radius is computed based on the distances between the start, mid, and end points of the arc.
+
+        #### Returns:
+        `float`: The radius of the arc.
+
+        #### Example usage:
+        ```python
+        radius = arc.radius_arc()
+        # radius will be the calculated radius of the arc
+        ```
+        """
+        a = Point.distance(self.start, self.mid)
+        b = Point.distance(self.mid, self.end)
+        c = Point.distance(self.end, self.start)
+        s = (a + b + c) / 2
+        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+        
+        if abs(A) < 1e-6:
+            return float('inf')
+        else:
+            R = (a * b * c) / (4 * A)
+            return R
+
+    @property
+    def points(self) -> list[Point]:
+        return[Point(self.start), Point(self.mid), Point(self.end)]
+            
+    #https://calcresource.com/geom-circularsegment.html
+    @property
+    def area(self) -> 'float':
+        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
+    
+    @property
+    def origin(self) -> 'Point':
+        """Calculates and returns the origin of the arc.
+        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
+
+        #### Returns:
+        `Point`: The calculated origin point of the arc.
+
+        #### Example usage:
+        ```python
+        origin = arc.origin_arc()
+        # origin will be the calculated origin point of the arc
+        ```
+        """
+        start_to_end = self.end - self.start
+        half_start_end = start_to_end * 0.5
+        b = half_start_end.magnitude
+        radius = self.radius
+        x = math.sqrt(radius * radius - b * b)
+        #mid point as if this was a straight line
+        mid = self.start + half_start_end
+        #substract the curved mid point from the straight line mid point
+        to_center = mid - self.mid
+        #change length to x
+        to_center.magnitude = x
+        center = mid + to_center
+        return center
+
+    @property
+    def centroid(self) -> 'Point':
+        origin = self.origin
+        radius = self.radius
+        angle = self.angle
+        #the distance of the centroid of the arc to its origin
+        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
+        return origin + centroid_distance * ((self.mid - origin) / radius)
+        
+    @property
+    def angle(self) -> 'float':
+        """Calculates and returns the total angle of the arc in radians.
+        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
+
+        #### Returns:
+        `float`: The total angle of the arc in radians.
+
+        #### Example usage:
+        ```python
+        angle = arc.angle_radian()
+        # angle will be the total angle of the arc in radians
+        ```
+        """
+        origin = self.origin
+        vector_1 = self.end - origin
+        vector_2 = self.start - origin
+        vector_3 = self.mid - origin
+        vector_4 = vector_1 + vector_2
+        try:
+            v4b = Vector.new_length(vector_4, self.radius)
+            if Vector.value(vector_3) == Vector.value(v4b):
+                angle = Vector.angle_between(vector_1, vector_2)
+            else:
+                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
+            return angle
+        except:
+            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
+            return angle
+        
+    @property
+    def length(self) -> 'float':
+        """Calculates and returns the length of the arc.
+        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
+
+        #### Returns:
+        `float`: The length of the arc.
+
+        #### Example usage:
+        ```python
+        length = arc.length()
+        # length will be the calculated length of the arc
+        ```
+        """
+        try:
+            x1, y1, z1 = self.start.x, self.start.y, self.start.z
+            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
+            x3, y3, z3 = self.end.x, self.end.y, self.end.z
+
+            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
+            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
+            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
+            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+            m1 = math.acos(cos_angle)
+            arc_length = r1 * m1
+
+            return arc_length
+        except:
+            return 0
+    
+    @staticmethod
+    def segmented_arc(arc: 'Arc', count: 'int') -> 'list':
+        """Divides the arc into segments and returns a list of line segments.
+        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
+
+        #### Parameters:
+        - `arc` (Arc): The arc object.
+        - `count` (int): The number of segments (and thus the number of points - 1) to create.
+
+        #### Returns:
+        `list`: A list of line segments (`Line` objects) representing the divided arc.
+
+        #### Example usage:
+        ```python
+        arc = Arc(startPoint, midPoint, endPoint)
+        segments = Arc.segmented_arc(arc, 3)
+        # segments will be a list of 2 lines dividing the arc into 3 segments
+        ```
+        """
+        pnts = Arc.points_at_parameter(arc, count)
+        i = 0
+        lines = []
+        for j in range(len(pnts) - 1):
+            lines.append(Line(pnts[i], pnts[i + 1]))
+            i = i + 1
+        return lines
+
+    def __str__(self) -> 'str':
+        """Generates a string representation of the Arc object.
+
+        #### Returns:
+        `str`: A string that represents the Arc object.
+
+        #### Example usage:
+        ```python
+        arc = Arc(startPoint, midPoint, endPoint)
+        print(arc)
+        # Output: Arc()
+        ```
+        """
+        return f"{__class__.__name__}()"
+
 class Polygon(PointList):
     """Represents a polygon composed of points."""
     def __init__(self, *args) -> 'Polygon':
@@ -269,6 +483,10 @@ class Polygon(PointList):
 
     @property
     def closed(self) -> bool: return self[0] == self[-1]
+    
+    @property
+    def points(self) -> list[Point]:
+        return [Point(p) for p in self]
     
     @closed.setter
     def closed(self, value) -> Self:
@@ -589,6 +807,13 @@ class PolyCurve(Serializable, list[Line], Shape):
         super().__init__(to_array(*args))
     
     @property
+    def points(self) -> list[Point]:
+        p = []
+        for l in self:
+            p.extend(l.points)
+        return p
+    
+    @property
     def closed(self) -> 'bool':
         return self[0].start == self[-1].end
     @closed.setter
@@ -858,212 +1083,6 @@ class PolyCurve(Serializable, list[Line], Shape):
         crv = flatten(crvs)
         pc = PolyCurve.by_joined_curves(crv)
         return pc
-
-class Arc:
-    def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
-        """Initializes an Arc object with start, mid, and end points.
-        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
-        
-        the mid point should really be in the center; we don't support warped arcs.
-
-        - `startPoint` (Point): The starting point of the arc.
-        - `midPoint` (Point): The mid point of the arc which defines its curvature.
-        - `endPoint` (Point): The ending point of the arc.
-        """
-        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
-        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
-            raise ValueError('midpoint is not in the center')
-        
-        
-        self.start = startPoint
-        self.mid = midPoint
-        self.end = endPoint
-        #self.origin = self.origin_arc()
-        #vector_1 = Vector(x=1, y=0, z=0)
-        #vector_2 = Vector(x=0, y=1, z=0)
-        #self.plane = Plane.by_two_vectors_origin(
-        #    vector_1,
-        #    vector_2,
-        #    self.origin
-        #)
-        #self.radius = self.radius_arc()
-        #self.startAngle = 0
-        #self.endAngle = 0
-        #self.angle_radian = self.angle_radian()
-        #self.area = 0
-        #self.length = self.length()
-        #self.units = project.units
-        
-    @property
-    def radius(self) -> 'float':
-        """Calculates and returns the radius of the arc.
-        The radius is computed based on the distances between the start, mid, and end points of the arc.
-
-        #### Returns:
-        `float`: The radius of the arc.
-
-        #### Example usage:
-        ```python
-        radius = arc.radius_arc()
-        # radius will be the calculated radius of the arc
-        ```
-        """
-        a = Point.distance(self.start, self.mid)
-        b = Point.distance(self.mid, self.end)
-        c = Point.distance(self.end, self.start)
-        s = (a + b + c) / 2
-        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
-        
-        if abs(A) < 1e-6:
-            return float('inf')
-        else:
-            R = (a * b * c) / (4 * A)
-            return R
-        
-    #https://calcresource.com/geom-circularsegment.html
-    @property
-    def area(self) -> 'float':
-        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
-    
-    @property
-    def origin(self) -> 'Point':
-        """Calculates and returns the origin of the arc.
-        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `Point`: The calculated origin point of the arc.
-
-        #### Example usage:
-        ```python
-        origin = arc.origin_arc()
-        # origin will be the calculated origin point of the arc
-        ```
-        """
-        start_to_end = self.end - self.start
-        half_start_end = start_to_end * 0.5
-        b = half_start_end.magnitude
-        radius = self.radius
-        x = math.sqrt(radius * radius - b * b)
-        #mid point as if this was a straight line
-        mid = self.start + half_start_end
-        #substract the curved mid point from the straight line mid point
-        to_center = mid - self.mid
-        #change length to x
-        to_center.magnitude = x
-        center = mid + to_center
-        return center
-
-    @property
-    def centroid(self) -> 'Point':
-        origin = self.origin
-        radius = self.radius
-        angle = self.angle
-        #the distance of the centroid of the arc to its origin
-        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
-        return origin + centroid_distance * ((self.mid - origin) / radius)
-        
-    @property
-    def angle(self) -> 'float':
-        """Calculates and returns the total angle of the arc in radians.
-        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
-
-        #### Returns:
-        `float`: The total angle of the arc in radians.
-
-        #### Example usage:
-        ```python
-        angle = arc.angle_radian()
-        # angle will be the total angle of the arc in radians
-        ```
-        """
-        origin = self.origin
-        vector_1 = self.end - origin
-        vector_2 = self.start - origin
-        vector_3 = self.mid - origin
-        vector_4 = vector_1 + vector_2
-        try:
-            v4b = Vector.new_length(vector_4, self.radius)
-            if Vector.value(vector_3) == Vector.value(v4b):
-                angle = Vector.angle_between(vector_1, vector_2)
-            else:
-                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        except:
-            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        
-    @property
-    def length(self) -> 'float':
-        """Calculates and returns the length of the arc.
-        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `float`: The length of the arc.
-
-        #### Example usage:
-        ```python
-        length = arc.length()
-        # length will be the calculated length of the arc
-        ```
-        """
-        try:
-            x1, y1, z1 = self.start.x, self.start.y, self.start.z
-            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-            x3, y3, z3 = self.end.x, self.end.y, self.end.z
-
-            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-            m1 = math.acos(cos_angle)
-            arc_length = r1 * m1
-
-            return arc_length
-        except:
-            return 0
-    
-    @staticmethod
-    def segmented_arc(arc: 'Arc', count: 'int') -> 'list':
-        """Divides the arc into segments and returns a list of line segments.
-        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
-
-        #### Parameters:
-        - `arc` (Arc): The arc object.
-        - `count` (int): The number of segments (and thus the number of points - 1) to create.
-
-        #### Returns:
-        `list`: A list of line segments (`Line` objects) representing the divided arc.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        segments = Arc.segmented_arc(arc, 3)
-        # segments will be a list of 2 lines dividing the arc into 3 segments
-        ```
-        """
-        pnts = Arc.points_at_parameter(arc, count)
-        i = 0
-        lines = []
-        for j in range(len(pnts) - 1):
-            lines.append(Line(pnts[i], pnts[i + 1]))
-            i = i + 1
-        return lines
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Arc object.
-
-        #### Returns:
-        `str`: A string that represents the Arc object.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        print(arc)
-        # Output: Arc()
-        ```
-        """
-        return f"{__class__.__name__}()"
 
 class Circle:
     """Represents a circle with a specific radius, plane, and length.

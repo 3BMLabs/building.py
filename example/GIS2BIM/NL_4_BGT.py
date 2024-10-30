@@ -2,7 +2,7 @@ from packages.GIS2BIM.GIS2BIM_NL import *
 from packages.GIS2BIM.GIS2BIM import *
 from project.fileformat import *
 from exchange.GIS2BIM import *
-from geometry.mesh import MeshPB
+from geometry.mesh import Mesh
 from library.material import *
 from abstract.image import *
 
