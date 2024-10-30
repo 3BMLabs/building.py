@@ -49,7 +49,6 @@ class Wall:
         self.faces = None
         # self.polycurve = None or self.profile
         self.parms = None
-        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorlst = None
 
     @classmethod

@@ -34,6 +34,7 @@ __url__ = "./exchange/speckle.py"
 import sys
 from pathlib import Path
 
+from abstract.rect import Rect
 from geometry.mesh import Mesh
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -391,7 +392,7 @@ def translateObjectsToSpeckleObjects(Obj):
                                           textureCoordinates = []
                                           ))
             
-        elif nm == 'Face':
+        elif isinstance(current_object, Face):
             all_vertices = []
             all_faces = []
             all_colors = []
@@ -410,7 +411,7 @@ def translateObjectsToSpeckleObjects(Obj):
                                           units= project.units
                                           ))
 
-        elif nm == 'Surface':
+        elif isinstance(current_object, Surface):
             all_vertices = []
             all_faces = []
             all_colors = []
@@ -438,7 +439,7 @@ def translateObjectsToSpeckleObjects(Obj):
             
 
 
-        elif nm == 'Frame':
+        elif isinstance(current_object, Frame):
             try:
                 if current_object.comments.type == "Scia_Params":
                     SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId, 
@@ -562,22 +563,19 @@ def translateObjectsToSpeckleObjects(Obj):
                                           textureCoordinates = []
                                           ))
             
-        elif nm == 'PolyCurve':
+        elif isinstance(current_object, PolyCurve):
             SpeckleObj.append(SpecklePolylineBySpecklePoints(current_object))
 
-        elif nm == 'Polygon':
+        elif isinstance(current_object, Polygon):
             try:
                 SpeckleObj.append(SpecklePolygonBySpecklePoints(current_object))
             except:
                 print("Polygon could not be exported")
 
-        elif nm == 'PolyCurve':
-            SpeckleObj.append(SpecklePolyline2DBySpecklePoints2D(current_object))
-
-        elif nm == 'Rect':
+        elif isinstance(current_object, Rect):
             SpeckleObj.append(SpecklePolylineBySpecklePoints(current_object))
 
-        elif nm == 'ImagePyB':
+        elif isinstance(current_object, ImagePyB):
             colrs = current_object.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=current_object.verts, 
@@ -588,51 +586,51 @@ def translateObjectsToSpeckleObjects(Obj):
                                           textureCoordinates = []
                                           ))
             
-        elif nm == 'Interval':
+        elif isinstance(current_object, Interval):
             SpeckleObj.append(IntervalToSpeckleInterval(current_object))
 
-        elif nm == 'Line':
+        elif isinstance(current_object, Line):
             SpeckleObj.append(LineToSpeckleLine(current_object))
 
-        elif nm == 'Plane':
+        elif isinstance(current_object, Plane):
             SpeckleObj.append(PlaneToSpecklePlane(current_object))
 
-        elif nm == 'Arc':
+        elif isinstance(current_object, Arc):
             SpeckleObj.append(ArcToSpeckleArc(current_object))
 
-        elif nm == 'Arc2D':
+        elif isinstance(current_object, Arc2D):
             SpeckleObj.append(Arc2DToSpeckleArc(current_object))
 
-        elif nm == 'Line2D':
+        elif isinstance(current_object, Line2D):
             SpeckleObj.append(Line2DToSpeckleLine3D(current_object))
 
         elif isinstance(current_object, Coords):
             SpeckleObj.append(PointToSpecklePoint(current_object))
 
-        elif nm == 'Node':
+        elif isinstance(current_object, Node):
             SpeckleObj.append(PointToSpecklePoint(current_object.point))
             
-        elif nm == 'Text':
+        elif isinstance(current_object, Text):
             SpeckleObj.append(TextToSpeckleCurveSurface(current_object))
 
-        elif nm == 'Point':
+        elif isinstance(current_object, Point):
             SpeckleObj.append(Point2DToSpecklePoint(current_object))
 
-        elif nm == 'Grid':
+        elif isinstance(current_object, Grid):
             for j in GridToLines(current_object):
                 SpeckleObj.append(j)
 
-        elif nm == 'GridSystem':
+        elif isinstance(current_object, GridSystem):
             for j in GridSystemToLines(current_object):
                 SpeckleObj.append(j)
 
-        elif nm == 'imagePyB':
+        elif isinstance(current_object, imagePyB):
             SpeckleObj.append(SpeckleMeshByImage(current_object))
 
         elif isinstance(current_object, Mesh):
             SpeckleObj.append(SpeckleMeshByMesh(current_object))
 
-        elif nm == 'Trimesh':
+        elif isinstance(current_object, Trimesh):
             clrs = []
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=current_object.vertices, 
