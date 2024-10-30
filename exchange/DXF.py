@@ -44,7 +44,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from project.fileformat import *
 from geometry.curve import *
 from geometry.point import Point
-from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
+from geometry.geometry2d import Point, Line2D, Arc2D, PolyCurve2D
 
 # [!not included in BP singlefile - end]
 
@@ -66,13 +66,13 @@ class ReadDXF:
             dxftype = entity.dxftype()
             if dxftype == 'POINT':
                 # Handle point entities
-                point = Point2D(entity.dxf.location)
+                point = Point(entity.dxf.location)
                 self.points.append(point)
             elif dxftype == 'LINE':
                 pass
                 # Handle line entities
-                # start = Point2D(entity.dxf.start)
-                # end = Point2D(entity.dxf.end)
+                # start = Point(entity.dxf.start)
+                # end = Point(entity.dxf.end)
                 # self.lines.append(Line2D(start, end))
             elif dxftype == 'ARC':
                 center = Vector(entity.dxf.center)
@@ -82,7 +82,7 @@ class ReadDXF:
                 self.arcs.append((center, radius, start_angle, end_angle))
             elif dxftype in {'LWPOLYLINE', 'POLYLINE'}:
                 try:
-                    points = [Point2D(x, y) for x, y in entity.vertices()]
+                    points = [Point(x, y) for x, y in entity.vertices()]
                     polygon = Polygon.by_points(points)
                     self.polylines.append((polygon, entity.dxf.layer))
                 except DXFValueError as error:

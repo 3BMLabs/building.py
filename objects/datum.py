@@ -136,7 +136,7 @@ class Grid:
         self.name = None
         self.bulbStart = False
         self.bulbEnd = True
-        self.cs_end: CoordinateSystem = CSGlobal
+        self.cs_end: CoordinateSystem = CSGlobal #Maarten
         self.grid_heads = []
 
     def __cs(self, line):

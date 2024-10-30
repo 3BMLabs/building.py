@@ -61,7 +61,7 @@ class Level:
             if name != None:
                 Lvl.name = name
             return Lvl
-        elif point.type == "Point2D":
+        elif point.type == "Point":
             pass  # 0
 
     def __str__(self) -> str:

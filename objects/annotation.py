@@ -34,12 +34,17 @@ __url__ = "./objects/annotation.py"
 import sys
 from pathlib import Path
 
+from abstract.vector import Vector
+
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.text import *
 
+from geometry.curve import Line
 # [!not included in BP singlefile - end]
 
+#Maarten
 
 class TickMark:
     # Dimension Tick Mark
@@ -113,11 +118,9 @@ class Dimension:
         # baseline
         baseline = Line(start=self.start, end=self.end)
         midpoint_text = baseline.mid_point()
-        direction = Vector.normalize(baseline.vector)
-        tick_mark_extension_point_1 = Point.translate(self.start, Vector.reverse(
-            Vector.scale(direction, self.dimension_type.line_extension)))
-        tick_mark_extension_point_2 = Point.translate(
-            self.end, Vector.scale(direction, self.dimension_type.line_extension))
+        direction = baseline.direction
+        tick_mark_extension_point_1 = self.start - direction * self.dimension_type.line_extension
+        tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
         x = direction
         y = Vector.rotate_XY(x, math.radians(90))
         z = Z_Axis

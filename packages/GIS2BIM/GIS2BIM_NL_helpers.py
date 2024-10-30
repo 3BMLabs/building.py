@@ -2758,7 +2758,7 @@ lstkaartbladennummers = \
 
 PCKaartbladen = []
 
-def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
+def is_point_in_polycurve(point: Point, polycurve: PolyCurve2D) -> bool:
     x, y = point.x, point.y
     intersections = 0
     for curve in polycurve.curves:
@@ -2772,12 +2772,12 @@ def is_point_in_polycurve(point: Point2D, polycurve: PolyCurve2D) -> bool:
 
 def kaartbladnummer(RdX,RdY):
     #geeft als resultaat het kaartbladnummer die voor de 3D Kadaster basisvoorziening o.a. gebruikt wordt
-    orig = Point2D(RdX,RdY)
+    orig = Point(RdX,RdY)
     kaartbladen = []
     for i,k in zip(lstkaartbladenpolygons,lstkaartbladennummers):
         pnts = []
         for j in i:
-            pnts.append(Point2D(j[0],j[1]))
+            pnts.append(Point(j[0],j[1]))
         pc = PolyCurve2D().by_points(pnts)
         res = is_point_in_polycurve(orig,pc)
         if res is True:

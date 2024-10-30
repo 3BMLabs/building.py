@@ -99,7 +99,7 @@ def IntervalToSpeckleInterval(interval: Interval):
 def PointToSpecklePoint(point):
     if point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    elif point.type == "Point2D":
+    elif point.type == "Point":
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, 0)
     SpecklePnt.id = point.id
     SpecklePnt.units = project.units
@@ -223,8 +223,8 @@ def GridSystemToLines(GridSystem):
     return SpeckleLines
 
 
-def Point2DToSpecklePoint(Point2D: Point2D):
-    SpecklePnt = SpecklePoint.from_coords(Point2D.x, Point2D.y, 0)
+def Point2DToSpecklePoint(Point: Point):
+    SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, 0)
     SpecklePnt.units = project.units
     return SpecklePnt
 
@@ -618,7 +618,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Text':
             SpeckleObj.append(TextToSpeckleCurveSurface(current_object))
 
-        elif nm == 'Point2D':
+        elif nm == 'Point':
             SpeckleObj.append(Point2DToSpecklePoint(current_object))
 
         elif nm == 'Grid':

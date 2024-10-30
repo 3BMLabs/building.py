@@ -282,8 +282,6 @@ class RectangleSystem:
         self.material = BaseTimber
         self.inner_width: float = 0
         self.inner_height: float = 0
-        self.coordinatesystem = CSGlobal
-        self.local_coordinate_system = CSGlobal
         # self.openings = []
         # self.subsystems = []
         self.division_system = None

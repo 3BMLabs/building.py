@@ -37,9 +37,14 @@ from pathlib import Path
 from typing import List
 import json
 
+from abstract.rect import Rect
+from geometry.point import Point, transform_point_2
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from geometry.curve import PolyCurve
 from packages.svg.path import parse_path
+from packages.helper import flatten
 
 # [!not included in BP singlefile - end]
 
@@ -73,7 +78,7 @@ class Text:
         self.csglobal = cs
         self.x, self.y, self.z = 0, 0, 0
         self.scale = None
-        self.height = height or project.font_height
+        self.height = height
         self.bbHeight = None
         self.width = None
         self.character_offset = 150
@@ -260,8 +265,8 @@ class Text:
         """
 
         points = [elem for elem in points if elem != 'M']
-        ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = Rect().by_points(ptList)
+        ptList = [Point(pt[0], pt[1]) for pt in points]
+        bounding_box_polyline = Rect.by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.length
 
     def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':

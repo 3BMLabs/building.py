@@ -36,7 +36,7 @@
 			ControlPoint
 		
 	#2d
-		Point2D
+		Point
 		Vector2D
 		Line2D
 		Arc2D

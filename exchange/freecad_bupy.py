@@ -166,7 +166,7 @@ def translateObjectsToFreeCAD(Obj):
         elif nm == 'Point':
             test = "test"
 
-        elif nm == 'Point2D':
+        elif nm == 'Point':
             test = "test"
 
         elif nm == 'Grid':

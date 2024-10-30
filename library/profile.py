@@ -41,6 +41,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
+from abstract.vector import Vector
 from objects.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
 from geometry.curve import PolyCurve
 
@@ -87,8 +88,9 @@ class nameToProfile:
             print(f"profile {name1} not recognised")
         profile_name = profile_data.shape_name
         if profile_name == None:
-            profile_data = _getProfileDataFromDatabase(project.structural_fallback_element)
-            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
+            structural_fallback_element = "HEA100"
+            profile_data = _getProfileDataFromDatabase(structural_fallback_element)
+            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'")
             profile_name = profile_data.shape_name
         self.profile_data = profile_data
         self.profile_name = profile_name
@@ -180,7 +182,7 @@ def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey
         dy = 0
 
     # print(dx, dy)
-    v1 = Vector2(dx, dy)
+    v1 = Vector(dx, dy)
     # v1 = Vector2(0, 0)
 
     return v1

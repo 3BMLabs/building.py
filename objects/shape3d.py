@@ -25,6 +25,9 @@ import sys
 import math
 from pathlib import Path
 
+from abstract.serializable import Serializable
+from geometry.point import Point
+
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 @staticmethod
@@ -282,13 +285,10 @@ def rgb_to_int(rgb):
 
 # Commit = TransportToSpeckle("speckle.xyz", "8136460d9e", lst, "Shiny Committt")
 
-class Sphere:
-    def __init__(self, point=Point, diameter=int, tag: None = string, comments: None = string):
+class Sphere(Serializable):
+    def __init__(self, point:Point, diameter:int):
         self.point = point
         self.diameter = diameter
         
-        self.tag = None
-        self.comments = None
-
     def __str__(self) -> str:
         return str(Sphere)
