@@ -48,7 +48,36 @@ from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
 
-class Line(Serializable):
+class Curve(Serializable):
+	@property
+	def length(self) -> float:
+		raise NotImplementedError()
+
+	@property
+	def start(self) -> Point:
+		return self.point_at_fraction(0)
+	@property
+	def mid(self) -> Point:
+		return self.point_at_fraction(0.5)
+	@property
+	def end(self) -> Point:
+		return self.point_at_fraction(1)
+	def point_at_fraction(fraction: float) -> Point:
+		raise NotImplementedError()
+
+	def segmented(self, amount: int) -> list[Point]:
+		"""returns points along this line.
+		
+		Args:
+		    amount (int): the amount of samples to take
+		
+		Returns:
+		    list[Point]: a list of points sampled along this line
+		"""
+		fraction_multiplier = 1.0 / (amount - 1)
+		return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+
+class Line(Curve):
     def __init__(self, start: Point, end: Point) -> 'Line':
         """Initializes a Line object with the specified start and end points.
 
