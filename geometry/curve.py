@@ -56,7 +56,9 @@ class Line(Serializable):
         - `end` (Point): The ending point of the line segment.
         """
         #copy
+        """The starting point of the line segment"""
         self.start = Point(start)
+        """The ending point of the line segment."""
         self.end = Point(end)
         
     @property
@@ -71,7 +73,7 @@ class Line(Serializable):
 
         ```          
         """
-        return (self.start + self.end) / 2
+        return (self.start + self.end) * 0.5
     @property
     def angle(self) -> float:
         return (self.end - self.start).angle
@@ -79,6 +81,30 @@ class Line(Serializable):
     @property
     def points(self) -> list[Point]:
         return[Point(self.start), Point(self.end)]
+    
+    @property
+    def segmentate(self, amount: int) -> list[Point]:
+        """returns points along this line.
+
+        Args:
+            amount (int): the amount of samples to take
+
+        Returns:
+            list[Point]: a list of points sampled along this line
+        """
+        fraction_multiplier = 1.0 / (amount - 1)
+        return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+    
+    def point_at_fraction(self, fraction: float) -> Point:
+        """
+
+        Args:
+            fraction (float): a value from 0 to 1, describing the position in the line.
+
+        Returns:
+            Point: self.start for 0, self.end for 1
+        """
+        return self.start * (1 - fraction) + self.end * fraction
     
     @staticmethod
     def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':

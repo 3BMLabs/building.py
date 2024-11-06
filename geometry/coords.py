@@ -155,7 +155,7 @@ class Coords(Serializable, list):
         #treat this normal vector as a triangle. we know all sides but want to know the angle.
         #tan(deg) = other side / straight side
         #deg = atan(other side / straight side)
-        return math.atan2(self.x, self.y)
+        return math.atan2(self.y, self.x)
     
     @staticmethod
     def by_coordinates(x: float, y: float, z:float = None):
@@ -164,6 +164,18 @@ class Coords(Serializable, list):
     @staticmethod
     def by_list(coordinate_list: list):
         return Coords(coordinate_list)
+    
+    @staticmethod
+    def by_angle(angle:float) -> 'Coords':
+        """generates a 2d normal using the angle passed
+
+        Args:
+            angle (float): a number in radians
+
+        Returns:
+            Coords: a rotated normal (vector with length of 1)
+        """
+        return Coords(math.cos())
     
     @staticmethod
     def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
