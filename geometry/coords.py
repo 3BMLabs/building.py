@@ -554,11 +554,11 @@ class Coords(Serializable, list):
     def __itruediv__(self, other) -> Self:
         return self.ioperate_2(operator.__itruediv__,other)
 
-X_axis = Coords(1, 0, 0)
+x_axis = Coords(1, 0, 0)
 
-Y_Axis = Coords(0, 1, 0)
+y_axis = Coords(0, 1, 0)
 
-Z_Axis = Coords(0, 0, 1)
+z_axis = Coords(0, 0, 1)
 Coords.left = Coords(-1, 0, 0)
 Coords.right = Coords(1, 0, 0)
 Coords.down = Coords(0, -1, 0)

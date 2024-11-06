@@ -251,7 +251,7 @@ class Coords(Serializable, list):
         Returns:
             Coords: a rotated normal (vector with length of 1)
         """
-        return Coords(math.cos())
+        return Coords(math.cos(angle), math.sin(angle))
     
     @staticmethod
     def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:

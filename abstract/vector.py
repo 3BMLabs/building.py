@@ -102,6 +102,7 @@ class Vector(Coords):
     def cross_product(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
         """Computes the cross product of two vectors.
         The cross product of two vectors in three-dimensional space is a vector that is perpendicular to both original vectors. It is used to find a vector that is normal to a plane defined by the input vectors.
+        we're using the right hand rule, as stated in the wiki.
 
         #### Parameters:
         - `vector_1` (`Vector`): The first vector.
