@@ -99,79 +99,6 @@ class Vector(Coords):
         return Vector(line_1.dx, line_1.dy, line_1.dz)
 
     @staticmethod
-    def cross_product(vector_1: 'Vector', vector_2: 'Vector') -> 'Vector':
-        """Computes the cross product of two vectors.
-        The cross product of two vectors in three-dimensional space is a vector that is perpendicular to both original vectors. It is used to find a vector that is normal to a plane defined by the input vectors.
-        we're using the right hand rule, as stated in the wiki.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The first vector.
-        - `vector_2` (`Vector`): The second vector.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the cross product of the input vectors.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 2, 3)
-        vector2 = Vector(4, 5, 6)
-        cross_product = Vector.cross_product(vector1, vector2)
-        # Vector(X = -3, Y = 6, Z = -3)
-        ```
-        """
-        return Vector(
-            vector_1.y*vector_2.z - vector_1.z*vector_2.y,
-            vector_1.z*vector_2.x - vector_1.x*vector_2.z,
-            vector_1.x*vector_2.y - vector_1.y*vector_2.x
-        )
-
-
-    @staticmethod
-    def product(number: float, vector_1: 'Vector') -> 'Vector':
-        """Scales a vector by a scalar value.
-        This method multiplies each component of the vector by the given scalar value.
-
-        #### Parameters:
-        - `number` (float): The scalar value to scale the vector by.
-        - `vector_1` (`Vector`): The vector to be scaled.
-
-        #### Returns:
-        `Vector`: A new Vector object representing the scaled vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 2, 3)
-        scaled_vector = Vector.product(2, vector1)
-        # Vector(X = 2, Y = 4, Z = 6)
-        ```
-        """
-        return Vector(
-            vector_1.x*number,
-            vector_1.y*number,
-            vector_1.z*number
-        )
-
-    @staticmethod
-    def length(vector_1: 'Vector') -> float:
-        """Computes the length (magnitude) of a vector.
-        The length of a vector is the Euclidean norm or magnitude of the vector, which is calculated as the square root of the sum of the squares of its components.
-
-        #### Parameters:
-        - `vector_1` (`Vector`): The vector whose length is to be computed.
-
-        #### Returns:
-        `float`: The length of the input vector.
-
-        #### Example usage:
-        ```python
-        vector1 = Vector(1, 2, 3)
-        length = Vector.length(vector1)
-        # 3.7416573867739413
-        ```
-        """
-        return math.sqrt(vector_1.x*vector_1.x+vector_1.y*vector_1.y+vector_1.z*vector_1.z)
-
-    @staticmethod
     def pitch(vector_1: 'Vector', angle: float) -> 'Vector':
         """Rotates a vector around the X-axis (pitch).
         This method rotates the vector around the X-axis (pitch) by the specified angle.
@@ -262,8 +189,6 @@ class Vector(Coords):
             lokZ = Vector.reverse(lokZ)
         return lokX, lokZ
 
-
-
     @staticmethod
     def rotate_XY(vector: 'Vector', Beta: float) -> 'Vector':
         """Rotates the vector in the XY plane by the specified angle.
@@ -287,41 +212,3 @@ class Vector(Coords):
             math.sin(Beta)*vector.x + math.cos(Beta)*vector.y,
             vector.z
         )
-
-    @staticmethod
-    def to_matrix(vector: 'Vector') -> list:
-        """Converts the vector to a list representation.
-
-        #### Parameters:
-        - `vector` (`Vector`): The vector to be converted.
-
-        #### Returns:
-        `list`: A list representation of the vector.
-
-        #### Example usage:
-        ```python
-        vector = Vector(1, 2, 3)
-        vector_list = Vector.to_matrix(vector)
-        # [1, 2, 3]
-        ```
-        """
-        return [vector.x, vector.y, vector.z]
-
-    @staticmethod
-    def from_matrix(vector_list: list) -> 'Vector':
-        """Creates a Vector object from a list representation.
-
-        #### Parameters:
-        - `vector_list` (list): The list representing the vector.
-
-        #### Returns:
-        `Vector`: A Vector object created from the list representation.
-
-        #### Example usage:
-        ```python
-        vector_list = [1, 2, 3]
-        vector = Vector.from_matrix(vector_list)
-        # Vector(X = 1, Y = 2, Z = 3)
-        ```
-        """
-        return Vector(vector_list)

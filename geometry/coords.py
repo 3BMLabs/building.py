@@ -288,6 +288,33 @@ class Coords(Serializable, list):
         """
         return Coords.axis_names.index(axis.lower())
 
+    @staticmethod
+    def cross_product(vector_1: 'Coords', vector_2: 'Coords') -> 'Coords':
+        """Computes the cross product of two vectors.
+        The cross product of two vectors in three-dimensional space is a vector that is perpendicular to both original vectors. It is used to find a vector that is normal to a plane defined by the input vectors.
+        we're using the right hand rule, as stated in the wiki.
+
+        #### Parameters:
+        - `vector_1` (`Coords`): The first vector.
+        - `vector_2` (`Coords`): The second vector.
+
+        #### Returns:
+        `Vector`: A new Vector object representing the cross product of the input vectors.
+
+        #### Example usage:
+        ```python
+        vector1 = Vector(1, 2, 3)
+        vector2 = Vector(4, 5, 6)
+        cross_product = Vector.cross_product(vector1, vector2)
+        # Vector(X = -3, Y = 6, Z = -3)
+        ```
+        """
+        return Coords(
+            vector_1.y*vector_2.z - vector_1.z*vector_2.y,
+            vector_1.z*vector_2.x - vector_1.x*vector_2.z,
+            vector_1.x*vector_2.y - vector_1.y*vector_2.x
+        )
+
     def change_axis_count(self,axis_count: int):
         """in- or decreases the amount of axes to the preferred axis count.
 

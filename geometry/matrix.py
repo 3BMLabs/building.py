@@ -120,6 +120,31 @@ class Matrix(Serializable, list[list]):
 				for col in range(len(axes) + 1)] 
 				for row in range(len(origin))])
 
+	@staticmethod
+	def by_rotation(axis: Vector, angle: float) -> 'Matrix':
+		"""creates a rotation matrix to rotate something over the origin around an axis by a specified angle
+
+		Returns:
+			Matrix: a rotation matrix. when a point is multiplied with this matrix, it's rotated.
+		"""
+		#https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
+		normalized_axis = axis.normalized
+		cos_angle = math.cos(angle)
+		sin_angle = math.sin(angle)
+		return Matrix([
+      	[cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),						normalized_axis.x * normalized_axis.y * (1 - cos_angle) - normalized_axis.z * sin_angle,	normalized_axis.x * normalized_axis.z * (1 - cos_angle) + normalized_axis.y * sin_angle	],
+        [normalized_axis.y * normalized_axis.x * (1 - cos_angle) + normalized_axis.z * sin_angle,	cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),						normalized_axis.y * normalized_axis.z * (1 - cos_angle) - normalized_axis.x * sin_angle	],
+        [normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
+	
+	@staticmethod
+	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> 'Matrix':
+		#from right to left:
+  		#- translate objects so the pivot is at the origin
+		#- rotate objects around the origin
+		#- translate objects back so the pivot is at its old location
+
+		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
+ 
 	def __mul__(self, other:Self | Coords | Line | Rect | PointList):
 		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
 		for example: translate * rotate (rotate first, translate after)
@@ -191,7 +216,9 @@ class Matrix(Serializable, list[list]):
 		return result
 	
 	transform = multiply = __mul__
-		
+ 
+	
+ 
 	def multiply_without_translation(self, other: Coords):
 		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result.
 
