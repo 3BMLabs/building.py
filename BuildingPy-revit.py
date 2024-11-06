@@ -24,11 +24,9 @@ import sys, os, math
 import urllib.request
 import re
 from typing import Union
-from objects import profile
 import string, random, json
 import urllib
 import xml.etree.ElementTree as ET
-from packages.svg.path import path
 from math import sqrt, cos, sin, acos, degrees, radians, log, pi
 from bisect import bisect
 from abc import ABC, abstractmethod
@@ -115,6 +113,7 @@ class Serializable:
             # self.__dict__ = json.load(file)
     def __repr__(self) -> str:
         return str(self)
+
 def to_array(*args) -> list:
     """converts the arguments into an array.
 
@@ -172,6 +171,7 @@ class Coords(Serializable, list):
         for axis_value in self:
             result += axis_value * axis_value
         return result
+    squared_length = squared_magnitude
     
     @property
     def magnitude(self): 
@@ -180,6 +180,7 @@ class Coords(Serializable, list):
             the length
         """
         return math.sqrt(self.squared_magnitude)
+    length = magnitude
     
     @magnitude.setter
     def magnitude(self, value):
@@ -230,7 +231,27 @@ class Coords(Serializable, list):
         #treat this normal vector as a triangle. we know all sides but want to know the angle.
         #tan(deg) = other side / straight side
         #deg = atan(other side / straight side)
-        return math.atan2(self.x, self.y)
+        return math.atan2(self.y, self.x)
+    
+    @staticmethod
+    def by_coordinates(x: float, y: float, z:float = None):
+        return Coords(x, y, z) if z is not None else Coords(x, y)
+    
+    @staticmethod
+    def by_list(coordinate_list: list):
+        return Coords(coordinate_list)
+    
+    @staticmethod
+    def by_angle(angle:float) -> 'Coords':
+        """generates a 2d normal using the angle passed
+
+        Args:
+            angle (float): a number in radians
+
+        Returns:
+            Coords: a rotated normal (vector with length of 1)
+        """
+        return Coords(math.cos())
     
     @staticmethod
     def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
@@ -871,11 +892,7 @@ class Color(Coords):
 Color.red = Color(255, 0, 0)
 Color.green = Color(0, 255, 0)
 Color.blue = Color(0, 0, 255)
-class Shape:
-	"""this class defines functions and properties for geometric shapes."""
-	@property
-	def statical_moment(self) -> float:
-		return self.area * self.centroid.y
+
 
 class ID(Serializable):
     def __init__(self) -> None:
@@ -1011,6 +1028,7 @@ def xmldata(myurl, xPathStrings):
         xPathResults.append(xPathResulttemp2)
     return xPathResults
 
+
 # from project.fileformat import project
 
 
@@ -1145,295 +1163,6 @@ class Point(Coords):
         """
         return Point(list)
 
-
-class CoordinateSystem:
-    """Represents a coordinate system in 3D space defined by an origin point and normalized x, y, and z axis vectors."""
-    def __init__(self, origin: Point, x_axis, y_axis, z_axis) -> 'CoordinateSystem':
-        """Initializes a new CoordinateSystem instance with the given origin and axis vectors.
-        The axis vectors are normalized to ensure they each have a length of 1, providing a standard basis for the coordinate system.
-
-        - `origin` (Point): The origin point of the coordinate system.
-        - `x_axis` (Vector): The initial vector representing the X-axis before normalization.
-        - `y_axis` (Vector): The initial vector representing the Y-axis before normalization.
-        - `z_axis` (Vector): The initial vector representing the Z-axis before normalization.
-        """
-        from abstract.vector import Vector
-        
-        self.Origin = origin
-        self.X_axis = x_axis
-        self.Y_axis = y_axis
-        self.Z_axis = z_axis
-
-    @classmethod
-    def by_origin(coordinate_system, origin: Point) -> 'CoordinateSystem':
-        """Creates a CoordinateSystem with a specified origin.
-
-        #### Parameters:
-        - `origin` (`Point`): The origin point of the new coordinate system.
-
-        #### Returns:
-        `CoordinateSystem`: A new CoordinateSystem object with the specified origin.
-
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        from abstract.coordinatesystem import X_axis, Y_Axis, Z_Axis
-        return coordinate_system(origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
-
-    @staticmethod
-    def translate(cs_old, direction):
-        """Translates a CoordinateSystem by a given direction vector.
-
-        #### Parameters:
-        - `cs_old` (CoordinateSystem): The original coordinate system to be translated.
-        - `direction` (Vector): The direction vector along which the coordinate system is to be translated.
-
-        #### Returns:
-        `CoordinateSystem`: A new CoordinateSystem object translated from the original one.
-
-        #### Example usage:
-        ```python
-
-        ```
-        """
-
-        from abstract.vector import Vector
-        new_origin = Point.translate(cs_old.Origin, direction)
-
-        X_axis = Vector(1, 0, 0)
-
-        Y_Axis = Vector(0, 1, 0)
-
-        Z_Axis = Vector(0, 0, 1)
-
-        CSNew = CoordinateSystem(
-            new_origin, x_axis=X_axis, y_axis=Y_Axis, z_axis=Z_Axis)
-
-        CSNew.Origin = new_origin
-        return CSNew
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y and self.z == other.z
-
-    @staticmethod
-    def by_point_main_vector(self, new_origin_coordinatesystem: Point, DirectionVectorZ):
-        """Creates a new CoordinateSystem at a given point, oriented along a specified direction vector.
-        This method establishes a new coordinate system by defining its origin and its Z-axis direction. The X and Y axes are determined based on the given Z-axis to form a right-handed coordinate system. If the calculated X or Y axis has a zero length (in cases of alignment with the global Z-axis), default axes are used.
-
-        #### Parameters:
-        - `new_origin_coordinatesystem` (`Point`): The origin point of the new coordinate system.
-        - `DirectionVectorZ` (Vector): The direction vector that defines the Z-axis of the new coordinate system.
-
-        #### Returns:
-        `CoordinateSystem`: A new CoordinateSystem object oriented along the specified direction vector with its origin at the given point.
-
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        from abstract.vector import Vector
-        vz = DirectionVectorZ
-        vz = Vector.normalize(vz)
-        vx = Vector.perpendicular(vz)[0]
-        try:
-            vx = Vector.normalize(vx)
-        except:
-            vx = Vector(1, 0, 0)
-        vy = Vector.perpendicular(vz)[1]
-        try:
-            vy = Vector.normalize(vy)
-        except:
-            vy = Vector(0, 1, 0)
-        CSNew = CoordinateSystem(new_origin_coordinatesystem, vx, vy, vz)
-        return CSNew
-
-    @staticmethod
-    def move_local(cs_old, x: float, y: float, z: float):
-        """Moves a CoordinateSystem in its local coordinate space by specified displacements.
-
-        #### Parameters:
-        - `cs_old` (CoordinateSystem): The original coordinate system to be moved.
-        - `x` (float): The displacement along the local X-axis.
-        - `y` (float): The displacement along the local Y-axis.
-        - `z` (float): The displacement along the local Z-axis.
-
-        #### Returns:
-        `CoordinateSystem`: A new CoordinateSystem object moved in its local coordinate space.
-
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        
-        from abstract.vector import Vector
-
-        xloc_vect_norm = cs_old.X_axis
-        xdisp = Vector.scale(xloc_vect_norm, x)
-        yloc_vect_norm = cs_old.X_axis
-        ydisp = Vector.scale(yloc_vect_norm, y)
-        zloc_vect_norm = cs_old.X_axis
-        zdisp = Vector.scale(zloc_vect_norm, z)
-        disp = xdisp + ydisp + zdisp
-        CS = CoordinateSystem.translate(cs_old, disp)
-        return CS
-
-    @staticmethod
-    def translate_origin(origin1, origin2):
-        """Calculates the translation needed to move from one origin to another.
-
-        #### Parameters:
-        - `origin1` (Point): The starting origin point.
-        - `origin2` (Point): The ending origin point.
-
-        #### Returns:
-        `Point`: A new Point object representing the translated origin.
-
-        #### Example usage:
-        ```python
-        
-        ```
-        """
-        origin1_n = Point.to_matrix(origin1)
-        origin2_n = Point.to_matrix(origin2)
-
-        new_origin_n = origin1_n + (origin2_n - origin1_n)
-        return Point(new_origin_n[0], new_origin_n[1], new_origin_n[2])
-
-    @staticmethod
-    def calculate_rotation_matrix(xaxis_1, yaxis_1, zaxis_1, xaxis_2, yaxis_2, zaxis_2):
-        """Calculates the rotation matrix needed to align one coordinate system with another.
-
-        #### Parameters:
-        - `xaxis_1`, `yaxis_1`, `zaxis_1` (Vector): The axes of the initial coordinate system.
-        - `xaxis_2`, `yaxis_2`, `zaxis_2` (Vector): The axes of the target coordinate system.
-
-        #### Returns:
-        Rotation Matrix (list of lists): A matrix representing the rotation needed to align the first coordinate system with the second.
-
-        #### Example usage:
-        ```python
-        
-        ```
-        """
-        from abstract.vector import Vector
-
-        R1 = [Vector.to_matrix(xaxis_1), Vector.to_matrix(
-            yaxis_1), Vector.to_matrix(zaxis_1)]
-
-        R2 = [Vector.to_matrix(xaxis_2), Vector.to_matrix(
-            yaxis_2), Vector.to_matrix(zaxis_2)]
-
-        R1_transposed = list(map(list, zip(*R1)))
-        R2_transposed = list(map(list, zip(*R2)))
-
-        rotation_matrix = Vector.dot_product(Vector.from_matrix(
-            R2_transposed), Vector.length(Vector.from_matrix(R1_transposed)))
-        return rotation_matrix
-
-    @staticmethod
-    def normalize(point: Point) -> list:
-        """Normalizes a vector to have a length of 1.
-        This method calculates the normalized (unit) version of a given vector, making its length equal to 1 while preserving its direction. If the input vector has a length of 0 (i.e., it is a zero vector), the method returns the original vector.
-
-        #### Parameters:
-        - `point` (list of float): A vector represented as a list of three floats, corresponding to its x, y, and z components, respectively.
-
-        #### Returns:
-        list of float: The normalized vector as a list of three floats. If the original vector is a zero vector, returns the original vector.
-
-        #### Example usage:
-        ```python
-        
-        ```
-        """
-        norm = (point[0]**2 + point[1]**2 + point[2]**2)**0.5
-        return [point[0] / norm, point[1] / norm, point[2] / norm] if norm > 0 else point
-
-
-def transform_point(point_local: Point, coordinate_system_old: CoordinateSystem, new_origin: Point, direction_vector) -> Point:
-    """Transforms a point from one coordinate system to another based on a new origin and a direction vector.
-    This function calculates the new position of a point when the coordinate system is changed. The new coordinate system is defined by a new origin point and a direction vector that specifies the orientation of the Z-axis. The X and Y axes are computed to form a right-handed coordinate system. This method takes into account the original position of the point in the old coordinate system to accurately calculate its position in the new coordinate system.
-
-    #### Parameters:
-    - `point_local` (Point): The point to be transformed, given in the local coordinate system.
-    - `coordinate_system_old` (CoordinateSystem): The original coordinate system the point is in.
-    - `new_origin` (Point): The origin of the new coordinate system.
-    - `direction_vector` (Vector): The direction vector defining the new Z-axis of the coordinate system.
-
-    #### Returns:
-    Point: The transformed point in the new coordinate system.
-
-    #### Example usage:
-    ```python
-    
-    ```
-    """
-    from abstract.vector import Vector
-
-    direction_vector = Vector.to_matrix(direction_vector)
-    new_origin = Point.to_matrix(new_origin)
-    vz_norm = Vector.length(Vector(*direction_vector))
-    vz = [direction_vector[0] / vz_norm, direction_vector[1] /
-          vz_norm, direction_vector[2] / vz_norm]
-
-    vx = [-vz[1], vz[0], 0]
-    vx_norm = Vector.length(Vector(*vx))
-
-    if vx_norm == 0:
-        vx = [1, 0, 0]
-    else:
-        vx = [vx[0] / vx_norm, vx[1] / vx_norm, vx[2] / vx_norm]
-
-    vy = Vector.cross_product(Vector(*vz), Vector(*vx))
-    vy_norm = Vector.length(vy)
-    if vy_norm != 0:
-        vy = [vy.x / vy_norm, vy.y / vy_norm, vy.z / vy_norm]
-    else:
-        vy = [0, 1, 0]
-
-    point_1 = point_local
-    CSNew = CoordinateSystem(Point.from_matrix(new_origin), Vector.from_matrix(
-        vx), Vector.from_matrix(vy), Vector.from_matrix(vz))
-    vector_1 = Point.difference(coordinate_system_old.Origin, CSNew.Origin)
-
-    vector_2 = Vector.product(point_1.x, CSNew.X_axis)
-    vector_3 = Vector.product(point_1.y, CSNew.Y_axis)
-    vector_4 = Vector.product(point_1.z, CSNew.Z_axis)
-    vtot = Vector(vector_1.x + vector_2.x + vector_3.x + vector_4.x, vector_1.y + vector_2.y +
-                   vector_3.y + vector_4.y, vector_1.z + vector_2.z + vector_3.z + vector_4.z)
-    pointNew = Point.translate(Point(0, 0, 0), vtot)
-
-    return pointNew
-
-
-def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem) -> Point:
-    """Transforms a point from its local coordinate system to a new coordinate system.
-    This function translates a point based on its local coordinates (x, y, z) within its current coordinate system to a new position in a specified coordinate system. The transformation involves scaling the local coordinates by the axes vectors of the new coordinate system and sequentially translating the point along these axes vectors starting from the new origin.
-
-    #### Parameters:
-    - `PointLocal` (`Point`): The point in its local coordinate system to be transformed.
-    - `CoordinateSystemNew` (`CoordinateSystem`): The new coordinate system to which the point is to be transformed.
-
-    #### Returns:
-    `Point`: The point transformed into the new coordinate system.
-
-    #### Example usage:
-    ```python
-    
-    ```
-    """
-    from abstract.vector import Vector
-    pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(
-        CoordinateSystemNew.X_axis, PointLocal.x))
-    pn2 = Point.translate(pn, Vector.scale(
-        CoordinateSystemNew.Y_axis, PointLocal.y))
-    pn3 = Point.translate(pn2, Vector.scale(
-        CoordinateSystemNew.Z_axis, PointLocal.z))
-    return pn3
 
 
 class Vector(Coords):
@@ -1716,6 +1445,70 @@ class Vector(Coords):
         ```
         """
         return Vector(vector_list)
+
+
+
+class Interval:
+    """The `Interval` class is designed to represent a mathematical interval, providing a start and end value along with functionalities to handle intervals more comprehensively in various applications."""
+    def __init__(self, start: float, end: float):
+        """Initializes a new Interval instance.
+        
+        - `start` (float): The starting value of the interval.
+        - `end` (float): The ending value of the interval.
+        - `interval` (list, optional): A list that may represent subdivided intervals or specific points within the start and end bounds, depending on the context or method of subdivision.
+
+        """
+        self.start = start
+        self.end = end
+        self.interval = None
+
+    @classmethod
+    def by_start_end_count(self, start: float, end: float, count: int) -> 'Interval':
+        """Generates a list of equidistant points within the interval.
+
+        This method divides the interval between the start and end values into (count - 1) segments, returning an Interval object containing these points.
+
+        #### Parameters:
+            start (float): The starting value of the interval.
+            end (float): The ending value of the interval.
+            count (int): The total number of points to generate, including the start and end values.
+
+        #### Returns:
+            Interval: An Interval instance with its `interval` attribute populated with the generated points.
+        
+        #### Example usage:
+    	```python
+
+        ```
+        """
+        intval = []
+        numb = start
+        delta = end-start
+        for i in range(count):
+            intval.append(numb)
+            numb = numb + (delta / (count - 1))
+        self.interval = intval
+        return self
+
+    def __str__(self) -> str:
+        """Generates a string representation of the Interval.
+
+        #### Returns:
+            str: A string representation of the Interval, primarily indicating its class name.
+        
+        #### Example usage:
+    	```python
+
+        ```
+        """
+        return f"{__class__.__name__}"
+
+class Shape:
+	"""this class defines functions and properties for geometric shapes."""
+	@property
+	def statical_moment(self) -> float:
+		return self.area * self.centroid.y
+
 
 class Rect(Serializable, Shape):
     """Represents a two-dimensional bounding box."""
@@ -2003,6 +1796,7 @@ class Rect(Serializable, Shape):
         for corner_index in range(2 << axis_count):
             corners.append(self.get_corner(corner_index))
         return corners
+
 class PointList(Vector[Vector]):
     """Represents a collection of points in space as a point cloud."""
     
@@ -2037,6 +1831,7 @@ class PointList(Vector[Vector]):
 PointCloud = PointList
 
 
+
 class Plane:
     # Plane is an infinite element in space defined by a point and a normal
     """The `Plane` class represents an infinite plane in 3D space, defined uniquely by an origin point and a normal vector, along with two other vectors lying on the plane, providing a complete basis for defining plane orientation and position."""
@@ -2052,49 +1847,6 @@ class Plane:
         self.Normal = Vector(x=0, y=0, z=1)
         self.vector_1 = Vector(x=1, y=0, z=0)
         self.vector_2 = Vector(x=0, y=1, z=0)
-
-    def serialize(self) -> dict:
-        """Serializes the plane's attributes into a dictionary.
-        This method facilitates the conversion of the plane's properties into a format that can be easily stored or transmitted.
-
-        #### Returns:
-            dict: A dictionary containing the serialized attributes of the plane.
-        
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        return {
-            'Origin': self.Origin.serialize(),
-            'Normal': self.Normal.serialize(),
-            'vector_1': self.vector_1.serialize(),
-            'vector_2': self.vector_2.serialize()
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Plane':
-        """Creates a Plane object from a serialized data dictionary.
-        This method allows for the reconstruction of a Plane instance from data previously serialized into a dictionary format, typically after storage or transmission.
-
-        #### Parameters:
-            data (dict): The dictionary containing the serialized data of a Plane object.
-
-        #### Returns:
-            Plane: A new Plane object initialized with the data from the dictionary.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-        plane = Plane()
-        plane.Origin = Point.deserialize(data['Origin'])
-        plane.Normal = Vector.deserialize(data['Normal'])
-        plane.vector_1 = Vector.deserialize(data['vector_1'])
-        plane.vector_2 = Vector.deserialize(data['vector_2'])
-
-        return plane
 
     @classmethod
     def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
@@ -2149,7 +1901,9 @@ class Line(Serializable):
         - `end` (Point): The ending point of the line segment.
         """
         #copy
+        """The starting point of the line segment"""
         self.start = Point(start)
+        """The ending point of the line segment."""
         self.end = Point(end)
         
     @property
@@ -2164,10 +1918,39 @@ class Line(Serializable):
 
         ```          
         """
-        return (self.start + self.end) / 2
+        return (self.start + self.end) * 0.5
     @property
     def angle(self) -> float:
         return (self.end - self.start).angle
+    
+    @property
+    def points(self) -> list[Point]:
+        return[Point(self.start), Point(self.end)]
+    
+    @property
+    def segmentate(self, amount: int) -> list[Point]:
+        """returns points along this line.
+
+        Args:
+            amount (int): the amount of samples to take
+
+        Returns:
+            list[Point]: a list of points sampled along this line
+        """
+        fraction_multiplier = 1.0 / (amount - 1)
+        return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+    
+    def point_at_fraction(self, fraction: float) -> Point:
+        """
+
+        Args:
+            fraction (float): a value from 0 to 1, describing the position in the line.
+
+        Returns:
+            Point: self.start for 0, self.end for 1
+        """
+        return self.start * (1 - fraction) + self.end * fraction
+    
     @staticmethod
     def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
         """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
@@ -2196,66 +1979,6 @@ class Line(Serializable):
         end_point = Point(end_x, end_y, end_z)
 
         return Line(start, end_point)
-
-    def translate(self, direction: 'Vector') -> 'Line':
-        """Translates the Line object by a given direction vector.
-
-        #### Parameters:
-        - `direction` (Vector): The direction vector by which the line segment will be translated.
-
-        #### Returns:
-        `Line`: The translated Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        self.start += direction
-        self.end +=direction
-        return self
-
-    @staticmethod
-    def transform(line: 'Line', cs_new: 'CoordinateSystem') -> 'Line':
-        """Transforms the Line object to a new coordinate system.
-
-        #### Parameters:
-        - `line` (Line): The Line object to be transformed.
-        - `cs_new` (CoordinateSystem): The new coordinate system to which the Line object will be transformed.
-
-        #### Returns:
-        `Line`: The transformed Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        ln = Line(start=line.start, end=line.end)
-        ln.start = transform_point_2(ln.start, cs_new)
-        ln.end = transform_point_2(ln.end, cs_new)
-        return ln
-
-    def offset(line: 'Line', vector: 'Vector') -> 'Line':
-        """Offsets the Line object by a given vector.
-
-        #### Parameters:
-        - `line` (Line): The Line object to be offset.
-        - `vector` (Vector): The vector by which the Line object will be offset.
-
-        #### Returns:
-        `Line`: The offset Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        start = Point(line.start.x + vector.x, line.start.y +
-                      vector.y, line.start.z + vector.z)
-        end = Point(line.end.x + vector.x, line.end.y +
-                    vector.y, line.end.z + vector.z)
-        return Line(start=start, end=end)
 
     # @classmethod
     def point_at_parameter(self, interval: 'float' = None) -> 'Point':
@@ -2370,6 +2093,12 @@ class Line(Serializable):
         ```          
         """
         return (self.end - self.start).magnitude
+    
+    @property
+    def direction(self) -> Vector:
+        """Computes the direction of the Line object.
+        """
+        return (self.end - self.start).normalized
 
     def __str__(self) -> 'str':
         """Returns a string representation of the Line object.
@@ -2407,637 +2136,214 @@ def create_lines(points: 'list[Point]') -> 'list[Line]':
     return lines
 
 
-class PolyCurve(Serializable, list[Line], Shape):
-    """Stores lines, which could possibly be arcs"""
-    def __init__(self, *args):
-        """Initializes a PolyCurve object, which is unclosed by default.
+class Arc(Line):
+    def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
+        """Initializes an Arc object with start, mid, and end points.
+        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
         
+        the mid point should really be in the center; we don't support warped arcs.
 
+        - `startPoint` (Point): The starting point of the arc.
+        - `midPoint` (Point): The mid point of the arc which defines its curvature.
+        - `endPoint` (Point): The ending point of the arc.
         """
+        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
+        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
+            raise ValueError('midpoint is not in the center')
+        super().__init__(startPoint, endPoint)
         
-        
-        #self.points:list[Point] = to_array(*args)
+        self.mid = midPoint
 
-        #self.approximateLength = None
-        #self.graphicsStyleId = None
-        #self.isCyclic = None
-        #self.isElementGeometry = None
-        #self.isReadOnly = None
+        #self.origin = self.origin_arc()
+        #vector_1 = Vector(x=1, y=0, z=0)
+        #vector_2 = Vector(x=0, y=1, z=0)
+        #self.plane = Plane.by_two_vectors_origin(
+        #    vector_1,
+        #    vector_2,
+        #    self.origin
+        #)
+        #self.radius = self.radius_arc()
+        #self.startAngle = 0
+        #self.endAngle = 0
+        #self.angle_radian = self.angle_radian()
+        #self.area = 0
         #self.length = self.length()
-        #self.period = None
-        #self.reference = None
-        #self.visibility = None
-        super().__init__(to_array(*args))
-    
-    @property
-    def closed(self) -> 'bool':
-        return self[0].start == self[-1].end
-    @closed.setter
-    def closed(self, value : bool):
-        if value != self.closed:
-            if value:
-                #just fill the gap using a straight line
-                self.append(Line(self[-1].end, self[0].start))
-            else:
-                del self[-1]    
-    
-    @property
-    def area(self):
-        """Calculates the area of the 2d PolyCurve.
-
-        Returns:
-            float: The area of the 2d poly curve.
+        #self.units = project.units
         
-        we are assuming the PolyCurve is wound counter-clockwise and is closed.
+    @property
+    def radius(self) -> 'float':
+        """Calculates and returns the radius of the arc.
+        The radius is computed based on the distances between the start, mid, and end points of the arc.
+
+        #### Returns:
+        `float`: The radius of the arc.
+
+        #### Example usage:
+        ```python
+        radius = arc.radius_arc()
+        # radius will be the calculated radius of the arc
+        ```
         """
-        if not self.closed:
-            raise ValueError("the polycurve needs to be closed in order to calculate its area")
-        area:float = 0
-        for line in self:
-            if isinstance(line, Arc):
-                origin = line.origin
-                area += (line.start.x - line.end.x) * origin.y
-                #now that we added the 'rectangle', let's add the sine wave
-                
-                #the arc is part of a circle. the circle can be represented as two opposite cosine waves, with the circle center being at 0, 0.
-                #to calculate the area, we'll be using the integral of the cosine wave, which is the sine wave.
-                radius = (line.origin - line.start).magnitude
-                
-                #area is negative if y < 0
-                #area is measured from the -x side here, so at -radius, area == 0 and at +radius, area == circle_area
-                #https://www.desmos.com/calculator/ykynwhoue6
-                get_area = lambda pos : math.copysign((math.sin(((pos.x - origin.x) / radius) * (math.pi / 2)) + 1) * radius, pos.y - origin.y)
-                start_area = get_area(line.start)
-                end_area = get_area(line.end)
-                
-                integral_area = start_area - end_area
-                if integral_area < 0:
-                    circle_area = (radius * radius) * math.pi
-                    integral_area += circle_area
-                area += integral_area
-            else:
-                #check direction of line
-                #start - end, for counterclockwiseness
-                #when start.x < end.x, this is a bottom line. we'll substract this from the area.
-                dx = line.start.x - line.end.x
-                averagey = (line.start.y + line.end.y) / 2
-                area += dx * averagey
-        return area
+        a = Point.distance(self.start, self.mid)
+        b = Point.distance(self.mid, self.end)
+        c = Point.distance(self.end, self.start)
+        s = (a + b + c) / 2
+        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+        
+        if abs(A) < 1e-6:
+            return float('inf')
+        else:
+            R = (a * b * c) / (4 * A)
+            return R
+
+    @property
+    def points(self) -> list[Point]:
+        return[Point(self.start), Point(self.mid), Point(self.end)]
+            
+    #https://calcresource.com/geom-circularsegment.html
+    @property
+    def area(self) -> 'float':
+        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
     
     @property
-    def length(self) -> 'float':
-        """Calculates the total length of the PolyCurve.
+    def origin(self) -> 'Point':
+        """Calculates and returns the origin of the arc.
+        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
 
         #### Returns:
-        `float`: The total length of the PolyCurve.
+        `Point`: The calculated origin point of the arc.
 
         #### Example usage:
         ```python
-
-        ```        
+        origin = arc.origin_arc()
+        # origin will be the calculated origin point of the arc
+        ```
         """
-        lst = []
-        for line in self.curves:
-            lst.append(line.length)
+        start_to_end = self.end - self.start
+        half_start_end = start_to_end * 0.5
+        b = half_start_end.magnitude
+        radius = self.radius
+        x = math.sqrt(radius * radius - b * b)
+        #mid point as if this was a straight line
+        mid = self.start + half_start_end
+        #substract the curved mid point from the straight line mid point
+        to_center = mid - self.mid
+        #change length to x
+        to_center.magnitude = x
+        center = mid + to_center
+        return center
 
-        return sum(i.length for i in self.curves)
-
-    def scale(self, scale_factor: 'float') -> 'PolyCurve':
-        """Scales the PolyCurve object by the given factor.
-
-        #### Parameters:
-        - `scale_factor`: The scaling factor.
-
-        #### Returns:
-        `PolyCurve`: Scaled PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        crvs = []
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                arcie = Arc(Point.product(scale_factor, i.start),
-                            Point.product(scale_factor, i.end))
-                arcie.mid = Point.product(scale_factor, i.mid)
-                crvs.append(arcie)
-            elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.product(scale_factor, i.start),
-                            Point.product(scale_factor, i.end)))
-            else:
-                print("Curvetype not found")
-        crv = PolyCurve.by_joined_curves(crvs)
-        return crv
-    
-    #TODO finish function
     @property
     def centroid(self) -> 'Point':
-        """Calculates the centroid of the PolyCurve. in 2D
+        origin = self.origin
+        radius = self.radius
+        angle = self.angle
+        #the distance of the centroid of the arc to its origin
+        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
+        return origin + centroid_distance * ((self.mid - origin) / radius)
+        
+    @property
+    def angle(self) -> 'float':
+        """Calculates and returns the total angle of the arc in radians.
+        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
 
         #### Returns:
-        `Point`: The centroid point of the PolyCurve.
+        `float`: The total angle of the arc in radians.
 
         #### Example usage:
         ```python
-
-        ```        
+        angle = arc.angle_radian()
+        # angle will be the total angle of the arc in radians
+        ```
         """
-        poly = Polygon.by_joined_curves(self)
-        total_area = poly.area
-        weighted_centroid = poly.centroid * total_area
+        origin = self.origin
+        vector_1 = self.end - origin
+        vector_2 = self.start - origin
+        vector_3 = self.mid - origin
+        vector_4 = vector_1 + vector_2
+        try:
+            v4b = Vector.new_length(vector_4, self.radius)
+            if Vector.value(vector_3) == Vector.value(v4b):
+                angle = Vector.angle_between(vector_1, vector_2)
+            else:
+                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
+            return angle
+        except:
+            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
+            return angle
         
-        #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
-        
-        for i in range(len(self)):
-            current_line = self[i]
-            if isinstance(current_line, Arc):
-                #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
-                #calculate the centroid
-                arc_centroid = current_line.centroid
-                arc_area = current_line.area
-                
-                total_area += arc_area
-                #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
-                weighted_centroid += arc_centroid * arc_area
-        
-        return weighted_centroid / total_area
+    @property
+    def length(self) -> 'float':
+        """Calculates and returns the length of the arc.
+        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
+
+        #### Returns:
+        `float`: The length of the arc.
+
+        #### Example usage:
+        ```python
+        length = arc.length()
+        # length will be the calculated length of the arc
+        ```
+        """
+        try:
+            x1, y1, z1 = self.start.x, self.start.y, self.start.z
+            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
+            x3, y3, z3 = self.end.x, self.end.y, self.end.z
+
+            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
+            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
+            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
+            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
+            m1 = math.acos(cos_angle)
+            arc_length = r1 * m1
+
+            return arc_length
+        except:
+            return 0
     
-    #def area(self) -> 'float':  # shoelace formula
-    #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
-#
-    #    #### Returns:
-    #    `float`: The area enclosed by the PolyCurve.
-#
-    #    #### Example usage:
-    #    ```python
-#
-    #    ```        
-    #    """
-    #    if self.closed:
-    #        if len(self.points) < 3:
-    #            return "Polygon has less than 3 points!"
-#
-    #        num_points = len(self.points)
-    #        S1, S2 = 0, 0
-#
-    #        for i in range(num_points):
-    #            x, y = self.points[i].x, self.points[i].y
-    #            if i == num_points - 1:
-    #                x_next, y_next = self.points[0].x, self.points[0].y
-    #            else:
-    #                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-#
-    #            S1 += x * y_next
-    #            S2 += y * x_next
-#
-    #        area = 0.5 * abs(S1 - S2)
-    #        return area
-    #    else:
-    #        print("Polycurve is not closed, no area!")
-    #        return None
-        
-
-
-    @classmethod
-    def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
-        """Creates a PolyCurve from a list of joined Line curves.
-
-        #### Parameters:
-        - `curvelst` (list[Line]): The list of Line curves to join.
-
-        #### Returns:
-        `PolyCurve`: The created PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        for curve in curvelst:
-            if curve.length == 0:
-                curvelst.remove(curve)
-                # print("Error: Curve length cannot be zero.")
-                # sys.exit()
-
-        plycrv = PolyCurve()
-        for index, curve in enumerate(curvelst):
-            if index == 0:
-                plycrv.points.append(curve.start)
-                plycrv.points.append(curve.end)
-            else:
-                plycrv.points.append(curve.end)
-
-        return plycrv
-
-    @classmethod
-    def by_points(self, points: 'list[Point]') -> Self:
-        """Creates a PolyCurve from a list of points.
-
-        #### Parameters:
-        - `points` (list[Point]): The list of points defining the PolyCurve.
-
-        #### Returns:
-        `PolyCurve`: The created PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        seen = set()
-        unique_points = []
-
-        for point in points:
-            if point in seen:
-                points.remove(point)
-                print("Error: Polycurve cannot have multiple identical points.")
-                sys.exit()
-
-            seen.add(point)
-            unique_points.append(point)
-
-        plycrv = PolyCurve()
-        for index, point in enumerate(points):
-            plycrv.points.append(point)
-            if(index == len(points) - 1):
-                firstpoint = points[0]
-                plycrv.curves.append(Line(start=point, end=firstpoint))
-                
-            else:
-                
-                nextpoint = points[index+1]
-                plycrv.curves.append(Line(start=point, end=nextpoint))
-
-        if project.closed:
-            if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.isClosed = True
-            else:
-                plycrv.isClosed = True
-                plycrv.points.append(points[0])
-
-        elif project.closed == False:
-            if plycrv.points[0].value == plycrv.points[-1].value:
-                plycrv.isClosed = True
-            else:
-                plycrv.isClosed = False
-                plycrv.points.append(points[0])
-
-        return plycrv
-
-    @classmethod
-    def unclosed_by_points(cls, points: 'list[Point]') -> 'PolyCurve':
-        """Creates an unclosed PolyCurve from a list of points.
-
-        #### Parameters:
-        - `points` (list[Point]): The list of points defining the PolyCurve.
-
-        #### Returns:
-        `PolyCurve`: The created unclosed PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        plycrv = PolyCurve()
-        for index, point in enumerate(points):
-            plycrv.points.append(point)
-            try:
-                nextpoint = points[index + 1]
-                plycrv.curves.append(Line(start=point, end=nextpoint))
-            except:
-                pass
-        return plycrv
-    
-
-
     @staticmethod
-    # Create segmented polycurve. Arcs, elips will be translated to straight lines
-    def segment(self, count: 'int') -> 'PolyCurve':
-        """Segments the PolyCurve into straight lines.
+    def segmented_arc(arc: 'Arc', count: 'int') -> 'list':
+        """Divides the arc into segments and returns a list of line segments.
+        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
 
         #### Parameters:
-        - `count` (int): The number of segments.
+        - `arc` (Arc): The arc object.
+        - `count` (int): The number of segments (and thus the number of points - 1) to create.
 
         #### Returns:
-        `PolyCurve`: The segmented PolyCurve object.
+        `list`: A list of line segments (`Line` objects) representing the divided arc.
 
         #### Example usage:
         ```python
-
-        ```        
+        arc = Arc(startPoint, midPoint, endPoint)
+        segments = Arc.segmented_arc(arc, 3)
+        # segments will be a list of 2 lines dividing the arc into 3 segments
+        ```
         """
-        crvs = []  # add isClosed
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                crvs.append(Arc.segmented_arc(i, count))
-            elif i.__class__.__name__ == "Line":
-                crvs.append(i)
-        crv = flatten(crvs)
-        pc = PolyCurve.by_joined_curves(crv)
-        return pc
+        pnts = Arc.points_at_parameter(arc, count)
+        i = 0
+        lines = []
+        for j in range(len(pnts) - 1):
+            lines.append(Line(pnts[i], pnts[i + 1]))
+            i = i + 1
+        return lines
 
-    # make sure that the lines start/stop already on the edge of the polycurve
-    def split(self, line: 'Line', returnlines=None) -> 'list[PolyCurve]':
-        """Splits the PolyCurve by a line and returns the split parts.
-
-        #### Parameters:
-        - `line` (Line): The line to split the PolyCurve.
-        - `returnlines` (bool, optional): Whether to return the split PolyCurves as objects or add them to the project. Defaults to None.
+    def __str__(self) -> 'str':
+        """Generates a string representation of the Arc object.
 
         #### Returns:
-        `list[PolyCurve]`: If `returnlines` is True, returns a list of split PolyCurves. Otherwise, None.
+        `str`: A string that represents the Arc object.
 
         #### Example usage:
         ```python
-
-        ```        
+        arc = Arc(startPoint, midPoint, endPoint)
+        print(arc)
+        # Output: Arc()
+        ```
         """
-
-        allLines = self.curves.copy()
-
-        insect = get_intersect_polycurve_lines(
-            self, line, split=True, stretch=False)
-        for pt in insect["IntersectGridPoints"]:
-            for index, line in enumerate(allLines):
-                if is_point_on_line_segment(pt, line) == True:
-                    cuttedLines = line.split([pt])
-                    allLines = replace_at_index(allLines, index, cuttedLines)
-
-        if len(insect["IntersectGridPoints"]) == 2:
-            part1 = []
-            part2 = []
-
-            for j in allLines:
-                # part1
-                if j.start == insect["IntersectGridPoints"][1]:
-                    part1LineEnd = j.end
-                    part1.append(j.start)
-                if j.end == insect["IntersectGridPoints"][0]:
-                    part1LineStart = j.start
-                    part1.append(j.end)
-                # part2
-                if j.start == insect["IntersectGridPoints"][0]:
-                    part2LineEnd = j.end
-                    part2.append(j.start)
-                if j.end == insect["IntersectGridPoints"][1]:
-                    part2LineStart = j.start
-                    part2.append(j.end)
-
-            s2 = self.points.index(part1LineStart)
-            s1 = self.points.index(part1LineEnd)
-            completelist = list(range(len(self.points)))
-            partlist1 = flatten(completelist[s2:s1+1])
-            partlist2 = flatten([completelist[s1+1:]] + [completelist[:s2]])
-
-            SplittedPolyCurves = []
-            # part1
-            if part1LineStart != None and part1LineEnd != None:
-                for i, index in enumerate(partlist1):
-                    pts = self.points[index]
-                    part1.insert(i+1, pts)
-                if returnlines:
-                    SplittedPolyCurves.append(PolyCurve.by_points(part1))
-                else:
-                    project.objects.append(PolyCurve.by_points(part1))
-
-            # part2 -> BUGG?
-            if part2LineStart != None and part2LineEnd != None:
-                for index in partlist2:
-                    pts = self.points[index]
-                    part2.insert(index, pts)
-                if returnlines:
-                    SplittedPolyCurves.append(PolyCurve.by_points(part2))
-                else:
-                    project.objects.append(PolyCurve.by_points(part2))
-
-            if returnlines:  # return lines while using multi_split
-                return SplittedPolyCurves
-
-        else:
-            print(
-                f"Must need 2 points to split PolyCurve into PolyCurves, got now {len(insect['IntersectGridPoints'])} points.")
-     
-    def multi_split(self, lines: 'Line') -> 'list[PolyCurve]':  # SLOW, MUST INCREASE SPEAD
-        """Splits the PolyCurve by multiple lines.
-        This method splits the PolyCurve by multiple lines and adds the resulting PolyCurves to the project.
-
-        #### Parameters:
-        - `lines` (List[Line]): The list of lines to split the PolyCurve.
-
-        #### Returns:
-        `List[PolyCurve]`: The list of split PolyCurves.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        lines = flatten(lines)
-        new_polygons = []
-        for index, line in enumerate(lines):
-            if index == 0:
-                n_p = self.split(line, returnlines=True)
-                if n_p != None:
-                    for nxp in n_p:
-                        if nxp != None:
-                            new_polygons.append(n_p)
-            else:
-                for new_poly in flatten(new_polygons):
-                    n_p = new_poly.split(line, returnlines=True)
-                    if n_p != None:
-                        for nxp in n_p:
-                            if nxp != None:
-                                new_polygons.append(n_p)
-        project.objects.append(flatten(new_polygons))
-        return flatten(new_polygons)
-
-    def translate(self, offset: 'Vector') -> 'PolyCurve':
-        """Translates the PolyCurve by a 3D vector.
-
-        #### Parameters:
-        - `vector_3d` (Vector): The 3D vector by which to translate the PolyCurve.
-
-        #### Returns:
-        `PolyCurve`: The translated PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        for i in range(len(self.points)):
-            self.points[i] += offset
-        return self
-
-    @staticmethod
-    def copy_translate(pc: 'PolyCurve', vector_3d: 'Vector') -> 'PolyCurve':
-        """Creates a copy of a PolyCurve and translates it by a 3D vector.
-
-        #### Parameters:
-        - `pc` (PolyCurve): The PolyCurve to copy and translate.
-        - `vector_3d` (Vector): The 3D vector by which to translate the PolyCurve.
-
-        #### Returns:
-        `PolyCurve`: The translated copy of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        crvs = []
-        vector_1 = vector_3d
-        for i in pc.curves:
-            # if i.__class__.__name__ == "Arc":
-            #    crvs.append(Arc(Point.translate(i.start, vector_1), Point.translate(i.middle, vector_1), Point.translate(i.end, vector_1)))
-            if i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.translate(i.start, vector_1),
-                            Point.translate(i.end, vector_1)))
-            else:
-                print("Curvetype not found")
-
-        PCnew = PolyCurve.by_joined_curves(crvs)
-        return PCnew
-
-    def rotate(self, angle: 'float', dz: 'float') -> 'PolyCurve':
-        """Rotates the PolyCurve by a given angle around the Z-axis and displaces it in the Z-direction.
-
-        #### Parameters:
-        - `angle` (float): The angle of rotation in degrees.
-        - `dz` (float): The displacement in the Z-direction.
-
-        #### Returns:
-        `PolyCurve`: The rotated and displaced PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        # angle in degrees
-        # dz = displacement in z-direction
-        crvs = []
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                crvs.append(Arc(Point.rotate_XY(i.start, angle, dz), Point.rotate_XY(
-                    i.middle, angle, dz), Point.rotate_XY(i.end, angle, dz)))
-            elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.rotate_XY(i.start, angle, dz),
-                            Point.rotate_XY(i.end, angle, dz)))
-            else:
-                print("Curvetype not found")
-        crv = PolyCurve.by_joined_curves(crvs)
-        return crv
-
-    @staticmethod
-    def transform_from_origin(polycurve: 'PolyCurve', startpoint: 'Point', directionvector: 'Vector') -> 'PolyCurve':
-        """Transforms a PolyCurve from a given origin point and direction vector.
-
-        #### Parameters:
-        - `polycurve` (PolyCurve): The PolyCurve to transform.
-        - `startpoint` (Point): The origin point for the transformation.
-        - `directionvector` (Vector): The direction vector for the transformation.
-
-        #### Returns:
-        `PolyCurve`: The transformed PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-
-        if polycurve.type == "PolyCurve2D":
-            crvs = []
-            pnts = []            
-            for i in polycurve.curves:
-                if i.__class__.__name__ == "Arc" or i.__class__.__name__ == "Arc2D":
-                    start_transformed = transform_point(Point.point_2D_to_3D(i.start) if i.__class__.__name__ == "Arc2D" else i.start, CSGlobal, startpoint, directionvector)
-                    mid_transformed = transform_point(Point.point_2D_to_3D(i.mid) if i.__class__.__name__ == "Arc2D" else i.mid, CSGlobal, startpoint, directionvector)
-                    end_transformed = transform_point(Point.point_2D_to_3D(i.end) if i.__class__.__name__ == "Arc2D" else i.end, CSGlobal, startpoint, directionvector)
-                    
-                    crvs.append(Arc(start_transformed, mid_transformed, end_transformed))
-                    pnts.extend([start_transformed, mid_transformed, end_transformed])
-
-                elif i.__class__.__name__ == "Line" or i.__class__.__name__ == "Line2D":
-                    start_transformed = transform_point(Point.point_2D_to_3D(i.start) if i.__class__.__name__ == "Line2D" else i.start, CSGlobal, startpoint, directionvector)
-                    end_transformed = transform_point(Point.point_2D_to_3D(i.end) if i.__class__.__name__ == "Line2D" else i.end, CSGlobal, startpoint, directionvector)
-
-                    crvs.append(Line(start_transformed, end_transformed))
-                    pnts.extend([start_transformed, end_transformed])
-
-                else:
-                    print(i.__class__.__name__ + " Curvetype not found")
-
-                # if i.__class__.__name__ == "Arc":
-                #     crvs.append(Arc(transform_point(i.start, CSGlobal, startpoint, directionvector),
-                #                     transform_point(
-                #                         i.mid, CSGlobal, startpoint, directionvector),
-                #                     transform_point(
-                #                         i.end, CSGlobal, startpoint, directionvector)
-                #                     ))
-                # elif i.__class__.__name__ == "Line":
-                #     crvs.append(Line(start=transform_point(i.start, CSGlobal, startpoint, directionvector),
-                #                      end=transform_point(
-                #                          i.end, CSGlobal, startpoint, directionvector)
-                #                      ))
-                # elif i.__class__.__name__ == "Arc2D":
-                #     # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
-                #     crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                #                     transform_point(Point.point_2D_to_3D(
-                #                         i.mid), CSGlobal, startpoint, directionvector),
-                #                     transform_point(Point.point_2D_to_3D(
-                #                         i.end), CSGlobal, startpoint, directionvector)
-                #                     ))
-                # elif i.__class__.__name__ == "Line2D":
-                #     crvs.append(Line(start=transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                #                      end=transform_point(Point.point_2D_to_3D(
-                #                          i.end), CSGlobal, startpoint, directionvector)
-                #                      ))
-                # else:
-                #     print(i.__class__.__name__ + "Curvetype not found")
-                
-            new_polycurve = PolyCurve()
-            new_polycurve.curves = crvs
-            new_polycurve.points = pnts
-            return new_polycurve
-
-        elif polycurve.type == "PolyCurve":
-            for i in polycurve.curves:
-                if i.__class__.__name__ == "Arc":
-                    crvs.append(Arc(transform_point(i.start, CSGlobal, startpoint, directionvector),
-                                    transform_point(
-                                        i.mid, CSGlobal, startpoint, directionvector),
-                                    transform_point(
-                                        i.end, CSGlobal, startpoint, directionvector)
-                                    ))
-                elif i.__class__.__name__ == "Line":
-                    crvs.append(Line(start=transform_point(i.start, CSGlobal, startpoint, directionvector),
-                                     end=transform_point(
-                                         i.end, CSGlobal, startpoint, directionvector)
-                                     ))
-                elif i.__class__.__name__ == "Arc2D":
-                    # print(Point.point_2D_to_3D(i.start),CSGlobal, startpoint, directionvector)
-                    crvs.append(Arc(transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point_2D_to_3D(
-                                        i.mid), CSGlobal, startpoint, directionvector),
-                                    transform_point(Point.point_2D_to_3D(
-                                        i.end), CSGlobal, startpoint, directionvector)
-                                    ))
-                elif i.__class__.__name__ == "Line2D":
-                    crvs.append(Line(start=transform_point(Point.point_2D_to_3D(i.start), CSGlobal, startpoint, directionvector),
-                                     end=transform_point(Point.point_2D_to_3D(
-                                         i.end), CSGlobal, startpoint, directionvector)
-                                     ))
-                else:
-                    print(i.__class__.__name__ + "Curvetype not found")
-
-        pc = PolyCurve()
-        pc.curves = crvs
-        return pc
+        return f"{__class__.__name__}()"
 
 class Polygon(PointList):
     """Represents a polygon composed of points."""
@@ -3048,6 +2354,10 @@ class Polygon(PointList):
 
     @property
     def closed(self) -> bool: return self[0] == self[-1]
+    
+    @property
+    def points(self) -> list[Point]:
+        return [Point(p) for p in self]
     
     @closed.setter
     def closed(self, value) -> Self:
@@ -3169,7 +2479,7 @@ class Polygon(PointList):
         _points = []
 
         for point in points: #Convert all to Point
-            if point.type == "Point2D":
+            if point.type == "Point":
                 _points.append(Point(point.x, point.y, 0))
             else:
                 _points.append(point)
@@ -3345,296 +2655,305 @@ class Polygon(PointList):
         """
         return f"{__class__.__name__} (points: {list.__str__(self)})"
 
-
-class Arc:
-    def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
-        """Initializes an Arc object with start, mid, and end points.
-        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
+class PolyCurve(Serializable, list[Line], Shape):
+    """Stores lines, which could possibly be arcs"""
+    def __init__(self, *args):
+        """Initializes a PolyCurve object, which is unclosed by default.
         
-        the mid point should really be in the center; we don't support warped arcs.
 
-        - `startPoint` (Point): The starting point of the arc.
-        - `midPoint` (Point): The mid point of the arc which defines its curvature.
-        - `endPoint` (Point): The ending point of the arc.
         """
-        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
-        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
-            raise ValueError('midpoint is not in the center')
         
         
-        self.start = startPoint
-        self.mid = midPoint
-        self.end = endPoint
-        #self.origin = self.origin_arc()
-        #vector_1 = Vector(x=1, y=0, z=0)
-        #vector_2 = Vector(x=0, y=1, z=0)
-        #self.plane = Plane.by_two_vectors_origin(
-        #    vector_1,
-        #    vector_2,
-        #    self.origin
-        #)
-        #self.radius = self.radius_arc()
-        #self.startAngle = 0
-        #self.endAngle = 0
-        #self.angle_radian = self.angle_radian()
-        #self.area = 0
+        #self.points:list[Point] = to_array(*args)
+
+        #self.approximateLength = None
+        #self.graphicsStyleId = None
+        #self.isCyclic = None
+        #self.isElementGeometry = None
+        #self.isReadOnly = None
         #self.length = self.length()
-        #self.units = project.units
-        #self.coordinatesystem = self.coordinatesystem_arc()
-
-    def coordinatesystem_arc(self) -> 'CoordinateSystem':
-        """Calculates and returns the coordinate system of the arc.
-        The coordinate system is defined by the origin of the arc and the normalized vectors along the local X, Y, and Z axes.
-
-        #### Returns:
-        `CoordinateSystem`: The coordinate system of the arc.
-
-        #### Example usage:
-        ```python
-        coordinatesystem = arc.coordinatesystem_arc()
-        # coordinatesystem will be an instance of CoordinateSystem representing the arc's local coordinate system
-        ```
-        """
-        vx = Vector.by_two_points(self.origin, self.start)  # Local X-axe
-        vector_2 = Vector.by_two_points(self.end, self.origin)
-        vz = Vector.cross_product(vx, vector_2)  # Local Z-axe
-        vy = Vector.cross_product(vx, vz)  # Local Y-axe
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
-                                                 Vector.normalize(vz))
-        return self.coordinatesystem
+        #self.period = None
+        #self.reference = None
+        #self.visibility = None
+        super().__init__(to_array(*args))
     
     @property
-    def radius(self) -> 'float':
-        """Calculates and returns the radius of the arc.
-        The radius is computed based on the distances between the start, mid, and end points of the arc.
-
-        #### Returns:
-        `float`: The radius of the arc.
-
-        #### Example usage:
-        ```python
-        radius = arc.radius_arc()
-        # radius will be the calculated radius of the arc
-        ```
-        """
-        a = Point.distance(self.start, self.mid)
-        b = Point.distance(self.mid, self.end)
-        c = Point.distance(self.end, self.start)
-        s = (a + b + c) / 2
-        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
-        
-        if abs(A) < 1e-6:
-            return float('inf')
-        else:
-            R = (a * b * c) / (4 * A)
-            return R
-        
-    #https://calcresource.com/geom-circularsegment.html
-    @property
-    def area(self) -> 'float':
-        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
+    def points(self) -> list[Point]:
+        p = []
+        for l in self:
+            p.extend(l.points)
+        return p
     
     @property
-    def origin(self) -> 'Point':
-        """Calculates and returns the origin of the arc.
-        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `Point`: The calculated origin point of the arc.
-
-        #### Example usage:
-        ```python
-        origin = arc.origin_arc()
-        # origin will be the calculated origin point of the arc
-        ```
-        """
-        start_to_end = self.end - self.start
-        half_start_end = start_to_end * 0.5
-        b = half_start_end.magnitude
-        radius = self.radius
-        x = math.sqrt(radius * radius - b * b)
-        #mid point as if this was a straight line
-        mid = self.start + half_start_end
-        #substract the curved mid point from the straight line mid point
-        to_center = mid - self.mid
-        #change length to x
-        to_center.magnitude = x
-        center = mid + to_center
-        return center
-
-    @property
-    def centroid(self) -> 'Point':
-        origin = self.origin
-        radius = self.radius
-        angle = self.angle
-        #the distance of the centroid of the arc to its origin
-        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
-        return origin + centroid_distance * ((self.mid - origin) / radius)
-        
-    @property
-    def angle(self) -> 'float':
-        """Calculates and returns the total angle of the arc in radians.
-        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
-
-        #### Returns:
-        `float`: The total angle of the arc in radians.
-
-        #### Example usage:
-        ```python
-        angle = arc.angle_radian()
-        # angle will be the total angle of the arc in radians
-        ```
-        """
-        origin = self.origin
-        vector_1 = self.end - origin
-        vector_2 = self.start - origin
-        vector_3 = self.mid - origin
-        vector_4 = vector_1 + vector_2
-        try:
-            v4b = Vector.new_length(vector_4, self.radius)
-            if Vector.value(vector_3) == Vector.value(v4b):
-                angle = Vector.angle_between(vector_1, vector_2)
+    def closed(self) -> 'bool':
+        return self[0].start == self[-1].end
+    @closed.setter
+    def closed(self, value : bool):
+        if value != self.closed:
+            if value:
+                #just fill the gap using a straight line
+                self.append(Line(self[-1].end, self[0].start))
             else:
-                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        except:
-            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
+                del self[-1]    
+    
+    @property
+    def area(self):
+        """Calculates the area of the 2d PolyCurve.
+
+        Returns:
+            float: The area of the 2d poly curve.
         
+        we are assuming the PolyCurve is wound counter-clockwise and is closed.
+        """
+        if not self.closed:
+            raise ValueError("the polycurve needs to be closed in order to calculate its area")
+        area:float = 0
+        for line in self:
+            if isinstance(line, Arc):
+                origin = line.origin
+                area += (line.start.x - line.end.x) * origin.y
+                #now that we added the 'rectangle', let's add the sine wave
+                
+                #the arc is part of a circle. the circle can be represented as two opposite cosine waves, with the circle center being at 0, 0.
+                #to calculate the area, we'll be using the integral of the cosine wave, which is the sine wave.
+                radius = (line.origin - line.start).magnitude
+                
+                #area is negative if y < 0
+                #area is measured from the -x side here, so at -radius, area == 0 and at +radius, area == circle_area
+                #https://www.desmos.com/calculator/ykynwhoue6
+                get_area = lambda pos : math.copysign((math.sin(((pos.x - origin.x) / radius) * (math.pi / 2)) + 1) * radius, pos.y - origin.y)
+                start_area = get_area(line.start)
+                end_area = get_area(line.end)
+                
+                integral_area = start_area - end_area
+                if integral_area < 0:
+                    circle_area = (radius * radius) * math.pi
+                    integral_area += circle_area
+                area += integral_area
+            else:
+                #check direction of line
+                #start - end, for counterclockwiseness
+                #when start.x < end.x, this is a bottom line. we'll substract this from the area.
+                dx = line.start.x - line.end.x
+                averagey = (line.start.y + line.end.y) / 2
+                area += dx * averagey
+        return area
+    
     @property
     def length(self) -> 'float':
-        """Calculates and returns the length of the arc.
-        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
+        """Calculates the total length of the PolyCurve.
 
         #### Returns:
-        `float`: The length of the arc.
+        `float`: The total length of the PolyCurve.
 
         #### Example usage:
         ```python
-        length = arc.length()
-        # length will be the calculated length of the arc
-        ```
+
+        ```        
         """
-        try:
-            x1, y1, z1 = self.start.x, self.start.y, self.start.z
-            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-            x3, y3, z3 = self.end.x, self.end.y, self.end.z
 
-            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-            m1 = math.acos(cos_angle)
-            arc_length = r1 * m1
+        return sum(curve.length for curve in self)
 
-            return arc_length
-        except:
-            return 0
+    def scale(self, scale_factor: 'float') -> 'PolyCurve':
+        """Scales the PolyCurve object by the given factor.
+
+        #### Parameters:
+        - `scale_factor`: The scaling factor.
+
+        #### Returns:
+        `PolyCurve`: Scaled PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        crvs = []
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                arcie = Arc(Point.product(scale_factor, i.start),
+                            Point.product(scale_factor, i.end))
+                arcie.mid = Point.product(scale_factor, i.mid)
+                crvs.append(arcie)
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.product(scale_factor, i.start),
+                            Point.product(scale_factor, i.end)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve.by_joined_curves(crvs)
+        return crv
+    
+    #TODO finish function
+    @property
+    def centroid(self) -> 'Point':
+        """Calculates the centroid of the PolyCurve. in 2D
+
+        #### Returns:
+        `Point`: The centroid point of the PolyCurve.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        poly = Polygon.by_joined_curves(self)
+        total_area = poly.area
+        weighted_centroid = poly.centroid * total_area
+        
+        #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
+        
+        for i in range(len(self)):
+            current_line = self[i]
+            if isinstance(current_line, Arc):
+                #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
+                #calculate the centroid
+                arc_centroid = current_line.centroid
+                arc_area = current_line.area
+                
+                total_area += arc_area
+                #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
+                weighted_centroid += arc_centroid * arc_area
+        
+        return weighted_centroid / total_area
+    
+    #def area(self) -> 'float':  # shoelace formula
+    #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
+#
+    #    #### Returns:
+    #    `float`: The area enclosed by the PolyCurve.
+#
+    #    #### Example usage:
+    #    ```python
+#
+    #    ```        
+    #    """
+    #    if self.closed:
+    #        if len(self.points) < 3:
+    #            return "Polygon has less than 3 points!"
+#
+    #        num_points = len(self.points)
+    #        S1, S2 = 0, 0
+#
+    #        for i in range(num_points):
+    #            x, y = self.points[i].x, self.points[i].y
+    #            if i == num_points - 1:
+    #                x_next, y_next = self.points[0].x, self.points[0].y
+    #            else:
+    #                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
+#
+    #            S1 += x * y_next
+    #            S2 += y * x_next
+#
+    #        area = 0.5 * abs(S1 - S2)
+    #        return area
+    #    else:
+    #        print("Polycurve is not closed, no area!")
+    #        return None
+        
+
+
+    @classmethod
+    def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
+        """Creates a PolyCurve from a list of joined Line curves.
+
+        #### Parameters:
+        - `curvelst` (list[Line]): The list of Line curves to join.
+
+        #### Returns:
+        `PolyCurve`: The created PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        for curve in curvelst:
+            if curve.length == 0:
+                curvelst.remove(curve)
+                # print("Error: Curve length cannot be zero.")
+                # sys.exit()
+
+        plycrv = PolyCurve()
+        for index, curve in enumerate(curvelst):
+            if index == 0:
+                plycrv.points.append(curve.start)
+                plycrv.points.append(curve.end)
+            else:
+                plycrv.points.append(curve.end)
+
+        return plycrv
     
     @staticmethod
-    def points_at_parameter(arc: 'Arc', count: 'int') -> 'list':
-        """Generates a list of points along the arc at specified intervals.
-        This method divides the arc into segments based on the `count` parameter and calculates points at these intervals along the arc.
-
-        #### Parameters:
-        - `arc` (Arc): The arc object.
-        - `count` (int): The number of points to generate along the arc.
-
-        #### Returns:
-        `list`: A list of points (`Point` objects) along the arc.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        points = Arc.points_at_parameter(arc, 5)
-        # points will be a list of 5 points along the arc
-        ```
-        """
-        # Create points at parameter on an arc based on an interval
-        d_alpha = arc.angle_radian / (count - 1)
-        alpha = 0
-        pnts = []
-        for i in range(count):
-            pnts.append(Point(arc.radius * math.cos(alpha),
-                        arc.radius * math.sin(alpha), 0))
-            alpha = alpha + d_alpha
-        cs_new = arc.coordinatesystem
-        pnts2 = []  # transformed points
-        for i in pnts:
-            pnts2.append(transform_point_2(i, cs_new))
-        return pnts2
+    def by_polygon(polygon: Polygon):
+        return PolyCurve(polygon.curves)
 
     @staticmethod
-    def segmented_arc(arc: 'Arc', count: 'int') -> 'list':
-        """Divides the arc into segments and returns a list of line segments.
-        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
+    def by_points(points: 'list[Point]') -> Self:
+        """Creates a PolyCurve from a list of points.
 
         #### Parameters:
-        - `arc` (Arc): The arc object.
-        - `count` (int): The number of segments (and thus the number of points - 1) to create.
+        - `points` (list[Point]): The list of points defining the PolyCurve.
 
         #### Returns:
-        `list`: A list of line segments (`Line` objects) representing the divided arc.
+        `PolyCurve`: The created PolyCurve object.
 
         #### Example usage:
         ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        segments = Arc.segmented_arc(arc, 3)
-        # segments will be a list of 2 lines dividing the arc into 3 segments
-        ```
-        """
-        pnts = Arc.points_at_parameter(arc, count)
-        i = 0
-        lines = []
-        for j in range(len(pnts) - 1):
-            lines.append(Line(pnts[i], pnts[i + 1]))
-            i = i + 1
-        return lines
 
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Arc object.
+        ```        
+        """
+        return PolyCurve(Polygon(points).curves)
+
+    @classmethod
+    def unclosed_by_points(cls, points: 'list[Point]') -> 'PolyCurve':
+        """Creates an unclosed PolyCurve from a list of points.
+
+        #### Parameters:
+        - `points` (list[Point]): The list of points defining the PolyCurve.
 
         #### Returns:
-        `str`: A string that represents the Arc object.
+        `PolyCurve`: The created unclosed PolyCurve object.
 
         #### Example usage:
         ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        print(arc)
-        # Output: Arc()
-        ```
+
+        ```        
         """
-        return f"{__class__.__name__}()"
+        plycrv = PolyCurve()
+        for index, point in enumerate(points):
+            plycrv.points.append(point)
+            try:
+                nextpoint = points[index + 1]
+                plycrv.curves.append(Line(start=point, end=nextpoint))
+            except:
+                pass
+        return plycrv
 
+    @staticmethod
+    # Create segmented polycurve. Arcs, elips will be translated to straight lines
+    def segment(self, count: 'int') -> 'PolyCurve':
+        """Segments the PolyCurve into straight lines.
 
-def transform_arc(arc_old, cs_new: 'CoordinateSystem') -> 'Arc':
-    """Transforms an Arc object to a new coordinate system.
+        #### Parameters:
+        - `count` (int): The number of segments.
 
-    This function takes an existing Arc object and a new CoordinateSystem object. It transforms the start, mid, and end points of the Arc to the new coordinate system, creating a new Arc object in the process.
+        #### Returns:
+        `PolyCurve`: The segmented PolyCurve object.
 
-    #### Parameters:
-    - `arc_old` (Arc): The original Arc object to be transformed.
-    - `cs_new` (CoordinateSystem): The new coordinate system to transform the Arc into.
+        #### Example usage:
+        ```python
 
-    #### Returns:
-    `Arc`: A new Arc object with its points transformed to the new coordinate system.
-
-    #### Example usage:
-    ```python
-    arc_old = Arc(startPoint, midPoint, endPoint)
-    cs_new = CoordinateSystem(...)  # Defined elsewhere
-    arc_new = transform_arc(arc_old, cs_new)
-    # arc_new is the transformed Arc object
-    ```
-    """
-    start = transform_point_2(arc_old.start, cs_new)
-    mid = transform_point_2(arc_old.mid, cs_new)
-    end = transform_point_2(arc_old.end, cs_new)
-    arc_new = Arc(startPoint=start, midPoint=mid, endPoint=end)
-
-    return arc_new
-
+        ```        
+        """
+        crvs = []  # add isClosed
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                crvs.append(Arc.segmented_arc(i, count))
+            elif i.__class__.__name__ == "Line":
+                crvs.append(i)
+        crv = flatten(crvs)
+        pc = PolyCurve.by_joined_curves(crv)
+        return pc
 
 class Circle:
     """Represents a circle with a specific radius, plane, and length.
@@ -3711,122 +3030,6 @@ class Ellipse:
         ```
         """
         return f"{__class__.__name__}({self})"
-
-
-
-class Intersect:
-    def __init__(self):
-        pass
-
-    def get_line_intersect(line1: Line, line2: Line) -> Point:
-        p1, p2 = line1.start, line1.end
-        p1X, p1Y, P1Z = p1.x, p1.y, p1.z
-        p2X, p2Y, P2Z = p2.x, p2.y, p2.z
-
-        p3, p4 = line2.start, line2.end
-        p3X, p3Y, P3Z = p3.x, p3.y, p3.z
-        p4X, p4Y, P4Z = p4.x, p4.y, p4.z
-
-        print(p1X, p1Y, P1Z)
-
-
-
-class Interval:
-    """The `Interval` class is designed to represent a mathematical interval, providing a start and end value along with functionalities to handle intervals more comprehensively in various applications."""
-    def __init__(self, start: float, end: float):
-        """Initializes a new Interval instance.
-        
-        - `start` (float): The starting value of the interval.
-        - `end` (float): The ending value of the interval.
-        - `interval` (list, optional): A list that may represent subdivided intervals or specific points within the start and end bounds, depending on the context or method of subdivision.
-
-        """
-        self.start = start
-        self.end = end
-        self.interval = None
-
-    def serialize(self) -> dict:
-        """Serializes the interval's attributes into a dictionary.
-
-        This method facilitates converting the interval's properties into a format that can be easily stored or transmitted.
-
-        #### Returns:
-            dict: A dictionary containing the serialized attributes of the interval.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-
-        return {
-            'start': self.start,
-            'end': self.end,
-            'interval': self.interval
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Interval':
-        """Reconstructs an Interval object from serialized data contained in a dictionary.
-
-        #### Parameters:
-            data (dict): The dictionary containing serialized data of an Interval object.
-
-        #### Returns:
-            Interval: A new Interval object initialized with the data from the dictionary.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-
-        start = data.get('start')
-        end = data.get('end')
-        interval = Interval(start, end)
-        interval.interval = data.get('interval')
-        return interval
-
-    @classmethod
-    def by_start_end_count(self, start: float, end: float, count: int) -> 'Interval':
-        """Generates a list of equidistant points within the interval.
-
-        This method divides the interval between the start and end values into (count - 1) segments, returning an Interval object containing these points.
-
-        #### Parameters:
-            start (float): The starting value of the interval.
-            end (float): The ending value of the interval.
-            count (int): The total number of points to generate, including the start and end values.
-
-        #### Returns:
-            Interval: An Interval instance with its `interval` attribute populated with the generated points.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-        intval = []
-        numb = start
-        delta = end-start
-        for i in range(count):
-            intval.append(numb)
-            numb = numb + (delta / (count - 1))
-        self.interval = intval
-        return self
-
-    def __str__(self) -> str:
-        """Generates a string representation of the Interval.
-
-        #### Returns:
-            str: A string representation of the Interval, primarily indicating its class name.
-        
-        #### Example usage:
-    	```python
-
-        ```
-        """
-        return f"{__class__.__name__}"
 
 
 class Matrix(Serializable, list[list]):
@@ -4428,6 +3631,7 @@ class Matrix(Serializable, list[list]):
         return rows, cols
 
 CoordinateSystem = Matrix
+
 class BuildingPy(Serializable):
     def __init__(self, name=None, number=None):
         self.name: str = name
@@ -4466,9 +3670,6 @@ class BuildingPy(Serializable):
         
         #text
         self.createdTxt = "has been created"
-
-        #structural elements
-        self.structural_fallback_element = "HEA100"
 
         #Speckle settings
         self.speckleserver = "speckle.xyz"
@@ -4542,51 +3743,6 @@ class Node:
         self.diameter = diameter
         self.comments = comments
 
-    def serialize(self) -> dict:
-        """Serializes the node's attributes into a dictionary.
-
-        This method allows for the node's properties to be easily stored or transmitted in a dictionary format.
-
-        #### Returns:
-        `dict`: A dictionary containing the serialized attributes of the node.
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'point': self.point.serialize() if self.point else None,
-            'vector': self.vector.serialize() if self.vector else None,
-            'number': self.number,
-            'distance': self.distance,
-            'diameter': self.diameter,
-            'comments': self.comments
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Node':
-        """Recreates a Node object from a dictionary of serialized data.
-
-        #### Parameters:
-        - data (dict): The dictionary containing the node's serialized data.
-
-        #### Returns:
-        `Node`: A new Node object initialized with the data from the dictionary.
-        """
-        node = Node()
-        node.id = data.get('id')
-        node.type = data.get('type')
-        node.point = Point.deserialize(
-            data['point']) if data.get('point') else None
-        node.vector = Vector.deserialize(
-            data['vector']) if data.get('vector') else None
-        node.number = data.get('number')
-        node.distance = data.get('distance')
-        node.diameter = data.get('diameter')
-        node.comments = data.get('comments')
-
-        return node
-
     # merge
     def merge(self):
         """Merges this node with others in a project according to defined rules.
@@ -4646,7 +3802,7 @@ class Text:
         self.csglobal = cs
         self.x, self.y, self.z = 0, 0, 0
         self.scale = None
-        self.height = height or project.font_height
+        self.height = height
         self.bbHeight = None
         self.width = None
         self.character_offset = 150
@@ -4656,40 +3812,6 @@ class Text:
         self.path_list = self.load_path()
         self.load_o_example = self.load_o()
 
-    def serialize(self) -> 'dict':
-        """Serializes the text object's attributes into a dictionary.
-        This method is useful for exporting the text object's properties, making it easier to save or transmit as JSON.
-
-        #### Returns:
-            dict: A dictionary containing the serialized attributes of the text object.
-        
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'text': self.text,
-            'font_family': self.font_family,
-            'xyz': self.xyz,
-            'csglobal': self.csglobal.serialize(),
-            'x': self.x,
-            'y': self.y,
-            'z': self.z,
-            'scale': self.scale,
-            'height': self.height,
-            'bbHeight': self.bbHeight,
-            'width': self.width,
-            'character_offset': self.character_offset,
-            'space': self.space,
-            'curves': [curve.serialize() for curve in self.curves],
-            'points': self.points,
-            'path_list': self.path_list,
-        }
 
     def load_path(self) -> 'str':
         """Loads the glyph paths for the specified text from a JSON file.
@@ -4867,8 +3989,8 @@ class Text:
         """
 
         points = [elem for elem in points if elem != 'M']
-        ptList = [Point2D(pt[0], pt[1]) for pt in points]
-        bounding_box_polyline = Rect().by_points(ptList)
+        ptList = [Point(pt[0], pt[1]) for pt in points]
+        bounding_box_polyline = Rect.by_points(ptList)
         return bounding_box_polyline, bounding_box_polyline.width, bounding_box_polyline.length
 
     def convert_points_to_polyline(self, points: 'list[Point]') -> 'PolyCurve':
@@ -4991,6 +4113,44 @@ def polycurve_to_pattern(polycurve: 'PolyCurve', pattern_obj) -> 'list':
     return res
 
 
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+
+    return (255 << 24) | (r << 16) | (g << 8) | b
+
+class Material:
+    def __init__(self):
+        self.name = "none"
+        self.color = None
+        self.colorint = None
+
+    @classmethod
+    def byNameColor(cls, name, color):
+        M1 = Material()
+        M1.name = name
+        M1.color = color
+        #M1.colorint = rgb_to_int(color)
+        return M1
+
+#Building Materials
+BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
+BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
+BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
+BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
+BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
+BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
+
+#GIS Materials
+BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
+BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
+BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
+BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
+BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
+
+#class Materialfinish
+
+
+
 sqrt2 = math.sqrt(2)
 
 
@@ -5025,7 +4185,6 @@ class Profile(Serializable):
         self.width = width
         self.tw = tw
         self.tf = tf
-        self.type = None
 
     def __str__(self):
         return f"{self.type} ({self.name})"
@@ -5058,9 +4217,9 @@ class CChannelParallelFlange(Profile):
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
         l3 = Line(p3, p4)
-        l4 = Arc2D(p4, p5, p6)
+        l4 = Arc(p4, p5, p6)
         l5 = Line(p6, p7)
-        l6 = Arc2D(p7, p8, p9)
+        l6 = Arc(p7, p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p11)
         l9 = Line(p11, p12)
@@ -5108,13 +4267,13 @@ class CChannelSlopedFlange(Profile):
         # describe curves
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc2D(p3, p4, p5)
+        l3 = Arc(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc2D(p9, p10, p11)
+        l7 = Arc(p9, p10, p11)
         l8 = Line(p11, p12)
-        l9 = Arc2D(p12, p13, p14)
+        l9 = Arc(p12, p13, p14)
         l10 = Line(p14, p15)
         l11 = Line(p15, p16)
         l12 = Line(p16, p1)
@@ -5156,17 +4315,17 @@ class IShapeParallelFlange(Profile):
         # describe curves
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc2D(p3, p4, p5)
+        l3 = Arc(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p11)
         l9 = Line(p11, p12)
         l10 = Line(p12, p13)
-        l11 = Arc2D(p13, p14, p15)
+        l11 = Arc(p13, p14, p15)
         l12 = Line(p15, p16)
-        l13 = Arc2D(p16, p17, p18)
+        l13 = Arc(p16, p17, p18)
         l14 = Line(p18, p19)
         l15 = Line(p19, p20)
         l16 = Line(p20, p1)
@@ -5212,10 +4371,10 @@ class Round(Profile):
         p8 = Point(dr, -dr)
 
         # describe curves
-        l1 = Arc2D(p1, p2, p3)
-        l2 = Arc2D(p3, p4, p5)
-        l3 = Arc2D(p5, p6, p7)
-        l4 = Arc2D(p7, p8, p1)
+        l1 = Arc(p1, p2, p3)
+        l2 = Arc(p3, p4, p5)
+        l3 = Arc(p5, p6, p7)
+        l4 = Arc(p7, p8, p1)
 
         self.curve = PolyCurve([l1, l2, l3, l4])
 
@@ -5253,17 +4412,17 @@ class Roundtube(Profile):
         p16 = Point(dri, -dri)
 
         # describe curves
-        l1 = Arc2D(p1, p2, p3)
-        l2 = Arc2D(p3, p4, p5)
-        l3 = Arc2D(p5, p6, p7)
-        l4 = Arc2D(p7, p8, p1)
+        l1 = Arc(p1, p2, p3)
+        l2 = Arc(p3, p4, p5)
+        l3 = Arc(p5, p6, p7)
+        l4 = Arc(p7, p8, p1)
 
         l5 = Line(p1, p9)
 
-        l6 = Arc2D(p9, p10, p11)
-        l7 = Arc2D(p11, p12, p13)
-        l8 = Arc2D(p13, p14, p15)
-        l9 = Arc2D(p15, p16, p9)
+        l6 = Arc(p9, p10, p11)
+        l7 = Arc(p11, p12, p13)
+        l8 = Arc(p13, p14, p15)
+        l9 = Arc(p15, p16, p9)
         l10 = Line(p9, p1)
 
         self.curve = PolyCurve(
@@ -5303,11 +4462,11 @@ class LAngle(Profile):
         # describe curves
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc2D(p3, p4, p5)
+        l3 = Arc(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc2D(p9, p10, p11)
+        l7 = Arc(p9, p10, p11)
         l8 = Line(p11, p12)
         l9 = Line(p12, p1)
 
@@ -5359,18 +4518,18 @@ class TProfileRounded(Profile):
         l1 = Line(p1, p2)
 
         l2 = Line(p2, p3)
-        l3 = Arc2D(p3, p4, p5)
+        l3 = Arc(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc2D(p9, p10, p11)
+        l7 = Arc(p9, p10, p11)
         l8 = Line(p11, p12)
 
-        l9 = Arc2D(p12, p13, p14)
+        l9 = Arc(p12, p13, p14)
         l10 = Line(p14, p15)
-        l11 = Arc2D(p15, p16, p17)
+        l11 = Arc(p15, p16, p17)
         l12 = Line(p17, p18)
-        l13 = Arc2D(p18, p19, p20)
+        l13 = Arc(p18, p19, p20)
         l14 = Line(p20, p1)
 
         self.curve = PolyCurve(
@@ -5421,24 +4580,24 @@ class RectangleHollowSection(Profile):
 
         # describe outer curves
         l1 = Line(p1, p2)
-        l2 = Arc2D(p2, p3, p4)
+        l2 = Arc(p2, p3, p4)
         l3 = Line(p4, p5)
-        l4 = Arc2D(p5, p6, p7)
+        l4 = Arc(p5, p6, p7)
         l5 = Line(p7, p8)
-        l6 = Arc2D(p8, p9, p10)
+        l6 = Arc(p8, p9, p10)
         l7 = Line(p10, p11)
-        l8 = Arc2D(p11, p12, p1)
+        l8 = Arc(p11, p12, p1)
 
         l9 = Line(p1, p13)
         # describe inner curves
         l10 = Line(p13, p14)
-        l11 = Arc2D(p14, p15, p16)
+        l11 = Arc(p14, p15, p16)
         l12 = Line(p16, p17)
-        l13 = Arc2D(p17, p18, p19)
+        l13 = Arc(p17, p18, p19)
         l14 = Line(p19, p20)
-        l15 = Arc2D(p20, p21, p22)
+        l15 = Arc(p20, p21, p22)
         l16 = Line(p22, p23)
-        l17 = Arc2D(p23, p24, p13)
+        l17 = Arc(p23, p24, p13)
 
         l18 = Line(p13, p1)
 
@@ -5482,15 +4641,15 @@ class CProfile(Profile):
         p16 = Point(p9.x, -p9.y)  # right bottom inner
         # describe outer curves
         l1 = Line(p1, p2)  # bottom
-        l2 = Arc2D(p2, p3, p4)  # right outer fillet
+        l2 = Arc(p2, p3, p4)  # right outer fillet
         l3 = Line(p4, p5)  # left outer web
-        l4 = Arc2D(p5, p6, p7)  # left top outer fillet
+        l4 = Arc(p5, p6, p7)  # left top outer fillet
         l5 = Line(p7, p8)  # outer top
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
-        l8 = Arc2D(p10, p11, p12)  # left top inner fillet
+        l8 = Arc(p10, p11, p12)  # left top inner fillet
         l9 = Line(p12, p13)
-        l10 = Arc2D(p13, p14, p15)  # left botom inner fillet
+        l10 = Arc(p13, p14, p15)  # left botom inner fillet
         l11 = Line(p15, p16)
         l12 = Line(p16, p1)
 
@@ -5549,25 +4708,25 @@ class CProfileWithLips(Profile):
 
         # describe outer curves
         l1 = Line(p1, p2)
-        l2 = Arc2D(p2, p3, p4)
+        l2 = Arc(p2, p3, p4)
         l3 = Line(p4, p5)
-        l4 = Arc2D(p5, p6, p7)  # outer fillet right top
+        l4 = Arc(p5, p6, p7)  # outer fillet right top
         l5 = Line(p7, p8)
-        l6 = Arc2D(p8, p9, p10)
+        l6 = Arc(p8, p9, p10)
         l7 = Line(p10, p11)
         l8 = Line(p11, p12)
         l9 = Line(p12, p13)
-        l10 = Arc2D(p13, p14, p15)
+        l10 = Arc(p13, p14, p15)
         l11 = Line(p15, p16)
-        l12 = Arc2D(p16, p17, p18)
+        l12 = Arc(p16, p17, p18)
         l13 = Line(p18, p19)  # inner web
-        l14 = Arc2D(p19, p20, p21)
+        l14 = Arc(p19, p20, p21)
         l15 = Line(p21, p22)
-        l16 = Arc2D(p22, p23, p24)
+        l16 = Arc(p22, p23, p24)
         l17 = Line(p24, p25)
         l18 = Line(p25, p26)
         l19 = Line(p26, p27)
-        l20 = Arc2D(p27, p28, p1)
+        l20 = Arc(p27, p28, p1)
 
         self.curve = PolyCurve(
             [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
@@ -5601,11 +4760,11 @@ class LProfileColdFormed(Profile):
         p9 = Point(-ex + t, ey)
         p10 = Point(-ex, ey)  # left top
 
-        l1 = Arc2D(p1, p2, p3)
+        l1 = Arc(p1, p2, p3)
         l2 = Line(p3, p4)
         l3 = Line(p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p1)
@@ -5675,29 +4834,29 @@ class SigmaProfileWithLipsColdFormed(Profile):
 
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc2D(p3, p4, p5)
+        l3 = Arc(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p11)
-        l9 = Arc2D(p11, p12, p13)
+        l9 = Arc(p11, p12, p13)
         l10 = Line(p13, p14)
-        l11 = Arc2D(p14, p15, p16)
+        l11 = Arc(p14, p15, p16)
         l12 = Line(p16, p17)
         l13 = Line(p17, p18)
         l14 = Line(p18, p19)
         l15 = Line(p19, p20)
         l16 = Line(p20, p21)
-        l17 = Arc2D(p21, p22, p23)
+        l17 = Arc(p21, p22, p23)
         l18 = Line(p23, p24)
-        l19 = Arc2D(p24, p25, p26)
+        l19 = Arc(p24, p25, p26)
         l20 = Line(p26, p27)
         l21 = Line(p27, p28)
         l22 = Line(p28, p29)
-        l23 = Arc2D(p29, p30, p31)
+        l23 = Arc(p29, p30, p31)
         l24 = Line(p31, p32)
-        l25 = Arc2D(p32, p33, p34)
+        l25 = Arc(p32, p33, p34)
         l26 = Line(p34, p35)
         l27 = Line(p35, p36)
         l28 = Line(p36, p1)
@@ -5740,17 +4899,17 @@ class ZProfileColdFormed(Profile):
         p15 = Point(-p7.x, -p7.y)
         p16 = Point(-p8.x, -p8.y)
 
-        l1 = Arc2D(p1, p2, p3)
+        l1 = Arc(p1, p2, p3)
         l2 = Line(p3, p4)
         l3 = Line(p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc2D(p6, p7, p8)
+        l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc2D(p9, p10, p11)
+        l7 = Arc(p9, p10, p11)
         l8 = Line(p11, p12)
         l9 = Line(p12, p13)
         l10 = Line(p13, p14)
-        l11 = Arc2D(p14, p15, p16)
+        l11 = Arc(p14, p15, p16)
         l12 = Line(p16, p1)
 
         self.curve = PolyCurve(
@@ -5801,25 +4960,25 @@ class ZProfileWithLipsColdFormed(Profile):
         p27 = Point(-p13.x, -p13.y)
         p28 = Point(-p14.x, -p14.y)
 
-        l1 = Arc2D(p1, p2, p3)
+        l1 = Arc(p1, p2, p3)
         l2 = Line(p3, p4)
-        l3 = Arc2D(p4, p5, p6)
+        l3 = Arc(p4, p5, p6)
         l4 = Line(p6, p7)
         l5 = Line(p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc2D(p9, p10, p11)
+        l7 = Arc(p9, p10, p11)
         l8 = Line(p11, p12)
-        l9 = Arc2D(p12, p13, p14)
+        l9 = Arc(p12, p13, p14)
         l10 = Line(p14, p15)
-        l11 = Arc2D(p15, p16, p17)
+        l11 = Arc(p15, p16, p17)
         l12 = Line(p17, p18)
-        l13 = Arc2D(p18, p19, p20)
+        l13 = Arc(p18, p19, p20)
         l14 = Line(p20, p21)
         l15 = Line(p21, p22)
         l16 = Line(p22, p23)
-        l17 = Arc2D(p23, p24, p25)
+        l17 = Arc(p23, p24, p25)
         l18 = Line(p25, p26)
-        l19 = Arc2D(p26, p27, p28)
+        l19 = Arc(p26, p27, p28)
         l20 = Line(p28, p1)
 
         self.curve = PolyCurve(
@@ -6183,6 +5342,7 @@ class Extrusion:
         ```
         """
         return Extrusion(PolyCurve.by_points(rect.corners(2)), Vector(0,0,rect.p0.z), Vector(0,0,rect.p0.z + rect.size.z))
+
 # check if there are innercurves inside the outer curve.
 
 
@@ -6220,68 +5380,6 @@ class Surface:
 
 
 
-    def serialize(self) -> dict:
-        """Serializes the Surface object into a dictionary for storage or transfer.
-        This method converts the Surface object's properties into a dictionary format, making it suitable for serialization processes like saving to a file or sending over a network.
-
-        #### Returns:
-        `dict`: A dictionary representation of the Surface object, containing all relevant data such as type, mesh, dimensions, name, ID, PolyCurve list, origin curve, color, and color list.
-
-        #### Example usage:
-        ```python
-        surface = Surface(polyCurves, color)
-        serialized_surface = surface.serialize()
-        # serialized_surface is now a dictionary representation of the surface object
-        ```
-        """
-        return {
-            'type': self.type,
-            'mesh': self.mesh,
-            'length': self.length,
-            'area': self.area,
-            'offset': self.offset,
-            'name': self.name,
-            'id': self.id,
-            'PolyCurveList': [polycurve.serialize() for polycurve in self.PolyCurveList],
-            'origincurve': self.origincurve.serialize() if self.origincurve else None,
-            'color': self.color,
-            'colorlst': self.colorlst
-        }
-
-    @staticmethod
-    def deserialize(data: dict) -> 'Surface':
-        """Creates a Surface object from a serialized data dictionary.
-        This static method reconstructs a Surface object from a dictionary containing serialized surface data. It is particularly useful for loading surfaces from storage or reconstructing them from data received over a network.
-
-        #### Parameters:
-        - `data` (`dict`): The dictionary containing the serialized data of a Surface object.
-
-        #### Returns:
-        `Surface`: A new Surface object initialized with the data from the dictionary.
-
-        #### Example usage:
-        ```python
-        data = { ... }  # Serialized Surface data
-        surface = Surface.deserialize(data)
-        # surface is now a fully reconstructed Surface object
-        ```
-        """
-        polycurves = [PolyCurve.deserialize(
-            pc_data) for pc_data in data.get('PolyCurveList', [])]
-        surface = Surface(polycurves, data.get('color'))
-
-        surface.mesh = data.get('mesh', [])
-        surface.length = data.get('length', 0)
-        surface.area = data.get('area', 0)
-        surface.offset = data.get('offset', 0)
-        surface.name = data.get('name', "test2")
-        surface.id = data.get('id')
-        surface.colorlst = data.get('colorlst', [])
-
-        if data.get('origincurve'):
-            surface.origincurve = PolyCurve.deserialize(data['origincurve'])
-
-        return surface
     @classmethod
     def by_patch_inner_and_outer(self, Polygons: 'list[Polygon]') -> 'Surface':
         valid_polygons = [p for p in Polygons if p is not None]
@@ -6518,8 +5616,9 @@ class nameToProfile:
             print(f"profile {name1} not recognised")
         profile_name = profile_data.shape_name
         if profile_name == None:
-            profile_data = _getProfileDataFromDatabase(project.structural_fallback_element)
-            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{project.structural_fallback_element}'")
+            structural_fallback_element = "HEA100"
+            profile_data = _getProfileDataFromDatabase(structural_fallback_element)
+            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'")
             profile_name = profile_data.shape_name
         self.profile_data = profile_data
         self.profile_name = profile_name
@@ -6611,46 +5710,11 @@ def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey
         dy = 0
 
     # print(dx, dy)
-    v1 = Vector2(dx, dy)
+    v1 = Vector(dx, dy)
     # v1 = Vector2(0, 0)
 
     return v1
 
-def rgb_to_int(rgb):
-    r, g, b = [max(0, min(255, c)) for c in rgb]
-
-    return (255 << 24) | (r << 16) | (g << 8) | b
-
-class Material:
-    def __init__(self):
-        self.name = "none"
-        self.color = None
-        self.colorint = None
-
-    @classmethod
-    def byNameColor(cls, name, color):
-        M1 = Material()
-        M1.name = name
-        M1.color = color
-        #M1.colorint = rgb_to_int(color)
-        return M1
-
-#Building Materials
-BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
-BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
-BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
-BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
-BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
-BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
-
-#GIS Materials
-BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
-BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
-BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
-BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
-BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
-
-#class Materialfinish
 
 def colorlist(extrus, color):
     colorlst = []
@@ -7207,8 +6271,6 @@ class RectangleSystem:
         self.material = BaseTimber
         self.inner_width: float = 0
         self.inner_height: float = 0
-        self.coordinatesystem = CSGlobal
-        self.local_coordinate_system = CSGlobal
         # self.openings = []
         # self.subsystems = []
         self.division_system = None
@@ -7673,51 +6735,6 @@ class Support:
         self.dy: float = 0  # eccentricity in y
         self.dz: float = 0  # eccentricity in z
 
-    def serialize(self):
-        return {
-            'Number': self.Number,
-            'Point': self.Point.serialize(),
-            'type': self.type,
-            'Tx': self.Tx,
-            'Ty': self.Ty,
-            'Tz': self.Tz,
-            'Rx': self.Rx,
-            'Ry': self.Ry,
-            'Rz': self.Rz,
-            'Kx': self.Kx,
-            'Ky': self.Ky,
-            'Kz': self.Kz,
-            'Cx': self.Cx,
-            'Cy': self.Cy,
-            'Cz': self.Cz,
-            'dx': self.dx,
-            'dy': self.dy,
-            'dz': self.dz
-        }
-
-    @staticmethod
-    def deserialize(data):
-        support = Support()
-        support.Number = data.get('Number')
-        support.Point = Point.deserialize(data['Point'])
-        support.Tx = data.get('Tx', " ")
-        support.Ty = data.get('Ty', " ")
-        support.Tz = data.get('Tz', " ")
-        support.Rx = data.get('Rx', " ")
-        support.Ry = data.get('Ry', " ")
-        support.Rz = data.get('Rz', " ")
-        support.Kx = data.get('Kx', 0)
-        support.Ky = data.get('Ky', 0)
-        support.Kz = data.get('Kz', 0)
-        support.Cx = data.get('Cx', 0)
-        support.Cy = data.get('Cy', 0)
-        support.Cz = data.get('Cz', 0)
-        support.dx = data.get('dx', 0)
-        support.dy = data.get('dy', 0)
-        support.dz = data.get('dz', 0)
-
-        return support
-
     @staticmethod
     def pinned(PlacementPoint):
         sup = Support()
@@ -7832,6 +6849,7 @@ def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, h
     return SurfaceLoads
 
 
+#Maarten
 
 class TickMark:
     # Dimension Tick Mark
@@ -7860,35 +6878,6 @@ class DimensionType:
         self.text_height = 2.5
         self.tick_mark: TickMark = TMDiagonal
         self.line_extension = 100
-
-    def serialize(self):
-        return {
-            'name': self.name,
-            'id': self.id,
-            'type': self.type,
-            'font': self.font,
-            'text_height': self.text_height,
-            'tick_mark': str(self.tick_mark),
-            'line_extension': self.line_extension
-        }
-
-    @staticmethod
-    def deserialize(data):
-        dimension_type = DimensionType()
-        dimension_type.name = data.get('name')
-        dimension_type.id = data.get('id')
-        dimension_type.type = data.get('type')
-        dimension_type.font = data.get('font')
-        dimension_type.text_height = data.get('text_height', 2.5)
-
-        # Handle TickMark deserialization
-        tick_mark_str = data.get('tick_mark')
-        # Adjust according to your TickMark implementation
-        dimension_type.tick_mark = TickMark(tick_mark_str)
-
-        dimension_type.line_extension = data.get('line_extension', 100)
-
-        return dimension_type
 
     @staticmethod
     def by_name_font_textheight_tick_mark_extension(name: str, font: str, text_height: float, tick_mark: TickMark, line_extension: float):
@@ -7921,37 +6910,6 @@ class Dimension:
         self.text = None
         self.geom()
 
-    def serialize(self):
-        return {
-            'type': self.type,
-            'start': self.start.serialize(),
-            'end': self.end.serialize(),
-            'text_height': self.text_height,
-            'id': self.id,
-            'scale': self.scale,
-            'dimension_type': self.dimension_type.serialize(),
-            'curves': [curve.serialize() for curve in self.curves],
-            'length': self.length,
-            'text': self.text
-        }
-
-    @staticmethod
-    def deserialize(data):
-        start = Point.deserialize(data['start'])
-        end = Point.deserialize(data['end'])
-        dimension_type = DimensionType.deserialize(data['dimension_type'])
-        dimension = Dimension(start, end, dimension_type)
-
-        dimension.text_height = data.get('text_height', 100)
-        dimension.id = data.get('id')
-        dimension.scale = data.get('scale', 0.1)
-        dimension.curves = [Line.deserialize(
-            curve_data) for curve_data in data.get('curves', [])]
-        dimension.length = data.get('length')
-        dimension.text = data.get('text')
-
-        return dimension
-
     @staticmethod
     def by_startpoint_endpoint_offset(start: Point, end: Point, dimension_type: DimensionType, offset: float):
         DS = Dimension()
@@ -7965,11 +6923,9 @@ class Dimension:
         # baseline
         baseline = Line(start=self.start, end=self.end)
         midpoint_text = baseline.mid_point()
-        direction = Vector.normalize(baseline.vector)
-        tick_mark_extension_point_1 = Point.translate(self.start, Vector.reverse(
-            Vector.scale(direction, self.dimension_type.line_extension)))
-        tick_mark_extension_point_2 = Point.translate(
-            self.end, Vector.scale(direction, self.dimension_type.line_extension))
+        direction = baseline.direction
+        tick_mark_extension_point_1 = self.start - direction * self.dimension_type.line_extension
+        tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
         x = direction
         y = Vector.rotate_XY(x, math.radians(90))
         z = Z_Axis
@@ -8011,36 +6967,6 @@ class FrameTag:
         self.text: str = "text"
         self.text_curves = None
         self.text_height = 100
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'scale': self.scale,
-            'cs': self.cs.serialize(),
-            'offset_x': self.offset_x,
-            'offset_y': self.offset_y,
-            'font_family': self.font_family,
-            'text': self.text,
-            'text_curves': self.text_curves,
-            'text_height': self.text_height
-        }
-
-    @staticmethod
-    def deserialize(data):
-        frame_tag = FrameTag()
-        frame_tag.scale = data.get('scale', 0.1)
-        frame_tag.cs = CoordinateSystem.deserialize(data['cs'])
-        frame_tag.offset_x = data.get('offset_x', 500)
-        frame_tag.offset_y = data.get('offset_y', 100)
-        frame_tag.font_family = data.get('font_family', "calibri")
-        frame_tag.text = data.get('text', "text")
-        frame_tag.text_curves = data.get('text_curves')
-        frame_tag.text_height = data.get('text_height', 100)
-
-        return frame_tag
 
     def __textobject(self):
         cstext = self.cs
@@ -8100,48 +7026,6 @@ class ColumnTag:
             self.height/self.factor, self.height+self.height/self.text_offset_factor, 0)
         self.text_curves = None
         # self.textobject()
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'width': self.width,
-            'height': self.height,
-            'factor': self.factor,
-            'scale': self.scale,
-            'position': self.position,
-            'cs': self.cs.serialize(),
-            'font_family': self.font_family,
-            'curves': [curve.serialize() for curve in self.curves],
-            'text': self.text,
-            'text_height': self.text_height,
-            'text_offset_factor': self.text_offset_factor,
-            'textoff_vector_local': self.textoff_vector_local.serialize(),
-            'text_curves': self.text_curves
-        }
-
-    @staticmethod
-    def deserialize(data):
-        column_tag = ColumnTag()
-        column_tag.width = data.get('width', 700)
-        column_tag.height = data.get('height', 500)
-        column_tag.factor = data.get('factor', 3)
-        column_tag.scale = data.get('scale', 0.1)
-        column_tag.position = data.get('position', "TL")
-        column_tag.cs = CoordinateSystem.deserialize(data['cs'])
-        column_tag.font_family = data.get('font_family', "calibri")
-        column_tag.curves = [Line.deserialize(
-            curve_data) for curve_data in data.get('curves', [])]
-        column_tag.text = data.get('text', "text")
-        column_tag.text_height = data.get('text_height', 100)
-        column_tag.text_offset_factor = data.get('text_offset_factor', 5)
-        column_tag.textoff_vector_local = Vector.deserialize(
-            data['textoff_vector_local'])
-        column_tag.text_curves = data.get('text_curves')
-
-        return column_tag
 
     def __leadercurves(self):
         self.startpoint = Point(0, 0, 0)
@@ -8206,35 +7090,6 @@ class GridheadType(Serializable):
         self.radius = self.diameter/2
         self.font_family = "calibri"
 
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'name': self.name,
-            'curves': [curve.serialize() for curve in self.curves],
-            'diameter': self.diameter,
-            'text_height': self.text_height,
-            'radius': self.radius,
-            'font_family': self.font_family
-        }
-
-    @staticmethod
-    def deserialize(data):
-        gridhead_type = GridheadType()
-        gridhead_type.id = data.get('id')
-        gridhead_type.type = data.get('type')
-        gridhead_type.name = data.get('name')
-        gridhead_type.curves = [Line.deserialize(curve_data) for curve_data in data.get(
-            'curves', [])]  # Adjust for your Curve class
-        gridhead_type.diameter = data.get('diameter', 150)
-        gridhead_type.text_height = data.get('text_height', 200)
-        gridhead_type.radius = data.get('radius', gridhead_type.diameter / 2)
-        gridhead_type.font_family = data.get('font_family', "calibri")
-
-        return gridhead_type
-
     def by_diam(self, name, diameter: float, font_family, text_height):
         self.name = name
         self.diameter = diameter
@@ -8271,41 +7126,6 @@ class GridHead:
         self.curves = []
         self.__textobject()
         self.__geom()
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'grid_name': self.grid_name,
-            'grid_head_type': self.grid_head_type.serialize(),
-            'radius': self.radius,
-            'CS': self.CS.serialize(),
-            'x': self.x,
-            'y': self.y,
-            'text_curves': [curve.serialize() for curve in self.text_curves],
-            'curves': [curve.serialize() for curve in self.curves]
-        }
-
-    @staticmethod
-    def deserialize(data):
-        grid_head = GridHead()
-        grid_head.id = data.get('id')
-        grid_head.type = data.get('type')
-        grid_head.grid_name = data.get('grid_name')
-        grid_head.grid_head_type = GridheadType.deserialize(
-            data['grid_head_type'])
-        grid_head.radius = data.get('radius', GHT50.radius)
-        grid_head.CS = CoordinateSystem.deserialize(data['CS'])
-        grid_head.x = data.get('x', 0.5)
-        grid_head.y = data.get('y', 0)
-        grid_head.text_curves = [Line.deserialize(
-            curve_data) for curve_data in data.get('text_curves', [])]
-        grid_head.curves = [Line.deserialize(
-            curve_data) for curve_data in data.get('curves', [])]
-
-        return grid_head
 
     def __geom(self):
         # CStot = CoordinateSystem.translate(self.CS,Vector(0,self.grid_head_type.radius,0))
@@ -8350,7 +7170,7 @@ class Grid:
         self.name = None
         self.bulbStart = False
         self.bulbEnd = True
-        self.cs_end: CoordinateSystem = CSGlobal
+        self.cs_end: CoordinateSystem = CSGlobal #Maarten
         self.grid_heads = []
 
     def __cs(self, line):
@@ -8412,31 +7232,6 @@ class GridSystem:
         self.gridsY = None
         self.dimensions = []
         self.name = None
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'gridsX': self.gridsX,
-            'gridsY': self.gridsY,
-            'dimensions': [dimension.serialize() for dimension in self.dimensions],
-            'name': self.name
-        }
-
-    @staticmethod
-    def deserialize(data):
-        grid_system = GridSystem()
-        grid_system.id = data.get('id')
-        grid_system.type = data.get('type')
-        grid_system.gridsX = data.get('gridsX')
-        grid_system.gridsY = data.get('gridsY')
-        grid_system.dimensions = [Dimension.deserialize(dim_data) for dim_data in data.get(
-            'dimensions', [])]  # Adjust for your Dimension class
-        grid_system.name = data.get('name')
-
-        return grid_system
 
     @classmethod
     def by_spacing_labels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
@@ -8550,6 +7345,7 @@ class Floor:
         self.points = None
         self.thickness = None
 
+
 class Level:
     def __init__(self):
         
@@ -8571,7 +7367,7 @@ class Level:
             if name != None:
                 Lvl.name = name
             return Lvl
-        elif point.type == "Point2D":
+        elif point.type == "Point":
             pass  # 0
 
     def __str__(self) -> str:
@@ -8587,37 +7383,6 @@ class WurksRaster3d(Serializable):
         self.top = None
         self.name = "x"
         self.lines = None
-
-    def serialize(self):
-        id_value = str(self.id) if not isinstance(
-            self.id, (str, int, float)) else self.id
-        return {
-            'id': id_value,
-            'type': self.type,
-            'bottom': self.bottom.serialize() if self.bottom else None,
-            'top': self.top.serialize() if self.top else None,
-            'name': self.name,
-            'lines': [line.serialize() for line in self.lines] if self.lines else None
-        }
-
-    @staticmethod
-    def deserialize(data):
-        wurks_raster3d = WurksRaster3d()
-        wurks_raster3d.id = data.get('id')
-        wurks_raster3d.type = data.get('type')
-        wurks_raster3d.bottom = Surface.deserialize(
-            data['bottom']) if 'bottom' in data else None
-        wurks_raster3d.top = Surface.deserialize(
-            data['top']) if 'top' in data else None
-        wurks_raster3d.name = data.get('name', "x")
-
-        if 'lines' in data and data['lines'] is not None:
-            wurks_raster3d.lines = [PolyCurve.deserialize(
-                line_data) for line_data in data['lines']]
-        else:
-            wurks_raster3d.lines = None
-
-        return wurks_raster3d
 
     def by_line(self, lines: Line, bottom: float, top: float):
         self.bottom = Vector(0, 0, bottom)
@@ -8751,7 +7516,6 @@ class Wall:
         self.faces = None
         # self.polycurve = None or self.profile
         self.parms = None
-        self.coordinatesystem: CoordinateSystem = CSGlobal
         self.colorlst = None
 
     @classmethod
@@ -8763,302 +7527,6 @@ class Wall:
 
     def __str__(self) -> str:
         return f"{self.type}(Name={self.name})"
-
-
-COMMANDS = set("MmZzLlHhVvCcSsQqTtAa")
-UPPERCASE = set("MZLHVCSQTA")
-
-COMMAND_RE = re.compile(r"([MmZzLlHhVvCcSsQqTtAa])")
-FLOAT_RE = re.compile(rb"^[-+]?\d*\.?\d*(?:[eE][-+]?\d+)?")
-
-
-class InvalidPathError(ValueError):
-    pass
-
-
-# The argument sequences from the grammar, made sane.
-# u: Non-negative number
-# s: Signed number or coordinate
-# c: coordinate-pair, which is two coordinates/numbers, separated by whitespace
-# f: A one character flag, doesn't need whitespace, 1 or 0
-ARGUMENT_SEQUENCE = {
-    "M": "c",
-    "Z": "",
-    "L": "c",
-    "H": "s",
-    "V": "s",
-    "C": "ccc",
-    "S": "cc",
-    "Q": "cc",
-    "T": "c",
-    "A": "uusffc",
-}
-
-
-def strip_array(arg_array):
-    """Strips whitespace and commas"""
-    # EBNF wsp:(#x20 | #x9 | #xD | #xA) + comma: 0x2C
-    while arg_array and arg_array[0] in (0x20, 0x9, 0xD, 0xA, 0x2C):
-        arg_array[0:1] = b""
-
-
-def pop_number(arg_array):
-    res = FLOAT_RE.search(arg_array)
-    if not res or not res.group():
-        raise InvalidPathError(f"Expected a number, got '{arg_array}'.")
-    number = float(res.group())
-    start = res.start()
-    end = res.end()
-    arg_array[start:end] = b""
-    strip_array(arg_array)
-
-    return number
-
-
-def pop_unsigned_number(arg_array):
-    number = pop_number(arg_array)
-    if number < 0:
-        raise InvalidPathError(f"Expected a non-negative number, got '{number}'.")
-    return number
-
-
-def pop_coordinate_pair(arg_array):
-    x = pop_number(arg_array)
-    y = pop_number(arg_array)
-    return complex(x, y)
-
-
-def pop_flag(arg_array):
-    flag = arg_array[0]
-    arg_array[0:1] = b""
-    strip_array(arg_array)
-    if flag == 48:  # ASCII 0
-        return False
-    if flag == 49:  # ASCII 1
-        return True
-
-
-FIELD_POPPERS = {
-    "u": pop_unsigned_number,
-    "s": pop_number,
-    "c": pop_coordinate_pair,
-    "f": pop_flag,
-}
-
-
-def _commandify_path(pathdef):
-    """Splits path into commands and arguments"""
-    token = None
-    for x in COMMAND_RE.split(pathdef):
-        x = x.strip()
-        if x in COMMANDS:
-            if token is not None:
-                yield token
-            if x in ("z", "Z"):
-                # The end command takes no arguments, so add a blank one
-                token = (x, "")
-            else:
-                token = (x,)
-        elif x:
-            if token is None:
-                raise InvalidPathError(f"Path does not start with a command: {pathdef}")
-            token += (x,)
-    yield token
-
-
-def _tokenize_path(pathdef):
-    for command, args in _commandify_path(pathdef):
-        # Shortcut this for the close command, that doesn't have arguments:
-        if command in ("z", "Z"):
-            yield (command,)
-            continue
-
-        # For the rest of the commands, we parse the arguments and
-        # yield one command per full set of arguments
-        arg_sequence = ARGUMENT_SEQUENCE[command.upper()]
-        arguments = bytearray(args, "ascii")
-        implicit = False
-        while arguments:
-            command_arguments = []
-            for i, arg in enumerate(arg_sequence):
-                try:
-                    command_arguments.append(FIELD_POPPERS[arg](arguments))
-                except InvalidPathError as e:
-                    if i == 0 and implicit:
-                        return  # Invalid character in path, treat like a comment
-                    raise InvalidPathError(
-                        f"Invalid path element {command} {args}"
-                    ) from e
-
-            yield (command,) + tuple(command_arguments)
-            implicit = True
-
-            # Implicit Moveto commands should be treated as Lineto commands.
-            if command == "m":
-                command = "l"
-            elif command == "M":
-                command = "L"
-
-
-def parse_path(pathdef):
-    segments = path.Path()
-    start_pos = None
-    last_command = None
-    current_pos = 0
-
-    for token in _tokenize_path(pathdef):
-        command = token[0]
-        relative = command.islower()
-        command = command.upper()
-        if command == "M":
-            pos = token[1]
-            if relative:
-                current_pos += pos
-            else:
-                current_pos = pos
-            segments.append(path.Move(current_pos, relative=relative))
-            start_pos = current_pos
-
-        elif command == "Z":
-            # For Close commands the "relative" argument just preserves case,
-            # it has no different in behavior.
-            segments.append(path.Close(current_pos, start_pos, relative=relative))
-            current_pos = start_pos
-
-        elif command == "L":
-            pos = token[1]
-            if relative:
-                pos += current_pos
-            segments.append(path.Line(current_pos, pos, relative=relative))
-            current_pos = pos
-
-        elif command == "H":
-            hpos = token[1]
-            if relative:
-                hpos += current_pos.real
-            pos = complex(hpos, current_pos.imag)
-            segments.append(
-                path.Line(current_pos, pos, relative=relative, horizontal=True)
-            )
-            current_pos = pos
-
-        elif command == "V":
-            vpos = token[1]
-            if relative:
-                vpos += current_pos.imag
-            pos = complex(current_pos.real, vpos)
-            segments.append(
-                path.Line(current_pos, pos, relative=relative, vertical=True)
-            )
-            current_pos = pos
-
-        elif command == "C":
-            control1 = token[1]
-            control2 = token[2]
-            end = token[3]
-
-            if relative:
-                control1 += current_pos
-                control2 += current_pos
-                end += current_pos
-
-            segments.append(
-                path.CubicBezier(
-                    current_pos, control1, control2, end, relative=relative
-                )
-            )
-            current_pos = end
-
-        elif command == "S":
-            # Smooth curve. First control point is the "reflection" of
-            # the second control point in the previous path.
-            control2 = token[1]
-            end = token[2]
-
-            if relative:
-                control2 += current_pos
-                end += current_pos
-
-            if last_command in "CS":
-                # The first control point is assumed to be the reflection of
-                # the second control point on the previous command relative
-                # to the current point.
-                control1 = current_pos + current_pos - segments[-1].control2
-            else:
-                # If there is no previous command or if the previous command
-                # was not an C, c, S or s, assume the first control point is
-                # coincident with the current point.
-                control1 = current_pos
-
-            segments.append(
-                path.CubicBezier(
-                    current_pos, control1, control2, end, relative=relative, smooth=True
-                )
-            )
-            current_pos = end
-
-        elif command == "Q":
-            control = token[1]
-            end = token[2]
-
-            if relative:
-                control += current_pos
-                end += current_pos
-
-            segments.append(
-                path.QuadraticBezier(current_pos, control, end, relative=relative)
-            )
-            current_pos = end
-
-        elif command == "T":
-            # Smooth curve. Control point is the "reflection" of
-            # the second control point in the previous path.
-            end = token[1]
-
-            if relative:
-                end += current_pos
-
-            if last_command in "QT":
-                # The control point is assumed to be the reflection of
-                # the control point on the previous command relative
-                # to the current point.
-                control = current_pos + current_pos - segments[-1].control
-            else:
-                # If there is no previous command or if the previous command
-                # was not an Q, q, T or t, assume the first control point is
-                # coincident with the current point.
-                control = current_pos
-
-            segments.append(
-                path.QuadraticBezier(
-                    current_pos, control, end, smooth=True, relative=relative
-                )
-            )
-            current_pos = end
-
-        elif command == "A":
-            # For some reason I implemented the Arc with a complex radius.
-            # That doesn't really make much sense, but... *shrugs*
-            radius = complex(token[1], token[2])
-            rotation = token[3]
-            arc = token[4]
-            sweep = token[5]
-            end = token[6]
-
-            if relative:
-                end += current_pos
-
-            segments.append(
-                path.Arc(
-                    current_pos, radius, rotation, arc, sweep, end, relative=relative
-                )
-            )
-            current_pos = end
-
-        # Finish up the loop in preparation for next command
-        last_command = command
-
-    return segments
 
 
 MIN_DEPTH = 5
@@ -9739,4 +8207,300 @@ class Path(MutableSequence):
             previous_segment = segment
 
         return " ".join(parts)
+
+
+COMMANDS = set("MmZzLlHhVvCcSsQqTtAa")
+UPPERCASE = set("MZLHVCSQTA")
+
+COMMAND_RE = re.compile(r"([MmZzLlHhVvCcSsQqTtAa])")
+FLOAT_RE = re.compile(rb"^[-+]?\d*\.?\d*(?:[eE][-+]?\d+)?")
+
+
+class InvalidPathError(ValueError):
+    pass
+
+
+# The argument sequences from the grammar, made sane.
+# u: Non-negative number
+# s: Signed number or coordinate
+# c: coordinate-pair, which is two coordinates/numbers, separated by whitespace
+# f: A one character flag, doesn't need whitespace, 1 or 0
+ARGUMENT_SEQUENCE = {
+    "M": "c",
+    "Z": "",
+    "L": "c",
+    "H": "s",
+    "V": "s",
+    "C": "ccc",
+    "S": "cc",
+    "Q": "cc",
+    "T": "c",
+    "A": "uusffc",
+}
+
+
+def strip_array(arg_array):
+    """Strips whitespace and commas"""
+    # EBNF wsp:(#x20 | #x9 | #xD | #xA) + comma: 0x2C
+    while arg_array and arg_array[0] in (0x20, 0x9, 0xD, 0xA, 0x2C):
+        arg_array[0:1] = b""
+
+
+def pop_number(arg_array):
+    res = FLOAT_RE.search(arg_array)
+    if not res or not res.group():
+        raise InvalidPathError(f"Expected a number, got '{arg_array}'.")
+    number = float(res.group())
+    start = res.start()
+    end = res.end()
+    arg_array[start:end] = b""
+    strip_array(arg_array)
+
+    return number
+
+
+def pop_unsigned_number(arg_array):
+    number = pop_number(arg_array)
+    if number < 0:
+        raise InvalidPathError(f"Expected a non-negative number, got '{number}'.")
+    return number
+
+
+def pop_coordinate_pair(arg_array):
+    x = pop_number(arg_array)
+    y = pop_number(arg_array)
+    return complex(x, y)
+
+
+def pop_flag(arg_array):
+    flag = arg_array[0]
+    arg_array[0:1] = b""
+    strip_array(arg_array)
+    if flag == 48:  # ASCII 0
+        return False
+    if flag == 49:  # ASCII 1
+        return True
+
+
+FIELD_POPPERS = {
+    "u": pop_unsigned_number,
+    "s": pop_number,
+    "c": pop_coordinate_pair,
+    "f": pop_flag,
+}
+
+
+def _commandify_path(pathdef):
+    """Splits path into commands and arguments"""
+    token = None
+    for x in COMMAND_RE.split(pathdef):
+        x = x.strip()
+        if x in COMMANDS:
+            if token is not None:
+                yield token
+            if x in ("z", "Z"):
+                # The end command takes no arguments, so add a blank one
+                token = (x, "")
+            else:
+                token = (x,)
+        elif x:
+            if token is None:
+                raise InvalidPathError(f"Path does not start with a command: {pathdef}")
+            token += (x,)
+    yield token
+
+
+def _tokenize_path(pathdef):
+    for command, args in _commandify_path(pathdef):
+        # Shortcut this for the close command, that doesn't have arguments:
+        if command in ("z", "Z"):
+            yield (command,)
+            continue
+
+        # For the rest of the commands, we parse the arguments and
+        # yield one command per full set of arguments
+        arg_sequence = ARGUMENT_SEQUENCE[command.upper()]
+        arguments = bytearray(args, "ascii")
+        implicit = False
+        while arguments:
+            command_arguments = []
+            for i, arg in enumerate(arg_sequence):
+                try:
+                    command_arguments.append(FIELD_POPPERS[arg](arguments))
+                except InvalidPathError as e:
+                    if i == 0 and implicit:
+                        return  # Invalid character in path, treat like a comment
+                    raise InvalidPathError(
+                        f"Invalid path element {command} {args}"
+                    ) from e
+
+            yield (command,) + tuple(command_arguments)
+            implicit = True
+
+            # Implicit Moveto commands should be treated as Lineto commands.
+            if command == "m":
+                command = "l"
+            elif command == "M":
+                command = "L"
+
+
+def parse_path(pathdef):
+    segments = path.Path()
+    start_pos = None
+    last_command = None
+    current_pos = 0
+
+    for token in _tokenize_path(pathdef):
+        command = token[0]
+        relative = command.islower()
+        command = command.upper()
+        if command == "M":
+            pos = token[1]
+            if relative:
+                current_pos += pos
+            else:
+                current_pos = pos
+            segments.append(path.Move(current_pos, relative=relative))
+            start_pos = current_pos
+
+        elif command == "Z":
+            # For Close commands the "relative" argument just preserves case,
+            # it has no different in behavior.
+            segments.append(path.Close(current_pos, start_pos, relative=relative))
+            current_pos = start_pos
+
+        elif command == "L":
+            pos = token[1]
+            if relative:
+                pos += current_pos
+            segments.append(path.Line(current_pos, pos, relative=relative))
+            current_pos = pos
+
+        elif command == "H":
+            hpos = token[1]
+            if relative:
+                hpos += current_pos.real
+            pos = complex(hpos, current_pos.imag)
+            segments.append(
+                path.Line(current_pos, pos, relative=relative, horizontal=True)
+            )
+            current_pos = pos
+
+        elif command == "V":
+            vpos = token[1]
+            if relative:
+                vpos += current_pos.imag
+            pos = complex(current_pos.real, vpos)
+            segments.append(
+                path.Line(current_pos, pos, relative=relative, vertical=True)
+            )
+            current_pos = pos
+
+        elif command == "C":
+            control1 = token[1]
+            control2 = token[2]
+            end = token[3]
+
+            if relative:
+                control1 += current_pos
+                control2 += current_pos
+                end += current_pos
+
+            segments.append(
+                path.CubicBezier(
+                    current_pos, control1, control2, end, relative=relative
+                )
+            )
+            current_pos = end
+
+        elif command == "S":
+            # Smooth curve. First control point is the "reflection" of
+            # the second control point in the previous path.
+            control2 = token[1]
+            end = token[2]
+
+            if relative:
+                control2 += current_pos
+                end += current_pos
+
+            if last_command in "CS":
+                # The first control point is assumed to be the reflection of
+                # the second control point on the previous command relative
+                # to the current point.
+                control1 = current_pos + current_pos - segments[-1].control2
+            else:
+                # If there is no previous command or if the previous command
+                # was not an C, c, S or s, assume the first control point is
+                # coincident with the current point.
+                control1 = current_pos
+
+            segments.append(
+                path.CubicBezier(
+                    current_pos, control1, control2, end, relative=relative, smooth=True
+                )
+            )
+            current_pos = end
+
+        elif command == "Q":
+            control = token[1]
+            end = token[2]
+
+            if relative:
+                control += current_pos
+                end += current_pos
+
+            segments.append(
+                path.QuadraticBezier(current_pos, control, end, relative=relative)
+            )
+            current_pos = end
+
+        elif command == "T":
+            # Smooth curve. Control point is the "reflection" of
+            # the second control point in the previous path.
+            end = token[1]
+
+            if relative:
+                end += current_pos
+
+            if last_command in "QT":
+                # The control point is assumed to be the reflection of
+                # the control point on the previous command relative
+                # to the current point.
+                control = current_pos + current_pos - segments[-1].control
+            else:
+                # If there is no previous command or if the previous command
+                # was not an Q, q, T or t, assume the first control point is
+                # coincident with the current point.
+                control = current_pos
+
+            segments.append(
+                path.QuadraticBezier(
+                    current_pos, control, end, smooth=True, relative=relative
+                )
+            )
+            current_pos = end
+
+        elif command == "A":
+            # For some reason I implemented the Arc with a complex radius.
+            # That doesn't really make much sense, but... *shrugs*
+            radius = complex(token[1], token[2])
+            rotation = token[3]
+            arc = token[4]
+            sweep = token[5]
+            end = token[6]
+
+            if relative:
+                end += current_pos
+
+            segments.append(
+                path.Arc(
+                    current_pos, radius, rotation, arc, sweep, end, relative=relative
+                )
+            )
+            current_pos = end
+
+        # Finish up the loop in preparation for next command
+        last_command = command
+
+    return segments
 
