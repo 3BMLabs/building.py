@@ -7,8 +7,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from geometry.curve import *
-from objects.void import *
-from objects.datum import *
+from construction.void import *
+from construction.datum import *
 from exchange.IFC import *
 
 

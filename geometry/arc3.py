@@ -9,7 +9,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 import math
 from geometry.curve import Line
 from geometry.point import Point
-from abstract.vector import Vector
+from geometry.vector import Vector
 from geometry.coords import z_axis
 
 class Arc3(Line):

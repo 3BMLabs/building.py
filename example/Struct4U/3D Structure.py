@@ -5,10 +5,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from project.fileformat import *
-from objects.frame import Frame
-from objects.analytical import *
-from objects.panel import *
-from objects.datum import *
+from construction.frame import Frame
+from construction.analytical import *
+from construction.panel import *
+from construction.datum import *
 from library.profile import *
 from exchange.struct4U import *
 from library.material import *

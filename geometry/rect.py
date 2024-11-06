@@ -38,9 +38,9 @@ from typing import Self
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.shape import Shape
+from geometry.shape import Shape
 from packages.helper import *
-from abstract.vector import Vector
+from geometry.vector import Vector
 from geometry.point import Point
 from abstract.serializable import Serializable
 

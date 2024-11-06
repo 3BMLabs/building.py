@@ -1,5 +1,5 @@
-from objects.datum import *
-from objects.panel import *
+from construction.datum import *
+from construction.panel import *
 from geometry.systemsimple import *
 from abstract.color import *
 

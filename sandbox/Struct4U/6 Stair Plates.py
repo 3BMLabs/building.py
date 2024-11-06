@@ -1,9 +1,9 @@
 from exchange.speckle import *
-from objects.panel import *
-from objects.frame import *
-from objects.datum import *
+from construction.panel import *
+from construction.frame import *
+from construction.datum import *
 from exchange.struct4U import *
-from abstract.vector import *
+from geometry.vector import *
 from abstract.coordinatesystem import *
 
 file = Path(__file__).resolve()

@@ -33,16 +33,16 @@ import sys
 from pathlib import Path
 from typing import Self, Union
 
-from abstract.shape import Shape
-from abstract.vector import Vector
+from geometry.shape import Shape
+from geometry.vector import Vector
 from geometry.coords import to_array
 from geometry.pointlist import PointList
 from packages.helper import flatten
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.rect import Rect
-from abstract.plane import Plane
+from geometry.rect import Rect
+from geometry.plane import Plane
 from geometry.point import Point
 from abstract.serializable import Serializable
 

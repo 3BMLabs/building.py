@@ -1,6 +1,7 @@
 import math
-from abstract.matrix import Matrix
-from abstract.vector import Vector
+from geometry.matrix import Matrix
+from geometry.sphere import Sphere
+from geometry.vector import Vector
 from geometry.coords import x_axis, y_axis
 from geometry.point import Point
 
@@ -18,20 +19,6 @@ class Curve:
 class Arc(Curve):
 	def __init__(self, matrix:Matrix, angle:float) -> None:
 		self.matrix, self.angle = matrix, angle
-	
-	@staticmethod
-	def radius_by_3_points(start:float, mid: float, end: float) -> float:
-		a = Point.distance(start, mid)
-		b = Point.distance(mid, end)
-		c = Point.distance(end, start)
-		s = (a + b + c) / 2
-		A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
-				
-		if abs(A) < 1e-6:
-			return float('inf')
-		else:
-			R = (a * b * c) / (4 * A)
-			return R
  
 	@staticmethod
 	def by_start_mid_end(self, start: Point, end: Point, mid: Point) -> 'Arc':
@@ -42,7 +29,7 @@ class Arc(Curve):
 		start_to_end = end - start
 		half_start_end = start_to_end * 0.5
 		b = half_start_end.magnitude
-		radius = Arc.radius_by_3_points(start, mid, end)
+		radius = Sphere.radius_by_3_points(start, mid, end)
 		x = math.sqrt(radius * radius - b * b)
 		#mid point as if this was a straight line
 		straight_line_mid = start + half_start_end

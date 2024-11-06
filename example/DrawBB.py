@@ -3,9 +3,9 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.vector import Vector
+from geometry.vector import Vector
 from project.fileformat import BuildingPy
-from abstract.rect import Rect
+from geometry.rect import Rect
 
 project = BuildingPy("BoundingBoxes from Revit","1")
 bb = Rect()

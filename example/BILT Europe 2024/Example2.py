@@ -4,8 +4,8 @@ from typing import Union
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from objects.frame import *
-from objects.floor import *
+from construction.frame import *
+from construction.floor import *
 from exchange.speckle import *
 from project.fileformat import *
 

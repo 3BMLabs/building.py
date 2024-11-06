@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from objects.frame import *
+from construction.frame import *
 from exchange.IFC import *
 
 # filepath = f"C:/Users/Jonathan/Documents/GitHub/building.py/sandbox/IFC/models/B60_B_TVA_rooms.ifczip"

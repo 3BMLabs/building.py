@@ -34,7 +34,7 @@ __url__ = "./objects/annotation.py"
 import sys
 from pathlib import Path
 
-from abstract.vector import Vector
+from geometry.vector import Vector
 
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))

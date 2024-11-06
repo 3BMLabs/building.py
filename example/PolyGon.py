@@ -3,15 +3,15 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from objects.panel import *
-from objects.frame import *
-from objects.profile import *
+from construction.panel import *
+from construction.frame import *
+from construction.profile import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
 from library.profile import nameToProfile
 from geometry.surface import Surface
-from objects.annotation import *
+from construction.annotation import *
 from abstract.intersect2d import *
 from geometry.systemsimple import *
 

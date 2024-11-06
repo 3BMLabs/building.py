@@ -1,7 +1,7 @@
 from pathfixer import *
 from exchange.struct4U import *
-from objects.frame import *
-from objects.analytical import *
+from construction.frame import *
+from construction.analytical import *
 
 project = BuildingPy("Steelstructure","0")
 

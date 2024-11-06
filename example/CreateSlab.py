@@ -11,9 +11,9 @@ from geometry.point import Point
 from geometry.surface import *
 from exchange.DXF import *
 from exchange.IFC import *
-from objects.frame import *
-from objects.datum import *
-from objects.floor import *
+from construction.frame import *
+from construction.datum import *
+from construction.floor import *
 
 
 point1 = Point(0, 0, 0)

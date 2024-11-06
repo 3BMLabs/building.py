@@ -39,7 +39,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.linestyle import *
 from geometry.curve import *
-from objects.annotation import *
+from construction.annotation import *
 
 # [!not included in BP singlefile - end]
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"

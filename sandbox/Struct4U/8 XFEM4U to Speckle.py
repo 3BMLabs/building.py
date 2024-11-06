@@ -1,6 +1,6 @@
 from exchange.struct4U import *
 from exchange.speckle import *
-from objects.frame import *
+from construction.frame import *
 import xml.etree.ElementTree as ET
 from library.material import *
 

@@ -12,12 +12,12 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from geometry.curve import *
 from geometry.solid import *
 from project.fileformat import BuildingPy
-from objects.level import Level
-from objects.wall import Wall
-from objects.door import Door
-from objects.room import Room
+from construction.level import Level
+from construction.wall import Wall
+from construction.door import Door
+from construction.room import Room
 from geometry.surface import Surface
-from abstract.matrix import *
+from geometry.matrix import *
 
 
 class LoadIFC:

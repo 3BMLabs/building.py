@@ -174,3 +174,9 @@ def xmldata(myurl, xPathStrings):
             xPathResulttemp2.append(xPathResult.text)
         xPathResults.append(xPathResulttemp2)
     return xPathResults
+
+
+@staticmethod
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+    return (255 << 24) | (r << 16) | (g << 8) | b

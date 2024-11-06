@@ -7,22 +7,22 @@ import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from objects.panel import *
-from objects.frame import *
-from objects.profile import *
+from construction.panel import *
+from construction.frame import *
+from construction.profile import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
 from library.profile import nameToProfile
-from objects.annotation import *
+from construction.annotation import *
 from geometry.solid import *
 from exchange.DXF import *
 from abstract.intersect2d import is_polycurve_in_polycurve
 from packages.helper import flatten
 
 from geometry.point import *
-from abstract.vector import *
-from abstract.matrix import *
+from geometry.vector import *
+from geometry.matrix import *
 from geometry.surface import *
 
 project = BuildingPy("DXF","0001") 

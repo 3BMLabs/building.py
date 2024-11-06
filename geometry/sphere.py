@@ -23,57 +23,50 @@
 # *                                                                         *
 # ***************************************************************************
 
-
-"""This module provides tools to create a PointList
+"""This module contains sphere math
 """
 
-__title__ = "PointList"
-__author__ = "Maarten & Jonathan"
-__url__ = "./geometry/PointList.py"
 
+__title__ = "sphere"
+__author__ = "JohnHeikens"
+__url__ = "./geometry/sphere.py"
 
-import operator
+import math
 import sys
 from pathlib import Path
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
-
-from geometry.rect import Rect
 from geometry.vector import Vector
-from packages.helper import *
 
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+from abstract.text import *
+
+from geometry.curve import Line
 # [!not included in BP singlefile - end]
-class PointList(Vector[Vector]):
-    """Represents a collection of points in space as a point cloud."""
-    
-    def __init__(self, points: list) -> 'PointList':
-        """Initializes a PointList object with a list of points.
 
-        #### Parameters:
-        - `points` (list): An optional list of points to initialize the point cloud. Each point can be an instance of a Point class or a tuple/list of coordinates.
+from abstract.serializable import Serializable
+from geometry.point import Point
 
-        Initializes the PointList's attributes and sets up the list of points based on the input provided. The ID is generated to uniquely identify the point cloud.
-        """
-        super().__init__(points)
+
+class Sphere(Serializable):
+	def __init__(self, point:Point, diameter:int):
+		self.point = point
+		self.diameter = diameter
         
-    
-    #just execute the operator for all list members
-    def operate_2(self, op:operator, other):
-        return self.__class__([self[index].operate_2(op, other) for index in range(len(self))])
-    
-    def ioperate_2(self, op:operator, other):
-        for index in range(len(self)):
-            self[index].ioperate_2(op, other)
-        return self
+	def __str__(self) -> str:
+		return str(Sphere)
 
-    def operate_1(self, op:operator):
-        return self.__class__([self[index].operate_1(op) for index in range(len(self))])
-    
-    @property
-    def bounds(self) -> 'Rect':
-        return Rect.by_points(self)
-
-#alternative naming
-PointCloud = PointList
+	@staticmethod
+	def radius_by_3_points(start:float, mid: float, end: float) -> float:
+		a = Point.distance(start, mid)
+		b = Point.distance(mid, end)
+		c = Point.distance(end, start)
+		s = (a + b + c) / 2
+		A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+				
+		if abs(A) < 1e-6:
+			return float('inf')
+		else:
+			R = (a * b * c) / (4 * A)
+			return R

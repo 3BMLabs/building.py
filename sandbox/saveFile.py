@@ -5,10 +5,10 @@ from collections import defaultdict
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from objects.frame import *
+from construction.frame import *
 from exchange.scia import *
 
-from objects.analytical import *
+from construction.analytical import *
 from project.fileformat import BuildingPy
 
 filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\_1.xml"

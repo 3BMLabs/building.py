@@ -221,7 +221,7 @@ class Point:
 
     @staticmethod
     def difference(pointxyz1, pointxyz2):
-        from abstract.vector import Vector
+        from geometry.vector import Vector
         return Vector(
             pointxyz2.x - pointxyz1.x,
             pointxyz2.y - pointxyz1.y,
@@ -255,7 +255,7 @@ class Point:
 
     @staticmethod
     def to_vector(point1):
-        from abstract.vector import Vector
+        from geometry.vector import Vector
         return Vector(
             point1.x,
             point1.y,
@@ -364,7 +364,7 @@ CSGlobal = CoordinateSystem(Point(0, 0, 0), X_axis, Y_Axis, Z_Axis)
 
 def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, NewOriginCoordinateSystem: Point,
                    DirectionVector):
-    from abstract.vector import Vector
+    from geometry.vector import Vector
     vz = DirectionVector  # LineVector and new Z-axis
     vz = Vector.normalize(vz)  # NewZAxis
     vx = Vector.perpendicular(vz)[0]  # NewXAxis
@@ -391,7 +391,7 @@ def transform_point(PointLocal: Point, CoordinateSystemOld: CoordinateSystem, Ne
 def transform_point_2(PointLocal: Point, CoordinateSystemNew: CoordinateSystem):
     # Transfrom point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
-    from abstract.vector import Vector
+    from geometry.vector import Vector
     pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(CoordinateSystemNew.Xaxis, PointLocal.x))
     pn2 = Point.translate(pn, Vector.scale(CoordinateSystemNew.Y_axis, PointLocal.y))
     pn3 = Point.translate(pn2, Vector.scale(CoordinateSystemNew.Z_axis, PointLocal.z))
@@ -501,7 +501,7 @@ class Point2D:
 def transform_point_2D(PointLocal1: Point2D, CoordinateSystemNew: CoordinateSystem):
     # Transform point from Global Coordinatesystem to a new Coordinatesystem
     # CSold = CSGlobal
-    from abstract.vector import Vector
+    from geometry.vector import Vector
     from geometry.point import Point
     PointLocal = Point(PointLocal1.x, PointLocal1.y, 0)
     pn = Point.translate(CoordinateSystemNew.Origin, Vector.scale(CoordinateSystemNew.Xaxis, PointLocal.x))

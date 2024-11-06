@@ -41,7 +41,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point
 from geometry.curve import Line
-from objects.frame import *
+from construction.frame import *
 from exchange.scia import *
 
 # [!not included in BP singlefile - end]

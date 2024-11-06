@@ -42,10 +42,10 @@ from geometry.pointlist import PointList
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.rect import Rect
+from geometry.rect import Rect
 from geometry.point import Point
 from geometry.curve import Line
-from abstract.vector import *
+from geometry.vector import *
 from typing import Self
 
 # [!not included in BP singlefile - end]

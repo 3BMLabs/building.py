@@ -1,9 +1,9 @@
-from objects.panel import *
-from objects.frame import *
-from objects.profile import *
+from construction.panel import *
+from construction.frame import *
+from construction.profile import *
 from exchange.speckle import *
 from project import fileformat
-from objects.datum import *
+from construction.datum import *
 from geometry.systemsimple import *
 
 project = BuildingPy("Project Aanbouw","0")

@@ -39,9 +39,9 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from abstract.node import *
-from objects.shape3d import *
-from objects.frame import *
-from objects.analytical import *
+from construction.shape3d import *
+from construction.frame import *
+from construction.analytical import *
 from project.fileformat import BuildingPy
 
 # [!not included in BP singlefile - end]

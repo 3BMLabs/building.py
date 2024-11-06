@@ -43,13 +43,13 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from BuildingPy import Matrix
-from abstract.plane import Plane
-from abstract.rect import Rect
-from abstract.vector import Vector
+from geometry.plane import Plane
+from geometry.rect import Rect
+from geometry.vector import Vector
 from geometry.curve import PolyCurve
 from geometry.point import Point
 from packages.helper import flatten, generateID
-from objects.profile import Profile
+from construction.profile import Profile
 # [!not included in BP singlefile - end]
 
 

@@ -5,10 +5,10 @@ from bisect import bisect, bisect_left, bisect_right, insort_left
 from functools import cmp_to_key
 from math import inf
 import math
-from abstract.rect import Rect
+from geometry.rect import Rect
 from geometry.coords import Coords
 from geometry.curve import PolyCurve, Line, Polygon
-from abstract.vector import Vector
+from geometry.vector import Vector
 
 #compare: a function which should return true if the compared element is less than the search value, when sorted ascending.
 #for e

@@ -38,10 +38,10 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.rect import *
-from objects.panel import *
-from objects.frame import *
-from objects.profile import *
+from geometry.rect import *
+from construction.panel import *
+from construction.frame import *
+from construction.profile import *
 from abstract.interval import *
 
 # [!not included in BP singlefile - end]

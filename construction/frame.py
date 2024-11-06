@@ -41,8 +41,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from library.profile import *
 from library.profile import nameToProfile, justificationToVector
 from library.material import *
-from abstract.vector import *
-from objects import profile
+from geometry.vector import *
+from construction import profile
 
 from abstract.node import *
 from geometry.solid import *

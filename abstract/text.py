@@ -37,7 +37,7 @@ from pathlib import Path
 from typing import List
 import json
 
-from abstract.rect import Rect
+from geometry.rect import Rect
 from geometry.point import Point, transform_point_2
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))

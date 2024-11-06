@@ -8,8 +8,8 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from geometry.point import *
-from abstract.vector import *
-from abstract.matrix import *
+from geometry.vector import *
+from geometry.matrix import *
 
 
 model = ifcopenshell.file()

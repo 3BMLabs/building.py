@@ -34,7 +34,7 @@ __url__ = "./exchange/speckle.py"
 import sys
 from pathlib import Path
 
-from abstract.rect import Rect
+from geometry.rect import Rect
 from geometry.mesh import Mesh
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))

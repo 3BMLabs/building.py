@@ -38,7 +38,7 @@ from typing import Any, List
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import Point as pnt
-from abstract.vector import *
+from geometry.vector import *
 
 # [!not included in BP singlefile - end]
 

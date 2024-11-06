@@ -7,12 +7,12 @@ import copy
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.matrix import Matrix
+from geometry.matrix import Matrix
 import tkinter as tk
 import geometry.shape_fitter as sf
-from abstract.vector import Vector
+from geometry.vector import Vector
 from geometry.coords import Coords
-from abstract.rect import Rect
+from geometry.rect import Rect
 from geometry.point import Point
 from geometry.curve import Line, Polygon
 from shape_fitter_test_data import test_data

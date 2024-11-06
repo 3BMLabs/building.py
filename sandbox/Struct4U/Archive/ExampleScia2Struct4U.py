@@ -3,11 +3,11 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[3]))
 
-from objects.frame import *
+from construction.frame import *
 from exchange.scia import *
 from exchange.struct4U import *
 
-from objects.analytical import *
+from construction.analytical import *
 from project.fileformat import BuildingPy
 
 filepath = f"{os.getcwd()}\\temp\\Scia\\Examples buildingpy\\_2.xml"

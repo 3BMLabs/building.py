@@ -16,10 +16,10 @@ package_root_directory = "C:/Users/mikev/Documents/GitHub/building.py/"
 sys.path.append(str(package_root_directory))
 
 # Building Py Imports
-from objects.frame import *
-from objects.profile import *
+from construction.frame import *
+from construction.profile import *
 from project.fileformat import *
-from objects.datum import *
+from construction.datum import *
 # from exchange.Freecad_Bupy import *
 # importlib.reload(GIS2BIM_GUI)
 # importlib.reload(GIS2BIM_FreeCAD)

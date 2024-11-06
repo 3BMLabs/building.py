@@ -6,19 +6,19 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from objects.panel import *
-from objects.frame import *
-from objects.shape3d import *
-from objects.datum import *
+from construction.panel import *
+from construction.frame import *
+from construction.shape3d import *
+from construction.datum import *
 from geometry.linestyle import *
 from geometry.curve import *
 from abstract.text import *
 from geometry.point import Point
 from exchange.speckle import *
 from abstract.color import *
-from abstract.plane import *
+from geometry.plane import *
 from geometry.solid import Extrusion
-from abstract.rect import Rect
+from geometry.rect import Rect
 
 # INITIALIZE
 pnt1 = Point(0, 0, 0)

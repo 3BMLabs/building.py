@@ -6,10 +6,10 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from geometry.point import *
 from geometry.curve import Line, PolyCurve
-from objects.frame import *
+from construction.frame import *
 from exchange.scia import *
 
-from objects.analytical import *
+from construction.analytical import *
 # from exchange.speckle import *
 from project.fileformat import BuildingPy
 

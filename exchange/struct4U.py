@@ -28,12 +28,12 @@
 """
 
 from BuildingPy import Support
-from objects.datum import *
-from objects.panel import *
+from construction.datum import *
+from construction.panel import *
 from exchange.speckle import *
 from geometry.curve import *
 from abstract.node import *
-from objects.frame import Frame
+from construction.frame import Frame
 import xml.etree.ElementTree as ET
 __title__ = "XFEM4U"
 __author__ = "Maarten & Jonathan"

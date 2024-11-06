@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[3]))
 
-from objects.frame import *
+from construction.frame import *
 from exchange.IFC import *
 from exchange.struct4U import *
 

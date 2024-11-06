@@ -37,7 +37,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.vector import *
+from geometry.vector import *
 from geometry.curve import *
 
 

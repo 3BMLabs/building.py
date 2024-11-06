@@ -26,12 +26,12 @@ import math
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-from objects.datum import *
-from objects.panel import *
+from construction.datum import *
+from construction.panel import *
 from exchange.speckle import *
 from geometry.curve import *
 from abstract.node import *
-from objects.frame import *
+from construction.frame import *
 from exchange.speckle import *
 
 #Proof of Concept of Wood Frame Wall

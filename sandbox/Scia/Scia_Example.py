@@ -3,10 +3,10 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from objects.frame import *
+from construction.frame import *
 from exchange.scia import *
 
-from objects.analytical import *
+from construction.analytical import *
 
 filepath = f"{os.getcwd()}\\sandbox\\Scia\\Projects\\Scia_Construction_1.xml"
 

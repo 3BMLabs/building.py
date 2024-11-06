@@ -6,11 +6,11 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from exchange.speckle import *
-from objects.datum import *
-from objects.frame import *
+from construction.datum import *
+from construction.frame import *
 from packages.helper import *
 from geometry.point import *
-from abstract.vector import Vector
+from geometry.vector import Vector
 #Proof of Concept modules
 
 # GridSystem

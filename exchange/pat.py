@@ -33,7 +33,7 @@ __url__ = "./exchange/pat.py"
 
 import math
 from geometry.linestyle import *
-from objects.panel import *
+from construction.panel import *
 # [!not included in BP singlefile - end]
 
 Patprefix = ';%UNITS=MM' \
