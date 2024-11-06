@@ -13,7 +13,7 @@ from library.profile import nameToProfile
 from objects.annotation import *
 from abstract.intersect2d import *
 from geometry.systemsimple import *
-from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
+
 from exchange.pat import *
 
 project = BuildingPy("Split and Intersect examples","0")
@@ -25,7 +25,7 @@ p3 = Point(2000,6500,0)
 p4 = Point(4000,3000,0)
 p5 = Point(4000,0,0)
 
-PC1 = PolyCurve2D.by_points([p1,p2,p3,p4,p5])
+PC1 = PolyCurve.by_points([p1,p2,p3,p4,p5])
 project.objects.append(PC1)
 
 #MULTI PATROON
@@ -38,7 +38,7 @@ test_res = pattern_geom(test2, 5400, 7500, Point(-1000, -1000, 0))
 for index, line in enumerate(PC1.curves):
     for p, i in enumerate(test_res):
 
-        PCPanel = PolyCurve2D.from_polycurve_3D(i.extrusion.polycurve_3d_translated)
+        PCPanel = PolyCurve.from_polycurve_3D(i.extrusion.polycurve_3d_translated)
 
         x = split_polycurve_by_line(PCPanel, line)
 

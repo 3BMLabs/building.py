@@ -14,7 +14,7 @@ from geometry.surface import Surface
 from objects.annotation import *
 from abstract.intersect2d import *
 from geometry.systemsimple import *
-from geometry.geometry2d import Vector2, Point2D, Line2D, PolyCurve2D
+
 
 
 project = BuildingPy("Polygon, to Surface and DXF to Ifc","0")

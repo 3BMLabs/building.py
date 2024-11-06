@@ -26,7 +26,7 @@ xmin = bounds[0] - dx
 ymin = bounds[2] - dx
 
 for i in PC.curves:
-    if i.__class__.__name__ == "Arc2D":
+    if i.__class__.__name__ == "Arc":
         AC = Arc(Point(i.start.x,i.start.y,0),Point(i.mid.x,i.mid.y,0),Point(i.end.x,i.end.y,0))
         lines = Arc.segmented_arc(AC,15)
         for i in lines:
@@ -36,7 +36,7 @@ for i in PC.curves:
             y1 = (i.end.y - ymin) * SF
             coords = [(x0,y0),(x1,y1)]
             img1.line(coords, fill="blue", width=2)
-    elif i.__class__.__name__ == "Line2D":
+    elif i.__class__.__name__ == "Line":
         coords = [((i.start.x-xmin)*SF,(i.start.y-ymin)*SF),((i.end.x-xmin)*SF,(i.end.y-ymin)*SF)]
         img1.line(coords, fill="blue", width=2)
     else:

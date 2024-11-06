@@ -8,11 +8,9 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from project.fileformat import *
 from geometry.curve import *
 from geometry.point import Point
-from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
 from geometry.surface import *
 from exchange.DXF import *
 from exchange.IFC import *
-from abstract.coordinatesystem import *
 from objects.frame import *
 from objects.datum import *
 from objects.floor import *

@@ -8,7 +8,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from project.fileformat import *
 from geometry.curve import *
 from geometry.point import Point
-from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
+
 from geometry.surface import *
 from exchange.DXF import *
 from exchange.IFC import *
@@ -43,7 +43,7 @@ def process_directory(dxf_directory):
 # kozijnstijl1 = "Z:\\50_projecten\\6_3BM_LABS\\50_projecten\\001_Project Conda\\002 Aluminium kozijnen\\SL 38 Classic binnenopengaand\\Reynaers Aluminium T-profiel SL 38 Classic Bi vast.dxf"
 # kozijnprofiel1 = ReadDXF(kozijnstijl1).polylines[0][0]
 
-c_profile = PolyCurve2D.by_points([Point2D(-50,-50), Point2D(-50,50), Point2D(50,50), Point2D(0,-25), Point2D(50,-50)])
+c_profile = PolyCurve.by_points([Point(-50,-50), Point(-50,50), Point(50,50), Point(0,-25), Point(50,-50)])
 
 start_list = [Point(0,0,0),Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0)]
 end_list = [Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0),Point(0,0,0)]
