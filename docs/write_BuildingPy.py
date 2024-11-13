@@ -27,6 +27,10 @@ def generate_single_file(output_filename, include_files=None):
  
 	global_deps:list[str] = []
 	#a list of import statements.
+ 
+ 
+	def sort_file_list(file_list:list[str]):
+		file_list.sort(key=lambda path:re.split('[\\\\/]', path)[-1])
 		
 	for subdir, dirs, files in os.walk("."):
 		folder_included = True
@@ -102,6 +106,8 @@ def generate_single_file(output_filename, include_files=None):
 								else:
 									if no_copy_end in line:
 										copy_flag = True
+          
+							sort_file_list(deps)
 							file_dict[longer_path] = {}
 							file_dict[longer_path]["text"] = file_str
 							file_dict[longer_path]["deps"] = deps
@@ -110,12 +116,20 @@ def generate_single_file(output_filename, include_files=None):
 		merged_str = content_file.read() + '\n\n'
 		#the merged string which will be written to output_filename
   
+	#sort everything to ensure consistency across different platforms
+	global_deps.sort()
+ 
+
+	sorted_file_keys = list(file_dict.keys())
+	sort_file_list(file_list = sorted_file_keys)
+
 	for global_dep in global_deps:
 		merged_str += global_dep + '\n'
+	
   
 	#recursively add files to merged_str
 	def add_file (relative_path: str):
-		if relative_path in file_dict:
+		if relative_path in sorted_file_keys:
 			if "added" not in file_dict[relative_path]:
 				file_dict[relative_path]["added"] = True
 				for dep in file_dict[relative_path]["deps"]:
@@ -124,13 +138,12 @@ def generate_single_file(output_filename, include_files=None):
 				merged_str += file_dict[relative_path]["text"] + '\n'
 
 	#now order files based on dependencies
-	for longer_path in file_dict:
+	for longer_path in sorted_file_keys:
 		add_file(longer_path)
     
     #finally, write the merged, correctly ordered file to the destination file
 	with open(output_filename, 'w+') as dest_file:
 		dest_file.write(merged_str)
-
 
 generate_single_file('BuildingPy.py')
 
