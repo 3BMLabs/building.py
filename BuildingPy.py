@@ -945,6 +945,12 @@ class Point(Coords):
         """
         return Point(list)
 
+class Shape:
+	"""this class defines functions and properties for geometric shapes."""
+	@property
+	def statical_moment(self) -> float:
+		return self.area * self.centroid.y
+
 
 
 class Vector(Coords):
@@ -1115,74 +1121,6 @@ class Vector(Coords):
             math.sin(Beta)*vector.x + math.cos(Beta)*vector.y,
             vector.z
         )
-
-
-
-class Plane:
-    # Plane is an infinite element in space defined by a point and a normal
-    """The `Plane` class represents an infinite plane in 3D space, defined uniquely by an origin point and a normal vector, along with two other vectors lying on the plane, providing a complete basis for defining plane orientation and position."""
-    def __init__(self):
-        """"Initializes a new Plane instance.
-
-        - `Origin` (Point): The origin point of the plane, which also lies on the plane.
-        - `Normal` (Vector): A vector perpendicular to the plane, defining its orientation.
-        - `v1` (Vector): A vector lying on the plane, typically representing the "x" direction on the plane.
-        - `v2` (Vector): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
-        """
-        self.Origin = Point(0, 0, 0)
-        self.Normal = Vector(x=0, y=0, z=1)
-        self.vector_1 = Vector(x=1, y=0, z=0)
-        self.vector_2 = Vector(x=0, y=1, z=0)
-
-    @classmethod
-    def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
-        """Creates a Plane defined by two vectors and an origin point.
-        This method establishes a plane using two vectors that lie on the plane and an origin point. The normal is calculated as the cross product of the two vectors, ensuring it is perpendicular to the plane.
-
-        #### Parameters:
-            vector_1 (Vector): The first vector on the plane.
-            vector_2 (Vector): The second vector on the plane, should not be parallel to vector_1.
-            origin (Point): The origin point of the plane, lying on the plane.
-
-        #### Returns:
-            Plane: A Plane instance defined by the given vectors and origin.
-        
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        p1 = Plane()
-        p1.Normal = Vector.normalize(Vector.cross_product(vector_1, vector_2))
-        p1.Origin = origin
-        p1.vector_1 = vector_1
-        p1.vector_2 = vector_2
-        return p1
-
-    def __str__(self) -> str:
-        """Generates a string representation of the Plane.
-
-        #### Returns:
-            str: A string describing the Plane with its origin, normal, and basis vectors.
-         
-        #### Example usage:
-        ```python
-
-        ```
-        """
-
-        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Normal}, {self.vector_1}, {self.vector_2})"
-
-    # TODO
-    # byLineAndPoint
-    # byOriginNormal
-    # byThreePoints
-
-class Shape:
-	"""this class defines functions and properties for geometric shapes."""
-	@property
-	def statical_moment(self) -> float:
-		return self.area * self.centroid.y
 
 
 class Rect(Serializable, Shape):
@@ -1506,1308 +1444,733 @@ class PointList(Vector[Vector]):
 PointCloud = PointList
 
 
-class Curve(Serializable):
-	@property
-	def length(self) -> float:
-		raise NotImplementedError()
+class Matrix(Serializable, list[list]):
+	"""
+	elements are ordered like [row][column] or [y][x]
+	"""
+	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> 'Matrix':
+		list.__init__(self, matrix)
+	
 
 	@property
-	def start(self) -> Point:
-		return self.point_at_fraction(0)
-	@property
-	def mid(self) -> Point:
-		return self.point_at_fraction(0.5)
-	@property
-	def end(self) -> Point:
-		return self.point_at_fraction(1)
-	def point_at_fraction(fraction: float) -> Point:
-		raise NotImplementedError()
+	def cols(self) -> 'int':
+		"""returns the width (x size) of this matrix in columns."""
+		return len(self[0])
 
-	def segmented(self, amount: int) -> list[Point]:
-		"""returns points along this line.
+	@property
+	def rows(self) -> 'int':
+		"""returns the height (y size) of this matrix in columns."""
+		return len(self)
+
+	@staticmethod
+	def scale(dimensions: int, scalar: float)-> 'Matrix':
 		
-		Args:
-		    amount (int): the amount of samples to take
-		
-		Returns:
-		    list[Point]: a list of points sampled along this line
+		match dimensions:
+			case 1:
+				arr = [[scalar]]
+			case 2:
+				arr = [[scalar,0],
+						[0,scalar]]
+			case 3:
+				arr = [[scalar, 0, 0],
+						[0, scalar, 0],
+						[0, 0, scalar]]
+			case 4:
+				arr= [[scalar, 0, 0, 0],
+						[0, scalar, 0, 0],
+						[0, 0, scalar, 0],
+						[0, 0, 0, scalar]]
+		return Matrix(arr)
+	
+	@staticmethod
+	def empty(rows:int, cols = None):
+		"""creates a matrix of size n x m (rows x columns or y * x or h * w)"""
+		if cols == None:
+			cols = rows
+		return Matrix([[0 for col in range(cols)] for row in range(rows)])
+
+	@staticmethod
+	def identity(dimensions:int):
+		return Matrix.scale(dimensions, 1)
+
+	@staticmethod
+	def translate(toAdd: Vector):
+		dimensions:int = len(toAdd) + 1
+		return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
+
+	@staticmethod
+	def by_origin_and_axes(origin: Point, axes: list[Coords]) -> 'Matrix':
 		"""
-		fraction_multiplier = 1.0 / (amount - 1)
-		return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
 
-class Line(Curve):
-    def __init__(self, start: Point, end: Point) -> 'Line':
-        """Initializes a Line object with the specified start and end points.
+		Args:
+			origin (Point): the translation vector of this matrix
+			axes (list[Coords]): the x, y and other axes of this matrix
 
-        - `start` (Point): The starting point of the line segment.
-        - `end` (Point): The ending point of the line segment.
+		Returns:
+			Matrix: a matrix with columns ordered like this:
+			axes[0], axes[1], ..., axes[n], origin
+		"""
+		return Matrix([[axes[col][row] if col < len(axes) else origin[row] 
+				for col in range(len(axes) + 1)] 
+				for row in range(len(origin))])
+
+	@staticmethod
+	def by_rotation(axis: Vector, angle: float) -> 'Matrix':
+		"""creates a rotation matrix to rotate something over the origin around an axis by a specified angle
+
+		Returns:
+			Matrix: a rotation matrix. when a point is multiplied with this matrix, it's rotated.
+		"""
+		#https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
+		normalized_axis = axis.normalized
+		cos_angle = math.cos(angle)
+		sin_angle = math.sin(angle)
+		return Matrix([
+      	[cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),						normalized_axis.x * normalized_axis.y * (1 - cos_angle) - normalized_axis.z * sin_angle,	normalized_axis.x * normalized_axis.z * (1 - cos_angle) + normalized_axis.y * sin_angle	],
+        [normalized_axis.y * normalized_axis.x * (1 - cos_angle) + normalized_axis.z * sin_angle,	cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),						normalized_axis.y * normalized_axis.z * (1 - cos_angle) - normalized_axis.x * sin_angle	],
+        [normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
+	
+	@staticmethod
+	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> 'Matrix':
+		#from right to left:
+  		#- translate objects so the pivot is at the origin
+		#- rotate objects around the origin
+		#- translate objects back so the pivot is at its old location
+
+		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
+ 
+	def __mul__(self, other:Self | Coords | Line | Rect | PointList):
+		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
+		for example: translate * rotate (rotate first, translate after)
+		and: matrix * point (point first, multiplied by matrix after)"""
+		if isinstance(other, Matrix):
+			#multiply matrices with eachother
+			#https://www.geeksforgeeks.org/multiplication-two-matrices-single-line-using-numpy-python/
+
+			#visualisation of resulting sizes:
+			#https://en.wikipedia.org/wiki/Matrix_multiplication
+
+			#the number of columns (width) in the first matrix needs to be equal to the number of rows (height) in the second matrix
+			#(look at for i in range(other.height))
+
+			#we are multiplying row vectors of self with col vectors of other
+			if self.cols == other.rows:
+				resultRows = self.rows
+				resultCols = other.cols
+				result:Matrix = Matrix.empty(resultRows, resultCols)
+				# explicit for loops
+				for row in range(self.rows):
+					for col in range(other.cols):
+						for multiplyIndex in range(other.rows):
+							#this is the simple code, which would work if the number of self.cols was equal to other.rows
+							result[row][col] += self[row][multiplyIndex] * other[multiplyIndex][col]
+			else:
+				resultCols = max(self.cols, other.cols)
+				resultRows = max(self.rows, other.rows)
+
+				result:Matrix = Matrix.empty(resultRows, resultCols)
+
+				#the size of the vector that we're multiplying.
+				multiplyVectorSize = max(self.cols, other.rows)
+
+				# explicit for loops
+				for row in range(resultRows):
+					for col in range(resultCols):
+						for multiplyIndex in range(multiplyVectorSize):
+							#if an element doesn't exist in the matrix, we use an identity element.
+							selfValue = self[row][multiplyIndex] if row < self.rows and multiplyIndex < self.cols else 1 if multiplyIndex == row else 0
+							otherValue = other[multiplyIndex][col] if col < other.cols and multiplyIndex < other.rows else 1 if multiplyIndex == col else 0
+							result[row][col] += selfValue * otherValue
+
+		elif isinstance(other, PointList):
+			return other.__class__([self * p for p in other])
+		#point comes in from top and comes out to the right:
+		# |
+		# v
+		#a b
+		#c d ->
+		elif isinstance(other, Coords):
+			result: Coords = Coords([0] * self.rows)
+			#loop over column vectors and multiply them with the vector. sum the results (multiplied col 1 + multiplied col 2) to get the final product!
+			for col in range(self.cols):
+				if col < len(other):
+					for row in range(self.rows):
+						result[row] += self[row][col] * other[col]
+				else:
+					#otherValue = 1, just add the vector
+					for row in range(self.rows):
+						result[row] += self[row][col]
+			return result
+		elif isinstance(other, Line):
+			return Line(self * other.start, self * other.end)
+		elif isinstance(other, Rect):
+			mp0 = self * other.p0
+			mp1 = self * other.p1
+			return Rect.by_points([mp0, mp1])
+		return result
+	
+	transform = multiply = __mul__
+ 
+	
+ 
+	def multiply_without_translation(self, other: Coords):
+		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result.
+
+		Args:
+			other (Coords): _description_
+
+		Returns:
+			_type_: _description_
+		"""
+		result: Coords = Coords([0] * self.rows)
+		for col in range(min(self.cols, len(other))):
+			for row in range(self.rows):
+				result[row] += self[row][col] * other[col]
+		return result
+
+	def get_col(self, col_index: int):
+		return Coords([row[col_index] for row in self])
+
+	def get_row(self, row_index:int):
+		return Coords(self[row_index])
+
+	@property
+	def translation(self) -> Coords:
+		"""the translation is just the last column of the matrix
+
+		Returns:
+			Coords: the last column of this matrix, which gets added to the result when a point is multiplied by the matrix
+		"""
+		return self.get_col(self.cols - 1)
+
+	def add(self, other: 'Matrix'):
+		if self.shape() != other.shape():
+			raise ValueError("Matrices must have the same dimensions")
+		return Matrix([[self[i][j] + other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])
+
+	def all(self, axis=None):
+		if axis is None:
+			return all(all(row) for row in self)
+		elif axis == 0:
+			return [all(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [all(col) for col in self]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def any(self, axis=None):
+		if axis is None:
+			return any(any(row) for row in self)
+		elif axis == 0:
+			return [any(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [any(col) for col in self]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def argmax(self, axis=None):
+		if axis is None:
+			flat_list = [item for sublist in self for item in sublist]
+			return flat_list.index(max(flat_list))
+		elif axis == 0:
+			return [max(range(len(self)), key=lambda row: self[row][col]) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [max(range(len(row)), key=lambda col: row[col]) for row in self]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def argmin(self, axis=None):
+		if axis is None:
+			flat_list = [item for sublist in self for item in sublist]
+			return flat_list.index(min(flat_list))
+		elif axis == 0:
+			return [min(range(len(self)), key=lambda row: self[row][col]) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [min(range(len(row)), key=lambda col: row[col]) for row in self]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def argpartition(self, kth, axis=0):
+		def partition(arr, kth):
+			pivot = arr[kth]
+			less = [i for i in range(len(arr)) if arr[i] < pivot]
+			equal = [i for i in range(len(arr)) if arr[i] == pivot]
+			greater = [i for i in range(len(arr)) if arr[i] > pivot]
+			return less + equal + greater
+
+		if axis == 0:
+			return [partition([self[row][col] for row in range(len(self))], kth) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [partition(row, kth) for row in self]
+
+	def argsort(self, axis=0):
+		if axis == 0:
+			return [[row for row, val in sorted(enumerate(col), key=lambda x: x[1])] for col in zip(*self)]
+		elif axis == 1:
+			return [list(range(len(self[0]))) for _ in self]
+
+	def astype(self, dtype):
+		cast_matrix = [[dtype(item) for item in row] for row in self]
+		return Matrix(cast_matrix)
+
+	def byteswap(self, inplace=False):
+		if inplace:
+			for i in range(len(self)):
+				for j in range(len(self[i])):
+					self[i][j] = ~self[i][j]
+			return self
+		else:
+			new_matrix = [[~item for item in row] for row in self]
+			return Matrix(new_matrix)
+
+	def choose(self, choices, mode='raise'):
+		if mode != 'raise':
+			raise NotImplementedError("Only 'raise' mode is implemented")
+
+		chosen = [[choices[item] for item in row] for row in self]
+		return Matrix(chosen)
+
+	def compress(self, condition, axis=None):
+		if axis == 0:
+			compressed = [row for row, cond in zip(
+				self, condition) if cond]
+			return Matrix(compressed)
+		else:
+			raise NotImplementedError("Axis other than 0 is not implemented")
+
+	def clip(self, min=None, max=None):
+		clipped_matrix = []
+		for row in self:
+			clipped_row = [max if max is not None and val >
+						   max else min if min is not None and val < min else val for val in row]
+			clipped_matrix.append(clipped_row)
+		return Matrix(clipped_matrix)
+
+	def conj(self):
+		conjugated_matrix = [[complex(item).conjugate()
+							  for item in row] for row in self]
+		return Matrix(conjugated_matrix)
+
+	def conjugate(self):
+		return self.conj()
+
+	def copy(self):
+		copied_matrix = copy.deepcopy(self)
+		return Matrix(copied_matrix)
+
+	def cumprod(self, axis=None):
+		if axis is None:
+			flat_list = self.flatten()
+			cumprod_list = []
+			cumprod = 1
+			for item in flat_list:
+				cumprod *= item
+				cumprod_list.append(cumprod)
+			return Matrix([cumprod_list])
+		else:
+			raise NotImplementedError(
+				"Axis handling not implemented in this example")
+
+	def cumsum(self, axis=None):
+		if axis is None:
+			flat_list = self.flatten()
+			cumsum_list = []
+			cumsum = 0
+			for item in flat_list:
+				cumsum += item
+				cumsum_list.append(cumsum)
+			return Matrix([cumsum_list])
+		else:
+			raise NotImplementedError(
+				"Axis handling not implemented in this example")
+
+	def diagonal(self, offset=0):
+		return [self[i][i + offset] for i in range(len(self)) if 0 <= i + offset < len(self[i])]
+
+	def dump(self, file):
+		with open(file, 'wb') as f:
+			pickle.dump(self, f)
+
+	def dumps(self):
+		return pickle.dumps(self)
+
+	def fill(self, value):
+		for i in range(len(self)):
+			for j in range(len(self[i])):
+				self[i][j] = value
+
+	@staticmethod
+	def from_points(from_point: Point, to_point: Point):
+		Vz = Vector.by_two_points(from_point, to_point)
+		Vz = Vector.normalize(Vz)
+		Vzglob = Vector(0, 0, 1)
+		Vx = Vector.cross_product(Vz, Vzglob)
+		if Vector.length(Vx) == 0:
+			Vx = Vector(1, 0, 0) if Vz.x != 1 else Vector(0, 1, 0)
+		Vx = Vector.normalize(Vx)
+		Vy = Vector.cross_product(Vx, Vz)
+
+		return Matrix([
+			[Vx.x, Vy.x, Vz.x, from_point.x],
+			[Vx.y, Vy.y, Vz.y, from_point.y],
+			[Vx.z, Vy.z, Vz.z, from_point.z],
+			[0, 0, 0, 1]
+		])
+
+	def flatten(self):
+		return [item for sublist in self for item in sublist]
+
+	def getA(self):
+		return self
+
+	def getA1(self):
+		return [item for sublist in self for item in sublist]
+
+	def getH(self):
+		conjugate_transposed = [[complex(self[j][i]).conjugate() for j in range(
+			len(self))] for i in range(len(self[0]))]
+		return Matrix(conjugate_transposed)
+
+	def getI(self):
+		raise NotImplementedError(
+			"Matrix inversion is a complex operation not covered in this simple implementation.")
+
+	def getT(self):
+		return self.transpose()
+
+	def getfield(self, dtype, offset=0):
+		raise NotImplementedError(
+			"This method is conceptual and depends on structured data support within the Matrix.")
+
+	def item(self, *args):
+		if len(args) == 1:
+			index = args[0]
+			rows, cols = len(self), len(self[0])
+			return self[index // cols][index % cols]
+		elif len(args) == 2:
+			return self[args[0]][args[1]]
+		else:
+			raise ValueError("Invalid number of indices.")
+
+	def itemset(self, *args):
+		if len(args) == 2:
+			index, value = args
+			rows, cols = len(self), len(self[0])
+			self[index // cols][index % cols] = value
+		elif len(args) == 3:
+			row, col, value = args
+			self[row][col] = value
+		else:
+			raise ValueError("Invalid number of arguments.")
+
+	def max(self, axis=None):
+		if axis is None:
+			return max(item for sublist in self for item in sublist)
+		elif axis == 0:
+			return [max(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [max(row) for row in self]
+		else:
+			raise ValueError("Invalid axis.")
+
+	def mean(self, axis=None):
+		if axis is None:
+			flat_list = self.flatten()
+			return sum(flat_list) / len(flat_list)
+		elif axis == 0:
+			return [sum(self[row][col] for row in range(len(self))) / len(self) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [sum(row) / len(row) for row in self]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def min(self, axis=None):
+		if axis is None:
+			return min(item for sublist in self for item in sublist)
+		elif axis == 0:
+			return [min(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [min(row) for row in self]
+		else:
+			raise ValueError("Invalid axis.")
+
+	@staticmethod
+	def zeros(rows, cols):
+		return Matrix([[0 for _ in range(cols)] for _ in range(rows)])
+
+	@staticmethod
+	def participation(self):
+		pass
+
+	def prod(self, axis=None):
+		if axis is None:
+			return reduce(lambda x, y: x * y, [item for sublist in self for item in sublist], 1)
+		elif axis == 0:
+			return [reduce(lambda x, y: x * y, [self[row][col] for row in range(len(self))], 1) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [reduce(lambda x, y: x * y, row, 1) for row in self]
+		else:
+			raise ValueError("Invalid axis.")
+
+	def ptp(self, axis=None):
+		if axis is None:
+			flat_list = [item for sublist in self for item in sublist]
+			return max(flat_list) - min(flat_list)
+		elif axis == 0:
+			return [max([self[row][col] for row in range(len(self))]) - min([self[row][col] for row in range(len(self))]) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [max(row) - min(row) for row in self]
+		else:
+			raise ValueError("Invalid axis.")
+
+	def put(self, indices, values):
+		if len(indices) != len(values):
+			raise ValueError("Length of indices and values must match.")
+		flat_list = self.ravel()
+		for index, value in zip(indices, values):
+			flat_list[index] = value
+
+	@staticmethod
+	def random(rows, cols):
+		import random
+		return Matrix([[random.random() for _ in range(cols)] for _ in range(rows)])
+
+	def ravel(self):
+		return [item for sublist in self for item in sublist]
+
+	def repeat(self, repeats, axis=None):
+		if axis is None:
+			flat_list = self.ravel()
+			repeated = [item for item in flat_list for _ in range(repeats)]
+			return Matrix([repeated])
+		elif axis == 0:
+			repeated_matrix = [
+				row for row in self for _ in range(repeats)]
+		elif axis == 1:
+			repeated_matrix = [
+				[item for item in row for _ in range(repeats)] for row in self]
+		else:
+			raise ValueError("Invalid axis.")
+		return Matrix(repeated_matrix)
+
+	def reshape(self, rows, cols):
+		flat_list = self.flatten()
+		if len(flat_list) != rows * cols:
+			raise ValueError(
+				"The total size of the new array must be unchanged.")
+		reshaped = [flat_list[i * cols:(i + 1) * cols] for i in range(rows)]
+		return Matrix(reshaped)
+
+	def resize(self, new_shape):
+		new_rows, new_cols = new_shape
+		current_rows, current_cols = len(self), len(
+			self[0]) if self else 0
+		if new_rows < current_rows:
+			self = self[:new_rows]
+		else:
+			for _ in range(new_rows - current_rows):
+				self.append([0] * current_cols)
+		for row in self:
+			if new_cols < current_cols:
+				row[:] = row[:new_cols]
+			else:
+				row.extend([0] * (new_cols - current_cols))
+
+	def round(self, decimals=0):
+		rounded_matrix = [[round(item, decimals)
+						   for item in row] for row in self]
+		return Matrix(rounded_matrix)
+
+	def searchsorted(self, v, side='left'):
+		flat_list = self.flatten()
+		i = 0
+		if side == 'left':
+			while i < len(flat_list) and flat_list[i] < v:
+				i += 1
+		elif side == 'right':
+			while i < len(flat_list) and flat_list[i] <= v:
+				i += 1
+		else:
+			raise ValueError("side must be 'left' or 'right'")
+		return i
+
+	def setfield(self, val, dtype, offset=0):
+		raise NotImplementedError(
+			"Structured data operations are not supported in this Matrix class.")
+
+	def setflags(self, write=None, align=None, uic=None):
+		print("This Matrix class does not support setting flags directly.")
+
+	def shape(self):
+		return len(self), len(self[0])
+
+	def sort(self, axis=-1):
+		if axis == -1 or axis == 1:
+			for row in self:
+				row.sort()
+		elif axis == 0:
+			transposed = [[self[j][i] for j in range(
+				len(self))] for i in range(len(self[0]))]
+			for row in transposed:
+				row.sort()
+			self = [[transposed[j][i] for j in range(
+				len(transposed))] for i in range(len(transposed[0]))]
+		else:
+			raise ValueError("Axis out of range.")
+
+	def squeeze(self):
+		squeezed_matrix = [row for row in self if any(row)]
+		return Matrix(squeezed_matrix)
+
+	def std(self, axis=None, ddof=0):
+		var = self.var(axis=axis, ddof=ddof)
+		if isinstance(var, list):
+			return [x ** 0.5 for x in var]
+		else:
+			return var ** 0.5
+
+	def subtract(self, other):
+		if self.shape() != other.shape():
+			raise ValueError("Matrices must have the same dimensions")
+		return Matrix([[self[i][j] - other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])
+
+	def sum(self, axis=None):
+		if axis is None:
+			return sum(sum(row) for row in self)
+		elif axis == 0:
+			return [sum(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
+		elif axis == 1:
+			return [sum(row) for row in self]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def swapaxes(self, axis1, axis2):
+		if axis1 == 0 and axis2 == 1 or axis1 == 1 and axis2 == 0:
+			return Matrix([[self[j][i] for j in range(len(self))] for i in range(len(self[0]))])
+		else:
+			raise ValueError("Axis values out of range for a 2D matrix.")
+
+	def take(self, indices, axis=None):
+		if axis is None:
+			flat_list = [item for sublist in self for item in sublist]
+			return Matrix([flat_list[i] for i in indices])
+		elif axis == 0:
+			return Matrix([self[i] for i in indices])
+		else:
+			raise ValueError(
+				"Axis not supported or out of range for a 2D matrix.")
+
+	def tofile(self, fid, sep="", format="%s"):
+		if isinstance(fid, str):
+			with open(fid, 'wb' if sep == "" else 'w') as f:
+				self._write_to_file(f, sep, format)
+		else:
+			self._write_to_file(fid, sep, format)
+
+	def _write_to_file(self, file, sep, format):
+		if sep == "":
+			file.write(self.tobytes())
+		else:
+			for row in self:
+				line = sep.join(format % item for item in row) + "\n"
+				file.write(line)
+				
+	def __str__(self):
+		# '\n'.join([str(row) for row in self])
+		#vs code doesn't work with new lines
+		return 'Matrix(' + list.__str__(self) + ')'
+
+	def trace(self, offset=0):
+		rows, cols = len(self), len(self[0])
+		return sum(self[i][i + offset] for i in range(min(rows, cols - offset)) if 0 <= i + offset < cols)
+
+	def transpose(self):
+		transposed = [[self[j][i] for j in range(
+			len(self))] for i in range(len(self[0]))]
+		return Matrix(transposed)
+
+	def var(self, axis=None, ddof=0):
+		if axis is None:
+			flat_list = self.flatten()
+			mean = sum(flat_list) / len(flat_list)
+			return sum((x - mean) ** 2 for x in flat_list) / (len(flat_list) - ddof)
+		elif axis == 0 or axis == 1:
+			means = self.mean(axis=axis)
+			if axis == 0:
+				return [sum((self[row][col] - means[col]) ** 2 for row in range(len(self))) / (len(self) - ddof) for col in range(len(self[0]))]
+			else:
+				return [sum((row[col] - means[idx]) ** 2 for col in range(len(row))) / (len(row) - ddof) for idx, row in enumerate(self)]
+		else:
+			raise ValueError("Axis must be None, 0, or 1")
+
+	def _validate(self):
+		rows = len(self)
+		cols = len(self[0]) if rows > 0 else 0
+		return rows, cols
+
+CoordinateSystem = Matrix
+
+
+
+class Plane:
+    # Plane is an infinite element in space defined by a point and a normal
+    """The `Plane` class represents an infinite plane in 3D space, defined uniquely by an origin point and a normal vector, along with two other vectors lying on the plane, providing a complete basis for defining plane orientation and position."""
+    def __init__(self):
+        """"Initializes a new Plane instance.
+
+        - `Origin` (Point): The origin point of the plane, which also lies on the plane.
+        - `Normal` (Vector): A vector perpendicular to the plane, defining its orientation.
+        - `v1` (Vector): A vector lying on the plane, typically representing the "x" direction on the plane.
+        - `v2` (Vector): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
         """
-        #copy
-        """The starting point of the line segment"""
-        self.start = Point(start)
-        """The ending point of the line segment."""
-        self.end = Point(end)
-        
-    @property
-    def mid(self) -> 'Point':
-        """Computes the midpoint of the Line object.
-
-        #### Returns:
-        `Point`: The midpoint of the Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        return (self.start + self.end) * 0.5
-    @property
-    def angle(self) -> float:
-        return (self.end - self.start).angle
-    
-    @property
-    def points(self) -> list[Point]:
-        return[Point(self.start), Point(self.end)]
-    
-    @property
-    def segmentate(self, amount: int) -> list[Point]:
-        """returns points along this line.
-
-        Args:
-            amount (int): the amount of samples to take
-
-        Returns:
-            list[Point]: a list of points sampled along this line
-        """
-        fraction_multiplier = 1.0 / (amount - 1)
-        return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
-    
-    def point_at_fraction(self, fraction: float) -> Point:
-        """
-
-        Args:
-            fraction (float): a value from 0 to 1, describing the position in the line.
-
-        Returns:
-            Point: self.start for 0, self.end for 1
-        """
-        return self.start * (1 - fraction) + self.end * fraction
-    
-    @staticmethod
-    def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
-        """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
-
-        #### Parameters:
-        - `start` (Point): The starting point of the line segment.
-        - `direction` (Vector): The direction vector of the line segment.
-        - `length` (float): The length of the line segment.
-
-        #### Returns:
-        `Line`: A new Line object representing the line segment.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        norm = math.sqrt(direction.x ** 2 + direction.y **
-                         2 + direction.z ** 2)
-        normalized_direction = Vector(
-            direction.x / norm, direction.y / norm, direction.z / norm)
-
-        end_x = start.x + normalized_direction.x * length
-        end_y = start.y + normalized_direction.y * length
-        end_z = start.z + normalized_direction.z * length
-        end_point = Point(end_x, end_y, end_z)
-
-        return Line(start, end_point)
-
-    # @classmethod
-    def point_at_parameter(self, interval: 'float' = None) -> 'Point':
-        """Computes the point on the Line object at a specified parameter value.
-
-        #### Parameters:
-        - `interval` (float): The parameter value determining the point on the line. Default is None, which corresponds to the midpoint.
-
-        #### Returns:
-        `Point`: The point on the Line object corresponding to the specified parameter value.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        if interval == None:
-            interval = 0.0
-        x1, y1, z1 = self.start.x, self.start.y, self.start.z
-        x2, y2, z2 = self.end.x, self.end.y, self.end.z
-        if float(interval) == 0.0:
-            return self.start
-        else:
-            devBy = 1/interval
-            return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
-
-    def intersects(self, other: 'Line') -> bool:
-        """checks if two lines intersect with eachother.
-
-        Args:
-            other (Line): the line which may intersect with this rectangle
-
-        Returns:
-            bool: true if the lines cross eachother.
-        """
-        #ax + b = cx + d
-        #ax = cx + d - b
-        #ax - cx = d - b
-        #(a - c)x = d - b
-        #x = (d - b) / (a - c)
-        
-        #calculate a and c
-        
-        diff_self = self.end - self.start
-        diff_other = other.end - other.start
-        #a
-        slope_self = math.inf if diff_self.x == 0 else diff_self.y / diff_self.x
-        
-        #c
-        slope_other = math.inf if diff_other.x == 0 else diff_other.y / diff_other.x
-        #handle edge cases
-        #colinear
-        if(slope_self == slope_other) :
-            return False
-
-        #b
-        self_y_at_0 = self.start.y - self.start.x * slope_self
-        
-        #check if one slope is infinite (both infinite is handled by colinear)
-        if other.start.x == other.end.x:
-            self_y_at_line = self_y_at_0 + slope_self * other.start.x
-            return other.start.y < self_y_at_line < other.end.y
-
-        #d
-        other_y_at_0 = other.start.y - other.start.x * slope_other
-
-        if self.start.x == self.end.x:
-            other_y_at_line = other_y_at_0 + slope_other * self.start.x
-            return self.start.y < other_y_at_line < self.end.y
-        
-        intersection_x = (other_y_at_0 - self_y_at_0) / (slope_self - slope_other)
-        
-        return self.start.x < intersection_x < self.end.x
-
-    def split(self, points: 'Union[Point, list[Point]]') -> 'list[Line]':
-        """Splits the Line object at the specified point(s).
-
-        #### Parameters:
-        - `points` (Point or List[Point]): The point(s) at which the Line object will be split.
-
-        #### Returns:
-        `List[Line]`: A list of Line objects resulting from the split operation.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        lines = []
-        if isinstance(points, list):
-            points.extend([self.start, self.end])
-            sorted_points = sorted(
-                points, key=lambda p: p.distance(p, self.end))
-            lines = create_lines(sorted_points)
-            return lines
-        elif isinstance(points, Point):
-            point = points
-            lines.append(Line(start=self.start, end=point))
-            lines.append(Line(start=point, end=self.end))
-            return lines
-        
-    @property
-    def length(self) -> 'float':
-        """Computes the length of the Line object.
-
-        #### Returns:
-        `float`: The length of the Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        return (self.end - self.start).magnitude
-    
-    @property
-    def direction(self) -> Vector:
-        """Computes the direction of the Line object.
-        """
-        return (self.end - self.start).normalized
-
-    def __str__(self) -> 'str':
-        """Returns a string representation of the Line object.
-
-        #### Returns:
-        `str`: A string representation of the Line object.
-
-        #### Example usage:
-        ```python
-
-        ```          
-        """
-        return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
-
-
-def create_lines(points: 'list[Point]') -> 'list[Line]':
-    """Creates a list of Line objects from a list of points.
-    This function generates line segments connecting consecutive points in the list.
-
-    #### Parameters:
-    - `points` (List[Point]): A list of points.
-
-    #### Returns:
-    `List[Line]`: A list of Line objects representing the line segments connecting the points.
-
-    #### Example usage:
-    ```python
-
-    ```      
-    """
-    lines = []
-    for i in range(len(points)-1):
-        line = Line(points[i], points[i+1])
-        lines.append(line)
-    return lines
-
-
-class Arc(Line):
-    def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
-        """Initializes an Arc object with start, mid, and end points.
-        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
-        
-        the mid point should really be in the center; we don't support warped arcs.
-
-        - `startPoint` (Point): The starting point of the arc.
-        - `midPoint` (Point): The mid point of the arc which defines its curvature.
-        - `endPoint` (Point): The ending point of the arc.
-        """
-        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
-        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
-            raise ValueError('midpoint is not in the center')
-        super().__init__(startPoint, endPoint)
-        
-        self.mid = midPoint
-
-        #self.origin = self.origin_arc()
-        #vector_1 = Vector(x=1, y=0, z=0)
-        #vector_2 = Vector(x=0, y=1, z=0)
-        #self.plane = Plane.by_two_vectors_origin(
-        #    vector_1,
-        #    vector_2,
-        #    self.origin
-        #)
-        #self.radius = self.radius_arc()
-        #self.startAngle = 0
-        #self.endAngle = 0
-        #self.angle_radian = self.angle_radian()
-        #self.area = 0
-        #self.length = self.length()
-        #self.units = project.units
-        
-    @property
-    def radius(self) -> 'float':
-        """Calculates and returns the radius of the arc.
-        The radius is computed based on the distances between the start, mid, and end points of the arc.
-
-        #### Returns:
-        `float`: The radius of the arc.
-
-        #### Example usage:
-        ```python
-        radius = arc.radius_arc()
-        # radius will be the calculated radius of the arc
-        ```
-        """
-        a = Point.distance(self.start, self.mid)
-        b = Point.distance(self.mid, self.end)
-        c = Point.distance(self.end, self.start)
-        s = (a + b + c) / 2
-        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
-        
-        if abs(A) < 1e-6:
-            return float('inf')
-        else:
-            R = (a * b * c) / (4 * A)
-            return R
-
-    @property
-    def points(self) -> list[Point]:
-        return[Point(self.start), Point(self.mid), Point(self.end)]
-            
-    #https://calcresource.com/geom-circularsegment.html
-    @property
-    def area(self) -> 'float':
-        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
-    
-    @property
-    def origin(self) -> 'Point':
-        """Calculates and returns the origin of the arc.
-        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `Point`: The calculated origin point of the arc.
-
-        #### Example usage:
-        ```python
-        origin = arc.origin_arc()
-        # origin will be the calculated origin point of the arc
-        ```
-        """
-        start_to_end = self.end - self.start
-        half_start_end = start_to_end * 0.5
-        b = half_start_end.magnitude
-        radius = self.radius
-        x = math.sqrt(radius * radius - b * b)
-        #mid point as if this was a straight line
-        mid = self.start + half_start_end
-        #substract the curved mid point from the straight line mid point
-        to_center = mid - self.mid
-        #change length to x
-        to_center.magnitude = x
-        center = mid + to_center
-        return center
-
-    @property
-    def centroid(self) -> 'Point':
-        origin = self.origin
-        radius = self.radius
-        angle = self.angle
-        #the distance of the centroid of the arc to its origin
-        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
-        return origin + centroid_distance * ((self.mid - origin) / radius)
-        
-    @property
-    def angle(self) -> 'float':
-        """Calculates and returns the total angle of the arc in radians.
-        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
-
-        #### Returns:
-        `float`: The total angle of the arc in radians.
-
-        #### Example usage:
-        ```python
-        angle = arc.angle_radian()
-        # angle will be the total angle of the arc in radians
-        ```
-        """
-        origin = self.origin
-        vector_1 = self.end - origin
-        vector_2 = self.start - origin
-        vector_3 = self.mid - origin
-        vector_4 = vector_1 + vector_2
-        try:
-            v4b = Vector.new_length(vector_4, self.radius)
-            if Vector.value(vector_3) == Vector.value(v4b):
-                angle = Vector.angle_between(vector_1, vector_2)
-            else:
-                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        except:
-            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        
-    @property
-    def length(self) -> 'float':
-        """Calculates and returns the length of the arc.
-        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `float`: The length of the arc.
-
-        #### Example usage:
-        ```python
-        length = arc.length()
-        # length will be the calculated length of the arc
-        ```
-        """
-        try:
-            x1, y1, z1 = self.start.x, self.start.y, self.start.z
-            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-            x3, y3, z3 = self.end.x, self.end.y, self.end.z
-
-            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-            m1 = math.acos(cos_angle)
-            arc_length = r1 * m1
-
-            return arc_length
-        except:
-            return 0
-    
-    @staticmethod
-    def segmented_arc(arc: 'Arc', count: 'int') -> 'list':
-        """Divides the arc into segments and returns a list of line segments.
-        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
-
-        #### Parameters:
-        - `arc` (Arc): The arc object.
-        - `count` (int): The number of segments (and thus the number of points - 1) to create.
-
-        #### Returns:
-        `list`: A list of line segments (`Line` objects) representing the divided arc.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        segments = Arc.segmented_arc(arc, 3)
-        # segments will be a list of 2 lines dividing the arc into 3 segments
-        ```
-        """
-        pnts = Arc.points_at_parameter(arc, count)
-        i = 0
-        lines = []
-        for j in range(len(pnts) - 1):
-            lines.append(Line(pnts[i], pnts[i + 1]))
-            i = i + 1
-        return lines
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Arc object.
-
-        #### Returns:
-        `str`: A string that represents the Arc object.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        print(arc)
-        # Output: Arc()
-        ```
-        """
-        return f"{__class__.__name__}()"
-
-class Polygon(PointList):
-    """Represents a polygon composed of points."""
-    def __init__(self, *args) -> 'Polygon':
-        
-        super().__init__(to_array(*args))
-
-
-    @property
-    def closed(self) -> bool: return self[0] == self[-1]
-    
-    @property
-    def points(self) -> list[Point]:
-        return [Point(p) for p in self]
-    
-    @closed.setter
-    def closed(self, value) -> Self:
-        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
-        #### Example usage:
-        ```python
-            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
-            c.closed = true #Point(1,3) just got added to the back of the list
-        ```
-        """
-        if value != self.closed:
-            if value:
-                #copy. else, when operators are executed, it will execute the operator twice on the same reference
-                self.append(Vector(self[0]))
-            else:
-                del self[-1]
-        return self
-    
-
-    @property
-    def curves(self) -> list[Line]:
-        """this function won't close the polycurve!
-
-        Returns:
-            list[Line]: the curves connecting this polycurve
-        """
-        return [Line(self[point_index], self[point_index + 1]) for point_index in range(len(self) - 1)]
-
-    @property
-    def is_rectangle(self) -> bool:
-        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
-
-        Returns:
-            bool: if this curve is a rectangle, i.e. it has 4 corner points
-        """
-        if len(self) == 4 or self.closed and len(self) == 5:
-            if self[0].y == self[1].y and self[1].x == self[2].x and self[2].y == self[3].y and self[3].x == self[0].x:
-                return True
-        else: return False
-
-    def contains(self, p: 'Point') -> bool:
-        """checks if the point is inside the polygon
-
-        Args:
-            p (Point): _description_
-
-        Returns:
-            bool: _description_
-        """
-        #yoinked this from stack overflow, looks clean
-        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
-        
-        # Ray tracing
-        n = len(self)
-        inside = False
-    
-        p1 = self[0]
-        for i in range(n + 1 if self.closed else n):
-            p2 = self[i % n]
-            if p.y > min(p1.y,p2.y):
-                if p.y <= max(p1.y,p2.y):
-                    if p.x <= max(p1.x,p2.x):
-                        if p1.y != p2.y:
-                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
-                        if p1.x == p2.x or p.x <= xints:
-                            inside = not inside
-            p1 = p2
-    
-        return inside
-
-    def intersects(self, other: 'PolyCurve') -> bool:
-        """checks if two polycurves intersect with eachother. caution! this is brute force.
-
-        Args:
-            other (PolyCurve): the PolyCurve which may intersect with this rectangle
-
-        Returns:
-            bool: true if any of the lines of the two polygons cross eachother.
-        """
-        #before doing such an expensive method, let's check if our bounds cross first.
-        if self.bounds.collides(other.bounds):
-            other_curves = other.curves
-            for c in self.curves:
-                for other_c in other_curves:
-                    if(c.intersects(other_c)):return True
-        return False
-    
-    def collides(self, other: 'Polygon') -> bool:
-        """checks if two polygons collide with eachother.
-
-        Args:
-            other (Polygon): the polygon which may collide with this rectangle
-
-        Returns:
-            bool: true if two polygons overlap
-        """
-        #hopefully, most of the time we contain a point of the other.
-        return self.contains(other[0]) or other.contains(self[0]) or self.intersects(other)
+        self.Origin = Point(0, 0, 0)
+        self.Normal = Vector(x=0, y=0, z=1)
+        self.vector_1 = Vector(x=1, y=0, z=0)
+        self.vector_2 = Vector(x=0, y=1, z=0)
 
     @classmethod
-    def by_points(self, points: 'list[Point]') -> 'Polygon':
-        """Creates a Polygon from a list of points.
+    def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
+        """Creates a Plane defined by two vectors and an origin point.
+        This method establishes a plane using two vectors that lie on the plane and an origin point. The normal is calculated as the cross product of the two vectors, ensuring it is perpendicular to the plane.
 
         #### Parameters:
-        - `points` (list[Point]): The list of points defining the Polygon.
+            vector_1 (Vector): The first vector on the plane.
+            vector_2 (Vector): The second vector on the plane, should not be parallel to vector_1.
+            origin (Point): The origin point of the plane, lying on the plane.
 
         #### Returns:
-        `Polygon`: The created Polygon object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if len(points) < 3:
-            print("Error: Polygon must have at least 3 unique points.")
-            return None
-
-        _points = []
-
-        for point in points: #Convert all to Point
-            if point.type == "Point":
-                _points.append(Point(point.x, point.y, 0))
-            else:
-                _points.append(point)
-
-        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
-            _points.pop()
-
-        seen = set()
-        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
-
-        polygon = Polygon()
-        polygon.points = unique_points
-
-        num_points = len(unique_points)
-        for i in range(num_points):
-            next_index = (i + 1) % num_points
-            polygon.curves.append(Line(start=unique_points[i], end=unique_points[next_index]))
-
-        return polygon
-
-    @staticmethod
-    def rectangular(rect: Rect) -> 'Polygon':
-        """Creates a rectangle in a given plane.
-
-        #### Parameters:
-        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
-        - `width` (float): The width of the rectangle.
-        - `height` (float): The height of the rectangle.
-
-        #### Returns:
-        `Polygon`: The rectangle Polygon.
-
-        #### Example usage:
-        ```python
-        ```    
-        """
-        try:
-            not_used_axis_index = rect.size.index(0)
-        except:
-            #2d rectangle
-            not_used_axis_index = 2
-
-        axis0 = 1 if not_used_axis_index == 0 else 0
-        axis1 = 1 if not_used_axis_index == 2 else 2
-
-        rect_p1 = rect.p1
-        curve_p0 = rect.p0
-        #clone
-        curve_p1 = Point(rect.p0)
-        curve_p1[axis0] = rect_p1[axis0]
-
-        curve_p2 = rect_p1
-        curve_p3 = Point(rect.p0)
-        curve_p3[axis1] = rect_p1[axis1]
-        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3)
-
-    @staticmethod
-    def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
-        """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
-        creates a shallow copy of the lines provided!
-
-        Args:
-            lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
-
-        Returns:
-            Polygon: an unclosed polygon.
-        """
-        if not lines:
-            print("Error: At least one curve is required to form a Polygon.")
-            sys.exit()
-
-        for i in range(len(lines) - 1):
-            if lines[i].end != lines[i+1].start:
-                raise ValueError("Error: Curves must be contiguous to form a Polygon.")
-
-        #if lines[0].start != lines[-1].end:
-        #    lines.append(Line(lines[-1].end, lines[0].start))
-
-        return Polygon([line.start for line in lines] + [lines[-1].end])
-    
-    @property
-    def area(self) -> 'float':  # shoelace formula
-        """Calculates the area enclosed by the Polygon using the shoelace formula.
-
-        #### Returns:
-        `float`: The area enclosed by the Polygon.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if len(self) < 3:
-            return "Polygon has less than 3 points!"
-
-        num_points = len(self)
-        S1, S2 = 0, 0
-
-        for i in range(num_points):
-            S1 += self[i - 1].x * self[i].y
-            S2 += self[i - 1].y * self[i].x
-
-        area = 0.5 * abs(S1 - S2)
-        return area
-    
-    @property
-    def centroid(self) -> 'Point':
-        """Calculates the centroid of the Polygon in 2D. we assume that the polygon doesn't intersect itself.
-
-        #### Returns:
-        `Point`: The centroid point of the Polygon.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        if self.closed:
-            num_points = len(self)
-            if num_points < 3:
-                return "Polygon has less than 3 points!"
-            
-            area = self.area
-            
-            #https://stackoverflow.com/questions/5271583/center-of-gravity-of-a-polygon
-            
-
-            Cx, Cy = 0.0, 0.0
-            for i in range(num_points):
-                x0, y0 = self[i-1].x, self[i-1].y
-                x1, y1 = self[i].x, self[i].y
-                factor = (x0 * y1 - x1 * y0)
-                Cx += (x0 + x1) * factor
-                Cy += (y0 + y1) * factor
-
-            Cx /= (6.0 * area)
-            Cy /= (6.0 * area)
-
-            return Point(Cx, Cy)
-        else:
-            raise ValueError("this polycurve is not closed")
-
-    def length(self) -> 'float':
-        """Calculates the total length of the Polygon.
-
-        #### Returns:
-        `float`: The total length of the Polygon.
-
+            Plane: A Plane instance defined by the given vectors and origin.
+        
         #### Example usage:
         ```python
 
         ```
         """
-        lst = []
-        for line in self.curves:
-            lst.append(line.length)
+        p1 = Plane()
+        p1.Normal = Vector.normalize(Vector.cross_product(vector_1, vector_2))
+        p1.Origin = origin
+        p1.vector_1 = vector_1
+        p1.vector_2 = vector_2
+        return p1
 
-        return sum(i.length for i in self.curves)
-
-
-
-
-    def __str__(self) -> 'str':
-        """Returns a string representation of the PolyCurve.
+    def __str__(self) -> str:
+        """Generates a string representation of the Plane.
 
         #### Returns:
-        `str`: The string representation of the PolyCurve.
-
+            str: A string describing the Plane with its origin, normal, and basis vectors.
+         
         #### Example usage:
         ```python
 
-        ```        
-        """
-        return f"{__class__.__name__} (points: {list.__str__(self)})"
-
-class PolyCurve(Serializable, list[Line], Shape):
-    """Stores lines, which could possibly be arcs"""
-    def __init__(self, *args):
-        """Initializes a PolyCurve object, which is unclosed by default.
-        
-
-        """
-        
-        
-        #self.points:list[Point] = to_array(*args)
-
-        #self.approximateLength = None
-        #self.graphicsStyleId = None
-        #self.isCyclic = None
-        #self.isElementGeometry = None
-        #self.isReadOnly = None
-        #self.length = self.length()
-        #self.period = None
-        #self.reference = None
-        #self.visibility = None
-        super().__init__(to_array(*args))
-    
-    @property
-    def points(self) -> list[Point]:
-        p = []
-        for l in self:
-            p.extend(l.points)
-        return p
-    
-    @property
-    def closed(self) -> 'bool':
-        return self[0].start == self[-1].end
-    @closed.setter
-    def closed(self, value : bool):
-        if value != self.closed:
-            if value:
-                #just fill the gap using a straight line
-                self.append(Line(self[-1].end, self[0].start))
-            else:
-                del self[-1]    
-    
-    @property
-    def area(self):
-        """Calculates the area of the 2d PolyCurve.
-
-        Returns:
-            float: The area of the 2d poly curve.
-        
-        we are assuming the PolyCurve is wound counter-clockwise and is closed.
-        """
-        if not self.closed:
-            raise ValueError("the polycurve needs to be closed in order to calculate its area")
-        area:float = 0
-        for line in self:
-            if isinstance(line, Arc):
-                origin = line.origin
-                area += (line.start.x - line.end.x) * origin.y
-                #now that we added the 'rectangle', let's add the sine wave
-                
-                #the arc is part of a circle. the circle can be represented as two opposite cosine waves, with the circle center being at 0, 0.
-                #to calculate the area, we'll be using the integral of the cosine wave, which is the sine wave.
-                radius = (line.origin - line.start).magnitude
-                
-                #area is negative if y < 0
-                #area is measured from the -x side here, so at -radius, area == 0 and at +radius, area == circle_area
-                #https://www.desmos.com/calculator/ykynwhoue6
-                get_area = lambda pos : math.copysign((math.sin(((pos.x - origin.x) / radius) * (math.pi / 2)) + 1) * radius, pos.y - origin.y)
-                start_area = get_area(line.start)
-                end_area = get_area(line.end)
-                
-                integral_area = start_area - end_area
-                if integral_area < 0:
-                    circle_area = (radius * radius) * math.pi
-                    integral_area += circle_area
-                area += integral_area
-            else:
-                #check direction of line
-                #start - end, for counterclockwiseness
-                #when start.x < end.x, this is a bottom line. we'll substract this from the area.
-                dx = line.start.x - line.end.x
-                averagey = (line.start.y + line.end.y) / 2
-                area += dx * averagey
-        return area
-    
-    @property
-    def length(self) -> 'float':
-        """Calculates the total length of the PolyCurve.
-
-        #### Returns:
-        `float`: The total length of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-
-        return sum(curve.length for curve in self)
-
-    def scale(self, scale_factor: 'float') -> 'PolyCurve':
-        """Scales the PolyCurve object by the given factor.
-
-        #### Parameters:
-        - `scale_factor`: The scaling factor.
-
-        #### Returns:
-        `PolyCurve`: Scaled PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        crvs = []
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                arcie = Arc(Point.product(scale_factor, i.start),
-                            Point.product(scale_factor, i.end))
-                arcie.mid = Point.product(scale_factor, i.mid)
-                crvs.append(arcie)
-            elif i.__class__.__name__ == "Line":
-                crvs.append(Line(Point.product(scale_factor, i.start),
-                            Point.product(scale_factor, i.end)))
-            else:
-                print("Curvetype not found")
-        crv = PolyCurve.by_joined_curves(crvs)
-        return crv
-    
-    #TODO finish function
-    @property
-    def centroid(self) -> 'Point':
-        """Calculates the centroid of the PolyCurve. in 2D
-
-        #### Returns:
-        `Point`: The centroid point of the PolyCurve.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        poly = Polygon.by_joined_curves(self)
-        total_area = poly.area
-        weighted_centroid = poly.centroid * total_area
-        
-        #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
-        
-        for i in range(len(self)):
-            current_line = self[i]
-            if isinstance(current_line, Arc):
-                #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
-                #calculate the centroid
-                arc_centroid = current_line.centroid
-                arc_area = current_line.area
-                
-                total_area += arc_area
-                #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
-                weighted_centroid += arc_centroid * arc_area
-        
-        return weighted_centroid / total_area
-    
-    #def area(self) -> 'float':  # shoelace formula
-    #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
-#
-    #    #### Returns:
-    #    `float`: The area enclosed by the PolyCurve.
-#
-    #    #### Example usage:
-    #    ```python
-#
-    #    ```        
-    #    """
-    #    if self.closed:
-    #        if len(self.points) < 3:
-    #            return "Polygon has less than 3 points!"
-#
-    #        num_points = len(self.points)
-    #        S1, S2 = 0, 0
-#
-    #        for i in range(num_points):
-    #            x, y = self.points[i].x, self.points[i].y
-    #            if i == num_points - 1:
-    #                x_next, y_next = self.points[0].x, self.points[0].y
-    #            else:
-    #                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-#
-    #            S1 += x * y_next
-    #            S2 += y * x_next
-#
-    #        area = 0.5 * abs(S1 - S2)
-    #        return area
-    #    else:
-    #        print("Polycurve is not closed, no area!")
-    #        return None
-        
-
-
-    @classmethod
-    def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
-        """Creates a PolyCurve from a list of joined Line curves.
-
-        #### Parameters:
-        - `curvelst` (list[Line]): The list of Line curves to join.
-
-        #### Returns:
-        `PolyCurve`: The created PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        for curve in curvelst:
-            if curve.length == 0:
-                curvelst.remove(curve)
-                # print("Error: Curve length cannot be zero.")
-                # sys.exit()
-
-        plycrv = PolyCurve()
-        for index, curve in enumerate(curvelst):
-            if index == 0:
-                plycrv.points.append(curve.start)
-                plycrv.points.append(curve.end)
-            else:
-                plycrv.points.append(curve.end)
-
-        return plycrv
-    
-    @staticmethod
-    def by_polygon(polygon: Polygon):
-        return PolyCurve(polygon.curves)
-
-    @staticmethod
-    def by_points(points: 'list[Point]') -> Self:
-        """Creates a PolyCurve from a list of points.
-
-        #### Parameters:
-        - `points` (list[Point]): The list of points defining the PolyCurve.
-
-        #### Returns:
-        `PolyCurve`: The created PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        return PolyCurve(Polygon(points).curves)
-
-    @classmethod
-    def unclosed_by_points(cls, points: 'list[Point]') -> 'PolyCurve':
-        """Creates an unclosed PolyCurve from a list of points.
-
-        #### Parameters:
-        - `points` (list[Point]): The list of points defining the PolyCurve.
-
-        #### Returns:
-        `PolyCurve`: The created unclosed PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        plycrv = PolyCurve()
-        for index, point in enumerate(points):
-            plycrv.points.append(point)
-            try:
-                nextpoint = points[index + 1]
-                plycrv.curves.append(Line(start=point, end=nextpoint))
-            except:
-                pass
-        return plycrv
-
-    @staticmethod
-    # Create segmented polycurve. Arcs, elips will be translated to straight lines
-    def segment(self, count: 'int') -> 'PolyCurve':
-        """Segments the PolyCurve into straight lines.
-
-        #### Parameters:
-        - `count` (int): The number of segments.
-
-        #### Returns:
-        `PolyCurve`: The segmented PolyCurve object.
-
-        #### Example usage:
-        ```python
-
-        ```        
-        """
-        crvs = []  # add isClosed
-        for i in self.curves:
-            if i.__class__.__name__ == "Arc":
-                crvs.append(Arc.segmented_arc(i, count))
-            elif i.__class__.__name__ == "Line":
-                crvs.append(i)
-        crv = flatten(crvs)
-        pc = PolyCurve.by_joined_curves(crv)
-        return pc
-
-class Circle:
-    """Represents a circle with a specific radius, plane, and length.
-    """
-    def __init__(self, radius: 'float', plane: 'Plane', length: 'float') -> 'Circle':
-        """The Circle class defines a circle by its radius, the plane it lies in, and its calculated length (circumference).
-
-        - `radius` (float): The radius of the circle.
-        - `plane` (Plane): The plane in which the circle lies.
-        - `length` (float): The length (circumference) of the circle. Automatically calculated during initialization.
-        """
-        self.radius = radius
-        self.plane = plane
-        self.length = length
-        
-        pass  # Curve
-
-    def __id__(self):
-        """Returns the ID of the Circle.
-
-        #### Returns:
-        `str`: The ID of the Circle in the format "id:{self.id}".
-        """
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Circle object.
-
-        #### Returns:
-        `str`: A string that represents the Circle object.
-
-        #### Example usage:
-        ```python
-        circle = Circle(radius, plane, length)
-        print(circle)
-        # Output: Circle(...)
         ```
         """
 
+        return f"{__class__.__name__}(" + f"{self.Origin}, {self.Normal}, {self.vector_1}, {self.vector_2})"
 
-class Ellipse:
-    """Represents an ellipse defined by its two radii and the plane it lies in."""
-    def __init__(self, firstRadius: 'float', secondRadius: 'float', plane: 'Plane') -> 'Ellipse':
-        """The Ellipse class describes an ellipse through its major and minor radii and the plane it occupies.
-            
-        - `firstRadius` (float): The first (major) radius of the ellipse.
-        - `secondRadius` (float): The second (minor) radius of the ellipse.
-        - `plane` (Plane): The plane in which the ellipse lies.
-        """
-        self.firstRadius = firstRadius
-        self.secondRadius = secondRadius
-        self.plane = plane
-        
-        pass  # Curve
-
-    def __id__(self):
-        """Returns the ID of the Ellipse.
-
-        #### Returns:
-        `str`: The ID of the Ellipse in the format "id:{self.id}".
-        """
-        return f"id:{self.id}"
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Ellipse object.
-
-        #### Returns:
-        `str`: A string that represents the Ellipse object.
-
-        #### Example usage:
-        ```python
-        ellipse = Ellipse(firstRadius, secondRadius, plane)
-        print(ellipse)
-        # Output: Ellipse(...)
-        ```
-        """
-        return f"{__class__.__name__}({self})"
-
-
-
-class Support:
-    def __init__(self):
-        self.Number = None
-        self.Point: Point = Point(0, 0, 0)
-        
-        self.Tx: str = " "  # A, P, N, S
-        self.Ty: str = " "  # A, P, N, S
-        self.Tz: str = " "  # A, P, N, S
-        self.Rx: str = " "  # A, P, N, S
-        self.Ry: str = " "  # A, P, N, S
-        self.Rz: str = " "  # A, P, N, S
-        self.Kx: float = 0  # kN/m
-        self.Ky: float = 0  # kN/m
-        self.Kz: float = 0  # kN/m
-        self.Cx: float = 0  # kNm/rad
-        self.Cy: float = 0  # kNm/rad
-        self.Cz: float = 0  # kNm/rad
-        self.dx: float = 0  # eccentricity in x
-        self.dy: float = 0  # eccentricity in y
-        self.dz: float = 0  # eccentricity in z
-
-    @staticmethod
-    def pinned(PlacementPoint):
-        sup = Support()
-        sup.Point = PlacementPoint
-        sup.Tx = "A"
-        sup.Ty = "A"
-        sup.Tz = "A"
-        return (sup)
-
-    @staticmethod
-    def x_roller(PlacementPoint):
-        sup = Support()
-        sup.Point = PlacementPoint
-        sup.Ty = "A"
-        sup.Tz = "A"
-        return (sup)
-
-    @staticmethod
-    def y_roller(PlacementPoint):
-        sup = Support()
-        sup.Point = PlacementPoint
-        sup.Tx = "A"
-        sup.Tz = "A"
-        return (sup)
-
-    @staticmethod
-    def z_roller(PlacementPoint):
-        sup = Support()
-        sup.Point = PlacementPoint
-        sup.Tx = "A"
-        sup.Ty = "A"
-        return (sup)
-
-    @staticmethod
-    def fixed(PlacementPoint):
-        sup = Support()
-        sup.Point = PlacementPoint
-        sup.Tx = "A"
-        sup.Ty = "A"
-        sup.Tz = "A"
-        sup.Rx = "A"
-        sup.Ry = "A"
-        sup.Rz = "A"
-        return (sup)
-
-
-class LoadCase:
-    def __init__(self):
-        self.Number = None
-        self.Description: str = ""
-        self.psi0 = 1
-        self.psi1 = 1
-        self.psi2 = 1
-        self.Type = 0  # 0 = permanent, 1 = variabel
-
-
-class SurfaceLoad:
-    def __init__(self):
-        self.LoadCase = None
-        self.PolyCurve: PolyCurve = None
-        self.Description: str = ""
-        self.crs = "ccaa0435161960d4c7e436cf107a03f61"
-        self.direction = "caf2b4ce743de1df30071f9566b1015c6"
-        self.LoadBearingDirection = "cfebf3fce7063ab9a89d28a86508c0fb3"
-        self.q1 = 0
-        self.q2 = 0
-        self.q3 = 0
-        self.LoadConstantOrLinear = "cb81ae405e988f21166edf06d7fd646fb"
-        self.iq1 = -1
-        self.iq2 = -1
-        self.iq3 = -1
-
-    @staticmethod
-    def by_load_case_polycurve_q(LoadCase, PolyCurve, q):
-        SL = SurfaceLoad()
-        SL.LoadCase = LoadCase
-        SL.PolyCurve = PolyCurve
-        SL.q1 = q
-        SL.q2 = q
-        SL.q3 = q
-        return SL
-
-
-class LoadPanel:
-    def __init__(self):
-        self.PolyCurve: PolyCurve = None
-        self.Description: str = ""
-        self.LoadBearingDirection = "X"
-        # Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
-        self.SurfaceType = ""
-
-
-def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description: str):
-    SurfaceLoads = []
-    x = startx
-    y = starty
-    for j in range(ny):
-        for i in range(nx):
-            SL = SurfaceLoad()
-            SL.Description = description
-            SL.LoadCase = LoadCase
-            SL.PolyCurve = PolyCurve.by_points(
-                [Point(x, y, 0),
-                 Point(x + width, y, 0),
-                 Point(x, y + height, 0),
-                 Point(x, y, 0)]
-            )
-            SL.q1 = SL.q2 = SL.q3 = q123  # [kN/m2]
-            SurfaceLoads.append(SL)
-            x = x + dx
-        y = y + dy
-    return SurfaceLoads
+    # TODO
+    # byLineAndPoint
+    # byOriginNormal
+    # byThreePoints
 
 
 
@@ -3073,6 +2436,1161 @@ class Text:
             for pts in output_list
         ]
         return polyline_list
+
+
+
+
+class Sphere(Serializable):
+	def __init__(self, point:Point, diameter:int):
+		self.point = point
+		self.diameter = diameter
+        
+	def __str__(self) -> str:
+		return str(Sphere)
+
+	@staticmethod
+	def radius_by_3_points(start:float, mid: float, end: float) -> float:
+		a = Point.distance(start, mid)
+		b = Point.distance(mid, end)
+		c = Point.distance(end, start)
+		s = (a + b + c) / 2
+		A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+				
+		if abs(A) < 1e-6:
+			return float('inf')
+		else:
+			R = (a * b * c) / (4 * A)
+			return R
+
+class Circle:
+    """Represents a circle with a specific radius, plane, and length.
+    """
+    def __init__(self, radius: 'float', plane: 'Plane', length: 'float') -> 'Circle':
+        """The Circle class defines a circle by its radius, the plane it lies in, and its calculated length (circumference).
+
+        - `radius` (float): The radius of the circle.
+        - `plane` (Plane): The plane in which the circle lies.
+        - `length` (float): The length (circumference) of the circle. Automatically calculated during initialization.
+        """
+        self.radius = radius
+        self.plane = plane
+        self.length = length
+        
+        pass  # Curve
+
+    def __id__(self):
+        """Returns the ID of the Circle.
+
+        #### Returns:
+        `str`: The ID of the Circle in the format "id:{self.id}".
+        """
+
+    def __str__(self) -> 'str':
+        """Generates a string representation of the Circle object.
+
+        #### Returns:
+        `str`: A string that represents the Circle object.
+
+        #### Example usage:
+        ```python
+        circle = Circle(radius, plane, length)
+        print(circle)
+        # Output: Circle(...)
+        ```
+        """
+
+
+class Ellipse:
+    """Represents an ellipse defined by its two radii and the plane it lies in."""
+    def __init__(self, firstRadius: 'float', secondRadius: 'float', plane: 'Plane') -> 'Ellipse':
+        """The Ellipse class describes an ellipse through its major and minor radii and the plane it occupies.
+            
+        - `firstRadius` (float): The first (major) radius of the ellipse.
+        - `secondRadius` (float): The second (minor) radius of the ellipse.
+        - `plane` (Plane): The plane in which the ellipse lies.
+        """
+        self.firstRadius = firstRadius
+        self.secondRadius = secondRadius
+        self.plane = plane
+        
+        pass  # Curve
+
+    def __id__(self):
+        """Returns the ID of the Ellipse.
+
+        #### Returns:
+        `str`: The ID of the Ellipse in the format "id:{self.id}".
+        """
+        return f"id:{self.id}"
+
+    def __str__(self) -> 'str':
+        """Generates a string representation of the Ellipse object.
+
+        #### Returns:
+        `str`: A string that represents the Ellipse object.
+
+        #### Example usage:
+        ```python
+        ellipse = Ellipse(firstRadius, secondRadius, plane)
+        print(ellipse)
+        # Output: Ellipse(...)
+        ```
+        """
+        return f"{__class__.__name__}({self})"
+
+
+class Curve(Serializable):
+	@property
+	def length(self) -> float:
+		raise NotImplementedError()
+
+	@property
+	def start(self) -> Point:
+		return self.point_at_fraction(0)
+	@property
+	def mid(self) -> Point:
+		return self.point_at_fraction(0.5)
+	@property
+	def end(self) -> Point:
+		return self.point_at_fraction(1)
+	def point_at_fraction(fraction: float) -> Point:
+		raise NotImplementedError()
+
+	def segmented(self, amount: int) -> list[Point]:
+		"""returns points along this line.
+		
+		Args:
+		    amount (int): the amount of samples to take
+		
+		Returns:
+		    list[Point]: a list of points sampled along this line
+		"""
+		fraction_multiplier = 1.0 / (amount - 1)
+		return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+
+class Line(Curve):
+    def __init__(self, start: Point, end: Point) -> 'Line':
+        """Initializes a Line object with the specified start and end points.
+
+        - `start` (Point): The starting point of the line segment.
+        - `end` (Point): The ending point of the line segment.
+        """
+        #copy
+        """The starting point of the line segment"""
+        self.start = Point(start)
+        """The ending point of the line segment."""
+        self.end = Point(end)
+        
+    @property
+    def mid(self) -> 'Point':
+        """Computes the midpoint of the Line object.
+
+        #### Returns:
+        `Point`: The midpoint of the Line object.
+
+        #### Example usage:
+        ```python
+
+        ```          
+        """
+        return (self.start + self.end) * 0.5
+    @property
+    def angle(self) -> float:
+        return (self.end - self.start).angle
+    
+    @property
+    def points(self) -> list[Point]:
+        return[Point(self.start), Point(self.end)]
+    
+    @property
+    def segmentate(self, amount: int) -> list[Point]:
+        """returns points along this line.
+
+        Args:
+            amount (int): the amount of samples to take
+
+        Returns:
+            list[Point]: a list of points sampled along this line
+        """
+        fraction_multiplier = 1.0 / (amount - 1)
+        return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+    
+    def point_at_fraction(self, fraction: float) -> Point:
+        """
+
+        Args:
+            fraction (float): a value from 0 to 1, describing the position in the line.
+
+        Returns:
+            Point: self.start for 0, self.end for 1
+        """
+        return self.start * (1 - fraction) + self.end * fraction
+    
+    @staticmethod
+    def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
+        """Creates a line segment starting from a given point in the direction of a given vector with a specified length.
+
+        #### Parameters:
+        - `start` (Point): The starting point of the line segment.
+        - `direction` (Vector): The direction vector of the line segment.
+        - `length` (float): The length of the line segment.
+
+        #### Returns:
+        `Line`: A new Line object representing the line segment.
+
+        #### Example usage:
+        ```python
+
+        ```          
+        """
+        norm = math.sqrt(direction.x ** 2 + direction.y **
+                         2 + direction.z ** 2)
+        normalized_direction = Vector(
+            direction.x / norm, direction.y / norm, direction.z / norm)
+
+        end_x = start.x + normalized_direction.x * length
+        end_y = start.y + normalized_direction.y * length
+        end_z = start.z + normalized_direction.z * length
+        end_point = Point(end_x, end_y, end_z)
+
+        return Line(start, end_point)
+
+    # @classmethod
+    def point_at_parameter(self, interval: 'float' = None) -> 'Point':
+        """Computes the point on the Line object at a specified parameter value.
+
+        #### Parameters:
+        - `interval` (float): The parameter value determining the point on the line. Default is None, which corresponds to the midpoint.
+
+        #### Returns:
+        `Point`: The point on the Line object corresponding to the specified parameter value.
+
+        #### Example usage:
+        ```python
+
+        ```          
+        """
+        if interval == None:
+            interval = 0.0
+        x1, y1, z1 = self.start.x, self.start.y, self.start.z
+        x2, y2, z2 = self.end.x, self.end.y, self.end.z
+        if float(interval) == 0.0:
+            return self.start
+        else:
+            devBy = 1/interval
+            return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
+
+    def intersects(self, other: 'Line') -> bool:
+        """checks if two lines intersect with eachother.
+
+        Args:
+            other (Line): the line which may intersect with this rectangle
+
+        Returns:
+            bool: true if the lines cross eachother.
+        """
+        #ax + b = cx + d
+        #ax = cx + d - b
+        #ax - cx = d - b
+        #(a - c)x = d - b
+        #x = (d - b) / (a - c)
+        
+        #calculate a and c
+        
+        diff_self = self.end - self.start
+        diff_other = other.end - other.start
+        #a
+        slope_self = math.inf if diff_self.x == 0 else diff_self.y / diff_self.x
+        
+        #c
+        slope_other = math.inf if diff_other.x == 0 else diff_other.y / diff_other.x
+        #handle edge cases
+        #colinear
+        if(slope_self == slope_other) :
+            return False
+
+        #b
+        self_y_at_0 = self.start.y - self.start.x * slope_self
+        
+        #check if one slope is infinite (both infinite is handled by colinear)
+        if other.start.x == other.end.x:
+            self_y_at_line = self_y_at_0 + slope_self * other.start.x
+            return other.start.y < self_y_at_line < other.end.y
+
+        #d
+        other_y_at_0 = other.start.y - other.start.x * slope_other
+
+        if self.start.x == self.end.x:
+            other_y_at_line = other_y_at_0 + slope_other * self.start.x
+            return self.start.y < other_y_at_line < self.end.y
+        
+        intersection_x = (other_y_at_0 - self_y_at_0) / (slope_self - slope_other)
+        
+        return self.start.x < intersection_x < self.end.x
+
+    def split(self, points: 'Union[Point, list[Point]]') -> 'list[Line]':
+        """Splits the Line object at the specified point(s).
+
+        #### Parameters:
+        - `points` (Point or List[Point]): The point(s) at which the Line object will be split.
+
+        #### Returns:
+        `List[Line]`: A list of Line objects resulting from the split operation.
+
+        #### Example usage:
+        ```python
+
+        ```          
+        """
+        lines = []
+        if isinstance(points, list):
+            points.extend([self.start, self.end])
+            sorted_points = sorted(
+                points, key=lambda p: p.distance(p, self.end))
+            lines = create_lines(sorted_points)
+            return lines
+        elif isinstance(points, Point):
+            point = points
+            lines.append(Line(start=self.start, end=point))
+            lines.append(Line(start=point, end=self.end))
+            return lines
+        
+    @property
+    def length(self) -> 'float':
+        """Computes the length of the Line object.
+
+        #### Returns:
+        `float`: The length of the Line object.
+
+        #### Example usage:
+        ```python
+
+        ```          
+        """
+        return (self.end - self.start).magnitude
+    
+    @property
+    def direction(self) -> Vector:
+        """Computes the direction of the Line object.
+        """
+        return (self.end - self.start).normalized
+
+    def __str__(self) -> 'str':
+        """Returns a string representation of the Line object.
+
+        #### Returns:
+        `str`: A string representation of the Line object.
+
+        #### Example usage:
+        ```python
+
+        ```          
+        """
+        return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
+
+class Arc(Curve):
+	def __init__(self, matrix:'Matrix', angle:float) -> None:
+		self.matrix, self.angle = matrix, angle
+ 
+	@staticmethod
+	def by_start_mid_end(start: Point, end: Point, mid: Point) -> 'Arc':
+		#construct a matrix from a plane
+		#x = (start - origin).normalized
+		#y
+  
+		start_to_end = end - start
+		half_start_end = start_to_end * 0.5
+		b = half_start_end.magnitude
+		radius = Sphere.radius_by_3_points(start, mid, end)
+		x = math.sqrt(radius * radius - b * b)
+		#mid point as if this was a straight line
+		straight_line_mid = start + half_start_end
+		#substract the curved mid point from the straight line mid point
+		to_center = straight_line_mid - mid
+		#change length to x
+		to_center.magnitude = x
+		origin = mid + to_center
+
+		x_axis = start - mid
+		normalized_x_axis = x_axis.normalized
+		normalized_end_direction = (end - mid).normalized
+		#TODO: z axis is pointing the other way when the angle is more than PI
+		#dot_product = Vector.dot_product(normalized_x_axis, normalized_end_direction)
+		#if dot_product > 
+		normalized_z_axis = Vector.cross_product(normalized_x_axis, normalized_end_direction).normalized
+		normalized_y_axis = Vector.cross_product(normalized_z_axis, normalized_x_axis)
+		return Arc(Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis]))
+ 
+	@property
+	def start(self) -> Point:
+		"""
+
+		Returns:
+			Point: the starting point of this arc
+		"""
+		return self.matrix * x_axis
+
+	@property
+	def radius(self) -> float:
+		"""
+
+		Returns:
+			Point: the radius of the circle this arc is a part of
+		"""
+		return self.matrix.multiply_without_translation(x_axis).magnitude
+
+	@property
+	def origin(self) -> Point:
+		"""
+
+		Returns:
+			Point: the center of the circle this arc is a part of
+		"""
+		return self.matrix.translation
+
+
+	@property
+	def length(self) -> float:
+		"""
+
+		Returns:
+			Point: the length of this arc
+		"""
+		return self.angle * self.radius
+
+	def point_at_fraction(self, fraction: float):
+		"""
+  
+        #### Example usage:
+        ```python
+        #counter-clockwise arc with center 0,0
+        arc = Arc.by_start_mid_end(Point(-1,0), Point(0,1), Point(1, 0))
+        #the point at fraction 0.5 is (0,1)
+        
+        #clockwise arc with center 0,0
+        arc = Arc.by_start_mid_end(Point(-1,0), Point(0, -1), Point(1, 0))
+        #the point at fraction 0.5 is (0,-1)
+        ```
+
+		Args:
+			fraction (float): a value from 0 (start) to (end)
+
+		Returns:
+			Point: a point on the arc at a certain fraction
+		"""
+		return self.matrix * Vector.by_angle(self.angle * fraction)
+
+	@property
+	def centroid(self) -> 'Point':
+		"""
+
+		Returns:
+			Point: the center of mass of this arc object
+		"""
+		origin = self.origin
+		radius = self.radius
+		angle = self.angle
+		#the distance of the centroid of the arc to its origin
+		centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
+		return origin + centroid_distance * ((self.mid - origin) / radius)
+
+	def __str__(self) -> 'str':
+		"""Generates a string representation of the Arc object.
+
+		#### Returns:
+		`str`: A string that represents the Arc object.
+		"""
+		return f"{__class__.__name__}.by_start_mid_end(start={self.start}, mid={self.mid}, end={self.end})"
+
+class Polygon(PointList):
+    """Represents a polygon composed of points."""
+    def __init__(self, *args) -> 'Polygon':
+        
+        super().__init__(to_array(*args))
+
+
+    @property
+    def closed(self) -> bool: return self[0] == self[-1]
+    
+    @property
+    def points(self) -> list[Point]:
+        return [Point(p) for p in self]
+    
+    @closed.setter
+    def closed(self, value) -> Self:
+        """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
+        #### Example usage:
+        ```python
+            c:PolyCurve = PolyCurve(Point(1,3),Point(4,3),Point(2,6))
+            c.closed = true #Point(1,3) just got added to the back of the list
+        ```
+        """
+        if value != self.closed:
+            if value:
+                #copy. else, when operators are executed, it will execute the operator twice on the same reference
+                self.append(Vector(self[0]))
+            else:
+                del self[-1]
+        return self
+    
+
+    @property
+    def curves(self) -> list[Line]:
+        """this function won't close the polycurve!
+
+        Returns:
+            list[Line]: the curves connecting this polycurve
+        """
+        return [Line(self[point_index], self[point_index + 1]) for point_index in range(len(self) - 1)]
+
+    @property
+    def is_rectangle(self) -> bool:
+        """the polycurve should be wound counter-clockwise and the first line should be in the x direction
+
+        Returns:
+            bool: if this curve is a rectangle, i.e. it has 4 corner points
+        """
+        if len(self) == 4 or self.closed and len(self) == 5:
+            if self[0].y == self[1].y and self[1].x == self[2].x and self[2].y == self[3].y and self[3].x == self[0].x:
+                return True
+        else: return False
+
+    def contains(self, p: 'Point') -> bool:
+        """checks if the point is inside the polygon
+
+        Args:
+            p (Point): _description_
+
+        Returns:
+            bool: _description_
+        """
+        #yoinked this from stack overflow, looks clean
+        #https://stackoverflow.com/questions/36399381/whats-the-fastest-way-of-checking-if-a-point-is-inside-a-polygon-in-python
+        
+        # Ray tracing
+        n = len(self)
+        inside = False
+    
+        p1 = self[0]
+        for i in range(n + 1 if self.closed else n):
+            p2 = self[i % n]
+            if p.y > min(p1.y,p2.y):
+                if p.y <= max(p1.y,p2.y):
+                    if p.x <= max(p1.x,p2.x):
+                        if p1.y != p2.y:
+                            xints = (p.y-p1.y)*(p2.x-p1.x)/(p2.y-p1.y)+p1.x
+                        if p1.x == p2.x or p.x <= xints:
+                            inside = not inside
+            p1 = p2
+    
+        return inside
+
+    def intersects(self, other: 'PolyCurve') -> bool:
+        """checks if two polycurves intersect with eachother. caution! this is brute force.
+
+        Args:
+            other (PolyCurve): the PolyCurve which may intersect with this rectangle
+
+        Returns:
+            bool: true if any of the lines of the two polygons cross eachother.
+        """
+        #before doing such an expensive method, let's check if our bounds cross first.
+        if self.bounds.collides(other.bounds):
+            other_curves = other.curves
+            for c in self.curves:
+                for other_c in other_curves:
+                    if(c.intersects(other_c)):return True
+        return False
+    
+    def collides(self, other: 'Polygon') -> bool:
+        """checks if two polygons collide with eachother.
+
+        Args:
+            other (Polygon): the polygon which may collide with this rectangle
+
+        Returns:
+            bool: true if two polygons overlap
+        """
+        #hopefully, most of the time we contain a point of the other.
+        return self.contains(other[0]) or other.contains(self[0]) or self.intersects(other)
+
+    @classmethod
+    def by_points(self, points: 'list[Point]') -> 'Polygon':
+        """Creates a Polygon from a list of points.
+
+        #### Parameters:
+        - `points` (list[Point]): The list of points defining the Polygon.
+
+        #### Returns:
+        `Polygon`: The created Polygon object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        if len(points) < 3:
+            print("Error: Polygon must have at least 3 unique points.")
+            return None
+
+        _points = []
+
+        for point in points: #Convert all to Point
+            if point.type == "Point":
+                _points.append(Point(point.x, point.y, 0))
+            else:
+                _points.append(point)
+
+        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
+            _points.pop()
+
+        seen = set()
+        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
+
+        polygon = Polygon()
+        polygon.points = unique_points
+
+        num_points = len(unique_points)
+        for i in range(num_points):
+            next_index = (i + 1) % num_points
+            polygon.curves.append(Line(start=unique_points[i], end=unique_points[next_index]))
+
+        return polygon
+
+    @staticmethod
+    def rectangular(rect: Rect) -> 'Polygon':
+        """Creates a rectangle in a given plane.
+
+        #### Parameters:
+        - `rect` (Rect): The rectangle to use as reference. one axis of its size should be 0 or a ValueError will occur!
+        - `width` (float): The width of the rectangle.
+        - `height` (float): The height of the rectangle.
+
+        #### Returns:
+        `Polygon`: The rectangle Polygon.
+
+        #### Example usage:
+        ```python
+        ```    
+        """
+        try:
+            not_used_axis_index = rect.size.index(0)
+        except:
+            #2d rectangle
+            not_used_axis_index = 2
+
+        axis0 = 1 if not_used_axis_index == 0 else 0
+        axis1 = 1 if not_used_axis_index == 2 else 2
+
+        rect_p1 = rect.p1
+        curve_p0 = rect.p0
+        #clone
+        curve_p1 = Point(rect.p0)
+        curve_p1[axis0] = rect_p1[axis0]
+
+        curve_p2 = rect_p1
+        curve_p3 = Point(rect.p0)
+        curve_p3[axis1] = rect_p1[axis1]
+        return Polygon(curve_p0, curve_p1, curve_p2, curve_p3)
+
+    @staticmethod
+    def by_joined_curves(lines: 'list[Line]') -> 'Polygon':
+        """returns an unclosed polygon from the provided lines, with each point being the starting point of each line.
+        creates a shallow copy of the lines provided!
+
+        Args:
+            lines (list[Line]): the starting point of every line provided will be used. segments are expected to be continuous. (lines[0].end == lines[1].start)
+
+        Returns:
+            Polygon: an unclosed polygon.
+        """
+        if not lines:
+            print("Error: At least one curve is required to form a Polygon.")
+            sys.exit()
+
+        for i in range(len(lines) - 1):
+            if lines[i].end != lines[i+1].start:
+                raise ValueError("Error: Curves must be contiguous to form a Polygon.")
+
+        return Polygon([line.start for line in lines] + [lines[-1].end])
+    
+    @property
+    def area(self) -> 'float':  # shoelace formula
+        """Calculates the area enclosed by the Polygon using the shoelace formula.
+
+        #### Returns:
+        `float`: The area enclosed by the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        if len(self) < 3:
+            return "Polygon has less than 3 points!"
+
+        num_points = len(self)
+        S1, S2 = 0, 0
+
+        for i in range(num_points):
+            S1 += self[i - 1].x * self[i].y
+            S2 += self[i - 1].y * self[i].x
+
+        area = 0.5 * abs(S1 - S2)
+        return area
+    
+    @property
+    def centroid(self) -> 'Point':
+        """Calculates the centroid of the Polygon in 2D. we assume that the polygon doesn't intersect itself.
+
+        #### Returns:
+        `Point`: The centroid point of the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        if self.closed:
+            num_points = len(self)
+            if num_points < 3:
+                return "Polygon has less than 3 points!"
+            
+            area = self.area
+            
+            #https://stackoverflow.com/questions/5271583/center-of-gravity-of-a-polygon
+            
+
+            Cx, Cy = 0.0, 0.0
+            for i in range(num_points):
+                x0, y0 = self[i-1].x, self[i-1].y
+                x1, y1 = self[i].x, self[i].y
+                factor = (x0 * y1 - x1 * y0)
+                Cx += (x0 + x1) * factor
+                Cy += (y0 + y1) * factor
+
+            Cx /= (6.0 * area)
+            Cy /= (6.0 * area)
+
+            return Point(Cx, Cy)
+        else:
+            raise ValueError("this polycurve is not closed")
+
+    def length(self) -> 'float':
+        """Calculates the total length of the Polygon.
+
+        #### Returns:
+        `float`: The total length of the Polygon.
+
+        #### Example usage:
+        ```python
+
+        ```
+        """
+        lst = []
+        for line in self.curves:
+            lst.append(line.length)
+
+        return sum(i.length for i in self.curves)
+
+    def __str__(self) -> 'str':
+        """Returns a string representation of the PolyCurve.
+
+        #### Returns:
+        `str`: The string representation of the PolyCurve.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        return f"{__class__.__name__} (points: {list.__str__(self)})"
+
+class PolyCurve(Serializable, list[Line], Shape):
+    """Stores lines, which could possibly be arcs"""
+    def __init__(self, *args):
+        """Initializes a PolyCurve object, which is unclosed by default."""
+        
+        super().__init__(to_array(*args))
+    
+    @property
+    def points(self) -> list[Point]:
+        p = []
+        for l in self:
+            p.extend(l.points)
+        return p
+    
+    @property
+    def closed(self) -> 'bool':
+        return self[0].start == self[-1].end
+    @closed.setter
+    def closed(self, value : bool):
+        if value != self.closed:
+            if value:
+                #just fill the gap using a straight line
+                self.append(Line(self[-1].end, self[0].start))
+            else:
+                del self[-1]    
+    
+    @property
+    def area(self):
+        """Calculates the area of the 2d PolyCurve.
+
+        Returns:
+            float: The area of the 2d poly curve.
+        
+        we are assuming the PolyCurve is wound counter-clockwise and is closed.
+        """
+        if not self.closed:
+            raise ValueError("the polycurve needs to be closed in order to calculate its area")
+        area:float = 0
+        for line in self:
+            if isinstance(line, Arc):
+                origin = line.origin
+                area += (line.start.x - line.end.x) * origin.y
+                #now that we added the 'rectangle', let's add the sine wave
+                
+                #the arc is part of a circle. the circle can be represented as two opposite cosine waves, with the circle center being at 0, 0.
+                #to calculate the area, we'll be using the integral of the cosine wave, which is the sine wave.
+                radius = (line.origin - line.start).magnitude
+                
+                #area is negative if y < 0
+                #area is measured from the -x side here, so at -radius, area == 0 and at +radius, area == circle_area
+                #https://www.desmos.com/calculator/ykynwhoue6
+                get_area = lambda pos : math.copysign((math.sin(((pos.x - origin.x) / radius) * (math.pi / 2)) + 1) * radius, pos.y - origin.y)
+                start_area = get_area(line.start)
+                end_area = get_area(line.end)
+                
+                integral_area = start_area - end_area
+                if integral_area < 0:
+                    circle_area = (radius * radius) * math.pi
+                    integral_area += circle_area
+                area += integral_area
+            else:
+                #check direction of line
+                #start - end, for counterclockwiseness
+                #when start.x < end.x, this is a bottom line. we'll substract this from the area.
+                dx = line.start.x - line.end.x
+                averagey = (line.start.y + line.end.y) / 2
+                area += dx * averagey
+        return area
+    
+    @property
+    def length(self) -> 'float':
+        """Calculates the total length of the PolyCurve.
+
+        #### Returns:
+        `float`: The total length of the PolyCurve.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+
+        return sum(curve.length for curve in self)
+
+    def scale(self, scale_factor: 'float') -> 'PolyCurve':
+        """Scales the PolyCurve object by the given factor.
+
+        #### Parameters:
+        - `scale_factor`: The scaling factor.
+
+        #### Returns:
+        `PolyCurve`: Scaled PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        crvs = []
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                arcie = Arc(Point.product(scale_factor, i.start),
+                            Point.product(scale_factor, i.end))
+                arcie.mid = Point.product(scale_factor, i.mid)
+                crvs.append(arcie)
+            elif i.__class__.__name__ == "Line":
+                crvs.append(Line(Point.product(scale_factor, i.start),
+                            Point.product(scale_factor, i.end)))
+            else:
+                print("Curvetype not found")
+        crv = PolyCurve.by_joined_curves(crvs)
+        return crv
+    
+    #TODO finish function
+    @property
+    def centroid(self) -> 'Point':
+        """Calculates the centroid of the PolyCurve. in 2D
+
+        #### Returns:
+        `Point`: The centroid point of the PolyCurve.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        poly = Polygon.by_joined_curves(self)
+        total_area = poly.area
+        weighted_centroid = poly.centroid * total_area
+        
+        #now check if any lines are arcs. in that case, we need to adjust the centroid a bit
+        
+        for i in range(len(self)):
+            current_line = self[i]
+            if isinstance(current_line, Arc):
+                #https://pickedshares.com/en/center-of-area-of-%E2%80%8B%E2%80%8Bgeometric-figures/#circlesegment
+                #calculate the centroid
+                arc_centroid = current_line.centroid
+                arc_area = current_line.area
+                
+                total_area += arc_area
+                #now that we have the centroid, we also need to calculate the area, and multiply the centroid by the area to give it a 'weight'
+                weighted_centroid += arc_centroid * arc_area
+        
+        return weighted_centroid / total_area
+
+
+    @classmethod
+    def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
+        """Creates a PolyCurve from a list of joined Line curves.
+
+        #### Parameters:
+        - `curvelst` (list[Line]): The list of Line curves to join.
+
+        #### Returns:
+        `PolyCurve`: The created PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        for curve in curvelst:
+            if curve.length == 0:
+                curvelst.remove(curve)
+                # print("Error: Curve length cannot be zero.")
+                # sys.exit()
+
+        plycrv = PolyCurve()
+        for index, curve in enumerate(curvelst):
+            if index == 0:
+                plycrv.points.append(curve.start)
+                plycrv.points.append(curve.end)
+            else:
+                plycrv.points.append(curve.end)
+
+        return plycrv
+    
+    @staticmethod
+    def by_polygon(polygon: Polygon):
+        return PolyCurve(polygon.curves)
+
+    @staticmethod
+    def by_points(points: 'list[Point]') -> Self:
+        """Creates a PolyCurve from a list of points.
+
+        #### Parameters:
+        - `points` (list[Point]): The list of points defining the PolyCurve.
+
+        #### Returns:
+        `PolyCurve`: The created PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        return PolyCurve(Polygon(points).curves)
+
+    @classmethod
+    def unclosed_by_points(cls, points: 'list[Point]') -> 'PolyCurve':
+        """Creates an unclosed PolyCurve from a list of points.
+
+        #### Parameters:
+        - `points` (list[Point]): The list of points defining the PolyCurve.
+
+        #### Returns:
+        `PolyCurve`: The created unclosed PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        plycrv = PolyCurve()
+        for index, point in enumerate(points):
+            plycrv.points.append(point)
+            try:
+                nextpoint = points[index + 1]
+                plycrv.curves.append(Line(start=point, end=nextpoint))
+            except:
+                pass
+        return plycrv
+
+    @staticmethod
+    # Create segmented polycurve. Arcs, elips will be translated to straight lines
+    def segment(self, count: 'int') -> 'PolyCurve':
+        """Segments the PolyCurve into straight lines.
+
+        #### Parameters:
+        - `count` (int): The number of segments.
+
+        #### Returns:
+        `PolyCurve`: The segmented PolyCurve object.
+
+        #### Example usage:
+        ```python
+
+        ```        
+        """
+        crvs = []  # add isClosed
+        for i in self.curves:
+            if i.__class__.__name__ == "Arc":
+                crvs.append(Arc.segmented_arc(i, count))
+            elif i.__class__.__name__ == "Line":
+                crvs.append(i)
+        crv = flatten(crvs)
+        pc = PolyCurve.by_joined_curves(crv)
+        return pc
+
+
+
+class Support:
+    def __init__(self):
+        self.Number = None
+        self.Point: Point = Point(0, 0, 0)
+        
+        self.Tx: str = " "  # A, P, N, S
+        self.Ty: str = " "  # A, P, N, S
+        self.Tz: str = " "  # A, P, N, S
+        self.Rx: str = " "  # A, P, N, S
+        self.Ry: str = " "  # A, P, N, S
+        self.Rz: str = " "  # A, P, N, S
+        self.Kx: float = 0  # kN/m
+        self.Ky: float = 0  # kN/m
+        self.Kz: float = 0  # kN/m
+        self.Cx: float = 0  # kNm/rad
+        self.Cy: float = 0  # kNm/rad
+        self.Cz: float = 0  # kNm/rad
+        self.dx: float = 0  # eccentricity in x
+        self.dy: float = 0  # eccentricity in y
+        self.dz: float = 0  # eccentricity in z
+
+    @staticmethod
+    def pinned(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Ty = "A"
+        sup.Tz = "A"
+        return (sup)
+
+    @staticmethod
+    def x_roller(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Ty = "A"
+        sup.Tz = "A"
+        return (sup)
+
+    @staticmethod
+    def y_roller(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Tz = "A"
+        return (sup)
+
+    @staticmethod
+    def z_roller(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Ty = "A"
+        return (sup)
+
+    @staticmethod
+    def fixed(PlacementPoint):
+        sup = Support()
+        sup.Point = PlacementPoint
+        sup.Tx = "A"
+        sup.Ty = "A"
+        sup.Tz = "A"
+        sup.Rx = "A"
+        sup.Ry = "A"
+        sup.Rz = "A"
+        return (sup)
+
+
+class LoadCase:
+    def __init__(self):
+        self.Number = None
+        self.Description: str = ""
+        self.psi0 = 1
+        self.psi1 = 1
+        self.psi2 = 1
+        self.Type = 0  # 0 = permanent, 1 = variabel
+
+
+class SurfaceLoad:
+    def __init__(self):
+        self.LoadCase = None
+        self.PolyCurve: PolyCurve = None
+        self.Description: str = ""
+        self.crs = "ccaa0435161960d4c7e436cf107a03f61"
+        self.direction = "caf2b4ce743de1df30071f9566b1015c6"
+        self.LoadBearingDirection = "cfebf3fce7063ab9a89d28a86508c0fb3"
+        self.q1 = 0
+        self.q2 = 0
+        self.q3 = 0
+        self.LoadConstantOrLinear = "cb81ae405e988f21166edf06d7fd646fb"
+        self.iq1 = -1
+        self.iq2 = -1
+        self.iq3 = -1
+
+    @staticmethod
+    def by_load_case_polycurve_q(LoadCase, PolyCurve, q):
+        SL = SurfaceLoad()
+        SL.LoadCase = LoadCase
+        SL.PolyCurve = PolyCurve
+        SL.q1 = q
+        SL.q2 = q
+        SL.q3 = q
+        return SL
+
+
+class LoadPanel:
+    def __init__(self):
+        self.PolyCurve: PolyCurve = None
+        self.Description: str = ""
+        self.LoadBearingDirection = "X"
+        # Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+        self.SurfaceType = ""
+
+
+def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description: str):
+    SurfaceLoads = []
+    x = startx
+    y = starty
+    for j in range(ny):
+        for i in range(nx):
+            SL = SurfaceLoad()
+            SL.Description = description
+            SL.LoadCase = LoadCase
+            SL.PolyCurve = PolyCurve.by_points(
+                [Point(x, y, 0),
+                 Point(x + width, y, 0),
+                 Point(x, y + height, 0),
+                 Point(x, y, 0)]
+            )
+            SL.q1 = SL.q2 = SL.q3 = q123  # [kN/m2]
+            SurfaceLoads.append(SL)
+            x = x + dx
+        y = y + dy
+    return SurfaceLoads
 
 
 #Maarten
@@ -5813,680 +6331,6 @@ class Level:
         return f"{self.type}(Name={self.name}, Elevation={self.elevation})"
 
 
-class Matrix(Serializable, list[list]):
-	"""
-	elements are ordered like [row][column] or [y][x]
-	"""
-	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> 'Matrix':
-		list.__init__(self, matrix)
-	
-
-	@property
-	def cols(self) -> 'int':
-		"""returns the width (x size) of this matrix in columns."""
-		return len(self[0])
-
-	@property
-	def rows(self) -> 'int':
-		"""returns the height (y size) of this matrix in columns."""
-		return len(self)
-
-	@staticmethod
-	def scale(dimensions: int, scalar: float)-> 'Matrix':
-		
-		match dimensions:
-			case 1:
-				arr = [[scalar]]
-			case 2:
-				arr = [[scalar,0],
-						[0,scalar]]
-			case 3:
-				arr = [[scalar, 0, 0],
-						[0, scalar, 0],
-						[0, 0, scalar]]
-			case 4:
-				arr= [[scalar, 0, 0, 0],
-						[0, scalar, 0, 0],
-						[0, 0, scalar, 0],
-						[0, 0, 0, scalar]]
-		return Matrix(arr)
-	
-	@staticmethod
-	def empty(rows:int, cols = None):
-		"""creates a matrix of size n x m (rows x columns or y * x or h * w)"""
-		if cols == None:
-			cols = rows
-		return Matrix([[0 for col in range(cols)] for row in range(rows)])
-
-	@staticmethod
-	def identity(dimensions:int):
-		return Matrix.scale(dimensions, 1)
-
-	@staticmethod
-	def translate(toAdd: Vector):
-		dimensions:int = len(toAdd) + 1
-		return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
-
-	@staticmethod
-	def by_origin_and_axes(origin: Point, axes: list[Coords]) -> 'Matrix':
-		"""
-
-		Args:
-			origin (Point): the translation vector of this matrix
-			axes (list[Coords]): the x, y and other axes of this matrix
-
-		Returns:
-			Matrix: a matrix with columns ordered like this:
-			axes[0], axes[1], ..., axes[n], origin
-		"""
-		return Matrix([[axes[col][row] if col < len(axes) else origin[row] 
-				for col in range(len(axes) + 1)] 
-				for row in range(len(origin))])
-
-	@staticmethod
-	def by_rotation(axis: Vector, angle: float) -> 'Matrix':
-		"""creates a rotation matrix to rotate something over the origin around an axis by a specified angle
-
-		Returns:
-			Matrix: a rotation matrix. when a point is multiplied with this matrix, it's rotated.
-		"""
-		#https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
-		normalized_axis = axis.normalized
-		cos_angle = math.cos(angle)
-		sin_angle = math.sin(angle)
-		return Matrix([
-      	[cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),						normalized_axis.x * normalized_axis.y * (1 - cos_angle) - normalized_axis.z * sin_angle,	normalized_axis.x * normalized_axis.z * (1 - cos_angle) + normalized_axis.y * sin_angle	],
-        [normalized_axis.y * normalized_axis.x * (1 - cos_angle) + normalized_axis.z * sin_angle,	cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),						normalized_axis.y * normalized_axis.z * (1 - cos_angle) - normalized_axis.x * sin_angle	],
-        [normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
-	
-	@staticmethod
-	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> 'Matrix':
-		#from right to left:
-  		#- translate objects so the pivot is at the origin
-		#- rotate objects around the origin
-		#- translate objects back so the pivot is at its old location
-
-		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
- 
-	def __mul__(self, other:Self | Coords | Line | Rect | PointList):
-		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
-		for example: translate * rotate (rotate first, translate after)
-		and: matrix * point (point first, multiplied by matrix after)"""
-		if isinstance(other, Matrix):
-			#multiply matrices with eachother
-			#https://www.geeksforgeeks.org/multiplication-two-matrices-single-line-using-numpy-python/
-
-			#visualisation of resulting sizes:
-			#https://en.wikipedia.org/wiki/Matrix_multiplication
-
-			#the number of columns (width) in the first matrix needs to be equal to the number of rows (height) in the second matrix
-			#(look at for i in range(other.height))
-
-			#we are multiplying row vectors of self with col vectors of other
-			if self.cols == other.rows:
-				resultRows = self.rows
-				resultCols = other.cols
-				result:Matrix = Matrix.empty(resultRows, resultCols)
-				# explicit for loops
-				for row in range(self.rows):
-					for col in range(other.cols):
-						for multiplyIndex in range(other.rows):
-							#this is the simple code, which would work if the number of self.cols was equal to other.rows
-							result[row][col] += self[row][multiplyIndex] * other[multiplyIndex][col]
-			else:
-				resultCols = max(self.cols, other.cols)
-				resultRows = max(self.rows, other.rows)
-
-				result:Matrix = Matrix.empty(resultRows, resultCols)
-
-				#the size of the vector that we're multiplying.
-				multiplyVectorSize = max(self.cols, other.rows)
-
-				# explicit for loops
-				for row in range(resultRows):
-					for col in range(resultCols):
-						for multiplyIndex in range(multiplyVectorSize):
-							#if an element doesn't exist in the matrix, we use an identity element.
-							selfValue = self[row][multiplyIndex] if row < self.rows and multiplyIndex < self.cols else 1 if multiplyIndex == row else 0
-							otherValue = other[multiplyIndex][col] if col < other.cols and multiplyIndex < other.rows else 1 if multiplyIndex == col else 0
-							result[row][col] += selfValue * otherValue
-
-		elif isinstance(other, PointList):
-			return other.__class__([self * p for p in other])
-		#point comes in from top and comes out to the right:
-		# |
-		# v
-		#a b
-		#c d ->
-		elif isinstance(other, Coords):
-			result: Coords = Coords([0] * self.rows)
-			#loop over column vectors and multiply them with the vector. sum the results (multiplied col 1 + multiplied col 2) to get the final product!
-			for col in range(self.cols):
-				if col < len(other):
-					for row in range(self.rows):
-						result[row] += self[row][col] * other[col]
-				else:
-					#otherValue = 1, just add the vector
-					for row in range(self.rows):
-						result[row] += self[row][col]
-			return result
-		elif isinstance(other, Line):
-			return Line(self * other.start, self * other.end)
-		elif isinstance(other, Rect):
-			mp0 = self * other.p0
-			mp1 = self * other.p1
-			return Rect.by_points([mp0, mp1])
-		return result
-	
-	transform = multiply = __mul__
- 
-	
- 
-	def multiply_without_translation(self, other: Coords):
-		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result.
-
-		Args:
-			other (Coords): _description_
-
-		Returns:
-			_type_: _description_
-		"""
-		result: Coords = Coords([0] * self.rows)
-		for col in range(min(self.cols, len(other))):
-			for row in range(self.rows):
-				result[row] += self[row][col] * other[col]
-		return result
-
-	def get_col(self, col_index: int):
-		return Coords([row[col_index] for row in self])
-
-	def get_row(self, row_index:int):
-		return Coords(self[row_index])
-
-	@property
-	def translation(self) -> Coords:
-		"""the translation is just the last column of the matrix
-
-		Returns:
-			Coords: the last column of this matrix, which gets added to the result when a point is multiplied by the matrix
-		"""
-		return self.get_col(self.cols - 1)
-
-	def add(self, other: 'Matrix'):
-		if self.shape() != other.shape():
-			raise ValueError("Matrices must have the same dimensions")
-		return Matrix([[self[i][j] + other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])
-
-	def all(self, axis=None):
-		if axis is None:
-			return all(all(row) for row in self)
-		elif axis == 0:
-			return [all(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [all(col) for col in self]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def any(self, axis=None):
-		if axis is None:
-			return any(any(row) for row in self)
-		elif axis == 0:
-			return [any(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [any(col) for col in self]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def argmax(self, axis=None):
-		if axis is None:
-			flat_list = [item for sublist in self for item in sublist]
-			return flat_list.index(max(flat_list))
-		elif axis == 0:
-			return [max(range(len(self)), key=lambda row: self[row][col]) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [max(range(len(row)), key=lambda col: row[col]) for row in self]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def argmin(self, axis=None):
-		if axis is None:
-			flat_list = [item for sublist in self for item in sublist]
-			return flat_list.index(min(flat_list))
-		elif axis == 0:
-			return [min(range(len(self)), key=lambda row: self[row][col]) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [min(range(len(row)), key=lambda col: row[col]) for row in self]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def argpartition(self, kth, axis=0):
-		def partition(arr, kth):
-			pivot = arr[kth]
-			less = [i for i in range(len(arr)) if arr[i] < pivot]
-			equal = [i for i in range(len(arr)) if arr[i] == pivot]
-			greater = [i for i in range(len(arr)) if arr[i] > pivot]
-			return less + equal + greater
-
-		if axis == 0:
-			return [partition([self[row][col] for row in range(len(self))], kth) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [partition(row, kth) for row in self]
-
-	def argsort(self, axis=0):
-		if axis == 0:
-			return [[row for row, val in sorted(enumerate(col), key=lambda x: x[1])] for col in zip(*self)]
-		elif axis == 1:
-			return [list(range(len(self[0]))) for _ in self]
-
-	def astype(self, dtype):
-		cast_matrix = [[dtype(item) for item in row] for row in self]
-		return Matrix(cast_matrix)
-
-	def byteswap(self, inplace=False):
-		if inplace:
-			for i in range(len(self)):
-				for j in range(len(self[i])):
-					self[i][j] = ~self[i][j]
-			return self
-		else:
-			new_matrix = [[~item for item in row] for row in self]
-			return Matrix(new_matrix)
-
-	def choose(self, choices, mode='raise'):
-		if mode != 'raise':
-			raise NotImplementedError("Only 'raise' mode is implemented")
-
-		chosen = [[choices[item] for item in row] for row in self]
-		return Matrix(chosen)
-
-	def compress(self, condition, axis=None):
-		if axis == 0:
-			compressed = [row for row, cond in zip(
-				self, condition) if cond]
-			return Matrix(compressed)
-		else:
-			raise NotImplementedError("Axis other than 0 is not implemented")
-
-	def clip(self, min=None, max=None):
-		clipped_matrix = []
-		for row in self:
-			clipped_row = [max if max is not None and val >
-						   max else min if min is not None and val < min else val for val in row]
-			clipped_matrix.append(clipped_row)
-		return Matrix(clipped_matrix)
-
-	def conj(self):
-		conjugated_matrix = [[complex(item).conjugate()
-							  for item in row] for row in self]
-		return Matrix(conjugated_matrix)
-
-	def conjugate(self):
-		return self.conj()
-
-	def copy(self):
-		copied_matrix = copy.deepcopy(self)
-		return Matrix(copied_matrix)
-
-	def cumprod(self, axis=None):
-		if axis is None:
-			flat_list = self.flatten()
-			cumprod_list = []
-			cumprod = 1
-			for item in flat_list:
-				cumprod *= item
-				cumprod_list.append(cumprod)
-			return Matrix([cumprod_list])
-		else:
-			raise NotImplementedError(
-				"Axis handling not implemented in this example")
-
-	def cumsum(self, axis=None):
-		if axis is None:
-			flat_list = self.flatten()
-			cumsum_list = []
-			cumsum = 0
-			for item in flat_list:
-				cumsum += item
-				cumsum_list.append(cumsum)
-			return Matrix([cumsum_list])
-		else:
-			raise NotImplementedError(
-				"Axis handling not implemented in this example")
-
-	def diagonal(self, offset=0):
-		return [self[i][i + offset] for i in range(len(self)) if 0 <= i + offset < len(self[i])]
-
-	def dump(self, file):
-		with open(file, 'wb') as f:
-			pickle.dump(self, f)
-
-	def dumps(self):
-		return pickle.dumps(self)
-
-	def fill(self, value):
-		for i in range(len(self)):
-			for j in range(len(self[i])):
-				self[i][j] = value
-
-	@staticmethod
-	def from_points(from_point: Point, to_point: Point):
-		Vz = Vector.by_two_points(from_point, to_point)
-		Vz = Vector.normalize(Vz)
-		Vzglob = Vector(0, 0, 1)
-		Vx = Vector.cross_product(Vz, Vzglob)
-		if Vector.length(Vx) == 0:
-			Vx = Vector(1, 0, 0) if Vz.x != 1 else Vector(0, 1, 0)
-		Vx = Vector.normalize(Vx)
-		Vy = Vector.cross_product(Vx, Vz)
-
-		return Matrix([
-			[Vx.x, Vy.x, Vz.x, from_point.x],
-			[Vx.y, Vy.y, Vz.y, from_point.y],
-			[Vx.z, Vy.z, Vz.z, from_point.z],
-			[0, 0, 0, 1]
-		])
-
-	def flatten(self):
-		return [item for sublist in self for item in sublist]
-
-	def getA(self):
-		return self
-
-	def getA1(self):
-		return [item for sublist in self for item in sublist]
-
-	def getH(self):
-		conjugate_transposed = [[complex(self[j][i]).conjugate() for j in range(
-			len(self))] for i in range(len(self[0]))]
-		return Matrix(conjugate_transposed)
-
-	def getI(self):
-		raise NotImplementedError(
-			"Matrix inversion is a complex operation not covered in this simple implementation.")
-
-	def getT(self):
-		return self.transpose()
-
-	def getfield(self, dtype, offset=0):
-		raise NotImplementedError(
-			"This method is conceptual and depends on structured data support within the Matrix.")
-
-	def item(self, *args):
-		if len(args) == 1:
-			index = args[0]
-			rows, cols = len(self), len(self[0])
-			return self[index // cols][index % cols]
-		elif len(args) == 2:
-			return self[args[0]][args[1]]
-		else:
-			raise ValueError("Invalid number of indices.")
-
-	def itemset(self, *args):
-		if len(args) == 2:
-			index, value = args
-			rows, cols = len(self), len(self[0])
-			self[index // cols][index % cols] = value
-		elif len(args) == 3:
-			row, col, value = args
-			self[row][col] = value
-		else:
-			raise ValueError("Invalid number of arguments.")
-
-	def max(self, axis=None):
-		if axis is None:
-			return max(item for sublist in self for item in sublist)
-		elif axis == 0:
-			return [max(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [max(row) for row in self]
-		else:
-			raise ValueError("Invalid axis.")
-
-	def mean(self, axis=None):
-		if axis is None:
-			flat_list = self.flatten()
-			return sum(flat_list) / len(flat_list)
-		elif axis == 0:
-			return [sum(self[row][col] for row in range(len(self))) / len(self) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [sum(row) / len(row) for row in self]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def min(self, axis=None):
-		if axis is None:
-			return min(item for sublist in self for item in sublist)
-		elif axis == 0:
-			return [min(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [min(row) for row in self]
-		else:
-			raise ValueError("Invalid axis.")
-
-	@staticmethod
-	def zeros(rows, cols):
-		return Matrix([[0 for _ in range(cols)] for _ in range(rows)])
-
-	@staticmethod
-	def participation(self):
-		pass
-
-	def prod(self, axis=None):
-		if axis is None:
-			return reduce(lambda x, y: x * y, [item for sublist in self for item in sublist], 1)
-		elif axis == 0:
-			return [reduce(lambda x, y: x * y, [self[row][col] for row in range(len(self))], 1) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [reduce(lambda x, y: x * y, row, 1) for row in self]
-		else:
-			raise ValueError("Invalid axis.")
-
-	def ptp(self, axis=None):
-		if axis is None:
-			flat_list = [item for sublist in self for item in sublist]
-			return max(flat_list) - min(flat_list)
-		elif axis == 0:
-			return [max([self[row][col] for row in range(len(self))]) - min([self[row][col] for row in range(len(self))]) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [max(row) - min(row) for row in self]
-		else:
-			raise ValueError("Invalid axis.")
-
-	def put(self, indices, values):
-		if len(indices) != len(values):
-			raise ValueError("Length of indices and values must match.")
-		flat_list = self.ravel()
-		for index, value in zip(indices, values):
-			flat_list[index] = value
-
-	@staticmethod
-	def random(rows, cols):
-		import random
-		return Matrix([[random.random() for _ in range(cols)] for _ in range(rows)])
-
-	def ravel(self):
-		return [item for sublist in self for item in sublist]
-
-	def repeat(self, repeats, axis=None):
-		if axis is None:
-			flat_list = self.ravel()
-			repeated = [item for item in flat_list for _ in range(repeats)]
-			return Matrix([repeated])
-		elif axis == 0:
-			repeated_matrix = [
-				row for row in self for _ in range(repeats)]
-		elif axis == 1:
-			repeated_matrix = [
-				[item for item in row for _ in range(repeats)] for row in self]
-		else:
-			raise ValueError("Invalid axis.")
-		return Matrix(repeated_matrix)
-
-	def reshape(self, rows, cols):
-		flat_list = self.flatten()
-		if len(flat_list) != rows * cols:
-			raise ValueError(
-				"The total size of the new array must be unchanged.")
-		reshaped = [flat_list[i * cols:(i + 1) * cols] for i in range(rows)]
-		return Matrix(reshaped)
-
-	def resize(self, new_shape):
-		new_rows, new_cols = new_shape
-		current_rows, current_cols = len(self), len(
-			self[0]) if self else 0
-		if new_rows < current_rows:
-			self = self[:new_rows]
-		else:
-			for _ in range(new_rows - current_rows):
-				self.append([0] * current_cols)
-		for row in self:
-			if new_cols < current_cols:
-				row[:] = row[:new_cols]
-			else:
-				row.extend([0] * (new_cols - current_cols))
-
-	def round(self, decimals=0):
-		rounded_matrix = [[round(item, decimals)
-						   for item in row] for row in self]
-		return Matrix(rounded_matrix)
-
-	def searchsorted(self, v, side='left'):
-		flat_list = self.flatten()
-		i = 0
-		if side == 'left':
-			while i < len(flat_list) and flat_list[i] < v:
-				i += 1
-		elif side == 'right':
-			while i < len(flat_list) and flat_list[i] <= v:
-				i += 1
-		else:
-			raise ValueError("side must be 'left' or 'right'")
-		return i
-
-	def setfield(self, val, dtype, offset=0):
-		raise NotImplementedError(
-			"Structured data operations are not supported in this Matrix class.")
-
-	def setflags(self, write=None, align=None, uic=None):
-		print("This Matrix class does not support setting flags directly.")
-
-	def shape(self):
-		return len(self), len(self[0])
-
-	def sort(self, axis=-1):
-		if axis == -1 or axis == 1:
-			for row in self:
-				row.sort()
-		elif axis == 0:
-			transposed = [[self[j][i] for j in range(
-				len(self))] for i in range(len(self[0]))]
-			for row in transposed:
-				row.sort()
-			self = [[transposed[j][i] for j in range(
-				len(transposed))] for i in range(len(transposed[0]))]
-		else:
-			raise ValueError("Axis out of range.")
-
-	def squeeze(self):
-		squeezed_matrix = [row for row in self if any(row)]
-		return Matrix(squeezed_matrix)
-
-	def std(self, axis=None, ddof=0):
-		var = self.var(axis=axis, ddof=ddof)
-		if isinstance(var, list):
-			return [x ** 0.5 for x in var]
-		else:
-			return var ** 0.5
-
-	def subtract(self, other):
-		if self.shape() != other.shape():
-			raise ValueError("Matrices must have the same dimensions")
-		return Matrix([[self[i][j] - other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])
-
-	def sum(self, axis=None):
-		if axis is None:
-			return sum(sum(row) for row in self)
-		elif axis == 0:
-			return [sum(self[row][col] for row in range(len(self))) for col in range(len(self[0]))]
-		elif axis == 1:
-			return [sum(row) for row in self]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def swapaxes(self, axis1, axis2):
-		if axis1 == 0 and axis2 == 1 or axis1 == 1 and axis2 == 0:
-			return Matrix([[self[j][i] for j in range(len(self))] for i in range(len(self[0]))])
-		else:
-			raise ValueError("Axis values out of range for a 2D matrix.")
-
-	def take(self, indices, axis=None):
-		if axis is None:
-			flat_list = [item for sublist in self for item in sublist]
-			return Matrix([flat_list[i] for i in indices])
-		elif axis == 0:
-			return Matrix([self[i] for i in indices])
-		else:
-			raise ValueError(
-				"Axis not supported or out of range for a 2D matrix.")
-
-	def tobytes(self):
-		byte_array = bytearray()
-		for row in self:
-			for item in row:
-				byte_array.extend(struct.pack('i', item))
-		return bytes(byte_array)
-
-	def tofile(self, fid, sep="", format="%s"):
-		if isinstance(fid, str):
-			with open(fid, 'wb' if sep == "" else 'w') as f:
-				self._write_to_file(f, sep, format)
-		else:
-			self._write_to_file(fid, sep, format)
-
-	def _write_to_file(self, file, sep, format):
-		if sep == "":
-			file.write(self.tobytes())
-		else:
-			for row in self:
-				line = sep.join(format % item for item in row) + "\n"
-				file.write(line)
-				
-	def __str__(self):
-		# '\n'.join([str(row) for row in self])
-		#vs code doesn't work with new lines
-		return 'Matrix(' + list.__str__(self) + ')'
-
-	def trace(self, offset=0):
-		rows, cols = len(self), len(self[0])
-		return sum(self[i][i + offset] for i in range(min(rows, cols - offset)) if 0 <= i + offset < cols)
-
-	def transpose(self):
-		transposed = [[self[j][i] for j in range(
-			len(self))] for i in range(len(self[0]))]
-		return Matrix(transposed)
-
-	def var(self, axis=None, ddof=0):
-		if axis is None:
-			flat_list = self.flatten()
-			mean = sum(flat_list) / len(flat_list)
-			return sum((x - mean) ** 2 for x in flat_list) / (len(flat_list) - ddof)
-		elif axis == 0 or axis == 1:
-			means = self.mean(axis=axis)
-			if axis == 0:
-				return [sum((self[row][col] - means[col]) ** 2 for row in range(len(self))) / (len(self) - ddof) for col in range(len(self[0]))]
-			else:
-				return [sum((row[col] - means[idx]) ** 2 for col in range(len(row))) / (len(row) - ddof) for idx, row in enumerate(self)]
-		else:
-			raise ValueError("Axis must be None, 0, or 1")
-
-	def _validate(self):
-		rows = len(self)
-		cols = len(self[0]) if rows > 0 else 0
-		return rows, cols
-
-CoordinateSystem = Matrix
-
-
 # check if there are innercurves inside the outer curve.
 
 
@@ -7826,31 +7670,6 @@ class Room:
         self.bottomsurface = None
         self.parms = None
         self.colorlst = None
-
-
-
-
-class Sphere(Serializable):
-	def __init__(self, point:Point, diameter:int):
-		self.point = point
-		self.diameter = diameter
-        
-	def __str__(self) -> str:
-		return str(Sphere)
-
-	@staticmethod
-	def radius_by_3_points(start:float, mid: float, end: float) -> float:
-		a = Point.distance(start, mid)
-		b = Point.distance(mid, end)
-		c = Point.distance(end, start)
-		s = (a + b + c) / 2
-		A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
-				
-		if abs(A) < 1e-6:
-			return float('inf')
-		else:
-			R = (a * b * c) / (4 * A)
-			return R
 
 
 

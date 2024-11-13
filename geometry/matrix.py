@@ -666,13 +666,6 @@ class Matrix(Serializable, list[list]):
 			raise ValueError(
 				"Axis not supported or out of range for a 2D matrix.")
 
-	def tobytes(self):
-		byte_array = bytearray()
-		for row in self:
-			for item in row:
-				byte_array.extend(struct.pack('i', item))
-		return bytes(byte_array)
-
 	def tofile(self, fid, sep="", format="%s"):
 		if isinstance(fid, str):
 			with open(fid, 'wb' if sep == "" else 'w') as f:

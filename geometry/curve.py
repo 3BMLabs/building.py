@@ -33,7 +33,9 @@ import sys
 from pathlib import Path
 from typing import Self, Union
 
+from geometry.matrix import Matrix
 from geometry.shape import Shape
+from geometry.sphere import Sphere
 from geometry.vector import Vector
 from geometry.coords import to_array
 from geometry.pointlist import PointList
@@ -297,237 +299,119 @@ class Line(Curve):
         """
         return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
 
+class Arc(Curve):
+	def __init__(self, matrix:'Matrix', angle:float) -> None:
+		self.matrix, self.angle = matrix, angle
+ 
+	@staticmethod
+	def by_start_mid_end(start: Point, end: Point, mid: Point) -> 'Arc':
+		#construct a matrix from a plane
+		#x = (start - origin).normalized
+		#y
+  
+		start_to_end = end - start
+		half_start_end = start_to_end * 0.5
+		b = half_start_end.magnitude
+		radius = Sphere.radius_by_3_points(start, mid, end)
+		x = math.sqrt(radius * radius - b * b)
+		#mid point as if this was a straight line
+		straight_line_mid = start + half_start_end
+		#substract the curved mid point from the straight line mid point
+		to_center = straight_line_mid - mid
+		#change length to x
+		to_center.magnitude = x
+		origin = mid + to_center
 
-def create_lines(points: 'list[Point]') -> 'list[Line]':
-    """Creates a list of Line objects from a list of points.
-    This function generates line segments connecting consecutive points in the list.
+		x_axis = start - mid
+		normalized_x_axis = x_axis.normalized
+		normalized_end_direction = (end - mid).normalized
+		#TODO: z axis is pointing the other way when the angle is more than PI
+		#dot_product = Vector.dot_product(normalized_x_axis, normalized_end_direction)
+		#if dot_product > 
+		normalized_z_axis = Vector.cross_product(normalized_x_axis, normalized_end_direction).normalized
+		normalized_y_axis = Vector.cross_product(normalized_z_axis, normalized_x_axis)
+		return Arc(Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis]))
+ 
+	@property
+	def start(self) -> Point:
+		"""
 
-    #### Parameters:
-    - `points` (List[Point]): A list of points.
+		Returns:
+			Point: the starting point of this arc
+		"""
+		return self.matrix * x_axis
 
-    #### Returns:
-    `List[Line]`: A list of Line objects representing the line segments connecting the points.
+	@property
+	def radius(self) -> float:
+		"""
 
-    #### Example usage:
-    ```python
+		Returns:
+			Point: the radius of the circle this arc is a part of
+		"""
+		return self.matrix.multiply_without_translation(x_axis).magnitude
 
-    ```      
-    """
-    lines = []
-    for i in range(len(points)-1):
-        line = Line(points[i], points[i+1])
-        lines.append(line)
-    return lines
+	@property
+	def origin(self) -> Point:
+		"""
+
+		Returns:
+			Point: the center of the circle this arc is a part of
+		"""
+		return self.matrix.translation
 
 
-class Arc(Line):
-    def __init__(self, startPoint: 'Point', midPoint: 'Point', endPoint: 'Point') -> 'Arc':
-        """Initializes an Arc object with start, mid, and end points.
-        This constructor calculates and assigns the arc's origin, plane, radius, start angle, end angle, angle in radians, area, length, units, and coordinate system based on the input points.
-        
-        the mid point should really be in the center; we don't support warped arcs.
+	@property
+	def length(self) -> float:
+		"""
 
-        - `startPoint` (Point): The starting point of the arc.
-        - `midPoint` (Point): The mid point of the arc which defines its curvature.
-        - `endPoint` (Point): The ending point of the arc.
-        """
-        #for the midpoint to be in the middle, the distance between the midpoint and the start and the end should be the same, no matter the angle.
-        if not math.isclose(Point.distance_squared(startPoint, midPoint), Point.distance_squared(midPoint, endPoint), rel_tol= 1.0 / 0x100):
-            raise ValueError('midpoint is not in the center')
-        super().__init__(startPoint, endPoint)
-        
-        self.mid = midPoint
+		Returns:
+			Point: the length of this arc
+		"""
+		return self.angle * self.radius
 
-        #self.origin = self.origin_arc()
-        #vector_1 = Vector(x=1, y=0, z=0)
-        #vector_2 = Vector(x=0, y=1, z=0)
-        #self.plane = Plane.by_two_vectors_origin(
-        #    vector_1,
-        #    vector_2,
-        #    self.origin
-        #)
-        #self.radius = self.radius_arc()
-        #self.startAngle = 0
-        #self.endAngle = 0
-        #self.angle_radian = self.angle_radian()
-        #self.area = 0
-        #self.length = self.length()
-        #self.units = project.units
-        
-    @property
-    def radius(self) -> 'float':
-        """Calculates and returns the radius of the arc.
-        The radius is computed based on the distances between the start, mid, and end points of the arc.
-
-        #### Returns:
-        `float`: The radius of the arc.
-
+	def point_at_fraction(self, fraction: float):
+		"""
+  
         #### Example usage:
         ```python
-        radius = arc.radius_arc()
-        # radius will be the calculated radius of the arc
-        ```
-        """
-        a = Point.distance(self.start, self.mid)
-        b = Point.distance(self.mid, self.end)
-        c = Point.distance(self.end, self.start)
-        s = (a + b + c) / 2
-        A = math.sqrt(max(s * (s - a) * (s - b) * (s - c), 0))
+        #counter-clockwise arc with center 0,0
+        arc = Arc.by_start_mid_end(Point(-1,0), Point(0,1), Point(1, 0))
+        #the point at fraction 0.5 is (0,1)
         
-        if abs(A) < 1e-6:
-            return float('inf')
-        else:
-            R = (a * b * c) / (4 * A)
-            return R
-
-    @property
-    def points(self) -> list[Point]:
-        return[Point(self.start), Point(self.mid), Point(self.end)]
-            
-    #https://calcresource.com/geom-circularsegment.html
-    @property
-    def area(self) -> 'float':
-        return ((self.angle - math.sin(self.angle)) / 2) * (self.radius ** 2)
-    
-    @property
-    def origin(self) -> 'Point':
-        """Calculates and returns the origin of the arc.
-        The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `Point`: The calculated origin point of the arc.
-
-        #### Example usage:
-        ```python
-        origin = arc.origin_arc()
-        # origin will be the calculated origin point of the arc
+        #clockwise arc with center 0,0
+        arc = Arc.by_start_mid_end(Point(-1,0), Point(0, -1), Point(1, 0))
+        #the point at fraction 0.5 is (0,-1)
         ```
-        """
-        start_to_end = self.end - self.start
-        half_start_end = start_to_end * 0.5
-        b = half_start_end.magnitude
-        radius = self.radius
-        x = math.sqrt(radius * radius - b * b)
-        #mid point as if this was a straight line
-        mid = self.start + half_start_end
-        #substract the curved mid point from the straight line mid point
-        to_center = mid - self.mid
-        #change length to x
-        to_center.magnitude = x
-        center = mid + to_center
-        return center
 
-    @property
-    def centroid(self) -> 'Point':
-        origin = self.origin
-        radius = self.radius
-        angle = self.angle
-        #the distance of the centroid of the arc to its origin
-        centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
-        return origin + centroid_distance * ((self.mid - origin) / radius)
-        
-    @property
-    def angle(self) -> 'float':
-        """Calculates and returns the total angle of the arc in radians.
-        The angle is determined based on the vectors defined by the start, mid, and end points with respect to the arc's origin.
+		Args:
+			fraction (float): a value from 0 (start) to (end)
 
-        #### Returns:
-        `float`: The total angle of the arc in radians.
+		Returns:
+			Point: a point on the arc at a certain fraction
+		"""
+		return self.matrix * Vector.by_angle(self.angle * fraction)
 
-        #### Example usage:
-        ```python
-        angle = arc.angle_radian()
-        # angle will be the total angle of the arc in radians
-        ```
-        """
-        origin = self.origin
-        vector_1 = self.end - origin
-        vector_2 = self.start - origin
-        vector_3 = self.mid - origin
-        vector_4 = vector_1 + vector_2
-        try:
-            v4b = Vector.new_length(vector_4, self.radius)
-            if Vector.value(vector_3) == Vector.value(v4b):
-                angle = Vector.angle_between(vector_1, vector_2)
-            else:
-                angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        except:
-            angle = 2*math.pi-Vector.angle_between(vector_1, vector_2)
-            return angle
-        
-    @property
-    def length(self) -> 'float':
-        """Calculates and returns the length of the arc.
-        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
+	@property
+	def centroid(self) -> 'Point':
+		"""
 
-        #### Returns:
-        `float`: The length of the arc.
+		Returns:
+			Point: the center of mass of this arc object
+		"""
+		origin = self.origin
+		radius = self.radius
+		angle = self.angle
+		#the distance of the centroid of the arc to its origin
+		centroid_distance = (2 / 3) * ((radius * (math.sin(angle) ** 3)) / (angle - math.sin(angle) * math.cos(angle)))
+		return origin + centroid_distance * ((self.mid - origin) / radius)
 
-        #### Example usage:
-        ```python
-        length = arc.length()
-        # length will be the calculated length of the arc
-        ```
-        """
-        try:
-            x1, y1, z1 = self.start.x, self.start.y, self.start.z
-            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-            x3, y3, z3 = self.end.x, self.end.y, self.end.z
+	def __str__(self) -> 'str':
+		"""Generates a string representation of the Arc object.
 
-            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-            m1 = math.acos(cos_angle)
-            arc_length = r1 * m1
-
-            return arc_length
-        except:
-            return 0
-    
-    @staticmethod
-    def segmented_arc(arc: 'Arc', count: 'int') -> 'list':
-        """Divides the arc into segments and returns a list of line segments.
-        This method uses the `points_at_parameter` method to generate points along the arc at specified intervals and then creates line segments between these consecutive points.
-
-        #### Parameters:
-        - `arc` (Arc): The arc object.
-        - `count` (int): The number of segments (and thus the number of points - 1) to create.
-
-        #### Returns:
-        `list`: A list of line segments (`Line` objects) representing the divided arc.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        segments = Arc.segmented_arc(arc, 3)
-        # segments will be a list of 2 lines dividing the arc into 3 segments
-        ```
-        """
-        pnts = Arc.points_at_parameter(arc, count)
-        i = 0
-        lines = []
-        for j in range(len(pnts) - 1):
-            lines.append(Line(pnts[i], pnts[i + 1]))
-            i = i + 1
-        return lines
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Arc object.
-
-        #### Returns:
-        `str`: A string that represents the Arc object.
-
-        #### Example usage:
-        ```python
-        arc = Arc(startPoint, midPoint, endPoint)
-        print(arc)
-        # Output: Arc()
-        ```
-        """
-        return f"{__class__.__name__}()"
+		#### Returns:
+		`str`: A string that represents the Arc object.
+		"""
+		return f"{__class__.__name__}.by_start_mid_end(start={self.start}, mid={self.mid}, end={self.end})"
 
 class Polygon(PointList):
     """Represents a polygon composed of points."""
@@ -739,9 +623,6 @@ class Polygon(PointList):
             if lines[i].end != lines[i+1].start:
                 raise ValueError("Error: Curves must be contiguous to form a Polygon.")
 
-        #if lines[0].start != lines[-1].end:
-        #    lines.append(Line(lines[-1].end, lines[0].start))
-
         return Polygon([line.start for line in lines] + [lines[-1].end])
     
     @property
@@ -823,9 +704,6 @@ class Polygon(PointList):
 
         return sum(i.length for i in self.curves)
 
-
-
-
     def __str__(self) -> 'str':
         """Returns a string representation of the PolyCurve.
 
@@ -842,23 +720,8 @@ class Polygon(PointList):
 class PolyCurve(Serializable, list[Line], Shape):
     """Stores lines, which could possibly be arcs"""
     def __init__(self, *args):
-        """Initializes a PolyCurve object, which is unclosed by default.
+        """Initializes a PolyCurve object, which is unclosed by default."""
         
-
-        """
-        
-        
-        #self.points:list[Point] = to_array(*args)
-
-        #self.approximateLength = None
-        #self.graphicsStyleId = None
-        #self.isCyclic = None
-        #self.isElementGeometry = None
-        #self.isReadOnly = None
-        #self.length = self.length()
-        #self.period = None
-        #self.reference = None
-        #self.visibility = None
         super().__init__(to_array(*args))
     
     @property
@@ -999,41 +862,6 @@ class PolyCurve(Serializable, list[Line], Shape):
                 weighted_centroid += arc_centroid * arc_area
         
         return weighted_centroid / total_area
-    
-    #def area(self) -> 'float':  # shoelace formula
-    #    """Calculates the area enclosed by the PolyCurve using the shoelace formula.
-#
-    #    #### Returns:
-    #    `float`: The area enclosed by the PolyCurve.
-#
-    #    #### Example usage:
-    #    ```python
-#
-    #    ```        
-    #    """
-    #    if self.closed:
-    #        if len(self.points) < 3:
-    #            return "Polygon has less than 3 points!"
-#
-    #        num_points = len(self.points)
-    #        S1, S2 = 0, 0
-#
-    #        for i in range(num_points):
-    #            x, y = self.points[i].x, self.points[i].y
-    #            if i == num_points - 1:
-    #                x_next, y_next = self.points[0].x, self.points[0].y
-    #            else:
-    #                x_next, y_next = self.points[i + 1].x, self.points[i + 1].y
-#
-    #            S1 += x * y_next
-    #            S2 += y * x_next
-#
-    #        area = 0.5 * abs(S1 - S2)
-    #        return area
-    #    else:
-    #        print("Polycurve is not closed, no area!")
-    #        return None
-        
 
 
     @classmethod
@@ -1138,79 +966,3 @@ class PolyCurve(Serializable, list[Line], Shape):
         crv = flatten(crvs)
         pc = PolyCurve.by_joined_curves(crv)
         return pc
-
-class Circle:
-    """Represents a circle with a specific radius, plane, and length.
-    """
-    def __init__(self, radius: 'float', plane: 'Plane', length: 'float') -> 'Circle':
-        """The Circle class defines a circle by its radius, the plane it lies in, and its calculated length (circumference).
-
-        - `radius` (float): The radius of the circle.
-        - `plane` (Plane): The plane in which the circle lies.
-        - `length` (float): The length (circumference) of the circle. Automatically calculated during initialization.
-        """
-        self.radius = radius
-        self.plane = plane
-        self.length = length
-        
-        pass  # Curve
-
-    def __id__(self):
-        """Returns the ID of the Circle.
-
-        #### Returns:
-        `str`: The ID of the Circle in the format "id:{self.id}".
-        """
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Circle object.
-
-        #### Returns:
-        `str`: A string that represents the Circle object.
-
-        #### Example usage:
-        ```python
-        circle = Circle(radius, plane, length)
-        print(circle)
-        # Output: Circle(...)
-        ```
-        """
-
-
-class Ellipse:
-    """Represents an ellipse defined by its two radii and the plane it lies in."""
-    def __init__(self, firstRadius: 'float', secondRadius: 'float', plane: 'Plane') -> 'Ellipse':
-        """The Ellipse class describes an ellipse through its major and minor radii and the plane it occupies.
-            
-        - `firstRadius` (float): The first (major) radius of the ellipse.
-        - `secondRadius` (float): The second (minor) radius of the ellipse.
-        - `plane` (Plane): The plane in which the ellipse lies.
-        """
-        self.firstRadius = firstRadius
-        self.secondRadius = secondRadius
-        self.plane = plane
-        
-        pass  # Curve
-
-    def __id__(self):
-        """Returns the ID of the Ellipse.
-
-        #### Returns:
-        `str`: The ID of the Ellipse in the format "id:{self.id}".
-        """
-        return f"id:{self.id}"
-
-    def __str__(self) -> 'str':
-        """Generates a string representation of the Ellipse object.
-
-        #### Returns:
-        `str`: A string that represents the Ellipse object.
-
-        #### Example usage:
-        ```python
-        ellipse = Ellipse(firstRadius, secondRadius, plane)
-        print(ellipse)
-        # Output: Ellipse(...)
-        ```
-        """
-        return f"{__class__.__name__}({self})"
