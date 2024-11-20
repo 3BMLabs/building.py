@@ -34,20 +34,19 @@ __url__ = "./exchange/speckle.py"
 import sys
 from pathlib import Path
 
-from geometry.rect import Rect
-from geometry.mesh import Mesh
-
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from BuildingPy import BuildingPy, Coords, Panel, Point
-from BuildingPy import Line
-from BuildingPy import PolyCurve, Polygon
-from BuildingPy import Arc
-from BuildingPy import Vector
-from BuildingPy import Plane
-from BuildingPy import Interval
-from BuildingPy import Vector, Point, Line, PolyCurve
-from BuildingPy import project
+from abstract.image import imagePyB
+from abstract.interval import Interval
+from geometry.rect import Rect
+from geometry.mesh import Mesh
+from geometry.coords import Coords
+from geometry.curve import Arc, Line, PolyCurve
+from geometry.plane import Plane
+from geometry.point import Point
+from geometry.vector import Vector
+from project.fileformat import BuildingPy
+
 from packages.helper import flatten
 
 # [!not included in BP singlefile - end]
@@ -94,18 +93,18 @@ def CreateStream(serverurl, name, description):
     streamid = client.stream.create(name,description,True)
     return streamid
 
-def IntervalToSpeckleInterval(interval: Interval):
-    SpeckleInt = SpeckleInterval(start=interval.start, end=interval.end)
-    SpeckleInt.units = project.units
-    return SpeckleInt
-
-
-def PointToSpecklePoint(point: Coords):
-    SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    SpecklePnt.id = point.id
-    SpecklePnt.units = project.units
-    SpecklePnt.applicationId = project.applicationId
-    return SpecklePnt
+def get_speckle_object(project:BuildingPy, obj):
+	if(isinstance(obj, Interval)):
+		speckle_obj = SpeckleInterval(start=obj.start, end=obj.end)
+	elif isinstance(obj,Coords):
+		speckle_obj = SpecklePoint.from_list(obj)
+		speckle_obj.id = obj.id
+	#elif isinstance(obj, Vector):
+	#	speckle_obj = 
+    
+	speckle_obj.units = project.units
+	speckle_obj.applicationId = project.applicationId
+	return speckle_obj
 
 
 def VectorToSpeckleVector(Vector: Vector):
@@ -284,7 +283,7 @@ def ArcToSpeckleArc(arc: Arc):
     angle_radians = arc.angle_radian
     area = arc.area
     length = arc.length
-    speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
+    speckle_interval = get_speckle_object(Interval(start=0, end=1))
 
 
     spArc = SpeckleArc(
@@ -327,7 +326,7 @@ def Arc2DToSpeckleArc(arc: Arc):
     angle_radians = arc.angle_radian
     area = arc.area
     length = arc.length
-    speckle_interval = IntervalToSpeckleInterval(Interval(start=0, end=1))
+    speckle_interval = get_speckle_object(Interval(start=0, end=1))
 
 
     spArc = SpeckleArc(
@@ -587,7 +586,7 @@ def translateObjectsToSpeckleObjects(Obj):
                                           ))
             
         elif isinstance(current_object, Interval):
-            SpeckleObj.append(IntervalToSpeckleInterval(current_object))
+            SpeckleObj.append(get_speckle_object(current_object))
 
         elif isinstance(current_object, Line):
             SpeckleObj.append(LineToSpeckleLine(current_object))

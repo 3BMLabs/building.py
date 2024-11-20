@@ -34,10 +34,9 @@ __url__ = "./objects/analytical.py"
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+from geometry.point import Point
 
-from geometry.point import *
-from geometry.curve import *
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # [!not included in BP singlefile - end]
 

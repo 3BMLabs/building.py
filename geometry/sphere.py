@@ -35,14 +35,10 @@ import math
 import sys
 from pathlib import Path
 
-from geometry.vector import Vector
-
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.text import *
-
-from geometry.curve import Line
 # [!not included in BP singlefile - end]
 
 from abstract.serializable import Serializable
@@ -83,10 +79,13 @@ class Circle:
         """
         self.radius = radius
         self.plane = plane
-        self.length = length
         
         pass  # Curve
-
+    
+    @property
+    def circumference(self):
+        return self.radius * 2 * math.pi
+    
     def __id__(self):
         """Returns the ID of the Circle.
 

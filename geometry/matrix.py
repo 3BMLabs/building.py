@@ -44,7 +44,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.rect import Rect
 from geometry.point import Point
-from geometry.curve import Line
+import geometry.curve
 from geometry.vector import *
 from typing import Self
 
@@ -145,7 +145,7 @@ class Matrix(Serializable, list[list]):
 
 		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
  
-	def __mul__(self, other:Self | Coords | Line | Rect | PointList):
+	def __mul__(self, other:Self | Coords | 'geometry.curve.Line' | Rect | PointList):
 		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
 		for example: translate * rotate (rotate first, translate after)
 		and: matrix * point (point first, multiplied by matrix after)"""
@@ -217,7 +217,9 @@ class Matrix(Serializable, list[list]):
 	
 	transform = multiply = __mul__
  
-	
+	def __truediv__(self, divide_by: float):
+		"""divides all elements in this matrix by a given scalar."""
+		return Matrix([[elem / divide_by for elem in row] for row in self])
  
 	def multiply_without_translation(self, other: Coords):
 		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result.
@@ -437,6 +439,77 @@ class Matrix(Serializable, list[list]):
 			len(self))] for i in range(len(self[0]))]
 		return Matrix(conjugate_transposed)
 
+	#https://www.geeksforgeeks.org/determinant-of-a-matrix/
+	def determinant(self):
+		n = len(self)
+		if n == 1:
+			return self[0][0]
+		elif n == 2:
+			return self[0][0] * self[1][1] - self[0][1] * self[1][0]
+		else:
+			#Recursive case for larger matrices
+			result = 0
+			for col in range(n):
+			
+ 			    # Create a submatrix by removing the first 
+ 			    # row and the current column
+ 			    # Create a submatrix by removing the first 
+				# row and the current column
+				sub = Matrix([[0] * (n - 1) for _ in range(n - 1)])
+				for i in range(1, n):
+					subcol = 0
+					for j in range(n):
+						
+						# Skip the current column
+						if j == col:
+							continue
+						
+						# Fill the submatrix
+						sub[i - 1][subcol] = self[i][j]
+						subcol += 1
+
+				# Cofactor expansion
+				sign = 1 if col % 2 == 0 else -1
+				result += sign * self[0][col] * sub.determinant()
+		return result
+
+	def cofactor(self, row_to_exclude, col_to_exclude) -> 'Matrix':
+		"""returns a matrix without the specified row and column.
+		"""
+		n = len(self)
+		result = Matrix.empty(self.rows - 1, self.cols - 1)
+		i = 0
+		j = 0
+		for row in range(n):
+			for col in range(n):
+				if row != row_to_exclude and col != col_to_exclude:
+					result[i][j] = self[row][col]
+					j += 1
+					if j == n - 1:
+						j = 0
+						i += 1
+		return result
+
+
+	def adjoint(self) -> 'Matrix':
+		n = len(self)
+		result = Matrix.empty(self.rows, self.cols)
+		if n == 1:
+			result[0][0] = 1
+			return
+		sign = 1
+		for i in range(n):
+			for j in range(n):
+				cof = self.cofactor(i,j)
+				sign = 1 if (i + j) % 2 == 0 else -1
+				result[j][i] = sign * cof.determinant()
+		return result
+
+	def inverse(self):
+		determinant = self.determinant()
+		if determinant == 0:
+			raise ValueError("can't find inverse")
+		return self.adjoint() / determinant
 	def getI(self):
 		raise NotImplementedError(
 			"Matrix inversion is a complex operation not covered in this simple implementation.")

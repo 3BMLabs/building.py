@@ -67,10 +67,10 @@ class GridheadType(Serializable):
 
     def geom(self):
         radius = self.radius
-        self.curves.append(Arc(startPoint=Point(-radius, radius, 0),
-                           midPoint=Point(0, radius*2, 0), endPoint=Point(radius, radius, 0)))
-        self.curves.append(Arc(startPoint=Point(-radius, radius, 0),
-                           midPoint=Point(0, 0, 0), endPoint=Point(radius, radius, 0)))
+        self.curves.append(Arc.by_start_mid_end(start=Point(-radius, radius, 0),
+                           mid=Point(0, radius*2, 0), end=Point(radius, radius, 0)))
+        self.curves.append(Arc.by_start_mid_end(start=Point(-radius, radius, 0),
+                           mid=Point(0, 0, 0), end=Point(radius, radius, 0)))
         # origin is at center of circle
 
 
@@ -85,7 +85,6 @@ class GridHead:
         self.grid_name: str = "A"
         self.grid_head_type = GHT50
         self.radius = GHT50.radius
-        self.CS: CoordinateSystem = CSGlobal
         self.x: float = 0.5
         self.y: float = 0
         self.text_curves = []
@@ -108,11 +107,10 @@ class GridHead:
                                 height=self.grid_head_type.text_height, cs=cs_text_new))
 
     @staticmethod
-    def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
+    def by_name_gridheadtype_y(name, gridhead_type, y: float):
         GH = GridHead()
         GH.grid_name = name
         GH.grid_head_type = gridhead_type
-        GH.CS = cs
         GH.x = 0.5
         GH.y = y
         GH.__textobject()

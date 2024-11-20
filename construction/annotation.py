@@ -155,7 +155,6 @@ class FrameTag:
         # Dimensions in 1/100 scale
         
         self.scale = 0.1
-        self.cs: CoordinateSystem = CSGlobal
         self.offset_x = 500
         self.offset_y = 100
         self.font_family = "calibri"
@@ -169,8 +168,7 @@ class FrameTag:
         self.text_curves = Text(
             text=self.text, font_family=self.font_family, height=self.text_height, cs=cstext).write
 
-    def by_cs_text(self, coordinate_system: CoordinateSystem, text):
-        self.cs = coordinate_system
+    def by_cs_text(self, text):
         self.text = text
         self.__textobject()
         return self
@@ -242,8 +240,7 @@ class ColumnTag:
         self.text_curves = Text(text=self.text, font_family=self.font_family,
                                 height=self.text_height, cs=cstextnew).write
 
-    def by_cs_text(self, coordinate_system: CoordinateSystem, text):
-        self.cs = coordinate_system
+    def by_cs_text(self, text):
         self.text = text
         self.__leadercurves()
         self.__textobject()

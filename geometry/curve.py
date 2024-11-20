@@ -35,7 +35,7 @@ from typing import Self, Union
 
 from geometry.matrix import Matrix
 from geometry.shape import Shape
-from geometry.sphere import Sphere
+import geometry.sphere
 from geometry.vector import Vector
 from geometry.coords import to_array
 from geometry.pointlist import PointList
@@ -88,10 +88,18 @@ class Line(Curve):
         """
         #copy
         """The starting point of the line segment"""
-        self.start = Point(start)
+        self._start = Point(start)
         """The ending point of the line segment."""
-        self.end = Point(end)
-        
+        self._end = Point(end)
+    
+    @property
+    def start(self) -> 'Point':
+        return self._start
+
+    @property
+    def end(self) -> 'Point':
+        return self._end
+    
     @property
     def mid(self) -> 'Point':
         """Computes the midpoint of the Line object.
@@ -104,14 +112,14 @@ class Line(Curve):
 
         ```          
         """
-        return (self.start + self.end) * 0.5
+        return (self._start + self._end) * 0.5
     @property
     def angle(self) -> float:
-        return (self.end - self.start).angle
+        return (self._end - self._start).angle
     
     @property
     def points(self) -> list[Point]:
-        return[Point(self.start), Point(self.end)]
+        return[Point(self._start), Point(self._end)]
     
     @property
     def segmentate(self, amount: int) -> list[Point]:
@@ -135,7 +143,7 @@ class Line(Curve):
         Returns:
             Point: self.start for 0, self.end for 1
         """
-        return self.start * (1 - fraction) + self.end * fraction
+        return self._start * (1 - fraction) + self._end * fraction
     
     @staticmethod
     def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
@@ -183,10 +191,10 @@ class Line(Curve):
         """
         if interval == None:
             interval = 0.0
-        x1, y1, z1 = self.start.x, self.start.y, self.start.z
-        x2, y2, z2 = self.end.x, self.end.y, self.end.z
+        x1, y1, z1 = self._start.x, self._start.y, self._start.z
+        x2, y2, z2 = self._end.x, self._end.y, self._end.z
         if float(interval) == 0.0:
-            return self.start
+            return self._start
         else:
             devBy = 1/interval
             return Point((x1 + x2) / devBy, (y1 + y2) / devBy, (z1 + z2) / devBy)
@@ -208,7 +216,7 @@ class Line(Curve):
         
         #calculate a and c
         
-        diff_self = self.end - self.start
+        diff_self = self._end - self._start
         diff_other = other.end - other.start
         #a
         slope_self = math.inf if diff_self.x == 0 else diff_self.y / diff_self.x
@@ -221,7 +229,7 @@ class Line(Curve):
             return False
 
         #b
-        self_y_at_0 = self.start.y - self.start.x * slope_self
+        self_y_at_0 = self._start.y - self._start.x * slope_self
         
         #check if one slope is infinite (both infinite is handled by colinear)
         if other.start.x == other.end.x:
@@ -231,13 +239,13 @@ class Line(Curve):
         #d
         other_y_at_0 = other.start.y - other.start.x * slope_other
 
-        if self.start.x == self.end.x:
-            other_y_at_line = other_y_at_0 + slope_other * self.start.x
-            return self.start.y < other_y_at_line < self.end.y
+        if self._start.x == self._end.x:
+            other_y_at_line = other_y_at_0 + slope_other * self._start.x
+            return self._start.y < other_y_at_line < self._end.y
         
         intersection_x = (other_y_at_0 - self_y_at_0) / (slope_self - slope_other)
         
-        return self.start.x < intersection_x < self.end.x
+        return self._start.x < intersection_x < self._end.x
 
     def split(self, points: 'Union[Point, list[Point]]') -> 'list[Line]':
         """Splits the Line object at the specified point(s).
@@ -255,15 +263,15 @@ class Line(Curve):
         """
         lines = []
         if isinstance(points, list):
-            points.extend([self.start, self.end])
+            points.extend([self._start, self._end])
             sorted_points = sorted(
-                points, key=lambda p: p.distance(p, self.end))
+                points, key=lambda p: p.distance(p, self._end))
             lines = create_lines(sorted_points)
             return lines
         elif isinstance(points, Point):
             point = points
-            lines.append(Line(start=self.start, end=point))
-            lines.append(Line(start=point, end=self.end))
+            lines.append(Line(start=self._start, end=point))
+            lines.append(Line(start=point, end=self._end))
             return lines
         
     @property
@@ -278,13 +286,13 @@ class Line(Curve):
 
         ```          
         """
-        return (self.end - self.start).magnitude
+        return (self._end - self._start).magnitude
     
     @property
     def direction(self) -> Vector:
         """Computes the direction of the Line object.
         """
-        return (self.end - self.start).normalized
+        return (self._end - self._start).normalized
 
     def __str__(self) -> 'str':
         """Returns a string representation of the Line object.
@@ -297,11 +305,21 @@ class Line(Curve):
 
         ```          
         """
-        return f"{__class__.__name__}(" + f"{self.start}, {self.end})"
+        return f"{__class__.__name__}(" + f"{self._start}, {self._end})"
 
 class Arc(Curve):
+	"""to make an arc object, use the arc.by_start_mid_end for example.
+
+	Args:
+		Curve (_type_): _description_
+	"""
 	def __init__(self, matrix:'Matrix', angle:float) -> None:
-		self.matrix, self.angle = matrix, angle
+		self.matrix = matrix
+		"""this matrix transforms the arc from a unit circle to the final arc position.
+  			for example, when transforming 0,0,0 by this matrix, you'll get the center of the arc.
+		"""
+		self.angle = angle
+		"""the angle, in radians, of this arc. for example, for half a circle, self.angle will be PI."""
  
 	@staticmethod
 	def by_start_mid_end(start: Point, end: Point, mid: Point) -> 'Arc':
@@ -312,7 +330,7 @@ class Arc(Curve):
 		start_to_end = end - start
 		half_start_end = start_to_end * 0.5
 		b = half_start_end.magnitude
-		radius = Sphere.radius_by_3_points(start, mid, end)
+		radius = geometry.sphere.Sphere.radius_by_3_points(start, mid, end)
 		x = math.sqrt(radius * radius - b * b)
 		#mid point as if this was a straight line
 		straight_line_mid = start + half_start_end
@@ -330,7 +348,12 @@ class Arc(Curve):
 		#if dot_product > 
 		normalized_z_axis = Vector.cross_product(normalized_x_axis, normalized_end_direction).normalized
 		normalized_y_axis = Vector.cross_product(normalized_z_axis, normalized_x_axis)
-		return Arc(Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis]))
+		arc_matrix = Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis])
+		#to get the angle, multiply the end point by the inverse of the matrix and measure its angle
+		inv = arc_matrix.inverse()
+		unit_end:Point = inv * end
+
+		return Arc(arc_matrix, unit_end.angle)
  
 	@property
 	def start(self) -> Point:

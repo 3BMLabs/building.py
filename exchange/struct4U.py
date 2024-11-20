@@ -27,7 +27,8 @@
 """This module provides an exchange with XFEM4U
 """
 
-from BuildingPy import Support
+
+from construction.analytical import Support
 from construction.datum import *
 from construction.panel import *
 from exchange.speckle import *
