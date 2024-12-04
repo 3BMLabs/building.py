@@ -38,7 +38,7 @@ from typing import List
 import json
 
 from geometry.rect import Rect
-from geometry.point import Point, transform_point_2
+from geometry.point import Point
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 

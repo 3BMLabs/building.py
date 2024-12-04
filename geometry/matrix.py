@@ -31,6 +31,7 @@ __title__ = "matrix"
 __author__ = "Maarten, Jan & Jonathan"
 __url__ = "./abstract/matrix.py"
 
+import math
 import sys
 from pathlib import Path
 import copy
@@ -38,14 +39,15 @@ import pickle
 from functools import reduce
 import struct
 
-from geometry.pointlist import PointList
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+from abstract.serializable import Serializable
+from geometry.coords import Coords
+from geometry.pointlist import PointList
+from geometry.vector import Vector
 from geometry.rect import Rect
 from geometry.point import Point
-from geometry.curve import Line
-from geometry.vector import *
 from typing import Self
 
 # [!not included in BP singlefile - end]
@@ -145,7 +147,7 @@ class Matrix(Serializable, list[list]):
 
 		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
  
-	def __mul__(self, other:Self | Coords | Line | Rect | PointList):
+	def __mul__(self, other:Self | Coords | Rect | PointList):
 		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
 		for example: translate * rotate (rotate first, translate after)
 		and: matrix * point (point first, multiplied by matrix after)"""
@@ -207,17 +209,29 @@ class Matrix(Serializable, list[list]):
 					for row in range(self.rows):
 						result[row] += self[row][col]
 			return result
-		elif isinstance(other, Line):
-			return Line(self * other.start, self * other.end)
 		elif isinstance(other, Rect):
 			mp0 = self * other.p0
 			mp1 = self * other.p1
 			return Rect.by_points([mp0, mp1])
+		else:
+			#this causes python to check for rmul on the other type
+			raise NotImplementedError()
 		return result
 	
 	transform = multiply = __mul__
  
-	
+	def multiply_inverse(self, other: Coords):
+		#do the same as multiplying, but then inverse
+		result: Coords = Coords([0] * self.cols)
+		#loop over column vectors and multiply them with the vector. sum the results (multiplied col 1 + multiplied col 2) to get the final product!
+		for col in reversed(range(self.cols)):
+			if col < len(other):
+				for row in range(self.rows):
+					result[row] += self[row][col] * other[col]
+			else:
+				#otherValue = 1, just add the vector
+				for row in range(self.rows):
+					other[row] -= self[row][col]
  
 	def multiply_without_translation(self, other: Coords):
 		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result.

@@ -3,12 +3,13 @@ from pathlib import Path
 import sys
 #import geometry.geometry2d
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+import sys, os, math
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.curve import Arc
 from geometry.point import Point
 
 
-arc = Arc(Point(-1,0,0), Point(0, 1, 0), Point(1, 0, 0))
+arc = Arc.by_start_mid_end(Point(-1,0,0), Point(0, 1, 0), Point(1, 0, 0))
 o = arc.origin

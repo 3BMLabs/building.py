@@ -40,9 +40,6 @@ from geometry.vector import Vector
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from abstract.text import *
-
-from geometry.curve import Line
 # [!not included in BP singlefile - end]
 
 from abstract.serializable import Serializable
