@@ -56,9 +56,8 @@ class Matrix(Serializable, list[list]):
 	"""
 	elements are ordered like [row][column] or [y][x]
 	"""
-	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> 'Matrix':
+	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> Self:
 		list.__init__(self, matrix)
-	
 
 	@property
 	def cols(self) -> 'int':
@@ -71,7 +70,7 @@ class Matrix(Serializable, list[list]):
 		return len(self)
 
 	@staticmethod
-	def scale(dimensions: int, scalar: float)-> 'Matrix':
+	def scale(dimensions: int, scalar: float)-> Self:
 		
 		match dimensions:
 			case 1:
@@ -98,16 +97,38 @@ class Matrix(Serializable, list[list]):
 		return Matrix([[0 for col in range(cols)] for row in range(rows)])
 
 	@staticmethod
-	def identity(dimensions:int):
+	def identity(dimensions:int) -> Self:
 		return Matrix.scale(dimensions, 1)
 
 	@staticmethod
-	def translate(toAdd: Vector):
-		dimensions:int = len(toAdd) + 1
-		return Matrix([[1 if x == y else toAdd[y] if x == len(toAdd) else 0 for x in range(dimensions)] for y in range(len(toAdd))])
+	def translate(addition: Vector) -> Self:
+		"""
+
+		Args:
+			origin (Vector): the matrix translates all points by this offset.
+
+		Returns:
+			Self: 
+		"""
+		dimensions:int = len(addition) + 1
+		return Matrix([[1 if x == y else addition[y] if x == len(addition) else 0 for x in range(dimensions)] for y in range(len(addition))])
 
 	@staticmethod
-	def by_origin_and_axes(origin: Point, axes: list[Coords]) -> 'Matrix':
+	def by_origin(origin: Vector) -> Self:
+		"""
+
+		Args:
+			origin (Vector): 
+
+		Returns:
+			Self: a transformation matrix using the default axes with a specified origin.
+		"""
+		return Matrix.translate(origin)
+
+
+
+	@staticmethod
+	def by_origin_and_axes(origin: Point, axes: list[Coords]) -> Self:
 		"""
 
 		Args:
@@ -123,7 +144,20 @@ class Matrix(Serializable, list[list]):
 				for row in range(len(origin))])
 
 	@staticmethod
-	def by_rotation(axis: Vector, angle: float) -> 'Matrix':
+	def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> Self:
+		"""
+
+		Args:
+			origin (Point): the origin of the matrix. all points will get translated by this vector.
+			unit_axes (list[Coords]): the axes of this matrix, as unit vectors. they will get normalized!
+
+		Returns:
+			Self: the final matrix
+		"""
+		return Matrix.by_origin_and_axes(origin, axes=[axis.normalized for axis in unit_axes])
+
+	@staticmethod
+	def by_rotation(axis: Vector, angle: float) -> Self:
 		"""creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
 		Returns:
@@ -139,7 +173,7 @@ class Matrix(Serializable, list[list]):
         [normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
 	
 	@staticmethod
-	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> 'Matrix':
+	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> Self:
 		#from right to left:
   		#- translate objects so the pivot is at the origin
 		#- rotate objects around the origin
@@ -220,21 +254,8 @@ class Matrix(Serializable, list[list]):
 	
 	transform = multiply = __mul__
  
-	def multiply_inverse(self, other: Coords):
-		#do the same as multiplying, but then inverse
-		result: Coords = Coords([0] * self.cols)
-		#loop over column vectors and multiply them with the vector. sum the results (multiplied col 1 + multiplied col 2) to get the final product!
-		for col in reversed(range(self.cols)):
-			if col < len(other):
-				for row in range(self.rows):
-					result[row] += self[row][col] * other[col]
-			else:
-				#otherValue = 1, just add the vector
-				for row in range(self.rows):
-					other[row] -= self[row][col]
- 
-	def multiply_without_translation(self, other: Coords):
-		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result.
+	def multiply_without_translation(self, other: Coords) -> Coords:
+		"""this function just multiplies the coords by the matrix, but doesn't add anything to the result. good for sizes for example.
 
 		Args:
 			other (Coords): _description_
@@ -263,7 +284,7 @@ class Matrix(Serializable, list[list]):
 		"""
 		return self.get_col(self.cols - 1)
 
-	def add(self, other: 'Matrix'):
+	def add(self, other: Self):
 		if self.shape() != other.shape():
 			raise ValueError("Matrices must have the same dimensions")
 		return Matrix([[self[i][j] + other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])

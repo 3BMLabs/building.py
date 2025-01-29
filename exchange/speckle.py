@@ -207,52 +207,45 @@ def convert_to_speckle_object(building_py_object: Serializable, units, applicati
 		try:
 			if building_py_object.comments.type == "Scia_Params":
 				converted_object = SpeckleMesh(
-											  vertices=building_py_object.extrusion.verts, 
-											  faces=building_py_object.extrusion.faces, 
-											  colors = building_py_object.colorlst, 
-											  name = building_py_object.profileName, 
-											  
-											  textureCoordinates = [],
-											  Scia_Id=building_py_object.comments.id, 
-											  Scia_Justification=building_py_object.comments.perpendicular_alignment, 
-											  Scia_Layer=building_py_object.comments.layer, 
-											  Scia_Rotation=building_py_object.comments.lcs_rotation, 
-											  Scia_Staaf=building_py_object.comments.name, 
-											  Scia_Type=building_py_object.comments.cross_section, 
-											  Scia_Node_Start = building_py_object.comments.start_node, 
-											  Scia_Node_End = building_py_object.comments.end_node, 
-											  Revit_Rotation=str(building_py_object.comments.revit_rot), 
-											  Scia_Layer_Type=building_py_object.comments.layer_type, 
-											  BuildingPy_XJustification=building_py_object.comments.Xjustification, 
-											  BuildingPy_YJustification=building_py_object.comments.Yjustification)
-				
+					vertices=building_py_object.extrusion.verts, 
+					faces=building_py_object.extrusion.faces, 
+					colors = building_py_object.colorlst,
+					name = building_py_object.profileName,
+					textureCoordinates = [],
+					Scia_Id=building_py_object.comments.id, 
+					Scia_Justification=building_py_object.comments.perpendicular_alignment, 
+					Scia_Layer=building_py_object.comments.layer, 
+					Scia_Rotation=building_py_object.comments.lcs_rotation, 
+					Scia_Staaf=building_py_object.comments.name, 
+					Scia_Type=building_py_object.comments.cross_section, 
+					Scia_Node_Start = building_py_object.comments.start_node, 
+					Scia_Node_End = building_py_object.comments.end_node, 
+					Revit_Rotation=str(building_py_object.comments.revit_rot), 
+					Scia_Layer_Type=building_py_object.comments.layer_type, 
+					BuildingPy_XJustification=building_py_object.comments.Xjustification, 
+					BuildingPy_YJustification=building_py_object.comments.Yjustification)
 			else:
 				converted_object = SpeckleMesh(
 											  vertices=building_py_object.extrusion.verts, 
 											  faces=building_py_object.extrusion.faces, 
 											  colors = building_py_object.colorlst, 
-											  name = building_py_object.profileName, 
-											  
+											  name = building_py_object.profileName,
 											  textureCoordinates = []
 											  )
-				
 		except:
 			converted_object = SpeckleMesh(
 											vertices=building_py_object.extrusion.verts, 
 											faces=building_py_object.extrusion.faces, 
 											colors = building_py_object.colorlst, 
 											name = building_py_object.profileName, 
-											
-											textureCoordinates = []
-											)
+											textureCoordinates = [])
 	elif isinstance(building_py_object, Trimesh):
 		clrs = []
 		converted_object = SpeckleMesh(
 									  vertices=building_py_object.vertices, 
 									  faces=building_py_object.faces, 
 									  colors = clrs, 
-									  name = building_py_object.name, 
-									  
+									  name = building_py_object.name,
 									  textureCoordinates = []
 									  )
 	elif isinstance(building_py_object, Extrusion) or isinstance(building_py_object, Void):
@@ -412,48 +405,5 @@ def translateObjectsToSpeckleObjects(building_py_objects):
 				speckle_objects.append(converted_line)
 		else:
 			speckle_objects.append(convert_to_speckle_object(building_py_object))
-
-			# points = [
-			#	 SpecklePoint(x=0, y=0, z=0),
-			#	 SpecklePoint(x=0, y=10, z=0),
-			#	 SpecklePoint(x=10, y=10, z=0),
-			#	 SpecklePoint(x=10, y=0, z=0),
-			#	 SpecklePoint(x=0, y=0, z=0)
-			# ]
-
-			# profiel = SpecklePolyLine.from_points(points)
-			# extrusix = SpeckleExtrusion(
-			#	 area = 0,
-			#	 bbox = None,
-			#	 units = "mm",
-			#	 volume = 9,
-			#	 capped = True,
-			#	 profile = profiel,
-			#	 pathStart = SpecklePoint(x=0, y=0, z=0),
-			#	 pathEnd = SpecklePoint(x=0, y=10, z=120),
-			#	 pathCurve = SpeckleLine(start = SpecklePoint(x=0, y=0, z=0), end = SpecklePoint(x=0, y=10, z=120)),
-			#	 pathTangent = SpeckleVector.from_coords(1, 0, 0),
-			#	 length = 120,
-			#	 applicationId = "Test"
-			# )
-			
-			# hoofd_profiel = SpecklePolyLine.from_points([
-			#	 SpecklePoint(x = 0, y = 0, z = 0),
-			#	 SpecklePoint(x = 0,  y = 10, z = 0),
-			#	 SpecklePoint(x = 10, y = 10, z = 0),
-			#	 SpecklePoint(x = 10, y = 0, z = 0),
-			#	 SpecklePoint(x = 0, y = 0, z = 0)
-			# ])
-
-			# gat_profiel = SpecklePolyLine.from_points([
-			#	 SpecklePoint(x = 3, y = 3, z = 0),
-			#	 SpecklePoint(x = 3, y = 7, z = 0),
-			#	 SpecklePoint(x = 7, y = 7, z = 0),
-			#	 SpecklePoint(x = 7, y = 3, z = 0),
-			#	 SpecklePoint(x = 3, y = 3, z = 0)
-			# ])
-
-			# extrusix.profiles = [hoofd_profiel, gat_profiel]
-			# SpeckleObj.append(extrusix)
 
 	return speckle_objects
