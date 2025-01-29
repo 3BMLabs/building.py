@@ -41,7 +41,7 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
-from geometry.vector import Vector
+from abstract.vector import Vector
 from construction.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
 from geometry.curve import PolyCurve
 

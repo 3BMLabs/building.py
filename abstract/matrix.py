@@ -37,15 +37,13 @@ from pathlib import Path
 import copy
 import pickle
 from functools import reduce
-import struct
-
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.serializable import Serializable
 from geometry.coords import Coords
 from geometry.pointlist import PointList
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.rect import Rect
 from geometry.point import Point
 from typing import Self
@@ -422,12 +420,12 @@ class Matrix(Serializable, list[list]):
 	@staticmethod
 	def from_points(from_point: Point, to_point: Point):
 		Vz = Vector.by_two_points(from_point, to_point)
-		Vz = Vector.normalize(Vz)
+		Vz = Vz.normalized
 		Vzglob = Vector(0, 0, 1)
 		Vx = Vector.cross_product(Vz, Vzglob)
 		if Vector.length(Vx) == 0:
 			Vx = Vector(1, 0, 0) if Vz.x != 1 else Vector(0, 1, 0)
-		Vx = Vector.normalize(Vx)
+		Vx = Vx.normalized
 		Vy = Vector.cross_product(Vx, Vz)
 
 		return Matrix([

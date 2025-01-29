@@ -41,8 +41,8 @@ package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
 from geometry.rect import Rect
-from geometry.vector import Vector
-from packages.helper import *
+from abstract.vector import Vector
+
 
 # [!not included in BP singlefile - end]
 class PointList(Vector[Vector]):

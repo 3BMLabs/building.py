@@ -35,13 +35,12 @@ shape = "HEA"
 type = "HEA"
 #Mat = Material.byNameColor("Steel", Color().RGB([237, 237, 237]))
 
-
 for i in lst:
     Mat = BaseSteel
     try:
         prof = i[:3]
         shape = i[:3]
-        fram = Frame.by_startpoint_endpoint_profile(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
+        fram = Frame.by_startpoint_endpoint(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
         ColumnTag.by_frame(fram).write(project)
 
         x = x + spacing
@@ -54,4 +53,4 @@ for i in lst:
     except:
         print(i)
 
-project.to_speckle("ceae170aaf")
+#project.to_speckle("4a80729464")

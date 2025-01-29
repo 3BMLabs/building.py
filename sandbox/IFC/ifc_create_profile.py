@@ -1,17 +1,11 @@
-import ifcopenshell
 from ifcopenshell.api import run
 import ifcopenshell.util.placement
 import numpy as np
-import sys, os
+import sys
 from pathlib import Path
 # custom_profile = model.create_entity("IfcIShapeProfileDef", ProfileName="CustomHProfile", ProfileType="AREA", OverallWidth=120, OverallDepth=200, WebThickness=10, FlangeThickness=15, FilletRadius=0)
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
-
-from geometry.point import *
-from geometry.vector import *
-from geometry.matrix import *
-
 
 model = ifcopenshell.file()
 

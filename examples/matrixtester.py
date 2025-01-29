@@ -6,9 +6,9 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from abstract.color import Color
 from geometry.curve import Line, PolyCurve
-from geometry.matrix import Matrix
+from abstract.matrix import Matrix
 from geometry.point import Point
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.curve import Arc
 from geometry.pointlist import PointCloud
 
