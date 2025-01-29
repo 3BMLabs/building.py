@@ -2,25 +2,25 @@
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
 # ***************************************************************************
-# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe     *
-# *   maarten@3bm.co.nl, jan@3bm.co.nl & jonathan@3bm.co.nl                 *
-# *                                                                         *
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe	 *
+# *   maarten@3bm.co.nl, jan@3bm.co.nl & jonathan@3bm.co.nl				 *
+# *																		 *
 # *   This program is free software; you can redistribute it and/or modify  *
-# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
-# *   as published by the Free Software Foundation; either version 2 of     *
-# *   the License, or (at your option) any later version.                   *
-# *   for detail see the LICENCE text file.                                 *
-# *                                                                         *
-# *   This program is distributed in the hope that it will be useful,       *
-# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-# *   GNU Library General Public License for more details.                  *
-# *                                                                         *
-# *   You should have received a copy of the GNU Library General Public     *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)	*
+# *   as published by the Free Software Foundation; either version 2 of	 *
+# *   the License, or (at your option) any later version.				   *
+# *   for detail see the LICENCE text file.								 *
+# *																		 *
+# *   This program is distributed in the hope that it will be useful,	   *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of		*
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the		 *
+# *   GNU Library General Public License for more details.				  *
+# *																		 *
+# *   You should have received a copy of the GNU Library General Public	 *
 # *   License along with this program; if not, write to the Free Software   *
 # *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-# *   USA                                                                   *
-# *                                                                         *
+# *   USA																   *
+# *																		 *
 # ***************************************************************************
 
 
@@ -68,23 +68,35 @@ class Matrix(Serializable, list[list]):
 		return len(self)
 
 	@staticmethod
-	def scale(dimensions: int, scalar: float)-> Self:
-		
+	def scale(scalar: Vector)-> 'Matrix':
+		"""
+
+		Args:
+			dimensions (int): the amount of dimensions of this scaling matrix. is it 2d? 3d?
+			scalar (float): _description_
+
+		Returns:
+			Matrix: a scaling matrix of size (dimensions + 1, dimensions + 1)
+		"""
+		dimensions = scalar.length
 		match dimensions:
 			case 1:
-				arr = [[scalar]]
+				arr = [[scalar[0],0],
+						[0,1]]
 			case 2:
-				arr = [[scalar,0],
-						[0,scalar]]
+				arr = [[scalar[0], 0, 0],
+						[0, scalar[1], 0],
+						[0, 0, 1]]
 			case 3:
-				arr = [[scalar, 0, 0],
-						[0, scalar, 0],
-						[0, 0, scalar]]
-			case 4:
-				arr= [[scalar, 0, 0, 0],
-						[0, scalar, 0, 0],
-						[0, 0, scalar, 0],
-						[0, 0, 0, scalar]]
+				arr= [[scalar[0], 0, 0, 0],
+						[0, scalar[1], 0, 0],
+						[0, 0, scalar[2], 0],
+						[0, 0, 0, 1]]
+			case _:
+				arr = [[(scalar[row] if row < dimensions and col < dimensions 
+            		else 1) if row == col 
+            		else 0
+            		for col in range(dimensions + 1)] for row in range(dimensions + 1)]
 		return Matrix(arr)
 	
 	@staticmethod
@@ -96,7 +108,7 @@ class Matrix(Serializable, list[list]):
 
 	@staticmethod
 	def identity(dimensions:int) -> Self:
-		return Matrix.scale(dimensions, 1)
+		return Matrix.scale(Vector([1] * dimensions))
 
 	@staticmethod
 	def translate(addition: Vector) -> Self:
@@ -108,8 +120,8 @@ class Matrix(Serializable, list[list]):
 		Returns:
 			Self: 
 		"""
-		dimensions:int = len(addition) + 1
-		return Matrix([[1 if x == y else addition[y] if x == len(addition) else 0 for x in range(dimensions)] for y in range(len(addition))])
+		matrix_size:int = len(addition) + 1
+		return Matrix([[1 if x == y else addition[y] if x == len(addition) else 0 for x in range(matrix_size)] for y in range(len(matrix_size))])
 
 	@staticmethod
 	def by_origin(origin: Vector) -> Self:
@@ -123,10 +135,8 @@ class Matrix(Serializable, list[list]):
 		"""
 		return Matrix.translate(origin)
 
-
-
 	@staticmethod
-	def by_origin_and_axes(origin: Point, axes: list[Coords]) -> Self:
+	def by_origin_and_axes(origin: Point, axes: list[Coords]) -> 'Matrix':
 		"""
 
 		Args:
@@ -136,10 +146,17 @@ class Matrix(Serializable, list[list]):
 		Returns:
 			Matrix: a matrix with columns ordered like this:
 			axes[0], axes[1], ..., axes[n], origin
+			the bottom row is just an identity row.
 		"""
-		return Matrix([[axes[col][row] if col < len(axes) else origin[row] 
-				for col in range(len(axes) + 1)] 
-				for row in range(len(origin))])
+		matrix_size = len(axes) + 1
+		return Matrix([
+      		#copied columns
+        	[axes[col][row] if col < len(axes) else origin[row] 
+			for col in range(matrix_size)]
+        	if row < len(origin) else
+        	#identity row
+        	[0 if col < len(axes) else 1 for col in range(matrix_size)]
+			for row in range(matrix_size)])
 
 	@staticmethod
 	def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> Self:
@@ -166,9 +183,9 @@ class Matrix(Serializable, list[list]):
 		cos_angle = math.cos(angle)
 		sin_angle = math.sin(angle)
 		return Matrix([
-      	[cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),						normalized_axis.x * normalized_axis.y * (1 - cos_angle) - normalized_axis.z * sin_angle,	normalized_axis.x * normalized_axis.z * (1 - cos_angle) + normalized_axis.y * sin_angle	],
-        [normalized_axis.y * normalized_axis.x * (1 - cos_angle) + normalized_axis.z * sin_angle,	cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),						normalized_axis.y * normalized_axis.z * (1 - cos_angle) - normalized_axis.x * sin_angle	],
-        [normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
+	  	[cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),						normalized_axis.x * normalized_axis.y * (1 - cos_angle) - normalized_axis.z * sin_angle,	normalized_axis.x * normalized_axis.z * (1 - cos_angle) + normalized_axis.y * sin_angle	],
+		[normalized_axis.y * normalized_axis.x * (1 - cos_angle) + normalized_axis.z * sin_angle,	cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),						normalized_axis.y * normalized_axis.z * (1 - cos_angle) - normalized_axis.x * sin_angle	],
+		[normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
 	
 	@staticmethod
 	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> Self:
@@ -281,6 +298,47 @@ class Matrix(Serializable, list[list]):
 			Coords: the last column of this matrix, which gets added to the result when a point is multiplied by the matrix
 		"""
 		return self.get_col(self.cols - 1)
+
+	def cofactor(self, i: int, j: int) -> float:
+		"""Calculates the cofactor of element at position (i, j)."""
+		minor_matrix = self.minor(i, j)
+		return ((-1) ** (i + j)) * minor_matrix.determinant()
+
+	def cofactor_matrix(self) -> 'Matrix':
+		"""Returns the cofactor matrix."""
+		return Matrix([[self.cofactor(i, j) for j in range(self.cols)] for i in range(self.rows)])
+
+	def adjugate(self) -> 'Matrix':
+		"""Returns the adjugate (or adjoint) of the matrix."""
+		return self.cofactor_matrix().transpose()
+
+	def determinant(self) -> float:
+		"""Calculates the determinant of the matrix."""
+		if self.rows != self.cols:
+			raise ValueError("Matrix must be square to compute determinant.")
+		if self.rows == 1:
+			return self[0][0]
+		if self.rows == 2:
+			return self[0][0] * self[1][1] - self[0][1] * self[1][0]
+		
+		det = 0
+		for c in range(self.cols):
+			det += ((-1) ** c) * self[0][c] * self.minor(0, c).determinant()
+		return det
+	
+	def minor(self, row_index: int, col_index: int) -> 'Matrix':
+		"""Returns the minor of the matrix by removing the i-th row and j-th column."""
+		return Matrix([row[:col_index] + row[col_index+1:] for row in (self[:row_index] + self[row_index+1:])])
+
+	def inverse(self) -> 'Matrix':
+		"""Returns the inverse of the matrix if it exists."""
+  
+		determinant = self.determinant()
+		if determinant == 0:
+			raise ValueError("Matrix is not invertible (determinant is zero).")
+				
+		adjugate = self.adjugate()
+		return Matrix([[element / determinant for element in row] for row in adjugate])
 
 	def add(self, other: Self):
 		if self.shape() != other.shape():
@@ -600,20 +658,11 @@ class Matrix(Serializable, list[list]):
 		reshaped = [flat_list[i * cols:(i + 1) * cols] for i in range(rows)]
 		return Matrix(reshaped)
 
-	def resize(self, new_shape):
-		new_rows, new_cols = new_shape
-		current_rows, current_cols = len(self), len(
-			self[0]) if self else 0
-		if new_rows < current_rows:
-			self = self[:new_rows]
-		else:
-			for _ in range(new_rows - current_rows):
-				self.append([0] * current_cols)
-		for row in self:
-			if new_cols < current_cols:
-				row[:] = row[:new_cols]
-			else:
-				row.extend([0] * (new_cols - current_cols))
+	def resize(self, new_rows, new_cols):
+		return Matrix([[
+      		self[row][col] if (col < self.cols and row < self.rows) 
+      		else (1 if row == col else 0)
+      		for col in range(new_cols)] for row in range(new_rows)])
 
 	def round(self, decimals=0):
 		rounded_matrix = [[round(item, decimals)

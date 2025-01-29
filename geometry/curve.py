@@ -314,28 +314,36 @@ class Arc(Curve):
   
 		start_to_end = end - start
 		half_start_end = start_to_end * 0.5
-		b = half_start_end.magnitude
 		radius = Sphere.radius_by_3_points(start, mid, end)
-		x = math.sqrt(radius * radius - b * b)
 		#mid point as if this was a straight line
 		straight_line_mid = start + half_start_end
 		#substract the curved mid point from the straight line mid point
 		to_center = straight_line_mid - mid
 		#change length to x
-		to_center.magnitude = x
+		to_center.magnitude = math.sqrt(radius * radius - half_start_end.magnitude_squared)
 		origin = mid + to_center
 
-		x_axis = start - mid
+		x_axis = start - origin
 		normalized_x_axis = x_axis.normalized
-		normalized_end_direction = (end - mid).normalized
-		#TODO: z axis is pointing the other way when the angle is more than PI
-		#dot_product = Vector.dot_product(normalized_x_axis, normalized_end_direction)
-		#if dot_product > 
-		normalized_z_axis = Vector.cross_product(normalized_x_axis, normalized_end_direction).normalized
-		normalized_y_axis = Vector.cross_product(normalized_z_axis, normalized_x_axis)
-		#to get the angle, multiply the end point inversely by the matrix and measure its angle.
-  
-		return Arc(Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis]))
+		normalized_mid_direction = (mid - origin).normalized
+
+		if len(start) == 2:
+			#2d
+			normalized_y_axis = Vector.cross_product(normalized_x_axis)
+			arc_matrix = Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius])
+		else:#3d
+			
+			#TODO: z axis is pointing the other way when the angle is more than PI
+			#dot_product = Vector.dot_product(normalized_x_axis, normalized_end_direction)
+			#if dot_product > 
+			normalized_z_axis = Vector.cross_product(normalized_x_axis, normalized_mid_direction).normalized
+			normalized_y_axis = Vector.cross_product(normalized_z_axis, normalized_x_axis)
+			#to get the angle, multiply the end point inversely by the matrix and measure its angle.
+			arc_matrix = Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis])
+		inverse = arc_matrix.inverse()
+		angle = (inverse * end).angle
+
+		return Arc(arc_matrix, angle)
  
 	@property
 	def start(self) -> Point:

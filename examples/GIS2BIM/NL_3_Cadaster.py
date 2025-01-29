@@ -4,7 +4,7 @@ from project.fileformat import *
 from exchange.GIS2BIM import *
 from geometry.mesh import Mesh
 from library.material import *
-from abstract.image import *
+from exchange.image_to_mesh import *
 #from GIS2BIM_single_file import *
 
 # Description

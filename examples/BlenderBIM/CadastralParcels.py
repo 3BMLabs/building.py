@@ -6,7 +6,7 @@ from exchange.GIS2BIM import *
 from geometry.mesh import Mesh
 #from packages.GIS2BIM.GIS2BIM_Blender import *
 from library.material import *
-from abstract.image import *
+from exchange.image_to_mesh import *
 import sys
 
 # Description

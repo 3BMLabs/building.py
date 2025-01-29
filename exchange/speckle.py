@@ -34,13 +34,15 @@ __url__ = "./exchange/speckle.py"
 import sys
 from pathlib import Path
 
-from abstract.image import imagePyB
 from abstract.interval import Interval
 from abstract.serializable import Serializable
 #from construction.datum import Grid, GridSystem
+from construction.datum import Grid, GridSystem
+from construction.panel import Panel
 from construction.void import Void
 from construction.wall import Wall
 #from exchange.Trimesh_dep import Trimesh
+from geometry.coords import Coords
 from geometry.mesh import Mesh
 from abstract.text import Text
 from packages.specklepy.objects.base import Base
@@ -236,15 +238,6 @@ def convert_to_speckle_object(building_py_object: Serializable, units, applicati
 											colors = building_py_object.colorlst, 
 											name = building_py_object.profileName, 
 											textureCoordinates = [])
-	elif isinstance(building_py_object, Trimesh):
-		clrs = []
-		converted_object = SpeckleMesh(
-									  vertices=building_py_object.vertices, 
-									  faces=building_py_object.faces, 
-									  colors = clrs, 
-									  name = building_py_object.name,
-									  textureCoordinates = []
-									  )
 	elif isinstance(building_py_object, Extrusion) or isinstance(building_py_object, Void):
 			clrs = [4294901760, 4294901760, 4294901760, 4294901760, 4294901760]
 
@@ -277,18 +270,10 @@ def convert_to_speckle_object(building_py_object: Serializable, units, applicati
 			name = building_py_object.name, 
 			textureCoordinates = []
 			)
-	elif isinstance(building_py_object, imagePyB):
-			colrs = building_py_object.colorlst
-			converted_object = SpeckleMesh(
-										  vertices=building_py_object.verts, 
-										  faces=building_py_object.faces, 
-										  colors = colrs, 
-										  name = building_py_object.name, 
-										  
-										  textureCoordinates = []
-										  )
 	elif isinstance(building_py_object, Arc):
 			converted_object = ArcToSpeckleArc(building_py_object)
+	else:
+		raise NotImplementedError("this object cannot yet be converted to speckle")
 	converted_object.units = units
 	converted_object.applicationId = application_id
 	#converted_object.name = typeof(converted_object)

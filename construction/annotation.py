@@ -31,6 +31,7 @@ __title__ = "annotation"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/annotation.py"
 
+import math
 import sys
 from pathlib import Path
 
@@ -42,6 +43,9 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.text import *
 
 from geometry.curve import Line
+
+from abstract.matrix import CoordinateSystem
+
 # [!not included in BP singlefile - end]
 
 #Maarten

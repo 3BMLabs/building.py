@@ -206,7 +206,7 @@ class IShapeParallelFlange(Profile):
         # describe curves
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
         l4 = Line(p5, p6)
         l5 = Arc(p6, p7, p8)
         l6 = Line(p8, p9)
