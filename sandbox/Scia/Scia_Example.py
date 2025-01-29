@@ -14,4 +14,4 @@ project = BuildingPy("TempCommit", "0")
 
 LoadXML(filepath, project)
 
-project.toSpeckle("c6e11e74cb")
+project.to_speckle("c6e11e74cb")

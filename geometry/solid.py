@@ -42,7 +42,6 @@ file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
 
-from BuildingPy import Matrix
 from geometry.plane import Plane
 from geometry.rect import Rect
 from geometry.vector import Vector

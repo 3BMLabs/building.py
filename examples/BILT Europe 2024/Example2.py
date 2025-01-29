@@ -23,4 +23,4 @@ project.objects.append(floor_instance)
 
 
 toSpeckle(project,streamid,"my first shiny commit")
-project.toIFC("BILT_Example")
+project.to_IFC("BILT_Example")

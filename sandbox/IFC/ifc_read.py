@@ -64,4 +64,4 @@ else:
 
 
 project.objects = [2,3,3,1]
-project.toSpeckle("6d9555e57f")
+project.to_speckle("6d9555e57f")

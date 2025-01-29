@@ -34,4 +34,4 @@ for j in PC1.curves:
     print(j)
 
 project.objects.append(PC1)
-project.toSpeckle("29a6c39880")
+project.to_speckle("29a6c39880")

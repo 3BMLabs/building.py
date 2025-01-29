@@ -204,7 +204,7 @@ def LoadPanels(width,length,z):
 LoadPanels(length,width,z)
 
 project.objects.append(obj1)
-project.toSpeckle("92cf563acc")
+project.to_speckle("92cf563acc")
 
 
 #SpeckleObj = translateObjectsToSpeckleObjects(obj1)

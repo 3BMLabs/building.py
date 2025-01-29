@@ -97,4 +97,4 @@ nm = "CF_ZL150/100/1"
 CWL = Frame.by_startpoint_endpoint(Point(4000,-1001,0),Point(4000,-1000,height),ZProfileWithLipsColdFormed(nm,100,150,1,3,10).curve,nm,0,BaseSteel).write(project)
 ColumnTag.by_frame(CWL).write(project)
 
-project.toSpeckle("a5d97a353d")
+project.to_speckle("a5d97a353d")

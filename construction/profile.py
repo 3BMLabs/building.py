@@ -49,7 +49,7 @@ sqrt2 = math.sqrt(2)
 # point 2D
 # line 2D
 # PolyCurve2D 2D
-# profile is een parametrische vorm heeft als resultaat een 2D curve
+# profile is a parametric shape, resulting in a 2D curve
 # section is een profiel met eigenschappen HEA200, 200,200,10,10,5 en eventuele rekenkundige eigenschappen.
 # beam is een object wat in 3D zit met materiaal enz.
 

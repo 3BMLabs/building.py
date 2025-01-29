@@ -54,4 +54,4 @@ for index, line in enumerate(PC1.curves):
                 except:
                     pass
 
-project.toSpeckle("bd33f3c533")
+project.to_speckle("bd33f3c533")

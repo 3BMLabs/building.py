@@ -54,4 +54,4 @@ for i in lst:
     except:
         print(i)
 
-project.toSpeckle("ceae170aaf")
+project.to_speckle("ceae170aaf")

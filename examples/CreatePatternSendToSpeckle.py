@@ -31,4 +31,4 @@ for i in lst:
         project.objects.append(j)
     dx = dx + spacing
 
-project.toSpeckle("3e34ec62e2")
+project.to_speckle("3e34ec62e2")

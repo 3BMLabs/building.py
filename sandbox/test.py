@@ -29,4 +29,4 @@ project.objects.append(f1)
 project.objects.append(f2)
 
 
-project.toSpeckle("31d9948b31")
+project.to_speckle("31d9948b31")

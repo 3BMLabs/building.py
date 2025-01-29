@@ -53,4 +53,4 @@ project.objects = obj
 # give rotation on axis.
 
 print(project.objects)
-project.toSpeckle("7603a8603c")
+project.to_speckle("7603a8603c")

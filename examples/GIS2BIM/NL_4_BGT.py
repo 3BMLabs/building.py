@@ -193,7 +193,7 @@ for i in pnts:
 	GISProject.objects.append(Point(x,y,0))
 
 
-GISProject.toSpeckle("cfcafde1df", "GIS2BIM BGT test")
+GISProject.to_speckle("cfcafde1df", "GIS2BIM BGT test")
 
 sys.exit()
 

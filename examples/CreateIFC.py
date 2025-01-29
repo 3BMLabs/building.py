@@ -45,7 +45,7 @@ for i in readedDXF.polylines:
     project.objects.append(i)
 # project.objects.append(obj)
 
-project.toSpeckle("7603a8603c")
+project.to_speckle("7603a8603c")
 
 # lst = [PG1, innerPolygon1, innerPolygon2]
 

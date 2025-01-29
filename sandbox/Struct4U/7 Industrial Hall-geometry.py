@@ -165,4 +165,4 @@ for i in wvbDak:
         Point(x2, y2, z),
         WVB_DAK,"WVB DAK", BaseSteel).write(project)
 
-project.toSpeckle("dca7c22b3e")
+project.to_speckle("dca7c22b3e")

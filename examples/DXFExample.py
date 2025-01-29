@@ -37,7 +37,7 @@ for index, pl2 in enumerate(readedDXF.polylines):
 
 project.objects.append(obj)
 
-project.toSpeckle("7603a8603c")
+project.to_speckle("7603a8603c")
 
 
 model = ifcopenshell.file()

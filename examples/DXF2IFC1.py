@@ -44,7 +44,7 @@ def process_directory(dxf_directory):
 dxf_input_path = 'library\\object_database\\DXF\\'
 
 process_directory(dxf_input_path)
-project.toSpeckle("29a6c39880")
+project.to_speckle("29a6c39880")
 
 ifc_project = CreateIFC()
 

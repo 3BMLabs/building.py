@@ -104,17 +104,17 @@ class BuildingPy(Serializable):
     def open(self, file_name = 'project/data.json'):
         Serializable.open(file_name)
 
-    def toSpeckle(self, streamid, commitstring=None):
+    def to_speckle(self, streamid, commitstring=None):
         from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
         self.specklestream = streamid
         speckleobj = translateObjectsToSpeckleObjects(self.objects)
         TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
 
-    def toFreeCAD(self):
+    def to_FreeCAD(self):
         from exchange.Freecad_Bupy import translateObjectsToFreeCAD
         translateObjectsToFreeCAD(self.objects)
 
-    def toIFC(self, name):
+    def to_IFC(self, name):
         from exchange.IFC import translateObjectsToIFC, CreateIFC
         ifc_project = CreateIFC()
         ifc_project.add_project(name)

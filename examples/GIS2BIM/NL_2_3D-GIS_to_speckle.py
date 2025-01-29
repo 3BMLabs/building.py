@@ -132,7 +132,7 @@ def Kadaster3DBasisvoorziening(resultparser, GISProject):
 
 Kadaster3DBasisvoorziening(result, GISProject)
 
-GISProject.toSpeckle(StreamID, ProjectName)
+GISProject.to_speckle(StreamID, ProjectName)
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')

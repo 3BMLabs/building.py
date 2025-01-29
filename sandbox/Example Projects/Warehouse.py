@@ -148,4 +148,4 @@ for pallet in pallets:
         z = z + grid_height
         n = n + 1
 
-project.toSpeckle("8fa09cee4f")
+project.to_speckle("8fa09cee4f")

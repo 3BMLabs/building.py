@@ -20,7 +20,7 @@ LoadXML(filepath, project)
 
 # print(project.objects)
 # print(len(project.objects))
-project.toSpeckle("c6e11e74cb")
+project.to_speckle("c6e11e74cb")
 
 #send the loadxml objects back
 #so after send return the project.objects (start and end coords)

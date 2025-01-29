@@ -54,5 +54,5 @@ for i in wall.panel_objects:
 
 #project.objects.append(Panel.by_baseline_height(Line(start= Point(1000,0,0),end=Point(3000,0,0)),2500,150,"wand",BaseConcrete.colorint))
 
-project.toSpeckle("92cf563acc")
+project.to_speckle("92cf563acc")
 

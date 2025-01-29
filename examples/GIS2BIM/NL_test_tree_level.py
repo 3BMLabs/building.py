@@ -44,5 +44,5 @@ for j in range(segments+1):
         GISProject.objects.append(pnt)
     angle = angle + 360/segments
 
-GISProject.toSpeckle("cc80144920")
+GISProject.to_speckle("cc80144920")
 

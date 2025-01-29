@@ -37,4 +37,4 @@ for polycurve in polycurves["splittedPolycurve"]:
     project.objects.append(polycurve)
 
 
-project.toSpeckle("bd33f3c533")
+project.to_speckle("bd33f3c533")

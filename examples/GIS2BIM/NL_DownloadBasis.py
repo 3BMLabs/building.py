@@ -264,7 +264,7 @@ print(FolderCityJSON)
 #DownloadCityJSON(GISBbox, FolderCityJSON)
 Kadaster3DBasisvoorziening(Create3DKadasterBasisvoorziening(GISBbox, FolderCityJSON),GISProject)
 
-GISProject.toSpeckle("6b2055857b", "3D Kadaster Basisvoorziening en 3D BAG")
+GISProject.to_speckle("6b2055857b", "3D Kadaster Basisvoorziening en 3D BAG")
 
 end = time.time()
 print('Execution time:', end - start, 'seconds')

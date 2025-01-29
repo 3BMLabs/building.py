@@ -83,7 +83,7 @@ class Surface:
     @classmethod
     def by_patch_inner_and_outer(self, Polygons: 'list[Polygon]') -> 'Surface':
         valid_polygons = [p for p in Polygons if p is not None]
-        sorted_polygons = sorted(valid_polygons, key=lambda p: p.length(), reverse=True)
+        sorted_polygons = sorted(valid_polygons, key=lambda p: p.length, reverse=True)
 
         if len(sorted_polygons) == 0:
             raise ValueError("No valid polygons provided")

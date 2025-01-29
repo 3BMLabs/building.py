@@ -20,4 +20,4 @@ bb = Rect.centered_at_origin(Vector( 7350, 8550))
 project.objects.append(bb)
 
 
-project.toSpeckle("29a6c39880")
+project.to_speckle("29a6c39880")

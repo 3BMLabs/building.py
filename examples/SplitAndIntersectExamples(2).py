@@ -176,4 +176,4 @@ for i in b:
 # for item in i:
 #     project.objects.append(item)
 
-project.toSpeckle("bd33f3c533")
+project.to_speckle("bd33f3c533")

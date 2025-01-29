@@ -693,6 +693,7 @@ class Polygon(PointList):
 		else:
 			raise ValueError("this polycurve is not closed")
 
+	@property
 	def length(self) -> 'float':
 		"""Calculates the total length of the Polygon.
 
@@ -734,6 +735,7 @@ class PolyCurve(Serializable, list[Line], Shape):
 	def points(self) -> list[Point]:
 		p = []
 		for l in self:
+			#TODO: remove duplicate points
 			p.extend(l.points)
 		return p
 	

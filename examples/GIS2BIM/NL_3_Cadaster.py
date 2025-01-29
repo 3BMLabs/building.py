@@ -53,4 +53,4 @@ for i in BPCurvesBAG:
     m = Mesh().by_polycurve(i, "BAG:pand", BaseBuilding)
     GISProject.objects.append(m)
 
-GISProject.toSpeckle("30185b86c3", "Kadaster")
+GISProject.to_speckle("30185b86c3", "Kadaster")

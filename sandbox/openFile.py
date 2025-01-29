@@ -30,5 +30,5 @@ for serialized_obj in serialized_objects:
     if obj_data['type'] == 'Line':
         deserialize = Line.deserialize(obj_data)
         project.objects.append(deserialize)
-project.toSpeckle("c6e11e74cb")
+project.to_speckle("c6e11e74cb")
 # project.open(path) #check valid path, else corrupt
