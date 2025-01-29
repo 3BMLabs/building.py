@@ -37,8 +37,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from project.fileformat import *
-from geometry.point import Point
-from geometry.vector import *
+from abstract.vector import *
 
 # [!not included in BP singlefile - end]
 

@@ -1,15 +1,12 @@
-import ifcopenshell
 from ifcopenshell.api import run
 import ifcopenshell.util.placement
 import numpy as np
-import sys, os
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from geometry.point import *
-from geometry.vector import *
-from geometry.matrix import *
+from abstract.matrix import *
 
 
 model = ifcopenshell.file()

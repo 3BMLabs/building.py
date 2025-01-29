@@ -44,11 +44,11 @@ sys.path.append(str(package_root_directory))
 
 from geometry.plane import Plane
 from geometry.rect import Rect
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.curve import PolyCurve
 from geometry.point import Point
-from packages.helper import flatten, generateID
-from construction.profile import Profile
+
+
 # [!not included in BP singlefile - end]
 
 

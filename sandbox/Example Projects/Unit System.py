@@ -8,9 +8,8 @@ sys.path.append(str(package_root_directory))
 from exchange.speckle import *
 from construction.datum import *
 from construction.frame import *
-from packages.helper import *
 from geometry.point import *
-from geometry.vector import Vector
+from abstract.vector import Vector
 #Proof of Concept modules
 
 # GridSystem

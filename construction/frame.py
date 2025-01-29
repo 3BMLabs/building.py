@@ -31,8 +31,9 @@ __title__ = "shape"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/frame.py"
 
-import sys, os, math
+import sys
 from pathlib import Path
+from profile import Profile
 from typing import Union
 
 
@@ -41,8 +42,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from library.profile import *
 from library.profile import nameToProfile, justificationToVector
 from library.material import *
-from geometry.vector import *
-from construction import profile
 
 from abstract.node import *
 from geometry.solid import *
@@ -89,7 +88,7 @@ class Frame(Serializable):
     def props(self):
         self.vector = Vector(self.end.x-self.start.x,
                               self.end.y-self.start.y, self.end.z-self.start.z)
-        self.vector_normalised = Vector.normalize(self.vector)
+        self.vector_normalised = self.vector.normalized
         self.length = Vector.length(self.vector)
 
     @classmethod

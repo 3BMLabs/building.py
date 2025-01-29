@@ -32,12 +32,11 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/linestyle.py"
 
 
-import sys, math
+import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.vector import *
 from geometry.curve import *
 
 

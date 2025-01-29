@@ -32,14 +32,14 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./fileformat/fileformat.py"
 
 
-import sys, os, math, json
+import sys
 from collections import defaultdict
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.serializable import Serializable
 from geometry.point import Point
-from geometry.vector import Vector
+
 
 # [!not included in BP singlefile - end]
 class BuildingPy(Serializable):
@@ -82,7 +82,7 @@ class BuildingPy(Serializable):
         self.createdTxt = "has been created"
 
         #Speckle settings
-        self.speckleserver = "speckle.xyz"
+        self.speckleserver = "app.speckle.systems"
         self.specklestream = None
 
         #FreeCAD settings

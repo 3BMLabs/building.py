@@ -1,20 +1,16 @@
-import operator
 import random
-import sys, os, math
+import sys
 from pathlib import Path
-import copy
-
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.matrix import Matrix
+from abstract.matrix import Matrix
 import tkinter as tk
 import geometry.shape_fitter as sf
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.coords import Coords
 from geometry.rect import Rect
-from geometry.point import Point
-from geometry.curve import Line, Polygon
+from geometry.curve import Line
 from shape_fitter_test_data import test_data
 
 root = tk.Tk()

@@ -1,23 +1,17 @@
-import sys, os
+import sys
 from pathlib import Path
 import numpy as np
 import ifcopenshell.geom
 import ifcopenshell.api
 import ifcopenshell.util.element as util
-import ifcopenshell.util.shape as shape
 from ifcopenshell.api import run
 
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 from geometry.curve import *
 from geometry.solid import *
-from project.fileformat import BuildingPy
 from construction.level import Level
-from construction.wall import Wall
-from construction.door import Door
-from construction.room import Room
-from geometry.surface import Surface
-from geometry.matrix import *
+from abstract.matrix import *
 
 
 class LoadIFC:

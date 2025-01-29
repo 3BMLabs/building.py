@@ -33,10 +33,10 @@ import sys
 from pathlib import Path
 from typing import Self, Union
 
-from geometry.matrix import Matrix
+from abstract.matrix import Matrix
 from geometry.shape import Shape
 from geometry.sphere import Sphere
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.coords import to_array
 from geometry.pointlist import PointList
 from packages.helper import flatten
@@ -44,7 +44,6 @@ from packages.helper import flatten
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.rect import Rect
-from geometry.plane import Plane
 from geometry.point import Point
 from abstract.serializable import Serializable
 
@@ -88,9 +87,9 @@ class Line(Curve):
 		"""
 		#copy
 		"""The starting point of the line segment"""
-		self.start = Point(start)
+		self._start = Point(start)
 		"""The ending point of the line segment."""
-		self.end = Point(end)
+		self._end = Point(end)
 		
 	@property
 	def mid(self) -> 'Point':
@@ -308,7 +307,7 @@ class Arc(Curve):
 		self.matrix, self.angle = matrix, angle
  
 	@staticmethod
-	def by_start_mid_end(start: Point, end: Point, mid: Point) -> 'Arc':
+	def by_start_mid_end(start: Point, mid: Point, end: Point) -> 'Arc':
 		#construct a matrix from a plane
 		#x = (start - origin).normalized
 		#y

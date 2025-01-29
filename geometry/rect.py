@@ -34,13 +34,11 @@ __url__ = "./abstract/boundingbox.py"
 import copy
 import sys
 from pathlib import Path
-from typing import Self
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.shape import Shape
-from packages.helper import *
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.point import Point
 from abstract.serializable import Serializable
 

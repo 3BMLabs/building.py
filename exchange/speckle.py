@@ -37,11 +37,10 @@ from pathlib import Path
 from abstract.image import imagePyB
 from abstract.interval import Interval
 from abstract.serializable import Serializable
-from construction.datum import Grid, GridSystem
+#from construction.datum import Grid, GridSystem
 from construction.void import Void
 from construction.wall import Wall
-from exchange.Trimesh_dep import Trimesh
-from geometry.rect import Rect
+#from exchange.Trimesh_dep import Trimesh
 from geometry.mesh import Mesh
 from abstract.text import Text
 from packages.specklepy.objects.base import Base
@@ -50,11 +49,11 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.solid import Extrusion
 from geometry.surface import Surface
-from project.fileformat import BuildingPy, Coords, Panel, Point
+from project.fileformat import BuildingPy
 from geometry.curve import Line
 from geometry.curve import PolyCurve, Polygon
 from geometry.curve import Arc
-from geometry.vector import Vector
+from abstract.vector import Vector
 from geometry.plane import Plane
 from packages.helper import flatten
 from construction.frame import Frame
@@ -76,10 +75,8 @@ from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.other import DisplayStyle as SpeckleDisplayStyle
-from specklepy.objects.geometry import Extrusion as SpeckleExtrusion
 from specklepy.objects.primitive import Interval as SpeckleInterval
-from specklepy.objects.geometry import Spiral as SpeckleSpiral
-from specklepy.objects.geometry import SpiralType as SpeckleSpiralType
+
 
 def to_speckle(self: BuildingPy, streamid, commitstring=None):
 	try:

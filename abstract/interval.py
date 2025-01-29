@@ -33,12 +33,9 @@ __url__ = "./abstract/interval.py"
 
 import sys
 from pathlib import Path
-from typing import Any, List
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.point import Point as pnt
-from geometry.vector import *
 
 # [!not included in BP singlefile - end]
 

@@ -31,8 +31,6 @@ __title__ = "datum"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/datum.py"
 
-import sys
-from pathlib import Path
 from abstract.text import *
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -40,6 +38,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.linestyle import *
 from geometry.curve import *
 from construction.annotation import *
+from abstract.matrix import *
 
 # [!not included in BP singlefile - end]
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
@@ -67,12 +66,11 @@ class GridheadType(Serializable):
 
     def geom(self):
         radius = self.radius
-        self.curves.append(Arc(startPoint=Point(-radius, radius, 0),
-                           midPoint=Point(0, radius*2, 0), endPoint=Point(radius, radius, 0)))
-        self.curves.append(Arc(startPoint=Point(-radius, radius, 0),
-                           midPoint=Point(0, 0, 0), endPoint=Point(radius, radius, 0)))
+        self.curves.append(Arc.by_start_mid_end(Point(-radius, radius, 0),
+                           Point(0, radius*2, 0), Point(radius, radius, 0)))
+        self.curves.append(Arc.by_start_mid_end(Point(-radius, radius, 0),
+                           Point(0, 0, 0), Point(radius, radius, 0)))
         # origin is at center of circle
-
 
 GHT30 = GridheadType().by_diam("2.5 mm", 400, "calibri", 200)
 
@@ -85,7 +83,7 @@ class GridHead:
         self.grid_name: str = "A"
         self.grid_head_type = GHT50
         self.radius = GHT50.radius
-        self.CS: CoordinateSystem = CSGlobal
+        self.CS: CoordinateSystem = Matrix()
         self.x: float = 0.5
         self.y: float = 0
         self.text_curves = []
@@ -104,8 +102,6 @@ class GridHead:
         cs_text_new = CoordinateSystem.move_local(cs_text, -100, 40, 0)
         self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
                                 height=self.grid_head_type.text_height, cs=cs_text_new).write()
-        project.objects.append(Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
-                                height=self.grid_head_type.text_height, cs=cs_text_new))
 
     @staticmethod
     def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
