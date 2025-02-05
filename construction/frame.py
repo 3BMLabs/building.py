@@ -32,12 +32,11 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/frame.py"
 
 import sys
-from pathlib import Path
 from profile import Profile
 from typing import Union
 
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from library.profile import *
 from library.profile import nameToProfile, justificationToVector

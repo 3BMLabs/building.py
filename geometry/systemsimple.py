@@ -34,9 +34,7 @@ __author__ = "Maarten"
 __url__ = "./geometry/systemsimple.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.rect import *
 from construction.panel import *

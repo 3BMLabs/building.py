@@ -37,7 +37,7 @@ import sys
 from pathlib import Path
 # import specklepy
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from geometry.point import Point
 from geometry.curve import Line

@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 from collections import defaultdict
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from construction.frame import *
 from exchange.scia import *

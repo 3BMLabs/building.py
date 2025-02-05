@@ -33,9 +33,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/vector.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from packages.helper import *

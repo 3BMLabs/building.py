@@ -39,7 +39,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/dxf.py"
 
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 
 from project.fileformat import *
 from geometry.curve import *

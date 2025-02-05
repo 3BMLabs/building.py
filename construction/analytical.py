@@ -32,9 +32,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/analytical.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.point import *
 from geometry.curve import *

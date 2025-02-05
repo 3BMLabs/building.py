@@ -1,10 +1,7 @@
-import sys, os, math, random
-from pathlib import Path
+import math
 #import geometry.geometry2d
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+
 
 from construction.panel import *
 from construction.frame import *

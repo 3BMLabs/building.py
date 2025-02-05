@@ -31,12 +31,6 @@ __title__ = "interval"
 __author__ = "Maarten & Jonathan"
 __url__ = "./abstract/interval.py"
 
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-
 # [!not included in BP singlefile - end]
 
 

@@ -31,13 +31,12 @@ __title__ = "profile"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/profile.py"
 
-import sys, os, math
-from pathlib import Path
+import math
 
 from abstract.serializable import Serializable
 from geometry.curve import Arc, Line, PolyCurve
 from geometry.point import Point
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 
 # [!not included in BP singlefile - end]

@@ -6,7 +6,7 @@ import ifcopenshell.api
 import ifcopenshell.util.element as util
 from ifcopenshell.api import run
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 
 from geometry.curve import *
 from geometry.solid import *

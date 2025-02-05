@@ -47,7 +47,7 @@ from geometry.mesh import Mesh
 from abstract.text import Text
 from packages.specklepy.objects.base import Base
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from geometry.solid import Extrusion
 from geometry.surface import Surface

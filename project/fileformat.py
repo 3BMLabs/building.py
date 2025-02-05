@@ -34,9 +34,7 @@ __url__ = "./fileformat/fileformat.py"
 
 import sys
 from collections import defaultdict
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from abstract.serializable import Serializable
 from geometry.point import Point
 

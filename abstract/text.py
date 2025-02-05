@@ -31,8 +31,6 @@ __title__ = "text"
 __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/text.py"
 
-import sys
-from pathlib import Path
 #import requests
 from typing import List
 import json
@@ -40,7 +38,7 @@ import json
 from geometry.rect import Rect
 from geometry.point import Point
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from geometry.curve import PolyCurve
 from packages.svg.path import parse_path

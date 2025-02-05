@@ -32,11 +32,10 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/color.py"
 
 import sys
-from pathlib import Path
 
 from geometry.coords import Coords
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 # [!not included in BP singlefile - end]
 

@@ -4,7 +4,7 @@ from ifcopenshell.api import run
 import ifcopenshell.util.placement
 import numpy as np
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from exchange.DXF import *
 

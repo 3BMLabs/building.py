@@ -36,7 +36,7 @@ __author__ = "Joas"
 __url__ = "./abstract/image.py"
 
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 # [!not included in BP singlefile - end]
 

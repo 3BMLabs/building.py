@@ -5,7 +5,7 @@ from pathlib import Path
 import trimesh
 import numpy as np
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from project.fileformat import *
 

@@ -25,7 +25,7 @@ import sys
 import math
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 from construction.datum import *
 from construction.panel import *
 from exchange.speckle import *

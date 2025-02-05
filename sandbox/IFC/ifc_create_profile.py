@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 # custom_profile = model.create_entity("IfcIShapeProfileDef", ProfileName="CustomHProfile", ProfileType="AREA", OverallWidth=120, OverallDepth=200, WebThickness=10, FlangeThickness=15, FilletRadius=0)
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 
 model = ifcopenshell.file()
 

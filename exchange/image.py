@@ -32,9 +32,7 @@ __author__ = "Maarten"
 __url__ = "./exchange/image.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from PIL import Image, ImageDraw
 from geometry.point import Point

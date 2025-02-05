@@ -32,13 +32,11 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/annotation.py"
 
 import math
-import sys
-from pathlib import Path
 
 from abstract.vector import Vector
 
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from abstract.text import *
 

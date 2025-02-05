@@ -2,7 +2,7 @@ import sys, os, math
 from pathlib import Path
 import time
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 
 from packages.GIS2BIM.GIS2BIM_CityJSON import *
 from library.material import *

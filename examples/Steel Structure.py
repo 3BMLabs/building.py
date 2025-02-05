@@ -1,25 +1,19 @@
 
 
-import sys, os, math
-from pathlib import Path
-from typing import Any, List
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from construction.panel import *
 from construction.frame import *
 from construction.profile import *
 from exchange.speckle import *
-from project import fileformat
 from construction.datum import *
 from geometry.systemsimple import *
-from abstract.text import Text
 from construction.annotation import *
 
 project = BuildingPy("Stalen kolommen","0")
 project.round = True
 project.closed = False
-from itertools import count
 
 #INPUT
 

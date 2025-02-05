@@ -35,7 +35,7 @@ import sys
 from pathlib import Path
 import math
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from geometry.coords import Coords
 from packages.helper import *

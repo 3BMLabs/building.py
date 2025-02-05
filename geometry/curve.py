@@ -41,7 +41,6 @@ from geometry.coords import to_array
 from geometry.pointlist import PointList
 from packages.helper import flatten
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.rect import Rect
 from geometry.point import Point

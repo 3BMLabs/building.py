@@ -32,9 +32,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/objectcollection.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.curve import Line, PolyCurve, Rect
 from geometry.surface import Surface

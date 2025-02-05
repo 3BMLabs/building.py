@@ -1,7 +1,7 @@
 
 from pathlib import Path
 import sys
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 from geometry.point import Point
 from library.profile import nameToProfile
 from construction.profile import TProfile

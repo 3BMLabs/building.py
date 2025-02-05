@@ -38,7 +38,7 @@ import copy
 import pickle
 from functools import reduce
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 from abstract.serializable import Serializable
 from geometry.coords import Coords

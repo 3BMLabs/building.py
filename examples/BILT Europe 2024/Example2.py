@@ -1,8 +1,5 @@
-import sys, os, math
-from pathlib import Path
-from typing import Union
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 
 from construction.frame import *
 from construction.floor import *

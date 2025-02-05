@@ -31,9 +31,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/door.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from geometry.solid import Extrusion
 from geometry.curve import *

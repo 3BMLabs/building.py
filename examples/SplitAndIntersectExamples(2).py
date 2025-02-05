@@ -1,7 +1,3 @@
-import sys, os, math
-from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 from geometry.curve import Line, PolyCurve
 from library.profile import data as jsondata
 

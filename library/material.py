@@ -36,9 +36,7 @@ import sys, os, math
 from pathlib import Path
 from abstract.color import *
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[1]
-sys.path.append(str(package_root_directory))
+
 
 # [!not included in BP singlefile - end]
 

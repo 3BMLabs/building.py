@@ -143,7 +143,7 @@ class Coords(Serializable, list):
 		"""
 		sqm = self.magnitude_squared
 		
-		return self / math.sqrt(sqm) if sqm > 0 else Coords()
+		return self / math.sqrt(sqm) if sqm > 0 else Coords([0] * len(self))
 	
 	@property
 	def angle(self) -> float:

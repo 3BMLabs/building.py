@@ -36,7 +36,7 @@ from abstract.serializable import Serializable
 from abstract.text import *
 from geometry.curve import Arc
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 
 # [!not included in BP singlefile - end]

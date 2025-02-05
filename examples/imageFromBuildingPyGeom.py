@@ -1,10 +1,7 @@
-import sys, os, math
-from pathlib import Path
 from geometry.rect import Rect
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-import PIL
+
 from PIL import Image, ImageDraw
 from construction.profile import *
 from geometry.curve import Arc, Polygon
