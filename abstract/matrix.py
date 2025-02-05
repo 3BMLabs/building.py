@@ -94,9 +94,9 @@ class Matrix(Serializable, list[list]):
 						[0, 0, 0, 1]]
 			case _:
 				arr = [[(scalar[row] if row < dimensions and col < dimensions 
-            		else 1) if row == col 
-            		else 0
-            		for col in range(dimensions + 1)] for row in range(dimensions + 1)]
+					else 1) if row == col 
+					else 0
+					for col in range(dimensions + 1)] for row in range(dimensions + 1)]
 		return Matrix(arr)
 	
 	@staticmethod
@@ -150,12 +150,12 @@ class Matrix(Serializable, list[list]):
 		"""
 		matrix_size = len(axes) + 1
 		return Matrix([
-      		#copied columns
-        	[axes[col][row] if col < len(axes) else origin[row] 
+	  		#copied columns
+			[axes[col][row] if col < len(axes) else origin[row] 
 			for col in range(matrix_size)]
-        	if row < len(origin) else
-        	#identity row
-        	[0 if col < len(axes) else 1 for col in range(matrix_size)]
+			if row < len(origin) else
+			#identity row
+			[0 if col < len(axes) else 1 for col in range(matrix_size)]
 			for row in range(matrix_size)])
 
 	@staticmethod
@@ -660,9 +660,9 @@ class Matrix(Serializable, list[list]):
 
 	def resize(self, new_rows, new_cols):
 		return Matrix([[
-      		self[row][col] if (col < self.cols and row < self.rows) 
-      		else (1 if row == col else 0)
-      		for col in range(new_cols)] for row in range(new_rows)])
+	  		self[row][col] if (col < self.cols and row < self.rows) 
+	  		else (1 if row == col else 0)
+	  		for col in range(new_cols)] for row in range(new_rows)])
 
 	def round(self, decimals=0):
 		rounded_matrix = [[round(item, decimals)

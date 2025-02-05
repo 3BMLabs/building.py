@@ -41,51 +41,51 @@ from abstract.vector import *
 
 
 class Node:
-    """The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
-    def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
-        """"Initializes a new Node instance.
-        
-        - `id` (str): A unique identifier for the node.
-        - `type` (str): The class name, "Node".
-        - `point` (Point, optional): The location of the node in 3D space.
-        - `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
-        - `number` (any, optional): An identifying number or label for the node.
-        - `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
-        - `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
-        - `comments` (str, optional): Additional comments or notes about the node.
-        """
-        
-        self.point = point if isinstance(point, Point) else None
-        self.vector = vector if isinstance(vector, Vector) else None
-        self.number = number
-        self.distance = distance
-        self.diameter = diameter
-        self.comments = comments
+	"""The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
+	def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
+		""""Initializes a new Node instance.
+		
+		- `id` (str): A unique identifier for the node.
+		- `type` (str): The class name, "Node".
+		- `point` (Point, optional): The location of the node in 3D space.
+		- `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
+		- `number` (any, optional): An identifying number or label for the node.
+		- `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
+		- `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
+		- `comments` (str, optional): Additional comments or notes about the node.
+		"""
+		
+		self.point = point if isinstance(point, Point) else None
+		self.vector = vector if isinstance(vector, Vector) else None
+		self.number = number
+		self.distance = distance
+		self.diameter = diameter
+		self.comments = comments
 
-    # merge
-    def merge(self):
-        """Merges this node with others in a project according to defined rules.
+	# merge
+	def merge(self):
+		"""Merges this node with others in a project according to defined rules.
 
-        The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
-        """
-        if project.node_merge == True:
-            pass
-        else:
-            pass
+		The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
+		"""
+		if project.node_merge == True:
+			pass
+		else:
+			pass
 
-    # snap
-    def snap(self):
-        """Adjusts the node's position based on snapping criteria.
+	# snap
+	def snap(self):
+		"""Adjusts the node's position based on snapping criteria.
 
-        This could involve aligning the node to a grid, other nodes, or specific geometric entities.
-        """
-        pass
+		This could involve aligning the node to a grid, other nodes, or specific geometric entities.
+		"""
+		pass
 
-    def __str__(self) -> str:
-        """Generates a string representation of the Node.
+	def __str__(self) -> str:
+		"""Generates a string representation of the Node.
 
-        #### Returns:
-        `str`: A string that represents the Node, including its type and potentially other identifying information.
-        """
+		#### Returns:
+		`str`: A string that represents the Node, including its type and potentially other identifying information.
+		"""
 
-        return f"{self.type}"
+		return f"{self.type}"

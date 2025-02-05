@@ -28,6 +28,7 @@
 """This module provides tools to create curves
 """
 
+from abc import abstractmethod
 import math
 import sys
 from pathlib import Path
@@ -50,8 +51,9 @@ from abstract.serializable import Serializable
 
 class Curve(Serializable):
 	@property
+	@abstractmethod
 	def length(self) -> float:
-		raise NotImplementedError()
+		pass
 
 	@property
 	def start(self) -> Point:
@@ -62,8 +64,10 @@ class Curve(Serializable):
 	@property
 	def end(self) -> Point:
 		return self.point_at_fraction(1)
+
+	@abstractmethod
 	def point_at_fraction(fraction: float) -> Point:
-		raise NotImplementedError()
+		pass
 
 	def segmentate(self, max_angle: float) -> 'Polygon':
 		"""
