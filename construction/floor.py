@@ -40,15 +40,15 @@ from geometry.curve import *
 
 
 class Floor:
-    def __init__(self):
-        
-        self.extrusion = None
-        self.thickness = 0
-        self.name = None
-        self.description = None
-        self.perimeter: float = 0
-        self.colorint = None
-        self.colorlst = []
-        self.origincurve = None
-        self.points = None
-        self.thickness = None
+	def __init__(self):
+		
+		self.extrusion = None
+		self.thickness = 0
+		self.name = None
+		self.description = None
+		self.perimeter: float = 0
+		self.colorint = None
+		self.colorlst = []
+		self.origincurve = None
+		self.points = None
+		self.thickness = None

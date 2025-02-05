@@ -39,28 +39,28 @@ from project.fileformat import *
 # [!not included in BP singlefile - end]
 
 class Level:
-    def __init__(self):
-        
-        self.name = None
-        self.polycurve = None
-        self.plane = None
-        self.parms = None
-        self.elevation = None
+	def __init__(self):
+		
+		self.name = None
+		self.polycurve = None
+		self.plane = None
+		self.parms = None
+		self.elevation = None
 
-    @classmethod
-    def by_point(self, point=Point, name=str):
-        if isinstance(point, Point):
-            Lvl = Level()
-            XY_plane = [Vector(x=1, y=0, z=0), Vector(x=0, y=1, z=0)]
-            Lvl.plane = Plane.by_two_vectors_origin(
-                XY_plane[0], XY_plane[1], point)
-            Lvl.polycurve = Rect_XY(Point.to_vector(point), 1000, 1000)
-            Lvl.elevation = point.z
-            if name != None:
-                Lvl.name = name
-            return Lvl
-        elif isinstance(point, Point):
-            pass  # 0
+	@classmethod
+	def by_point(self, point=Point, name=str):
+		if isinstance(point, Point):
+			Lvl = Level()
+			XY_plane = [Vector(x=1, y=0, z=0), Vector(x=0, y=1, z=0)]
+			Lvl.plane = Plane.by_two_vectors_origin(
+				XY_plane[0], XY_plane[1], point)
+			Lvl.polycurve = Rect_XY(Point.to_vector(point), 1000, 1000)
+			Lvl.elevation = point.z
+			if name != None:
+				Lvl.name = name
+			return Lvl
+		elif isinstance(point, Point):
+			pass  # 0
 
-    def __str__(self) -> str:
-        return f"{self.type}(Name={self.name}, Elevation={self.elevation})"
+	def __str__(self) -> str:
+		return f"{self.type}(Name={self.name}, Elevation={self.elevation})"

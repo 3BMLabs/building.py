@@ -40,13 +40,13 @@ from geometry.curve import *
 # [!not included in BP singlefile - end]
 
 class Room:
-    def __init__(self):
-        
-        self.name = None
-        self.extrusion = None
-        self.verts = None
-        self.faces = None
-        self.topsurface = None
-        self.bottomsurface = None
-        self.parms = None
-        self.colorlst = None
+	def __init__(self):
+		
+		self.name = None
+		self.extrusion = None
+		self.verts = None
+		self.faces = None
+		self.topsurface = None
+		self.bottomsurface = None
+		self.parms = None
+		self.colorlst = None

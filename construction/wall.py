@@ -40,21 +40,21 @@ from project.fileformat import *
 # [!not included in BP singlefile - end]
 
 class Wall:
-    def __init__(self):
-        
-        self.name = None
-        self.verts = None
-        self.faces = None
-        # self.polycurve = None or self.profile
-        self.parms = None
-        self.colorlst = None
+	def __init__(self):
+		
+		self.name = None
+		self.verts = None
+		self.faces = None
+		# self.polycurve = None or self.profile
+		self.parms = None
+		self.colorlst = None
 
-    @classmethod
-    def by_mesh(self, verts=list, faces=list):
-        wall = Wall()
-        wall.verts = [vertex * project.scale for vertex in verts]
-        wall.faces = list(faces)
-        return wall
+	@classmethod
+	def by_mesh(self, verts=list, faces=list):
+		wall = Wall()
+		wall.verts = [vertex * project.scale for vertex in verts]
+		wall.faces = list(faces)
+		return wall
 
-    def __str__(self) -> str:
-        return f"{self.type}(Name={self.name})"
+	def __str__(self) -> str:
+		return f"{self.type}(Name={self.name})"

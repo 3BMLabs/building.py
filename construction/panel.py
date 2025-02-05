@@ -41,44 +41,44 @@ from geometry.curve import *
 
 
 class Panel(Serializable):
-    # Panel
-    def __init__(self):
-        
-        self.extrusion = None
-        self.thickness = 0
-        self.name = None
-        self.perimeter: float = 0
-        self.colorint = None
-        self.colorlst = []
-        self.origincurve = None
+	# Panel
+	def __init__(self):
+		
+		self.extrusion = None
+		self.thickness = 0
+		self.name = None
+		self.perimeter: float = 0
+		self.colorint = None
+		self.colorlst = []
+		self.origincurve = None
 
-    @classmethod
-    def by_polycurve_thickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
-        # Create panel by polycurve
-        p1 = Panel()
-        p1.name = name
-        p1.thickness = thickness
-        p1.extrusion = Extrusion.by_polycurve_height(
-            polycurve, thickness, offset)
-        p1.origincurve = polycurve
-        p1.colorint = colorrgbint
-        for j in range(int(len(p1.extrusion.verts) / 3)):
-            p1.colorlst.append(colorrgbint)
-        return p1
+	@classmethod
+	def by_polycurve_thickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
+		# Create panel by polycurve
+		p1 = Panel()
+		p1.name = name
+		p1.thickness = thickness
+		p1.extrusion = Extrusion.by_polycurve_height(
+			polycurve, thickness, offset)
+		p1.origincurve = polycurve
+		p1.colorint = colorrgbint
+		for j in range(int(len(p1.extrusion.verts) / 3)):
+			p1.colorlst.append(colorrgbint)
+		return p1
 
-    @classmethod
-    def by_baseline_height(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
-        # place panel vertical from baseline
-        p1 = Panel()
-        p1.name = name
-        p1.thickness = thickness
-        polycurve = PolyCurve.by_points(
-            [baseline.start,
-             baseline.end,
-             Point.translate(baseline.end, Vector(0, 0, height)),
-             Point.translate(baseline.start, Vector(0, 0, height))])
-        p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
-        p1.origincurve = polycurve
-        for j in range(int(len(p1.extrusion.verts) / 3)):
-            p1.colorlst.append(colorrgbint)
-        return p1
+	@classmethod
+	def by_baseline_height(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
+		# place panel vertical from baseline
+		p1 = Panel()
+		p1.name = name
+		p1.thickness = thickness
+		polycurve = PolyCurve.by_points(
+			[baseline.start,
+			 baseline.end,
+			 Point.translate(baseline.end, Vector(0, 0, height)),
+			 Point.translate(baseline.start, Vector(0, 0, height))])
+		p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
+		p1.origincurve = polycurve
+		for j in range(int(len(p1.extrusion.verts) / 3)):
+			p1.colorlst.append(colorrgbint)
+		return p1

@@ -40,23 +40,23 @@ from project.fileformat import *
 # [!not included in BP singlefile - end]
 
 class Door:
-    def __init__(self):
-        
-        self.name = None
-        self.verts = None
-        self.faces = None
-        self.topsurface = None
-        self.bottomsurface = None
-        # self.polycurve = None or self.profile
-        self.parms = None
-        self.colorlst = None
+	def __init__(self):
+		
+		self.name = None
+		self.verts = None
+		self.faces = None
+		self.topsurface = None
+		self.bottomsurface = None
+		# self.polycurve = None or self.profile
+		self.parms = None
+		self.colorlst = None
 
-    @classmethod
-    def by_mesh(self, verts=list, faces=list):
-        door = Door()
-        door.verts = verts
-        door.faces = faces
-        return door
+	@classmethod
+	def by_mesh(self, verts=list, faces=list):
+		door = Door()
+		door.verts = verts
+		door.faces = faces
+		return door
 
-    def __str__(self) -> str:
-        return f"{self.type}(Name={self.name})"
+	def __str__(self) -> str:
+		return f"{self.type}(Name={self.name})"
