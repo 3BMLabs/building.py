@@ -91,7 +91,7 @@ def line_to_pattern(baseline: 'Line', pattern_obj) -> 'list':
         n = 0
         for i in Pattern[1]:
             deltaV = Vector.product(i * Pattern[2], unityvect)
-            dl = Vector.length(deltaV)
+            dl = deltaV.length
             if rl < dl:  # this is the last line segment on the line where the pattern is going to be cut into pieces.
                 endpoint = baseline.end
             else:

@@ -54,14 +54,14 @@ test4 = Vector.product(5, v1)
 
 # length ↓
 # math.sqrt(v1.X * v1.X + v1.Y * v1.Y + v1.Z * v1.Z)
-test5 = Vector.length(v1)
+test5 = v1.length
 
 # pitch ↓
 # v1.X, v1.Y*math.cos(angle) - v1.Z*math.sin(angle), v1.Y*math.sin(angle) + v1.Z*math.cos(angle)
 test6 = Vector.pitch(v1, 45)
 
 # angle_between ↓
-# math.degrees(math.acos((Vector.dot_product(v1, v2) / (Vector.length(v1) * Vector.length(v2)))))
+# math.degrees(math.acos((Vector.dot_product(v1, v2) / (v1.length * v2.length))))
 # (Calculate the angle of two vectors)
 test7 = Vector.angle_between(v1, v2)
 
@@ -74,7 +74,7 @@ test8 = Vector.reverse(v1)
 test9 = Vector.perpendicular(v1)
 
 # normalize ↓
-# scale = 1 / Vector.length(v1)
+# scale = 1 / v1.length
 # v1.X * scale, v1.Y * scale, v1.Z * scale
 test10 = Vector.normalize(v1)
 

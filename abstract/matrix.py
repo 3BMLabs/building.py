@@ -502,7 +502,7 @@ class Matrix(Serializable, list[list]):
 		Vz = Vz.normalized
 		Vzglob = Vector(0, 0, 1)
 		Vx = Vector.cross_product(Vz, Vzglob)
-		if Vector.length(Vx) == 0:
+		if Vx.length == 0:
 			Vx = Vector(1, 0, 0) if Vz.x != 1 else Vector(0, 1, 0)
 		Vx = Vx.normalized
 		Vy = Vector.cross_product(Vx, Vz)

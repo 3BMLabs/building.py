@@ -12,8 +12,8 @@ project = BuildingPy("Library Profiles","0")
 # Export all steelprofiles to Speckle
 lst = []
 for item in jsondata:
-	for i in item.values():
-		lst.append(i[0]["synonyms"][0])
+	for profile_name in item.values():
+		lst.append(profile_name[0]["synonyms"][0])
 
 test = nameToProfile("HEA200")
 
@@ -29,22 +29,17 @@ shape = "HEA"
 type = "HEA"
 #Mat = Material.byNameColor("Steel", Color().RGB([237, 237, 237]))
 
-for i in lst:
+for profile_name in lst:
 	Mat = BaseSteel
-	try:
-		prof = i[:3]
-		shape = i[:3]
-		fram = Beam.by_startpoint_endpoint(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
-		ColumnTag.by_frame(fram).write(project)
-
-		x = x + spacing
-		if type == shape:
-			y = y
-		else:
-			x = 0
-			y = y + spacing_vert
-			type = shape
-	except:
-		print(i)
+	shape = profile_name[:3]
+	fram = Beam.by_startpoint_endpoint(Point(x, y, 0), Point(x, y, height), profile_name, profile_name, Mat).write(project)
+	ColumnTag.by_beam(fram).write(project)
+	x = x + spacing
+	if type == shape:
+		y = y
+	else:
+		x = 0
+		y = y + spacing_vert
+		type = shape
 
 project.to_speckle("ed88c2cdb3")

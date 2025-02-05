@@ -111,11 +111,11 @@ class Vector:
 
     @staticmethod
     def angle_between(v1, v2):
-        return math.degrees(math.acos((Vector.dot_product(v1, v2) / (Vector.length(v1) * Vector.length(v2)))))
+        return math.degrees(math.acos((Vector.dot_product(v1, v2) / (v1.length * v2.length))))
 
     @staticmethod
     def angle_radian_between(v1, v2):
-        return math.acos((Vector.dot_product(v1, v2) / (Vector.length(v1) * Vector.length(v2))))
+        return math.acos((Vector.dot_product(v1, v2) / (v1.length * v2.length)))
 
     @staticmethod
     def value(v1):
@@ -141,7 +141,7 @@ class Vector:
 
     @staticmethod
     def normalize(v1):
-        length = Vector.length(v1)
+        length = v1.length
         if length == 0:
             scale = 1
         else:
@@ -174,7 +174,7 @@ class Vector:
 
     @staticmethod
     def new_length(v1, newlength: float):
-        scale = newlength / Vector.length(v1)
+        scale = newlength / v1.length
 
         return Vector.scale(v1, scale)
 

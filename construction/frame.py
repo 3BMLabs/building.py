@@ -32,19 +32,21 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./objects/frame.py"
 
 import sys
-from profile import Profile
 from typing import Union
 
 
 
 
-from library.profile import *
+from abstract.vector import Vector
+from geometry.curve import PolyCurve
+from geometry.point import Point
+from geometry.solid import Extrusion
+from library.material import Material, BaseOther
 from library.profile import nameToProfile, justificationToVector
-from library.material import *
 
-from abstract.node import *
-from geometry.solid import *
 from abstract.serializable import Serializable
+from abstract.node import Node
+from construction.profile import Profile, Rectangle
 
 # [!not included in BP singlefile - end]
 
@@ -88,7 +90,7 @@ class Beam(Serializable):
         self.vector = Vector(self.end.x-self.start.x,
                               self.end.y-self.start.y, self.end.z-self.start.z)
         self.vector_normalised = self.vector.normalized
-        self.length = Vector.length(self.vector)
+        self.length = self.vector.length
 
     @classmethod
     def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
@@ -98,13 +100,13 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
-        if end.type == 'Point':
+        if isinstance(end, Point):
             f1.end = end
-        elif end.type == 'Node':
+        elif isinstance(end, Node):
             f1.end = end.point
 
         if isinstance(profile,Profile):
@@ -120,7 +122,7 @@ class Beam(Serializable):
             sys.exit()
 
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
             f1.curve, f1.length, f1.start, f1.directionVector)
@@ -138,13 +140,13 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
-        if end.type == 'Point':
+        if isinstance(end, Point):
             f1.end = end
-        elif end.type == 'Node':
+        elif isinstance(end, Node):
             f1.end = end.point
             
         #try:
@@ -159,7 +161,7 @@ class Beam(Serializable):
         f1.XOffset = vector2d.x
         f1.YOffset = vector2d.y
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
             f1.curve, f1.length, f1.start, f1.directionVector)
@@ -177,13 +179,13 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
-        if end.type == 'Point':
+        if isinstance(end, Point):
             f1.end = end
-        elif end.type == 'Node':
+        elif isinstance(end, Node):
             f1.end = end.point
 
         f1.structuralType = structuralType
@@ -216,7 +218,7 @@ class Beam(Serializable):
         f1.curve = curve
 
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
             f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
@@ -242,17 +244,17 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
-        if end.type == 'Point':
+        if isinstance(end, Point):
             f1.end = end
-        elif end.type == 'Node':
+        elif isinstance(end, Node):
             f1.end = end.point
 
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = name
 
         prof = Rectangle(str(width)+"x"+str(height),width,height)
@@ -277,16 +279,16 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
 
         f1.end = Point.translate(f1.start, Vector(0, 0.00001, height))
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = frame_name
         f1.profileName = frame_name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
@@ -305,16 +307,16 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
         # TODO vertical column not possible
         f1.end = Point.translate(f1.start, Vector(0, height))
 
         # self.curve = Line(start, end)
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = profile_name
         f1.profileName = profile_name
         curv = nameToProfile(profile_name).polycurve2d
@@ -335,13 +337,13 @@ class Beam(Serializable):
         f1 = Beam()
         f1.comments = comments
 
-        if start.type == 'Point':
+        if isinstance(start, Point):
             f1.start = start
-        elif start.type == 'Node':
+        elif isinstance(start, Node):
             f1.start = start.point
-        if end.type == 'Point':
+        if isinstance(end, Point):
             f1.end = end
-        elif end.type == 'Node':
+        elif isinstance(end, Node):
             f1.end = end.point
 
         f1.rotation = rotation
@@ -353,7 +355,7 @@ class Beam(Serializable):
         f1.YOffset = v1.y
         f1.curve = curv.translate(v1)
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-        f1.length = Vector.length(f1.directionVector)
+        f1.length = f1.directionVector.length
         f1.name = name
         f1.extrusion = Extrusion.by_polycurve_height_vector(
             f1.curve.curves, f1.length, f1.start, f1.directionVector)

@@ -24,9 +24,9 @@ def IntervalToSpeckleInterval(interval: Interval):
 
 
 def PointToSpecklePoint(point):
-    if point.type == "Point":
+    if isinstance(point, Point):
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    elif point.type == "Point":
+    elif isinstance(point, Point):
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, 0)
     SpecklePnt.id = point.id
     SpecklePnt.units = project.units

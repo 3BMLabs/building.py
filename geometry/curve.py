@@ -77,6 +77,7 @@ class Curve(Serializable):
 		segmentated_polygon = Polygon()
 		self.segmentate_part(segmentated_polygon, max_angle)
 		segmentated_polygon.append(self.end)
+		return segmentated_polygon
   
 	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
 		"""segmentates this curve as a part of the polygon. will not add self.end to the polygon.
@@ -575,7 +576,7 @@ class Polygon(PointList):
 		_points = []
 
 		for point in points: #Convert all to Point
-			if point.type == "Point":
+			if isinstance(point, Point):
 				_points.append(Point(point.x, point.y, 0))
 			else:
 				_points.append(point)

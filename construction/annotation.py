@@ -258,13 +258,13 @@ class ColumnTag:
             project.objects.append(y)
 
     @staticmethod
-    def by_frame(frame, position="TL"):
+    def by_beam(beam, position="TL"):
         tag = ColumnTag()
         csold = CSGlobal
         tag.position = position
         tag.cs = CoordinateSystem.translate(csold, Vector(
-            frame.start.x, frame.start.y, frame.start.z))
-        tag.text = frame.name
+            beam.start.x, beam.start.y, beam.start.z))
+        tag.text = beam.name
         tag.__leadercurves()
         tag.__textobject()
         return tag

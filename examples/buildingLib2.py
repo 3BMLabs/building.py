@@ -57,38 +57,38 @@ for i in names:
     prof = i[:3]
     print(i)
     fram = Beam.by_startpoint_endpoint_profile(Point(x, y, 0), Point(x, y+1, height), i, i, Mat).write(project)
-    ColumnTag.by_frame(fram).write(project)
+    ColumnTag.by_beam(fram).write(project)
     x = x + spacing
     rownumb = rownumb + 1
 
 #Cold Formed C
 nm = "C150/50/2"
 C = Beam.by_startpoint_endpoint(Point(-1000,-1001,0),Point(-1000,-1000,height),CProfile(nm,50,150,3,5,10).curve,nm,0,BaseSteel).write(project)
-ColumnTag.by_frame(C).write(project)
+ColumnTag.by_beam(C).write(project)
 
 #Cold Formed C with lips
 nm = "CWL150/50/10/2"
 CWL = Beam.by_startpoint_endpoint(Point(0,-1001,0),Point(0,-1000,height),CProfileWithLips(nm,50,150,20,3,5,10).curve,nm,0,BaseSteel).write(project)
-ColumnTag.by_frame(CWL).write(project)
+ColumnTag.by_beam(CWL).write(project)
 
 #Cold Formed L
 nm = "CF_L100/50/3/3"
 CWL = Beam.by_startpoint_endpoint(Point(1000,-1001,0),Point(1000,-1000,height),LProfileColdFormed(nm,50,100,3,3,5,15).curve,nm,0,BaseSteel).write(project)
-ColumnTag.by_frame(CWL).write(project)
+ColumnTag.by_beam(CWL).write(project)
 
 #Cold Formed Sigma with lips
 nm = "CF_Sigma150 / 50 / 10 / 1"
 CWL = Beam.by_startpoint_endpoint(Point(2000,-1001,0),Point(2000,-1000,height),SigmaProfileWithLipsColdFormed(nm,50, 150, 1, 3, 10, 60, 35, 15,10).curve,nm,0,BaseSteel).write(project)
-ColumnTag.by_frame(CWL).write(project)
+ColumnTag.by_beam(CWL).write(project)
 
 #Cold Formed Z
 nm = "CF_Z200/100/2"
 CWL = Beam.by_startpoint_endpoint(Point(3000,-1001,0),Point(3000,-1000,height),ZProfileColdFormed(nm,100,200,2,3).curve,nm,0,BaseSteel).write(project)
-ColumnTag.by_frame(CWL).write(project)
+ColumnTag.by_beam(CWL).write(project)
 
 #Cold Formed Z with lips
 nm = "CF_ZL150/100/1"
 CWL = Beam.by_startpoint_endpoint(Point(4000,-1001,0),Point(4000,-1000,height),ZProfileWithLipsColdFormed(nm,100,150,1,3,10).curve,nm,0,BaseSteel).write(project)
-ColumnTag.by_frame(CWL).write(project)
+ColumnTag.by_beam(CWL).write(project)
 
 project.to_speckle("a5d97a353d")

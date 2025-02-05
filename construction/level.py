@@ -49,7 +49,7 @@ class Level:
 
     @classmethod
     def by_point(self, point=Point, name=str):
-        if point.type == "Point":
+        if isinstance(point, Point):
             Lvl = Level()
             XY_plane = [Vector(x=1, y=0, z=0), Vector(x=0, y=1, z=0)]
             Lvl.plane = Plane.by_two_vectors_origin(
@@ -59,7 +59,7 @@ class Level:
             if name != None:
                 Lvl.name = name
             return Lvl
-        elif point.type == "Point":
+        elif isinstance(point, Point):
             pass  # 0
 
     def __str__(self) -> str:
