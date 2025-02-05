@@ -1,4 +1,4 @@
-from construction.frame import *
+from construction.beam import *
 from construction.datum import *
 from construction.analytical import *
 from exchange.struct4U import *

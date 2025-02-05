@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 
-from construction.frame import *
+from construction.beam import *
 from exchange.scia import *
 
 from exchange.struct4U import *

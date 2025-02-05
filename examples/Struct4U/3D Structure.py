@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 from project.fileformat import *
-from construction.frame import Beam
+from construction.beam import Beam
 from construction.analytical import *
 from construction.panel import *
 from construction.datum import *

@@ -41,7 +41,7 @@ from pathlib import Path
 
 from geometry.point import Point
 from geometry.curve import Line
-from construction.frame import *
+from construction.beam import *
 from exchange.scia import *
 
 # [!not included in BP singlefile - end]

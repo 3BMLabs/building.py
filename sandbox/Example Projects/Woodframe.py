@@ -31,7 +31,7 @@ from construction.panel import *
 from exchange.speckle import *
 from geometry.curve import *
 from abstract.node import *
-from construction.frame import *
+from construction.beam import *
 from exchange.speckle import *
 
 #Proof of Concept of Wood Frame Wall

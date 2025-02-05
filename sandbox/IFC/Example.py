@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 
-from construction.frame import *
+from construction.beam import *
 from exchange.IFC import *
 
 # filepath = f"C:/Users/Jonathan/Documents/GitHub/building.py/sandbox/IFC/models/B60_B_TVA_rooms.ifczip"

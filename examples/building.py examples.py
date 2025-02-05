@@ -4,7 +4,7 @@ import math
 
 
 from construction.panel import *
-from construction.frame import *
+from construction.beam import *
 from construction.shape3d import *
 from construction.datum import *
 from geometry.linestyle import *

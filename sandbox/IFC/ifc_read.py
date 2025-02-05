@@ -6,7 +6,7 @@ from pathlib import Path
 
 from geometry.point import *
 from geometry.curve import Line, PolyCurve
-from construction.frame import *
+from construction.beam import *
 from exchange.scia import *
 
 from construction.analytical import *

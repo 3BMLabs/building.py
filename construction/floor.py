@@ -48,7 +48,6 @@ class Floor:
 		self.description = None
 		self.perimeter: float = 0
 		self.colorint = None
-		self.colorlst = []
 		self.origincurve = None
 		self.points = None
 		self.thickness = None

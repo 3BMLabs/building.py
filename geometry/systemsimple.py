@@ -38,7 +38,7 @@ import sys
 
 from geometry.rect import *
 from construction.panel import *
-from construction.frame import *
+from construction.beam import *
 from construction.profile import *
 from abstract.interval import *
 

@@ -16,7 +16,7 @@ package_root_directory = "C:/Users/mikev/Documents/GitHub/building.py/"
 sys.path.append(str(package_root_directory))
 
 # Building Py Imports
-from construction.frame import *
+from construction.beam import *
 from construction.profile import *
 from project.fileformat import *
 from construction.datum import *

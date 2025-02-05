@@ -1,7 +1,7 @@
 import sys, os
 
 
-from construction.frame import *
+from construction.beam import *
 from exchange.scia import *
 
 from construction.analytical import *

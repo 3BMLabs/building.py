@@ -9,7 +9,7 @@ from geometry.point import Point
 from geometry.surface import *
 from exchange.DXF import *
 from exchange.IFC import *
-from construction.frame import *
+from construction.beam import *
 from construction.datum import *
 
 GridA = Grid.by_startpoint_endpoint(Line(start=Point(-1000, 0, 0), end=Point(10000, 0, 0)), "A")

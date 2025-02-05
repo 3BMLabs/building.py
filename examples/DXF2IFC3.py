@@ -11,7 +11,7 @@ from geometry.surface import *
 from exchange.DXF import *
 from exchange.IFC import *
 from abstract.coordinatesystem import *
-from construction.frame import *
+from construction.beam import *
 
 def process_entities(dxf_path, index):
     dxf_reader = ReadDXF(dxf_path).polylines

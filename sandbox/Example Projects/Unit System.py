@@ -5,7 +5,7 @@ from pathlib import Path
 
 from exchange.speckle import *
 from construction.datum import *
-from construction.frame import *
+from construction.beam import *
 from geometry.point import *
 from abstract.vector import Vector
 #Proof of Concept modules

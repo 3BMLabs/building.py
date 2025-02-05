@@ -6,7 +6,7 @@ from geometry.point import Point
 from library.profile import nameToProfile
 from construction.profile import TProfile
 from project.fileformat import BuildingPy
-from construction.frame import Beam
+from construction.beam import Beam
 from library.material import BaseSteel
 
 
