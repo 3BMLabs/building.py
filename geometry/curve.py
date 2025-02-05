@@ -65,17 +65,27 @@ class Curve(Serializable):
 	def point_at_fraction(fraction: float) -> Point:
 		raise NotImplementedError()
 
-	def segmented(self, amount: int) -> list[Point]:
-		"""returns points along this line.
+	def segmentate(self, max_angle: float) -> 'Polygon':
+		"""
 		
 		Args:
-			amount (int): the amount of samples to take
+			max_angle (float): the maximum angle to keep a straight line. for example, if max_angle = PI/2 and an arc has an angle of PI, it will return 2 line segments.
 		
 		Returns:
 			list[Point]: a list of points sampled along this line
 		"""
-		fraction_multiplier = 1.0 / (amount - 1)
-		return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+		segmentated_polygon = Polygon()
+		self.segmentate_part(segmentated_polygon, max_angle)
+		segmentated_polygon.append(self.end)
+  
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+		"""segmentates this curve as a part of the polygon. will not add self.end to the polygon.
+
+		Args:
+			polygon_to_add_to (Polygon): the polygon this curve will be a part of.
+			max_angle (float): the maximum angle to keep a straight line
+		"""
+		raise NotImplemented()
 
 class Line(Curve):
 	def __init__(self, start: Point, end: Point) -> 'Line':
@@ -89,7 +99,14 @@ class Line(Curve):
 		self._start = Point(start)
 		"""The ending point of the line segment."""
 		self._end = Point(end)
-		
+	
+	@property
+	def start(self) -> 'Point':
+		return self._start
+	@property
+	def end(self) -> 'Point':
+		return self._end
+ 
 	@property
 	def mid(self) -> 'Point':
 		"""Computes the midpoint of the Line object.
@@ -111,18 +128,8 @@ class Line(Curve):
 	def points(self) -> list[Point]:
 		return[Point(self.start), Point(self.end)]
 	
-	@property
-	def segmentate(self, amount: int) -> list[Point]:
-		"""returns points along this line.
-
-		Args:
-			amount (int): the amount of samples to take
-
-		Returns:
-			list[Point]: a list of points sampled along this line
-		"""
-		fraction_multiplier = 1.0 / (amount - 1)
-		return [self.point_at_fraction(fraction) for fraction in range(0, 1.00001, fraction_multiplier)]
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+		polygon_to_add_to.append(Point(self.start))
 		
 	def __rmul__(self, mat: Matrix) -> 'Line':
 		if isinstance(mat, Matrix):
@@ -130,7 +137,6 @@ class Line(Curve):
 	
 	def point_at_fraction(self, fraction: float) -> Point:
 		"""
-
 		Args:
 			fraction (float): a value from 0 to 1, describing the position in the line.
 
@@ -138,7 +144,11 @@ class Line(Curve):
 			Point: self.start for 0, self.end for 1
 		"""
 		return self.start * (1 - fraction) + self.end * fraction
-	
+
+	@staticmethod
+	def by_start_end(start: 'Point', end: 'Point') -> 'Line':
+		return Line(start,end)
+
 	@staticmethod
 	def by_startpoint_direction_length(start: 'Point', direction: 'Vector', length: 'float') -> 'Line':
 		"""Creates a line segment starting from a given point in the direction of a given vector with a specified length.
@@ -320,7 +330,7 @@ class Arc(Curve):
 		to_center = straight_line_mid - mid
 		#change length to x
 		to_center.magnitude = math.sqrt(radius * radius - half_start_end.magnitude_squared)
-		origin = mid + to_center
+		origin = straight_line_mid + to_center
 
 		x_axis = start - origin
 		normalized_x_axis = x_axis.normalized
@@ -343,7 +353,13 @@ class Arc(Curve):
 		angle = (inverse * end).angle
 
 		return Arc(arc_matrix, angle)
- 
+
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+		segment_count = math.ceil(self.angle / max_angle)
+		interval = 1.0 / segment_count
+		for i in range(segment_count):
+			polygon_to_add_to.append(self.point_at_fraction(i * interval))
+  
 	@property
 	def start(self) -> Point:
 		"""
@@ -730,13 +746,21 @@ class Polygon(PointList):
 		"""
 		return f"{__class__.__name__} (points: {list.__str__(self)})"
 
-class PolyCurve(Serializable, list[Line], Shape):
+class PolyCurve(list[Line], Shape, Curve):
 	"""Stores lines, which could possibly be arcs"""
 	def __init__(self, *args):
 		"""Initializes a PolyCurve object, which is unclosed by default."""
 		
 		super().__init__(to_array(*args))
 	
+	@property
+	def start(self):
+		return self[0].start
+
+	@property
+	def end(self):
+		return self[-1].end
+ 
 	@property
 	def points(self) -> list[Point]:
 		p = []
@@ -814,6 +838,10 @@ class PolyCurve(Serializable, list[Line], Shape):
 		"""
 
 		return sum(curve.length for curve in self)
+
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+		for curve in self:
+			curve.segmentate_part(polygon_to_add_to, max_angle)
 
 	def scale(self, scale_factor: 'float') -> 'PolyCurve':
 		"""Scales the PolyCurve object by the given factor.
@@ -955,28 +983,3 @@ class PolyCurve(Serializable, list[Line], Shape):
 				pass
 		return plycrv
 
-	@staticmethod
-	# Create segmented polycurve. Arcs, elips will be translated to straight lines
-	def segment(self, count: 'int') -> 'PolyCurve':
-		"""Segments the PolyCurve into straight lines.
-
-		#### Parameters:
-		- `count` (int): The number of segments.
-
-		#### Returns:
-		`PolyCurve`: The segmented PolyCurve object.
-
-		#### Example usage:
-		```python
-
-		```		
-		"""
-		crvs = []  # add isClosed
-		for i in self.curves:
-			if i.__class__.__name__ == "Arc":
-				crvs.append(Arc.segmented_arc(i, count))
-			elif i.__class__.__name__ == "Line":
-				crvs.append(i)
-		crv = flatten(crvs)
-		pc = PolyCurve.by_joined_curves(crv)
-		return pc

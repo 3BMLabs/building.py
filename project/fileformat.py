@@ -124,5 +124,5 @@ class BuildingPy(Serializable):
         ifc_project.export(f"{name}.ifc")
 # [!not included in BP singlefile - end]
 
-
-project = BuildingPy("Project", "0")
+#god object! multiple instances of buildingpy should be able to live next to eachother
+#project = BuildingPy("Project", "0")

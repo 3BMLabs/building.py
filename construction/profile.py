@@ -107,9 +107,9 @@ class CChannelParallelFlange(Profile):
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
         l3 = Line(p3, p4)
-        l4 = Arc(p4, p5, p6)
+        l4 = Arc.by_start_mid_end(p4, p5, p6)
         l5 = Line(p6, p7)
-        l6 = Arc(p7, p8, p9)
+        l6 = Arc.by_start_mid_end(p7, p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p11)
         l9 = Line(p11, p12)
@@ -157,13 +157,13 @@ class CChannelSlopedFlange(Profile):
         # describe curves
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
         l8 = Line(p11, p12)
-        l9 = Arc(p12, p13, p14)
+        l9 = Arc.by_start_mid_end(p12, p13, p14)
         l10 = Line(p14, p15)
         l11 = Line(p15, p16)
         l12 = Line(p16, p1)
@@ -207,15 +207,15 @@ class IShapeParallelFlange(Profile):
         l2 = Line(p2, p3)
         l3 = Arc.by_start_mid_end(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p11)
         l9 = Line(p11, p12)
         l10 = Line(p12, p13)
-        l11 = Arc(p13, p14, p15)
+        l11 = Arc.by_start_mid_end(p13, p14, p15)
         l12 = Line(p15, p16)
-        l13 = Arc(p16, p17, p18)
+        l13 = Arc.by_start_mid_end(p16, p17, p18)
         l14 = Line(p18, p19)
         l15 = Line(p19, p20)
         l16 = Line(p20, p1)
@@ -261,10 +261,10 @@ class Round(Profile):
         p8 = Point(dr, -dr)
 
         # describe curves
-        l1 = Arc(p1, p2, p3)
-        l2 = Arc(p3, p4, p5)
-        l3 = Arc(p5, p6, p7)
-        l4 = Arc(p7, p8, p1)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Arc.by_start_mid_end(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p5, p6, p7)
+        l4 = Arc.by_start_mid_end(p7, p8, p1)
 
         self.curve = PolyCurve([l1, l2, l3, l4])
 
@@ -302,17 +302,17 @@ class Roundtube(Profile):
         p16 = Point(dri, -dri)
 
         # describe curves
-        l1 = Arc(p1, p2, p3)
-        l2 = Arc(p3, p4, p5)
-        l3 = Arc(p5, p6, p7)
-        l4 = Arc(p7, p8, p1)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Arc.by_start_mid_end(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p5, p6, p7)
+        l4 = Arc.by_start_mid_end(p7, p8, p1)
 
         l5 = Line(p1, p9)
 
-        l6 = Arc(p9, p10, p11)
-        l7 = Arc(p11, p12, p13)
-        l8 = Arc(p13, p14, p15)
-        l9 = Arc(p15, p16, p9)
+        l6 = Arc.by_start_mid_end(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p11, p12, p13)
+        l8 = Arc.by_start_mid_end(p13, p14, p15)
+        l9 = Arc.by_start_mid_end(p15, p16, p9)
         l10 = Line(p9, p1)
 
         self.curve = PolyCurve(
@@ -352,11 +352,11 @@ class LAngle(Profile):
         # describe curves
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
         l8 = Line(p11, p12)
         l9 = Line(p12, p1)
 
@@ -408,18 +408,18 @@ class TProfileRounded(Profile):
         l1 = Line(p1, p2)
 
         l2 = Line(p2, p3)
-        l3 = Arc(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
         l8 = Line(p11, p12)
 
-        l9 = Arc(p12, p13, p14)
+        l9 = Arc.by_start_mid_end(p12, p13, p14)
         l10 = Line(p14, p15)
-        l11 = Arc(p15, p16, p17)
+        l11 = Arc.by_start_mid_end(p15, p16, p17)
         l12 = Line(p17, p18)
-        l13 = Arc(p18, p19, p20)
+        l13 = Arc.by_start_mid_end(p18, p19, p20)
         l14 = Line(p20, p1)
 
         self.curve = PolyCurve(
@@ -470,24 +470,24 @@ class RectangleHollowSection(Profile):
 
         # describe outer curves
         l1 = Line(p1, p2)
-        l2 = Arc(p2, p3, p4)
+        l2 = Arc.by_start_mid_end(p2, p3, p4)
         l3 = Line(p4, p5)
-        l4 = Arc(p5, p6, p7)
+        l4 = Arc.by_start_mid_end(p5, p6, p7)
         l5 = Line(p7, p8)
-        l6 = Arc(p8, p9, p10)
+        l6 = Arc.by_start_mid_end(p8, p9, p10)
         l7 = Line(p10, p11)
-        l8 = Arc(p11, p12, p1)
+        l8 = Arc.by_start_mid_end(p11, p12, p1)
 
         l9 = Line(p1, p13)
         # describe inner curves
         l10 = Line(p13, p14)
-        l11 = Arc(p14, p15, p16)
+        l11 = Arc.by_start_mid_end(p14, p15, p16)
         l12 = Line(p16, p17)
-        l13 = Arc(p17, p18, p19)
+        l13 = Arc.by_start_mid_end(p17, p18, p19)
         l14 = Line(p19, p20)
-        l15 = Arc(p20, p21, p22)
+        l15 = Arc.by_start_mid_end(p20, p21, p22)
         l16 = Line(p22, p23)
-        l17 = Arc(p23, p24, p13)
+        l17 = Arc.by_start_mid_end(p23, p24, p13)
 
         l18 = Line(p13, p1)
 
@@ -531,15 +531,15 @@ class CProfile(Profile):
         p16 = Point(p9.x, -p9.y)  # right bottom inner
         # describe outer curves
         l1 = Line(p1, p2)  # bottom
-        l2 = Arc(p2, p3, p4)  # right outer fillet
+        l2 = Arc.by_start_mid_end(p2, p3, p4)  # right outer fillet
         l3 = Line(p4, p5)  # left outer web
-        l4 = Arc(p5, p6, p7)  # left top outer fillet
+        l4 = Arc.by_start_mid_end(p5, p6, p7)  # left top outer fillet
         l5 = Line(p7, p8)  # outer top
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
-        l8 = Arc(p10, p11, p12)  # left top inner fillet
+        l8 = Arc.by_start_mid_end(p10, p11, p12)  # left top inner fillet
         l9 = Line(p12, p13)
-        l10 = Arc(p13, p14, p15)  # left botom inner fillet
+        l10 = Arc.by_start_mid_end(p13, p14, p15)  # left botom inner fillet
         l11 = Line(p15, p16)
         l12 = Line(p16, p1)
 
@@ -598,25 +598,25 @@ class CProfileWithLips(Profile):
 
         # describe outer curves
         l1 = Line(p1, p2)
-        l2 = Arc(p2, p3, p4)
+        l2 = Arc.by_start_mid_end(p2, p3, p4)
         l3 = Line(p4, p5)
-        l4 = Arc(p5, p6, p7)  # outer fillet right top
+        l4 = Arc.by_start_mid_end(p5, p6, p7)  # outer fillet right top
         l5 = Line(p7, p8)
-        l6 = Arc(p8, p9, p10)
+        l6 = Arc.by_start_mid_end(p8, p9, p10)
         l7 = Line(p10, p11)
         l8 = Line(p11, p12)
         l9 = Line(p12, p13)
-        l10 = Arc(p13, p14, p15)
+        l10 = Arc.by_start_mid_end(p13, p14, p15)
         l11 = Line(p15, p16)
-        l12 = Arc(p16, p17, p18)
+        l12 = Arc.by_start_mid_end(p16, p17, p18)
         l13 = Line(p18, p19)  # inner web
-        l14 = Arc(p19, p20, p21)
+        l14 = Arc.by_start_mid_end(p19, p20, p21)
         l15 = Line(p21, p22)
-        l16 = Arc(p22, p23, p24)
+        l16 = Arc.by_start_mid_end(p22, p23, p24)
         l17 = Line(p24, p25)
         l18 = Line(p25, p26)
         l19 = Line(p26, p27)
-        l20 = Arc(p27, p28, p1)
+        l20 = Arc.by_start_mid_end(p27, p28, p1)
 
         self.curve = PolyCurve(
             [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
@@ -650,11 +650,11 @@ class LProfileColdFormed(Profile):
         p9 = Point(-ex + t, ey)
         p10 = Point(-ex, ey)  # left top
 
-        l1 = Arc(p1, p2, p3)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
         l2 = Line(p3, p4)
         l3 = Line(p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p1)
@@ -724,29 +724,29 @@ class SigmaProfileWithLipsColdFormed(Profile):
 
         l1 = Line(p1, p2)
         l2 = Line(p2, p3)
-        l3 = Arc(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
         l7 = Line(p9, p10)
         l8 = Line(p10, p11)
-        l9 = Arc(p11, p12, p13)
+        l9 = Arc.by_start_mid_end(p11, p12, p13)
         l10 = Line(p13, p14)
-        l11 = Arc(p14, p15, p16)
+        l11 = Arc.by_start_mid_end(p14, p15, p16)
         l12 = Line(p16, p17)
         l13 = Line(p17, p18)
         l14 = Line(p18, p19)
         l15 = Line(p19, p20)
         l16 = Line(p20, p21)
-        l17 = Arc(p21, p22, p23)
+        l17 = Arc.by_start_mid_end(p21, p22, p23)
         l18 = Line(p23, p24)
-        l19 = Arc(p24, p25, p26)
+        l19 = Arc.by_start_mid_end(p24, p25, p26)
         l20 = Line(p26, p27)
         l21 = Line(p27, p28)
         l22 = Line(p28, p29)
-        l23 = Arc(p29, p30, p31)
+        l23 = Arc.by_start_mid_end(p29, p30, p31)
         l24 = Line(p31, p32)
-        l25 = Arc(p32, p33, p34)
+        l25 = Arc.by_start_mid_end(p32, p33, p34)
         l26 = Line(p34, p35)
         l27 = Line(p35, p36)
         l28 = Line(p36, p1)
@@ -789,17 +789,17 @@ class ZProfileColdFormed(Profile):
         p15 = Point(-p7.x, -p7.y)
         p16 = Point(-p8.x, -p8.y)
 
-        l1 = Arc(p1, p2, p3)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
         l2 = Line(p3, p4)
         l3 = Line(p4, p5)
         l4 = Line(p5, p6)
-        l5 = Arc(p6, p7, p8)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
         l8 = Line(p11, p12)
         l9 = Line(p12, p13)
         l10 = Line(p13, p14)
-        l11 = Arc(p14, p15, p16)
+        l11 = Arc.by_start_mid_end(p14, p15, p16)
         l12 = Line(p16, p1)
 
         self.curve = PolyCurve(
@@ -850,25 +850,25 @@ class ZProfileWithLipsColdFormed(Profile):
         p27 = Point(-p13.x, -p13.y)
         p28 = Point(-p14.x, -p14.y)
 
-        l1 = Arc(p1, p2, p3)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
         l2 = Line(p3, p4)
-        l3 = Arc(p4, p5, p6)
+        l3 = Arc.by_start_mid_end(p4, p5, p6)
         l4 = Line(p6, p7)
         l5 = Line(p7, p8)
         l6 = Line(p8, p9)
-        l7 = Arc(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
         l8 = Line(p11, p12)
-        l9 = Arc(p12, p13, p14)
+        l9 = Arc.by_start_mid_end(p12, p13, p14)
         l10 = Line(p14, p15)
-        l11 = Arc(p15, p16, p17)
+        l11 = Arc.by_start_mid_end(p15, p16, p17)
         l12 = Line(p17, p18)
-        l13 = Arc(p18, p19, p20)
+        l13 = Arc.by_start_mid_end(p18, p19, p20)
         l14 = Line(p20, p21)
         l15 = Line(p21, p22)
         l16 = Line(p22, p23)
-        l17 = Arc(p23, p24, p25)
+        l17 = Arc.by_start_mid_end(p23, p24, p25)
         l18 = Line(p25, p26)
-        l19 = Arc(p26, p27, p28)
+        l19 = Arc.by_start_mid_end(p26, p27, p28)
         l20 = Line(p28, p1)
 
         self.curve = PolyCurve(

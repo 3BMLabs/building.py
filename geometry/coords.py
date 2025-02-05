@@ -289,24 +289,13 @@ class Coords(Serializable, list):
 		return Coords.axis_names.index(axis.lower())
 
 	@staticmethod
-	def cross_product(vector: 'Coords') -> 'Coords':
-		"""For 2d vectors!
-		Args:
-			vector (Coords): _description_
-
-		Returns:
-			Coords: a perpendicular vector (just the same vector rotated 90 degrees counter-clockwise)
-		"""
-		return Coords(-vector.y, vector.x)
-
-	@staticmethod
-	def cross_product(vector_1: 'Coords', vector_2: 'Coords') -> Self | float:
+	def cross_product(vector_1: 'Coords', vector_2: 'Coords|None' = None) -> 'Coords|float':
 		"""Computes the cross product of two vectors in three-dimensional space is a vector that is perpendicular to both original vectors. It is used to find a vector that is normal to a plane defined by the input vectors.
 		we're using the right hand rule, as stated in the wiki.
 
 		#### Parameters:
 		- `vector_1` (`Coords`): The first vector.
-		- `vector_2` (`Coords`): The second vector.
+		- `vector_2` (`Coords`): The second vector. (when not passed, it will just return a random perpendicular vector to vector_1)
 
 		#### Returns:
 		`Vector`: A new Vector object representing the cross product of the input vectors.
@@ -325,6 +314,8 @@ class Coords(Serializable, list):
 				vector_1.z*vector_2.x - vector_1.x*vector_2.z,
 				vector_1.x*vector_2.y - vector_1.y*vector_2.x
 			)
+		elif vector_2 == None:
+			return Coords(-vector_1.y, vector_1.x)
 		else:
 			return (vector_1.x*vector_1.y) - (vector_1.Y*vector_2.x)
 

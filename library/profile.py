@@ -31,6 +31,7 @@ __title__= "profile"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/profile.py"
 
+import math
 import sys
 from pathlib import Path
 import urllib.request
@@ -120,14 +121,10 @@ class nameToProfile:
             prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         self.profile = prof
         self.data = d1
-        pc2d = self.profile.curve  # 2D polycurve
+        final_curve = self.profile.curve  # 2D polycurve
         if segmented == True:
-            pc3d = PolyCurve.by_polycurve_2D(pc2d)
-            pcsegment = PolyCurve.segment(pc3d, 10)
-            pc2d2 = pcsegment.to_polycurve_2D()
-        else:
-            pc2d2 = pc2d
-        self.polycurve2d = pc2d2
+            final_curve = PolyCurve.segmentate(self.profile.curve, math.pi / 4)
+        self.polycurve2d = final_curve
 
 def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
 
