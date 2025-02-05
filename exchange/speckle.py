@@ -58,7 +58,7 @@ from geometry.curve import Arc
 from abstract.vector import Vector
 from geometry.plane import Plane
 from packages.helper import flatten
-from construction.frame import Frame
+from construction.frame import Beam
 
 # [!not included in BP singlefile - end]
 
@@ -202,7 +202,7 @@ def convert_to_speckle_object(building_py_object: Serializable, units, applicati
 									  colors = building_py_object.colorlst
 									  )
 		
-	elif isinstance(building_py_object, Frame):
+	elif isinstance(building_py_object, Beam):
 		try:
 			if building_py_object.comments.type == "Scia_Params":
 				converted_object = SpeckleMesh(

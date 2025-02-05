@@ -6,7 +6,7 @@ from geometry.point import Point
 from library.profile import nameToProfile
 from construction.profile import TProfile
 from project.fileformat import BuildingPy
-from construction.frame import Frame
+from construction.frame import Beam
 from library.material import BaseSteel
 
 
@@ -16,11 +16,11 @@ project = BuildingPy("Jan zijn ligger project", "0")
 
 test = nameToProfile("UNP300").profile.curve
 
-f1 = Frame.by_startpoint_endpoint(Point(0,0,0),Point(3000,0,0),"HEA300","HEA300+zeeg 30 mm",BaseSteel)
+f1 = Beam.by_startpoint_endpoint(Point(0,0,0),Point(3000,0,0),"HEA300","HEA300+zeeg 30 mm",BaseSteel)
 prof = TProfile("T-profiel 2",300,200,100,100)
 print(prof)
 
-f2 = Frame.by_startpoint_endpoint(Point(0,1500,0),Point(3000,1500,0),prof,"T profiel test",BaseSteel)
+f2 = Beam.by_startpoint_endpoint(Point(0,1500,0),Point(3000,1500,0),prof,"T profiel test",BaseSteel)
 
 print(f1.profile)
 print(f2.profile)

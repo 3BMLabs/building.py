@@ -56,7 +56,7 @@ def colorlist(extrus, color):
 
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
-class Frame(Serializable):
+class Beam(Serializable):
     def __init__(self):
         
         self.name = "None"
@@ -95,7 +95,7 @@ class Frame(Serializable):
         # [!not included in BP singlefile - start]
         from library.profile import nameToProfile
         # [!not included in BP singlefile - end]
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':
@@ -135,7 +135,7 @@ class Frame(Serializable):
 
     @classmethod
     def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector, rotation: float, material: None, comments: None):
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':
@@ -174,7 +174,7 @@ class Frame(Serializable):
 
     @classmethod
     def by_startpoint_endpoint_profile_justification(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':
@@ -239,7 +239,7 @@ class Frame(Serializable):
     @classmethod
     def by_startpoint_endpoint_rect(cls, start: Union[Point, Node], end: Union[Point, Node], width: float, height: float, name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':
@@ -274,7 +274,7 @@ class Frame(Serializable):
     @classmethod
     def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve, frame_name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':
@@ -302,7 +302,7 @@ class Frame(Serializable):
 
     @classmethod
     def by_point_profile_height_rotation(cls, start: Union[Point, Node], height: float, profile_name: str, rotation: float, material=None, comments=None):
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':
@@ -332,7 +332,7 @@ class Frame(Serializable):
 
     @classmethod
     def by_startpoint_endpoint_curve_justification(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
-        f1 = Frame()
+        f1 = Beam()
         f1.comments = comments
 
         if start.type == 'Point':

@@ -54,10 +54,10 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector,rot
 
     obj = []
     #Bottom Frame
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P2,P1,"UNP200","Frame","Left","bottom",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P3,P2,"UNP200","Frame","Left","bottom",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P4,P3,"UNP200","Frame","Left","bottom",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P1,P4,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P2,P1,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P3,P2,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P4,P3,"UNP200","Frame","Left","bottom",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P1,P4,"UNP200","Frame","Left","bottom",0,BaseSteel))
 
     #Bottom Floor Framing
     if floorframing:
@@ -68,21 +68,21 @@ def module(widthMod: float,lengthMod: float, heightMod: float,vector: Vector,rot
         for i in range(count):
             pb1 = Point.translate(pb1,v1)
             pb2 = Point.translate(pb2,v1)
-            obj.append(Frame.by_startpoint_endpoint(pb1, pb2, Rectangle("71x196",71,196).curve.translate(Vector2(0,100)),"balk",0,BaseTimber))
+            obj.append(Beam.by_startpoint_endpoint(pb1, pb2, Rectangle("71x196",71,196).curve.translate(Vector2(0,100)),"balk",0,BaseTimber))
     else:
         v1 = "skip"
 
     #Top Frame
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P6,P5,"UNP200","Frame","Left","top",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P7,P6,"UNP200","Frame","Left","top",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P8,P7,"UNP200","Frame","Left","top",0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_justification(P5,P8,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P6,P5,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P7,P6,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P8,P7,"UNP200","Frame","Left","top",0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_justification(P5,P8,"UNP200","Frame","Left","top",0,BaseSteel))
 
     #Columns
-    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P1,P5,"K100/5","Column",Vector2(50,50),0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P2,P6,"K100/5","Column",Vector2(-50,50),0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P3,P7,"K100/5","Column",Vector2(-50,-50),0,BaseSteel))
-    obj.append(Frame.by_startpoint_endpoint_profile_shapevector(P4,P8,"K100/5","Column",Vector2(50,-50),0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_shapevector(P1,P5,"K100/5","Column",Vector2(50,50),0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_shapevector(P2,P6,"K100/5","Column",Vector2(-50,50),0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_shapevector(P3,P7,"K100/5","Column",Vector2(-50,-50),0,BaseSteel))
+    obj.append(Beam.by_startpoint_endpoint_profile_shapevector(P4,P8,"K100/5","Column",Vector2(50,-50),0,BaseSteel))
 
     return obj
 

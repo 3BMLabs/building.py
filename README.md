@@ -6,7 +6,7 @@ A Python library for creating buildings, building systems, objects, and exportin
 Supports Python 3.10 or higher.
 
 # Why?
-In the realm of building design, almost everything can be categorized as a frame or a panel – from windows and curtain walls to floor systems. The aim of the building.py project is to automate the creation of these systems.
+In the realm of building design, almost everything can be categorized as a beam or a panel – from windows and curtain walls to floor systems. The aim of the building.py project is to automate the creation of these systems.
 
 Goals of the building.py Project:
 * Develop a Python library for geometry creation without dependencies.
@@ -38,7 +38,7 @@ Geometry | Point, Vector (nd) | :heavy_check_mark: | :heavy_check_mark:  |
 &nbsp; | PointCloud | | |  
 &nbsp; | Extrusion | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Sweep | | |  
-Objects | Frame | :heavy_check_mark: | :heavy_check_mark:  |  
+Objects | Beam | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | FrameConnections | |  |  
 &nbsp; | Panel | :heavy_check_mark: | :heavy_check_mark:  |  
 &nbsp; | Dimension | :heavy_check_mark: | :heavy_check_mark:  |  

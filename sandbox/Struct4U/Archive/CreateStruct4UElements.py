@@ -15,7 +15,7 @@ end_list = [Point(0,0,0),Point(382,1023,391),Point(10000,392,2000),Point(3092,29
 profile_name = "HEA100"
 
 for start, end in zip(start_list, end_list):
-    frame1 = Frame.by_startpoint_endpoint_profile(start, end, "HEA100", "None", BaseSteel)
+    frame1 = Beam.by_startpoint_endpoint_profile(start, end, "HEA100", "None", BaseSteel)
     project.objects.append(frame1)
 
 

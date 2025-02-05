@@ -281,11 +281,11 @@ grdsystem = GridSystem(spacingX, labelsX, spacingY, labelsY, gridExtension)
 
 # FILE: frame
 # Class Frame
-frame2 = Frame.by_startpoint_endpoint_profile(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
-frame3 = Frame.by_startpoint_endpoint_profile(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2", "steel")
-frame4 = Frame.by_startpoint_endpoint_profile_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
-frame5 = Frame.by_startpoint_endpoint_profile_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
-frame6 = Frame.by_startpoint_endpoint(p1, p2, PC1, "test", 90, "Steel")
+frame2 = Beam.by_startpoint_endpoint_profile(Point(0, 0, 0), Point(0, 1000, 0), "HE100A", "test", "steel")
+frame3 = Beam.by_startpoint_endpoint_profile(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", "test2", "steel")
+frame4 = Beam.by_startpoint_endpoint_profile_shapevector(p1, p2, "HE100A", "Frame 4", vctr2, 20, "steel")
+frame5 = Beam.by_startpoint_endpoint_profile_justifiction(p1, p2, "HE100A", "Test", 5, 4, 90, "steel")
+frame6 = Beam.by_startpoint_endpoint(p1, p2, PC1, "test", 90, "Steel")
 
 # ------------------------
 

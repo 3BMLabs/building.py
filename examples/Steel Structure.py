@@ -43,11 +43,11 @@ x = 0
 
 for i in lst:
     x = x+spacing
-    f = Frame.by_point_height_rotation(Point(x, 0, 0), 3000, nameToProfile(i).polycurve2d, i, 0, BaseSteel).write(project)
+    f = Beam.by_point_height_rotation(Point(x, 0, 0), 3000, nameToProfile(i).polycurve2d, i, 0, BaseSteel).write(project)
     ColumnTag.by_frame(f).write(project)
 
 
-f4 = Frame.by_startpoint_endpoint_profile(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
+f4 = Beam.by_startpoint_endpoint_profile(Point(0,3000,0),Point(10800,6000,0),"IPE400","IPE400 zeeg 30 mm",BaseSteel).write(project)
 tg = FrameTag.by_frame(f4).write(project)
 
 project.to_speckle("e973243375")

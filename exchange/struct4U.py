@@ -33,7 +33,7 @@ from construction.panel import *
 from exchange.speckle import *
 from geometry.curve import *
 from abstract.node import *
-from construction.frame import Frame
+from construction.frame import Beam
 import xml.etree.ElementTree as ET
 __title__ = "XFEM4U"
 __author__ = "Maarten & Jonathan"
@@ -374,7 +374,7 @@ class xmlXFEM4U:
 
 
                 case 'Frame':
-                    frame : Frame = object
+                    frame : Beam = object
                     ProfN = ProfileNamesUnique.index(frame.profileName) + 1
                     beam_group_count = beam_group_count + 1
                     Beam_groups += "<Number>" + str(beam_group_count) + "</Number>\n"

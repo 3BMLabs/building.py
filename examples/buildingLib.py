@@ -1,4 +1,3 @@
-
 from construction.panel import *
 from construction.frame import *
 from construction.profile import *
@@ -7,7 +6,6 @@ from library.profile import data as jsondata
 from library.material import *
 from library.profile import nameToProfile
 from construction.annotation import *
-import threading
 
 project = BuildingPy("Library Profiles","0")
 
@@ -36,7 +34,7 @@ for i in lst:
 	try:
 		prof = i[:3]
 		shape = i[:3]
-		fram = Frame.by_startpoint_endpoint(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
+		fram = Beam.by_startpoint_endpoint(Point(x, y, 0), Point(x, y, height), i, i, Mat).write(project)
 		ColumnTag.by_frame(fram).write(project)
 
 		x = x + spacing
@@ -49,4 +47,4 @@ for i in lst:
 	except:
 		print(i)
 
-#project.to_speckle("4a80729464")
+project.to_speckle("ed88c2cdb3")

@@ -61,19 +61,19 @@ profile_name = "HEA100"
 
 onderdorpel = Line(Point(0,0,0), Point(0,900,0))
 onderdorpel_profiel = kozijnprofiel
-project.objects.append(Frame.by_startpoint_endpoint_profile(onderdorpel.start, onderdorpel.end, onderdorpel_profiel, "None", BaseSteel))
+project.objects.append(Beam.by_startpoint_endpoint_profile(onderdorpel.start, onderdorpel.end, onderdorpel_profiel, "None", BaseSteel))
 
 linkerstijl = Line(Point(0,-99,-99), Point(0,-99,2400))
 linkerstijl_profiel = kozijnprofiel
-project.objects.append(Frame.by_startpoint_endpoint_profile(linkerstijl.start, linkerstijl.end, linkerstijl_profiel, "None", BaseSteel))
+project.objects.append(Beam.by_startpoint_endpoint_profile(linkerstijl.start, linkerstijl.end, linkerstijl_profiel, "None", BaseSteel))
 
 bovendorpel = Line(Point(0,0,2483.1), Point(0,900,2483.1))
 bovendorpel_profiel = kozijnprofiel
-project.objects.append(Frame.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
+project.objects.append(Beam.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
 
 bovendorpel = Line(Point(0,999,2400), Point(0,999,-99))
 bovendorpel_profiel = kozijnprofiel1
-project.objects.append(Frame.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
+project.objects.append(Beam.by_startpoint_endpoint_profile(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "None", BaseSteel))
 
 
 # project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(bovendorpel.start, bovendorpel.end, bovendorpel_profiel, "Name", "center", "center", 0, BaseSteel, 0, 0))

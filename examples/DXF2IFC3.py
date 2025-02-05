@@ -47,8 +47,8 @@ start_list = [Point(0,0,0),Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0)]
 end_list = [Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0),Point(0,0,0)]
 profile_name = "HEA100"
 
-project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "center", "center", 0, BaseSteel, 0, 0))
-project.objects.append(Frame.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "left", "top", 0, BaseSteel, 0, 0))
+project.objects.append(Beam.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "center", "center", 0, BaseSteel, 0, 0))
+project.objects.append(Beam.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "left", "top", 0, BaseSteel, 0, 0))
 
 project.to_speckle("7603a8603c")
 

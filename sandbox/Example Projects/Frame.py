@@ -10,7 +10,7 @@ project = BuildingPy("Project test BuildingPy","0")
 
 #Beam1 = Frame.by_startpoint_endpoint_profile(Point(0,0,0),Point(3000,0,0),"HEA200","HEA200",BaseSteel)
 
-Beam2 = Frame.by_startpoint_endpoint_profile(Point(0,0,500),Point(0,0,1000),"HEA200","test",BaseSteel)
+Beam2 = Beam.by_startpoint_endpoint_profile(Point(0,0,500),Point(0,0,1000),"HEA200","test",BaseSteel)
 #test = searchProfile("SHS60/60/4.0")
 
 #print(test.shape_coords)

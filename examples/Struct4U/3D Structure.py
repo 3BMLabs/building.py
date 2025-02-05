@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 from project.fileformat import *
-from construction.frame import Frame
+from construction.frame import Beam
 from construction.analytical import *
 from construction.panel import *
 from construction.datum import *
@@ -23,21 +23,21 @@ gridinput =  ["0 1000 1000",seqChar,"0 4x3600",seqNumber,"0"]
 
 #CONCRETE BEAM
 
-project.objects.append(Frame().by_startpoint_endpoint(Point(0,0,0),Point(0,14400,0),Rectangle("350x500",350,500).curve,"350x500",0,BaseConcrete))
-project.objects.append(Frame.by_startpoint_endpoint(Point(0,14400,0),Point(2000,14400,0),Rectangle("350x500",350,500).curve,"350x500",0,BaseConcrete))
+project.objects.append(Beam().by_startpoint_endpoint(Point(0,0,0),Point(0,14400,0),Rectangle("350x500",350,500).curve,"350x500",0,BaseConcrete))
+project.objects.append(Beam.by_startpoint_endpoint(Point(0,14400,0),Point(2000,14400,0),Rectangle("350x500",350,500).curve,"350x500",0,BaseConcrete))
 
-project.objects.append(Frame.by_startpoint_endpoint_rect(Point(0,14400,0),Point(2000,14400,0)))
+project.objects.append(Beam.by_startpoint_endpoint_rect(Point(0,14400,0),Point(2000,14400,0)))
 
 
 #STEEL COLUMN
-project.objects.append(Frame.by_startpoint_endpoint_profile_shapevector(Point(2000,14400,0),Point(2000,14400,height),"HEA160","HEA160",Vector2(0,0),0,BaseSteel,"Frame"))
+project.objects.append(Beam.by_startpoint_endpoint_profile_shapevector(Point(2000,14400,0),Point(2000,14400,height),"HEA160","HEA160",Vector2(0,0),0,BaseSteel,"Frame"))
 
 #STEEL FRAMES
 x = 1000
 y = 0
 for i in range(5):
-    project.objects.append(Frame.by_startpoint_endpoint_profile_shapevector(Point(0,y,0),Point(0,y,height),"HEA180","HEA180",Vector2(0,0),90,BaseSteel,"Frame")) # column
-    project.objects.append(Frame.by_startpoint_endpoint_profile_shapevector(Point(0,y,height),Point(x,y,height),"HEA180","HEA180",Vector2(0,0),0,BaseSteel,"Frame")) # beam
+    project.objects.append(Beam.by_startpoint_endpoint_profile_shapevector(Point(0,y,0),Point(0,y,height),"HEA180","HEA180",Vector2(0,0),90,BaseSteel,"Frame")) # column
+    project.objects.append(Beam.by_startpoint_endpoint_profile_shapevector(Point(0,y,height),Point(x,y,height),"HEA180","HEA180",Vector2(0,0),0,BaseSteel,"Frame")) # beam
     x = x + 250
     y = y + 3600
 

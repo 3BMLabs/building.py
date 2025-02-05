@@ -31,9 +31,9 @@ l4 = Arc(p4,Point(-50,150),p1)
 
 pc2d2 = PolyCurve.by_joined_curves([l1,l2,l3,l4])
 
-Frame1 = Frame.by_startpoint_endpoint_profile(Point(0,0,0),Point(3000,0,0),"HEA400","HEA400+zeeg 20 mm", BaseSteel)
-Frame2 = Frame.by_point_height_rotation(Point(0,1000,0),3000,pc2d1,"my shiny profile 1",0,BaseConcrete,)
-Frame3 = Frame.by_point_height_rotation(Point(0,2000,0),3000,pc2d2,"my shiny profile 2",0,BaseConcrete,)
+Frame1 = Beam.by_startpoint_endpoint_profile(Point(0,0,0),Point(3000,0,0),"HEA400","HEA400+zeeg 20 mm", BaseSteel)
+Frame2 = Beam.by_point_height_rotation(Point(0,1000,0),3000,pc2d1,"my shiny profile 1",0,BaseConcrete,)
+Frame3 = Beam.by_point_height_rotation(Point(0,2000,0),3000,pc2d2,"my shiny profile 2",0,BaseConcrete,)
 
 proj.objects.append([Frame1, Frame2, Frame3])
 
