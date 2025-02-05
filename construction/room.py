@@ -49,4 +49,4 @@ class Room:
 		self.topsurface = None
 		self.bottomsurface = None
 		self.parms = None
-		self.colorlst = None
+

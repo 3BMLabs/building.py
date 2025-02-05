@@ -67,7 +67,7 @@ class Surface:
 		
 		self.outer_Polygon = None
 		self.inner_Polygon = []
-		self.colorlst = []
+
 		self.outer_Surface = None
 		self.inner_Surface = []
 		# self.byPatch = self.fill(self)

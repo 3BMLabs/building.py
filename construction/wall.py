@@ -47,7 +47,7 @@ class Wall:
 		self.faces = None
 		# self.polycurve = None or self.profile
 		self.parms = None
-		self.colorlst = None
+
 
 	@classmethod
 	def by_mesh(self, verts=list, faces=list):

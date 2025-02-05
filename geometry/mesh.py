@@ -44,7 +44,7 @@ class Mesh(Serializable):
 		
 		- `verts` (list): A list of vertices that make up the mesh.
 		- `faces` (list): A list defining the faces of the mesh. Each face is represented by indices into the `verts` list.
-		- `numberFaces` (int): The number of faces in the mesh.
+		- `face_count` (int): The number of faces in the mesh.
 		- `name` (str): The name of the mesh.
 		- `material` (Material): The material assigned to the mesh.
 		- `colorlst` (list): A list of colors for the mesh, derived from the material.
@@ -55,10 +55,13 @@ class Mesh(Serializable):
 		#[[0, 1, 2], [3, 0, 4]] -> 2 faces. the first face connects the points 0, 1 and 2, while the second face connects the points 3, 0 and 4.
 		self.faces: list[list] = []
 		
-		self.numberFaces = 0
+		self.face_count = 0
 		self.name = None
 		self.material = None
-		self.colorlst = []
+		self.colors = []
+	
+	def set_solid_color(self, solid_color_int: int):
+		self.colors = [solid_color_int for j in range(int(len(self.vertices) / 3))]
 
 	def by_verts_faces(self, verts: 'list', faces: 'list') -> 'Mesh':
 		"""Initializes the mesh with vertices and faces.
@@ -151,7 +154,7 @@ class Mesh(Serializable):
 				verts.append(coord[1])  # y
 				verts.append(coord[2])  # z
 				count += 1
-			self.numberFaces = + 1
+			self.face_count = + 1
 		for j in range(int(len(verts) / 3)):
 			self.colorlst.append(material.colorint)
 		self.vertices = verts

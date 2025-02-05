@@ -49,7 +49,7 @@ class Panel(Serializable):
 		self.name = None
 		self.perimeter: float = 0
 		self.colorint = None
-		self.colorlst = []
+
 		self.origincurve = None
 
 	@classmethod

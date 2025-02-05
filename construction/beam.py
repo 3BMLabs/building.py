@@ -37,6 +37,7 @@ from typing import Union
 
 
 
+from abstract.meshable import Meshable
 from abstract.vector import Vector
 from geometry.curve import PolyCurve
 from geometry.point import Point
@@ -50,15 +51,11 @@ from construction.profile import Profile, Rectangle
 
 # [!not included in BP singlefile - end]
 
-def colorlist(extrus, color):
-	colorlst = []
-	for j in range(int(len(extrus.verts) / 3)):
-		colorlst.append(color)
-	return (colorlst)
+
 
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
-class Beam(Serializable):
+class Beam(Serializable, Meshable):
 	def __init__(self):
 		
 		self.name = "None"
@@ -81,7 +78,6 @@ class Beam(Serializable):
 		self.color = BaseOther.color
 		self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
 		self.profile = None #object of 2D profile
-		self.colorlst = []
 		self.vector = None
 		self.vector_normalised = None
 		self.centerbottom = None
@@ -131,7 +127,6 @@ class Beam(Serializable):
 		f1.profileName = profile
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
 		f1.props()
 		return f1
 
@@ -170,7 +165,6 @@ class Beam(Serializable):
 		f1.profileName = profile_name
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
 		f1.props()
 		return f1
 
@@ -234,7 +228,6 @@ class Beam(Serializable):
 		f1.profileName = profile_name
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
 		f1.props()
 		return f1
 
@@ -268,7 +261,6 @@ class Beam(Serializable):
 		f1.profileName = name
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
 		f1.props()
 		return f1
 
@@ -298,7 +290,6 @@ class Beam(Serializable):
 		f1.curve3d = curvrot
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
 		f1.props()
 		return f1
 
@@ -328,7 +319,7 @@ class Beam(Serializable):
 		f1.profileName = profile_name
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
+
 		f1.props()
 		return f1
 
@@ -363,7 +354,7 @@ class Beam(Serializable):
 		f1.profileName = "none"
 		f1.material = material
 		f1.color = material.colorint
-		f1.colorlst = colorlist(f1.extrusion, f1.color)
+
 		f1.props()
 		return f1
 
