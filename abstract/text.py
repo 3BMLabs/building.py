@@ -43,6 +43,7 @@ from geometry.point import Point
 from geometry.curve import PolyCurve
 from packages.svg.path import parse_path
 from packages.helper import flatten
+from packages.svg.path import CubicBezier, QuadraticBezier, Line
 
 # [!not included in BP singlefile - end]
 
@@ -151,15 +152,15 @@ class Text:
 			pathx = parse_path(segment)
 			for segment in pathx:
 				segment_type = segment.__class__.__name__
-				if segment_type == 'Line':
+				if isinstance( segment_type, Line):
 					ref_points.extend(
 						[(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
 					ref_allPoints.extend(
 						[(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-				elif segment_type == 'CubicBezier':
+				elif isinstance(segment_type, CubicBezier):
 					ref_points.extend(segment.sample(10))
 					ref_allPoints.extend(segment.sample(10))
-				elif segment_type == 'QuadraticBezier':
+				elif isinstance( segment_type, QuadraticBezier):
 					for i in range(11):
 						t = i / 10.0
 						point = segment.point(t)
@@ -242,9 +243,7 @@ class Text:
 		"""
 		trans = []
 		for pt in polyCurve.points:
-			pscale = self.scale * pt
-			pNew = self.csglobal * pscale
-			trans.append(pNew)
+			trans.append(self.csglobal * (self.scale * pt))
 		return polyCurve.by_points(trans)
 
 	def calculate_bounding_box(self, points: 'list[Point]') -> tuple:

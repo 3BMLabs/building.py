@@ -1,8 +1,4 @@
-import sys
-import os
-from ezdxf import readfile, DXFStructureError, DXFValueError
-
-
+from project.fileformat import BuildingPy
 from geometry.point import *
 from geometry.curve import *
 from construction.void import *
@@ -18,6 +14,7 @@ l1 = Line(Point(0,0,0), Point(0,1000,0))
 
 gr = Grid.by_startpoint_endpoint(l1, "Grid")
 
+project = BuildingPy()
 project.objects.append(gr)
 
 # project.toSpeckle("7603a8603c")

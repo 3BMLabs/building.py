@@ -587,10 +587,9 @@ class Coords(Serializable, list):
 		return self.ioperate_2(operator.__itruediv__,other)
 
 Coords.x_axis = Coords(1, 0, 0)
-
 Coords.y_axis = Coords(0, 1, 0)
-
 Coords.z_axis = Coords(0, 0, 1)
+
 Coords.left = Coords(-1, 0, 0)
 Coords.right = Coords(1, 0, 0)
 Coords.down = Coords(0, -1, 0)

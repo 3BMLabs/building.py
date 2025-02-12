@@ -74,7 +74,7 @@ class Plane:
 		```
 		"""
 		p1 = Plane()
-		p1.Normal = Vector.normalize(Vector.cross_product(vector_1, vector_2))
+		p1.Normal = Vector.cross_product(vector_1, vector_2).normalized
 		p1.Origin = origin
 		p1.vector_1 = vector_1
 		p1.vector_2 = vector_2

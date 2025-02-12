@@ -53,10 +53,9 @@ for i in names:
         rowcolum = rowcolum + 5
         y = y + spacing
         x = 0
-    Mat = BaseSteel
     prof = i[:3]
     print(i)
-    fram = Beam.by_startpoint_endpoint_profile(Point(x, y, 0), Point(x, y+1, height), i, i, Mat).write(project)
+    fram = Beam.by_startpoint_endpoint_profile(Point(x, y, 0), Point(x, y+1, height), i, i, BaseSteel).write(project)
     ColumnTag.by_beam(fram).write(project)
     x = x + spacing
     rownumb = rownumb + 1

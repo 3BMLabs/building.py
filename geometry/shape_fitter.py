@@ -5,6 +5,7 @@ from bisect import bisect_left, bisect_right, insort_left
 from functools import cmp_to_key
 from math import inf
 import math
+from abstract.matrix import Matrix
 from geometry.rect import Rect
 from geometry.coords import Coords
 from geometry.curve import PolyCurve, Line, Polygon
@@ -403,9 +404,9 @@ def fit_polygons_2d(parent_sizes:list[Vector], child_polygons: list[Polygon], al
 								translate_b = translate_a + b_to_a_offset
 
 								for group, translation in zip([group_a,group_b], [translate_a, translate_b]):
-									
+									translation_matrix = Matrix.translate(translation)
 									for line_elem in group.lines:
-										line_elem.line.translate(translation)
+										line_elem.line = translation_matrix * line_elem.line
 									for i in range(len(group.relative_child_offsets)):
 										group.relative_child_offsets[i] += translation
 								for line_elem in group_b.lines:

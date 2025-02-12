@@ -37,7 +37,7 @@ from typing import Union
 
 
 
-from abstract.meshable import Meshable
+from abstract.segmentation import Meshable
 from abstract.vector import Vector
 from geometry.curve import PolyCurve, Polygon
 from geometry.point import Point
@@ -215,7 +215,7 @@ class Beam(Serializable, Meshable):
 		f1.length = f1.directionVector.length
 		f1.name = name
 		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+			f1.curve, f1.length, f1.start, f1.directionVector)
 		f1.extrusion.name = name
 		f1.curve3d = f1.extrusion.polycurve
 
@@ -313,7 +313,7 @@ class Beam(Serializable, Meshable):
 		curv = nameToProfile(profile_name).polycurve2d
 		curvrot = curv.rotate(rotation)  # rotation in degrees
 		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+			curvrot.curves, f1.length, f1.start, f1.directionVector)
 		f1.extrusion.name = profile_name
 		f1.curve3d = curvrot
 		f1.profileName = profile_name

@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Self, Union
 
 from abstract.matrix import Matrix
+from abstract.segmentation import SegmentationSettings
 from geometry.shape import Shape
 from geometry.sphere import Sphere
 from abstract.vector import Vector
@@ -69,7 +70,7 @@ class Curve(Serializable):
 	def point_at_fraction(fraction: float) -> Point:
 		pass
 
-	def segmentate(self, max_angle: float) -> 'Polygon':
+	def segmentate(self, settings: SegmentationSettings) -> 'Polygon':
 		"""
 		
 		Args:
@@ -79,16 +80,15 @@ class Curve(Serializable):
 			list[Point]: a list of points sampled along this line
 		"""
 		segmentated_polygon = Polygon()
-		self.segmentate_part(segmentated_polygon, max_angle)
+		self.segmentate_part(segmentated_polygon, settings)
 		segmentated_polygon.append(self.end)
 		return segmentated_polygon
   
-	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', settings: SegmentationSettings):
 		"""segmentates this curve as a part of the polygon. will not add self.end to the polygon.
 
 		Args:
 			polygon_to_add_to (Polygon): the polygon this curve will be a part of.
-			max_angle (float): the maximum angle to keep a straight line
 		"""
 		raise NotImplemented()
 
@@ -108,9 +108,15 @@ class Line(Curve):
 	@property
 	def start(self) -> 'Point':
 		return self._start
+	@start.setter
+	def start(self, value):
+		self._start = value
 	@property
 	def end(self) -> 'Point':
 		return self._end
+	@end.setter
+	def end(self, value):
+		self._end = value
  
 	@property
 	def mid(self) -> 'Point':
@@ -138,7 +144,7 @@ class Line(Curve):
 		
 	def __rmul__(self, mat: Matrix) -> 'Line':
 		if isinstance(mat, Matrix):
-			return Line(mat * self.start, self * self.end)
+			return Line(mat * self.start, mat * self.end)
 	
 	def point_at_fraction(self, fraction: float) -> Point:
 		"""
@@ -359,8 +365,8 @@ class Arc(Curve):
 
 		return Arc(arc_matrix, angle)
 
-	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
-		segment_count = math.ceil(self.angle / max_angle)
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', settings: SegmentationSettings):
+		segment_count = math.ceil(self.angle / settings.max_angle)
 		interval = 1.0 / segment_count
 		for i in range(segment_count):
 			polygon_to_add_to.append(self.point_at_fraction(i * interval))
@@ -844,9 +850,9 @@ class PolyCurve(list[Line], Shape, Curve):
 
 		return sum(curve.length for curve in self)
 
-	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', settings: SegmentationSettings):
 		for curve in self:
-			curve.segmentate_part(polygon_to_add_to, max_angle)
+			curve.segmentate_part(polygon_to_add_to, settings)
 
 	def scale(self, scale_factor: 'float') -> 'PolyCurve':
 		"""Scales the PolyCurve object by the given factor.
@@ -988,3 +994,6 @@ class PolyCurve(list[Line], Shape, Curve):
 				pass
 		return plycrv
 
+	def __rmul__(self, mat: Matrix) -> 'PolyCurve':
+		if isinstance(mat, Matrix):
+			return PolyCurve([mat * curve for curve in self])
