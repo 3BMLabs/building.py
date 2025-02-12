@@ -175,7 +175,7 @@ class Coords(Serializable, list):
 		Returns:
 			Coords: a rotated normal (vector with length of 1)
 		"""
-		return Coords(math.cos())
+		return Coords(math.cos(angle), math.sin(angle))
 	
 	@staticmethod
 	def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
@@ -318,6 +318,7 @@ class Coords(Serializable, list):
 			return Coords(-vector_1.y, vector_1.x)
 		else:
 			return (vector_1.x*vector_1.y) - (vector_1.Y*vector_2.x)
+	perpendicular = cross_product
 
 	def change_axis_count(self,axis_count: int):
 		"""in- or decreases the amount of axes to the preferred axis count.
@@ -585,11 +586,11 @@ class Coords(Serializable, list):
 	def __itruediv__(self, other) -> Self:
 		return self.ioperate_2(operator.__itruediv__,other)
 
-x_axis = Coords(1, 0, 0)
+Coords.x_axis = Coords(1, 0, 0)
 
-y_axis = Coords(0, 1, 0)
+Coords.y_axis = Coords(0, 1, 0)
 
-z_axis = Coords(0, 0, 1)
+Coords.z_axis = Coords(0, 0, 1)
 Coords.left = Coords(-1, 0, 0)
 Coords.right = Coords(1, 0, 0)
 Coords.down = Coords(0, -1, 0)

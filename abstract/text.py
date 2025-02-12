@@ -72,7 +72,7 @@ class Text:
 		
 		self.text = text
 		self.font_family = font_family or "arial"
-		self.xyz = cs.Origin
+		self.xyz = cs.origin
 		self.csglobal = cs
 		self.x, self.y, self.z = 0, 0, 0
 		self.scale = None
@@ -242,8 +242,8 @@ class Text:
 		"""
 		trans = []
 		for pt in polyCurve.points:
-			pscale = Point.product(self.scale, pt)
-			pNew = transform_point_2(pscale, self.csglobal)
+			pscale = self.scale * pt
+			pNew = self.csglobal * pscale
 			trans.append(pNew)
 		return polyCurve.by_points(trans)
 

@@ -125,10 +125,10 @@ class Dimension:
 		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
 		x = direction
 		y = Vector.rotate_XY(x, math.radians(90))
-		z = Z_Axis
-		cs_new_start = CoordinateSystem(self.start, x, y, z)
-		cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
-		cs_new_end = CoordinateSystem(self.end, x, y, z)
+		z = Coords.z_axis
+		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
+		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, x, y, z)
+		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, x, y, z)
 		self.curves.append(Line(tick_mark_extension_point_1,
 						   self.start))  # extention_start
 		self.curves.append(
@@ -157,7 +157,7 @@ class FrameTag:
 		# Dimensions in 1/100 scale
 		
 		self.scale = 0.1
-		self.cs: CoordinateSystem = CSGlobal
+		self.cs: CoordinateSystem = CoordinateSystem()
 		self.offset_x = 500
 		self.offset_y = 100
 		self.font_family = "calibri"
@@ -166,10 +166,9 @@ class FrameTag:
 		self.text_height = 100
 
 	def __textobject(self):
-		cstext = self.cs
 		# cstextnew = cstext.translate(self.textoff_vector_local)
 		self.text_curves = Text(
-			text=self.text, font_family=self.font_family, height=self.text_height, cs=cstext).write
+			text=self.text, font_family=self.font_family, height=self.text_height, cs=self.cs).write
 
 	def by_cs_text(self, coordinate_system: CoordinateSystem, text):
 		self.cs = coordinate_system
@@ -210,7 +209,7 @@ class ColumnTag:
 		self.factor = 3  # hellingsfacor leader
 		self.scale = 0.1  # voor tekeningverschaling
 		self.position = "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
-		self.cs: CoordinateSystem = CSGlobal
+		self.cs: CoordinateSystem = CoordinateSystem()
 
 		# self.textoff_vector_local: Vector = Vector(1,1,1)
 		self.font_family = "calibri"
@@ -230,17 +229,13 @@ class ColumnTag:
 			self.height/self.factor, self.height, 0))
 		self.endpoint = Point.translate(
 			self.midpoint, Vector(self.width, 0, 0))
-		crves = [Line(start=self.startpoint, end=self.midpoint),
-				 Line(start=self.midpoint, end=self.endpoint)]
-		for i in crves:
-			j = Line.transform(i, self.cs)
-			self.curves.append(j)
+		for line in [Line(start=self.startpoint, end=self.midpoint),
+				 Line(start=self.midpoint, end=self.endpoint)]:
+			self.curves.append(self.cs * line)
 
 	def __textobject(self):
-		cstext = self.cs
 
-		cstextnew = CoordinateSystem.translate(
-			cstext, self.textoff_vector_local)
+		cstextnew = CoordinateSystem.translate(self.textoff_vector_local) * self.cs
 		self.text_curves = Text(text=self.text, font_family=self.font_family,
 								height=self.text_height, cs=cstextnew).write
 
@@ -260,10 +255,8 @@ class ColumnTag:
 	@staticmethod
 	def by_beam(beam, position="TL"):
 		tag = ColumnTag()
-		csold = CSGlobal
 		tag.position = position
-		tag.cs = CoordinateSystem.translate(csold, Vector(
-			beam.start.x, beam.start.y, beam.start.z))
+		tag.cs = CoordinateSystem.translate(beam.start)
 		tag.text = beam.name
 		tag.__leadercurves()
 		tag.__textobject()

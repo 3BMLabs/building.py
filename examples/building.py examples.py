@@ -4,7 +4,7 @@ import math
 
 
 from construction.panel import *
-from construction.frame import *
+from construction.beam import *
 from construction.shape3d import *
 from construction.datum import *
 from geometry.linestyle import *
@@ -68,10 +68,6 @@ test7 = Vector.angle_between(v1, v2)
 # reverse ↓
 # Turn positive into negative and the other way around
 test8 = Vector.reverse(v1)
-
-# perpendicular ↓
-# Vector Local X and Local Y perpendicular to given vector and in global Z direction
-test9 = Vector.perpendicular(v1)
 
 # normalize ↓
 # scale = 1 / v1.length

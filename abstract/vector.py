@@ -165,29 +165,6 @@ class Vector(Coords):
 		)
 
 	@staticmethod
-	def perpendicular(vector_1: 'Vector') -> tuple:
-		"""Computes two vectors perpendicular to the input vector.
-
-		#### Parameters:
-		- `vector_1` (`Vector`): The input vector.
-
-		#### Returns:
-		`tuple`: A tuple containing two vectors perpendicular to the input vector.
-
-		#### Example usage:
-		```python
-		vector1 = Vector(1, 2, 3)
-		perpendicular_vectors = Vector.perpendicular(vector1)
-		# (Vector(X = 2, Y = -1, Z = 0), Vector(X = -3, Y = 0, Z = 1))
-		```
-		"""
-		lokX = Vector(vector_1.y, -vector_1.x, 0)
-		lokZ = Vector.cross_product(vector_1, lokX)
-		if lokZ.z < 0:
-			lokZ = Vector.reverse(lokZ)
-		return lokX, lokZ
-
-	@staticmethod
 	def rotate_XY(vector: 'Vector', Beta: float) -> 'Vector':
 		"""Rotates the vector in the XY plane by the specified angle.
 

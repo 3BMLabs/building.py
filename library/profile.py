@@ -99,27 +99,27 @@ class nameToProfile:
         self.d1 = profile_data.shape_coords
         d1 = self.d1
         if profile_name == "C-channel parallel flange":
-            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
+            profile = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
         elif profile_name == "C-channel sloped flange":
-            prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
+            profile = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
         elif profile_name == "I-shape parallel flange":
-            prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+            profile = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
         elif profile_name == "I-shape sloped flange":
-            prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
+            profile = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
             #Todo: add sloped flange shape
         elif profile_name == "Rectangle":
-            prof = Rectangle(name,d1[0], d1[1])
+            profile = Rectangle(name,d1[0], d1[1])
         elif profile_name == "Round":
-            prof = Round(name, d1[1])
+            profile = Round(name, d1[1])
         elif profile_name == "Round tube profile":
-            prof = Roundtube(name, d1[0], d1[1])
+            profile = Roundtube(name, d1[0], d1[1])
         elif profile_name == "LAngle":
-            prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
+            profile = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
         elif profile_name == "TProfile":
-            prof = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
+            profile = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
         elif profile_name == "Rectangle Hollow Section":
-            prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        self.profile = prof
+            profile = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+        self.profile = profile
         self.data = d1
         final_curve = self.profile.curve  # 2D polycurve
         if segmented == True:

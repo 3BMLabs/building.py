@@ -58,7 +58,7 @@ from geometry.curve import Arc
 from abstract.vector import Vector
 from geometry.plane import Plane
 from packages.helper import flatten
-from construction.frame import Beam
+from construction.beam import Beam
 
 # [!not included in BP singlefile - end]
 

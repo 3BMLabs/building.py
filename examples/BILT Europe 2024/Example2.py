@@ -1,7 +1,7 @@
 
 
 
-from construction.frame import *
+from construction.beam import *
 from construction.floor import *
 from exchange.speckle import *
 from project.fileformat import *

@@ -33,7 +33,7 @@ from construction.panel import *
 from exchange.speckle import *
 from geometry.curve import *
 from abstract.node import *
-from construction.frame import Beam
+from construction.beam import Beam
 import xml.etree.ElementTree as ET
 __title__ = "XFEM4U"
 __author__ = "Maarten & Jonathan"

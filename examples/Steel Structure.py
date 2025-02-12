@@ -4,7 +4,7 @@
 
 
 from construction.panel import *
-from construction.frame import *
+from construction.beam import *
 from construction.profile import *
 from exchange.speckle import *
 from construction.datum import *

@@ -865,13 +865,13 @@ class PolyCurve(list[Line], Shape, Curve):
 		crvs = []
 		for i in self.curves:
 			if i.__class__.__name__ == "Arc":
-				arcie = Arc(Point.product(scale_factor, i.start),
-							Point.product(scale_factor, i.end))
-				arcie.mid = Point.product(scale_factor, i.mid)
+				arcie = Arc(scale_factor * i.start,
+							scale_factor * i.end)
+				arcie.mid = scale_factor * i.mid
 				crvs.append(arcie)
 			elif i.__class__.__name__ == "Line":
-				crvs.append(Line(Point.product(scale_factor, i.start),
-							Point.product(scale_factor, i.end)))
+				crvs.append(Line(scale_factor * i.start,
+							scale_factor * i.end))
 			else:
 				print("Curvetype not found")
 		crv = PolyCurve.by_joined_curves(crvs)

@@ -1,5 +1,5 @@
 from exchange.struct4U import *
-from construction.frame import *
+from construction.beam import *
 from construction.analytical import *
 
 project = BuildingPy("Steelstructure","0")
