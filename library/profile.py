@@ -84,7 +84,7 @@ class _getProfileDataFromDatabase:
 
 
 class nameToProfile:
-	def __init__(self, name1, segmented = True):
+	def __init__(self, name1):
 		profile_data = _getProfileDataFromDatabase(name1)
 		if profile_data == None:
 			print(f"profile {name1} not recognised")
@@ -97,35 +97,30 @@ class nameToProfile:
 		self.profile_data = profile_data
 		self.profile_name = profile_name
 		name = profile_data.name
-		self.d1 = profile_data.shape_coords
-		d1 = self.d1
+		coords = profile_data.shape_coords
 		if profile_name == "C-channel parallel flange":
-			profile = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
+			profile = CChannelParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
 		elif profile_name == "C-channel sloped flange":
-			profile = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
+			profile = CChannelSlopedFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
 		elif profile_name == "I-shape parallel flange":
-			profile = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+			profile = IShapeParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4])
 		elif profile_name == "I-shape sloped flange":
-			profile = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
+			profile = IShapeParallelFlange(name, coords[0], coords[1], coords[2], coords[3], coords[4])
 			#Todo: add sloped flange shape
 		elif profile_name == "Rectangle":
-			profile = Rectangle(name,d1[0], d1[1])
+			profile = Rectangle(name,coords[0], coords[1])
 		elif profile_name == "Round":
-			profile = Round(name, d1[1])
+			profile = Round(name, coords[1])
 		elif profile_name == "Round tube profile":
-			profile = Roundtube(name, d1[0], d1[1])
+			profile = Roundtube(name, coords[0], coords[1])
 		elif profile_name == "LAngle":
-			profile = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
+			profile = LAngle(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
 		elif profile_name == "TProfile":
-			profile = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
+			profile = TProfileRounded(name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
 		elif profile_name == "Rectangle Hollow Section":
-			profile = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
+			profile = RectangleHollowSection(name,coords[0],coords[1],coords[2],coords[3],coords[4])
 		self.profile = profile
-		self.data = d1
-		final_curve = self.profile.curve  # 2D polycurve
-		if segmented == True:
-			final_curve = PolyCurve.segmentate(self.profile.curve, SegmentationSettings(max_angle = math.pi / 4))
-		self.polycurve2d = final_curve
+		self.polycurve2d = profile.curve
 
 def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
 

@@ -5,7 +5,6 @@ from construction.profile import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
-from library.profile import nameToProfile
 from construction.annotation import *
 from geometry.solid import *
 from exchange.IFC_2 import *

@@ -241,10 +241,8 @@ class Text:
 
 		```
 		"""
-		trans = []
-		for pt in polyCurve.points:
-			trans.append(self.csglobal * (self.scale * pt))
-		return polyCurve.by_points(trans)
+		combined_matrix = self.csglobal * self.scale
+		return combined_matrix * polyCurve
 
 	def calculate_bounding_box(self, points: 'list[Point]') -> tuple:
 		"""Calculates the bounding box for a given set of points.

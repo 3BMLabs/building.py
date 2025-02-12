@@ -37,9 +37,10 @@ from typing import Union
 
 
 
-from abstract.segmentation import Meshable
+from abstract.segmentation import Meshable, SegmentationSettings
 from abstract.vector import Vector
 from geometry.curve import PolyCurve, Polygon
+from geometry.mesh import Mesh
 from geometry.point import Point
 from geometry.solid import Extrusion
 from library.material import Material, BaseOther
@@ -88,11 +89,11 @@ class Beam(Serializable, Meshable):
 		self.vector_normalised = self.vector.normalized
 		self.length = self.vector.length
 
+	def to_mesh(self, settings: SegmentationSettings) -> Mesh:
+		return self.extrusion.to_mesh(settings)
+  
 	@classmethod
 	def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
-		# [!not included in BP singlefile - start]
-		from library.profile import nameToProfile
-		# [!not included in BP singlefile - end]
 		f1 = Beam()
 		f1.comments = comments
 

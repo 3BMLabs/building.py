@@ -918,7 +918,7 @@ class PolyCurve(list[Line], Shape, Curve):
 
 
 	@classmethod
-	def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
+	def by_joined_curves(self, curvelst: 'list[Curve]') -> 'PolyCurve':
 		"""Creates a PolyCurve from a list of joined Line curves.
 
 		#### Parameters:
@@ -932,21 +932,7 @@ class PolyCurve(list[Line], Shape, Curve):
 
 		```		
 		"""
-		for curve in curvelst:
-			if curve.length == 0:
-				curvelst.remove(curve)
-				# print("Error: Curve length cannot be zero.")
-				# sys.exit()
-
-		plycrv = PolyCurve()
-		for index, curve in enumerate(curvelst):
-			if index == 0:
-				plycrv.points.append(curve.start)
-				plycrv.points.append(curve.end)
-			else:
-				plycrv.points.append(curve.end)
-
-		return plycrv
+		return PolyCurve(curvelst)
 	
 	@staticmethod
 	def by_polygon(polygon: Polygon):

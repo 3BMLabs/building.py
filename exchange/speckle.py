@@ -32,6 +32,7 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/speckle.py"
 
 from abstract.interval import Interval
+from abstract.segmentation import SegmentationSettings
 from abstract.serializable import Serializable
 #from construction.datum import Grid, GridSystem
 from construction.datum import Grid, GridSystem
@@ -224,7 +225,8 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 											  textureCoordinates = []
 											  )
 		except:
-			mesh = building_py_object.to_mesh()
+			settings = SegmentationSettings()
+			mesh = building_py_object.to_mesh(settings)
 			return convert_to_speckle_object(self, mesh)
 			#converted_object = SpeckleMesh(
 			#								vertices=building_py_object.extrusion.verts, 
