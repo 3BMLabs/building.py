@@ -8,9 +8,9 @@ from abc import ABC, abstractmethod
 from abc import abstractmethod
 from bisect import bisect
 from collections import defaultdict
-from construction.frame import *
 from functools import reduce
 from math import sqrt, cos, sin, acos, degrees, radians, log, pi
+from packages.svg.path import CubicBezier, QuadraticBezier, Line
 from packages.svg.path import parse_path
 from pathlib import Path
 from typing import List
@@ -249,7 +249,7 @@ class Coords(Serializable, list):
 		Returns:
 			Coords: a rotated normal (vector with length of 1)
 		"""
-		return Coords(math.cos())
+		return Coords(math.cos(angle), math.sin(angle))
 	
 	@staticmethod
 	def angle_between(vector_1: 'Coords', vector_2: 'Coords') -> float:
@@ -392,6 +392,7 @@ class Coords(Serializable, list):
 			return Coords(-vector_1.y, vector_1.x)
 		else:
 			return (vector_1.x*vector_1.y) - (vector_1.Y*vector_2.x)
+	perpendicular = cross_product
 
 	def change_axis_count(self,axis_count: int):
 		"""in- or decreases the amount of axes to the preferred axis count.
@@ -659,11 +660,10 @@ class Coords(Serializable, list):
 	def __itruediv__(self, other) -> Self:
 		return self.ioperate_2(operator.__itruediv__,other)
 
-x_axis = Coords(1, 0, 0)
+Coords.x_axis = Coords(1, 0, 0)
+Coords.y_axis = Coords(0, 1, 0)
+Coords.z_axis = Coords(0, 0, 1)
 
-y_axis = Coords(0, 1, 0)
-
-z_axis = Coords(0, 0, 1)
 Coords.left = Coords(-1, 0, 0)
 Coords.right = Coords(1, 0, 0)
 Coords.down = Coords(0, -1, 0)
@@ -1078,29 +1078,6 @@ class Vector(Coords):
 		)
 
 	@staticmethod
-	def perpendicular(vector_1: 'Vector') -> tuple:
-		"""Computes two vectors perpendicular to the input vector.
-
-		#### Parameters:
-		- `vector_1` (`Vector`): The input vector.
-
-		#### Returns:
-		`tuple`: A tuple containing two vectors perpendicular to the input vector.
-
-		#### Example usage:
-		```python
-		vector1 = Vector(1, 2, 3)
-		perpendicular_vectors = Vector.perpendicular(vector1)
-		# (Vector(X = 2, Y = -1, Z = 0), Vector(X = -3, Y = 0, Z = 1))
-		```
-		"""
-		lokX = Vector(vector_1.y, -vector_1.x, 0)
-		lokZ = Vector.cross_product(vector_1, lokX)
-		if lokZ.z < 0:
-			lokZ = Vector.reverse(lokZ)
-		return lokX, lokZ
-
-	@staticmethod
 	def rotate_XY(vector: 'Vector', Beta: float) -> 'Vector':
 		"""Rotates the vector in the XY plane by the specified angle.
 
@@ -1450,7 +1427,7 @@ class Matrix(Serializable, list[list]):
 	"""
 	elements are ordered like [row][column] or [y][x]
 	"""
-	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> Self:
+	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> 'Matrix':
 		list.__init__(self, matrix)
 
 	@property
@@ -1462,6 +1439,34 @@ class Matrix(Serializable, list[list]):
 	def rows(self) -> 'int':
 		"""returns the height (y size) of this matrix in columns."""
 		return len(self)
+
+	def get_row(self, row: int) -> Vector:
+		"""
+
+		Args:
+			col (int): the row index
+
+		Returns:
+			Vector: a row vector
+		"""
+		return Vector(self[row])
+
+	def get_col(self, col: int) -> Vector:
+		"""
+
+		Args:
+			col (int): the column index
+
+		Returns:
+			Vector: a column vector
+		"""
+		return Vector([self[row][col] for row in range(self.rows)])
+ 
+	@property
+	def origin(self) -> Vector:
+		col = self.cols - 1
+		return Vector([self[row][col] for row in range(self.rows - 1)])
+	position = origin
 
 	@staticmethod
 	def scale(scalar: Vector)-> 'Matrix':
@@ -1503,31 +1508,31 @@ class Matrix(Serializable, list[list]):
 		return Matrix([[0 for col in range(cols)] for row in range(rows)])
 
 	@staticmethod
-	def identity(dimensions:int) -> Self:
+	def identity(dimensions:int) -> 'Matrix':
 		return Matrix.scale(Vector([1] * dimensions))
 
 	@staticmethod
-	def translate(addition: Vector) -> Self:
+	def translate(addition: Vector) -> 'Matrix':
 		"""
 
 		Args:
 			origin (Vector): the matrix translates all points by this offset.
 
 		Returns:
-			Self: 
+			Matrix: 
 		"""
 		matrix_size:int = len(addition) + 1
-		return Matrix([[1 if x == y else addition[y] if x == len(addition) else 0 for x in range(matrix_size)] for y in range(len(matrix_size))])
+		return Matrix([[1 if x == y else addition[y] if x == len(addition) else 0 for x in range(matrix_size)] for y in range(matrix_size)])
 
 	@staticmethod
-	def by_origin(origin: Vector) -> Self:
+	def by_origin(origin: Vector) -> 'Matrix':
 		"""
 
 		Args:
 			origin (Vector): 
 
 		Returns:
-			Self: a transformation matrix using the default axes with a specified origin.
+			Matrix: a transformation matrix using the default axes with a specified origin.
 		"""
 		return Matrix.translate(origin)
 
@@ -1555,7 +1560,7 @@ class Matrix(Serializable, list[list]):
 			for row in range(matrix_size)])
 
 	@staticmethod
-	def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> Self:
+	def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> 'Matrix':
 		"""
 
 		Args:
@@ -1563,12 +1568,12 @@ class Matrix(Serializable, list[list]):
 			unit_axes (list[Coords]): the axes of this matrix, as unit vectors. they will get normalized!
 
 		Returns:
-			Self: the final matrix
+			Matrix: the final matrix
 		"""
 		return Matrix.by_origin_and_axes(origin, axes=[axis.normalized for axis in unit_axes])
 
 	@staticmethod
-	def by_rotation(axis: Vector, angle: float) -> Self:
+	def by_rotation(axis: Vector, angle: float) -> 'Matrix':
 		"""creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
 		Returns:
@@ -1584,7 +1589,7 @@ class Matrix(Serializable, list[list]):
 		[normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
 	
 	@staticmethod
-	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> Self:
+	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> 'Matrix':
 		#from right to left:
   		#- translate objects so the pivot is at the origin
 		#- rotate objects around the origin
@@ -1592,7 +1597,7 @@ class Matrix(Serializable, list[list]):
 
 		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
  
-	def __mul__(self, other:Self | Coords | Rect | PointList):
+	def __mul__(self, other:'Matrix | Coords | Rect | PointList'):
 		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
 		for example: translate * rotate (rotate first, translate after)
 		and: matrix * point (point first, multiplied by matrix after)"""
@@ -1660,7 +1665,7 @@ class Matrix(Serializable, list[list]):
 			return Rect.by_points([mp0, mp1])
 		else:
 			#this causes python to check for rmul on the other type
-			raise NotImplementedError()
+			return NotImplemented
 		return result
 	
 	transform = multiply = __mul__
@@ -1736,7 +1741,7 @@ class Matrix(Serializable, list[list]):
 		adjugate = self.adjugate()
 		return Matrix([[element / determinant for element in row] for row in adjugate])
 
-	def add(self, other: Self):
+	def add(self, other: 'Matrix'):
 		if self.shape() != other.shape():
 			raise ValueError("Matrices must have the same dimensions")
 		return Matrix([[self[i][j] + other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])
@@ -2316,7 +2321,7 @@ class Curve(Serializable):
 	def point_at_fraction(fraction: float) -> Point:
 		pass
 
-	def segmentate(self, max_angle: float) -> 'Polygon':
+	def segmentate(self, settings: SegmentationSettings) -> 'Polygon':
 		"""
 		
 		Args:
@@ -2326,16 +2331,15 @@ class Curve(Serializable):
 			list[Point]: a list of points sampled along this line
 		"""
 		segmentated_polygon = Polygon()
-		self.segmentate_part(segmentated_polygon, max_angle)
+		self.segmentate_part(segmentated_polygon, settings)
 		segmentated_polygon.append(self.end)
 		return segmentated_polygon
   
-	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', settings: SegmentationSettings):
 		"""segmentates this curve as a part of the polygon. will not add self.end to the polygon.
 
 		Args:
 			polygon_to_add_to (Polygon): the polygon this curve will be a part of.
-			max_angle (float): the maximum angle to keep a straight line
 		"""
 		raise NotImplemented()
 
@@ -2355,9 +2359,15 @@ class Line(Curve):
 	@property
 	def start(self) -> 'Point':
 		return self._start
+	@start.setter
+	def start(self, value):
+		self._start = value
 	@property
 	def end(self) -> 'Point':
 		return self._end
+	@end.setter
+	def end(self, value):
+		self._end = value
  
 	@property
 	def mid(self) -> 'Point':
@@ -2385,7 +2395,7 @@ class Line(Curve):
 		
 	def __rmul__(self, mat: Matrix) -> 'Line':
 		if isinstance(mat, Matrix):
-			return Line(mat * self.start, self * self.end)
+			return Line(mat * self.start, mat * self.end)
 	
 	def point_at_fraction(self, fraction: float) -> Point:
 		"""
@@ -2606,8 +2616,8 @@ class Arc(Curve):
 
 		return Arc(arc_matrix, angle)
 
-	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
-		segment_count = math.ceil(self.angle / max_angle)
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', settings: SegmentationSettings):
+		segment_count = math.ceil(self.angle / settings.max_angle)
 		interval = 1.0 / segment_count
 		for i in range(segment_count):
 			polygon_to_add_to.append(self.point_at_fraction(i * interval))
@@ -3091,9 +3101,9 @@ class PolyCurve(list[Line], Shape, Curve):
 
 		return sum(curve.length for curve in self)
 
-	def segmentate_part(self, polygon_to_add_to : 'Polygon', max_angle: float):
+	def segmentate_part(self, polygon_to_add_to : 'Polygon', settings: SegmentationSettings):
 		for curve in self:
-			curve.segmentate_part(polygon_to_add_to, max_angle)
+			curve.segmentate_part(polygon_to_add_to, settings)
 
 	def scale(self, scale_factor: 'float') -> 'PolyCurve':
 		"""Scales the PolyCurve object by the given factor.
@@ -3112,13 +3122,13 @@ class PolyCurve(list[Line], Shape, Curve):
 		crvs = []
 		for i in self.curves:
 			if i.__class__.__name__ == "Arc":
-				arcie = Arc(Point.product(scale_factor, i.start),
-							Point.product(scale_factor, i.end))
-				arcie.mid = Point.product(scale_factor, i.mid)
+				arcie = Arc(scale_factor * i.start,
+							scale_factor * i.end)
+				arcie.mid = scale_factor * i.mid
 				crvs.append(arcie)
 			elif i.__class__.__name__ == "Line":
-				crvs.append(Line(Point.product(scale_factor, i.start),
-							Point.product(scale_factor, i.end)))
+				crvs.append(Line(scale_factor * i.start,
+							scale_factor * i.end))
 			else:
 				print("Curvetype not found")
 		crv = PolyCurve.by_joined_curves(crvs)
@@ -3159,7 +3169,7 @@ class PolyCurve(list[Line], Shape, Curve):
 
 
 	@classmethod
-	def by_joined_curves(self, curvelst: 'list[Line]') -> 'PolyCurve':
+	def by_joined_curves(self, curvelst: 'list[Curve]') -> 'PolyCurve':
 		"""Creates a PolyCurve from a list of joined Line curves.
 
 		#### Parameters:
@@ -3173,21 +3183,7 @@ class PolyCurve(list[Line], Shape, Curve):
 
 		```		
 		"""
-		for curve in curvelst:
-			if curve.length == 0:
-				curvelst.remove(curve)
-				# print("Error: Curve length cannot be zero.")
-				# sys.exit()
-
-		plycrv = PolyCurve()
-		for index, curve in enumerate(curvelst):
-			if index == 0:
-				plycrv.points.append(curve.start)
-				plycrv.points.append(curve.end)
-			else:
-				plycrv.points.append(curve.end)
-
-		return plycrv
+		return PolyCurve(curvelst)
 	
 	@staticmethod
 	def by_polygon(polygon: Polygon):
@@ -3235,6 +3231,9 @@ class PolyCurve(list[Line], Shape, Curve):
 				pass
 		return plycrv
 
+	def __rmul__(self, mat: Matrix) -> 'PolyCurve':
+		if isinstance(mat, Matrix):
+			return PolyCurve([mat * curve for curve in self])
 
 
 
@@ -3399,7 +3398,7 @@ class Text:
 		
 		self.text = text
 		self.font_family = font_family or "arial"
-		self.xyz = cs.Origin
+		self.xyz = cs.origin
 		self.csglobal = cs
 		self.x, self.y, self.z = 0, 0, 0
 		self.scale = None
@@ -3478,15 +3477,15 @@ class Text:
 			pathx = parse_path(segment)
 			for segment in pathx:
 				segment_type = segment.__class__.__name__
-				if segment_type == 'Line':
+				if isinstance( segment_type, Line):
 					ref_points.extend(
 						[(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
 					ref_allPoints.extend(
 						[(segment.start.real, segment.start.imag), (segment.end.real, segment.end.imag)])
-				elif segment_type == 'CubicBezier':
+				elif isinstance(segment_type, CubicBezier):
 					ref_points.extend(segment.sample(10))
 					ref_allPoints.extend(segment.sample(10))
-				elif segment_type == 'QuadraticBezier':
+				elif isinstance( segment_type, QuadraticBezier):
 					for i in range(11):
 						t = i / 10.0
 						point = segment.point(t)
@@ -3567,12 +3566,8 @@ class Text:
 
 		```
 		"""
-		trans = []
-		for pt in polyCurve.points:
-			pscale = Point.product(self.scale, pt)
-			pNew = transform_point_2(pscale, self.csglobal)
-			trans.append(pNew)
-		return polyCurve.by_points(trans)
+		combined_matrix = self.csglobal * self.scale
+		return combined_matrix * polyCurve
 
 	def calculate_bounding_box(self, points: 'list[Point]') -> tuple:
 		"""Calculates the bounding box for a given set of points.
@@ -3717,10 +3712,10 @@ class Dimension:
 		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
 		x = direction
 		y = Vector.rotate_XY(x, math.radians(90))
-		z = Z_Axis
-		cs_new_start = CoordinateSystem(self.start, x, y, z)
-		cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
-		cs_new_end = CoordinateSystem(self.end, x, y, z)
+		z = Coords.z_axis
+		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
+		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, x, y, z)
+		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, x, y, z)
 		self.curves.append(Line(tick_mark_extension_point_1,
 						   self.start))  # extention_start
 		self.curves.append(
@@ -3749,7 +3744,7 @@ class FrameTag:
 		# Dimensions in 1/100 scale
 		
 		self.scale = 0.1
-		self.cs: CoordinateSystem = CSGlobal
+		self.cs: CoordinateSystem = CoordinateSystem()
 		self.offset_x = 500
 		self.offset_y = 100
 		self.font_family = "calibri"
@@ -3758,10 +3753,9 @@ class FrameTag:
 		self.text_height = 100
 
 	def __textobject(self):
-		cstext = self.cs
 		# cstextnew = cstext.translate(self.textoff_vector_local)
 		self.text_curves = Text(
-			text=self.text, font_family=self.font_family, height=self.text_height, cs=cstext).write
+			text=self.text, font_family=self.font_family, height=self.text_height, cs=self.cs).write
 
 	def by_cs_text(self, coordinate_system: CoordinateSystem, text):
 		self.cs = coordinate_system
@@ -3802,7 +3796,7 @@ class ColumnTag:
 		self.factor = 3  # hellingsfacor leader
 		self.scale = 0.1  # voor tekeningverschaling
 		self.position = "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
-		self.cs: CoordinateSystem = CSGlobal
+		self.cs: CoordinateSystem = CoordinateSystem()
 
 		# self.textoff_vector_local: Vector = Vector(1,1,1)
 		self.font_family = "calibri"
@@ -3822,17 +3816,13 @@ class ColumnTag:
 			self.height/self.factor, self.height, 0))
 		self.endpoint = Point.translate(
 			self.midpoint, Vector(self.width, 0, 0))
-		crves = [Line(start=self.startpoint, end=self.midpoint),
-				 Line(start=self.midpoint, end=self.endpoint)]
-		for i in crves:
-			j = Line.transform(i, self.cs)
-			self.curves.append(j)
+		for line in [Line(start=self.startpoint, end=self.midpoint),
+				 Line(start=self.midpoint, end=self.endpoint)]:
+			self.curves.append(self.cs * line)
 
 	def __textobject(self):
-		cstext = self.cs
 
-		cstextnew = CoordinateSystem.translate(
-			cstext, self.textoff_vector_local)
+		cstextnew = CoordinateSystem.translate(self.textoff_vector_local) * self.cs
 		self.text_curves = Text(text=self.text, font_family=self.font_family,
 								height=self.text_height, cs=cstextnew).write
 
@@ -3852,10 +3842,8 @@ class ColumnTag:
 	@staticmethod
 	def by_beam(beam, position="TL"):
 		tag = ColumnTag()
-		csold = CSGlobal
 		tag.position = position
-		tag.cs = CoordinateSystem.translate(csold, Vector(
-			beam.start.x, beam.start.y, beam.start.z))
+		tag.cs = CoordinateSystem.translate(beam.start)
 		tag.text = beam.name
 		tag.__leadercurves()
 		tag.__textobject()
@@ -4153,88 +4141,89 @@ BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
 
 #class Materialfinish
 
+
 class BuildingPy(Serializable):
-    def __init__(self, name=None, number=None):
-        self.name: str = name
-        self.number: str = number
-        #settings
-        self.debug: bool = True
-        self.objects = []
-        self.units = "mm"
-        self.decimals = 3 #not fully implemented yet
+	def __init__(self, name=None, number=None):
+		self.name: str = name
+		self.number: str = number
+		#settings
+		self.debug: bool = True
+		self.objects = []
+		self.units = "mm"
+		self.decimals = 3 #not fully implemented yet
 
-        self.origin = Point(0,0,0)
-        self.default_font = "calibri"
-        self.scale = 1000
-        self.font_height = 500
-        self.repr_round = 3
-        #prefix objects (name)
-        #Geometry settings
+		self.origin = Point(0,0,0)
+		self.default_font = "calibri"
+		self.scale = 1000
+		self.font_height = 500
+		self.repr_round = 3
+		#prefix objects (name)
+		#Geometry settings
 
-        #export selection info
-        self.domain = None
-        self.applicationId = "OPEN-AEC BuildingPy"
+		#export selection info
+		self.domain = None
+		self.applicationId = "OPEN-AEC BuildingPy"
 
-        #different settings for company's?
+		#different settings for company's?
 
-        #rename this to autoclose?
-        self.closed: bool = True #auto close polygons? By default true, else overwrite
-        self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+		#rename this to autoclose?
+		self.closed: bool = True #auto close polygons? By default true, else overwrite
+		self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
 
-        #functie polycurve of iets van een class/def
-        self.autoclose: bool = True #new self.closed
+		#functie polycurve of iets van een class/def
+		self.autoclose: bool = True #new self.closed
 
-        #nodes
-        self.node_merge = True #False not yet created
-        self.node_diameter = 250
-        self.node_threshold = 50
-        
-        #text
-        self.createdTxt = "has been created"
+		#nodes
+		self.node_merge = True #False not yet created
+		self.node_diameter = 250
+		self.node_threshold = 50
+		
+		#text
+		self.createdTxt = "has been created"
 
-        #Speckle settings
-        self.speckleserver = "app.speckle.systems"
-        self.specklestream = None
+		#Speckle settings
+		self.speckleserver = "app.speckle.systems"
+		self.specklestream = None
 
-        #FreeCAD settings
-        
-    def save(self, file_name = 'project/data.json'):
-        Serializable.save(file_name)
-        
-        type_count = defaultdict(int)
-        for serialized_item in self.objects:
-            #item = json.loads(serialized_item)
-            type_count[serialized_item.__class__.__name__] += 1
+		#FreeCAD settings
+		
+	def save(self, file_name = 'project/data.json'):
+		Serializable.save(file_name)
+		
+		type_count = defaultdict(int)
+		for serialized_item in self.objects:
+			#item = json.loads(serialized_item)
+			type_count[serialized_item.__class__.__name__] += 1
 
-        total_items = len(self.objects)
+		total_items = len(self.objects)
 
-        print(f"\nTotal saved items to '{file_name}': {total_items}")
-        print("Type counts:")
-        for item_type, count in type_count.items():
-            print(f"{item_type}: {count}")
-    def open(self, file_name = 'project/data.json'):
-        Serializable.open(file_name)
+		print(f"\nTotal saved items to '{file_name}': {total_items}")
+		print("Type counts:")
+		for item_type, count in type_count.items():
+			print(f"{item_type}: {count}")
+	def open(self, file_name = 'project/data.json'):
+		Serializable.open(file_name)
 
-    def to_speckle(self, streamid, commitstring=None):
-        from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
-        self.specklestream = streamid
-        speckleobj = translateObjectsToSpeckleObjects(self.objects)
-        TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+	def to_speckle(self, streamid, commitstring=None):
+		from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
+		self.specklestream = streamid
+		speckleobj = translateObjectsToSpeckleObjects(self.objects)
+		TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
 
-    def to_FreeCAD(self):
-        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
-        translateObjectsToFreeCAD(self.objects)
+	def to_FreeCAD(self):
+		from exchange.Freecad_Bupy import translateObjectsToFreeCAD
+		translateObjectsToFreeCAD(self.objects)
 
-    def to_IFC(self, name):
-        from exchange.IFC import translateObjectsToIFC, CreateIFC
-        ifc_project = CreateIFC()
-        ifc_project.add_project(name)
-        ifc_project.add_site("My Site")
-        ifc_project.add_building("Building A")
-        ifc_project.add_storey("Ground Floor")
-        ifc_project.add_storey("G2Floor")     
-        translateObjectsToIFC(self.objects, ifc_project)
-        ifc_project.export(f"{name}.ifc")
+	def to_IFC(self, name):
+		from exchange.IFC import translateObjectsToIFC, CreateIFC
+		ifc_project = CreateIFC()
+		ifc_project.add_project(name)
+		ifc_project.add_site("My Site")
+		ifc_project.add_building("Building A")
+		ifc_project.add_storey("Ground Floor")
+		ifc_project.add_storey("G2Floor")	 
+		translateObjectsToIFC(self.objects, ifc_project)
+		ifc_project.export(f"{name}.ifc")
 # [!not included in BP singlefile - end]
 
 #god object! multiple instances of buildingpy should be able to live next to eachother
@@ -4308,7 +4297,7 @@ class Profile(Serializable):
 
 	def __init__(self, name: str, description: str, IFC_profile_def: str, height: float, width: float,
 				 tw: float = None, tf: float = None):
-		"""Creates a profile profile.
+		"""Creates a profile.
 
 		Args:
 			name (str): _description_
@@ -4336,7 +4325,7 @@ class CChannelParallelFlange(Profile):
 		super().__init__(name, "C-channel with parallel flange", "IfcUShapeProfileDef", height, width, tw, tf)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.r1 = r  # web fillet
 		self.ex = ex  # centroid horizontal
@@ -4525,7 +4514,7 @@ class Roundtube(Profile):
 		super().__init__(name, "Round Tube Profile", "IfcCircleHollowProfileDef", d, d)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.r = d / 2
 		self.d = d
 		self.t = t  # wall thickness
@@ -4575,7 +4564,7 @@ class LAngle(Profile):
 		super().__init__(name, "LAngle", "IfcLShapeProfileDef", height, width, tw, tf)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.r1 = r1  # inner fillet
 		r11 = r1 / sqrt2
@@ -4682,7 +4671,7 @@ class RectangleHollowSection(Profile):
 		super().__init__(name, "Rectangle Hollow Section", "IfcRectangleHollowProfileDef", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # thickness
 		self.r1 = r1  # outer radius
@@ -4751,7 +4740,7 @@ class CProfile(Profile):
 		super().__init__(name, "Cold Formed C Profile", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.r1 = r1  # outer radius
@@ -4803,7 +4792,7 @@ class CProfileWithLips(Profile):
 		super().__init__(name, "Cold Formed C Profile with Lips", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.h1 = h1  # lip length
 		self.t = t  # flange thickness
@@ -4878,7 +4867,7 @@ class LProfileColdFormed(Profile):
 		super().__init__(name, "Cold Formed L Profile", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.r1 = r1  # inner radius
@@ -4919,7 +4908,7 @@ class SigmaProfileWithLipsColdFormed(Profile):
 		super().__init__(name, "Cold Formed Sigma Profile with Lips", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.h1 = h1  # LipLength
 		self.h2 = h2  # MiddleBendLength
@@ -5013,7 +5002,7 @@ class ZProfileColdFormed(Profile):
 		super().__init__(name, "Cold Formed Z Profile", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.r1 = r1  # inner radius
@@ -5062,7 +5051,7 @@ class ZProfileWithLipsColdFormed(Profile):
 		super().__init__(name, "Cold Formed Z Profile with Lips", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.h1 = h1  # lip length
@@ -5131,7 +5120,7 @@ class TProfile(Profile):
 		super().__init__(name, "T-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.h1 = h1
 		self.b1 = b1
 
@@ -5163,7 +5152,7 @@ class LProfile(Profile):
 		super().__init__(name, "L-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.h1 = h1
 		self.b1 = b1
 
@@ -5190,7 +5179,7 @@ class EProfile(Serializable):
 		super().__init__(name, "E-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.h1 = h1
 
 		# describe points
@@ -5229,7 +5218,7 @@ class NProfile(Serializable):
 		super().__init__(name, "N-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.b1 = b1
 
 		# describe points
@@ -5299,136 +5288,131 @@ data = json.loads(url.read())
 
 
 def is_rectangle_format(shape_name):
-    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
-    if match:
-        width, height = int(match.group(1)), int(match.group(2))
-        if 0 <= width <= 10000 and 0 <= height <= 10000:
-            return True, width, height
-    return False, 0, 0
+	match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
+	if match:
+		width, height = int(match.group(1)), int(match.group(2))
+		if 0 <= width <= 10000 and 0 <= height <= 10000:
+			return True, width, height
+	return False, 0, 0
 
 
 class _getProfileDataFromDatabase:
-    def __init__(self, name):
-        self.name = name
-        self.shape_coords = None
-        self.shape_name = None
-        self.synonyms = None
-        for item in data:
-            for i in item.values():
-                synonymList = i[0]["synonyms"]
-                if self.name.lower() in [synonym.lower() for synonym in synonymList]:
-                    self.shape_coords = i[0]["shape_coords"]
-                    self.shape_name = i[0]["shape_name"]
-                    self.synonyms = i[0]["synonyms"]
-        if self.shape_coords == None:
-            check_rect, width, height = is_rectangle_format(name)
-            if check_rect:
-                self.shape_coords = [width, height]
-                self.shape_name = "Rectangle"
-                self.synonyms = name
+	def __init__(self, name):
+		self.name = name
+		self.shape_coords = None
+		self.shape_name = None
+		self.synonyms = None
+		for item in data:
+			for i in item.values():
+				synonymList = i[0]["synonyms"]
+				if self.name.lower() in [synonym.lower() for synonym in synonymList]:
+					self.shape_coords = i[0]["shape_coords"]
+					self.shape_name = i[0]["shape_name"]
+					self.synonyms = i[0]["synonyms"]
+		if self.shape_coords == None:
+			check_rect, width, height = is_rectangle_format(name)
+			if check_rect:
+				self.shape_coords = [width, height]
+				self.shape_name = "Rectangle"
+				self.synonyms = name
 
 
 class nameToProfile:
-    def __init__(self, name1, segmented = True):
-        profile_data = _getProfileDataFromDatabase(name1)
-        if profile_data == None:
-            print(f"profile {name1} not recognised")
-        profile_name = profile_data.shape_name
-        if profile_name == None:
-            structural_fallback_element = "HEA100"
-            profile_data = _getProfileDataFromDatabase(structural_fallback_element)
-            print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'")
-            profile_name = profile_data.shape_name
-        self.profile_data = profile_data
-        self.profile_name = profile_name
-        name = profile_data.name
-        self.d1 = profile_data.shape_coords
-        d1 = self.d1
-        if profile_name == "C-channel parallel flange":
-            prof = CChannelParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5])
-        elif profile_name == "C-channel sloped flange":
-            prof = CChannelSlopedFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7],d1[8])
-        elif profile_name == "I-shape parallel flange":
-            prof = IShapeParallelFlange(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        elif profile_name == "I-shape sloped flange":
-            prof = IShapeParallelFlange(name, d1[0], d1[1], d1[2], d1[3], d1[4])
-            #Todo: add sloped flange shape
-        elif profile_name == "Rectangle":
-            prof = Rectangle(name,d1[0], d1[1])
-        elif profile_name == "Round":
-            prof = Round(name, d1[1])
-        elif profile_name == "Round tube profile":
-            prof = Roundtube(name, d1[0], d1[1])
-        elif profile_name == "LAngle":
-            prof = LAngle(name,d1[0],d1[1],d1[2],d1[3],d1[4],d1[5],d1[6],d1[7])
-        elif profile_name == "TProfile":
-            prof = TProfileRounded(name, d1[0], d1[1], d1[2], d1[3], d1[4], d1[5], d1[6], d1[7], d1[8])
-        elif profile_name == "Rectangle Hollow Section":
-            prof = RectangleHollowSection(name,d1[0],d1[1],d1[2],d1[3],d1[4])
-        self.profile = prof
-        self.data = d1
-        final_curve = self.profile.curve  # 2D polycurve
-        if segmented == True:
-            final_curve = PolyCurve.segmentate(self.profile.curve, math.pi / 4)
-        self.polycurve2d = final_curve
+	def __init__(self, name1):
+		profile_data = _getProfileDataFromDatabase(name1)
+		if profile_data == None:
+			print(f"profile {name1} not recognised")
+		profile_name = profile_data.shape_name
+		if profile_name == None:
+			structural_fallback_element = "HEA100"
+			profile_data = _getProfileDataFromDatabase(structural_fallback_element)
+			print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'")
+			profile_name = profile_data.shape_name
+		self.profile_data = profile_data
+		self.profile_name = profile_name
+		name = profile_data.name
+		coords = profile_data.shape_coords
+		if profile_name == "C-channel parallel flange":
+			profile = CChannelParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
+		elif profile_name == "C-channel sloped flange":
+			profile = CChannelSlopedFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
+		elif profile_name == "I-shape parallel flange":
+			profile = IShapeParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+		elif profile_name == "I-shape sloped flange":
+			profile = IShapeParallelFlange(name, coords[0], coords[1], coords[2], coords[3], coords[4])
+			#Todo: add sloped flange shape
+		elif profile_name == "Rectangle":
+			profile = Rectangle(name,coords[0], coords[1])
+		elif profile_name == "Round":
+			profile = Round(name, coords[1])
+		elif profile_name == "Round tube profile":
+			profile = Roundtube(name, coords[0], coords[1])
+		elif profile_name == "LAngle":
+			profile = LAngle(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
+		elif profile_name == "TProfile":
+			profile = TProfileRounded(name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
+		elif profile_name == "Rectangle Hollow Section":
+			profile = RectangleHollowSection(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+		self.profile = profile
+		self.polycurve2d = profile.curve
 
 def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
 
-    # print(XJustifiction)
-    xval = []
-    yval = []
-    for i in plycrv2D.curves:
-        xval.append(i.start.x)
-        yval.append(i.start.y)
+	# print(XJustifiction)
+	xval = []
+	yval = []
+	for i in plycrv2D.curves:
+		xval.append(i.start.x)
+		yval.append(i.start.y)
 
-    #Rect
-    xmin = min(xval)
-    xmax = max(xval)
-    ymin = min(yval)
-    ymax = max(yval)
+	#Rect
+	xmin = min(xval)
+	xmax = max(xval)
+	ymin = min(yval)
+	ymax = max(yval)
 
-    b = xmax-xmin
-    h = ymax-ymin
+	b = xmax-xmin
+	h = ymax-ymin
 
-    # print(b, h)
+	# print(b, h)
 
-    dxleft = -xmax
-    dxright = -xmin
-    dxcenter = dxleft - 0.5 * b #CHECK
-    dxorigin = 0
+	dxleft = -xmax
+	dxright = -xmin
+	dxcenter = dxleft - 0.5 * b #CHECK
+	dxorigin = 0
 
-    dytop = -ymax
-    dybottom = -ymin
-    dycenter = dytop - 0.5 * h #CHECK
-    dyorigin = 0
+	dytop = -ymax
+	dybottom = -ymin
+	dycenter = dytop - 0.5 * h #CHECK
+	dyorigin = 0
 
-    if XJustifiction == "center":
-        dx = dxorigin #TODO
-    elif XJustifiction == "left":
-        dx = dxleft
-    elif XJustifiction == "right":  
-        dx = dxright
-    elif XJustifiction == "origin":
-        dx = dxorigin #TODO
-    else:
-        dx = 0
+	if XJustifiction == "center":
+		dx = dxorigin #TODO
+	elif XJustifiction == "left":
+		dx = dxleft
+	elif XJustifiction == "right":  
+		dx = dxright
+	elif XJustifiction == "origin":
+		dx = dxorigin #TODO
+	else:
+		dx = 0
 
-    if Yjustification == "center":
-        dy = dyorigin   #TODO
-    elif Yjustification == "top":
-        dy = dytop
-    elif Yjustification == "bottom":
-        dy = dybottom
-    elif Yjustification == "origin":
-        dy = dyorigin #TODO
-    else:
-        dy = 0
+	if Yjustification == "center":
+		dy = dyorigin   #TODO
+	elif Yjustification == "top":
+		dy = dytop
+	elif Yjustification == "bottom":
+		dy = dybottom
+	elif Yjustification == "origin":
+		dy = dyorigin #TODO
+	else:
+		dy = 0
 
-    # print(dx, dy)
-    v1 = Vector(dx, dy)
-    # v1 = Vector2(0, 0)
+	# print(dx, dy)
+	v1 = Vector(dx, dy)
+	# v1 = Vector2(0, 0)
 
-    return v1
+	return v1
 
 
 
@@ -5467,7 +5451,7 @@ class Plane:
 		```
 		"""
 		p1 = Plane()
-		p1.Normal = Vector.normalize(Vector.cross_product(vector_1, vector_2))
+		p1.Normal = Vector.cross_product(vector_1, vector_2).normalized
 		p1.Origin = origin
 		p1.vector_1 = vector_1
 		p1.vector_2 = vector_2
@@ -5494,11 +5478,11 @@ class Plane:
 
 
 
-class Extrusion:
-	# Extrude a 2D profile to a 3D mesh or solid
-	"""The Extrusion class represents the process of extruding a 2D profile into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process."""
+class Extrusion(Meshable):
+	# Extrude a 2D polycurve to a 3D mesh or solid
+	"""The Extrusion class represents the process of extruding a 2D polycurve into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process."""
 	def __init__(self, polycurve: PolyCurve, start: Vector, end: Vector):
-		"""The Extrusion class represents the process of extruding a 2D profile into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process.
+		"""The Extrusion class represents the process of extruding a 2D polycurve into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process.
 		
 		- `id` (str): A unique identifier for the extrusion instance.
 		- `type` (str): Class name, indicating the object type as "Extrusion".
@@ -5512,7 +5496,7 @@ class Extrusion:
 		- `colorlst` (list): A list of colors applied to the extrusion, potentially varying per face or vertex.
 		- `topface` (PolyCurve): The top face of the extrusion, returned as a polycurve converted to a surface.
 		- `bottomface` (PolyCurve): The bottom face of the extrusion, similar to `topface`.
-		- `polycurve_3d_translated` (PolyCurve): A polycurve representing the translated 3D profile of the extrusion.
+		- `polycurve_3d_translated` (PolyCurve): A polycurve representing the translated 3D polycurve of the extrusion.
 		- `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
 		"""
 		
@@ -5540,8 +5524,8 @@ class Extrusion:
 		
 	@staticmethod
 	def by_polycurve_height_vector(polycurve: PolyCurve, height: float, start_point: Point, direction_vector: Vector) -> 'Extrusion':
-		"""Creates an extrusion from a 2D polycurve profile along a specified vector.
-		This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
+		"""Creates an extrusion from a 2D polycurve along a specified vector.
+		This method extrudes a 2D polycurve into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
 		#### Parameters:
 		- `polycurve_2d` (PolyCurve): The 2D polycurve to be extruded.
@@ -5566,7 +5550,7 @@ class Extrusion:
 		This method generates a vertical extrusion of a given PolyCurve. The PolyCurve is first translated vertically by `dz_loc`, then extruded to the specified `height`, creating a solid form.
 
 		#### Parameters:
-		- `polycurve` (PolyCurve): The PolyCurve to be extruded.
+		- `polycurve` (PolyCurve): The PolyCurve to be extruded. expected to be flat!
 		- `height` (float): The height of the extrusion.
 		- `dz_loc` (float): The base elevation offset from the original plane of the PolyCurve.
 
@@ -5595,10 +5579,34 @@ class Extrusion:
 
 		numPoints = len(Points)
 		
+
+		return Extrus
+	
+	@staticmethod
+	def from_3d_rect(rect:Rect) -> Self:
+		"""Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
+
+		#### Returns:
+		`Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
+
+		#### Example usage:
+		```python
+		bbox2d = Rect().by_dimensions(length=100, width=50)
+		cs = CoordinateSystem()
+		bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
+		cuboid = bbox3d.to_cuboid()
+		# Generates a cuboid extrusion based on the 3D bounding box
+		```
+		"""
+		return Extrusion(PolyCurve.by_points(rect.corners(2)), Vector(0,0,rect.p0.z), Vector(0,0,rect.p0.z + rect.size.z))
+	
+	def to_mesh(self, settings: SegmentationSettings) -> Mesh:
+		
+  
 		# allverts
-		for pnt in Points:
+		for pnt in self.polycurve.segmentate(settings):
 			# bottom side moves along the normal with dz_loc units
-			pnts.append(Point.translate(pnt, Vector.product(dz_loc, norm)))
+			pnt.append(Point.translate(pnt, norm * dz_loc))
 		
 		# Bottomface
 		face = []
@@ -5620,7 +5628,7 @@ class Extrusion:
 			for pnt in Points:
 				# Bovenzijde verplaatst met dz_loc
 				pnts.append(Point.translate(
-					pnt, Vector.product((dz_loc+height), norm)))
+					pnt, norm * (dz_loc+height)))
 			#other faces
 
 
@@ -5664,25 +5672,6 @@ class Extrusion:
 
 		for j in range(int(len(Extrus.verts) / 3)):
 			Extrus.colorlst.append(Extrus.color)
-		return Extrus
-	
-	@staticmethod
-	def from_3d_rect(rect:Rect) -> Self:
-		"""Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
-
-		#### Returns:
-		`Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
-
-		#### Example usage:
-		```python
-		bbox2d = Rect().by_dimensions(length=100, width=50)
-		cs = CoordinateSystem()
-		bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
-		cuboid = bbox3d.to_cuboid()
-		# Generates a cuboid extrusion based on the 3D bounding box
-		```
-		"""
-		return Extrusion(PolyCurve.by_points(rect.corners(2)), Vector(0,0,rect.p0.z), Vector(0,0,rect.p0.z + rect.size.z))
 
 
 
@@ -5722,6 +5711,9 @@ class Beam(Serializable, Meshable):
 		self.vector_normalised = self.vector.normalized
 		self.length = self.vector.length
 
+	def to_mesh(self, settings: SegmentationSettings) -> Mesh:
+		return self.extrusion.to_mesh(settings)
+  
 	@classmethod
 	def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
 		f1 = Beam()
@@ -5739,7 +5731,7 @@ class Beam(Serializable, Meshable):
 		if isinstance(profile,Profile):
 			f1.curve = profile.curve
 			f1.profile = profile
-		elif type(profile).__name__ == "str":
+		elif isinstance(profile, str):
 			res = nameToProfile(profile)
 			f1.curve = res.polycurve2d  # polycurve2d
 			f1.points = res.polycurve2d.points
@@ -5816,15 +5808,15 @@ class Beam(Serializable, Meshable):
 		f1.structuralType = structuralType
 		f1.rotation = rotation
 
-		if type(profile).__name__ == "PolyCurve2D":
+		if isinstance(profile, PolyCurve):
 			profile_name = "None"
 			f1.profile_data = profile
 			curve = f1.profile_data
-		elif type(profile).__name__ == "Polygon":
+		elif isinstance(profile, Polygon):
 			profile_name = "None"
 			f1.profile_data = PolyCurve.by_points(profile.points)
 			curve = f1.profile_data
-		elif type(profile).__name__ == "str":
+		elif isinstance(profile, str):
 			profile_name = profile
 			f1.profile_data = nameToProfile(profile).polycurve2d  # polycurve2d
 			curve = f1.profile_data
@@ -5838,7 +5830,7 @@ class Beam(Serializable, Meshable):
 		f1.XOffset = v1.x
 		f1.YOffset = v1.y
 		curve = curve.translate(v1)
-		curve = curve.translate(Vector2(ey, ez))  # 2
+		curve = curve.translate(Vector(ey, ez))  # 2
 		curve = curve.rotate(f1.rotation)  # 3
 		f1.curve = curve
 
@@ -5846,7 +5838,7 @@ class Beam(Serializable, Meshable):
 		f1.length = f1.directionVector.length
 		f1.name = name
 		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+			f1.curve, f1.length, f1.start, f1.directionVector)
 		f1.extrusion.name = name
 		f1.curve3d = f1.extrusion.polycurve
 
@@ -5944,7 +5936,7 @@ class Beam(Serializable, Meshable):
 		curv = nameToProfile(profile_name).polycurve2d
 		curvrot = curv.rotate(rotation)  # rotation in degrees
 		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+			curvrot.curves, f1.length, f1.start, f1.directionVector)
 		f1.extrusion.name = profile_name
 		f1.curve3d = curvrot
 		f1.profileName = profile_name
@@ -5992,6 +5984,85 @@ class Beam(Serializable, Meshable):
 	def write(self, project):
 		project.objects.append(self)
 		return self
+
+Column = Beam
+#columns and beams are the same, the profiles are the same, but they function as beams or columns.
+
+
+# Rule: line, whitespace, line whitespace etc., scale
+HiddenLine1 = ["Hidden Line 1", [1, 1], 100]
+# Rule: line, whitespace, line whitespace etc., scale
+HiddenLine2 = ["Hidden Line 2", [2, 1], 100]
+# Rule: line, whitespace, line whitespace etc., scale
+Centerline = ["Center Line 1", [8, 2, 2, 2], 100]
+
+
+def line_to_pattern(baseline: 'Line', pattern_obj) -> 'list':
+	"""Converts a baseline (Line object) into a list of line segments based on a specified pattern.
+	This function takes a line (defined by its start and end points) and a pattern object. The pattern object defines a repeating sequence of segments to be applied along the baseline. The function calculates the segments according to the pattern and returns a list of Line objects representing these segments.
+
+	#### Parameters:
+	- `baseline` (Line): The baseline along which the pattern is to be applied. This line is defined by its start and end points.
+	- `pattern_obj` (Pattern): The pattern object defining the sequence of segments. The pattern object should have the following structure:
+		- An integer representing the number of repetitions.
+		- A list of floats representing the lengths of each segment in the pattern.
+		- A float representing the scale factor for the lengths of the segments in the pattern.
+
+	#### Returns:
+	`list`: A list of Line objects that represent the line segments created according to the pattern along the baseline.
+
+	#### Example usage:
+	```python
+	baseline = Line(Point(0, 0, 0), Point(10, 0, 0))
+	pattern_obj = (3, [2, 1], 1)  # 3 repetitions, pattern of lengths 2 and 1, scale factor 1
+	patterned_lines = line_to_pattern(baseline, pattern_obj)
+	# patterned_lines will be a list of Line objects according to the pattern
+	```
+
+	The function works by calculating the total length of the pattern, the number of whole lengths of the pattern that fit into the baseline, and then generating the line segments according to these calculations. If the end of the baseline is reached before completing a pattern sequence, the last segment is adjusted to end at the baseline's end point.
+	"""
+	# this converts a line to list of lines based on a pattern
+	origin = baseline.start
+	dir = Vector.by_two_points(baseline.start, baseline.end)
+	unityvect = dir.normalized
+
+	Pattern = pattern_obj
+	l = baseline.length
+	patternlength = sum(Pattern[1]) * Pattern[2]
+	# number of whole lengths of the pattern
+	count = math.floor(l / patternlength)
+	lines = []
+
+	startpoint = origin
+	ll = 0
+	rl = 10000
+	for i in range(count + 1):
+		n = 0
+		for i in Pattern[1]:
+			deltaV = unityvect * (i * Pattern[2])
+			dl = deltaV.length
+			if rl < dl:  # this is the last line segment on the line where the pattern is going to be cut into pieces.
+				endpoint = baseline.end
+			else:
+				endpoint = Point.translate(startpoint, deltaV)
+			if n % 2:
+				a = 1 + 1
+			else:
+				lines.append(Line(start=startpoint, end=endpoint))
+			if rl < dl:
+				break  # end of line reached
+			startpoint = endpoint
+			n = n + 1
+			ll = ll + dl  # total length
+			rl = l - ll  # remaining length within the pattern
+		startpoint = startpoint
+	return lines
+
+def polycurve_to_pattern(polycurve: 'PolyCurve', pattern_obj) -> 'list':
+	res = []
+	for i in polycurve.curves:
+		res.append(line_to_pattern(i,pattern_obj))
+	return res
 
 seqChar = "A B C D E F G H I J K L M N O P Q R S T U V W X Y Z AA AB AC"
 seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
@@ -6084,13 +6155,13 @@ class Grid:
 		self.name = None
 		self.bulbStart = False
 		self.bulbEnd = True
-		self.cs_end: CoordinateSystem = CSGlobal #Maarten
+		self.cs_end: CoordinateSystem = CoordinateSystem() #Maarten
 		self.grid_heads = []
 
 	def __cs(self, line):
-		self.direction = line.vector_normalised
+		self.direction = line.direction
 		vect3 = Vector.rotate_XY(self.direction, math.radians(-90))
-		self.cs_end = CoordinateSystem(line.end, vect3, self.direction, Z_Axis)
+		self.cs_end = CoordinateSystem.by_origin_unit_axes(line.end, [vect3, self.direction, Coords.z_axis])
 
 	@classmethod
 	def by_startpoint_endpoint(cls, line, name):
@@ -6342,83 +6413,6 @@ class Level:
 
 	def __str__(self) -> str:
 		return f"{self.type}(Name={self.name}, Elevation={self.elevation})"
-
-
-# Rule: line, whitespace, line whitespace etc., scale
-HiddenLine1 = ["Hidden Line 1", [1, 1], 100]
-# Rule: line, whitespace, line whitespace etc., scale
-HiddenLine2 = ["Hidden Line 2", [2, 1], 100]
-# Rule: line, whitespace, line whitespace etc., scale
-Centerline = ["Center Line 1", [8, 2, 2, 2], 100]
-
-
-def line_to_pattern(baseline: 'Line', pattern_obj) -> 'list':
-	"""Converts a baseline (Line object) into a list of line segments based on a specified pattern.
-	This function takes a line (defined by its start and end points) and a pattern object. The pattern object defines a repeating sequence of segments to be applied along the baseline. The function calculates the segments according to the pattern and returns a list of Line objects representing these segments.
-
-	#### Parameters:
-	- `baseline` (Line): The baseline along which the pattern is to be applied. This line is defined by its start and end points.
-	- `pattern_obj` (Pattern): The pattern object defining the sequence of segments. The pattern object should have the following structure:
-		- An integer representing the number of repetitions.
-		- A list of floats representing the lengths of each segment in the pattern.
-		- A float representing the scale factor for the lengths of the segments in the pattern.
-
-	#### Returns:
-	`list`: A list of Line objects that represent the line segments created according to the pattern along the baseline.
-
-	#### Example usage:
-	```python
-	baseline = Line(Point(0, 0, 0), Point(10, 0, 0))
-	pattern_obj = (3, [2, 1], 1)  # 3 repetitions, pattern of lengths 2 and 1, scale factor 1
-	patterned_lines = line_to_pattern(baseline, pattern_obj)
-	# patterned_lines will be a list of Line objects according to the pattern
-	```
-
-	The function works by calculating the total length of the pattern, the number of whole lengths of the pattern that fit into the baseline, and then generating the line segments according to these calculations. If the end of the baseline is reached before completing a pattern sequence, the last segment is adjusted to end at the baseline's end point.
-	"""
-	# this converts a line to list of lines based on a pattern
-	origin = baseline.start
-	dir = Vector.by_two_points(baseline.start, baseline.end)
-	unityvect = Vector.normalize(dir)
-
-	Pattern = pattern_obj
-	l = baseline.length
-	patternlength = sum(Pattern[1]) * Pattern[2]
-	# number of whole lengths of the pattern
-	count = math.floor(l / patternlength)
-	lines = []
-
-	startpoint = origin
-	ll = 0
-	rl = 10000
-	for i in range(count + 1):
-		n = 0
-		for i in Pattern[1]:
-			deltaV = Vector.product(i * Pattern[2], unityvect)
-			dl = deltaV.length
-			if rl < dl:  # this is the last line segment on the line where the pattern is going to be cut into pieces.
-				endpoint = baseline.end
-			else:
-				endpoint = Point.translate(startpoint, deltaV)
-			if n % 2:
-				a = 1 + 1
-			else:
-				lines.append(Line(start=startpoint, end=endpoint))
-			if rl < dl:
-				break  # end of line reached
-			startpoint = endpoint
-			n = n + 1
-			ll = ll + dl  # total length
-			rl = l - ll  # remaining length within the pattern
-		startpoint = startpoint
-	return lines
-
-def polycurve_to_pattern(polycurve: 'PolyCurve', pattern_obj) -> 'list':
-	res = []
-	for i in polycurve.curves:
-		res.append(line_to_pattern(i,pattern_obj))
-	return res
-
 
 # check if there are innercurves inside the outer curve.
 
