@@ -33,23 +33,23 @@ __url__ = "./geometry/color.py"
 
 import sys
 
-from geometry.coords import Coords
+from abstract.vector import Vector
 
 
 
 # [!not included in BP singlefile - end]
 
 
-class Color(Coords):
+class Color(Vector):
 	"""Documentation: output returns [r, g, b]"""
 
 	def __init__(self, *args, **kwargs):
-		Coords.__init__(self, *args,**kwargs)
+		Vector.__init__(self, *args,**kwargs)
 	
-	red = r = Coords.x
-	green = g = Coords.y
-	blue = b = Coords.z
-	alpha = a = Coords.w
+	red = r = Vector.x
+	green = g = Vector.y
+	blue = b = Vector.z
+	alpha = a = Vector.w
 	
 	@property
 	def int(self) -> int:

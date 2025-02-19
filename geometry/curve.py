@@ -39,13 +39,13 @@ from abstract.segmentation import SegmentationSettings
 from geometry.shape import Shape
 from geometry.sphere import Sphere
 from abstract.vector import Vector
-from geometry.coords import to_array
+from abstract.vector import to_array
 from geometry.pointlist import PointList
 from packages.helper import flatten
 
 
 from geometry.rect import Rect
-from geometry.coords import Point
+from abstract.vector import Point
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]

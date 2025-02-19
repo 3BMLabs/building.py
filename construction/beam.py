@@ -41,7 +41,7 @@ from abstract.segmentation import Meshable, TesselationSettings
 from abstract.vector import Vector
 from geometry.curve import PolyCurve, Polygon
 from geometry.mesh import Mesh
-from geometry.coords import Point
+from abstract.vector import Point
 from geometry.solid import Extrusion
 from library.material import Material, BaseOther
 from library.profile import nameToProfile, justificationToVector

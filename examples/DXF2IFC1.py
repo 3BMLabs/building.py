@@ -5,7 +5,7 @@ from ezdxf import readfile, DXFStructureError, DXFValueError
 
 from project.fileformat import *
 from geometry.curve import *
-from geometry.coords import Point
+from abstract.vector import Point
 from geometry.surface import *
 from exchange.DXF import *
 from exchange.IFC import *

@@ -4,7 +4,7 @@ from abstract.matrix import Matrix
 import tkinter as tk
 import geometry.shape_fitter as sf
 from abstract.vector import Vector
-from geometry.coords import Coords
+from abstract.vector import Vector
 from geometry.rect import Rect
 from geometry.curve import Line
 from shape_fitter_test_data import test_data
@@ -24,10 +24,10 @@ padding = 10
 allowed_error = 3
 parent_count = 5
 child_count = 1000
-ctest = Coords(x = 3)
-ctest2 = Coords(4,3,2)
-ctest3 = Coords([3,5])
-test_angle = Line(Coords(1,2), Coords(1,4)).angle
+ctest = Vector(x = 3)
+ctest2 = Vector(4,3,2)
+ctest3 = Vector([3,5])
+test_angle = Line(Vector(1,2), Vector(1,4)).angle
 
 def keydown(e):
 	canvas.delete('all')
@@ -78,7 +78,7 @@ def keydown(e):
 		parent_sizes = [Vector( random.randrange(10, 200, 10), random.randrange(10,200,5)) for i in range(parent_count)]
 		child_sizes = [Vector( random.randrange(10, 50, 10), random.randrange(10,50,5)) for i in range(child_count)]
 		fit_result = sf.fit_boxes_2d(parent_sizes, child_sizes, padding, allowed_error)
-		child_offsets:list[tuple[int,Coords]] = fit_result.fitted_boxes
+		child_offsets:list[tuple[int,Vector]] = fit_result.fitted_boxes
 
 		for (off, size) in zip(child_offsets, child_sizes):
 			if off == None:
@@ -92,7 +92,7 @@ def keydown(e):
 		yoff = 0
 		used = [False] * len(child_offsets)
   
-		parent_offsets = sf.fit_boxes_2d([Coords(geo_width, geo_height)], parent_sizes, 50, 100).fitted_boxes
+		parent_offsets = sf.fit_boxes_2d([Vector(geo_width, geo_height)], parent_sizes, 50, 100).fitted_boxes
 		grandparent_array_off = 0
 		#render parent rectangles
 		for (parent_offset,parent_size) in zip(parent_offsets, parent_sizes):
@@ -150,7 +150,7 @@ def keydown(e):
   
 		scale_factor = 30
   
-		parent_offsets = sf.fit_boxes_2d([Coords(canvas_width * scale_factor, canvas_height * scale_factor)], parent_sizes, 50, 100).fitted_boxes
+		parent_offsets = sf.fit_boxes_2d([Vector(canvas_width * scale_factor, canvas_height * scale_factor)], parent_sizes, 50, 100).fitted_boxes
 		
 		area_to_screen = Matrix.scale(2, 1.0 / scale_factor)
 		

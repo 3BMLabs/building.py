@@ -38,7 +38,7 @@ import sys
 # [!not included in BP singlefile - end]
 
 from abstract.serializable import Serializable
-from geometry.coords import Point
+from abstract.vector import Point
 
 
 class Sphere(Serializable):

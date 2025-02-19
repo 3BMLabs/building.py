@@ -1,7 +1,7 @@
 
 
 from geometry.curve import Line, PolyCurve
-from geometry.coords import Point
+from abstract.vector import Point
 from project.fileformat import BuildingPy
 
 project = BuildingPy("Split and Intersect examples","0")

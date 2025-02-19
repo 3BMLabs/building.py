@@ -40,7 +40,7 @@ from construction.panel import Panel
 from construction.void import Void
 from construction.wall import Wall
 #from exchange.Trimesh_dep import Trimesh
-from geometry.coords import Coords
+from abstract.vector import Vector
 from geometry.mesh import Mesh
 from abstract.text import Text
 from geometry.solid import Extrusion
@@ -102,7 +102,7 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 		converted_object = SpeckleInterval(start = building_py_object.start, end=building_py_object.end)
 	elif isinstance(building_py_object, Vector):
 		converted_object = SpeckleVector.from_coords(building_py_object.x, building_py_object.y, building_py_object.z)
-	elif isinstance(building_py_object, Coords):
+	elif isinstance(building_py_object, Vector):
 		converted_object = SpecklePoint.from_coords(building_py_object.x, building_py_object.y, building_py_object.z)
 	elif isinstance(building_py_object, Plane):
 		converted_object = SpecklePlane(origin = convert_to_speckle_object(building_py_object.Origin), normal = convert_to_speckle_object(building_py_object.Normal), xdir = convert_to_speckle_object(building_py_object.v1), ydir = convert_to_speckle_object(building_py_object.v2))

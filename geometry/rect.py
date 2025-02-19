@@ -37,7 +37,7 @@ import sys
 
 from geometry.shape import Shape
 from abstract.vector import Vector
-from geometry.coords import Point
+from abstract.vector import Point
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]

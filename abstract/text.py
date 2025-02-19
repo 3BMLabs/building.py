@@ -38,7 +38,7 @@ import json
 from abstract.matrix import Matrix
 from abstract.vector import Vector
 from geometry.rect import Rect
-from geometry.coords import Point
+from abstract.vector import Point
 
 
 from geometry.curve import PolyCurve

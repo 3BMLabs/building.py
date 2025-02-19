@@ -40,11 +40,11 @@ from functools import reduce
 
 
 from abstract.serializable import Serializable
-from geometry.coords import Coords
+from abstract.vector import Vector
 from geometry.pointlist import PointList
 from abstract.vector import Vector
 from geometry.rect import Rect
-from geometry.coords import Point
+from abstract.vector import Point
 
 # [!not included in BP singlefile - end]
 
@@ -183,7 +183,7 @@ class Matrix(Serializable, list[list]):
         return Matrix.translate(origin)
 
     @staticmethod
-    def by_origin_and_axes(origin: Point, axes: list[Coords]) -> "Matrix":
+    def by_origin_and_axes(origin: Point, axes: list[Vector]) -> "Matrix":
         """
 
         Args:
@@ -214,7 +214,7 @@ class Matrix(Serializable, list[list]):
         )
 
     @staticmethod
-    def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> "Matrix":
+    def by_origin_unit_axes(origin: Point, unit_axes: list[Vector]) -> "Matrix":
         """
 
         Args:
@@ -278,7 +278,7 @@ class Matrix(Serializable, list[list]):
             * Matrix.translate(-pivot)
         )
 
-    def __mul__(self, other: "Matrix | Coords | Rect | PointList"):
+    def __mul__(self, other: "Matrix | Vector | Rect | PointList"):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
         for example: translate * rotate (rotate first, translate after)
         and: matrix * point (point first, multiplied by matrix after)"""
@@ -338,8 +338,8 @@ class Matrix(Serializable, list[list]):
         # v
         # a b
         # c d ->
-        elif isinstance(other, Coords):
-            result: Coords = Coords([0] * len(other))
+        elif isinstance(other, Vector):
+            result: Vector = Vector([0] * len(other))
             # loop over column vectors and multiply them with the vector. sum the results (multiplied col 1 + multiplied col 2) to get the final product!
             for col in range(self.cols):
                 if col < len(other):
@@ -361,7 +361,7 @@ class Matrix(Serializable, list[list]):
 
     transform = multiply = __mul__
 
-    def multiply_without_translation(self, other: Coords) -> Coords:
+    def multiply_without_translation(self, other: Vector) -> Vector:
         """this function just multiplies the coords by the matrix, but doesn't add anything to the result. good for sizes for example.
 
         Args:
@@ -370,20 +370,20 @@ class Matrix(Serializable, list[list]):
         Returns:
                 _type_: _description_
         """
-        result: Coords = Coords([0] * self.rows)
+        result: Vector = Vector([0] * self.rows)
         for col in range(min(self.cols, len(other))):
             for row in range(self.rows):
                 result[row] += self[row][col] * other[col]
         return result
 
     def get_col(self, col_index: int):
-        return Coords([row[col_index] for row in self])
+        return Vector([row[col_index] for row in self])
 
     def get_row(self, row_index: int):
-        return Coords(self[row_index])
+        return Vector(self[row_index])
 
     @property
-    def translation(self) -> Coords:
+    def translation(self) -> Vector:
         """the translation is just the last column of the matrix
 
         Returns:

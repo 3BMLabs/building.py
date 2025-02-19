@@ -10,7 +10,7 @@ from construction.datum import *
 from geometry.linestyle import *
 from geometry.curve import *
 from abstract.text import *
-from geometry.coords import Point
+from abstract.vector import Point
 from exchange.speckle import *
 from abstract.color import *
 from geometry.plane import *

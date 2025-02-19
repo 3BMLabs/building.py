@@ -36,7 +36,7 @@ from abstract.matrix import Matrix, CoordinateSystem
 from abstract.serializable import Serializable
 from abstract.text import *
 from abstract.vector import Vector
-from geometry.coords import Coords
+from abstract.vector import Vector
 from geometry.curve import Arc
 from geometry.linestyle import line_to_pattern, Centerline
 
@@ -141,7 +141,7 @@ class Grid:
 	def __cs(self, line):
 		self.direction = line.direction
 		vect3 = Vector.rotate_XY(self.direction, math.radians(-90))
-		self.cs_end = CoordinateSystem.by_origin_unit_axes(line.end, [vect3, self.direction, Coords.z_axis])
+		self.cs_end = CoordinateSystem.by_origin_unit_axes(line.end, [vect3, self.direction, Vector.z_axis])
 
 	@classmethod
 	def by_startpoint_endpoint(cls, line, name):

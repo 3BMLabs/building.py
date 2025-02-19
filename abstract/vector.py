@@ -48,7 +48,7 @@ def to_array(*args) -> list:
     return args[0] if len(args) == 1 and hasattr(args[0], "__getitem__") else list(args)
 
 
-class Coords(Serializable, list):
+class Vector(Serializable, list):
     """
     a shared base class for point and vector. contains the x, y and z coordinates.
     operations you do with these coords will apply for the children.
@@ -57,7 +57,7 @@ class Coords(Serializable, list):
     Vectors can also be nested.
     """
 
-    def __init__(self, *args, **kwargs) -> "Coords":
+    def __init__(self, *args, **kwargs) -> "Vector":
         arrayArgs: list = to_array(*args)
 
         list.__init__(self, arrayArgs)
@@ -169,7 +169,7 @@ class Coords(Serializable, list):
         """
         sqm = self.magnitude_squared
 
-        return self / math.sqrt(sqm) if sqm > 0 else Coords([0] * len(self))
+        return self / math.sqrt(sqm) if sqm > 0 else Vector([0] * len(self))
 
     @property
     def angle(self) -> float:
@@ -185,14 +185,14 @@ class Coords(Serializable, list):
 
     @staticmethod
     def by_coordinates(x: float, y: float, z: float = None):
-        return Coords(x, y, z) if z is not None else Coords(x, y)
+        return Vector(x, y, z) if z is not None else Vector(x, y)
 
     @staticmethod
     def by_list(coordinate_list: list):
-        return Coords(coordinate_list)
+        return Vector(coordinate_list)
 
     @staticmethod
-    def by_angle(angle: float) -> "Coords":
+    def by_angle(angle: float) -> "Vector":
         """generates a 2d normal using the angle passed
 
         Args:
@@ -201,10 +201,10 @@ class Coords(Serializable, list):
         Returns:
                 Coords: a rotated normal (vector with length of 1)
         """
-        return Coords(math.cos(angle), math.sin(angle))
+        return Vector(math.cos(angle), math.sin(angle))
 
     @staticmethod
-    def angle_between(vector_1: "Coords", vector_2: "Coords") -> float:
+    def angle_between(vector_1: "Vector", vector_2: "Vector") -> float:
         """Computes the angle in degrees between two coords.
         The angle between two coords is the angle required to rotate one vector onto the other, measured in degrees.
 
@@ -223,7 +223,7 @@ class Coords(Serializable, list):
         # 90
         ```
         """
-        dot_product = Coords.dot_product(vector_1, vector_2)
+        dot_product = Vector.dot_product(vector_1, vector_2)
         length_vector_1 = vector_1.magnitude
         length_vector_2 = vector_2.magnitude
 
@@ -235,7 +235,7 @@ class Coords(Serializable, list):
         return math.acos(cos_angle)
 
     @staticmethod
-    def dot_product(vector_1: "Coords", vector_2: "Coords") -> "float":
+    def dot_product(vector_1: "Vector", vector_2: "Vector") -> "float":
         """Computes the dot product of two vectors.
         The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
 
@@ -260,7 +260,7 @@ class Coords(Serializable, list):
         return total
 
     @staticmethod
-    def distance_squared(point_1: "Coords", point_2: "Coords") -> float:
+    def distance_squared(point_1: "Vector", point_2: "Vector") -> float:
         """Computes the Euclidean distance between two 3D points.
 
         #### Parameters:
@@ -281,7 +281,7 @@ class Coords(Serializable, list):
         return (point_2 - point_1).magnitude_squared
 
     @staticmethod
-    def distance(point_1: "Coords", point_2: "Coords") -> float:
+    def distance(point_1: "Vector", point_2: "Vector") -> float:
         """Computes the Euclidean distance between two 3D points.
 
         #### Parameters:
@@ -312,12 +312,12 @@ class Coords(Serializable, list):
         Returns:
                 int: the index
         """
-        return Coords.axis_names.index(axis.lower())
+        return Vector.axis_names.index(axis.lower())
 
     @staticmethod
     def cross_product(
-        vector_1: "Coords", vector_2: "Coords|None" = None
-    ) -> "Coords|float":
+        vector_1: "Vector", vector_2: "Vector|None" = None
+    ) -> "Vector|float":
         """Computes the cross product of two vectors in three-dimensional space is a vector that is perpendicular to both original vectors. It is used to find a vector that is normal to a plane defined by the input vectors.
         we're using the right hand rule, as stated in the wiki.
 
@@ -337,13 +337,13 @@ class Coords(Serializable, list):
         ```
         """
         if len(vector_1) == 3:
-            return Coords(
+            return Vector(
                 vector_1.y * vector_2.z - vector_1.z * vector_2.y,
                 vector_1.z * vector_2.x - vector_1.x * vector_2.z,
                 vector_1.x * vector_2.y - vector_1.y * vector_2.x,
             )
         elif vector_2 == None:
-            return Coords(-vector_1.y, vector_1.x)
+            return Vector(-vector_1.y, vector_1.x)
         else:
             return (vector_1.x * vector_1.y) - (vector_1.Y * vector_2.x)
 
@@ -389,10 +389,10 @@ class Coords(Serializable, list):
         Returns:
                 int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
         """
-        return self.set_axis(Coords.axis_index(axis_name), value)
+        return self.set_axis(Vector.axis_index(axis_name), value)
 
     @staticmethod
-    def by_two_points(point_1: "Coords", point_2: "Coords") -> "Coords":
+    def by_two_points(point_1: "Vector", point_2: "Vector") -> "Vector":
         """Computes the vector between two points.
 
         #### Parameters:
@@ -413,7 +413,7 @@ class Coords(Serializable, list):
         return point_2 - point_1
 
     @staticmethod
-    def rotate_XY(point: "Coords", beta: float, dz: float) -> "Point":
+    def rotate_XY(point: "Vector", beta: float, dz: float) -> "Point":
         """Rotates the point about the Z-axis by a given angle.
 
         #### Parameters:
@@ -432,7 +432,7 @@ class Coords(Serializable, list):
         ```
         """
 
-        return Coords(
+        return Vector(
             [
                 math.cos(beta) * point.x - math.sin(beta) * point.y,
                 math.sin(beta) * point.x + math.cos(beta) * point.y,
@@ -465,7 +465,7 @@ class Coords(Serializable, list):
         return self
 
     def operate_2(self, op: operator, other):
-        result = Coords([0] * len(self))
+        result = Vector([0] * len(self))
         try:
             for index in range(len(self)):
                 result[index] = op(self[index], other[index])
@@ -477,7 +477,7 @@ class Coords(Serializable, list):
         return result
 
     def operate_1(self, op: operator):
-        result = Coords([0] * len(self))
+        result = Vector([0] * len(self))
         for index in range(len(self)):
             result[index] = op(self[index])
         return result
@@ -588,7 +588,7 @@ class Coords(Serializable, list):
     reverse = __neg__
 
     @staticmethod
-    def square(self) -> "Coords":
+    def square(self) -> "Vector":
         """
         Computes the square of each component of the input vector.
 
@@ -643,15 +643,15 @@ class Coords(Serializable, list):
         return self.ioperate_2(operator.__itruediv__, other)
 
 
-Coords.x_axis = Coords(1, 0, 0)
-Coords.y_axis = Coords(0, 1, 0)
-Coords.z_axis = Coords(0, 0, 1)
+Vector.x_axis = Vector(1, 0, 0)
+Vector.y_axis = Vector(0, 1, 0)
+Vector.z_axis = Vector(0, 0, 1)
 
-Coords.left = Coords(-1, 0, 0)
-Coords.right = Coords(1, 0, 0)
-Coords.down = Coords(0, -1, 0)
-Coords.up = Coords(0, 1, 0)
-Coords.backward = Coords(0, 0, -1)
-Coords.forward = Coords(0, 0, 1)
+Vector.left = Vector(-1, 0, 0)
+Vector.right = Vector(1, 0, 0)
+Vector.down = Vector(0, -1, 0)
+Vector.up = Vector(0, 1, 0)
+Vector.backward = Vector(0, 0, -1)
+Vector.forward = Vector(0, 0, 1)
 
-Point = Coords
+Point = Vector

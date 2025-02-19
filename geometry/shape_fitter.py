@@ -7,7 +7,7 @@ from math import inf
 import math
 from abstract.matrix import Matrix
 from geometry.rect import Rect
-from geometry.coords import Coords
+from abstract.vector import Vector
 from geometry.curve import PolyCurve, Line, Polygon
 from abstract.vector import Vector
 
@@ -36,7 +36,7 @@ def bisect_compare(a,compare=None, lo=0, hi=None):
 		else: hi = mid
 	return lo
 
-def try_perfect_fit_2d(parents:list[tuple[int, Rect]], move_slices_to:list[tuple[int, Rect]], child:tuple[int,Coords], padding:float, allowed_error:float) -> tuple[int, Coords] | None:
+def try_perfect_fit_2d(parents:list[tuple[int, Rect]], move_slices_to:list[tuple[int, Rect]], child:tuple[int,Vector], padding:float, allowed_error:float) -> tuple[int, Vector] | None:
 
 	vector_cmp_desc = lambda elem, search_for: (search_for[0] - elem[0]) if (elem[0] != search_for[0]) else (search_for[1] - elem[1])
 	rect_order = cmp_to_key(lambda elem, search_for: elem[1].size.compare(search_for[1].size))
@@ -67,10 +67,10 @@ def try_perfect_fit_2d(parents:list[tuple[int, Rect]], move_slices_to:list[tuple
 				sliced_rects:list[tuple[int,Rect]] = []
 				#sliced on x
 				if best_rect.size.x > right_padded_size.x:
-					sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x + right_padded_size.x, best_rect.p0.y), Coords(best_rect.size.x - right_padded_size.x, best_rect.size.y))))
+					sliced_rects.append((best_parent_index, Rect(Vector(best_rect.p0.x + right_padded_size.x, best_rect.p0.y), Vector(best_rect.size.x - right_padded_size.x, best_rect.size.y))))
 				#sliced on y
 				if best_rect.size.y > right_padded_size.y:
-					sliced_rects.append((best_parent_index, Rect(Coords(best_rect.p0.x, best_rect.p0.y + right_padded_size.y), Coords(best_rect.size.x, best_rect.size.y - right_padded_size.y))))
+					sliced_rects.append((best_parent_index, Rect(Vector(best_rect.p0.x, best_rect.p0.y + right_padded_size.y), Vector(best_rect.size.x, best_rect.size.y - right_padded_size.y))))
 				parents.pop(best_fit_index)
 
 				if parents == move_slices_to:
@@ -124,11 +124,11 @@ def try_perfect_fit_2d(parents:list[tuple[int, Rect]], move_slices_to:list[tuple
 				return (best_parent_index, best_rect.p0)
 
 class FitResult2D:
-	def __init__(self, fitted_boxes:list[tuple[int,Coords]|None], leftovers: list[tuple[int,Rect]|None]):
+	def __init__(self, fitted_boxes:list[tuple[int,Vector]|None], leftovers: list[tuple[int,Rect]|None]):
 		self.fitted_boxes = fitted_boxes
 		self.leftovers = leftovers
 
-def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding: float, allowed_error: float, return_when_failed: bool = False)->FitResult2D:
+def fit_boxes_2d(parent_shapes:list[Vector], child_shapes: list[Vector], padding: float, allowed_error: float, return_when_failed: bool = False)->FitResult2D:
 	"""this function tries to use the fewest base shapes possible when trying to fit child shapes inside them
 
 	Args:
@@ -149,10 +149,10 @@ def fit_boxes_2d(parent_shapes:list[Coords], child_shapes: list[Coords], padding
 	#these are slices of used parents which could still be used
 	used_parents:list[tuple[int, Rect]] = []
 
-	fitted_children:list[tuple[int,Coords]|None] = [None] * len(child_shapes)
+	fitted_children:list[tuple[int,Vector]|None] = [None] * len(child_shapes)
 	#convert all parents to rects
 	for parent in parents:
-		unused_parents.append((parent[0], Rect(Coords(0,0), parent[1])))
+		unused_parents.append((parent[0], Rect(Vector(0,0), parent[1])))
 		
 	#now try to use as few rectangles as possible, by checking if each new rect fits in a used rect first.
 	

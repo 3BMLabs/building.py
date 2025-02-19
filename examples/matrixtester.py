@@ -7,7 +7,7 @@ from pathlib import Path
 from abstract.color import Color
 from geometry.curve import Line, PolyCurve
 from abstract.matrix import Matrix
-from geometry.coords import Point
+from abstract.vector import Point
 from abstract.vector import Vector
 from geometry.curve import Arc
 from geometry.pointlist import PointCloud
