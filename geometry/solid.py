@@ -176,3 +176,4 @@ class Extrusion(Meshable):
                	]
 				mesh.faces.append(face)
 		mesh.set_solid_color(settings.fallback_color)
+		return mesh

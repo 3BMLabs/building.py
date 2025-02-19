@@ -47,5 +47,6 @@ for profile_name in lst:
             type = shape
     except:
         pass
+    break
 
 project.to_speckle("ed88c2cdb3")

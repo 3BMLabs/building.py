@@ -43,7 +43,7 @@ def keydown(e):
 		parent_lengths = [random.randrange(100, 2000, 10) for i in range(parent_count)]
 		child_lengths = [random.randrange(100, 1000, 10) for i in range(child_count)]
 
-		#sf.fit_boxes_2d([Coords(20,20)],[Coords(10,20),Coords(10,10), Coords(10,10)], 0)
+		#sf.fit_boxes_2d([Vector(20,20)],[Vector(10,20),Vector(10,10), Vector(10,10)], 0)
 
 
 		child_offsets: list[tuple[int,float]|None] = sf.fit_lengths_1d(parent_lengths,child_lengths, padding, allowed_error)

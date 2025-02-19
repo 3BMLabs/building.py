@@ -132,8 +132,8 @@ def fit_boxes_2d(parent_shapes:list[Vector], child_shapes: list[Vector], padding
 	"""this function tries to use the fewest base shapes possible when trying to fit child shapes inside them
 
 	Args:
-		parent_shapes (list[Coords]): the shapes in which we will try to fit the child shapes
-		child_shapes (list[Coords]): 
+		parent_shapes (list[Vector]): the shapes in which we will try to fit the child shapes
+		child_shapes (list[Vector]): 
 		padding (float): the padding between the shapes
 	"""
 	

@@ -67,6 +67,10 @@ class Matrix(Serializable, list[list]):
         """returns the height (y size) of this matrix in columns."""
         return len(self)
 
+    @property
+    def dimensions(self) -> int:
+        return len(self) - 1
+
     def get_row(self, row: int) -> Vector:
         """
 
@@ -163,7 +167,8 @@ class Matrix(Serializable, list[list]):
         return Matrix(
             [
                 [
-                    1 if col == row else addition[row] if col == len(addition) else 0
+                    1 if col == row else addition[row] if col == len(
+                        addition) else 0
                     for col in range(matrix_size)
                 ]
                 for row in range(matrix_size)
@@ -188,7 +193,7 @@ class Matrix(Serializable, list[list]):
 
         Args:
                 origin (Point): the translation vector of this matrix
-                axes (list[Coords]): the x, y and other axes of this matrix
+                axes (list[Vector]): the x, y and other axes of this matrix
 
         Returns:
                 Matrix: a matrix with columns ordered like this:
@@ -219,7 +224,7 @@ class Matrix(Serializable, list[list]):
 
         Args:
                 origin (Point): the origin of the matrix. all points will get translated by this vector.
-                unit_axes (list[Coords]): the axes of this matrix, as unit vectors. they will get normalized!
+                unit_axes (list[Vector]): the axes of this matrix, as unit vectors. they will get normalized!
 
         Returns:
                 Matrix: the final matrix
@@ -242,7 +247,8 @@ class Matrix(Serializable, list[list]):
         return Matrix(
             [
                 [
-                    cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),
+                    cos_angle + normalized_axis.x *
+                    normalized_axis.x * (1 - cos_angle),
                     normalized_axis.x * normalized_axis.y * (1 - cos_angle)
                     - normalized_axis.z * sin_angle,
                     normalized_axis.x * normalized_axis.z * (1 - cos_angle)
@@ -251,7 +257,8 @@ class Matrix(Serializable, list[list]):
                 [
                     normalized_axis.y * normalized_axis.x * (1 - cos_angle)
                     + normalized_axis.z * sin_angle,
-                    cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),
+                    cos_angle + normalized_axis.y *
+                    normalized_axis.y * (1 - cos_angle),
                     normalized_axis.y * normalized_axis.z * (1 - cos_angle)
                     - normalized_axis.x * sin_angle,
                 ],
@@ -260,7 +267,8 @@ class Matrix(Serializable, list[list]):
                     - normalized_axis.y * sin_angle,
                     normalized_axis.z * normalized_axis.y * (1 - cos_angle)
                     + normalized_axis.x * sin_angle,
-                    cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle),
+                    cos_angle + normalized_axis.z *
+                    normalized_axis.z * (1 - cos_angle),
                 ],
             ]
         )
@@ -303,7 +311,8 @@ class Matrix(Serializable, list[list]):
                         for multiplyIndex in range(other.rows):
                             # this is the simple code, which would work if the number of self.cols was equal to other.rows
                             result[row][col] += (
-                                self[row][multiplyIndex] * other[multiplyIndex][col]
+                                self[row][multiplyIndex] *
+                                other[multiplyIndex][col]
                             )
             else:
                 resultCols = max(self.cols, other.cols)
@@ -365,7 +374,7 @@ class Matrix(Serializable, list[list]):
         """this function just multiplies the coords by the matrix, but doesn't add anything to the result. good for sizes for example.
 
         Args:
-                other (Coords): _description_
+                other (Vector): _description_
 
         Returns:
                 _type_: _description_
@@ -387,7 +396,7 @@ class Matrix(Serializable, list[list]):
         """the translation is just the last column of the matrix
 
         Returns:
-                Coords: the last column of this matrix, which gets added to the result when a point is multiplied by the matrix
+                Vector: the last column of this matrix, which gets added to the result when a point is multiplied by the matrix
         """
         return self.get_col(self.cols - 1)
 
@@ -399,7 +408,8 @@ class Matrix(Serializable, list[list]):
     def cofactor_matrix(self) -> "Matrix":
         """Returns the cofactor matrix."""
         return Matrix(
-            [[self.cofactor(i, j) for j in range(self.cols)] for i in range(self.rows)]
+            [[self.cofactor(i, j) for j in range(self.cols)]
+             for i in range(self.rows)]
         )
 
     def adjugate(self) -> "Matrix":
@@ -424,8 +434,8 @@ class Matrix(Serializable, list[list]):
         """Returns the minor of the matrix by removing the i-th row and j-th column."""
         return Matrix(
             [
-                row[:col_index] + row[col_index + 1 :]
-                for row in (self[:row_index] + self[row_index + 1 :])
+                row[:col_index] + row[col_index + 1:]
+                for row in (self[:row_index] + self[row_index + 1:])
             ]
         )
 
@@ -522,7 +532,8 @@ class Matrix(Serializable, list[list]):
     def argsort(self, axis=0):
         if axis == 0:
             return [
-                [row for row, val in sorted(enumerate(col), key=lambda x: x[1])]
+                [row for row, val in sorted(
+                    enumerate(col), key=lambda x: x[1])]
                 for col in zip(*self)
             ]
         elif axis == 1:
@@ -593,7 +604,8 @@ class Matrix(Serializable, list[list]):
                 cumprod_list.append(cumprod)
             return Matrix([cumprod_list])
         else:
-            raise NotImplementedError("Axis handling not implemented in this example")
+            raise NotImplementedError(
+                "Axis handling not implemented in this example")
 
     def cumsum(self, axis=None):
         if axis is None:
@@ -605,7 +617,8 @@ class Matrix(Serializable, list[list]):
                 cumsum_list.append(cumsum)
             return Matrix([cumsum_list])
         else:
-            raise NotImplementedError("Axis handling not implemented in this example")
+            raise NotImplementedError(
+                "Axis handling not implemented in this example")
 
     def diagonal(self, offset=0):
         return [
@@ -747,12 +760,14 @@ class Matrix(Serializable, list[list]):
     def prod(self, axis=None):
         if axis is None:
             return reduce(
-                lambda x, y: x * y, [item for sublist in self for item in sublist], 1
+                lambda x, y: x *
+                y, [item for sublist in self for item in sublist], 1
             )
         elif axis == 0:
             return [
                 reduce(
-                    lambda x, y: x * y, [self[row][col] for row in range(len(self))], 1
+                    lambda x, y: x * y, [self[row][col]
+                                         for row in range(len(self))], 1
                 )
                 for col in range(len(self[0]))
             ]
@@ -810,8 +825,9 @@ class Matrix(Serializable, list[list]):
     def reshape(self, rows, cols):
         flat_list = self.flatten()
         if len(flat_list) != rows * cols:
-            raise ValueError("The total size of the new array must be unchanged.")
-        reshaped = [flat_list[i * cols : (i + 1) * cols] for i in range(rows)]
+            raise ValueError(
+                "The total size of the new array must be unchanged.")
+        reshaped = [flat_list[i * cols: (i + 1) * cols] for i in range(rows)]
         return Matrix(reshaped)
 
     def resize(self, new_rows, new_cols):
@@ -830,7 +846,8 @@ class Matrix(Serializable, list[list]):
         )
 
     def round(self, decimals=0):
-        rounded_matrix = [[round(item, decimals) for item in row] for row in self]
+        rounded_matrix = [[round(item, decimals)
+                           for item in row] for row in self]
         return Matrix(rounded_matrix)
 
     def searchsorted(self, v, side="left"):
@@ -911,7 +928,8 @@ class Matrix(Serializable, list[list]):
     def swapaxes(self, axis1, axis2):
         if axis1 == 0 and axis2 == 1 or axis1 == 1 and axis2 == 0:
             return Matrix(
-                [[self[j][i] for j in range(len(self))] for i in range(len(self[0]))]
+                [[self[j][i] for j in range(len(self))]
+                 for i in range(len(self[0]))]
             )
         else:
             raise ValueError("Axis values out of range for a 2D matrix.")
@@ -923,7 +941,8 @@ class Matrix(Serializable, list[list]):
         elif axis == 0:
             return Matrix([self[i] for i in indices])
         else:
-            raise ValueError("Axis not supported or out of range for a 2D matrix.")
+            raise ValueError(
+                "Axis not supported or out of range for a 2D matrix.")
 
     def tofile(self, fid, sep="", format="%s"):
         if isinstance(fid, str):
@@ -968,13 +987,15 @@ class Matrix(Serializable, list[list]):
             means = self.mean(axis=axis)
             if axis == 0:
                 return [
-                    sum((self[row][col] - means[col]) ** 2 for row in range(len(self)))
+                    sum((self[row][col] - means[col]) **
+                        2 for row in range(len(self)))
                     / (len(self) - ddof)
                     for col in range(len(self[0]))
                 ]
             else:
                 return [
-                    sum((row[col] - means[idx]) ** 2 for col in range(len(row)))
+                    sum((row[col] - means[idx]) **
+                        2 for col in range(len(row)))
                     / (len(row) - ddof)
                     for idx, row in enumerate(self)
                 ]

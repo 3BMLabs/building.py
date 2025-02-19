@@ -80,6 +80,17 @@ class Vector(Serializable, list):
         )
 
     axis_names = ["x", "y", "z", "w"]
+    
+    @property
+    def dimensions(self):
+        return len(self)
+    
+    @dimensions.setter
+    def dimensions(self, value):
+        if value > len(self):
+            del self[value:]
+        else:
+            self.append([0] * (value - len(self)))
 
     @property
     def x(self):
@@ -199,7 +210,7 @@ class Vector(Serializable, list):
                 angle (float): a number in radians
 
         Returns:
-                Coords: a rotated normal (vector with length of 1)
+                Vector: a rotated normal (vector with length of 1)
         """
         return Vector(math.cos(angle), math.sin(angle))
 
@@ -240,8 +251,8 @@ class Vector(Serializable, list):
         The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
 
         #### Parameters:
-        - `vector_1` (`Coords`): The first vector.
-        - `vector_2` (`Coords`): The second vector.
+        - `vector_1` (`Vector`): The first vector.
+        - `vector_2` (`Vector`): The second vector.
 
         #### Returns:
         `float`: The dot product of the input vectors.
@@ -264,17 +275,17 @@ class Vector(Serializable, list):
         """Computes the Euclidean distance between two 3D points.
 
         #### Parameters:
-        - `point_1` (Coords): The first point.
-        - `point_2` (Coords): The second point.
+        - `point_1` (Vector): The first point.
+        - `point_2` (Vector): The second point.
 
         #### Returns:
         `float`: The Euclidean distance between `point_1` and `point_2`.
 
         #### Example usage:
         ```python
-        point_1 = Coords(0, 0, 400)
-        point_2 = Coords(300, 0, 400)
-        output = Coords.distance(point_1, point_2)
+        point_1 = Vector(0, 0, 400)
+        point_2 = Vector(300, 0, 400)
+        output = Vector.distance(point_1, point_2)
         # 90000
         ```
         """
@@ -285,17 +296,17 @@ class Vector(Serializable, list):
         """Computes the Euclidean distance between two 3D points.
 
         #### Parameters:
-        - `point_1` (Coords): The first point.
-        - `point_2` (Coords): The second point.
+        - `point_1` (Vector): The first point.
+        - `point_2` (Vector): The second point.
 
         #### Returns:
         `float`: The Euclidean distance between `point_1` and `point_2`.
 
         #### Example usage:
         ```python
-        point_1 = Coords(0, 0, 400)
-        point_2 = Coords(300, 0, 400)
-        output = Coords.distance(point_1, point_2)
+        point_1 = Vector(0, 0, 400)
+        point_2 = Vector(300, 0, 400)
+        output = Vector.distance(point_1, point_2)
         # 90000
         ```
         """
@@ -322,8 +333,8 @@ class Vector(Serializable, list):
         we're using the right hand rule, as stated in the wiki.
 
         #### Parameters:
-        - `vector_1` (`Coords`): The first vector.
-        - `vector_2` (`Coords`): The second vector. (when not passed, it will just return a random perpendicular vector to vector_1)
+        - `vector_1` (`Vector`): The first vector.
+        - `vector_2` (`Vector`): The second vector. (when not passed, it will just return a random perpendicular vector to vector_1)
 
         #### Returns:
         `Vector`: A new Vector object representing the cross product of the input vectors.
@@ -396,8 +407,8 @@ class Vector(Serializable, list):
         """Computes the vector between two points.
 
         #### Parameters:
-        - `point_1` (`Coords`): The starting point.
-        - `point_2` (`Coords`): The ending point.
+        - `point_1` (`Vector`): The starting point.
+        - `point_2` (`Vector`): The ending point.
 
         #### Returns:
         `Vector`: A new Vector object representing the vector between the two points.

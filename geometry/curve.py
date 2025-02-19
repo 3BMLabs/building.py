@@ -66,6 +66,14 @@ class Curve(Serializable):
 	def end(self) -> Point:
 		return self.point_at_fraction(1)
 
+	@property
+	def dimensions(self) -> Point:
+		return len(self.start)
+
+	@dimensions.setter
+	def dimensions(self, value):
+		raise NotImplemented()
+
 	@abstractmethod
 	def point_at_fraction(fraction: float) -> Point:
 		"""
@@ -124,6 +132,11 @@ class Line(Curve):
 	@end.setter
 	def end(self, value):
 		self._end = value
+  
+	@Curve.dimensions.setter
+	def dimensions(self, value):
+		self._start.dimensions = value
+		self._end.dimensions = value
  
 	@property
 	def mid(self) -> 'Point':
@@ -325,9 +338,34 @@ class Line(Curve):
 class Arc(Curve):
 	def __init__(self, matrix:'Matrix', angle:float) -> None:
 		self.matrix, self.angle = matrix, angle
+  
+	@Curve.dimensions.setter
+	def dimensions(self, value):
+		dimensions = self.dimensions
+		if value > dimensions:
+			#assuming it's a 4x4 and needs to be a 3x3. remove the 3rd row and column
+			self.matrix = self.matrix.minor(value, value)
+		else:
+			#assuming it's a 3x3 and needs to be a 4x4.
+			#insert identity rows
+			output_matrix = []
+   
+			for row in range(value):
+				if row < dimensions - 1:
+					get_row = row
+				elif row == value:
+					get_row = dimensions - 1
+				else:
+					output_matrix.append([0] * value)
+					continue
+				source_row = self.matrix[get_row]
+				output_matrix.append(source_row[0:dimensions - 1] + [0] * (value - dimensions) + source_row[dimensions - 1])
+					
+			self.matrix = Matrix(output_matrix)
+			
  
 	@staticmethod
-	def by_start_mid_end(start: Point, mid: Point, end: Point) -> 'Arc':
+	def by_start_mid_end(start: Point, mid: Point, end: Point) -> 'Arc|Line':
 		#construct a matrix from a plane
 		#x = (start - origin).normalized
 		#y
@@ -335,6 +373,9 @@ class Arc(Curve):
 		start_to_end = end - start
 		half_start_end = start_to_end * 0.5
 		radius = Sphere.radius_by_3_points(start, mid, end)
+		if math.isinf(radius):
+			return Line(start, end)
+			#raise ValueError("this is not an arc, but a straight line, it's radius is infinity")
 		#mid point as if this was a straight line
 		straight_line_mid = start + half_start_end
 		#substract the curved mid point from the straight line mid point
@@ -362,6 +403,8 @@ class Arc(Curve):
 			arc_matrix = Matrix.by_origin_and_axes(origin, [x_axis, normalized_y_axis * radius, normalized_z_axis])
 		inverse = arc_matrix.inverse()
 		angle = (inverse * end).angle
+		if math.isnan(angle):
+			angle = 0
 
 		return Arc(arc_matrix, angle)
 
@@ -370,6 +413,10 @@ class Arc(Curve):
 		interval = 1.0 / segment_count
 		for i in range(segment_count):
 			polygon_to_add_to.append(self.point_at_fraction(i * interval))
+  
+	@Curve.dimensions.setter
+	def dimensions(self, value):
+		self.matrix.dimension
   
 	@property
 	def start(self) -> Point:
@@ -793,7 +840,7 @@ class PolyCurve(list[Line], Shape, Curve):
 				#just fill the gap using a straight line
 				self.append(Line(self[-1].end, self[0].start))
 			else:
-				del self[-1]	
+				del self[-1]
 	
 	@property
 	def area(self):

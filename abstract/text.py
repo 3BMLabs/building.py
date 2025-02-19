@@ -48,6 +48,8 @@ from packages.svg.path import CubicBezier, QuadraticBezier, Line, Arc
 
 # [!not included in BP singlefile - end]
 
+loaded_fonts = dict()
+
 
 class Text:
     """The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
@@ -103,37 +105,22 @@ class Text:
 
         ```
         """
-        with open("library/text/json/Calibri.json", "r", encoding="utf-8") as file:
-            response = file.read()
-        glyph_data = json.loads(response)
+        file_name = "library/text/json/Calibri.json"
+        if file_name not in loaded_fonts:
+            with open(file_name, "r", encoding="utf-8") as file:
+                loaded_fonts[file_name] = json.loads(file.read())
+        glyph_data = loaded_fonts[file_name]
         output = []
         for letter in self.text:
             if letter in glyph_data:
                 output.append(glyph_data[letter]["glyph-path"])
             elif letter == " ":
                 output.append("space")
-        return output
-
-    def load_o(self) -> "str":
-        """Loads the glyph paths for the specified text from a JSON file.
-        This method fetches the glyph paths for each character in the text attribute, using a predefined font JSON file.
-
-        #### Returns:
-                str: A string representation of the glyph paths for the text.
-
-        #### Example usage:
-        ```python
-
-        ```
-        """
-        with open("library/text/json/Calibri.json", "r", encoding="utf-8") as file:
-            response = file.read()
-        glyph_data = json.loads(response)
-        load_o = []
+        
         letter = "o"
         if letter in glyph_data:
-            load_o.append(glyph_data[letter]["glyph-path"])
-        return load_o
+            self.load_o_example = [glyph_data[letter]["glyph-path"]]
+        return output
 
     def write(self) -> "List[List[PolyCurve]]":
         """Generates a list of PolyCurve objects representing the text.
@@ -227,7 +214,8 @@ class Text:
                             points.extend(segment.sample(10))
                             allPoints.extend(segment.sample(10))
                 if points:
-                    output_list.append(self.convert_points_to_polyline(allPoints))
+                    output_list.append(
+                        self.convert_points_to_polyline(allPoints))
                     width = self.calculate_bounding_box(allPoints)[1]
                     self.x += width + self.character_offset
 
@@ -327,7 +315,8 @@ class Text:
         ]
 
         polyline_list = [
-            PolyCurve.by_points([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
+            PolyCurve.by_points(
+                [Point(coord.x, coord.y, self.xyz.z) for coord in pts])
             for pts in output_list
         ]
         return polyline_list

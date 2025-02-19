@@ -109,8 +109,13 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 
 	elif isinstance(building_py_object, Mesh):
 		color = -1762845660
-		converted_object = SpeckleMesh(vertices = building_py_object.vertices, 
-									faces = [[len(face)].extend(face) for face in building_py_object.faces],
+		converted_object = SpeckleMesh(vertices = [axis 
+                                             for vert in building_py_object.vertices
+                                             for axis in vert ], 
+									faces = [
+             						index
+                  					for face in building_py_object.faces
+                       				for index in ([len(face)] + face)],
 									name = building_py_object.name,
 									colors = [color] * len(building_py_object.faces), 
 									textureCoordinates = [])
@@ -227,6 +232,7 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 		except:
 			settings = TesselationSettings()
 			mesh = building_py_object.to_mesh(settings)
+			mesh.name = building_py_object.name
 			return convert_to_speckle_object(self, mesh)
 			#converted_object = SpeckleMesh(
 			#								vertices=building_py_object.extrusion.verts, 
