@@ -157,7 +157,7 @@ class FrameTag:
 		# Dimensions in 1/100 scale
 		
 		self.scale = 0.1
-		self.cs: CoordinateSystem = CSGlobal
+		self.cs: CoordinateSystem = CoordinateSystem()
 		self.offset_x = 500
 		self.offset_y = 100
 		self.font_family = "calibri"
@@ -210,7 +210,7 @@ class ColumnTag:
 		self.factor = 3  # hellingsfacor leader
 		self.scale = 0.1  # voor tekeningverschaling
 		self.position = "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
-		self.cs: CoordinateSystem = CSGlobal
+		self.cs: CoordinateSystem = CoordinateSystem()
 
 		# self.textoff_vector_local: Vector = Vector(1,1,1)
 		self.font_family = "calibri"
@@ -232,15 +232,13 @@ class ColumnTag:
 			self.midpoint, Vector(self.width, 0, 0))
 		crves = [Line(start=self.startpoint, end=self.midpoint),
 				 Line(start=self.midpoint, end=self.endpoint)]
-		for i in crves:
-			j = Line.transform(i, self.cs)
-			self.curves.append(j)
+		for curve in crves:
+			self.curves.append(self.cs * curve)
 
 	def __textobject(self):
 		cstext = self.cs
 
-		cstextnew = CoordinateSystem.translate(
-			cstext, self.textoff_vector_local)
+		cstextnew = CoordinateSystem.translate(self.textoff_vector_local) * self.cs
 		self.text_curves = Text(text=self.text, font_family=self.font_family,
 								height=self.text_height, cs=cstextnew).write
 
@@ -260,9 +258,8 @@ class ColumnTag:
 	@staticmethod
 	def by_beam(beam, position="TL"):
 		tag = ColumnTag()
-		csold = CSGlobal
 		tag.position = position
-		tag.cs = CoordinateSystem.translate(csold, Vector(
+		tag.cs = CoordinateSystem.translate(Vector(
 			beam.start.x, beam.start.y, beam.start.z))
 		tag.text = beam.name
 		tag.__leadercurves()

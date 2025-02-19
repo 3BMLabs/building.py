@@ -49,7 +49,7 @@ from packages.helper import flatten
 
 class Text:
 	"""The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
-	def __init__(self, text: str = None, font_family: 'str' = None, cs='CoordinateSystem', height=None) -> "Text":
+	def __init__(self, text: str = None, font_family: 'str' = None, cs=None, height=None) -> "Text":
 		"""Initializes a new Text instance
 		
 		- `id` (str): A unique identifier for the text object.
@@ -72,8 +72,8 @@ class Text:
 		
 		self.text = text
 		self.font_family = font_family or "arial"
-		self.xyz = cs.Origin
-		self.csglobal = cs
+		self.xyz = cs.origin
+		self.transform = cs
 		self.x, self.y, self.z = 0, 0, 0
 		self.scale = None
 		self.height = height
@@ -242,8 +242,8 @@ class Text:
 		"""
 		trans = []
 		for pt in polyCurve.points:
-			pscale = Point.product(self.scale, pt)
-			pNew = transform_point_2(pscale, self.csglobal)
+			pscale = pt * self.scale
+			pNew = self.transform * pscale
 			trans.append(pNew)
 		return polyCurve.by_points(trans)
 

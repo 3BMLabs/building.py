@@ -67,6 +67,11 @@ class Matrix(Serializable, list[list]):
 		"""returns the height (y size) of this matrix in columns."""
 		return len(self)
 
+	@property
+	def origin(self) -> Point:
+		"""you will get this position when you multiply 0 0 0 by this matrix"""
+		return Point([self[row][self.cols - 1] for row in range(self.cols - 1)])
+
 	@staticmethod
 	def scale(scalar: Vector)-> 'Matrix':
 		"""
@@ -121,7 +126,7 @@ class Matrix(Serializable, list[list]):
 			Self: 
 		"""
 		matrix_size:int = len(addition) + 1
-		return Matrix([[1 if x == y else addition[y] if x == len(addition) else 0 for x in range(matrix_size)] for y in range(len(matrix_size))])
+		return Matrix([[1 if col == row else addition[row] if col == len(addition) else 0 for col in range(matrix_size)] for row in range(matrix_size)])
 
 	@staticmethod
 	def by_origin(origin: Vector) -> Self:
@@ -264,7 +269,7 @@ class Matrix(Serializable, list[list]):
 			return Rect.by_points([mp0, mp1])
 		else:
 			#this causes python to check for rmul on the other type
-			raise NotImplementedError()
+			return NotImplemented
 		return result
 	
 	transform = multiply = __mul__
