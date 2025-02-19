@@ -36,7 +36,7 @@ import sys
 from collections import defaultdict
 
 from abstract.serializable import Serializable
-from geometry.point import Point
+from geometry.coords import Point
 
 
 # [!not included in BP singlefile - end]

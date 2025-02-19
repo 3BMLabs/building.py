@@ -11,7 +11,7 @@ from specklepy.api.credentials import get_default_account
 from specklepy.transports.server import ServerTransport
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line, Arc, Circle, SpiralType, Spiral, Polycurve, Polyline, Mesh, Vector, Plane, Interval
-from geometry.point import Point as BPPoint
+from geometry.coords import Point as BPPoint
 from abstract.text import Text
 
 def flatten(nested_list):

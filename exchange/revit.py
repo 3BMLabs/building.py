@@ -39,7 +39,7 @@ from pathlib import Path
 
 
 
-from geometry.point import Point
+from geometry.coords import Point
 from geometry.curve import Line
 from construction.beam import *
 from exchange.scia import *

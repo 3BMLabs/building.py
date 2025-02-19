@@ -1,5 +1,5 @@
 from geometry.curve import Polygon
-from geometry.point import Point
+from geometry.coords import Point
 
 
 test_data = [

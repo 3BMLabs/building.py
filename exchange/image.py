@@ -35,7 +35,7 @@ import sys
 
 
 from PIL import Image, ImageDraw
-from geometry.point import Point
+from geometry.coords import Point
 from geometry.curve import Arc
 
 # [!not included in BP singlefile - end]

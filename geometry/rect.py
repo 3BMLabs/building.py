@@ -37,7 +37,7 @@ import sys
 
 from geometry.shape import Shape
 from abstract.vector import Vector
-from geometry.point import Point
+from geometry.coords import Point
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
@@ -108,7 +108,7 @@ class Rect(Serializable, Shape):
 		return self.p0 + self.size * 0.5
 	@center.setter
 	def center(self, value):
-		self.p0 += self.value - (self.size * 0.5)
+		self.p0 = value - (self.size * 0.5)
 	centroid = center
 
 	@property

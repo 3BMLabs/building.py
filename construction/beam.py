@@ -37,11 +37,11 @@ from typing import Union
 
 
 
-from abstract.segmentation import Meshable, SegmentationSettings
+from abstract.segmentation import Meshable, TesselationSettings
 from abstract.vector import Vector
 from geometry.curve import PolyCurve, Polygon
 from geometry.mesh import Mesh
-from geometry.point import Point
+from geometry.coords import Point
 from geometry.solid import Extrusion
 from library.material import Material, BaseOther
 from library.profile import nameToProfile, justificationToVector
@@ -67,9 +67,6 @@ class Beam(Serializable, Meshable):
 		self.start = None
 		self.end = None
 		self.curve = None  # 2D polycurve of the sectionprofile
-		self.curve3d = None  # Translated 3D polycurve of the sectionprofile
-		self.length = 0
-		self.points = []
 		self.YJustification = "Origin"  # Top, Center, Origin, Bottom
 		self.ZJustification = "Origin"  # Left, Center, Origin, Right
 		self.YOffset = 0
@@ -79,17 +76,9 @@ class Beam(Serializable, Meshable):
 		self.color = BaseOther.color
 		self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
 		self.profile = None #object of 2D profile
-		self.vector = None
-		self.vector_normalised = None
 		self.centerbottom = None
 
-	def props(self):
-		self.vector = Vector(self.end.x-self.start.x,
-							  self.end.y-self.start.y, self.end.z-self.start.z)
-		self.vector_normalised = self.vector.normalized
-		self.length = self.vector.length
-
-	def to_mesh(self, settings: SegmentationSettings) -> Mesh:
+	def to_mesh(self, settings: TesselationSettings) -> Mesh:
 		return self.extrusion.to_mesh(settings)
   
 	@classmethod
@@ -112,23 +101,19 @@ class Beam(Serializable, Meshable):
 		elif isinstance(profile, str):
 			res = nameToProfile(profile)
 			f1.curve = res.polycurve2d  # polycurve2d
-			f1.points = res.polycurve2d.points
 			f1.profile = res.profile
 		else:
 			print("[by_startpoint_endpoint_profile], input is not correct.")
 			sys.exit()
 
 		f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-		f1.length = f1.directionVector.length
 		f1.name = name
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			f1.curve, f1.start, f1.end - f1.start)
 		f1.extrusion.name = name
-		f1.curve3d = f1.extrusion.polycurve
 		f1.profileName = profile
 		f1.material = material
 		f1.color = material.colorint
-		f1.props()
 		return f1
 
 	@classmethod
@@ -157,16 +142,13 @@ class Beam(Serializable, Meshable):
 		f1.XOffset = vector2d.x
 		f1.YOffset = vector2d.y
 		f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-		f1.length = f1.directionVector.length
 		f1.name = name
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			f1.curve, f1.start, f1.end - f1.start)
 		f1.extrusion.name = name
-		f1.curve3d = f1.extrusion.polycurve
 		f1.profileName = profile_name
 		f1.material = material
 		f1.color = material.colorint
-		f1.props()
 		return f1
 
 	@classmethod
@@ -213,12 +195,10 @@ class Beam(Serializable, Meshable):
 		f1.curve = curve
 
 		f1.directionVector = Vector.by_two_points(f1.start, f1.end)
-		f1.length = f1.directionVector.length
 		f1.name = name
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			f1.curve, f1.start, f1.end - f1.start)
 		f1.extrusion.name = name
-		f1.curve3d = f1.extrusion.polycurve
 
 		try:
 			pnew = PolyCurve.by_joined_curves(f1.curve3d.curves)
@@ -229,7 +209,6 @@ class Beam(Serializable, Meshable):
 		f1.profileName = profile_name
 		f1.material = material
 		f1.color = material.colorint
-		f1.props()
 		return f1
 
 	@classmethod
@@ -255,14 +234,12 @@ class Beam(Serializable, Meshable):
 		polycurve = prof.curve
 		f1.profile = prof
 		curvrot = polycurve.rotate(rotation)
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			curvrot, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			curvrot, f1.start, f1.end - f1.start)
 		f1.extrusion.name = name
-		f1.curve3d = curvrot
 		f1.profileName = name
 		f1.material = material
 		f1.color = material.colorint
-		f1.props()
 		return f1
 
 
@@ -285,13 +262,11 @@ class Beam(Serializable, Meshable):
 		f1.name = frame_name
 		f1.profileName = frame_name
 		curvrot = polycurve.rotate(rotation)  # rotation in degrees
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			curvrot, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			curvrot, f1.start, f1.end - f1.start)
 		f1.extrusion.name = frame_name
-		f1.curve3d = curvrot
 		f1.material = material
 		f1.color = material.colorint
-		f1.props()
 		return f1
 
 	@classmethod
@@ -313,15 +288,12 @@ class Beam(Serializable, Meshable):
 		f1.profileName = profile_name
 		curv = nameToProfile(profile_name).polycurve2d
 		curvrot = curv.rotate(rotation)  # rotation in degrees
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			curvrot.curves, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			curvrot.curves, f1.start, f1.end - f1.start)
 		f1.extrusion.name = profile_name
-		f1.curve3d = curvrot
 		f1.profileName = profile_name
 		f1.material = material
 		f1.color = material.colorint
-
-		f1.props()
 		return f1
 
 	@classmethod
@@ -349,14 +321,13 @@ class Beam(Serializable, Meshable):
 		f1.directionVector = Vector.by_two_points(f1.start, f1.end)
 		f1.length = f1.directionVector.length
 		f1.name = name
-		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve.curves, f1.length, f1.start, f1.directionVector)
+		f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
+			f1.curve.curves, f1.start, f1.end - f1.start)
 		f1.extrusion.name = name
 		f1.profileName = "none"
 		f1.material = material
 		f1.color = material.colorint
 
-		f1.props()
 		return f1
 
 	def write(self, project):

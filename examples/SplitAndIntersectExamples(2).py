@@ -3,7 +3,7 @@ from library.profile import data as jsondata
 
 from project.fileformat import BuildingPy
 from abstract.intersect2d import split_polycurve_by_line
-from geometry.point import Point
+from geometry.coords import Point
 
 
 project = BuildingPy("Split and Intersect examples","0")

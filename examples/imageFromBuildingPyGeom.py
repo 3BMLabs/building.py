@@ -5,7 +5,7 @@ from geometry.rect import Rect
 from PIL import Image, ImageDraw
 from construction.profile import *
 from geometry.curve import Arc, Polygon
-from geometry.point import Point
+from geometry.coords import Point
 
 PC = IShapeParallelFlange("test",200,200,10,15,15).curve
 

@@ -35,7 +35,7 @@ import math
 
 from abstract.serializable import Serializable
 from geometry.curve import Arc, Line, PolyCurve
-from geometry.point import Point
+from geometry.coords import Point
 
 
 

@@ -10,7 +10,7 @@ from construction.datum import *
 from geometry.linestyle import *
 from geometry.curve import *
 from abstract.text import *
-from geometry.point import Point
+from geometry.coords import Point
 from exchange.speckle import *
 from abstract.color import *
 from geometry.plane import *
@@ -253,7 +253,7 @@ transformed_point = transform_point(p1, CSGlobal, p2, v1)
 # FILE: Solid.py
 # Class Extrusion
 # Extrude a  profile to a 3D mesh
-Extrusion.by_polycurve_height_vector(PC1, 20, 30, p1, v1)
+Extrusion.by_2d_polycurve_height_vector(PC1, 20, 30, p1, v1)
 Extrusion.by_polycurve_height(PC1, 20, 40)
   
 # ------------------------

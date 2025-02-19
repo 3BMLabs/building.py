@@ -45,7 +45,7 @@ from packages.helper import flatten
 
 
 from geometry.rect import Rect
-from geometry.point import Point
+from geometry.coords import Point
 from abstract.serializable import Serializable
 
 # [!not included in BP singlefile - end]
@@ -68,6 +68,13 @@ class Curve(Serializable):
 
 	@abstractmethod
 	def point_at_fraction(fraction: float) -> Point:
+		"""
+		Args:
+			fraction (float): a value from 0 to 1, describing the position in the curve.
+
+		Returns:
+			Point: self.start for 0, self.end for 1
+		"""
 		pass
 
 	def segmentate(self, settings: SegmentationSettings) -> 'Polygon':
@@ -147,13 +154,6 @@ class Line(Curve):
 			return Line(mat * self.start, mat * self.end)
 	
 	def point_at_fraction(self, fraction: float) -> Point:
-		"""
-		Args:
-			fraction (float): a value from 0 to 1, describing the position in the line.
-
-		Returns:
-			Point: self.start for 0, self.end for 1
-		"""
 		return self.start * (1 - fraction) + self.end * fraction
 
 	@staticmethod
@@ -407,6 +407,9 @@ class Arc(Curve):
 			Point: the length of this arc
 		"""
 		return self.angle * self.radius
+
+	def __rmul__(self, mat: Matrix) -> 'PolyCurve':
+		return Arc(mat * self.matrix, self.angle)
 
 	def point_at_fraction(self, fraction: float):
 		"""

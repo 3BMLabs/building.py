@@ -43,7 +43,7 @@ __url__ = "./exchange/dxf.py"
 
 from project.fileformat import *
 from geometry.curve import *
-from geometry.point import Point
+from geometry.coords import Point
 from geometry.geometry2d import Point, Line2D, Arc2D, PolyCurve2D
 
 # [!not included in BP singlefile - end]
