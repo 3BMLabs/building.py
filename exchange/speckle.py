@@ -31,10 +31,8 @@ __title__ = "speckle"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/speckle.py"
 
-import sys
-from pathlib import Path
-
 from abstract.interval import Interval
+from abstract.segmentation import SegmentationSettings
 from abstract.serializable import Serializable
 #from construction.datum import Grid, GridSystem
 from construction.datum import Grid, GridSystem
@@ -45,10 +43,6 @@ from construction.wall import Wall
 from geometry.coords import Coords
 from geometry.mesh import Mesh
 from abstract.text import Text
-from packages.specklepy.objects.base import Base
-
-
-
 from geometry.solid import Extrusion
 from geometry.surface import Surface
 from project.fileformat import BuildingPy
@@ -61,7 +55,6 @@ from packages.helper import flatten
 from construction.beam import Beam
 
 # [!not included in BP singlefile - end]
-
 
 from specklepy.api.client import SpeckleClient
 from specklepy.api.credentials import get_default_account
@@ -91,7 +84,7 @@ def to_speckle(self: BuildingPy, streamid, commitstring=None):
 		import specklepy
 	from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
 	self.specklestream = streamid
-	speckleobj = translateObjectsToSpeckleObjects(self.objects)
+	speckleobj = translateObjectsToSpeckleObjects(self, self.objects)
 	TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
 BuildingPy.to_speckle = to_speckle
 
@@ -103,7 +96,7 @@ def CreateStream(serverurl, name, description):
 	streamid = client.stream.create(name,description,True)
 	return streamid
 
-def convert_to_speckle_object(building_py_object: Serializable, units, application_id) -> SpeckleObject:
+def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable) -> SpeckleObject:
 	#detect the type of the building py object and convert it to a speckle object
 	if isinstance(building_py_object, Interval):
 		converted_object = SpeckleInterval(start = building_py_object.start, end=building_py_object.end)
@@ -232,12 +225,15 @@ def convert_to_speckle_object(building_py_object: Serializable, units, applicati
 											  textureCoordinates = []
 											  )
 		except:
-			converted_object = SpeckleMesh(
-											vertices=building_py_object.extrusion.verts, 
-											faces=building_py_object.extrusion.faces, 
-											colors = building_py_object.colorlst, 
-											name = building_py_object.profileName, 
-											textureCoordinates = [])
+			settings = SegmentationSettings()
+			mesh = building_py_object.to_mesh(settings)
+			return convert_to_speckle_object(self, mesh)
+			#converted_object = SpeckleMesh(
+			#								vertices=building_py_object.extrusion.verts, 
+			#								faces=building_py_object.extrusion.faces, 
+			#								colors = building_py_object.colorlst, 
+			#								name = building_py_object.profileName, 
+			#								textureCoordinates = [])
 	elif isinstance(building_py_object, Extrusion) or isinstance(building_py_object, Void):
 			clrs = [4294901760, 4294901760, 4294901760, 4294901760, 4294901760]
 
@@ -273,38 +269,28 @@ def convert_to_speckle_object(building_py_object: Serializable, units, applicati
 	elif isinstance(building_py_object, Arc):
 			converted_object = ArcToSpeckleArc(building_py_object)
 	else:
-		raise NotImplementedError("this object cannot yet be converted to speckle")
-	converted_object.units = units
-	converted_object.applicationId = application_id
+		raise NotImplementedError(f"{building_py_object.__class__.__name__} cannot yet be converted to speckle")
+	converted_object.units = self.units
+	converted_object.applicationId = self.applicationId
 	#converted_object.name = typeof(converted_object)
 	#converted_object.domain = 
 	#converted_object.id = building_py_object.
 	return converted_object
 
 
-def GridToLines(Grid):
+def GridToLines(self: BuildingPy, Grid):
 	SpeckleLines = []
 	for line in Grid.line:
-		SpeckleLines.append(convert_to_speckle_object(line))
+		SpeckleLines.append(convert_to_speckle_object(self, line))
 	return SpeckleLines
 
-def GridSystemToLines(GridSystem):
+def GridSystemToLines(self: BuildingPy, GridSystem):
 	SpeckleLines = []
 	for line_x in GridSystem.gridsX:
-		SpeckleLines.append(GridToLines(line_x))
+		SpeckleLines.append(GridToLines(self, line_x))
 	for line_j in GridSystem.gridsY:
-		SpeckleLines.append(GridToLines(line_j))
+		SpeckleLines.append(GridToLines(self, line_j))
 	return SpeckleLines
-
-def SpeckleMeshByImage(img):
-	SpeckleMsh = SpeckleMesh(
-							 vertices = img.vert, 
-							 faces = img.faces, 
-							 name = img.name, 
-							 colors = img.colorlst,
-							 textureCoordinates = []
-							 )
-	return SpeckleMsh
 
 def ArcToSpeckleArc(arc: Arc):
 	speckle_plane = SpecklePlane(
@@ -344,13 +330,31 @@ def ArcToSpeckleArc(arc: Arc):
 
 	return spArc
 
+def translateObjectsToSpeckleObjects(self: BuildingPy, building_py_objects: list):
+	speckle_objects = []
+	for building_py_object in building_py_objects:
+		if isinstance(building_py_object, Text):
+			for polycurves in building_py_object.write():
+				polycurve = convert_to_speckle_object(self, polycurves)
+				speckle_objects.append(polycurve)
+		elif isinstance(building_py_object, Grid):
+			for converted_line in GridToLines(self, building_py_object):
+				speckle_objects.append(converted_line)
+		elif isinstance(building_py_object, GridSystem):
+			for converted_line in GridSystemToLines(building_py_object):
+				speckle_objects.append(converted_line)
+		else:
+			speckle_objects.append(convert_to_speckle_object(self, building_py_object))
+
+	return speckle_objects
+
 def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCommit: str):
 	client = SpeckleClient(host=host)
 	account = get_default_account()
 	client.authenticate_with_account(account)
 	streamid = streamid
 
-	class SpeckleExport(Base):
+	class SpeckleExport(SpeckleObject):
 		elements = None
 
 	obj = SpeckleExport(elements = SpeckleObjects)
@@ -365,27 +369,3 @@ def TransportToSpeckle(host: str, streamid: str, SpeckleObjects: list, messageCo
 
 	print(f"View commit: https://{host}/streams/{streamid}/commits/{commit_id}")
 	return commit_id
-
-
-def translateObjectsToSpeckleObjects(building_py_objects):
-	speckle_objects = []
-	for building_py_object in flatten(building_py_objects):
-		nm = building_py_object.__class__.__name__
-		if nm == "list":
-			if building_py_object == []:
-				print(f"'{nm}' Object not yet added to translateObjectsToSpeckleObjects")
-
-		elif isinstance(building_py_object, Text):
-			for polycurves in building_py_object.write():
-				polycurve = convert_to_speckle_object(polycurves)
-				speckle_objects.append(polycurve)
-		elif isinstance(building_py_object, Grid):
-			for converted_line in GridToLines(building_py_object):
-				speckle_objects.append(converted_line)
-		elif isinstance(building_py_object, GridSystem):
-			for converted_line in GridSystemToLines(building_py_object):
-				speckle_objects.append(converted_line)
-		else:
-			speckle_objects.append(convert_to_speckle_object(building_py_object))
-
-	return speckle_objects

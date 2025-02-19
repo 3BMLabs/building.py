@@ -428,7 +428,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
         l1 = Line(Point(x_start, y_start, 0), Point(x_end, y_end, 0)) # baseline
         l2 = Line.transform(l1, CSNewLn) # rotation
         v1 = Vector.by_two_points(l2.start,l2.end)
-        v1 = Vector.normalize(v1)
+        v1 = v1.normalized
         v2 = Vector.scale(v1, patrow.shift_pattern * n)
         l3 = Line.translate_2(l2, v2)  # shift of line for pattern
         #if patrow.shift_pattern == 0:
@@ -436,7 +436,7 @@ def PatRowGeom(patrow: PATRow, width: float, height: float, dx, dy):
         #else:
         #    v2 = Vector.scale(v1, patrow.shift_pattern*(n+1))
         #    l3 = Line.translate_2(l2,v2) # shift of line for pattern
-        v3 = Vector.normalize(Vector.cross_product(v1,Z_Axis)) #Eenheidsvector haaks op lijn
+        v3 = Vector.cross_product(v1,Z_Axis).normalized #Eenheidsvector haaks op lijn
         if patrow.angle == 0:
             v4 = Vector.scale(v3, n * patrow.offset_spacing)  # Verplaatsingsvector voor spacing, inverse in geval lijn = 0 graden
             v4 = Vector.reverse(v4)

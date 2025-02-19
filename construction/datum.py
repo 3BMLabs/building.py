@@ -31,10 +31,14 @@ __title__ = "datum"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/datum.py"
 
+import math
 from abstract.matrix import Matrix, CoordinateSystem
 from abstract.serializable import Serializable
 from abstract.text import *
+from abstract.vector import Vector
+from geometry.coords import Coords
 from geometry.curve import Arc
+from geometry.linestyle import line_to_pattern, Centerline
 
 
 
@@ -135,9 +139,9 @@ class Grid:
 		self.grid_heads = []
 
 	def __cs(self, line):
-		self.direction = line.vector_normalised
+		self.direction = line.direction
 		vect3 = Vector.rotate_XY(self.direction, math.radians(-90))
-		self.cs_end = CoordinateSystem(line.end, vect3, self.direction, Z_Axis)
+		self.cs_end = CoordinateSystem.by_origin_unit_axes(line.end, [vect3, self.direction, Coords.z_axis])
 
 	@classmethod
 	def by_startpoint_endpoint(cls, line, name):

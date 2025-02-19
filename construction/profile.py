@@ -56,7 +56,7 @@ class Profile(Serializable):
 
 	def __init__(self, name: str, description: str, IFC_profile_def: str, height: float, width: float,
 				 tw: float = None, tf: float = None):
-		"""Creates a profile profile.
+		"""Creates a profile.
 
 		Args:
 			name (str): _description_
@@ -84,7 +84,7 @@ class CChannelParallelFlange(Profile):
 		super().__init__(name, "C-channel with parallel flange", "IfcUShapeProfileDef", height, width, tw, tf)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.r1 = r  # web fillet
 		self.ex = ex  # centroid horizontal
@@ -273,7 +273,7 @@ class Roundtube(Profile):
 		super().__init__(name, "Round Tube Profile", "IfcCircleHollowProfileDef", d, d)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.r = d / 2
 		self.d = d
 		self.t = t  # wall thickness
@@ -323,7 +323,7 @@ class LAngle(Profile):
 		super().__init__(name, "LAngle", "IfcLShapeProfileDef", height, width, tw, tf)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.r1 = r1  # inner fillet
 		r11 = r1 / sqrt2
@@ -430,7 +430,7 @@ class RectangleHollowSection(Profile):
 		super().__init__(name, "Rectangle Hollow Section", "IfcRectangleHollowProfileDef", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # thickness
 		self.r1 = r1  # outer radius
@@ -499,7 +499,7 @@ class CProfile(Profile):
 		super().__init__(name, "Cold Formed C Profile", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.r1 = r1  # outer radius
@@ -551,7 +551,7 @@ class CProfileWithLips(Profile):
 		super().__init__(name, "Cold Formed C Profile with Lips", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.h1 = h1  # lip length
 		self.t = t  # flange thickness
@@ -626,7 +626,7 @@ class LProfileColdFormed(Profile):
 		super().__init__(name, "Cold Formed L Profile", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.r1 = r1  # inner radius
@@ -667,7 +667,7 @@ class SigmaProfileWithLipsColdFormed(Profile):
 		super().__init__(name, "Cold Formed Sigma Profile with Lips", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.h1 = h1  # LipLength
 		self.h2 = h2  # MiddleBendLength
@@ -761,7 +761,7 @@ class ZProfileColdFormed(Profile):
 		super().__init__(name, "Cold Formed Z Profile", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.r1 = r1  # inner radius
@@ -810,7 +810,7 @@ class ZProfileWithLipsColdFormed(Profile):
 		super().__init__(name, "Cold Formed Z Profile with Lips", "Unknown", height, width, tw=t, tf=t)
 
 		# parameters
-		self.type = __class__.__name__
+		
 
 		self.t = t  # flange thickness
 		self.h1 = h1  # lip length
@@ -879,7 +879,7 @@ class TProfile(Profile):
 		super().__init__(name, "T-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.h1 = h1
 		self.b1 = b1
 
@@ -911,7 +911,7 @@ class LProfile(Profile):
 		super().__init__(name, "L-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.h1 = h1
 		self.b1 = b1
 
@@ -938,7 +938,7 @@ class EProfile(Serializable):
 		super().__init__(name, "E-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.h1 = h1
 
 		# describe points
@@ -977,7 +977,7 @@ class NProfile(Serializable):
 		super().__init__(name, "N-profile", "Unknown", height, width)
 
 		# parameters
-		self.type = __class__.__name__
+		
 		self.b1 = b1
 
 		# describe points

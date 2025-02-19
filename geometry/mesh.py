@@ -33,7 +33,6 @@ __url__ = "./geometry/solid.py"
 
 
 from abstract.serializable import Serializable
-from geometry.curve import PolyCurve
 from library.material import Material
 
 
@@ -81,7 +80,7 @@ class Mesh(Serializable):
 		self.faces = faces
 
 	#create material class; Material
-	def by_polycurve(self, PC:PolyCurve, name: 'str', material:Material) -> 'Mesh':
+	def by_polycurve(self, PC:'PolyCurve', name: 'str', material:Material) -> 'Mesh':
 		"""Creates a mesh from a polycurve object.
 
 		#### Parameters:

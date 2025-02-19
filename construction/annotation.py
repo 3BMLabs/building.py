@@ -125,10 +125,10 @@ class Dimension:
 		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
 		x = direction
 		y = Vector.rotate_XY(x, math.radians(90))
-		z = Z_Axis
-		cs_new_start = CoordinateSystem(self.start, x, y, z)
-		cs_new_mid = CoordinateSystem(midpoint_text, x, y, z)
-		cs_new_end = CoordinateSystem(self.end, x, y, z)
+		z = Coords.z_axis
+		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
+		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, x, y, z)
+		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, x, y, z)
 		self.curves.append(Line(tick_mark_extension_point_1,
 						   self.start))  # extention_start
 		self.curves.append(
@@ -166,10 +166,9 @@ class FrameTag:
 		self.text_height = 100
 
 	def __textobject(self):
-		cstext = self.cs
 		# cstextnew = cstext.translate(self.textoff_vector_local)
 		self.text_curves = Text(
-			text=self.text, font_family=self.font_family, height=self.text_height, cs=cstext).write
+			text=self.text, font_family=self.font_family, height=self.text_height, cs=self.cs).write
 
 	def by_cs_text(self, coordinate_system: CoordinateSystem, text):
 		self.cs = coordinate_system
@@ -230,13 +229,11 @@ class ColumnTag:
 			self.height/self.factor, self.height, 0))
 		self.endpoint = Point.translate(
 			self.midpoint, Vector(self.width, 0, 0))
-		crves = [Line(start=self.startpoint, end=self.midpoint),
-				 Line(start=self.midpoint, end=self.endpoint)]
-		for curve in crves:
-			self.curves.append(self.cs * curve)
+		for line in [Line(start=self.startpoint, end=self.midpoint),
+				 Line(start=self.midpoint, end=self.endpoint)]:
+			self.curves.append(self.cs * line)
 
 	def __textobject(self):
-		cstext = self.cs
 
 		cstextnew = CoordinateSystem.translate(self.textoff_vector_local) * self.cs
 		self.text_curves = Text(text=self.text, font_family=self.font_family,
@@ -259,8 +256,7 @@ class ColumnTag:
 	def by_beam(beam, position="TL"):
 		tag = ColumnTag()
 		tag.position = position
-		tag.cs = CoordinateSystem.translate(Vector(
-			beam.start.x, beam.start.y, beam.start.z))
+		tag.cs = CoordinateSystem.translate(beam.start)
 		tag.text = beam.name
 		tag.__leadercurves()
 		tag.__textobject()

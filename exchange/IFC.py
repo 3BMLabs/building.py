@@ -1,21 +1,18 @@
-import sys
-from pathlib import Path
+from geometry.curve import *
+from geometry.solid import *
+from construction.level import Level
+from abstract.matrix import *
+from project.fileformat import BuildingPy
+
 import numpy as np
+
 import ifcopenshell.geom
 import ifcopenshell.api
 import ifcopenshell.util.element as util
 from ifcopenshell.api import run
 
-
-
-from geometry.curve import *
-from geometry.solid import *
-from construction.level import Level
-from abstract.matrix import *
-
-
 class LoadIFC:
-    def __init__(self, filename=str, project=project, filter=None):
+    def __init__(self, filename:str, project: BuildingPy, filter=None):
         self.filename = filename
         self.project = project
         self.root = self.load()

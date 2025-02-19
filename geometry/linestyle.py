@@ -75,7 +75,7 @@ def line_to_pattern(baseline: 'Line', pattern_obj) -> 'list':
 	# this converts a line to list of lines based on a pattern
 	origin = baseline.start
 	dir = Vector.by_two_points(baseline.start, baseline.end)
-	unityvect = Vector.normalize(dir)
+	unityvect = dir.normalized
 
 	Pattern = pattern_obj
 	l = baseline.length
@@ -90,7 +90,7 @@ def line_to_pattern(baseline: 'Line', pattern_obj) -> 'list':
 	for i in range(count + 1):
 		n = 0
 		for i in Pattern[1]:
-			deltaV = Vector.product(i * Pattern[2], unityvect)
+			deltaV = unityvect * (i * Pattern[2])
 			dl = deltaV.length
 			if rl < dl:  # this is the last line segment on the line where the pattern is going to be cut into pieces.
 				endpoint = baseline.end

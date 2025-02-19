@@ -50,7 +50,7 @@ test3 = Vector.dot_product(v1, v2)
 
 # product ↓
 # v1.X * n, v1.Y * n, v1.Z * n
-test4 = Vector.product(5, v1)
+test4 = v1 * 5
 
 # length ↓
 # math.sqrt(v1.X * v1.X + v1.Y * v1.Y + v1.Z * v1.Z)
@@ -69,14 +69,10 @@ test7 = Vector.angle_between(v1, v2)
 # Turn positive into negative and the other way around
 test8 = Vector.reverse(v1)
 
-# perpendicular ↓
-# Vector Local X and Local Y perpendicular to given vector and in global Z direction
-test9 = Vector.perpendicular(v1)
-
 # normalize ↓
 # scale = 1 / v1.length
 # v1.X * scale, v1.Y * scale, v1.Z * scale
-test10 = Vector.normalize(v1)
+test10 = v1.normalized
 
 # Point
 p1 = Point(0, 100, 0)

@@ -193,7 +193,7 @@ def CreateBoundingBox(CoordinateX,CoordinateY,BoxWidth,BoxHeight,DecimalNumbers)
 
 class GisRectBoundingBox:
     def __init__(self):
-        self.type = __class__.__name__
+        
         self.origX = 0
         self.origY = 0
         self.XLeft = 0

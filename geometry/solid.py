@@ -40,6 +40,8 @@ from typing import Self
 
 
 
+from abstract.segmentation import Meshable, SegmentationSettings
+from geometry.mesh import Mesh
 from geometry.plane import Plane
 from geometry.rect import Rect
 from abstract.vector import Vector
@@ -50,11 +52,11 @@ from geometry.point import Point
 # [!not included in BP singlefile - end]
 
 
-class Extrusion:
-	# Extrude a 2D profile to a 3D mesh or solid
-	"""The Extrusion class represents the process of extruding a 2D profile into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process."""
+class Extrusion(Meshable):
+	# Extrude a 2D polycurve to a 3D mesh or solid
+	"""The Extrusion class represents the process of extruding a 2D polycurve into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process."""
 	def __init__(self, polycurve: PolyCurve, start: Vector, end: Vector):
-		"""The Extrusion class represents the process of extruding a 2D profile into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process.
+		"""The Extrusion class represents the process of extruding a 2D polycurve into a 3D mesh or solid form. It is designed to handle geometric transformations and properties related to the extrusion process.
 		
 		- `id` (str): A unique identifier for the extrusion instance.
 		- `type` (str): Class name, indicating the object type as "Extrusion".
@@ -68,7 +70,7 @@ class Extrusion:
 		- `colorlst` (list): A list of colors applied to the extrusion, potentially varying per face or vertex.
 		- `topface` (PolyCurve): The top face of the extrusion, returned as a polycurve converted to a surface.
 		- `bottomface` (PolyCurve): The bottom face of the extrusion, similar to `topface`.
-		- `polycurve_3d_translated` (PolyCurve): A polycurve representing the translated 3D profile of the extrusion.
+		- `polycurve_3d_translated` (PolyCurve): A polycurve representing the translated 3D polycurve of the extrusion.
 		- `bottomshape` (list): A list representing the shape of the bottom face of the extrusion.
 		"""
 		
@@ -96,8 +98,8 @@ class Extrusion:
 		
 	@staticmethod
 	def by_polycurve_height_vector(polycurve: PolyCurve, height: float, start_point: Point, direction_vector: Vector) -> 'Extrusion':
-		"""Creates an extrusion from a 2D polycurve profile along a specified vector.
-		This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
+		"""Creates an extrusion from a 2D polycurve along a specified vector.
+		This method extrudes a 2D polycurve into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
 		#### Parameters:
 		- `polycurve_2d` (PolyCurve): The 2D polycurve to be extruded.
@@ -122,7 +124,7 @@ class Extrusion:
 		This method generates a vertical extrusion of a given PolyCurve. The PolyCurve is first translated vertically by `dz_loc`, then extruded to the specified `height`, creating a solid form.
 
 		#### Parameters:
-		- `polycurve` (PolyCurve): The PolyCurve to be extruded.
+		- `polycurve` (PolyCurve): The PolyCurve to be extruded. expected to be flat!
 		- `height` (float): The height of the extrusion.
 		- `dz_loc` (float): The base elevation offset from the original plane of the PolyCurve.
 
@@ -151,10 +153,34 @@ class Extrusion:
 
 		numPoints = len(Points)
 		
+
+		return Extrus
+	
+	@staticmethod
+	def from_3d_rect(rect:Rect) -> Self:
+		"""Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
+
+		#### Returns:
+		`Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
+
+		#### Example usage:
+		```python
+		bbox2d = Rect().by_dimensions(length=100, width=50)
+		cs = CoordinateSystem()
+		bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
+		cuboid = bbox3d.to_cuboid()
+		# Generates a cuboid extrusion based on the 3D bounding box
+		```
+		"""
+		return Extrusion(PolyCurve.by_points(rect.corners(2)), Vector(0,0,rect.p0.z), Vector(0,0,rect.p0.z + rect.size.z))
+	
+	def to_mesh(self, settings: SegmentationSettings) -> Mesh:
+		
+  
 		# allverts
-		for pnt in Points:
+		for pnt in self.polycurve.segmentate(settings):
 			# bottom side moves along the normal with dz_loc units
-			pnts.append(Point.translate(pnt, Vector.product(dz_loc, norm)))
+			pnt.append(Point.translate(pnt, norm * dz_loc))
 		
 		# Bottomface
 		face = []
@@ -176,7 +202,7 @@ class Extrusion:
 			for pnt in Points:
 				# Bovenzijde verplaatst met dz_loc
 				pnts.append(Point.translate(
-					pnt, Vector.product((dz_loc+height), norm)))
+					pnt, norm * (dz_loc+height)))
 			#other faces
 
 
@@ -220,22 +246,3 @@ class Extrusion:
 
 		for j in range(int(len(Extrus.verts) / 3)):
 			Extrus.colorlst.append(Extrus.color)
-		return Extrus
-	
-	@staticmethod
-	def from_3d_rect(rect:Rect) -> Self:
-		"""Generates an extrusion representing a cuboid from the 3D bounding box dimensions.
-
-		#### Returns:
-		`Extrusion`: An Extrusion object that represents a cuboid, matching the dimensions and orientation of the bounding box.
-
-		#### Example usage:
-		```python
-		bbox2d = Rect().by_dimensions(length=100, width=50)
-		cs = CoordinateSystem()
-		bbox3d = BoundingBox3d().convert_boundingbox_2d(bbox2d, cs, height=30)
-		cuboid = bbox3d.to_cuboid()
-		# Generates a cuboid extrusion based on the 3D bounding box
-		```
-		"""
-		return Extrusion(PolyCurve.by_points(rect.corners(2)), Vector(0,0,rect.p0.z), Vector(0,0,rect.p0.z + rect.size.z))

@@ -37,9 +37,10 @@ from typing import Union
 
 
 
-from abstract.meshable import Meshable
+from abstract.segmentation import Meshable, SegmentationSettings
 from abstract.vector import Vector
-from geometry.curve import PolyCurve
+from geometry.curve import PolyCurve, Polygon
+from geometry.mesh import Mesh
 from geometry.point import Point
 from geometry.solid import Extrusion
 from library.material import Material, BaseOther
@@ -88,11 +89,11 @@ class Beam(Serializable, Meshable):
 		self.vector_normalised = self.vector.normalized
 		self.length = self.vector.length
 
+	def to_mesh(self, settings: SegmentationSettings) -> Mesh:
+		return self.extrusion.to_mesh(settings)
+  
 	@classmethod
 	def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
-		# [!not included in BP singlefile - start]
-		from library.profile import nameToProfile
-		# [!not included in BP singlefile - end]
 		f1 = Beam()
 		f1.comments = comments
 
@@ -108,7 +109,7 @@ class Beam(Serializable, Meshable):
 		if isinstance(profile,Profile):
 			f1.curve = profile.curve
 			f1.profile = profile
-		elif type(profile).__name__ == "str":
+		elif isinstance(profile, str):
 			res = nameToProfile(profile)
 			f1.curve = res.polycurve2d  # polycurve2d
 			f1.points = res.polycurve2d.points
@@ -185,15 +186,15 @@ class Beam(Serializable, Meshable):
 		f1.structuralType = structuralType
 		f1.rotation = rotation
 
-		if type(profile).__name__ == "PolyCurve2D":
+		if isinstance(profile, PolyCurve):
 			profile_name = "None"
 			f1.profile_data = profile
 			curve = f1.profile_data
-		elif type(profile).__name__ == "Polygon":
+		elif isinstance(profile, Polygon):
 			profile_name = "None"
 			f1.profile_data = PolyCurve.by_points(profile.points)
 			curve = f1.profile_data
-		elif type(profile).__name__ == "str":
+		elif isinstance(profile, str):
 			profile_name = profile
 			f1.profile_data = nameToProfile(profile).polycurve2d  # polycurve2d
 			curve = f1.profile_data
@@ -207,7 +208,7 @@ class Beam(Serializable, Meshable):
 		f1.XOffset = v1.x
 		f1.YOffset = v1.y
 		curve = curve.translate(v1)
-		curve = curve.translate(Vector2(ey, ez))  # 2
+		curve = curve.translate(Vector(ey, ez))  # 2
 		curve = curve.rotate(f1.rotation)  # 3
 		f1.curve = curve
 
@@ -215,7 +216,7 @@ class Beam(Serializable, Meshable):
 		f1.length = f1.directionVector.length
 		f1.name = name
 		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			f1.curve, f1.length, CSGlobal, f1.start, f1.directionVector)
+			f1.curve, f1.length, f1.start, f1.directionVector)
 		f1.extrusion.name = name
 		f1.curve3d = f1.extrusion.polycurve
 
@@ -313,7 +314,7 @@ class Beam(Serializable, Meshable):
 		curv = nameToProfile(profile_name).polycurve2d
 		curvrot = curv.rotate(rotation)  # rotation in degrees
 		f1.extrusion = Extrusion.by_polycurve_height_vector(
-			curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
+			curvrot.curves, f1.length, f1.start, f1.directionVector)
 		f1.extrusion.name = profile_name
 		f1.curve3d = curvrot
 		f1.profileName = profile_name
@@ -361,3 +362,6 @@ class Beam(Serializable, Meshable):
 	def write(self, project):
 		project.objects.append(self)
 		return self
+
+Column = Beam
+#columns and beams are the same, the profiles are the same, but they function as beams or columns.

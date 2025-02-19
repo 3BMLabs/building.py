@@ -196,7 +196,7 @@ def BAG3DDownload(bboxString, tempFolder):
 
 class NL_Geocoding:
     def __init__(self):
-        self.type = __class__.__name__
+        
         self.servername = NLPDOKServerURL
         self.bron = None
         self.woonplaatscode = None

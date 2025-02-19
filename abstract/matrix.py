@@ -46,7 +46,6 @@ from geometry.pointlist import PointList
 from abstract.vector import Vector
 from geometry.rect import Rect
 from geometry.point import Point
-from typing import Self
 
 # [!not included in BP singlefile - end]
 
@@ -54,7 +53,7 @@ class Matrix(Serializable, list[list]):
 	"""
 	elements are ordered like [row][column] or [y][x]
 	"""
-	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> Self:
+	def __init__(self, matrix:list[list]=[[1, 0], [0, 1]]) -> 'Matrix':
 		list.__init__(self, matrix)
 
 	@property
@@ -67,10 +66,33 @@ class Matrix(Serializable, list[list]):
 		"""returns the height (y size) of this matrix in columns."""
 		return len(self)
 
+	def get_row(self, row: int) -> Vector:
+		"""
+
+		Args:
+			col (int): the row index
+
+		Returns:
+			Vector: a row vector
+		"""
+		return Vector(self[row])
+
+	def get_col(self, col: int) -> Vector:
+		"""
+
+		Args:
+			col (int): the column index
+
+		Returns:
+			Vector: a column vector
+		"""
+		return Vector([self[row][col] for row in range(self.rows)])
+ 
 	@property
-	def origin(self) -> Point:
-		"""you will get this position when you multiply 0 0 0 by this matrix"""
-		return Point([self[row][self.cols - 1] for row in range(self.cols - 1)])
+	def origin(self) -> Vector:
+		col = self.cols - 1
+		return Vector([self[row][col] for row in range(self.rows - 1)])
+	position = origin
 
 	@staticmethod
 	def scale(scalar: Vector)-> 'Matrix':
@@ -112,31 +134,31 @@ class Matrix(Serializable, list[list]):
 		return Matrix([[0 for col in range(cols)] for row in range(rows)])
 
 	@staticmethod
-	def identity(dimensions:int) -> Self:
+	def identity(dimensions:int) -> 'Matrix':
 		return Matrix.scale(Vector([1] * dimensions))
 
 	@staticmethod
-	def translate(addition: Vector) -> Self:
+	def translate(addition: Vector) -> 'Matrix':
 		"""
 
 		Args:
 			origin (Vector): the matrix translates all points by this offset.
 
 		Returns:
-			Self: 
+			Matrix: 
 		"""
 		matrix_size:int = len(addition) + 1
 		return Matrix([[1 if col == row else addition[row] if col == len(addition) else 0 for col in range(matrix_size)] for row in range(matrix_size)])
 
 	@staticmethod
-	def by_origin(origin: Vector) -> Self:
+	def by_origin(origin: Vector) -> 'Matrix':
 		"""
 
 		Args:
 			origin (Vector): 
 
 		Returns:
-			Self: a transformation matrix using the default axes with a specified origin.
+			Matrix: a transformation matrix using the default axes with a specified origin.
 		"""
 		return Matrix.translate(origin)
 
@@ -164,7 +186,7 @@ class Matrix(Serializable, list[list]):
 			for row in range(matrix_size)])
 
 	@staticmethod
-	def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> Self:
+	def by_origin_unit_axes(origin: Point, unit_axes: list[Coords]) -> 'Matrix':
 		"""
 
 		Args:
@@ -172,12 +194,12 @@ class Matrix(Serializable, list[list]):
 			unit_axes (list[Coords]): the axes of this matrix, as unit vectors. they will get normalized!
 
 		Returns:
-			Self: the final matrix
+			Matrix: the final matrix
 		"""
 		return Matrix.by_origin_and_axes(origin, axes=[axis.normalized for axis in unit_axes])
 
 	@staticmethod
-	def by_rotation(axis: Vector, angle: float) -> Self:
+	def by_rotation(axis: Vector, angle: float) -> 'Matrix':
 		"""creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
 		Returns:
@@ -193,7 +215,7 @@ class Matrix(Serializable, list[list]):
 		[normalized_axis.z * normalized_axis.x * (1 - cos_angle) - normalized_axis.y * sin_angle,	normalized_axis.z * normalized_axis.y * (1 - cos_angle) + normalized_axis.x * sin_angle,	cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle)						]])
 	
 	@staticmethod
-	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> Self:
+	def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> 'Matrix':
 		#from right to left:
   		#- translate objects so the pivot is at the origin
 		#- rotate objects around the origin
@@ -201,7 +223,7 @@ class Matrix(Serializable, list[list]):
 
 		return Matrix.translate(pivot) * Matrix.by_rotation(axis, angle) * Matrix.translate(-pivot)
  
-	def __mul__(self, other:Self | Coords | Rect | PointList):
+	def __mul__(self, other:'Matrix | Coords | Rect | PointList'):
 		"""CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
 		for example: translate * rotate (rotate first, translate after)
 		and: matrix * point (point first, multiplied by matrix after)"""
@@ -345,7 +367,7 @@ class Matrix(Serializable, list[list]):
 		adjugate = self.adjugate()
 		return Matrix([[element / determinant for element in row] for row in adjugate])
 
-	def add(self, other: Self):
+	def add(self, other: 'Matrix'):
 		if self.shape() != other.shape():
 			raise ValueError("Matrices must have the same dimensions")
 		return Matrix([[self[i][j] + other.matrix[i][j] for j in range(len(self[0]))] for i in range(len(self))])
