@@ -46,7 +46,7 @@ from geometry.rect import Rect
 from abstract.vector import Vector
 from geometry.curve import PolyCurve
 from abstract.vector import Point
-from abstract.vector import Vector
+from abstract.vector import Vector, z_axis
 
 
 # [!not included in BP singlefile - end]
@@ -96,11 +96,11 @@ class Extrusion(Meshable):
         direction = extrusion_vector.normalized
 
         # since we don't have an up vector, we will need to determine how to rotate this extrusion ourselves. we assume that y must be up.
-        if direction == Vector.z_axis:
+        if direction == z_axis:
             transform = Matrix.translate(start_point)
         else:
             # new x = horizontal (xy)
-            x_vector = Vector.cross_product(direction, Vector.Z_Axis).normalized
+            x_vector = Vector.cross_product(direction, z_axis).normalized
             # new y = more vertical (contains at least a little bit of z)
             y_vector = Vector.cross_product(direction, x_vector)
             transform = Matrix.by_origin_unit_axes(
@@ -186,14 +186,13 @@ class Extrusion(Meshable):
             # other faces
 
             # Sides
-            length = len(mesh.faces[0])
-            for current_indice in range(length):
-                next_indice = (current_indice + 1) % length
+            for current_indice in range(point_count):
+                next_indice = (current_indice + 1) % point_count
                 face = [
                     current_indice,
                     next_indice,  # bottom
-                    next_indice + length,
-                    current_indice + length,  # top
+                    next_indice + point_count,
+                    current_indice + point_count,  # top
                 ]
                 mesh.faces.append(face)
         mesh.set_solid_color(settings.fallback_color)

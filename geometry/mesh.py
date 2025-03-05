@@ -60,7 +60,7 @@ class Mesh(Serializable):
 		self.colors = []
 	
 	def set_solid_color(self, solid_color_int: int):
-		self.colors = [solid_color_int for j in range(int(len(self.vertices) / 3))]
+		self.colors = [solid_color_int for j in range(len(self.vertices))]
 
 	def by_verts_faces(self, verts: 'list', faces: 'list') -> 'Mesh':
 		"""Initializes the mesh with vertices and faces.

@@ -58,7 +58,6 @@ from construction.profile import Profile, Rectangle
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Beam(Serializable, Meshable):
     def __init__(self):
-        
         self.name = "None"
         self.profileName = "None"
         self.extrusion = None

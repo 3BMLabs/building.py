@@ -13,29 +13,30 @@ class dimension_changer:
 
     def __mul__(self, other: Matrix | Vector):
         def get_scaled_item(row, col):
-            if row == self.desired_dimensions - 1:
+            if row == self.desired_dimensions:
                 get_row = other.rows - 1
-            elif row < other.dimensions - 1:
+            elif row < other.dimensions:
                 get_row = row
-            else: return 0
+            else: return 1 if row == col else 0
             
-            if col == self.desired_dimensions - 1:
+            if col == self.desired_dimensions:
                 return other[get_row][other.cols - 1]
-            elif col < other.dimensions - 1:
+            elif col < other.dimensions:
                 return other[get_row][col]
             else:
                 return 0
 
         if isinstance(other, Matrix):
-            return Matrix(
+            m = Matrix(
                 [
                     [
                         get_scaled_item(row, col)
-                        for col in range(self.desired_dimensions)
+                        for col in range(self.desired_dimensions + 1)
                     ]
-                    for row in range(self.desired_dimensions)
+                    for row in range(self.desired_dimensions + 1)
                 ]
             )
+            return m
         elif isinstance(other, Vector):
             other_dimensions = len(other)
             return Vector(list(other) + [0] * (self.desired_dimensions - other_dimensions) if self.desired_dimensions > other_dimensions else other[:self.desired_dimensions])

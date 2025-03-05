@@ -125,7 +125,7 @@ class Dimension:
 		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
 		x = direction
 		y = Vector.rotate_XY(x, math.radians(90))
-		z = Vector.z_axis
+		z = z_axis
 		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
 		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, x, y, z)
 		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, x, y, z)

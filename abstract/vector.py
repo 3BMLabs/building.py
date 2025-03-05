@@ -88,9 +88,9 @@ class Vector(Serializable, list):
     @dimensions.setter
     def dimensions(self, value):
         if value > len(self):
+            self.extend([0] * (value - len(self)))
+        elif value < len(self):
             del self[value:]
-        else:
-            self.append([0] * (value - len(self)))
 
     @property
     def x(self):
@@ -245,8 +245,7 @@ class Vector(Serializable, list):
         cos_angle = max(-1.0, min(cos_angle, 1.0))
         return math.acos(cos_angle)
 
-    @staticmethod
-    def dot_product(vector_1: "Vector", vector_2: "Vector") -> "float":
+    def dot_product(vector_1, vector_2: "Vector") -> "float":
         """Computes the dot product of two vectors.
         The dot product of two vectors is a scalar quantity equal to the sum of the products of their corresponding components. It gives insight into the angle between the vectors.
 
@@ -354,9 +353,11 @@ class Vector(Serializable, list):
                 vector_1.x * vector_2.y - vector_1.y * vector_2.x,
             )
         elif vector_2 == None:
+            #rotate the vector 90 degrees, counter clockwise
             return Vector(-vector_1.y, vector_1.x)
         else:
-            return (vector_1.x * vector_1.y) - (vector_1.Y * vector_2.x)
+            #just return the value of the z axis which would result if these were 3d vectors
+            return vector_1.x * vector_2.y - vector_1.y * vector_2.x
 
     perpendicular = cross_product
 
@@ -653,15 +654,22 @@ class Vector(Serializable, list):
         return self.ioperate_2(operator.__itruediv__, other)
 
 
-Vector.x_axis = Vector(1, 0, 0)
-Vector.y_axis = Vector(0, 1, 0)
-Vector.z_axis = Vector(0, 0, 1)
+x_axis = Vector(1, 0, 0)
+y_axis = Vector(0, 1, 0)
+z_axis = Vector(0, 0, 1)
 
-Vector.left = Vector(-1, 0, 0)
-Vector.right = Vector(1, 0, 0)
-Vector.down = Vector(0, -1, 0)
-Vector.up = Vector(0, 1, 0)
-Vector.backward = Vector(0, 0, -1)
-Vector.forward = Vector(0, 0, 1)
+left = Vector(-1, 0, 0)
+right = Vector(1, 0, 0)
+backward = Vector(0, -1, 0)
+forward = Vector(0, 1, 0)
+down = Vector(0, 0, -1)
+up = Vector(0, 0, 1)
+
+x_axis_2d = Vector(1,0)
+y_axis_2d = Vector(0,1)
+left_2d = Vector(-1, 0)
+right_2d = Vector(1, 0)
+forward_2d = Vector(0, 1)
+backward_2d = Vector(0, -1)
 
 Point = Vector

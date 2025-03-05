@@ -115,9 +115,10 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 									faces = [
              						index
                   					for face in building_py_object.faces
+									#length, index 1, index 2, index ... length for example: 3, 0, 1, 2 
                        				for index in ([len(face)] + face)],
 									name = building_py_object.name,
-									colors = [color] * len(building_py_object.faces), 
+									colors = [color for color in building_py_object.colors], 
 									textureCoordinates = [])
 
 	elif isinstance(building_py_object, PolyCurve):

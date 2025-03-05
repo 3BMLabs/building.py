@@ -27,27 +27,26 @@ spacing = 1000
 spacing_vert = 1500
 height = 2000
 count = 0
-shape = "HEA"
-type = "HEA"
+last_type = None
 # Mat = Material.byNameColor("Steel", Color().RGB([237, 237, 237]))
 
 for profile_name in lst:
-    try:
+    #try:
+        type = profile_name[:3]
+        if last_type != None:
+            if type == last_type:
+                x = x + spacing
+            else:
+                x = 0
+                y = y + spacing_vert
+        last_type = type
         Mat = BaseSteel
-        shape = profile_name[:3]
         beam = Beam.by_startpoint_endpoint(
             Point(x, y, 0), Point(x, y, height), profile_name, profile_name, Mat
         )
         project += beam
         # ColumnTag.by_beam(beam).write(project)
-        x = x + spacing
-        if type == shape:
-            y = y
-        else:
-            x = 0
-            y = y + spacing_vert
-            type = shape
-    except UnboundLocalError:
-        pass
+    #except UnboundLocalError:
+    #    pass
 
 project.to_speckle("ed88c2cdb3")
