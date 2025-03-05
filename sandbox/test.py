@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 
 from geometry.point import Point
-from library.profile import nameToProfile
+from library.profile import get_profile_by_name
 from construction.profile import TProfile
 from project.fileformat import BuildingPy
 from construction.beam import Beam
@@ -14,7 +14,7 @@ from project import fileformat
 
 project = BuildingPy("Jan zijn ligger project", "0")
 
-test = nameToProfile("UNP300").profile.curve
+test = get_profile_by_name("UNP300").profile.curve
 
 f1 = Beam.by_startpoint_endpoint(Point(0,0,0),Point(3000,0,0),"HEA300","HEA300+zeeg 30 mm",BaseSteel)
 prof = TProfile("T-profiel 2",300,200,100,100)

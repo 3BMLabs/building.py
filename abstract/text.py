@@ -91,7 +91,6 @@ class Text:
         self.curves = []
         # self.points = []
         self.path_list = self.load_path()
-        self.load_o_example = self.load_o()
 
     def load_path(self) -> "str":
         """Loads the glyph paths for the specified text from a JSON file.

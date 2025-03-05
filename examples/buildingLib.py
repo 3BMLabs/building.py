@@ -4,7 +4,7 @@ from construction.profile import *
 from exchange.speckle import *
 from library.profile import data as jsondata
 from library.material import *
-from library.profile import nameToProfile
+from library.profile import get_profile_by_name
 from construction.annotation import *
 
 project = BuildingPy("Library Profiles", "0")
@@ -17,7 +17,7 @@ lst = [
 ]
 
 
-test = nameToProfile("HEA200")
+test = get_profile_by_name("HEA200")
 
 # sys.exit()
 # 3D Frames
@@ -35,9 +35,11 @@ for profile_name in lst:
     try:
         Mat = BaseSteel
         shape = profile_name[:3]
-        fram = Beam.by_startpoint_endpoint(Point(x, y, 0), Point(
-            x, y, height), profile_name, profile_name, Mat).write(project)
-        ColumnTag.by_beam(fram).write(project)
+        beam = Beam.by_startpoint_endpoint(
+            Point(x, y, 0), Point(x, y, height), profile_name, profile_name, Mat
+        )
+        project += beam
+        # ColumnTag.by_beam(beam).write(project)
         x = x + spacing
         if type == shape:
             y = y
@@ -45,8 +47,7 @@ for profile_name in lst:
             x = 0
             y = y + spacing_vert
             type = shape
-    except:
+    except UnboundLocalError:
         pass
-    break
 
 project.to_speckle("ed88c2cdb3")

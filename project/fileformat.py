@@ -122,6 +122,9 @@ class BuildingPy(Serializable):
 		ifc_project.add_storey("G2Floor")	 
 		translateObjectsToIFC(self.objects, ifc_project)
 		ifc_project.export(f"{name}.ifc")
+	def __iadd__(self, new_object):
+		self.objects.append(new_object)
+		return self
 # [!not included in BP singlefile - end]
 
 #god object! multiple instances of buildingpy should be able to live next to eachother

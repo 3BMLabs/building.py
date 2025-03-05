@@ -401,7 +401,7 @@ class Vector(Serializable, list):
                 int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
         """
         return self.set_axis(Vector.axis_index(axis_name), value)
-
+    
     @staticmethod
     def by_two_points(point_1: "Vector", point_2: "Vector") -> "Vector":
         """Computes the vector between two points.
@@ -501,7 +501,7 @@ class Vector(Serializable, list):
         """
         return self.operate_2(operator.__add__, other)
 
-    sum = __add__
+    sum = translate = __add__
 
     def __sub__(self, other):
         """Calculates the difference between two Vector objects.
@@ -642,7 +642,6 @@ class Vector(Serializable, list):
         """
         return self.ioperate_2(operator.__iadd__, other)
 
-    translate = __iadd__
 
     def __isub__(self, other) -> Self:
         return self.ioperate_2(operator.__isub__, other)
