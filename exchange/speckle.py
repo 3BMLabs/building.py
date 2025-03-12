@@ -35,7 +35,7 @@ from abstract.interval import Interval
 from abstract.segmentation import TesselationSettings
 from abstract.serializable import Serializable
 #from construction.datum import Grid, GridSystem
-from construction.datum import Grid, GridSystem
+from construction.datum import GridLine, Grid
 from construction.panel import Panel
 from construction.void import Void
 from construction.wall import Wall
@@ -208,7 +208,7 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 					vertices=building_py_object.extrusion.verts, 
 					faces=building_py_object.extrusion.faces, 
 					colors = building_py_object.colorlst,
-					name = building_py_object.profileName,
+					name = building_py_object.name,
 					textureCoordinates = [],
 					Scia_Id=building_py_object.comments.id, 
 					Scia_Justification=building_py_object.comments.perpendicular_alignment, 
@@ -227,7 +227,7 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 											  vertices=building_py_object.extrusion.verts, 
 											  faces=building_py_object.extrusion.faces, 
 											  colors = building_py_object.colorlst, 
-											  name = building_py_object.profileName,
+											  name = building_py_object.name,
 											  textureCoordinates = []
 											  )
 		except:
@@ -285,18 +285,18 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 	return converted_object
 
 
-def GridToLines(self: BuildingPy, Grid):
+def GridLineToLines(self: BuildingPy, GridLine):
 	SpeckleLines = []
-	for line in Grid.line:
+	for line in GridLine.line:
 		SpeckleLines.append(convert_to_speckle_object(self, line))
 	return SpeckleLines
 
-def GridSystemToLines(self: BuildingPy, GridSystem):
+def GridToLines(self: BuildingPy, Grid):
 	SpeckleLines = []
-	for line_x in GridSystem.gridsX:
-		SpeckleLines.append(GridToLines(self, line_x))
-	for line_j in GridSystem.gridsY:
-		SpeckleLines.append(GridToLines(self, line_j))
+	for line_x in Grid.gridsX:
+		SpeckleLines.append(GridLineToLines(self, line_x))
+	for line_j in Grid.gridsY:
+		SpeckleLines.append(GridLineToLines(self, line_j))
 	return SpeckleLines
 
 def ArcToSpeckleArc(arc: Arc):
@@ -344,11 +344,11 @@ def translateObjectsToSpeckleObjects(self: BuildingPy, building_py_objects: list
 			for polycurves in building_py_object.write():
 				polycurve = convert_to_speckle_object(self, polycurves)
 				speckle_objects.append(polycurve)
-		elif isinstance(building_py_object, Grid):
+		elif isinstance(building_py_object, GridLine):
 			for converted_line in GridToLines(self, building_py_object):
 				speckle_objects.append(converted_line)
-		elif isinstance(building_py_object, GridSystem):
-			for converted_line in GridSystemToLines(building_py_object):
+		elif isinstance(building_py_object, Grid):
+			for converted_line in GridToLines(building_py_object):
 				speckle_objects.append(converted_line)
 		else:
 			speckle_objects.append(convert_to_speckle_object(self, building_py_object))

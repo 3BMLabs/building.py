@@ -6,9 +6,9 @@ import numpy as np
 
 
 
-from exchange.DXF import *
 
-from geometry.surface import *
+
+
 
 project = BuildingPy("DXF","0001") 
 

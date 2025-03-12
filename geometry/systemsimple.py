@@ -35,12 +35,21 @@ __url__ = "./geometry/systemsimple.py"
 
 import sys
 
+from abstract.interval import Interval
+from abstract.vector import Point, Vector
+from construction.beam import Beam
+from construction.panel import Panel
+from construction.profile import RectangleProfile
+from geometry.curve import Line, PolyCurve
+from geometry.rect import Rect
+from library.material import BaseBrick, BaseBrickYellow, BaseTimber, rgb_to_int
 
-from geometry.rect import *
-from construction.panel import *
-from construction.beam import *
-from construction.profile import *
-from abstract.interval import *
+
+
+
+
+
+
 
 # [!not included in BP singlefile - end]
 
@@ -271,11 +280,11 @@ class RectangleSystem:
 		
 		self.height = 3000
 		self.width = 2000
-		self.bottom_frame_type = Rectangle("bottom_frame_type", 38, 184)
-		self.top_frame_type = Rectangle("top_frame_type", 38, 184)
-		self.left_frame_type = Rectangle("left_frame_type", 38, 184)
-		self.right_frame_type = Rectangle("left_frame_type", 38, 184)
-		self.inner_frame_type = Rectangle("inner_frame_type", 38, 184)
+		self.bottom_frame_type = RectangleProfile("bottom_frame_type", 38, 184)
+		self.top_frame_type = RectangleProfile("top_frame_type", 38, 184)
+		self.left_frame_type = RectangleProfile("left_frame_type", 38, 184)
+		self.right_frame_type = RectangleProfile("left_frame_type", 38, 184)
+		self.inner_frame_type = RectangleProfile("inner_frame_type", 38, 184)
 
 		self.material = BaseTimber
 		self.inner_width: float = 0
@@ -449,15 +458,15 @@ class RectangleSystem:
 		"""
 		self.width = width
 		self.height = height
-		self.bottom_frame_type = Rectangle(
+		self.bottom_frame_type = RectangleProfile(
 			"bottom_frame_type", frame_width, frame_height)
-		self.top_frame_type = Rectangle(
+		self.top_frame_type = RectangleProfile(
 			"top_frame_type", frame_width, frame_height)
-		self.left_frame_type = Rectangle(
+		self.left_frame_type = RectangleProfile(
 			"left_frame_type", frame_width, frame_height)
-		self.right_frame_type = Rectangle(
+		self.right_frame_type = RectangleProfile(
 			"left_frame_type", frame_width, frame_height)
-		self.inner_frame_type = Rectangle(
+		self.inner_frame_type = RectangleProfile(
 			"inner_frame_type", frame_width, frame_height)
 		self.division_system = division_system
 		self.__inner_mother_surface()
@@ -694,29 +703,3 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
 			xvector = Vector.sum(
 				xvectdisplacement, Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
 	return panels
-
-
-def fillin(perimeter: PolyCurve, pattern: pattern_geom) -> pattern_system:
-	"""Fills in a given perimeter with a specified pattern.
-	Uses a bounding box to define the perimeter within which a pattern is applied, based on a geometric pattern generation function.
-
-	#### Parameters:
-	- `perimeter` (PolyCurve2D): The 2D perimeter to fill in.
-	- `pattern` (function): The pattern generation function to apply within the perimeter.
-
-	#### Returns:
-	`pattern_system`: A pattern_system object that represents the filled-in area.
-	
-	#### Example usage:
-	```python
-
-	```
-	"""
-
-	bb = Rect().by_points(perimeter.points)
-
-	for pt in bb.corners:
-		project.objects.append(pt)
-	bb_perimeter = PolyCurve.by_points(bb.corners)
-
-	return [bb_perimeter]

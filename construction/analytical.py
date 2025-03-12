@@ -34,8 +34,8 @@ __url__ = "./objects/analytical.py"
 import sys
 
 
-from geometry.point import *
-from geometry.curve import *
+
+
 
 # [!not included in BP singlefile - end]
 

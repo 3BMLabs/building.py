@@ -27,24 +27,15 @@
 """This module provides import data from DXF file
 """
 
-import sys
-import ezdxf
-from ezdxf import readfile, DXFStructureError, DXFValueError
-import math
-from pathlib import Path
 
 
 __title__ = "DXF"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/dxf.py"
 
-
-
-
-from project.fileformat import *
-from geometry.curve import *
-from abstract.vector import Point
-from geometry.geometry2d import Point, Line2D, Arc2D, PolyCurve2D
+import ezdxf
+from geometry.curve import Polygon
+from abstract.vector import Point, Vector
 
 # [!not included in BP singlefile - end]
 
@@ -85,8 +76,6 @@ class ReadDXF:
                     points = [Point(x, y) for x, y in entity.vertices()]
                     polygon = Polygon.by_points(points)
                     self.polylines.append((polygon, entity.dxf.layer))
-                except DXFValueError as error:
-                    print(f"Failed to process {entity.dxftype()} on layer {entity.dxf.layer} due to a DXF error: {str(error)}")
                 except ValueError as error:
                     print(f"Data format error with {entity.dxftype()} on layer {entity.dxf.layer}: {str(error)}")
                 except Exception as error:

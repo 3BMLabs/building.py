@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module forms the base for points and vectors
-"""
+"""This module forms the base for points and vectors"""
 
 __title__ = "coords"
 __author__ = "JohnHeikens"
@@ -51,7 +50,7 @@ def to_array(*args) -> list:
 class Vector(Serializable, list):
     """
     a shared base class for point and vector. contains the x, y and z coordinates.
-    operations you do with these coords will apply for the children.
+    operations you do with these vector will apply for the children.
     for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
     or: Vector(2,5) ** 2 = Vector(4, 25)
     Vectors can also be nested.
@@ -65,6 +64,21 @@ class Vector(Serializable, list):
 
         for kwarg in kwargs.items():
             self.set_axis_by_name(kwarg[0], kwarg[1])
+    x_axis : 'Vector' = None
+    y_axis : 'Vector' = None
+    z_axis : 'Vector' = None
+    left : 'Vector' = None
+    right : 'Vector' = None
+    backward : 'Vector' = None
+    forward : 'Vector' = None
+    down : 'Vector' = None
+    up : 'Vector' = None
+    x_axis_2d : 'Vector' = None
+    y_axis_2d : 'Vector' = None
+    left_2d : 'Vector' = None
+    right_2d : 'Vector' = None
+    backward_2d : 'Vector' = None
+    forward_2d : 'Vector' = None
 
     def __str__(self):
         return (
@@ -80,11 +94,11 @@ class Vector(Serializable, list):
         )
 
     axis_names = ["x", "y", "z", "w"]
-    
+
     @property
     def dimensions(self):
         return len(self)
-    
+
     @dimensions.setter
     def dimensions(self, value):
         if value > len(self):
@@ -353,10 +367,10 @@ class Vector(Serializable, list):
                 vector_1.x * vector_2.y - vector_1.y * vector_2.x,
             )
         elif vector_2 == None:
-            #rotate the vector 90 degrees, counter clockwise
+            # rotate the vector 90 degrees, counter clockwise
             return Vector(-vector_1.y, vector_1.x)
         else:
-            #just return the value of the z axis which would result if these were 3d vectors
+            # just return the value of the z axis which would result if these were 3d vectors
             return vector_1.x * vector_2.y - vector_1.y * vector_2.x
 
     perpendicular = cross_product
@@ -402,7 +416,7 @@ class Vector(Serializable, list):
                 int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
         """
         return self.set_axis(Vector.axis_index(axis_name), value)
-    
+
     @staticmethod
     def by_two_points(point_1: "Vector", point_2: "Vector") -> "Vector":
         """Computes the vector between two points.
@@ -425,32 +439,12 @@ class Vector(Serializable, list):
         return point_2 - point_1
 
     @staticmethod
-    def rotate_XY(point: "Vector", beta: float, dz: float) -> "Point":
-        """Rotates the point about the Z-axis by a given angle.
+    def rotate(point: "Vector", angle: float, axis: "Vector" = None, pivot: 'Vector' = None) -> "Vector":
+        """use Matrix.by_rotation(axis, angle) * point instead!"""
 
-        #### Parameters:
-        - `point` (Point): Point to be rotated.
-        - `beta` (float): Angle of rotation in degrees.
-        - `dz` (float): Offset in the z-coordinate.
+        from abstract.matrix import Matrix
 
-        #### Returns:
-        `Point`: Rotated point.
-
-        #### Example usage:
-        ```python
-        point_1 = Point(19, 30, 12.3)
-        output = Point.rotate_XY(point_1, 90, 12)
-        # Point(X = -30.000, Y = 19.000, Z = 24.300)
-        ```
-        """
-
-        return Vector(
-            [
-                math.cos(beta) * point.x - math.sin(beta) * point.y,
-                math.sin(beta) * point.x + math.cos(beta) * point.y,
-            ]
-            + point[2:]
-        )
+        return Matrix.rotate(angle, axis, pivot) * point
 
     def volume(self):
         result = 1
@@ -643,7 +637,6 @@ class Vector(Serializable, list):
         """
         return self.ioperate_2(operator.__iadd__, other)
 
-
     def __isub__(self, other) -> Self:
         return self.ioperate_2(operator.__isub__, other)
 
@@ -654,22 +647,23 @@ class Vector(Serializable, list):
         return self.ioperate_2(operator.__itruediv__, other)
 
 
-x_axis = Vector(1, 0, 0)
-y_axis = Vector(0, 1, 0)
-z_axis = Vector(0, 0, 1)
+Vector.x_axis = Vector(1, 0, 0)
+Vector.x_axis = Vector(1, 0, 0)
+Vector.y_axis = Vector(0, 1, 0)
+Vector.z_axis = Vector(0, 0, 1)
 
-left = Vector(-1, 0, 0)
-right = Vector(1, 0, 0)
-backward = Vector(0, -1, 0)
-forward = Vector(0, 1, 0)
-down = Vector(0, 0, -1)
-up = Vector(0, 0, 1)
+Vector.left = Vector(-1, 0, 0)
+Vector.right = Vector.x_axis
+Vector.backward = Vector(0, -1, 0)
+Vector.forward = Vector.y_axis
+Vector.down = Vector(0, 0, -1)
+Vector.up = Vector.z_axis
 
-x_axis_2d = Vector(1,0)
-y_axis_2d = Vector(0,1)
-left_2d = Vector(-1, 0)
-right_2d = Vector(1, 0)
-forward_2d = Vector(0, 1)
-backward_2d = Vector(0, -1)
+Vector.x_axis_2d = Vector(1, 0)
+Vector.y_axis_2d = Vector(0, 1)
+Vector.left_2d = Vector(-1, 0)
+Vector.right_2d = Vector.x_axis_2d
+Vector.backward_2d = Vector(0, -1)
+Vector.forward_2d = Vector.y_axis_2d
 
 Point = Vector

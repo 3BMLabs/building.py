@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools to create solids
-"""
+"""This module provides tools to create solids"""
 
 __title__ = "solid"
 __author__ = "Maarten & Jonathan"
@@ -46,7 +45,7 @@ from geometry.rect import Rect
 from abstract.vector import Vector
 from geometry.curve import PolyCurve
 from abstract.vector import Point
-from abstract.vector import Vector, z_axis
+from abstract.vector import Vector
 
 
 # [!not included in BP singlefile - end]
@@ -72,9 +71,10 @@ class Extrusion(Meshable):
         """we'll translate bottom_curve by this vector to get the top curve."""
 
     @staticmethod
-    def by_2d_polycurve_height_vector(
+    def by_2d_polycurve_vector(
         polycurve: PolyCurve, start_point: Point, extrusion_vector: Vector
     ) -> "Extrusion":
+        
         """Creates an extrusion from a 2D polycurve along a specified vector.
         This method extrudes a 2D polycurve into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -96,11 +96,11 @@ class Extrusion(Meshable):
         direction = extrusion_vector.normalized
 
         # since we don't have an up vector, we will need to determine how to rotate this extrusion ourselves. we assume that y must be up.
-        if direction == z_axis:
+        if direction == Vector.z_axis:
             transform = Matrix.translate(start_point)
         else:
             # new x = horizontal (xy)
-            x_vector = Vector.cross_product(direction, z_axis).normalized
+            x_vector = Vector.cross_product(direction, Vector.z_axis).normalized
             # new y = more vertical (contains at least a little bit of z)
             y_vector = Vector.cross_product(direction, x_vector)
             transform = Matrix.by_origin_unit_axes(

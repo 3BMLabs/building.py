@@ -33,8 +33,8 @@ __url__ = "./objects/panel.py"
 import sys
 
 
-from geometry.curve import *
-from project.fileformat import *
+
+
 
 # [!not included in BP singlefile - end]
 

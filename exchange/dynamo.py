@@ -1,4 +1,4 @@
-from BuildingPy import *
+
 
 import clr
 clr.AddReference('ProtoGeometry')

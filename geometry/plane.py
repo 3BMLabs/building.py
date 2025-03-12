@@ -33,8 +33,10 @@ __url__ = "./abstract/plane.py"
 
 import sys
 
+from abstract.vector import Point, Vector
 
-from abstract.vector import *
+
+
 
 # [!not included in BP singlefile - end]
 

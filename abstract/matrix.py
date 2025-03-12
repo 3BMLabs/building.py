@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for matrices
-"""
+"""This module provides tools for matrices"""
 
 __title__ = "matrix"
 __author__ = "Maarten, Jan & Jonathan"
@@ -163,7 +162,7 @@ class Matrix(Serializable, list[list]):
 
     @staticmethod
     def identity(dimensions: int) -> "Matrix":
-        return Matrix.scale(Vector([1] * dimensions))
+        return Matrix.scale(Vector([1] * (dimensions + 1)))
 
     @staticmethod
     def translate(addition: Vector) -> "Matrix":
@@ -185,18 +184,7 @@ class Matrix(Serializable, list[list]):
                 for row in range(matrix_size)
             ]
         )
-
-    @staticmethod
-    def by_origin(origin: Vector) -> "Matrix":
-        """
-
-        Args:
-                origin (Vector):
-
-        Returns:
-                Matrix: a transformation matrix using the default axes with a specified origin.
-        """
-        return Matrix.translate(origin)
+    by_origin = translate
 
     @staticmethod
     def by_origin_and_axes(origin: Point, axes: list[Vector]) -> "Matrix":
@@ -245,54 +233,70 @@ class Matrix(Serializable, list[list]):
         )
 
     @staticmethod
-    def by_rotation(axis: Vector, angle: float) -> "Matrix":
+    def rotate(
+        angle: float, axis: Vector = None, pivot: Vector = None
+    ) -> "Matrix":
         """creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
         Returns:
                 Matrix: a rotation matrix. when a point is multiplied with this matrix, it's rotated.
         """
-        # https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
-        normalized_axis = axis.normalized
         cos_angle = math.cos(angle)
         sin_angle = math.sin(angle)
-        return Matrix(
-            [
+        if axis == None:
+            #when no pivot and no axis is specified, we assume a 2d rotation matrix is desired, since it doesn't make sense to rotate a 3d vector without specifying an axis.
+            if pivot == None or len(pivot) == 2:
+                origin_matrix = Matrix([[cos_angle, -sin_angle, 0],
+                               [sin_angle, cos_angle,  0],
+                               [0,         0,          1]])
+            else:
+                origin_matrix = Matrix([[cos_angle, -sin_angle, 0, 0],
+                                        [sin_angle, cos_angle,  0, 0],
+                                        [0,         0,          1, 0],
+                                        [0,         0,          0, 1]])
+        else:
+            # https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
+            normalized_axis = axis.normalized
+            one_min_cos = 1 - cos_angle
+            origin_matrix = Matrix(
                 [
-                    cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),
-                    normalized_axis.x * normalized_axis.y * (1 - cos_angle)
-                    - normalized_axis.z * sin_angle,
-                    normalized_axis.x * normalized_axis.z * (1 - cos_angle)
-                    + normalized_axis.y * sin_angle,
-                ],
-                [
-                    normalized_axis.y * normalized_axis.x * (1 - cos_angle)
-                    + normalized_axis.z * sin_angle,
-                    cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),
-                    normalized_axis.y * normalized_axis.z * (1 - cos_angle)
-                    - normalized_axis.x * sin_angle,
-                ],
-                [
-                    normalized_axis.z * normalized_axis.x * (1 - cos_angle)
-                    - normalized_axis.y * sin_angle,
-                    normalized_axis.z * normalized_axis.y * (1 - cos_angle)
-                    + normalized_axis.x * sin_angle,
-                    cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle),
-                ],
-            ]
-        )
+                    [
+                        cos_angle + normalized_axis.x * normalized_axis.x * one_min_cos,
+                        normalized_axis.x * normalized_axis.y * one_min_cos
+                        - normalized_axis.z * sin_angle,
+                        normalized_axis.x * normalized_axis.z * one_min_cos
+                        + normalized_axis.y * sin_angle,
+                    ],
+                    [
+                        normalized_axis.y * normalized_axis.x * one_min_cos
+                        + normalized_axis.z * sin_angle,
+                        cos_angle + normalized_axis.y * normalized_axis.y * one_min_cos,
+                        normalized_axis.y * normalized_axis.z * one_min_cos
+                        - normalized_axis.x * sin_angle,
+                    ],
+                    [
+                        normalized_axis.z * normalized_axis.x * one_min_cos
+                        - normalized_axis.y * sin_angle,
+                        normalized_axis.z * normalized_axis.y * one_min_cos
+                        + normalized_axis.x * sin_angle,
+                        cos_angle + normalized_axis.z * normalized_axis.z * one_min_cos,
+                    ],
+                ]
+            )
+        if pivot == None:
+            return origin_matrix
+        else:
+            # from right to left:
+            # - translate objects so the pivot is at the origin
+            # - rotate objects around the origin
+            # - translate objects back so the pivot is at its old location
 
-    @staticmethod
-    def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> "Matrix":
-        # from right to left:
-        # - translate objects so the pivot is at the origin
-        # - rotate objects around the origin
-        # - translate objects back so the pivot is at its old location
-
-        return (
-            Matrix.translate(pivot)
-            * Matrix.by_rotation(axis, angle)
-            * Matrix.translate(-pivot)
-        )
+            return (
+                Matrix.translate(pivot)
+                * origin_matrix
+                * Matrix.translate(-pivot)
+            )
+        
 
     def __mul__(self, other: "Matrix | Vector | Rect | PointList"):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!

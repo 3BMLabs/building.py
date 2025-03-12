@@ -33,14 +33,11 @@ __url__ = "./objects/annotation.py"
 
 import math
 
-from abstract.vector import Vector
+from abstract.vector import Point, Vector
 
+from abstract.text import Text
 
-
-
-from abstract.text import *
-
-from geometry.curve import Line
+from geometry.curve import Line, PolyCurve
 
 from abstract.matrix import CoordinateSystem
 
@@ -119,16 +116,16 @@ class Dimension:
 	def geom(self):
 		# baseline
 		baseline = Line(start=self.start, end=self.end)
-		midpoint_text = baseline.mid_point()
+		midpoint_text = baseline.mid
 		direction = baseline.direction
 		tick_mark_extension_point_1 = self.start - direction * self.dimension_type.line_extension
 		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
 		x = direction
-		y = Vector.rotate_XY(x, math.radians(90))
-		z = z_axis
+		y = Vector.rotate(x, math.radians(90))
+		z = Vector.z_axis
 		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
-		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, x, y, z)
-		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, x, y, z)
+		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, [x, y, z])
+		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, [x, y, z])
 		self.curves.append(Line(tick_mark_extension_point_1,
 						   self.start))  # extention_start
 		self.curves.append(
@@ -138,10 +135,8 @@ class Dimension:
 		crvs = Line(
 			start=self.dimension_type.tick_mark.curves[0].start, end=self.dimension_type.tick_mark.curves[0].end)
 
-		self.curves.append(Line.transform(
-			self.dimension_type.tick_mark.curves[0], cs_new_start))  # dimension tick start
-		self.curves.append(Line.transform(crvs, cs_new_end)
-						   )  # dimension tick end
+		self.curves.append(cs_new_start * self.dimension_type.tick_mark.curves[0])  # dimension tick start
+		self.curves.append(cs_new_end * crvs)  # dimension tick end
 		self.text = Text(text=str(round(self.length)), font_family=self.dimension_type.font,
 						 cs=cs_new_mid, height=self.text_height).write()
 
@@ -152,7 +147,7 @@ class Dimension:
 			project.objects.append(j)
 
 
-class FrameTag:
+class BeamTag:
 	def __init__(self):
 		# Dimensions in 1/100 scale
 		
@@ -183,13 +178,13 @@ class FrameTag:
 
 	@staticmethod
 	def by_frame(frame):
-		tag = FrameTag()
+		tag = BeamTag()
 		frame_vector = frame.vector_normalised
 		x = frame_vector
-		y = Vector.rotate_XY(x, math.radians(90))
-		z = Z_Axis
+		y = Vector.rotate(x, math.radians(90))
+		z = Vector.Z_Axis
 		vx = Vector.scale(frame_vector, tag.offset_x)
-		frame_width = PolyCurve2D.bounds(frame.curve)[4]
+		frame_width = PolyCurve.bounds(frame.curve)[4]
 		vy = Vector.scale(y, frame_width*0.5+tag.offset_y)
 		origintext = Point.translate(frame.start, vx)
 		origintext = Point.translate(origintext, vy)

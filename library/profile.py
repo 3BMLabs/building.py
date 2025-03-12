@@ -43,7 +43,7 @@ package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
 from abstract.vector import Vector
-from construction.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Profile, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
+from construction.profile import CChannelParallelFlangeProfile, CChannelSlopedFlangeProfile, IShapeParallelFlangeProfile, LAngleProfile, Profile, RectangleProfile, RectangleHollowSectionProfile, RoundProfile, RoundtubeProfile, TProfileRounded
 from geometry.curve import PolyCurve
 
 # [!not included in BP singlefile - end]
@@ -82,7 +82,7 @@ class _getProfileDataFromDatabase:
                 self.synonyms = name
 
 
-def get_profile_by_name(name1) -> Profile:
+def profile_by_name(name1) -> Profile:
     profile_data = _getProfileDataFromDatabase(name1)
     if profile_data == None:
         print(f"profile {name1} not recognised")
@@ -95,29 +95,29 @@ def get_profile_by_name(name1) -> Profile:
     name = profile_data.name
     coords = profile_data.shape_coords
     if profile_name == "C-channel parallel flange":
-        profile = CChannelParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
+        profile = CChannelParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
     elif profile_name == "C-channel sloped flange":
-        profile = CChannelSlopedFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
+        profile = CChannelSlopedFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
     elif profile_name == "I-shape parallel flange":
-        profile = IShapeParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = IShapeParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
     elif profile_name == "I-shape sloped flange":
-        profile = IShapeParallelFlange(name, coords[0], coords[1], coords[2], coords[3], coords[4])
+        profile = IShapeParallelFlangeProfile(name, coords[0], coords[1], coords[2], coords[3], coords[4])
         #Todo: add sloped flange shape
     elif profile_name == "Rectangle":
-        profile = Rectangle(name,coords[0], coords[1])
+        profile = RectangleProfile(name,coords[0], coords[1])
     elif profile_name == "Round":
-        profile = Round(name, coords[1])
+        profile = RoundProfile(name, coords[1])
     elif profile_name == "Round tube profile":
-        profile = Roundtube(name, coords[0], coords[1])
+        profile = RoundtubeProfile(name, coords[0], coords[1])
     elif profile_name == "LAngle":
-        profile = LAngle(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
+        profile = LAngleProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
     elif profile_name == "TProfile":
         profile = TProfileRounded(name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
     elif profile_name == "Rectangle Hollow Section":
-        profile = RectangleHollowSection(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = RectangleHollowSectionProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
     return profile
 
-def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
+def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
 
     # print(XJustifiction)
     xval = []

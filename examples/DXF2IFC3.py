@@ -1,17 +1,17 @@
 import sys
 import os
-from ezdxf import readfile, DXFStructureError, DXFValueError
 
 
-from project.fileformat import *
-from geometry.curve import *
+
+
+
 from abstract.vector import Point
 
-from geometry.surface import *
-from exchange.DXF import *
-from exchange.IFC import *
-from abstract.coordinatesystem import *
-from construction.beam import *
+
+
+
+
+
 
 def process_entities(dxf_path, index):
     dxf_reader = ReadDXF(dxf_path).polylines
@@ -47,8 +47,8 @@ start_list = [Point(0,0,0),Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0)]
 end_list = [Point(0,0,3000),Point(1500,0,3000),Point(1500,0,0),Point(0,0,0)]
 profile_name = "HEA100"
 
-project.objects.append(Beam.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "center", "center", 0, BaseSteel, 0, 0))
-project.objects.append(Beam.by_startpoint_endpoint_profile_justifiction(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "left", "top", 0, BaseSteel, 0, 0))
+project.objects.append(Beam.by_startpoint_endpoint_profile_justification(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "center", "center", 0, BaseSteel, 0, 0))
+project.objects.append(Beam.by_startpoint_endpoint_profile_justification(Point(0,0,0), Point(2000,0,0), c_profile, "Name", "left", "top", 0, BaseSteel, 0, 0))
 
 project.to_speckle("7603a8603c")
 

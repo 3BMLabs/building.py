@@ -1,10 +1,10 @@
 import sys
 
 
-from exchange.IFC import *
-from exchange.DXF import *
 
-from geometry.surface import *
+
+
+
 
 objects = []
 

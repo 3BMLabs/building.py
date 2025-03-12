@@ -23,8 +23,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for image handling
-"""
+"""This module provides tools for image handling"""
 
 import sys
 from pathlib import Path
@@ -34,9 +33,6 @@ from PIL import Image
 __title__ = "image"
 __author__ = "Joas"
 __url__ = "./abstract/image.py"
-
-
-
 
 # [!not included in BP singlefile - end]
 
@@ -154,8 +150,7 @@ class imagePyB:
 
     def by_stream(self, imgpath, imgwidth=None, imgheight=None, dx=0, dy=0, dz=0):
         self.imgpath = imgpath
-        urllib.request.urlretrieve(
-            self.imgpath, "img.png")
+        urllib.request.urlretrieve(self.imgpath, "img.png")
         self.dx = dx
         self.dy = dy
         self.dz = dz

@@ -7,7 +7,7 @@ import numpy as np
 
 
 
-from project.fileformat import *
+
 
 class Trimesh:
     def __init__(self, name, mesh) -> None:

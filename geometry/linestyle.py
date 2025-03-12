@@ -32,10 +32,14 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./geometry/linestyle.py"
 
 
+import math
 import sys
 
+from abstract.vector import Point, Vector
+from geometry.curve import Line, PolyCurve
 
-from geometry.curve import *
+
+
 
 
 # [!not included in BP singlefile - end]

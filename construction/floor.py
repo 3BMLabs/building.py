@@ -34,7 +34,7 @@ __url__ = "./objects/floor.py"
 import sys
 
 
-from geometry.curve import *
+
 
 # [!not included in BP singlefile - end]
 

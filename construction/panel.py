@@ -34,8 +34,11 @@ __url__ = "./objects/panel.py"
 import sys
 
 
+from abstract.serializable import Serializable
+from abstract.vector import Point, Vector
+from geometry.curve import Line, PolyCurve
 from geometry.solid import Extrusion
-from geometry.curve import *
+
 
 # [!not included in BP singlefile - end]
 

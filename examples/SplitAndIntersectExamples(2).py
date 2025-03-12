@@ -6,7 +6,7 @@ from abstract.intersect2d import split_polycurve_by_line
 from abstract.vector import Point
 
 
-project = BuildingPy("Split and Intersect examples","0")
+project = BuildingPy("Split and Intersect examples", "0")
 project.speckleserver = "speckle.xyz"
 
 
@@ -14,44 +14,54 @@ Line1 = Line(start=Point(0, 0, 0), end=Point(0, 500, 0))
 Line2 = Line(start=Point(0, 500, 0), end=Point(500, 500, 0))
 Line3 = Line(start=Point(500, 500, 0), end=Point(100, 1000, 0))
 
-p1 = Point(0,0,0)
-p2 = Point(0,3000,0)
-p3 = Point(2000,6500,0)
-p4 = Point(4000,3000,0)
-p5 = Point(4000,0,0)
+p1 = Point(0, 0, 0)
+p2 = Point(0, 3000, 0)
+p3 = Point(2000, 6500, 0)
+p4 = Point(4000, 3000, 0)
+p5 = Point(4000, 0, 0)
 
 # PC1 = PolyCurve.by_points([p1,p2,p3,p4,p5])
 # project.objects.append(PC1)
 
-window1 = [Point(-500,500,0), Point(500,750,0), Point(750,750,0), Point(750,500,0)]
+window1 = [
+    Point(-500, 500, 0),
+    Point(500, 750, 0),
+    Point(750, 750, 0),
+    Point(750, 500, 0),
+]
 
 # PC2 = PolyCurve.by_points(window1)
 
-window2 = [Point(3700,6000,0), Point(500,750,0), Point(750,750,0), Point(750,500,0)]
+window2 = [
+    Point(3700, 6000, 0),
+    Point(500, 750, 0),
+    Point(750, 750, 0),
+    Point(750, 500, 0),
+]
 
 # PC3 = PolyCurve.by_points(window2)
 
 Line4 = Line(start=Point(2500, -900, 0), end=Point(2500, 6000, 0))
 project.objects.append(Line4)
 
-p1 = Point(650,2500,0)
-p2 = Point(1000,3000,0)
-p3 = Point(6000,6500,0)
-p5 = Point(4000,2500,0)
+p1 = Point(650, 2500, 0)
+p2 = Point(1000, 3000, 0)
+p3 = Point(6000, 6500, 0)
+p5 = Point(4000, 2500, 0)
 
-PC4 = PolyCurve.by_points([p1,p2,p3,p5])
+PC4 = PolyCurve.by_points([p1, p2, p3, p5])
 project.objects.append(PC4)
 
 
-p1 = Point(0,-500,0)
-p2 = Point(0,500,0)
-p3 = Point(4000,500,0)
-p5 = Point(4000,-500,0)
+p1 = Point(0, -500, 0)
+p2 = Point(0, 500, 0)
+p3 = Point(4000, 500, 0)
+p5 = Point(4000, -500, 0)
 
-PC5 = PolyCurve.by_points([p1,p2,p3,p5])
+PC5 = PolyCurve.by_points([p1, p2, p3, p5])
 project.objects.append(PC5)
 
-PC6 = PolyCurve.by_points([p5,p3,p2,p1])
+PC6 = PolyCurve.by_points([p5, p3, p2, p1])
 
 
 # Line5 = Line(start=Point(1500, -750, 0), end=Point(1500, 1500, 0))
@@ -68,7 +78,6 @@ PC6 = PolyCurve.by_points([p5,p3,p2,p1])
 # project.objects.append(PC6)
 
 
-
 # project.objects.append(PC3)
 
 # for j in window1:
@@ -82,13 +91,13 @@ PC6 = PolyCurve.by_points([p5,p3,p2,p1])
 # for i in test_res:
 #     project.objects.append(i)
 
-l3 = Line(Point(-500,500,0), Point(4500,500,0))
-l4 = Line(Point(-40,900,0), Point(4700,900,0))
+l3 = Line(Point(-500, 500, 0), Point(4500, 500, 0))
+l4 = Line(Point(-40, 900, 0), Point(4700, 900, 0))
 # project.objects.append(l3)
 # project.objects.append(l4)
 
-l5 = Line(Point(-500,500,0), Point(4500,500,0))
-l6 = Line(Point(300,1200,0), Point(1200,0,0))
+l5 = Line(Point(-500, 500, 0), Point(4500, 500, 0))
+l6 = Line(Point(300, 1200, 0), Point(1200, 0, 0))
 # project.objects.append(l5)
 # project.objects.append(l6)
 
@@ -133,7 +142,6 @@ l6 = Line(Point(300,1200,0), Point(1200,0,0))
 #     project.objects.append(sp_pc)
 
 
-
 x = split_polycurve_by_line(PC4, Line4)
 for i in x:
     project.objects.append(i)
@@ -161,7 +169,7 @@ for i in b:
 # for curve in flatten(split_polycurves):
 #     # print(curve)
 #     project.objects.append(curve)
-    # print(curve)  
+# print(curve)
 #     for i in curve.curves:
 #         print(i)
 

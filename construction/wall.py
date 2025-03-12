@@ -34,8 +34,8 @@ import sys
 
 
 from geometry.solid import Extrusion
-from geometry.curve import *
-from project.fileformat import *
+
+
 
 # [!not included in BP singlefile - end]
 

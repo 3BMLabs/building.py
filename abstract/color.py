@@ -86,7 +86,7 @@ class Color(Vector):
 	def Components(self, colorInput=None):
 		"""1"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}('green')"
 		else:
 			try:
 				import json
@@ -100,7 +100,7 @@ class Color(Vector):
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 			
 	@staticmethod
 	def Hex(hex:str) -> 'Color':
@@ -117,7 +117,7 @@ class Color(Vector):
 	def CMYK(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
+			return f"Error: Example usage Color.CMYK([0.5, 0.25, 0, 0.2])"
 		else:
 			try:
 				c, m, y, k = colorInput
@@ -127,49 +127,49 @@ class Color(Vector):
 				return [r, g, b]
 			except:
 				# add check help attribute
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def Alpha(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
 		else:
 			try:
 				r, g, b, a = colorInput
 				return [r, g, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def Brightness(self, colorInput=None):
 		"""Expected value is int(0) - int(1)"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
 		else:
 			try:
 				if colorInput >= 0 and colorInput <= 1:
 					r = g = b = int(255 * colorInput)
 					return [r, g, b]
 				else:
-					return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+					return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 			
 	@staticmethod
 	def RGB(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0])"
 		else:
 			try:
 				r, g, b = colorInput
 				return [r, g, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def HSV(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				h, s, v = colorInput
@@ -191,12 +191,12 @@ class Color(Vector):
 					r, g, b = c, 0, x
 				return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def HSL(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				h, s, l = colorInput
@@ -219,12 +219,12 @@ class Color(Vector):
 												  * 255), int((b + m) * 255)
 				return [r, g, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def RAL(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}(1000)"
 		else:
 			try:
 				# validate if value is correct/found
@@ -239,12 +239,12 @@ class Color(Vector):
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def Pantone(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				import json
@@ -254,23 +254,23 @@ class Color(Vector):
 					checkExist = pantone_dict.get(str(colorInput))
 					if checkExist is not None:
 						PantoneHex = pantone_dict[str(colorInput)]['hex']
-						return Color().Hex(PantoneHex)
+						return Color.Hex(PantoneHex)
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def LRV(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
 				b = int(max(0, min(255, b)))
 				return [255, 255, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 
 	def __str__(self, colorInput=None):
@@ -278,9 +278,9 @@ class Color(Vector):
 						   "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
 		if colorInput is None:
 			header = "Available attributes: \n"
-			footer = "\nColor().red | Color().green | Color().blue"
-			return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
-		return f"Color().{colorInput}"
+			footer = "\nColor.red | Color.green | Color.blue"
+			return header + '\n'.join([f"Color.{func}()" for func in colorattributes]) + footer
+		return f"Color.{colorInput}"
 
 	def Info(self, colorInput=None):
 		pass

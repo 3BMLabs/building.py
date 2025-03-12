@@ -1,7 +1,7 @@
-from geometry.curve import *
-from geometry.solid import *
+
+
 from construction.level import Level
-from abstract.matrix import *
+
 from project.fileformat import BuildingPy
 
 import numpy as np

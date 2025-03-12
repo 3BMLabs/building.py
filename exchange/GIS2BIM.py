@@ -29,7 +29,7 @@
 """
 
 
-from geometry.linestyle import *
+
 from geometry.curve import Point, PolyCurve, Line
 
 __title__ = "GIS2BIM"

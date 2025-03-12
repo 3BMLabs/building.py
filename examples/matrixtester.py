@@ -14,7 +14,7 @@ from geometry.pointlist import PointCloud
 
 point = Point(1, 2, 3)
 point2 : Point = Point([4,3,2])
-mat = Matrix(Matrix.identity(4))
+mat = Matrix(Matrix.identity(3))
 scalemat = Matrix.scale(4, 2)
 scalemat[3][3] = 1
 translatemat = Matrix.translate(Vector(4,5,3))

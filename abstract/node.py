@@ -33,9 +33,11 @@ __url__ = "./abstract/plane.py"
 
 import sys
 
+from abstract.vector import Point, Vector
 
-from project.fileformat import *
-from abstract.vector import *
+
+
+
 
 # [!not included in BP singlefile - end]
 
@@ -46,7 +48,6 @@ class Node:
 		""""Initializes a new Node instance.
 		
 		- `id` (str): A unique identifier for the node.
-		- `type` (str): The class name, "Node".
 		- `point` (Point, optional): The location of the node in 3D space.
 		- `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
 		- `number` (any, optional): An identifying number or label for the node.
@@ -63,15 +64,15 @@ class Node:
 		self.comments = comments
 
 	# merge
-	def merge(self):
-		"""Merges this node with others in a project according to defined rules.
-
-		The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
-		"""
-		if project.node_merge == True:
-			pass
-		else:
-			pass
+	#def merge(self):
+	#	"""Merges this node with others in a project according to defined rules.
+#
+	#	The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
+	#	"""
+	#	if project.node_merge == True:
+	#		pass
+	#	else:
+	#		pass
 
 	# snap
 	def snap(self):

@@ -3,7 +3,7 @@ from geometry.rect import Rect
 
 
 from PIL import Image, ImageDraw
-from construction.profile import *
+
 from geometry.curve import Arc, Polygon
 from abstract.vector import Point
 

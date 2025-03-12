@@ -1,9 +1,7 @@
+from abstract.vector import Point
+from construction.datum import GridLine
+from geometry.curve import Line, PolyCurve
 from project.fileformat import BuildingPy
-from geometry.point import *
-from geometry.curve import *
-from construction.void import *
-from construction.datum import *
-from exchange.IFC import *
 
 
 polycurve = PolyCurve.by_points([Point(0,0,0), Point(100,0,0), Point(100,100,0), Point(0,100,0)])
@@ -12,7 +10,7 @@ dz_loc = 0.0
 
 l1 = Line(Point(0,0,0), Point(0,1000,0))
 
-gr = Grid.by_startpoint_endpoint(l1, "Grid")
+gr = GridLine.by_startpoint_endpoint(l1, "Grid")
 
 project = BuildingPy()
 project.objects.append(gr)

@@ -32,17 +32,17 @@ __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/scia.py"
 
 
+import math
 import sys
 import time
-from pathlib import Path
 
-
-
-from abstract.node import *
-from construction.shape3d import *
-from construction.beam import *
-from construction.analytical import *
+from abstract.node import Node
+from abstract.vector import Point
+from construction.beam import Beam
+from geometry.curve import Line
+from library.material import BaseSteel
 from project.fileformat import BuildingPy
+import xml.etree.ElementTree as ET
 
 # [!not included in BP singlefile - end]
 class Scia_Params:

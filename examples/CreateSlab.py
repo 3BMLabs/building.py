@@ -1,17 +1,17 @@
 import sys
 import os
-from ezdxf import readfile, DXFStructureError, DXFValueError
 
 
-from project.fileformat import *
-from geometry.curve import *
+
+
+
 from abstract.vector import Point
-from geometry.surface import *
-from exchange.DXF import *
-from exchange.IFC import *
-from construction.beam import *
-from construction.datum import *
-from construction.floor import *
+
+
+
+
+
+
 
 
 point1 = Point(0, 0, 0)

@@ -5,13 +5,16 @@ import requests
 import webbrowser
 import xml.etree.ElementTree as ET
 from datetime import datetime
-import specklepy
 from specklepy.api.client import SpeckleClient
 from specklepy.objects import Base
 from specklepy.objects.geometry import Point, Line
 
-from bp_single_file import *
+
+from abstract.vector import Vector
 import bp_send_file
+from construction.beam import Beam
+from exchange.struct4U import XMLImportGrids, XMLImportNodes, XMLImportPlates
+from library.material import BaseSteel
 
 
 def timestamp(rec):
@@ -148,7 +151,7 @@ for i, j, k, l, m in zip(BeamsFrom, BeamsTo, BeamsName, BeamsNumber, BeamsRotati
         start = XYZ[1][XYZ[0].index(i.text)]
         end = XYZ[1][XYZ[0].index(j.text)]
         try:
-            pf = Frame.by_startpoint_endpoint_profile_shapevector(start, end, profile_name, profile_name + "-" + l.text, Vector2(0,0), float(m.text), BaseSteel, None)
+            pf = Beam.by_startpoint_endpoint_profile_shapevector(start, end, profile_name, profile_name + "-" + l.text, Vector(0,0), float(m.text), BaseSteel, None)
             if pf != None:
                 obj.append(pf)
         except Exception as e:

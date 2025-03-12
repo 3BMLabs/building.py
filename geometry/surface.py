@@ -35,7 +35,8 @@ __url__ = "./geometry/surface.py"
 import sys
 
 
-from geometry.curve import *
+
+from geometry.curve import PolyCurve, Polygon
 from geometry.solid import Extrusion
 from abstract.color import Color
 
@@ -72,7 +73,7 @@ class Surface:
 		self.inner_Surface = []
 		# self.byPatch = self.fill(self)
 		# if color is None:
-		#     self.color = Color.rgb_to_int(Color().Components("gray"))
+		#     self.color = Color.rgb_to_int(Color.Components("gray"))
 		# else:
 		#     self.color = color
 

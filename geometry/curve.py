@@ -38,7 +38,7 @@ from abstract.matrix import Matrix
 from abstract.segmentation import SegmentationSettings
 from geometry.shape import Shape
 from geometry.sphere import Sphere
-from abstract.vector import Vector, x_axis_2d, x_axis
+from abstract.vector import Vector
 from abstract.vector import to_array
 from geometry.pointlist import PointList
 from packages.helper import flatten
@@ -88,7 +88,7 @@ class Curve(Serializable):
         """
         pass
 
-    def segmentate(self, settings: SegmentationSettings) -> "Polygon":
+    def segmentate(self, settings: SegmentationSettings = SegmentationSettings()) -> "Polygon":
         """
 
         Args:
@@ -470,7 +470,7 @@ class Arc(Curve):
         Returns:
             Point: the radius of the circle this arc is a part of
         """
-        return self.matrix.multiply_without_translation(x_axis if self.matrix.dimensions > 2 else x_axis).magnitude
+        return self.matrix.multiply_without_translation(Vector.x_axis if self.matrix.dimensions > 2 else Vector.x_axis_2).magnitude
 
     @property
     def origin(self) -> Point:
