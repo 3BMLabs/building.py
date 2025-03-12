@@ -38,7 +38,6 @@ from pathlib import Path
 
 
 
-from abstract.node import Node
 from abstract.vector import Point
 from construction.beam import Beam
 from exchange.scia import LoadXML

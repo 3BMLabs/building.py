@@ -275,17 +275,11 @@ grdsystem = Grid.by_spacing_labels(
 
 # FILE: frame
 # Class Frame
-frame2 = Beam(Point(0, 0, 0), Point(0, 1000, 0), profile_by_name("HE100A"))
-frame3 = Beam(
-    Point(500, 0, 0), Point(500, 1000, 0), profile_by_name("HE400B"), BaseSteel
-)
-frame4 = Beam.by_startpoint_endpoint_profile_shapevector(
-    p1, p2, profile_by_name("HE100A"), "Frame 4", vctr2, 20, BaseSteel
-)
-frame5 = Beam.by_startpoint_endpoint_profile_justification(
-    p1, p2, profile_by_name("HE100A"), "Test", 5, 4, 90, BaseSteel
-)
-frame6 = Beam.by_startpoint_endpoint(p1, p2, PC1, "test", 90, BaseSteel)
+frame2 = Beam(Point(0, 0, 0), Point(0, 1000, 0), "HE100A")
+frame3 = Beam(Point(500, 0, 0), Point(500, 1000, 0), "HE400B", BaseSteel)
+frame4 = Beam(p1, p2, "HE100A", BaseSteel, 20, vctr2)
+frame5 = Beam(p1, p2, "HE100A", BaseSteel, math.radians(90), Vector(5, 4))
+frame6 = Beam(p1, p2, PC1, BaseSteel, math.radians(90))
 
 # ------------------------
 
@@ -306,19 +300,19 @@ c = Color()
 print(c.red)
 print(c.green)
 print(c.blue)
-print(c.Components("red"))
-print(c.Hex("#ff2ba4"))
-print(c.rgba_to_hex([0.5, 0.225, 0, 1]))
-print(c.hex_to_rgba("#7F3900FF"))
-print(c.CMYK([0.5, 0.25, 0, 0.2]))
-print(c.Alpha([255, 0, 0, 128]))
-print(c.Brightness(0.03))
-print(c.RGB([255, 0, 0]))
-print(c.HSV([120, 0.5, 0.8]))
-print(c.HSL([120, 0.5, 0.8]))
-print(c.RAL(1002))
-print(c.Pantone("19-5232"))
-print(c.LRV(237))
+print(Color.Components("red"))
+print(Color.Hex("#ff2ba4"))
+print(Color.rgba_to_hex([0.5, 0.225, 0, 1]))
+print(Color.hex_to_rgba("#7F3900FF"))
+print(Color.CMYK([0.5, 0.25, 0, 0.2]))
+print(Color.Alpha([255, 0, 0, 128]))
+print(Color.Brightness(0.03))
+print(Color.RGB([255, 0, 0]))
+print(Color.HSV([120, 0.5, 0.8]))
+print(Color.HSL([120, 0.5, 0.8]))
+print(Color.RAL(1002))
+print(Color.Pantone("19-5232"))
+print(Color.LRV(237))
 
 
 # Text

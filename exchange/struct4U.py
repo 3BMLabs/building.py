@@ -460,7 +460,7 @@ class xmlXFEM4U:
                 Beams.append(
                     "<To_node_number>" + str(node_count) + "</To_node_number>\n"
                 )
-                Beams += "<Angle>" + str(beam.rotation) + "</Angle>\n"
+                Beams += "<Angle>" + str(beam.angle) + "</Angle>\n"
                 Beams += "<Angle_profile>" + "0" + "</Angle_profile>\n"
                 ProfNstr = str(ProfN)
                 Beams.append("<Profile_number>" + ProfNstr + "</Profile_number>\n")

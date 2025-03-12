@@ -35,7 +35,7 @@ import sys
 
 from PIL import Image, ImageDraw
 from abstract.vector import Point
-from geometry.curve import Arc
+from geometry.curve import Arc, PolyCurve
 
 # [!not included in BP singlefile - end]
 
@@ -48,7 +48,7 @@ def img(width, height, scalefactor):
     return img
 
 
-def PolyCurve2DToIMG(PC, widthimgpix: float, img1, scalefactor):
+def PolyCurve2DToIMG(PC: PolyCurve, widthimgpix: float, img1, scalefactor):
     SF = scalefactor
     bounds = PolyCurve2D.bounds(PC)
     dx = 50

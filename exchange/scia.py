@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for exporting geometry to Speckle
-"""
+"""This module provides tools for exporting geometry to Speckle"""
 
 __title__ = "revit"
 __author__ = "Maarten & Jonathan"
@@ -36,17 +35,38 @@ import math
 import sys
 import time
 
-from abstract.node import Node
-from abstract.vector import Point
+from abstract.vector import Point, Vector
 from construction.beam import Beam
 from geometry.curve import Line
 from library.material import BaseSteel
 from project.fileformat import BuildingPy
 import xml.etree.ElementTree as ET
 
+
 # [!not included in BP singlefile - end]
 class Scia_Params:
-    def __init__(self, id=str, name=str, layer=str, perpendicular_alignment=str, lcs_rotation=str, start_node=str, end_node=str, cross_section=str, eem_type=str, bar_system_line_on=str, ey=str, ez=str, geometry_table=str, revit_rot=None, layer_type=None, Yjustification=str, Xjustification=str, centerbottom=None, profile_data=None):
+    def __init__(
+        self,
+        id=str,
+        name=str,
+        layer=str,
+        perpendicular_alignment=str,
+        lcs_rotation=str,
+        start_node=str,
+        end_node=str,
+        cross_section=str,
+        eem_type=str,
+        bar_system_line_on=str,
+        ey=str,
+        ez=str,
+        geometry_table=str,
+        revit_rot=None,
+        layer_type=None,
+        Yjustification=str,
+        Xjustification=str,
+        centerbottom=None,
+        profile_data=None,
+    ):
         self.id = id
         self.name = name
         self.layer = layer
@@ -66,7 +86,7 @@ class Scia_Params:
         self.Xjustification = Xjustification
         self.centerbottom = centerbottom
         self.profile_data = profile_data
-        #add material
+        # add material
 
 
 class LoadXML:
@@ -80,7 +100,6 @@ class LoadXML:
             self.getStaaf()
             if len(self.unrecognizedElements) != 0:
                 print(f"Unrecognized objects: {self.unrecognizedElements}")
-
 
     def load(self):
         start_time = time.time()
@@ -96,7 +115,7 @@ class LoadXML:
             self._record_time("load", end_time - start_time)
             return root
 
-    def getAllKnoop(self):
+    def getAllNodes(self):
         start_time = time.time()
         tableName = "EP_DSG_Elements.EP_StructNode.1"
         for container in self.root:
@@ -113,7 +132,6 @@ class LoadXML:
         end_time = time.time()  # End time
         self._record_time("getStaaf", end_time - start_time)
 
-
     def _record_time(self, method_name, duration):
         if method_name in self.method_times:
             self.method_times[method_name] += duration
@@ -124,18 +142,28 @@ class LoadXML:
         for method, total_time in self.method_times.items():
             print(f"Total time for {method}: {total_time} seconds")
 
-    def findKnoop(self, name):
+    def findNode(self, name):
         tableName = "EP_DSG_Elements.EP_StructNode.1"
         for container in self.root:
             for table in container:
                 if table.attrib["t"] == tableName:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
-                            x, y, z = round(float(obj[1].attrib["v"])*self.project.scale,0), round(float(obj[2].attrib["v"])*self.project.scale,0), round(float(obj[3].attrib["v"])*self.project.scale,0)
-                            pt = Point(x,y,z)
+                            x, y, z = (
+                                round(
+                                    float(obj[1].attrib["v"]) * self.project.scale, 0
+                                ),
+                                round(
+                                    float(obj[2].attrib["v"]) * self.project.scale, 0
+                                ),
+                                round(
+                                    float(obj[3].attrib["v"]) * self.project.scale, 0
+                                ),
+                            )
+                            pt = Point(x, y, z)
                             return pt
 
-    def findKnoopNumber(self, name):
+    def findNodeNumber(self, name):
         tableName = "EP_DSG_Elements.EP_StructNode.1"
         for container in self.root:
             for table in container:
@@ -143,7 +171,6 @@ class LoadXML:
                     for obj in table.iter("{http://www.scia.cz}obj"):
                         if obj.attrib["nm"] == name:
                             return obj.attrib["nm"]
-
 
     def convertJustification(self, justification):
         justification = justification.lower()
@@ -163,12 +190,16 @@ class LoadXML:
             return "bottom", "left"
         elif justification == "bottom right" or justification == "rechtsonder":
             return "bottom", "right"
-        elif justification == "center" or justification == "midden" or justification == "centre" or justification == "standaard":
+        elif (
+            justification == "center"
+            or justification == "midden"
+            or justification == "centre"
+            or justification == "standaard"
+        ):
             return "center", "center"
         else:
             print(f"Justification: [{justification}] not recognized")
             return "center", "center"
-
 
     def structuralElementRecognision(self, tag):
         columnstrings = ["kolom", "column"]
@@ -176,7 +207,6 @@ class LoadXML:
             if columnstring.lower() in tag.lower():
                 return "Column"
         return "Beam"
-
 
     def getStaaf(self):
         tableName = "EP_DSG_Elements.EP_Beam.1"
@@ -211,7 +241,7 @@ class LoadXML:
         h9 = "ey"
         h9Index = None
 
-        h10= "ez"
+        h10 = "ez"
         h10Index = None
 
         h11 = "Tabel van geometrie"
@@ -253,12 +283,14 @@ class LoadXML:
                                 print("Incorrect Scia XML Export Template")
                                 sys.exit()
                         else:
-                            #define here
+                            # define here
                             comments = Scia_Params()
                             comments.id = str(obj.attrib["id"])
                             comments.name = str(obj[h0Index].attrib["v"])
                             comments.layer = str(obj[h1Index].attrib["n"])
-                            comments.perpendicular_alignment = str(obj[h2Index].attrib["t"])
+                            comments.perpendicular_alignment = str(
+                                obj[h2Index].attrib["t"]
+                            )
                             comments.lcs_rotation = str(obj[h3Index].attrib["v"])
                             comments.start_node = str(obj[h4Index].attrib["n"])
                             comments.end_node = str(obj[h5Index].attrib["n"])
@@ -269,50 +301,45 @@ class LoadXML:
                             comments.ez = str(obj[h10Index].attrib["v"])
                             comments.geometry_table = str(obj[h11Index].attrib["t"])
 
+                            p1 = self.findNode(obj[h4Index].attrib["n"])
+                            p1Number = self.findNodeNumber(obj[h4Index].attrib["n"])
+                            p2 = self.findNode(obj[h5Index].attrib["n"])
+                            p2Number = self.findNodeNumber(obj[h5Index].attrib["n"])
 
-                            p1 = self.findKnoop(obj[h4Index].attrib["n"])
-                            p1Number = self.findKnoopNumber(obj[h4Index].attrib["n"])
-                            p2 = self.findKnoop(obj[h5Index].attrib["n"])
-                            p2Number = self.findKnoopNumber(obj[h5Index].attrib["n"])
-                            
-                            #TEMP
+                            # TEMP
                             p1 = Point(p1.x, p1.y, p1.z)
-
-                            node1 = Node()
-                            node1.number = p1Number
-                            node1.point = p1
-                            self.project.objects.append(node1)
-
-                            node2 = Node()
-                            node2.point = p2
-                            node2.number = p2Number
-                            self.project.objects.append(node2)
 
                             ey = float(obj[h9Index].attrib["v"]) * -project.scale
                             ez = float(obj[h10Index].attrib["v"]) * project.scale
-                            
+
                             lineSeg = Line(start=p1, end=p2)
-                            
-                            layerType = self.structuralElementRecognision(obj[h1Index].attrib["n"])
+
+                            layerType = self.structuralElementRecognision(
+                                obj[h1Index].attrib["n"]
+                            )
 
                             rotationRAD = obj[h3Index].attrib["v"]
-                            
 
-                            rotationDEG = (float(rotationRAD)*float(180) / math.pi)
                             if layerType == "Column":
-                                rotationDEG = rotationDEG+90
-                                Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                                rotationRAD = rotationRAD + math.pi * 0.5
+                                Yjustification, Xjustification = (
+                                    self.convertJustification(
+                                        comments.perpendicular_alignment
+                                    )
+                                )
                                 comments.Yjustification = Yjustification
                                 comments.Xjustification = Xjustification
 
-                            Yjustification, Xjustification = self.convertJustification(comments.perpendicular_alignment)
+                            Yjustification, Xjustification = self.convertJustification(
+                                comments.perpendicular_alignment
+                            )
                             comments.Yjustification = Yjustification
                             comments.Xjustification = Xjustification
 
                             comments.layer_type = layerType
 
-                            comments.revit_rot = rotationDEG
-                            elementType = (obj[h6Index].attrib["n"])
+                            comments.revit_rot = rotationRAD
+                            elementType = obj[h6Index].attrib["n"]
 
                             for removeLayer in removeLayers:
                                 if removeLayer.lower() in elementType.lower():
@@ -321,7 +348,17 @@ class LoadXML:
                                     elementType = elementType.split("-")[1].strip()
                                     self.project.objects.append(lineSeg)
                                     # try:
-                                    el = Beam.by_startpoint_endpoint_profile_justification(node1, node2, elementType, elementType, Xjustification, Yjustification, rotationDEG, BaseSteel, ey, ez, layerType, comments)
+                                    el = Beam(
+                                        p1,
+                                        p2,
+                                        elementType
+                                        ey,
+                                        ez,
+                                        BaseSteel,
+                                        rotationRAD,
+                                        Vector(Xjustification, Yjustification)
+                                    )
+                                    el.comments = comments
                                     comments.profile_data = el.profile_data
                                     self.project.objects.append(el)
                                     comments.centerbottom = el.centerbottom

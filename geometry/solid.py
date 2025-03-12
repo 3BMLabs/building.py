@@ -72,9 +72,11 @@ class Extrusion(Meshable):
 
     @staticmethod
     def by_2d_polycurve_vector(
-        polycurve: PolyCurve, start_point: Point, extrusion_vector: Vector
+        polycurve: PolyCurve,
+        start_point: Point,
+        extrusion_vector: Vector,
+        angle: float = 0,
     ) -> "Extrusion":
-        
         """Creates an extrusion from a 2D polycurve along a specified vector.
         This method extrudes a 2D polycurve into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -106,6 +108,8 @@ class Extrusion(Meshable):
             transform = Matrix.by_origin_unit_axes(
                 start_point, [x_vector, y_vector, direction]
             )
+        if angle != 0:
+            transform = transform * Matrix.rotate(angle, Vector.up)
         # translate to 3d here
         return Extrusion(
             transform * (dimension_changer(3) * polycurve), extrusion_vector
@@ -113,16 +117,16 @@ class Extrusion(Meshable):
 
     @staticmethod
     def by_polycurve_height(
-        polycurve: PolyCurve, height: float, dz_loc: float
+        polycurve: PolyCurve, height: float, offset: float = 0
     ) -> "Extrusion":
         """Creates an extrusion from a PolyCurve with a specified height and base elevation.
         This method generates a vertical extrusion of a given PolyCurve. The PolyCurve is first translated vertically by `dz_loc`, then extruded to the specified `height`, creating a solid form.
-        assumes the polycurve is wound counterclockwise
+        assumes the polycurve is wound counterclockwise.
 
         #### Parameters:
         - `polycurve` (PolyCurve): The PolyCurve to be extruded. expected to be flat!
         - `height` (float): The height of the extrusion.
-        - `dz_loc` (float): The base elevation offset from the original plane of the PolyCurve.
+        - `offset` (float): The base elevation offset from the original plane of the PolyCurve.
 
         #### Returns:
         `Extrusion`: An Extrusion object that represents the 3D extruded form of the input PolyCurve.
@@ -133,12 +137,18 @@ class Extrusion(Meshable):
         ```
         """
 
+        extrusion_direction = Vector.cross_product(
+            (polycurve[1].end - polycurve[0].start).normalized,
+            (polycurve[-1].end - polycurve[0].start).normalized,
+        )
+
         return Extrusion(
-            polycurve,
-            Vector.cross_product(
-                (polycurve[1].end - polycurve[0].start).normalized,
-                (polycurve[-1].end - polycurve[0].start).normalized,
+            (
+                polycurve
+                if offset == 0
+                else Matrix.translate(extrusion_direction * offset) * polycurve
             ),
+            extrusion_direction * height,
         )
 
     @staticmethod

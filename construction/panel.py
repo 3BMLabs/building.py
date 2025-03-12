@@ -48,7 +48,6 @@ class Panel(Serializable):
 	def __init__(self):
 		
 		self.extrusion = None
-		self.thickness = 0
 		self.name = None
 		self.perimeter: float = 0
 		self.colorint = None
