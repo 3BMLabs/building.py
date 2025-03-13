@@ -9,7 +9,6 @@ from abc import abstractmethod
 from bisect import bisect
 from collections import defaultdict
 from functools import reduce
-from geometry.point import *
 from math import sqrt, cos, sin, acos, degrees, radians, log, pi
 from packages.svg.path import CubicBezier, QuadraticBezier, Line, Arc
 from packages.svg.path import parse_path
@@ -27,10 +26,145 @@ import pickle
 import re
 import string, random, json
 import sys
-import sys, os, math
 import urllib
 import urllib.request
 import xml.etree.ElementTree as ET
+
+
+class Support:
+	def __init__(self):
+		self.Number = None
+		self.Point: Point = Point(0, 0, 0)
+		
+		self.Tx: str = " "  # A, P, N, S
+		self.Ty: str = " "  # A, P, N, S
+		self.Tz: str = " "  # A, P, N, S
+		self.Rx: str = " "  # A, P, N, S
+		self.Ry: str = " "  # A, P, N, S
+		self.Rz: str = " "  # A, P, N, S
+		self.Kx: float = 0  # kN/m
+		self.Ky: float = 0  # kN/m
+		self.Kz: float = 0  # kN/m
+		self.Cx: float = 0  # kNm/rad
+		self.Cy: float = 0  # kNm/rad
+		self.Cz: float = 0  # kNm/rad
+		self.dx: float = 0  # eccentricity in x
+		self.dy: float = 0  # eccentricity in y
+		self.dz: float = 0  # eccentricity in z
+
+	@staticmethod
+	def pinned(PlacementPoint):
+		sup = Support()
+		sup.Point = PlacementPoint
+		sup.Tx = "A"
+		sup.Ty = "A"
+		sup.Tz = "A"
+		return (sup)
+
+	@staticmethod
+	def x_roller(PlacementPoint):
+		sup = Support()
+		sup.Point = PlacementPoint
+		sup.Ty = "A"
+		sup.Tz = "A"
+		return (sup)
+
+	@staticmethod
+	def y_roller(PlacementPoint):
+		sup = Support()
+		sup.Point = PlacementPoint
+		sup.Tx = "A"
+		sup.Tz = "A"
+		return (sup)
+
+	@staticmethod
+	def z_roller(PlacementPoint):
+		sup = Support()
+		sup.Point = PlacementPoint
+		sup.Tx = "A"
+		sup.Ty = "A"
+		return (sup)
+
+	@staticmethod
+	def fixed(PlacementPoint):
+		sup = Support()
+		sup.Point = PlacementPoint
+		sup.Tx = "A"
+		sup.Ty = "A"
+		sup.Tz = "A"
+		sup.Rx = "A"
+		sup.Ry = "A"
+		sup.Rz = "A"
+		return (sup)
+
+
+class LoadCase:
+	def __init__(self):
+		self.Number = None
+		self.Description: str = ""
+		self.psi0 = 1
+		self.psi1 = 1
+		self.psi2 = 1
+		self.Type = 0  # 0 = permanent, 1 = variabel
+
+
+class SurfaceLoad:
+	def __init__(self):
+		self.LoadCase = None
+		self.PolyCurve: PolyCurve = None
+		self.Description: str = ""
+		self.crs = "ccaa0435161960d4c7e436cf107a03f61"
+		self.direction = "caf2b4ce743de1df30071f9566b1015c6"
+		self.LoadBearingDirection = "cfebf3fce7063ab9a89d28a86508c0fb3"
+		self.q1 = 0
+		self.q2 = 0
+		self.q3 = 0
+		self.LoadConstantOrLinear = "cb81ae405e988f21166edf06d7fd646fb"
+		self.iq1 = -1
+		self.iq2 = -1
+		self.iq3 = -1
+
+	@staticmethod
+	def by_load_case_polycurve_q(LoadCase, PolyCurve, q):
+		SL = SurfaceLoad()
+		SL.LoadCase = LoadCase
+		SL.PolyCurve = PolyCurve
+		SL.q1 = q
+		SL.q2 = q
+		SL.q3 = q
+		return SL
+
+
+class LoadPanel:
+	def __init__(self):
+		self.PolyCurve: PolyCurve = None
+		self.Description: str = ""
+		self.LoadBearingDirection = "X"
+		# Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
+		self.SurfaceType = ""
+
+
+def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description: str):
+	SurfaceLoads = []
+	x = startx
+	y = starty
+	for j in range(ny):
+		for i in range(nx):
+			SL = SurfaceLoad()
+			SL.Description = description
+			SL.LoadCase = LoadCase
+			SL.PolyCurve = PolyCurve.by_points(
+				[Point(x, y, 0),
+				 Point(x + width, y, 0),
+				 Point(x, y + height, 0),
+				 Point(x, y, 0)]
+			)
+			SL.q1 = SL.q2 = SL.q3 = q123  # [kN/m2]
+			SurfaceLoads.append(SL)
+			x = x + dx
+		y = y + dy
+	return SurfaceLoads
+
 
 
 class Serializable:
@@ -272,7 +406,7 @@ def to_array(*args) -> list:
 class Vector(Serializable, list):
     """
     a shared base class for point and vector. contains the x, y and z coordinates.
-    operations you do with these coords will apply for the children.
+    operations you do with these vector will apply for the children.
     for example: Vector(2, 4, 6) / 2 = Vector(1, 2, 3)
     or: Vector(2,5) ** 2 = Vector(4, 25)
     Vectors can also be nested.
@@ -286,6 +420,21 @@ class Vector(Serializable, list):
 
         for kwarg in kwargs.items():
             self.set_axis_by_name(kwarg[0], kwarg[1])
+    x_axis : 'Vector' = None
+    y_axis : 'Vector' = None
+    z_axis : 'Vector' = None
+    left : 'Vector' = None
+    right : 'Vector' = None
+    backward : 'Vector' = None
+    forward : 'Vector' = None
+    down : 'Vector' = None
+    up : 'Vector' = None
+    x_axis_2d : 'Vector' = None
+    y_axis_2d : 'Vector' = None
+    left_2d : 'Vector' = None
+    right_2d : 'Vector' = None
+    backward_2d : 'Vector' = None
+    forward_2d : 'Vector' = None
 
     def __str__(self):
         return (
@@ -301,11 +450,11 @@ class Vector(Serializable, list):
         )
 
     axis_names = ["x", "y", "z", "w"]
-    
+
     @property
     def dimensions(self):
         return len(self)
-    
+
     @dimensions.setter
     def dimensions(self, value):
         if value > len(self):
@@ -574,10 +723,10 @@ class Vector(Serializable, list):
                 vector_1.x * vector_2.y - vector_1.y * vector_2.x,
             )
         elif vector_2 == None:
-            #rotate the vector 90 degrees, counter clockwise
+            # rotate the vector 90 degrees, counter clockwise
             return Vector(-vector_1.y, vector_1.x)
         else:
-            #just return the value of the z axis which would result if these were 3d vectors
+            # just return the value of the z axis which would result if these were 3d vectors
             return vector_1.x * vector_2.y - vector_1.y * vector_2.x
 
     perpendicular = cross_product
@@ -623,7 +772,7 @@ class Vector(Serializable, list):
                 int: the new size when resized, -1 when the axis is invalid, None when the value was just set.
         """
         return self.set_axis(Vector.axis_index(axis_name), value)
-    
+
     @staticmethod
     def by_two_points(point_1: "Vector", point_2: "Vector") -> "Vector":
         """Computes the vector between two points.
@@ -646,32 +795,12 @@ class Vector(Serializable, list):
         return point_2 - point_1
 
     @staticmethod
-    def rotate_XY(point: "Vector", beta: float, dz: float) -> "Point":
-        """Rotates the point about the Z-axis by a given angle.
+    def rotate(point: "Vector", angle: float, axis: "Vector" = None, pivot: 'Vector' = None) -> "Vector":
+        """use Matrix.by_rotation(axis, angle) * point instead!"""
 
-        #### Parameters:
-        - `point` (Point): Point to be rotated.
-        - `beta` (float): Angle of rotation in degrees.
-        - `dz` (float): Offset in the z-coordinate.
+        from abstract.matrix import Matrix
 
-        #### Returns:
-        `Point`: Rotated point.
-
-        #### Example usage:
-        ```python
-        point_1 = Point(19, 30, 12.3)
-        output = Point.rotate_XY(point_1, 90, 12)
-        # Point(X = -30.000, Y = 19.000, Z = 24.300)
-        ```
-        """
-
-        return Vector(
-            [
-                math.cos(beta) * point.x - math.sin(beta) * point.y,
-                math.sin(beta) * point.x + math.cos(beta) * point.y,
-            ]
-            + point[2:]
-        )
+        return Matrix.rotate(angle, axis, pivot) * point
 
     def volume(self):
         result = 1
@@ -864,7 +993,6 @@ class Vector(Serializable, list):
         """
         return self.ioperate_2(operator.__iadd__, other)
 
-
     def __isub__(self, other) -> Self:
         return self.ioperate_2(operator.__isub__, other)
 
@@ -875,23 +1003,24 @@ class Vector(Serializable, list):
         return self.ioperate_2(operator.__itruediv__, other)
 
 
-x_axis = Vector(1, 0, 0)
-y_axis = Vector(0, 1, 0)
-z_axis = Vector(0, 0, 1)
+Vector.x_axis = Vector(1, 0, 0)
+Vector.x_axis = Vector(1, 0, 0)
+Vector.y_axis = Vector(0, 1, 0)
+Vector.z_axis = Vector(0, 0, 1)
 
-left = Vector(-1, 0, 0)
-right = Vector(1, 0, 0)
-backward = Vector(0, -1, 0)
-forward = Vector(0, 1, 0)
-down = Vector(0, 0, -1)
-up = Vector(0, 0, 1)
+Vector.left = Vector(-1, 0, 0)
+Vector.right = Vector.x_axis
+Vector.backward = Vector(0, -1, 0)
+Vector.forward = Vector.y_axis
+Vector.down = Vector(0, 0, -1)
+Vector.up = Vector.z_axis
 
-x_axis_2d = Vector(1,0)
-y_axis_2d = Vector(0,1)
-left_2d = Vector(-1, 0)
-right_2d = Vector(1, 0)
-forward_2d = Vector(0, 1)
-backward_2d = Vector(0, -1)
+Vector.x_axis_2d = Vector(1, 0)
+Vector.y_axis_2d = Vector(0, 1)
+Vector.left_2d = Vector(-1, 0)
+Vector.right_2d = Vector.x_axis_2d
+Vector.backward_2d = Vector(0, -1)
+Vector.forward_2d = Vector.y_axis_2d
 
 Point = Vector
 
@@ -1332,7 +1461,7 @@ class Matrix(Serializable, list[list]):
 
     @staticmethod
     def identity(dimensions: int) -> "Matrix":
-        return Matrix.scale(Vector([1] * dimensions))
+        return Matrix.scale(Vector([1] * (dimensions + 1)))
 
     @staticmethod
     def translate(addition: Vector) -> "Matrix":
@@ -1354,18 +1483,7 @@ class Matrix(Serializable, list[list]):
                 for row in range(matrix_size)
             ]
         )
-
-    @staticmethod
-    def by_origin(origin: Vector) -> "Matrix":
-        """
-
-        Args:
-                origin (Vector):
-
-        Returns:
-                Matrix: a transformation matrix using the default axes with a specified origin.
-        """
-        return Matrix.translate(origin)
+    by_origin = translate
 
     @staticmethod
     def by_origin_and_axes(origin: Point, axes: list[Vector]) -> "Matrix":
@@ -1414,54 +1532,70 @@ class Matrix(Serializable, list[list]):
         )
 
     @staticmethod
-    def by_rotation(axis: Vector, angle: float) -> "Matrix":
+    def rotate(
+        angle: float, axis: Vector = None, pivot: Vector = None
+    ) -> "Matrix":
         """creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
         Returns:
                 Matrix: a rotation matrix. when a point is multiplied with this matrix, it's rotated.
         """
-        # https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
-        normalized_axis = axis.normalized
         cos_angle = math.cos(angle)
         sin_angle = math.sin(angle)
-        return Matrix(
-            [
+        if axis == None:
+            #when no pivot and no axis is specified, we assume a 2d rotation matrix is desired, since it doesn't make sense to rotate a 3d vector without specifying an axis.
+            if pivot == None or len(pivot) == 2:
+                origin_matrix = Matrix([[cos_angle, -sin_angle, 0],
+                               [sin_angle, cos_angle,  0],
+                               [0,         0,          1]])
+            else:
+                origin_matrix = Matrix([[cos_angle, -sin_angle, 0, 0],
+                                        [sin_angle, cos_angle,  0, 0],
+                                        [0,         0,          1, 0],
+                                        [0,         0,          0, 1]])
+        else:
+            # https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
+            normalized_axis = axis.normalized
+            one_min_cos = 1 - cos_angle
+            origin_matrix = Matrix(
                 [
-                    cos_angle + normalized_axis.x * normalized_axis.x * (1 - cos_angle),
-                    normalized_axis.x * normalized_axis.y * (1 - cos_angle)
-                    - normalized_axis.z * sin_angle,
-                    normalized_axis.x * normalized_axis.z * (1 - cos_angle)
-                    + normalized_axis.y * sin_angle,
-                ],
-                [
-                    normalized_axis.y * normalized_axis.x * (1 - cos_angle)
-                    + normalized_axis.z * sin_angle,
-                    cos_angle + normalized_axis.y * normalized_axis.y * (1 - cos_angle),
-                    normalized_axis.y * normalized_axis.z * (1 - cos_angle)
-                    - normalized_axis.x * sin_angle,
-                ],
-                [
-                    normalized_axis.z * normalized_axis.x * (1 - cos_angle)
-                    - normalized_axis.y * sin_angle,
-                    normalized_axis.z * normalized_axis.y * (1 - cos_angle)
-                    + normalized_axis.x * sin_angle,
-                    cos_angle + normalized_axis.z * normalized_axis.z * (1 - cos_angle),
-                ],
-            ]
-        )
+                    [
+                        cos_angle + normalized_axis.x * normalized_axis.x * one_min_cos,
+                        normalized_axis.x * normalized_axis.y * one_min_cos
+                        - normalized_axis.z * sin_angle,
+                        normalized_axis.x * normalized_axis.z * one_min_cos
+                        + normalized_axis.y * sin_angle,
+                    ],
+                    [
+                        normalized_axis.y * normalized_axis.x * one_min_cos
+                        + normalized_axis.z * sin_angle,
+                        cos_angle + normalized_axis.y * normalized_axis.y * one_min_cos,
+                        normalized_axis.y * normalized_axis.z * one_min_cos
+                        - normalized_axis.x * sin_angle,
+                    ],
+                    [
+                        normalized_axis.z * normalized_axis.x * one_min_cos
+                        - normalized_axis.y * sin_angle,
+                        normalized_axis.z * normalized_axis.y * one_min_cos
+                        + normalized_axis.x * sin_angle,
+                        cos_angle + normalized_axis.z * normalized_axis.z * one_min_cos,
+                    ],
+                ]
+            )
+        if pivot == None:
+            return origin_matrix
+        else:
+            # from right to left:
+            # - translate objects so the pivot is at the origin
+            # - rotate objects around the origin
+            # - translate objects back so the pivot is at its old location
 
-    @staticmethod
-    def by_rotation_around_pivot(pivot: Point, axis: Vector, angle: float) -> "Matrix":
-        # from right to left:
-        # - translate objects so the pivot is at the origin
-        # - rotate objects around the origin
-        # - translate objects back so the pivot is at its old location
-
-        return (
-            Matrix.translate(pivot)
-            * Matrix.by_rotation(axis, angle)
-            * Matrix.translate(-pivot)
-        )
+            return (
+                Matrix.translate(pivot)
+                * origin_matrix
+                * Matrix.translate(-pivot)
+            )
+        
 
     def __mul__(self, other: "Matrix | Vector | Rect | PointList"):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
@@ -2314,7 +2448,7 @@ class Curve(Serializable):
         """
         pass
 
-    def segmentate(self, settings: SegmentationSettings) -> "Polygon":
+    def segmentate(self, settings: SegmentationSettings = SegmentationSettings()) -> "Polygon":
         """
 
         Args:
@@ -2696,7 +2830,7 @@ class Arc(Curve):
         Returns:
             Point: the radius of the circle this arc is a part of
         """
-        return self.matrix.multiply_without_translation(x_axis if self.matrix.dimensions > 2 else x_axis).magnitude
+        return self.matrix.multiply_without_translation(Vector.x_axis if self.matrix.dimensions > 2 else Vector.x_axis_2).magnitude
 
     @property
     def origin(self) -> Point:
@@ -3322,142 +3456,6 @@ class PolyCurve(list[Line], Shape, Curve):
         return PolyCurve([transformer * curve for curve in self])
 
 
-
-class Support:
-	def __init__(self):
-		self.Number = None
-		self.Point: Point = Point(0, 0, 0)
-		
-		self.Tx: str = " "  # A, P, N, S
-		self.Ty: str = " "  # A, P, N, S
-		self.Tz: str = " "  # A, P, N, S
-		self.Rx: str = " "  # A, P, N, S
-		self.Ry: str = " "  # A, P, N, S
-		self.Rz: str = " "  # A, P, N, S
-		self.Kx: float = 0  # kN/m
-		self.Ky: float = 0  # kN/m
-		self.Kz: float = 0  # kN/m
-		self.Cx: float = 0  # kNm/rad
-		self.Cy: float = 0  # kNm/rad
-		self.Cz: float = 0  # kNm/rad
-		self.dx: float = 0  # eccentricity in x
-		self.dy: float = 0  # eccentricity in y
-		self.dz: float = 0  # eccentricity in z
-
-	@staticmethod
-	def pinned(PlacementPoint):
-		sup = Support()
-		sup.Point = PlacementPoint
-		sup.Tx = "A"
-		sup.Ty = "A"
-		sup.Tz = "A"
-		return (sup)
-
-	@staticmethod
-	def x_roller(PlacementPoint):
-		sup = Support()
-		sup.Point = PlacementPoint
-		sup.Ty = "A"
-		sup.Tz = "A"
-		return (sup)
-
-	@staticmethod
-	def y_roller(PlacementPoint):
-		sup = Support()
-		sup.Point = PlacementPoint
-		sup.Tx = "A"
-		sup.Tz = "A"
-		return (sup)
-
-	@staticmethod
-	def z_roller(PlacementPoint):
-		sup = Support()
-		sup.Point = PlacementPoint
-		sup.Tx = "A"
-		sup.Ty = "A"
-		return (sup)
-
-	@staticmethod
-	def fixed(PlacementPoint):
-		sup = Support()
-		sup.Point = PlacementPoint
-		sup.Tx = "A"
-		sup.Ty = "A"
-		sup.Tz = "A"
-		sup.Rx = "A"
-		sup.Ry = "A"
-		sup.Rz = "A"
-		return (sup)
-
-
-class LoadCase:
-	def __init__(self):
-		self.Number = None
-		self.Description: str = ""
-		self.psi0 = 1
-		self.psi1 = 1
-		self.psi2 = 1
-		self.Type = 0  # 0 = permanent, 1 = variabel
-
-
-class SurfaceLoad:
-	def __init__(self):
-		self.LoadCase = None
-		self.PolyCurve: PolyCurve = None
-		self.Description: str = ""
-		self.crs = "ccaa0435161960d4c7e436cf107a03f61"
-		self.direction = "caf2b4ce743de1df30071f9566b1015c6"
-		self.LoadBearingDirection = "cfebf3fce7063ab9a89d28a86508c0fb3"
-		self.q1 = 0
-		self.q2 = 0
-		self.q3 = 0
-		self.LoadConstantOrLinear = "cb81ae405e988f21166edf06d7fd646fb"
-		self.iq1 = -1
-		self.iq2 = -1
-		self.iq3 = -1
-
-	@staticmethod
-	def by_load_case_polycurve_q(LoadCase, PolyCurve, q):
-		SL = SurfaceLoad()
-		SL.LoadCase = LoadCase
-		SL.PolyCurve = PolyCurve
-		SL.q1 = q
-		SL.q2 = q
-		SL.q3 = q
-		return SL
-
-
-class LoadPanel:
-	def __init__(self):
-		self.PolyCurve: PolyCurve = None
-		self.Description: str = ""
-		self.LoadBearingDirection = "X"
-		# Wall, saddle_roof_positive_pitch #Wall, / Free-standing wall, Flat roof, Shed roof, Saddle roof, Unknown
-		self.SurfaceType = ""
-
-
-def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, height, LoadCase, q123, description: str):
-	SurfaceLoads = []
-	x = startx
-	y = starty
-	for j in range(ny):
-		for i in range(nx):
-			SL = SurfaceLoad()
-			SL.Description = description
-			SL.LoadCase = LoadCase
-			SL.PolyCurve = PolyCurve.by_points(
-				[Point(x, y, 0),
-				 Point(x + width, y, 0),
-				 Point(x, y + height, 0),
-				 Point(x, y, 0)]
-			)
-			SL.q1 = SL.q2 = SL.q3 = q123  # [kN/m2]
-			SurfaceLoads.append(SL)
-			x = x + dx
-		y = y + dy
-	return SurfaceLoads
-
-
 loaded_fonts = dict()
 
 
@@ -3804,16 +3802,16 @@ class Dimension:
 	def geom(self):
 		# baseline
 		baseline = Line(start=self.start, end=self.end)
-		midpoint_text = baseline.mid_point()
+		midpoint_text = baseline.mid
 		direction = baseline.direction
 		tick_mark_extension_point_1 = self.start - direction * self.dimension_type.line_extension
 		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
 		x = direction
-		y = Vector.rotate_XY(x, math.radians(90))
-		z = z_axis
+		y = Vector.rotate(x, math.radians(90))
+		z = Vector.z_axis
 		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
-		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, x, y, z)
-		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, x, y, z)
+		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, [x, y, z])
+		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, [x, y, z])
 		self.curves.append(Line(tick_mark_extension_point_1,
 						   self.start))  # extention_start
 		self.curves.append(
@@ -3823,10 +3821,8 @@ class Dimension:
 		crvs = Line(
 			start=self.dimension_type.tick_mark.curves[0].start, end=self.dimension_type.tick_mark.curves[0].end)
 
-		self.curves.append(Line.transform(
-			self.dimension_type.tick_mark.curves[0], cs_new_start))  # dimension tick start
-		self.curves.append(Line.transform(crvs, cs_new_end)
-						   )  # dimension tick end
+		self.curves.append(cs_new_start * self.dimension_type.tick_mark.curves[0])  # dimension tick start
+		self.curves.append(cs_new_end * crvs)  # dimension tick end
 		self.text = Text(text=str(round(self.length)), font_family=self.dimension_type.font,
 						 cs=cs_new_mid, height=self.text_height).write()
 
@@ -3837,7 +3833,7 @@ class Dimension:
 			project.objects.append(j)
 
 
-class FrameTag:
+class BeamTag:
 	def __init__(self):
 		# Dimensions in 1/100 scale
 		
@@ -3868,13 +3864,13 @@ class FrameTag:
 
 	@staticmethod
 	def by_frame(frame):
-		tag = FrameTag()
+		tag = BeamTag()
 		frame_vector = frame.vector_normalised
 		x = frame_vector
-		y = Vector.rotate_XY(x, math.radians(90))
-		z = Z_Axis
+		y = Vector.rotate(x, math.radians(90))
+		z = Vector.Z_Axis
 		vx = Vector.scale(frame_vector, tag.offset_x)
-		frame_width = PolyCurve2D.bounds(frame.curve)[4]
+		frame_width = PolyCurve.bounds(frame.curve)[4]
 		vy = Vector.scale(y, frame_width*0.5+tag.offset_y)
 		origintext = Point.translate(frame.start, vx)
 		origintext = Point.translate(origintext, vy)
@@ -3999,7 +3995,7 @@ class Color(Vector):
 	def Components(self, colorInput=None):
 		"""1"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}('green')"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}('green')"
 		else:
 			try:
 				import json
@@ -4013,7 +4009,7 @@ class Color(Vector):
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 			
 	@staticmethod
 	def Hex(hex:str) -> 'Color':
@@ -4030,7 +4026,7 @@ class Color(Vector):
 	def CMYK(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().CMYK([0.5, 0.25, 0, 0.2])"
+			return f"Error: Example usage Color.CMYK([0.5, 0.25, 0, 0.2])"
 		else:
 			try:
 				c, m, y, k = colorInput
@@ -4040,49 +4036,49 @@ class Color(Vector):
 				return [r, g, b]
 			except:
 				# add check help attribute
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def Alpha(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
 		else:
 			try:
 				r, g, b, a = colorInput
 				return [r, g, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def Brightness(self, colorInput=None):
 		"""Expected value is int(0) - int(1)"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
 		else:
 			try:
 				if colorInput >= 0 and colorInput <= 1:
 					r = g = b = int(255 * colorInput)
 					return [r, g, b]
 				else:
-					return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+					return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 			
 	@staticmethod
 	def RGB(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}([255, 0, 0])"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0])"
 		else:
 			try:
 				r, g, b = colorInput
 				return [r, g, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def HSV(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				h, s, v = colorInput
@@ -4104,12 +4100,12 @@ class Color(Vector):
 					r, g, b = c, 0, x
 				return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def HSL(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				h, s, l = colorInput
@@ -4132,12 +4128,12 @@ class Color(Vector):
 												  * 255), int((b + m) * 255)
 				return [r, g, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def RAL(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}(1000)"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}(1000)"
 		else:
 			try:
 				# validate if value is correct/found
@@ -4152,12 +4148,12 @@ class Color(Vector):
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def Pantone(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				import json
@@ -4167,23 +4163,23 @@ class Color(Vector):
 					checkExist = pantone_dict.get(str(colorInput))
 					if checkExist is not None:
 						PantoneHex = pantone_dict[str(colorInput)]['hex']
-						return Color().Hex(PantoneHex)
+						return Color.Hex(PantoneHex)
 					else:
 						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 	def LRV(self, colorInput=None):
 		"""NAN"""
 		if colorInput is None:
-			return f"Error: Example usage Color().{sys._getframe(0).f_code.co_name}()"
+			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
 		else:
 			try:
 				b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
 				b = int(max(0, min(255, b)))
 				return [255, 255, b]
 			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color().{sys._getframe(0).f_code.co_name}.__doc__"
+				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
 
 
 	def __str__(self, colorInput=None):
@@ -4191,9 +4187,9 @@ class Color(Vector):
 						   "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
 		if colorInput is None:
 			header = "Available attributes: \n"
-			footer = "\nColor().red | Color().green | Color().blue"
-			return header + '\n'.join([f"Color().{func}()" for func in colorattributes]) + footer
-		return f"Color().{colorInput}"
+			footer = "\nColor.red | Color.green | Color.blue"
+			return header + '\n'.join([f"Color.{func}()" for func in colorattributes]) + footer
+		return f"Color.{colorInput}"
 
 	def Info(self, colorInput=None):
 		pass
@@ -4209,126 +4205,27 @@ def rgb_to_int(rgb):
     return (255 << 24) | (r << 16) | (g << 8) | b
 
 class Material:
-    def __init__(self):
-        self.name = "none"
-        self.color = None
-        self.colorint = None
-
-    @classmethod
-    def byNameColor(cls, name, color):
-        M1 = Material()
-        M1.name = name
-        M1.color = color
-        #M1.colorint = rgb_to_int(color)
-        return M1
+    def __init__(self, name: str, color : Color):
+        self.name = name
+        self.color = color
 
 #Building Materials
-BaseConcrete = Material.byNameColor("Concrete", Color().RGB([192, 192, 192]))
-BaseTimber = Material.byNameColor("Timber", Color().RGB([191, 159, 116]))
-BaseSteel = Material.byNameColor("Steel", Color().RGB([237, 28, 36]))
-BaseOther = Material.byNameColor("Other", Color().RGB([150, 150, 150]))
-BaseBrick = Material.byNameColor("Brick", Color().RGB([170, 77, 47]))
-BaseBrickYellow = Material.byNameColor("BrickYellow", Color().RGB([208, 187, 147]))
+BaseConcrete = Material("Concrete", Color.RGB([192, 192, 192]))
+BaseTimber = Material("Timber", Color.RGB([191, 159, 116]))
+BaseSteel = Material("Steel", Color.RGB([237, 28, 36]))
+BaseOther = Material("Other", Color.RGB([150, 150, 150]))
+BaseBrick = Material("Brick", Color.RGB([170, 77, 47]))
+BaseBrickYellow = Material("BrickYellow", Color.RGB([208, 187, 147]))
 
 #GIS Materials
-BaseBuilding = Material.byNameColor("Building", Color().RGB([150, 28, 36]))
-BaseWater = Material.byNameColor("Water", Color().RGB([139, 197, 214]))
-BaseGreen = Material.byNameColor("Green", Color().RGB([175, 193, 138]))
-BaseInfra = Material.byNameColor("Infra", Color().RGB([234, 234, 234]))
-BaseRoads = Material.byNameColor("Infra", Color().RGB([140, 140, 140]))
+BaseBuilding = Material("Building", Color.RGB([150, 28, 36]))
+BaseWater = Material("Water", Color.RGB([139, 197, 214]))
+BaseGreen = Material("Green", Color.RGB([175, 193, 138]))
+BaseInfra = Material("Infra", Color.RGB([234, 234, 234]))
+BaseRoads = Material("Infra", Color.RGB([140, 140, 140]))
 
 #class Materialfinish
 
-
-class BuildingPy(Serializable):
-	def __init__(self, name=None, number=None):
-		self.name: str = name
-		self.number: str = number
-		#settings
-		self.debug: bool = True
-		self.objects = []
-		self.units = "mm"
-		self.decimals = 3 #not fully implemented yet
-
-		self.origin = Point(0,0,0)
-		self.default_font = "calibri"
-		self.scale = 1000
-		self.font_height = 500
-		self.repr_round = 3
-		#prefix objects (name)
-		#Geometry settings
-
-		#export selection info
-		self.domain = None
-		self.applicationId = "OPEN-AEC BuildingPy"
-
-		#different settings for company's?
-
-		#rename this to autoclose?
-		self.closed: bool = True #auto close polygons? By default true, else overwrite
-		self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
-
-		#functie polycurve of iets van een class/def
-		self.autoclose: bool = True #new self.closed
-
-		#nodes
-		self.node_merge = True #False not yet created
-		self.node_diameter = 250
-		self.node_threshold = 50
-		
-		#text
-		self.createdTxt = "has been created"
-
-		#Speckle settings
-		self.speckleserver = "app.speckle.systems"
-		self.specklestream = None
-
-		#FreeCAD settings
-		
-	def save(self, file_name = 'project/data.json'):
-		Serializable.save(file_name)
-		
-		type_count = defaultdict(int)
-		for serialized_item in self.objects:
-			#item = json.loads(serialized_item)
-			type_count[serialized_item.__class__.__name__] += 1
-
-		total_items = len(self.objects)
-
-		print(f"\nTotal saved items to '{file_name}': {total_items}")
-		print("Type counts:")
-		for item_type, count in type_count.items():
-			print(f"{item_type}: {count}")
-	def open(self, file_name = 'project/data.json'):
-		Serializable.open(file_name)
-
-	def to_speckle(self, streamid, commitstring=None):
-		from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
-		self.specklestream = streamid
-		speckleobj = translateObjectsToSpeckleObjects(self.objects)
-		TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
-
-	def to_FreeCAD(self):
-		from exchange.Freecad_Bupy import translateObjectsToFreeCAD
-		translateObjectsToFreeCAD(self.objects)
-
-	def to_IFC(self, name):
-		from exchange.IFC import translateObjectsToIFC, CreateIFC
-		ifc_project = CreateIFC()
-		ifc_project.add_project(name)
-		ifc_project.add_site("My Site")
-		ifc_project.add_building("Building A")
-		ifc_project.add_storey("Ground Floor")
-		ifc_project.add_storey("G2Floor")	 
-		translateObjectsToIFC(self.objects, ifc_project)
-		ifc_project.export(f"{name}.ifc")
-	def __iadd__(self, new_object):
-		self.objects.append(new_object)
-		return self
-# [!not included in BP singlefile - end]
-
-#god object! multiple instances of buildingpy should be able to live next to eachother
-#project = BuildingPy("Project", "0")
 
 
 
@@ -4338,7 +4235,6 @@ class Node:
 		""""Initializes a new Node instance.
 		
 		- `id` (str): A unique identifier for the node.
-		- `type` (str): The class name, "Node".
 		- `point` (Point, optional): The location of the node in 3D space.
 		- `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
 		- `number` (any, optional): An identifying number or label for the node.
@@ -4355,15 +4251,15 @@ class Node:
 		self.comments = comments
 
 	# merge
-	def merge(self):
-		"""Merges this node with others in a project according to defined rules.
-
-		The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
-		"""
-		if project.node_merge == True:
-			pass
-		else:
-			pass
+	#def merge(self):
+	#	"""Merges this node with others in a project according to defined rules.
+#
+	#	The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
+	#	"""
+	#	if project.node_merge == True:
+	#		pass
+	#	else:
+	#		pass
 
 	# snap
 	def snap(self):
@@ -4394,994 +4290,1156 @@ sqrt2 = math.sqrt(2)
 # section is een profiel met eigenschappen HEA200, 200,200,10,10,5 en eventuele rekenkundige eigenschappen.
 # beam is een object wat in 3D zit met materiaal enz.
 
+
 class Profile(Serializable):
 
-	def __init__(self, name: str, description: str, IFC_profile_def: str, height: float, width: float,
-				 tw: float = None, tf: float = None):
-		"""Creates a profile.
+    def __init__(
+        self,
+        name: str,
+        description: str,
+        IFC_profile_def: str,
+        height: float,
+        width: float,
+        tw: float = None,
+        tf: float = None,
+    ):
+        """Creates a profile.
 
-		Args:
-			name (str): _description_
-			description (str): _description_
-			IFC_profile_def (str): _description_
-			height (_type_): _description_
-			width (_type_): _description_
-		"""
+        Args:
+                name (str): _description_
+                description (str): _description_
+                IFC_profile_def (str): _description_
+                height (_type_): _description_
+                width (_type_): _description_
+        """
 
-		self.IFC_profile_def = IFC_profile_def
-		
-		self.name = name
-		self.description = description
-		self.curve = []
-		self.height = height
-		self.width = width
-		self.tw = tw
-		self.tf = tf
+        self.IFC_profile_def = IFC_profile_def
 
-	def __str__(self):
-		return f"{self.type} ({self.name})"
+        self.name = name
+        self.description = description
+        self.curve = []
+        self.height = height
+        self.width = width
+        self.tw = tw
+        self.tf = tf
 
-class CChannelParallelFlange(Profile):
-	def __init__(self, name, height, width, tw, tf, r, ex):
-		super().__init__(name, "C-channel with parallel flange", "IfcUShapeProfileDef", height, width, tw, tf)
-
-		# parameters
-		
-
-		self.r1 = r  # web fillet
-		self.ex = ex  # centroid horizontal
-
-		# describe points
-		p1 = Point(-ex, -height / 2)  # left bottom
-		p2 = Point(width - ex, -height / 2)  # right bottom
-		p3 = Point(width - ex, -height / 2 + tf)
-		p4 = Point(-ex + tw + r, -height / 2 + tf)  # start arc
-		p5 = Point(-ex + tw + r, -height / 2 + tf + r)  # second point arc
-		p6 = Point(-ex + tw, -height / 2 + tf + r)  # end arc
-		p7 = Point(-ex + tw, height / 2 - tf - r)  # start arc
-		p8 = Point(-ex + tw + r, height / 2 - tf - r)  # second point arc
-		p9 = Point(-ex + tw + r, height / 2 - tf)  # end arc
-		p10 = Point(width - ex, height / 2 - tf)
-		p11 = Point(width - ex, height / 2)  # right top
-		p12 = Point(-ex, height / 2)  # left top
-
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Arc.by_start_mid_end(p4, p5, p6)
-		l5 = Line(p6, p7)
-		l6 = Arc.by_start_mid_end(p7, p8, p9)
-		l7 = Line(p9, p10)
-		l8 = Line(p10, p11)
-		l9 = Line(p11, p12)
-		l10 = Line(p12, p1)
-
-		self.curve = PolyCurve.by_joined_curves(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
-
-class CChannelSlopedFlange(Profile):
-	def __init__(self, name, height, width, tw, tf, r1, r2, tl, sa, ex):
-		super().__init__(name, "C-channel with sloped flange", "IfcUShapeProfileDef", height, width, tw, tf)
-
-		self.r1 = r1  # web fillet
-		r11 = r1 / sqrt2
-		self.r2 = r2  # flange fillet
-		r21 = r2 / sqrt2
-		self.tl = tl  # flange thickness location from right
-		self.sa = math.radians(sa)  # the angle of sloped flange in degrees
-		self.ex = ex  # centroid horizontal
-
-		# describe points
-		p1 = Point(-ex, -height / 2)  # left bottom
-		p2 = Point(width - ex, -height / 2)  # right bottom
-		p3 = Point(width - ex, -height / 2 + tf - math.tan(self.sa)
-					 * tl - r2)  # start arc
-		p4 = Point(width - ex - r2 + r21, -height / 2 + tf -
-					 math.tan(self.sa) * tl - r2 + r21)  # second point arc
-		p5 = Point(width - ex - r2 + math.sin(self.sa) * r2, -height /
-					 2 + tf - math.tan(self.sa) * (tl - r2))  # end arc
-		p6 = Point(-ex + tw + r1 - math.sin(self.sa) * r1, -height / 2 +
-					 tf + math.tan(self.sa) * (width - tl - tw - r1))  # start arc
-		p7 = Point(-ex + tw + r1 - r11, -height / 2 + tf + math.tan(self.sa)
-					 * (width - tl - tw - r1) + r1 - r11)  # second point arc
-		p8 = Point(-ex + tw, -height / 2 + tf + math.tan(self.sa)
-					 * (width - tl - tw) + r1)  # end arc
-		p9 = Point(p8.x, -p8.y)  # start arc
-		p10 = Point(p7.x, -p7.y)  # second point arc
-		p11 = Point(p6.x, -p6.y)  # end arc
-		p12 = Point(p5.x, -p5.y)  # start arc
-		p13 = Point(p4.x, -p4.y)  # second point arc
-		p14 = Point(p3.x, -p3.y)  # end arc
-		p15 = Point(p2.x, -p2.y)  # right top
-		p16 = Point(p1.x, -p1.y)  # left top
-
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Arc.by_start_mid_end(p3, p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Arc.by_start_mid_end(p9, p10, p11)
-		l8 = Line(p11, p12)
-		l9 = Arc.by_start_mid_end(p12, p13, p14)
-		l10 = Line(p14, p15)
-		l11 = Line(p15, p16)
-		l12 = Line(p16, p1)
-
-		self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
-
-class IShapeParallelFlange(Profile):
-	def __init__(self, name, height, width, tw, tf, r):
-		super().__init__(name, "I Shape profile with parallel flange", "IfcUShapeProfileDef", height, width, tw,
-						 tf)
+    def __str__(self):
+        return f"{self.type} ({self.name})"
 
 
-		self.r = r  # web fillet
-		self.r1 = r1 = r / sqrt2
+class CChannelParallelFlangeProfile(Profile):
+    def __init__(self, name, height, width, tw, tf, r, ex):
+        super().__init__(
+            name,
+            "C-channel with parallel flange",
+            "IfcUShapeProfileDef",
+            height,
+            width,
+            tw,
+            tf,
+        )
 
-		# describe points
-		p1 = Point(width / 2, -height / 2)  # right bottom
-		p2 = Point(width / 2, -height / 2 + tf)
-		p3 = Point(tw / 2 + r, -height / 2 + tf)  # start arc
-		# second point arc
-		p4 = Point(tw / 2 + r - r1, (-height / 2 + tf + r - r1))
-		p5 = Point(tw / 2, -height / 2 + tf + r)  # end arc
-		p6 = Point(tw / 2, height / 2 - tf - r)  # start arc
-		p7 = Point(tw / 2 + r - r1, height / 2 - tf - r + r1)  # second point arc
-		p8 = Point(tw / 2 + r, height / 2 - tf)  # end arc
-		p9 = Point(width / 2, height / 2 - tf)
-		p10 = Point((width / 2), (height / 2))  # right top
-		p11 = Point(-p10.x, p10.y)  # left top
-		p12 = Point(-p9.x, p9.y)
-		p13 = Point(-p8.x, p8.y)  # start arc
-		p14 = Point(-p7.x, p7.y)  # second point arc
-		p15 = Point(-p6.x, p6.y)  # end arc
-		p16 = Point(-p5.x, p5.y)  # start arc
-		p17 = Point(-p4.x, p4.y)  # second point arc
-		p18 = Point(-p3.x, p3.y)  # end arc
-		p19 = Point(-p2.x, p2.y)
-		p20 = Point(-p1.x, p1.y)
+        # parameters
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Arc.by_start_mid_end(p3, p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Line(p9, p10)
-		l8 = Line(p10, p11)
-		l9 = Line(p11, p12)
-		l10 = Line(p12, p13)
-		l11 = Arc.by_start_mid_end(p13, p14, p15)
-		l12 = Line(p15, p16)
-		l13 = Arc.by_start_mid_end(p16, p17, p18)
-		l14 = Line(p18, p19)
-		l15 = Line(p19, p20)
-		l16 = Line(p20, p1)
+        self.r1 = r  # web fillet
+        self.ex = ex  # centroid horizontal
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16])
+        # describe points
+        p1 = Point(-ex, -height / 2)  # left bottom
+        p2 = Point(width - ex, -height / 2)  # right bottom
+        p3 = Point(width - ex, -height / 2 + tf)
+        p4 = Point(-ex + tw + r, -height / 2 + tf)  # start arc
+        p5 = Point(-ex + tw + r, -height / 2 + tf + r)  # second point arc
+        p6 = Point(-ex + tw, -height / 2 + tf + r)  # end arc
+        p7 = Point(-ex + tw, height / 2 - tf - r)  # start arc
+        p8 = Point(-ex + tw + r, height / 2 - tf - r)  # second point arc
+        p9 = Point(-ex + tw + r, height / 2 - tf)  # end arc
+        p10 = Point(width - ex, height / 2 - tf)
+        p11 = Point(width - ex, height / 2)  # right top
+        p12 = Point(-ex, height / 2)  # left top
 
-class Rectangle(Profile):
-	def __init__(self, name, width, height):
-		super().__init__(name, "Rectangle", "IfcRectangleProfileDef", height, width)
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Arc.by_start_mid_end(p4, p5, p6)
+        l5 = Line(p6, p7)
+        l6 = Arc.by_start_mid_end(p7, p8, p9)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p11)
+        l9 = Line(p11, p12)
+        l10 = Line(p12, p1)
+
+        self.curve = PolyCurve.by_joined_curves(
+            [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10]
+        )
 
 
-		# describe points
-		p1 = Point(width / 2, -height / 2)  # right bottom
-		p2 = Point(width / 2, height / 2)  # right top
-		p3 = Point(-width / 2, height / 2)  # left top
-		p4 = Point(-width / 2, -height / 2)  # left bottom
+class CChannelSlopedFlangeProfile(Profile):
+    def __init__(self, name, height, width, tw, tf, r1, r2, tl, sa, ex):
+        super().__init__(
+            name,
+            "C-channel with sloped flange",
+            "IfcUShapeProfileDef",
+            height,
+            width,
+            tw,
+            tf,
+        )
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Line(p4, p1)
+        self.r1 = r1  # web fillet
+        r11 = r1 / sqrt2
+        self.r2 = r2  # flange fillet
+        r21 = r2 / sqrt2
+        self.tl = tl  # flange thickness location from right
+        self.sa = math.radians(sa)  # the angle of sloped flange in degrees
+        self.ex = ex  # centroid horizontal
 
-		self.curve = PolyCurve([l1, l2, l3, l4])
+        # describe points
+        p1 = Point(-ex, -height / 2)  # left bottom
+        p2 = Point(width - ex, -height / 2)  # right bottom
+        p3 = Point(
+            width - ex, -height / 2 + tf - math.tan(self.sa) * tl - r2
+        )  # start arc
+        p4 = Point(
+            width - ex - r2 + r21, -height / 2 + tf - math.tan(self.sa) * tl - r2 + r21
+        )  # second point arc
+        p5 = Point(
+            width - ex - r2 + math.sin(self.sa) * r2,
+            -height / 2 + tf - math.tan(self.sa) * (tl - r2),
+        )  # end arc
+        p6 = Point(
+            -ex + tw + r1 - math.sin(self.sa) * r1,
+            -height / 2 + tf + math.tan(self.sa) * (width - tl - tw - r1),
+        )  # start arc
+        p7 = Point(
+            -ex + tw + r1 - r11,
+            -height / 2 + tf + math.tan(self.sa) * (width - tl - tw - r1) + r1 - r11,
+        )  # second point arc
+        p8 = Point(
+            -ex + tw, -height / 2 + tf + math.tan(self.sa) * (width - tl - tw) + r1
+        )  # end arc
+        p9 = Point(p8.x, -p8.y)  # start arc
+        p10 = Point(p7.x, -p7.y)  # second point arc
+        p11 = Point(p6.x, -p6.y)  # end arc
+        p12 = Point(p5.x, -p5.y)  # start arc
+        p13 = Point(p4.x, -p4.y)  # second point arc
+        p14 = Point(p3.x, -p3.y)  # end arc
+        p15 = Point(p2.x, -p2.y)  # right top
+        p16 = Point(p1.x, -p1.y)  # left top
 
-class Round(Profile):
-	def __init__(self, name, r):
-		super().__init__(name, "Round", "IfcCircleProfileDef", r*2, r*2)
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
+        l8 = Line(p11, p12)
+        l9 = Arc.by_start_mid_end(p12, p13, p14)
+        l10 = Line(p14, p15)
+        l11 = Line(p15, p16)
+        l12 = Line(p16, p1)
 
-		self.r = r
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
 
-		dr = r / sqrt2  # grootste deel
 
-		# describe points
-		p1 = Point(r, 0)  # right middle
-		p2 = Point(dr, dr)
-		p3 = Point(0, r)  # middle top
-		p4 = Point(-dr, dr)
-		p5 = Point(-r, 0)  # left middle
-		p6 = Point(-dr, -dr)
-		p7 = Point(0, -r)  # middle bottom
-		p8 = Point(dr, -dr)
+class IShapeParallelFlangeProfile(Profile):
+    def __init__(self, name, height, width, tw, tf, r):
+        super().__init__(
+            name,
+            "I Shape profile with parallel flange",
+            "IfcUShapeProfileDef",
+            height,
+            width,
+            tw,
+            tf,
+        )
 
-		# describe curves
-		l1 = Arc.by_start_mid_end(p1, p2, p3)
-		l2 = Arc.by_start_mid_end(p3, p4, p5)
-		l3 = Arc.by_start_mid_end(p5, p6, p7)
-		l4 = Arc.by_start_mid_end(p7, p8, p1)
+        self.r = r  # web fillet
+        self.r1 = r1 = r / sqrt2
 
-		self.curve = PolyCurve([l1, l2, l3, l4])
+        # describe points
+        p1 = Point(width / 2, -height / 2)  # right bottom
+        p2 = Point(width / 2, -height / 2 + tf)
+        p3 = Point(tw / 2 + r, -height / 2 + tf)  # start arc
+        # second point arc
+        p4 = Point(tw / 2 + r - r1, (-height / 2 + tf + r - r1))
+        p5 = Point(tw / 2, -height / 2 + tf + r)  # end arc
+        p6 = Point(tw / 2, height / 2 - tf - r)  # start arc
+        p7 = Point(tw / 2 + r - r1, height / 2 - tf - r + r1)  # second point arc
+        p8 = Point(tw / 2 + r, height / 2 - tf)  # end arc
+        p9 = Point(width / 2, height / 2 - tf)
+        p10 = Point((width / 2), (height / 2))  # right top
+        p11 = Point(-p10.x, p10.y)  # left top
+        p12 = Point(-p9.x, p9.y)
+        p13 = Point(-p8.x, p8.y)  # start arc
+        p14 = Point(-p7.x, p7.y)  # second point arc
+        p15 = Point(-p6.x, p6.y)  # end arc
+        p16 = Point(-p5.x, p5.y)  # start arc
+        p17 = Point(-p4.x, p4.y)  # second point arc
+        p18 = Point(-p3.x, p3.y)  # end arc
+        p19 = Point(-p2.x, p2.y)
+        p20 = Point(-p1.x, p1.y)
 
-class Roundtube(Profile):
-	def __init__(self, name, d, t):
-		super().__init__(name, "Round Tube Profile", "IfcCircleHollowProfileDef", d, d)
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p11)
+        l9 = Line(p11, p12)
+        l10 = Line(p12, p13)
+        l11 = Arc.by_start_mid_end(p13, p14, p15)
+        l12 = Line(p15, p16)
+        l13 = Arc.by_start_mid_end(p16, p17, p18)
+        l14 = Line(p18, p19)
+        l15 = Line(p19, p20)
+        l16 = Line(p20, p1)
 
-		# parameters
-		
-		self.r = d / 2
-		self.d = d
-		self.t = t  # wall thickness
-		dr = self.r / sqrt2  # grootste deel
-		r = self.r
-		ri = r - t
-		dri = ri / sqrt2
+        self.curve = PolyCurve(
+            [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16]
+        )
 
-		# describe points
-		p1 = Point(r, 0)  # right middle
-		p2 = Point(dr, dr)
-		p3 = Point(0, r)  # middle top
-		p4 = Point(-dr, dr)
-		p5 = Point(-r, 0)  # left middle
-		p6 = Point(-dr, -dr)
-		p7 = Point(0, -r)  # middle bottom
-		p8 = Point(dr, -dr)
 
-		p9 = Point(ri, 0)  # right middle inner
-		p10 = Point(dri, dri)
-		p11 = Point(0, ri)  # middle top inner
-		p12 = Point(-dri, dri)
-		p13 = Point(-ri, 0)  # left middle inner
-		p14 = Point(-dri, -dri)
-		p15 = Point(0, -ri)  # middle bottom inner
-		p16 = Point(dri, -dri)
+class RectangleProfile(Profile):
+    def __init__(self, name, width, height):
+        super().__init__(name, "Rectangle", "IfcRectangleProfileDef", height, width)
 
-		# describe curves
-		l1 = Arc.by_start_mid_end(p1, p2, p3)
-		l2 = Arc.by_start_mid_end(p3, p4, p5)
-		l3 = Arc.by_start_mid_end(p5, p6, p7)
-		l4 = Arc.by_start_mid_end(p7, p8, p1)
+        # describe points
+        p1 = Point(width / 2, -height / 2)  # right bottom
+        p2 = Point(width / 2, height / 2)  # right top
+        p3 = Point(-width / 2, height / 2)  # left top
+        p4 = Point(-width / 2, -height / 2)  # left bottom
 
-		l5 = Line(p1, p9)
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Line(p4, p1)
 
-		l6 = Arc.by_start_mid_end(p9, p10, p11)
-		l7 = Arc.by_start_mid_end(p11, p12, p13)
-		l8 = Arc.by_start_mid_end(p13, p14, p15)
-		l9 = Arc.by_start_mid_end(p15, p16, p9)
-		l10 = Line(p9, p1)
+        self.curve = PolyCurve([l1, l2, l3, l4])
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
-class LAngle(Profile):
-	def __init__(self, name, height, width, tw, tf, r1, r2, ex, ey):
-		super().__init__(name, "LAngle", "IfcLShapeProfileDef", height, width, tw, tf)
+class RoundProfile(Profile):
+    def __init__(self, name, r):
+        super().__init__(name, "Round", "IfcCircleProfileDef", r * 2, r * 2)
 
-		# parameters
-		
+        self.r = r
 
-		self.r1 = r1  # inner fillet
-		r11 = r1 / sqrt2
-		self.r2 = r2  # outer fillet
-		r21 = r2 / sqrt2
-		self.ex = ex  # from left
-		self.ey = ey  # from bottom
+        dr = r / sqrt2  # grootste deel
 
-		# describe points
-		p1 = Point(-ex, -ey)  # left bottom
-		p2 = Point(width - ex, -ey)  # right bottom
-		p3 = Point(width - ex, -ey + tf - r2)  # start arc
-		p4 = Point(width - ex - r2 + r21, -ey + tf -
-					 r2 + r21)  # second point arc
-		p5 = Point(width - ex - r2, -ey + tf)  # end arc
-		p6 = Point(-ex + tf + r1, -ey + tf)  # start arc
-		p7 = Point(-ex + tf + r1 - r11, -ey + tf +
-					 r1 - r11)  # second point arc
-		p8 = Point(-ex + tf, -ey + tf + r1)  # end arc
-		p9 = Point(-ex + tf, height - ey - r2)  # start arc
-		p10 = Point(-ex + tf - r2 + r21, height - ey -
-					  r2 + r21)  # second point arc
-		p11 = Point(-ex + tf - r2, height - ey)  # end arc
-		p12 = Point(-ex, height - ey)  # left top
+        # describe points
+        p1 = Point(r, 0)  # right middle
+        p2 = Point(dr, dr)
+        p3 = Point(0, r)  # middle top
+        p4 = Point(-dr, dr)
+        p5 = Point(-r, 0)  # left middle
+        p6 = Point(-dr, -dr)
+        p7 = Point(0, -r)  # middle bottom
+        p8 = Point(dr, -dr)
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Arc.by_start_mid_end(p3, p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Arc.by_start_mid_end(p9, p10, p11)
-		l8 = Line(p11, p12)
-		l9 = Line(p12, p1)
+        # describe curves
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Arc.by_start_mid_end(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p5, p6, p7)
+        l4 = Arc.by_start_mid_end(p7, p8, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9])
+        self.curve = PolyCurve([l1, l2, l3, l4])
+
+
+class RoundtubeProfile(Profile):
+    def __init__(self, name, d, t):
+        super().__init__(name, "Round Tube Profile", "IfcCircleHollowProfileDef", d, d)
+
+        # parameters
+
+        self.r = d / 2
+        self.d = d
+        self.t = t  # wall thickness
+        dr = self.r / sqrt2  # grootste deel
+        r = self.r
+        ri = r - t
+        dri = ri / sqrt2
+
+        # describe points
+        p1 = Point(r, 0)  # right middle
+        p2 = Point(dr, dr)
+        p3 = Point(0, r)  # middle top
+        p4 = Point(-dr, dr)
+        p5 = Point(-r, 0)  # left middle
+        p6 = Point(-dr, -dr)
+        p7 = Point(0, -r)  # middle bottom
+        p8 = Point(dr, -dr)
+
+        p9 = Point(ri, 0)  # right middle inner
+        p10 = Point(dri, dri)
+        p11 = Point(0, ri)  # middle top inner
+        p12 = Point(-dri, dri)
+        p13 = Point(-ri, 0)  # left middle inner
+        p14 = Point(-dri, -dri)
+        p15 = Point(0, -ri)  # middle bottom inner
+        p16 = Point(dri, -dri)
+
+        # describe curves
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Arc.by_start_mid_end(p3, p4, p5)
+        l3 = Arc.by_start_mid_end(p5, p6, p7)
+        l4 = Arc.by_start_mid_end(p7, p8, p1)
+
+        l5 = Line(p1, p9)
+
+        l6 = Arc.by_start_mid_end(p9, p10, p11)
+        l7 = Arc.by_start_mid_end(p11, p12, p13)
+        l8 = Arc.by_start_mid_end(p13, p14, p15)
+        l9 = Arc.by_start_mid_end(p15, p16, p9)
+        l10 = Line(p9, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+
+
+class LAngleProfile(Profile):
+    def __init__(self, name, height, width, tw, tf, r1, r2, ex, ey):
+        super().__init__(name, "LAngle", "IfcLShapeProfileDef", height, width, tw, tf)
+
+        # parameters
+
+        self.r1 = r1  # inner fillet
+        r11 = r1 / sqrt2
+        self.r2 = r2  # outer fillet
+        r21 = r2 / sqrt2
+        self.ex = ex  # from left
+        self.ey = ey  # from bottom
+
+        # describe points
+        p1 = Point(-ex, -ey)  # left bottom
+        p2 = Point(width - ex, -ey)  # right bottom
+        p3 = Point(width - ex, -ey + tf - r2)  # start arc
+        p4 = Point(width - ex - r2 + r21, -ey + tf - r2 + r21)  # second point arc
+        p5 = Point(width - ex - r2, -ey + tf)  # end arc
+        p6 = Point(-ex + tf + r1, -ey + tf)  # start arc
+        p7 = Point(-ex + tf + r1 - r11, -ey + tf + r1 - r11)  # second point arc
+        p8 = Point(-ex + tf, -ey + tf + r1)  # end arc
+        p9 = Point(-ex + tf, height - ey - r2)  # start arc
+        p10 = Point(-ex + tf - r2 + r21, height - ey - r2 + r21)  # second point arc
+        p11 = Point(-ex + tf - r2, height - ey)  # end arc
+        p12 = Point(-ex, height - ey)  # left top
+
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
+        l8 = Line(p11, p12)
+        l9 = Line(p12, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9])
+
 
 class TProfileRounded(Profile):
-	# ToDo: inner outer fillets in polycurve
-	def __init__(self, name, height, width, tw, tf, r, r1, r2, ex, ey):
-		super().__init__(name, "TProfile", "IfcTShapeProfileDef", height, width, tw, tf)
+    # ToDo: inner outer fillets in polycurve
+    def __init__(self, name, height, width, tw, tf, r, r1, r2, ex, ey):
+        super().__init__(name, "TProfile", "IfcTShapeProfileDef", height, width, tw, tf)
+
+        self.r = r  # inner fillet
+        self.r01 = r / sqrt2
+        self.r1 = r1  # outer fillet flange
+        r11 = r1 / sqrt2
+        self.r2 = r2  # outer fillet top web
+        r21 = r2 / sqrt2
+        self.ex = ex  # from left
+        self.ey = ey  # from bottom
+
+        # describe points
+        p1 = Point(-ex, -ey)  # left bottom
+        p2 = Point(width - ex, -ey)  # right bottom
+        p3 = Point(width - ex, -ey + tf - r1)  # start arc
+        p4 = Point(width - ex - r1 + r11, -ey + tf - r1 + r11)  # second point arc
+        p5 = Point(width - ex - r1, -ey + tf)  # end arc
+        p6 = Point(0.5 * tw + r, -ey + tf)  # start arc
+        p7 = Point(0.5 * tw + r - self.r01, -ey + tf + r - self.r01)  # second point arc
+        p8 = Point(0.5 * tw, -ey + tf + r)  # end arc
+        p9 = Point(0.5 * tw, -ey + height - r2)  # start arc
+        p10 = Point(0.5 * tw - r21, -ey + height - r2 + r21)  # second point arc
+        p11 = Point(0.5 * tw - r2, -ey + height)  # end arc
+
+        p12 = Point(-p11.x, p11.y)
+        p13 = Point(-p10.x, p10.y)
+        p14 = Point(-p9.x, p9.y)
+        p15 = Point(-p8.x, p8.y)
+        p16 = Point(-p7.x, p7.y)
+        p17 = Point(-p6.x, p6.y)
+        p18 = Point(-p5.x, p5.y)
+        p19 = Point(-p4.x, p4.y)
+        p20 = Point(-p3.x, p3.y)
+
+        # describe curves
+        l1 = Line(p1, p2)
+
+        l2 = Line(p2, p3)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
+        l8 = Line(p11, p12)
+
+        l9 = Arc.by_start_mid_end(p12, p13, p14)
+        l10 = Line(p14, p15)
+        l11 = Arc.by_start_mid_end(p15, p16, p17)
+        l12 = Line(p17, p18)
+        l13 = Arc.by_start_mid_end(p18, p19, p20)
+        l14 = Line(p20, p1)
+
+        self.curve = PolyCurve(
+            [l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14]
+        )
 
 
-		self.r = r  # inner fillet
-		self.r01 = r / sqrt2
-		self.r1 = r1  # outer fillet flange
-		r11 = r1 / sqrt2
-		self.r2 = r2  # outer fillet top web
-		r21 = r2 / sqrt2
-		self.ex = ex  # from left
-		self.ey = ey  # from bottom
+class RectangleHollowSectionProfile(Profile):
+    def __init__(self, name, height, width, t, r1, r2):
+        super().__init__(
+            name,
+            "Rectangle Hollow Section",
+            "IfcRectangleHollowProfileDef",
+            height,
+            width,
+            tw=t,
+            tf=t,
+        )
 
-		# describe points
-		p1 = Point(-ex, -ey)  # left bottom
-		p2 = Point(width - ex, -ey)  # right bottom
-		p3 = Point(width - ex, -ey + tf - r1)  # start arc
-		p4 = Point(width - ex - r1 + r11, -ey + tf -
-					 r1 + r11)  # second point arc
-		p5 = Point(width - ex - r1, -ey + tf)  # end arc
-		p6 = Point(0.5 * tw + r, -ey + tf)  # start arc
-		p7 = Point(0.5 * tw + r - self.r01, -ey + tf +
-					 r - self.r01)  # second point arc
-		p8 = Point(0.5 * tw, -ey + tf + r)  # end arc
-		p9 = Point(0.5 * tw, -ey + height - r2)  # start arc
-		p10 = Point(0.5 * tw - r21, -ey + height -
-					  r2 + r21)  # second point arc
-		p11 = Point(0.5 * tw - r2, -ey + height)  # end arc
+        # parameters
 
-		p12 = Point(-p11.x, p11.y)
-		p13 = Point(-p10.x, p10.y)
-		p14 = Point(-p9.x, p9.y)
-		p15 = Point(-p8.x, p8.y)
-		p16 = Point(-p7.x, p7.y)
-		p17 = Point(-p6.x, p6.y)
-		p18 = Point(-p5.x, p5.y)
-		p19 = Point(-p4.x, p4.y)
-		p20 = Point(-p3.x, p3.y)
+        self.t = t  # thickness
+        self.r1 = r1  # outer radius
+        self.r2 = r2  # inner radius
+        dr = r1 - r1 / sqrt2
+        dri = r2 - r2 / sqrt2
+        bi = width - t
+        hi = height - t
 
-		# describe curves
-		l1 = Line(p1, p2)
+        # describe points
+        p1 = Point(-width / 2 + r1, -height / 2)  # left bottom end arc
+        p2 = Point(width / 2 - r1, -height / 2)  # right bottom start arc
+        p3 = Point(width / 2 - dr, -height / 2 + dr)  # right bottom mid arc
+        p4 = Point(width / 2, -height / 2 + r1)  # right bottom end arc
+        p5 = Point(p4.x, -p4.y)  # right start arc
+        p6 = Point(p3.x, -p3.y)  # right mid arc
+        p7 = Point(p2.x, -p2.y)  # right end arc
+        p8 = Point(-p7.x, p7.y)  # left start arc
+        p9 = Point(-p6.x, p6.y)  # left mid arc
+        p10 = Point(-p5.x, p5.y)  # left end arc
+        p11 = Point(p10.x, -p10.y)  # right bottom start arc
+        p12 = Point(p9.x, -p9.y)  # right bottom mid arc
 
-		l2 = Line(p2, p3)
-		l3 = Arc.by_start_mid_end(p3, p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Arc.by_start_mid_end(p9, p10, p11)
-		l8 = Line(p11, p12)
+        # inner part
+        p13 = Point(-bi / 2 + r2, -hi / 2)  # left bottom end arc
+        p14 = Point(bi / 2 - r2, -hi / 2)  # right bottom start arc
+        p15 = Point(bi / 2 - dri, -hi / 2 + dri)  # right bottom mid arc
+        p16 = Point(bi / 2, -hi / 2 + r2)  # right bottom end arc
+        p17 = Point(p16.x, -p16.y)  # right start arc
+        p18 = Point(p15.x, -p15.y)  # right mid arc
+        p19 = Point(p14.x, -p14.y)  # right end arc
+        p20 = Point(-p19.x, p19.y)  # left start arc
+        p21 = Point(-p18.x, p18.y)  # left mid arc
+        p22 = Point(-p17.x, p17.y)  # left end arc
+        p23 = Point(p22.x, -p22.y)  # right bottom start arc
+        p24 = Point(p21.x, -p21.y)  # right bottom mid arc
 
-		l9 = Arc.by_start_mid_end(p12, p13, p14)
-		l10 = Line(p14, p15)
-		l11 = Arc.by_start_mid_end(p15, p16, p17)
-		l12 = Line(p17, p18)
-		l13 = Arc.by_start_mid_end(p18, p19, p20)
-		l14 = Line(p20, p1)
+        # describe outer curves
+        l1 = Line(p1, p2)
+        l2 = Arc.by_start_mid_end(p2, p3, p4)
+        l3 = Line(p4, p5)
+        l4 = Arc.by_start_mid_end(p5, p6, p7)
+        l5 = Line(p7, p8)
+        l6 = Arc.by_start_mid_end(p8, p9, p10)
+        l7 = Line(p10, p11)
+        l8 = Arc.by_start_mid_end(p11, p12, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14])
+        l9 = Line(p1, p13)
+        # describe inner curves
+        l10 = Line(p13, p14)
+        l11 = Arc.by_start_mid_end(p14, p15, p16)
+        l12 = Line(p16, p17)
+        l13 = Arc.by_start_mid_end(p17, p18, p19)
+        l14 = Line(p19, p20)
+        l15 = Arc.by_start_mid_end(p20, p21, p22)
+        l16 = Line(p22, p23)
+        l17 = Arc.by_start_mid_end(p23, p24, p13)
 
-class RectangleHollowSection(Profile):
-	def __init__(self, name, height, width, t, r1, r2):
-		super().__init__(name, "Rectangle Hollow Section", "IfcRectangleHollowProfileDef", height, width, tw=t, tf=t)
+        l18 = Line(p13, p1)
 
-		# parameters
-		
+        self.curve = PolyCurve(
+            [
+                l1,
+                l2,
+                l3,
+                l4,
+                l5,
+                l6,
+                l7,
+                l8,
+                l9,
+                l10,
+                l11,
+                l12,
+                l13,
+                l14,
+                l15,
+                l16,
+                l17,
+                l18,
+            ]
+        )
 
-		self.t = t  # thickness
-		self.r1 = r1  # outer radius
-		self.r2 = r2  # inner radius
-		dr = r1 - r1 / sqrt2
-		dri = r2 - r2 / sqrt2
-		bi = width - t
-		hi = height - t
-
-		# describe points
-		p1 = Point(-width / 2 + r1, - height / 2)  # left bottom end arc
-		p2 = Point(width / 2 - r1, - height / 2)  # right bottom start arc
-		p3 = Point(width / 2 - dr, - height / 2 + dr)  # right bottom mid arc
-		p4 = Point(width / 2, - height / 2 + r1)  # right bottom end arc
-		p5 = Point(p4.x, -p4.y)  # right start arc
-		p6 = Point(p3.x, -p3.y)  # right mid arc
-		p7 = Point(p2.x, -p2.y)  # right end arc
-		p8 = Point(-p7.x, p7.y)  # left start arc
-		p9 = Point(-p6.x, p6.y)  # left mid arc
-		p10 = Point(-p5.x, p5.y)  # left end arc
-		p11 = Point(p10.x, -p10.y)  # right bottom start arc
-		p12 = Point(p9.x, -p9.y)  # right bottom mid arc
-
-		# inner part
-		p13 = Point(-bi / 2 + r2, - hi / 2)  # left bottom end arc
-		p14 = Point(bi / 2 - r2, - hi / 2)  # right bottom start arc
-		p15 = Point(bi / 2 - dri, - hi / 2 + dri)  # right bottom mid arc
-		p16 = Point(bi / 2, - hi / 2 + r2)  # right bottom end arc
-		p17 = Point(p16.x, -p16.y)  # right start arc
-		p18 = Point(p15.x, -p15.y)  # right mid arc
-		p19 = Point(p14.x, -p14.y)  # right end arc
-		p20 = Point(-p19.x, p19.y)  # left start arc
-		p21 = Point(-p18.x, p18.y)  # left mid arc
-		p22 = Point(-p17.x, p17.y)  # left end arc
-		p23 = Point(p22.x, -p22.y)  # right bottom start arc
-		p24 = Point(p21.x, -p21.y)  # right bottom mid arc
-
-		# describe outer curves
-		l1 = Line(p1, p2)
-		l2 = Arc.by_start_mid_end(p2, p3, p4)
-		l3 = Line(p4, p5)
-		l4 = Arc.by_start_mid_end(p5, p6, p7)
-		l5 = Line(p7, p8)
-		l6 = Arc.by_start_mid_end(p8, p9, p10)
-		l7 = Line(p10, p11)
-		l8 = Arc.by_start_mid_end(p11, p12, p1)
-
-		l9 = Line(p1, p13)
-		# describe inner curves
-		l10 = Line(p13, p14)
-		l11 = Arc.by_start_mid_end(p14, p15, p16)
-		l12 = Line(p16, p17)
-		l13 = Arc.by_start_mid_end(p17, p18, p19)
-		l14 = Line(p19, p20)
-		l15 = Arc.by_start_mid_end(p20, p21, p22)
-		l16 = Line(p22, p23)
-		l17 = Arc.by_start_mid_end(p23, p24, p13)
-
-		l18 = Line(p13, p1)
-
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18])
 
 class CProfile(Profile):
-	def __init__(self, name, width, height, t, r1, ex):
-		super().__init__(name, "Cold Formed C Profile", "Unknown", height, width, tw=t, tf=t)
+    def __init__(self, name, width, height, t, r1, ex):
+        super().__init__(
+            name, "Cold Formed C Profile", "Unknown", height, width, tw=t, tf=t
+        )
 
-		# parameters
-		
+        # parameters
 
-		self.t = t  # flange thickness
-		self.r1 = r1  # outer radius
-		self.r2 = r1 - t  # inner radius
-		r2 = r1 - t
+        self.t = t  # flange thickness
+        self.r1 = r1  # outer radius
+        self.r2 = r1 - t  # inner radius
+        r2 = r1 - t
 
-		self.ex = ex
-		self.ey = height / 2
-		dr = r1 - r1 / sqrt2
-		dri = r2 - r2 / sqrt2
-		hi = height - t
+        self.ex = ex
+        self.ey = height / 2
+        dr = r1 - r1 / sqrt2
+        dri = r2 - r2 / sqrt2
+        hi = height - t
 
-		# describe points
-		p1 = Point(width - ex, -height / 2)  # right bottom
-		p2 = Point(r1 - ex, -height / 2)
-		p3 = Point(dr - ex, -height / 2 + dr)
-		p4 = Point(0 - ex, -height / 2 + r1)
-		p5 = Point(p4.x, -p4.y)
-		p6 = Point(p3.x, -p3.y)
-		p7 = Point(p2.x, -p2.y)
-		p8 = Point(p1.x, -p1.y)  # right top
-		p9 = Point(width - ex, hi / 2)  # right top inner
-		p10 = Point(t + r2 - ex, hi / 2)
-		p11 = Point(t + dri - ex, hi / 2 - dri)
-		p12 = Point(t - ex, hi / 2 - r2)
-		p13 = Point(p12.x, -p12.y)
-		p14 = Point(p11.x, -p11.y)
-		p15 = Point(p10.x, -p10.y)
-		p16 = Point(p9.x, -p9.y)  # right bottom inner
-		# describe outer curves
-		l1 = Line(p1, p2)  # bottom
-		l2 = Arc.by_start_mid_end(p2, p3, p4)  # right outer fillet
-		l3 = Line(p4, p5)  # left outer web
-		l4 = Arc.by_start_mid_end(p5, p6, p7)  # left top outer fillet
-		l5 = Line(p7, p8)  # outer top
-		l6 = Line(p8, p9)
-		l7 = Line(p9, p10)
-		l8 = Arc.by_start_mid_end(p10, p11, p12)  # left top inner fillet
-		l9 = Line(p12, p13)
-		l10 = Arc.by_start_mid_end(p13, p14, p15)  # left botom inner fillet
-		l11 = Line(p15, p16)
-		l12 = Line(p16, p1)
+        # describe points
+        p1 = Point(width - ex, -height / 2)  # right bottom
+        p2 = Point(r1 - ex, -height / 2)
+        p3 = Point(dr - ex, -height / 2 + dr)
+        p4 = Point(0 - ex, -height / 2 + r1)
+        p5 = Point(p4.x, -p4.y)
+        p6 = Point(p3.x, -p3.y)
+        p7 = Point(p2.x, -p2.y)
+        p8 = Point(p1.x, -p1.y)  # right top
+        p9 = Point(width - ex, hi / 2)  # right top inner
+        p10 = Point(t + r2 - ex, hi / 2)
+        p11 = Point(t + dri - ex, hi / 2 - dri)
+        p12 = Point(t - ex, hi / 2 - r2)
+        p13 = Point(p12.x, -p12.y)
+        p14 = Point(p11.x, -p11.y)
+        p15 = Point(p10.x, -p10.y)
+        p16 = Point(p9.x, -p9.y)  # right bottom inner
+        # describe outer curves
+        l1 = Line(p1, p2)  # bottom
+        l2 = Arc.by_start_mid_end(p2, p3, p4)  # right outer fillet
+        l3 = Line(p4, p5)  # left outer web
+        l4 = Arc.by_start_mid_end(p5, p6, p7)  # left top outer fillet
+        l5 = Line(p7, p8)  # outer top
+        l6 = Line(p8, p9)
+        l7 = Line(p9, p10)
+        l8 = Arc.by_start_mid_end(p10, p11, p12)  # left top inner fillet
+        l9 = Line(p12, p13)
+        l10 = Arc.by_start_mid_end(p13, p14, p15)  # left botom inner fillet
+        l11 = Line(p15, p16)
+        l12 = Line(p16, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+
 
 class CProfileWithLips(Profile):
-	def __init__(self, name, width, height, h1, t, r1, ex):
-		super().__init__(name, "Cold Formed C Profile with Lips", "Unknown", height, width, tw=t, tf=t)
+    def __init__(self, name, width, height, h1, t, r1, ex):
+        super().__init__(
+            name,
+            "Cold Formed C Profile with Lips",
+            "Unknown",
+            height,
+            width,
+            tw=t,
+            tf=t,
+        )
 
-		# parameters
-		
+        # parameters
 
-		self.h1 = h1  # lip length
-		self.t = t  # flange thickness
-		self.r1 = r1  # outer radius
-		self.r2 = r1 - t  # inner radius
-		r2 = r1 - t
+        self.h1 = h1  # lip length
+        self.t = t  # flange thickness
+        self.r1 = r1  # outer radius
+        self.r2 = r1 - t  # inner radius
+        r2 = r1 - t
 
-		self.ex = ex
-		self.ey = height / 2
-		dr = r1 - r1 / sqrt2
-		dri = r2 - r2 / sqrt2
-		hi = height - t
+        self.ex = ex
+        self.ey = height / 2
+        dr = r1 - r1 / sqrt2
+        dri = r2 - r2 / sqrt2
+        hi = height - t
 
-		# describe points
-		p1 = Point(width - ex - r1, -height / 2)  # right bottom  before fillet
-		p2 = Point(r1 - ex, -height / 2)
-		p3 = Point(dr - ex, -height / 2 + dr)
-		p4 = Point(0 - ex, -height / 2 + r1)
-		p5 = Point(p4.x, -p4.y)
-		p6 = Point(p3.x, -p3.y)
-		p7 = Point(p2.x, -p2.y)
-		p8 = Point(p1.x, -p1.y)  # right top before fillet
-		p9 = Point(width - ex - dr, height / 2 - dr)  # middle point arc
-		p10 = Point(width - ex, height / 2 - r1)  # end fillet
-		p11 = Point(width - ex, height / 2 - h1)
-		p12 = Point(width - ex - t, height / 2 - h1)  # bottom lip
-		p13 = Point(width - ex - t, height / 2 - t - r2)  # start inner fillet right top
-		p14 = Point(width - ex - t - dri, height / 2 - t - dri)
-		p15 = Point(width - ex - t - r2, height / 2 - t)  # end inner fillet right top
-		p16 = Point(0 - ex + t + r2, height / 2 - t)
-		p17 = Point(0 - ex + t + dri, height / 2 - t - dri)
-		p18 = Point(0 - ex + t, height / 2 - t - r2)
+        # describe points
+        p1 = Point(width - ex - r1, -height / 2)  # right bottom  before fillet
+        p2 = Point(r1 - ex, -height / 2)
+        p3 = Point(dr - ex, -height / 2 + dr)
+        p4 = Point(0 - ex, -height / 2 + r1)
+        p5 = Point(p4.x, -p4.y)
+        p6 = Point(p3.x, -p3.y)
+        p7 = Point(p2.x, -p2.y)
+        p8 = Point(p1.x, -p1.y)  # right top before fillet
+        p9 = Point(width - ex - dr, height / 2 - dr)  # middle point arc
+        p10 = Point(width - ex, height / 2 - r1)  # end fillet
+        p11 = Point(width - ex, height / 2 - h1)
+        p12 = Point(width - ex - t, height / 2 - h1)  # bottom lip
+        p13 = Point(width - ex - t, height / 2 - t - r2)  # start inner fillet right top
+        p14 = Point(width - ex - t - dri, height / 2 - t - dri)
+        p15 = Point(width - ex - t - r2, height / 2 - t)  # end inner fillet right top
+        p16 = Point(0 - ex + t + r2, height / 2 - t)
+        p17 = Point(0 - ex + t + dri, height / 2 - t - dri)
+        p18 = Point(0 - ex + t, height / 2 - t - r2)
 
-		p19 = Point(p18.x, -p18.y)
-		p20 = Point(p17.x, -p17.y)
-		p21 = Point(p16.x, -p16.y)
-		p22 = Point(p15.x, -p15.y)
-		p23 = Point(p14.x, -p14.y)
-		p24 = Point(p13.x, -p13.y)
-		p25 = Point(p12.x, -p12.y)
-		p26 = Point(p11.x, -p11.y)
-		p27 = Point(p10.x, -p10.y)
-		p28 = Point(p9.x, -p9.y)
+        p19 = Point(p18.x, -p18.y)
+        p20 = Point(p17.x, -p17.y)
+        p21 = Point(p16.x, -p16.y)
+        p22 = Point(p15.x, -p15.y)
+        p23 = Point(p14.x, -p14.y)
+        p24 = Point(p13.x, -p13.y)
+        p25 = Point(p12.x, -p12.y)
+        p26 = Point(p11.x, -p11.y)
+        p27 = Point(p10.x, -p10.y)
+        p28 = Point(p9.x, -p9.y)
 
-		# describe outer curves
-		l1 = Line(p1, p2)
-		l2 = Arc.by_start_mid_end(p2, p3, p4)
-		l3 = Line(p4, p5)
-		l4 = Arc.by_start_mid_end(p5, p6, p7)  # outer fillet right top
-		l5 = Line(p7, p8)
-		l6 = Arc.by_start_mid_end(p8, p9, p10)
-		l7 = Line(p10, p11)
-		l8 = Line(p11, p12)
-		l9 = Line(p12, p13)
-		l10 = Arc.by_start_mid_end(p13, p14, p15)
-		l11 = Line(p15, p16)
-		l12 = Arc.by_start_mid_end(p16, p17, p18)
-		l13 = Line(p18, p19)  # inner web
-		l14 = Arc.by_start_mid_end(p19, p20, p21)
-		l15 = Line(p21, p22)
-		l16 = Arc.by_start_mid_end(p22, p23, p24)
-		l17 = Line(p24, p25)
-		l18 = Line(p25, p26)
-		l19 = Line(p26, p27)
-		l20 = Arc.by_start_mid_end(p27, p28, p1)
+        # describe outer curves
+        l1 = Line(p1, p2)
+        l2 = Arc.by_start_mid_end(p2, p3, p4)
+        l3 = Line(p4, p5)
+        l4 = Arc.by_start_mid_end(p5, p6, p7)  # outer fillet right top
+        l5 = Line(p7, p8)
+        l6 = Arc.by_start_mid_end(p8, p9, p10)
+        l7 = Line(p10, p11)
+        l8 = Line(p11, p12)
+        l9 = Line(p12, p13)
+        l10 = Arc.by_start_mid_end(p13, p14, p15)
+        l11 = Line(p15, p16)
+        l12 = Arc.by_start_mid_end(p16, p17, p18)
+        l13 = Line(p18, p19)  # inner web
+        l14 = Arc.by_start_mid_end(p19, p20, p21)
+        l15 = Line(p21, p22)
+        l16 = Arc.by_start_mid_end(p22, p23, p24)
+        l17 = Line(p24, p25)
+        l18 = Line(p25, p26)
+        l19 = Line(p26, p27)
+        l20 = Arc.by_start_mid_end(p27, p28, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
+        self.curve = PolyCurve(
+            [
+                l1,
+                l2,
+                l3,
+                l4,
+                l5,
+                l6,
+                l7,
+                l8,
+                l9,
+                l10,
+                l11,
+                l12,
+                l13,
+                l14,
+                l15,
+                l16,
+                l17,
+                l18,
+                l19,
+                l20,
+            ]
+        )
+
 
 class LProfileColdFormed(Profile):
-	def __init__(self, name, width, height, t, r1, ex, ey):
-		super().__init__(name, "Cold Formed L Profile", "Unknown", height, width, tw=t, tf=t)
+    def __init__(self, name, width, height, t, r1, ex, ey):
+        super().__init__(
+            name, "Cold Formed L Profile", "Unknown", height, width, tw=t, tf=t
+        )
 
-		# parameters
-		
+        # parameters
 
-		self.t = t  # flange thickness
-		self.r1 = r1  # inner radius
-		self.r2 = r1 - t  # outer radius
-		self.ex = ex
-		self.ey = ey
-		r11 = r1 / math.sqrt(2)
-		r2 = r1 + t
-		r21 = r2 / math.sqrt(2)
+        self.t = t  # flange thickness
+        self.r1 = r1  # inner radius
+        self.r2 = r1 - t  # outer radius
+        self.ex = ex
+        self.ey = ey
+        r11 = r1 / math.sqrt(2)
+        r2 = r1 + t
+        r21 = r2 / math.sqrt(2)
 
-		# describe points
-		p1 = Point(-ex, -ey + r2)  # start arc left bottom
-		p2 = Point(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
-		p3 = Point(-ex + r2, -ey)  # end arc
-		p4 = Point(width - ex, -ey)  # right bottom
-		p5 = Point(width - ex, -ey + t)
-		p6 = Point(-ex + t + r1, -ey + t)  # start arc
-		p7 = Point(-ex + t + r1 - r11, -ey + t +
-					 r1 - r11)  # second point arc
-		p8 = Point(-ex + t, -ey + t + r1)  # end arc
-		p9 = Point(-ex + t, ey)
-		p10 = Point(-ex, ey)  # left top
+        # describe points
+        p1 = Point(-ex, -ey + r2)  # start arc left bottom
+        p2 = Point(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
+        p3 = Point(-ex + r2, -ey)  # end arc
+        p4 = Point(width - ex, -ey)  # right bottom
+        p5 = Point(width - ex, -ey + t)
+        p6 = Point(-ex + t + r1, -ey + t)  # start arc
+        p7 = Point(-ex + t + r1 - r11, -ey + t + r1 - r11)  # second point arc
+        p8 = Point(-ex + t, -ey + t + r1)  # end arc
+        p9 = Point(-ex + t, ey)
+        p10 = Point(-ex, ey)  # left top
 
-		l1 = Arc.by_start_mid_end(p1, p2, p3)
-		l2 = Line(p3, p4)
-		l3 = Line(p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Line(p9, p10)
-		l8 = Line(p10, p1)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Line(p3, p4)
+        l3 = Line(p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8])
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8])
+
 
 class SigmaProfileWithLipsColdFormed(Profile):
-	def __init__(self, name, width, height, t, r1, h1, h2, h3, b2, ex):
-		super().__init__(name, "Cold Formed Sigma Profile with Lips", "Unknown", height, width, tw=t, tf=t)
+    def __init__(self, name, width, height, t, r1, h1, h2, h3, b2, ex):
+        super().__init__(
+            name,
+            "Cold Formed Sigma Profile with Lips",
+            "Unknown",
+            height,
+            width,
+            tw=t,
+            tf=t,
+        )
 
-		# parameters
-		
+        # parameters
 
-		self.h1 = h1  # LipLength
-		self.h2 = h2  # MiddleBendLength
-		self.h3 = h3  # TopBendLength
-		self.h4 = h4 = (height - h2 - h3 * 2) / 2
-		self.h5 = h5 = math.tan(0.5 * math.atan(b2 / h4)) * t
-		self.b2 = b2  # MiddleBendWidth
-		self.t = t  # flange thickness
-		self.r1 = r1  # inner radius
-		self.r2 = r2 = r1 + t  # outer radius
-		self.ex = ex
-		self.ey = ey = height / 2
-		r11 = r11 = r1 / math.sqrt(2)
-		r21 = r21 = r2 / math.sqrt(2)
+        self.h1 = h1  # LipLength
+        self.h2 = h2  # MiddleBendLength
+        self.h3 = h3  # TopBendLength
+        self.h4 = h4 = (height - h2 - h3 * 2) / 2
+        self.h5 = h5 = math.tan(0.5 * math.atan(b2 / h4)) * t
+        self.b2 = b2  # MiddleBendWidth
+        self.t = t  # flange thickness
+        self.r1 = r1  # inner radius
+        self.r2 = r2 = r1 + t  # outer radius
+        self.ex = ex
+        self.ey = ey = height / 2
+        r11 = r11 = r1 / math.sqrt(2)
+        r21 = r21 = r2 / math.sqrt(2)
 
-		p1 = Point(-ex + b2, -h2 / 2)
-		p2 = Point(-ex, -ey + h3)
-		p3 = Point(-ex, -ey + r2)  # start arc left bottom
-		p4 = Point(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
-		p5 = Point(-ex + r2, -ey)  # end arc
-		p6 = Point(width - ex - r2, -ey)  # start arc
-		p7 = Point(width - ex - r2 + r21, -ey + r2 - r21)  # second point arc
-		p8 = Point(width - ex, -ey + r2)  # end arc
-		p9 = Point(width - ex, -ey + h1)  # end lip
-		p10 = Point(width - ex - t, -ey + h1)
-		p11 = Point(width - ex - t, -ey + t + r1)  # start arc
-		p12 = Point(width - ex - t - r1 + r11, -ey +
-					  t + r1 - r11)  # second point arc
-		p13 = Point(width - ex - t - r1, -ey + t)  # end arc
-		p14 = Point(-ex + t + r1, -ey + t)  # start arc
-		p15 = Point(-ex + t + r1 - r11, -ey + t +
-					  r1 - r11)  # second point arc
-		p16 = Point(-ex + t, -ey + t + r1)  # end arc
-		p17 = Point(-ex + t, -ey + h3 - h5)
-		p18 = Point(-ex + b2 + t, -h2 / 2 - h5)
-		p19 = Point(p18.x, -p18.y)
-		p20 = Point(p17.x, -p17.y)
-		p21 = Point(p16.x, -p16.y)
-		p22 = Point(p15.x, -p15.y)
-		p23 = Point(p14.x, -p14.y)
-		p24 = Point(p13.x, -p13.y)
-		p25 = Point(p12.x, -p12.y)
-		p26 = Point(p11.x, -p11.y)
-		p27 = Point(p10.x, -p10.y)
-		p28 = Point(p9.x, -p9.y)
-		p29 = Point(p8.x, -p8.y)
-		p30 = Point(p7.x, -p7.y)
-		p31 = Point(p6.x, -p6.y)
-		p32 = Point(p5.x, -p5.y)
-		p33 = Point(p4.x, -p4.y)
-		p34 = Point(p3.x, -p3.y)
-		p35 = Point(p2.x, -p2.y)
-		p36 = Point(p1.x, -p1.y)
+        p1 = Point(-ex + b2, -h2 / 2)
+        p2 = Point(-ex, -ey + h3)
+        p3 = Point(-ex, -ey + r2)  # start arc left bottom
+        p4 = Point(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
+        p5 = Point(-ex + r2, -ey)  # end arc
+        p6 = Point(width - ex - r2, -ey)  # start arc
+        p7 = Point(width - ex - r2 + r21, -ey + r2 - r21)  # second point arc
+        p8 = Point(width - ex, -ey + r2)  # end arc
+        p9 = Point(width - ex, -ey + h1)  # end lip
+        p10 = Point(width - ex - t, -ey + h1)
+        p11 = Point(width - ex - t, -ey + t + r1)  # start arc
+        p12 = Point(width - ex - t - r1 + r11, -ey + t + r1 - r11)  # second point arc
+        p13 = Point(width - ex - t - r1, -ey + t)  # end arc
+        p14 = Point(-ex + t + r1, -ey + t)  # start arc
+        p15 = Point(-ex + t + r1 - r11, -ey + t + r1 - r11)  # second point arc
+        p16 = Point(-ex + t, -ey + t + r1)  # end arc
+        p17 = Point(-ex + t, -ey + h3 - h5)
+        p18 = Point(-ex + b2 + t, -h2 / 2 - h5)
+        p19 = Point(p18.x, -p18.y)
+        p20 = Point(p17.x, -p17.y)
+        p21 = Point(p16.x, -p16.y)
+        p22 = Point(p15.x, -p15.y)
+        p23 = Point(p14.x, -p14.y)
+        p24 = Point(p13.x, -p13.y)
+        p25 = Point(p12.x, -p12.y)
+        p26 = Point(p11.x, -p11.y)
+        p27 = Point(p10.x, -p10.y)
+        p28 = Point(p9.x, -p9.y)
+        p29 = Point(p8.x, -p8.y)
+        p30 = Point(p7.x, -p7.y)
+        p31 = Point(p6.x, -p6.y)
+        p32 = Point(p5.x, -p5.y)
+        p33 = Point(p4.x, -p4.y)
+        p34 = Point(p3.x, -p3.y)
+        p35 = Point(p2.x, -p2.y)
+        p36 = Point(p1.x, -p1.y)
 
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Arc.by_start_mid_end(p3, p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Line(p9, p10)
-		l8 = Line(p10, p11)
-		l9 = Arc.by_start_mid_end(p11, p12, p13)
-		l10 = Line(p13, p14)
-		l11 = Arc.by_start_mid_end(p14, p15, p16)
-		l12 = Line(p16, p17)
-		l13 = Line(p17, p18)
-		l14 = Line(p18, p19)
-		l15 = Line(p19, p20)
-		l16 = Line(p20, p21)
-		l17 = Arc.by_start_mid_end(p21, p22, p23)
-		l18 = Line(p23, p24)
-		l19 = Arc.by_start_mid_end(p24, p25, p26)
-		l20 = Line(p26, p27)
-		l21 = Line(p27, p28)
-		l22 = Line(p28, p29)
-		l23 = Arc.by_start_mid_end(p29, p30, p31)
-		l24 = Line(p31, p32)
-		l25 = Arc.by_start_mid_end(p32, p33, p34)
-		l26 = Line(p34, p35)
-		l27 = Line(p35, p36)
-		l28 = Line(p36, p1)
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Arc.by_start_mid_end(p3, p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Line(p9, p10)
+        l8 = Line(p10, p11)
+        l9 = Arc.by_start_mid_end(p11, p12, p13)
+        l10 = Line(p13, p14)
+        l11 = Arc.by_start_mid_end(p14, p15, p16)
+        l12 = Line(p16, p17)
+        l13 = Line(p17, p18)
+        l14 = Line(p18, p19)
+        l15 = Line(p19, p20)
+        l16 = Line(p20, p21)
+        l17 = Arc.by_start_mid_end(p21, p22, p23)
+        l18 = Line(p23, p24)
+        l19 = Arc.by_start_mid_end(p24, p25, p26)
+        l20 = Line(p26, p27)
+        l21 = Line(p27, p28)
+        l22 = Line(p28, p29)
+        l23 = Arc.by_start_mid_end(p29, p30, p31)
+        l24 = Line(p31, p32)
+        l25 = Arc.by_start_mid_end(p32, p33, p34)
+        l26 = Line(p34, p35)
+        l27 = Line(p35, p36)
+        l28 = Line(p36, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20, l21, l22, l23,
-			 l24, l25,
-			 l26, l27, l28])
+        self.curve = PolyCurve(
+            [
+                l1,
+                l2,
+                l3,
+                l4,
+                l5,
+                l6,
+                l7,
+                l8,
+                l9,
+                l10,
+                l11,
+                l12,
+                l13,
+                l14,
+                l15,
+                l16,
+                l17,
+                l18,
+                l19,
+                l20,
+                l21,
+                l22,
+                l23,
+                l24,
+                l25,
+                l26,
+                l27,
+                l28,
+            ]
+        )
+
 
 class ZProfileColdFormed(Profile):
-	def __init__(self, name, width, height, t, r1):
-		super().__init__(name, "Cold Formed Z Profile", "Unknown", height, width, tw=t, tf=t)
+    def __init__(self, name, width, height, t, r1):
+        super().__init__(
+            name, "Cold Formed Z Profile", "Unknown", height, width, tw=t, tf=t
+        )
 
-		# parameters
-		
+        # parameters
 
-		self.t = t  # flange thickness
-		self.r1 = r1  # inner radius
-		self.r2 = r2 = r1 + t  # outer radius
-		self.ex = ex = width / 2
-		self.ey = ey = height / 2
-		r11 = r11 = r1 / math.sqrt(2)
-		r21 = r21 = r2 / math.sqrt(2)
+        self.t = t  # flange thickness
+        self.r1 = r1  # inner radius
+        self.r2 = r2 = r1 + t  # outer radius
+        self.ex = ex = width / 2
+        self.ey = ey = height / 2
+        r11 = r11 = r1 / math.sqrt(2)
+        r21 = r21 = r2 / math.sqrt(2)
 
-		p1 = Point(-0.5 * t, -ey + t + r1)  # start arc
-		p2 = Point(-0.5 * t - r1 + r11, -ey + t +
-					 r1 - r11)  # second point arc
-		p3 = Point(-0.5 * t - r1, -ey + t)  # end arc
-		p4 = Point(-ex, -ey + t)
-		p5 = Point(-ex, -ey)  # left bottom
-		p6 = Point(-r2 + 0.5 * t, -ey)  # start arc
-		p7 = Point(-r2 + 0.5 * t + r21, -ey + r2 - r21)  # second point arc
-		p8 = Point(0.5 * t, -ey + r2)  # end arc
-		p9 = Point(-p1.x, -p1.y)
-		p10 = Point(-p2.x, -p2.y)
-		p11 = Point(-p3.x, -p3.y)
-		p12 = Point(-p4.x, -p4.y)
-		p13 = Point(-p5.x, -p5.y)
-		p14 = Point(-p6.x, -p6.y)
-		p15 = Point(-p7.x, -p7.y)
-		p16 = Point(-p8.x, -p8.y)
+        p1 = Point(-0.5 * t, -ey + t + r1)  # start arc
+        p2 = Point(-0.5 * t - r1 + r11, -ey + t + r1 - r11)  # second point arc
+        p3 = Point(-0.5 * t - r1, -ey + t)  # end arc
+        p4 = Point(-ex, -ey + t)
+        p5 = Point(-ex, -ey)  # left bottom
+        p6 = Point(-r2 + 0.5 * t, -ey)  # start arc
+        p7 = Point(-r2 + 0.5 * t + r21, -ey + r2 - r21)  # second point arc
+        p8 = Point(0.5 * t, -ey + r2)  # end arc
+        p9 = Point(-p1.x, -p1.y)
+        p10 = Point(-p2.x, -p2.y)
+        p11 = Point(-p3.x, -p3.y)
+        p12 = Point(-p4.x, -p4.y)
+        p13 = Point(-p5.x, -p5.y)
+        p14 = Point(-p6.x, -p6.y)
+        p15 = Point(-p7.x, -p7.y)
+        p16 = Point(-p8.x, -p8.y)
 
-		l1 = Arc.by_start_mid_end(p1, p2, p3)
-		l2 = Line(p3, p4)
-		l3 = Line(p4, p5)
-		l4 = Line(p5, p6)
-		l5 = Arc.by_start_mid_end(p6, p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Arc.by_start_mid_end(p9, p10, p11)
-		l8 = Line(p11, p12)
-		l9 = Line(p12, p13)
-		l10 = Line(p13, p14)
-		l11 = Arc.by_start_mid_end(p14, p15, p16)
-		l12 = Line(p16, p1)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Line(p3, p4)
+        l3 = Line(p4, p5)
+        l4 = Line(p5, p6)
+        l5 = Arc.by_start_mid_end(p6, p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
+        l8 = Line(p11, p12)
+        l9 = Line(p12, p13)
+        l10 = Line(p13, p14)
+        l11 = Arc.by_start_mid_end(p14, p15, p16)
+        l12 = Line(p16, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+
 
 class ZProfileWithLipsColdFormed(Profile):
-	def __init__(self, name, width, height, t, r1, h1):
-		super().__init__(name, "Cold Formed Z Profile with Lips", "Unknown", height, width, tw=t, tf=t)
+    def __init__(self, name, width, height, t, r1, h1):
+        super().__init__(
+            name,
+            "Cold Formed Z Profile with Lips",
+            "Unknown",
+            height,
+            width,
+            tw=t,
+            tf=t,
+        )
 
-		# parameters
-		
+        # parameters
 
-		self.t = t  # flange thickness
-		self.h1 = h1  # lip length
-		self.r1 = r1  # inner radius
-		self.r2 = r2 = r1 + t  # outer radius
-		self.ex = ex = width / 2
-		self.ey = ey = height / 2
-		r11 = r11 = r1 / math.sqrt(2)
-		r21 = r21 = r2 / math.sqrt(2)
+        self.t = t  # flange thickness
+        self.h1 = h1  # lip length
+        self.r1 = r1  # inner radius
+        self.r2 = r2 = r1 + t  # outer radius
+        self.ex = ex = width / 2
+        self.ey = ey = height / 2
+        r11 = r11 = r1 / math.sqrt(2)
+        r21 = r21 = r2 / math.sqrt(2)
 
-		p1 = Point(-0.5 * t, -ey + t + r1)  # start arc
-		p2 = Point(-0.5 * t - r1 + r11, -ey + t + r1 - r11)  # second point arc
-		p3 = Point(-0.5 * t - r1, -ey + t)  # end arc
-		p4 = Point(-ex + t + r1, -ey + t)  # start arc
-		p5 = Point(-ex + t + r1 - r11, -ey + t + r1 - r11)  # second point arc
-		p6 = Point(-ex + t, -ey + t + r1)  # end arc
-		p7 = Point(-ex + t, -ey + h1)
-		p8 = Point(-ex, -ey + h1)
-		p9 = Point(-ex, -ey + r2)  # start arc
-		p10 = Point(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
-		p11 = Point(-ex + r2, -ey)  # end arc
-		p12 = Point(-r2 + 0.5 * t, -ey)  # start arc
-		p13 = Point(-r2 + 0.5 * t + r21, -ey + r2 - r21)  # second point arc
-		p14 = Point(0.5 * t, -ey + r2)  # end arc
-		p15 = Point(-p1.x, -p1.y)
-		p16 = Point(-p2.x, -p2.y)
-		p17 = Point(-p3.x, -p3.y)
-		p18 = Point(-p4.x, -p4.y)
-		p19 = Point(-p5.x, -p5.y)
-		p20 = Point(-p6.x, -p6.y)
-		p21 = Point(-p7.x, -p7.y)
-		p22 = Point(-p8.x, -p8.y)
-		p23 = Point(-p9.x, -p9.y)
-		p24 = Point(-p10.x, -p10.y)
-		p25 = Point(-p11.x, -p11.y)
-		p26 = Point(-p12.x, -p12.y)
-		p27 = Point(-p13.x, -p13.y)
-		p28 = Point(-p14.x, -p14.y)
+        p1 = Point(-0.5 * t, -ey + t + r1)  # start arc
+        p2 = Point(-0.5 * t - r1 + r11, -ey + t + r1 - r11)  # second point arc
+        p3 = Point(-0.5 * t - r1, -ey + t)  # end arc
+        p4 = Point(-ex + t + r1, -ey + t)  # start arc
+        p5 = Point(-ex + t + r1 - r11, -ey + t + r1 - r11)  # second point arc
+        p6 = Point(-ex + t, -ey + t + r1)  # end arc
+        p7 = Point(-ex + t, -ey + h1)
+        p8 = Point(-ex, -ey + h1)
+        p9 = Point(-ex, -ey + r2)  # start arc
+        p10 = Point(-ex + r2 - r21, -ey + r2 - r21)  # second point arc
+        p11 = Point(-ex + r2, -ey)  # end arc
+        p12 = Point(-r2 + 0.5 * t, -ey)  # start arc
+        p13 = Point(-r2 + 0.5 * t + r21, -ey + r2 - r21)  # second point arc
+        p14 = Point(0.5 * t, -ey + r2)  # end arc
+        p15 = Point(-p1.x, -p1.y)
+        p16 = Point(-p2.x, -p2.y)
+        p17 = Point(-p3.x, -p3.y)
+        p18 = Point(-p4.x, -p4.y)
+        p19 = Point(-p5.x, -p5.y)
+        p20 = Point(-p6.x, -p6.y)
+        p21 = Point(-p7.x, -p7.y)
+        p22 = Point(-p8.x, -p8.y)
+        p23 = Point(-p9.x, -p9.y)
+        p24 = Point(-p10.x, -p10.y)
+        p25 = Point(-p11.x, -p11.y)
+        p26 = Point(-p12.x, -p12.y)
+        p27 = Point(-p13.x, -p13.y)
+        p28 = Point(-p14.x, -p14.y)
 
-		l1 = Arc.by_start_mid_end(p1, p2, p3)
-		l2 = Line(p3, p4)
-		l3 = Arc.by_start_mid_end(p4, p5, p6)
-		l4 = Line(p6, p7)
-		l5 = Line(p7, p8)
-		l6 = Line(p8, p9)
-		l7 = Arc.by_start_mid_end(p9, p10, p11)
-		l8 = Line(p11, p12)
-		l9 = Arc.by_start_mid_end(p12, p13, p14)
-		l10 = Line(p14, p15)
-		l11 = Arc.by_start_mid_end(p15, p16, p17)
-		l12 = Line(p17, p18)
-		l13 = Arc.by_start_mid_end(p18, p19, p20)
-		l14 = Line(p20, p21)
-		l15 = Line(p21, p22)
-		l16 = Line(p22, p23)
-		l17 = Arc.by_start_mid_end(p23, p24, p25)
-		l18 = Line(p25, p26)
-		l19 = Arc.by_start_mid_end(p26, p27, p28)
-		l20 = Line(p28, p1)
+        l1 = Arc.by_start_mid_end(p1, p2, p3)
+        l2 = Line(p3, p4)
+        l3 = Arc.by_start_mid_end(p4, p5, p6)
+        l4 = Line(p6, p7)
+        l5 = Line(p7, p8)
+        l6 = Line(p8, p9)
+        l7 = Arc.by_start_mid_end(p9, p10, p11)
+        l8 = Line(p11, p12)
+        l9 = Arc.by_start_mid_end(p12, p13, p14)
+        l10 = Line(p14, p15)
+        l11 = Arc.by_start_mid_end(p15, p16, p17)
+        l12 = Line(p17, p18)
+        l13 = Arc.by_start_mid_end(p18, p19, p20)
+        l14 = Line(p20, p21)
+        l15 = Line(p21, p22)
+        l16 = Line(p22, p23)
+        l17 = Arc.by_start_mid_end(p23, p24, p25)
+        l18 = Line(p25, p26)
+        l19 = Arc.by_start_mid_end(p26, p27, p28)
+        l20 = Line(p28, p1)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18, l19, l20])
+        self.curve = PolyCurve(
+            [
+                l1,
+                l2,
+                l3,
+                l4,
+                l5,
+                l6,
+                l7,
+                l8,
+                l9,
+                l10,
+                l11,
+                l12,
+                l13,
+                l14,
+                l15,
+                l16,
+                l17,
+                l18,
+                l19,
+                l20,
+            ]
+        )
+
 
 class TProfile(Profile):
-	def __init__(self, name, height, width, h1:float, b1:float):
-		super().__init__(name, "T-profile", "Unknown", height, width)
+    def __init__(self, name, height, width, h1: float, b1: float):
+        super().__init__(name, "T-profile", "Unknown", height, width)
 
-		# parameters
-		
-		self.h1 = h1
-		self.b1 = b1
+        # parameters
 
-		# describe points
-		p1 = Point(b1 / 2, -height / 2)  # right bottom
-		p2 = Point(b1 / 2, height / 2 - h1)  # right middle 1
-		p3 = Point(width / 2, height / 2 - h1)  # right middle 2
-		p4 = Point(width / 2, height / 2)  # right top
-		p5 = Point(-width / 2, height / 2)  # left top
-		p6 = Point(-width / 2, height / 2 - h1)  # left middle 2
-		p7 = Point(-b1 / 2, height / 2 - h1)  # left middle 1
-		p8 = Point(-b1 / 2, -height / 2)  # left bottom
+        self.h1 = h1
+        self.b1 = b1
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Line(p4, p5)
-		l5 = Line(p5, p6)
-		l6 = Line(p6, p7)
-		l7 = Line(p7, p8)
-		l8 = Line(p8, p1)
+        # describe points
+        p1 = Point(b1 / 2, -height / 2)  # right bottom
+        p2 = Point(b1 / 2, height / 2 - h1)  # right middle 1
+        p3 = Point(width / 2, height / 2 - h1)  # right middle 2
+        p4 = Point(width / 2, height / 2)  # right top
+        p5 = Point(-width / 2, height / 2)  # left top
+        p6 = Point(-width / 2, height / 2 - h1)  # left middle 2
+        p7 = Point(-b1 / 2, height / 2 - h1)  # left middle 1
+        p8 = Point(-b1 / 2, -height / 2)  # left bottom
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8])
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Line(p4, p5)
+        l5 = Line(p5, p6)
+        l6 = Line(p6, p7)
+        l7 = Line(p7, p8)
+        l8 = Line(p8, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8])
+
 
 class LProfile(Profile):
-	def __init__(self, name, height, width, h1:float, b1:float):
-		super().__init__(name, "L-profile", "Unknown", height, width)
+    def __init__(self, name, height, width, h1: float, b1: float):
+        super().__init__(name, "L-profile", "Unknown", height, width)
 
-		# parameters
-		
-		self.h1 = h1
-		self.b1 = b1
+        # parameters
 
-		# describe points
-		p1 = Point(width / 2, -height / 2)  # right bottom
-		p2 = Point(width / 2, -height / 2 + h1)  # right middle
-		p3 = Point(-width / 2 + b1, -height / 2 + h1)  # middle
-		p4 = Point(-width / 2 + b1, height / 2)  # middle top
-		p5 = Point(-width / 2, height / 2)  # left top
-		p6 = Point(-width / 2, -height / 2)  # left bottom
+        self.h1 = h1
+        self.b1 = b1
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Line(p4, p5)
-		l5 = Line(p5, p6)
-		l6 = Line(p6, p1)
+        # describe points
+        p1 = Point(width / 2, -height / 2)  # right bottom
+        p2 = Point(width / 2, -height / 2 + h1)  # right middle
+        p3 = Point(-width / 2 + b1, -height / 2 + h1)  # middle
+        p4 = Point(-width / 2 + b1, height / 2)  # middle top
+        p5 = Point(-width / 2, height / 2)  # left top
+        p6 = Point(-width / 2, -height / 2)  # left bottom
 
-		self.curve = PolyCurve([l1, l2, l3, l4, l5, l6])
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Line(p4, p5)
+        l5 = Line(p5, p6)
+        l6 = Line(p6, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6])
+
 
 class EProfile(Serializable):
-	def __init__(self, name, height, width, h1):
-		super().__init__(name, "E-profile", "Unknown", height, width)
+    def __init__(self, name, height, width, h1):
+        super().__init__(name, "E-profile", "Unknown", height, width)
 
-		# parameters
-		
-		self.h1 = h1
+        # parameters
 
-		# describe points
-		p1 = Point(width / 2, -height / 2)  # right bottom
-		p2 = Point(width / 2, -height / 2 + h1)
-		p3 = Point(-width / 2 + h1, -height / 2 + h1)
-		p4 = Point(-width / 2 + h1, -h1 / 2)
-		p5 = Point(width / 2, -h1 / 2)
-		p6 = Point(width / 2, h1 / 2)
-		p7 = Point(-width / 2 + h1, h1 / 2)
-		p8 = Point(-width / 2 + h1, height / 2 - h1)
-		p9 = Point(width / 2, height / 2 - h1)
-		p10 = Point(width / 2, height / 2)
-		p11 = Point(-width / 2, height / 2)
-		p12 = Point(-width / 2, -height / 2)
+        self.h1 = h1
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Line(p4, p5)
-		l5 = Line(p5, p6)
-		l6 = Line(p6, p7)
-		l7 = Line(p7, p8)
-		l8 = Line(p8, p9)
-		l9 = Line(p9, p10)
-		l10 = Line(p10, p11)
-		l11 = Line(p11, p12)
-		l12 = Line(p12, p1)
+        # describe points
+        p1 = Point(width / 2, -height / 2)  # right bottom
+        p2 = Point(width / 2, -height / 2 + h1)
+        p3 = Point(-width / 2 + h1, -height / 2 + h1)
+        p4 = Point(-width / 2 + h1, -h1 / 2)
+        p5 = Point(width / 2, -h1 / 2)
+        p6 = Point(width / 2, h1 / 2)
+        p7 = Point(-width / 2 + h1, h1 / 2)
+        p8 = Point(-width / 2 + h1, height / 2 - h1)
+        p9 = Point(width / 2, height / 2 - h1)
+        p10 = Point(width / 2, height / 2)
+        p11 = Point(-width / 2, height / 2)
+        p12 = Point(-width / 2, -height / 2)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Line(p4, p5)
+        l5 = Line(p5, p6)
+        l6 = Line(p6, p7)
+        l7 = Line(p7, p8)
+        l8 = Line(p8, p9)
+        l9 = Line(p9, p10)
+        l10 = Line(p10, p11)
+        l11 = Line(p11, p12)
+        l12 = Line(p12, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12])
+
 
 class NProfile(Serializable):
-	def __init__(self, name, height, width, b1):
-		super().__init__(name, "N-profile", "Unknown", height, width)
+    def __init__(self, name, height, width, b1):
+        super().__init__(name, "N-profile", "Unknown", height, width)
 
-		# parameters
-		
-		self.b1 = b1
+        # parameters
 
-		# describe points
-		p1 = Point(width / 2, -height / 2)  # right bottom
-		p2 = Point(width / 2, height / 2)
-		p3 = Point(width / 2 - b1, height / 2)
-		p4 = Point(width / 2 - b1, -height / 2 + b1 * 2)
-		p5 = Point(-width / 2 + b1, height / 2)
-		p6 = Point(-width / 2, height / 2)
-		p7 = Point(-width / 2, -height / 2)
-		p8 = Point(-width / 2 + b1, -height / 2)
-		p9 = Point(-width / 2 + b1, height / 2 - b1 * 2)
-		p10 = Point(width / 2 - b1, -height / 2)
+        self.b1 = b1
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Line(p4, p5)
-		l5 = Line(p5, p6)
-		l6 = Line(p6, p7)
-		l7 = Line(p7, p8)
-		l8 = Line(p8, p9)
-		l9 = Line(p9, p10)
-		l10 = Line(p10, p1)
+        # describe points
+        p1 = Point(width / 2, -height / 2)  # right bottom
+        p2 = Point(width / 2, height / 2)
+        p3 = Point(width / 2 - b1, height / 2)
+        p4 = Point(width / 2 - b1, -height / 2 + b1 * 2)
+        p5 = Point(-width / 2 + b1, height / 2)
+        p6 = Point(-width / 2, height / 2)
+        p7 = Point(-width / 2, -height / 2)
+        p8 = Point(-width / 2 + b1, -height / 2)
+        p9 = Point(-width / 2 + b1, height / 2 - b1 * 2)
+        p10 = Point(width / 2 - b1, -height / 2)
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Line(p4, p5)
+        l5 = Line(p5, p6)
+        l6 = Line(p6, p7)
+        l7 = Line(p7, p8)
+        l8 = Line(p8, p9)
+        l9 = Line(p9, p10)
+        l10 = Line(p10, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7, l8, l9, l10])
 
 
 class ArrowProfile(Profile):
-	def __init__(self, name, length, width, b1, l1):
-		super().__init__(name, "Arrow-profile", "Unknown", length, width)
-		
-		# parameters
-		
-		self.length = length  # length
-		self.b1 = b1
-		self.l1 = l1
+    def __init__(self, name, length, width, b1, l1):
+        super().__init__(name, "Arrow-profile", "Unknown", length, width)
 
-		# describe points
-		p1 = Point(0, length / 2)  # top middle
-		p2 = Point(width / 2, -length / 2 + l1)
-		# p3 = Point(b1 / 2, -length / 2 + l1)
-		p3 = Point(b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
-		p4 = Point(b1 / 2, -length / 2)
-		p5 = Point(-b1 / 2, -length / 2)
-		# p6 = Point(-b1 / 2, -length / 2 + l1)
-		p6 = Point(-b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
-		p7 = Point(-width / 2, -length / 2 + l1)
+        # parameters
 
-		# describe curves
-		l1 = Line(p1, p2)
-		l2 = Line(p2, p3)
-		l3 = Line(p3, p4)
-		l4 = Line(p4, p5)
-		l5 = Line(p5, p6)
-		l6 = Line(p6, p7)
-		l7 = Line(p7, p1)
+        self.length = length  # length
+        self.b1 = b1
+        self.l1 = l1
 
-		self.curve = PolyCurve(
-			[l1, l2, l3, l4, l5, l6, l7])
+        # describe points
+        p1 = Point(0, length / 2)  # top middle
+        p2 = Point(width / 2, -length / 2 + l1)
+        # p3 = Point(b1 / 2, -length / 2 + l1)
+        p3 = Point(b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
+        p4 = Point(b1 / 2, -length / 2)
+        p5 = Point(-b1 / 2, -length / 2)
+        # p6 = Point(-b1 / 2, -length / 2 + l1)
+        p6 = Point(-b1 / 2, (-length / 2 + l1) + (length / 2) / 4)
+        p7 = Point(-width / 2, -length / 2 + l1)
+
+        # describe curves
+        l1 = Line(p1, p2)
+        l2 = Line(p2, p3)
+        l3 = Line(p3, p4)
+        l4 = Line(p4, p5)
+        l5 = Line(p5, p6)
+        l6 = Line(p6, p7)
+        l7 = Line(p7, p1)
+
+        self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7])
 
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
 url = urllib.request.urlopen(jsonFile)
@@ -5418,7 +5476,7 @@ class _getProfileDataFromDatabase:
                 self.synonyms = name
 
 
-def get_profile_by_name(name1) -> Profile:
+def profile_by_name(name1) -> Profile:
     profile_data = _getProfileDataFromDatabase(name1)
     if profile_data == None:
         print(f"profile {name1} not recognised")
@@ -5431,29 +5489,29 @@ def get_profile_by_name(name1) -> Profile:
     name = profile_data.name
     coords = profile_data.shape_coords
     if profile_name == "C-channel parallel flange":
-        profile = CChannelParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
+        profile = CChannelParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
     elif profile_name == "C-channel sloped flange":
-        profile = CChannelSlopedFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
+        profile = CChannelSlopedFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
     elif profile_name == "I-shape parallel flange":
-        profile = IShapeParallelFlange(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = IShapeParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
     elif profile_name == "I-shape sloped flange":
-        profile = IShapeParallelFlange(name, coords[0], coords[1], coords[2], coords[3], coords[4])
+        profile = IShapeParallelFlangeProfile(name, coords[0], coords[1], coords[2], coords[3], coords[4])
         #Todo: add sloped flange shape
     elif profile_name == "Rectangle":
-        profile = Rectangle(name,coords[0], coords[1])
+        profile = RectangleProfile(name,coords[0], coords[1])
     elif profile_name == "Round":
-        profile = Round(name, coords[1])
+        profile = RoundProfile(name, coords[1])
     elif profile_name == "Round tube profile":
-        profile = Roundtube(name, coords[0], coords[1])
+        profile = RoundtubeProfile(name, coords[0], coords[1])
     elif profile_name == "LAngle":
-        profile = LAngle(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
+        profile = LAngleProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
     elif profile_name == "TProfile":
         profile = TProfileRounded(name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
     elif profile_name == "Rectangle Hollow Section":
-        profile = RectangleHollowSection(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = RectangleHollowSectionProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
     return profile
 
-def justificationToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
+def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
 
     # print(XJustifiction)
     xval = []
@@ -5595,9 +5653,10 @@ class Extrusion(Meshable):
         """we'll translate bottom_curve by this vector to get the top curve."""
 
     @staticmethod
-    def by_2d_polycurve_height_vector(
+    def by_2d_polycurve_vector(
         polycurve: PolyCurve, start_point: Point, extrusion_vector: Vector
     ) -> "Extrusion":
+        
         """Creates an extrusion from a 2D polycurve along a specified vector.
         This method extrudes a 2D polycurve into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -5619,11 +5678,11 @@ class Extrusion(Meshable):
         direction = extrusion_vector.normalized
 
         # since we don't have an up vector, we will need to determine how to rotate this extrusion ourselves. we assume that y must be up.
-        if direction == z_axis:
+        if direction == Vector.z_axis:
             transform = Matrix.translate(start_point)
         else:
             # new x = horizontal (xy)
-            x_vector = Vector.cross_product(direction, z_axis).normalized
+            x_vector = Vector.cross_product(direction, Vector.z_axis).normalized
             # new y = more vertical (contains at least a little bit of z)
             y_vector = Vector.cross_product(direction, x_vector)
             transform = Matrix.by_origin_unit_axes(
@@ -5723,35 +5782,52 @@ class Extrusion(Meshable):
 
 
 
-
-
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Beam(Serializable, Meshable):
-    def __init__(self):
+    def __init__(self, start: Point, end: Point, profile: Profile, material: Material = BaseSteel, justification: Vector = Vector()):
         self.name = "None"
-        self.profileName = "None"
-        self.extrusion = None
         self.comments = None
-        self.structuralType = None
-        self.start = None
-        self.end = None
-        self.curve = None  # 2D polycurve of the sectionprofile
-        self.YJustification = "Origin"  # Top, Center, Origin, Bottom
-        self.ZJustification = "Origin"  # Left, Center, Origin, Right
-        self.YOffset = 0
-        self.ZOffset = 0
+        self.start = start
+        self.end = end
+        self.profile = profile
+        self.justification = justification
+        self.material = material
+
         self.rotation = 0
-        self.material : Material = None
-        self.color = BaseOther.color
-        self.profile_data = None #2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
-        self.profile = None #object of 2D profile
+
+        self.profile_data = (
+            None  # 2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
+        )
         self.centerbottom = None
 
     def to_mesh(self, settings: TesselationSettings) -> Mesh:
         return self.extrusion.to_mesh(settings)
-  
+
     @classmethod
-    def by_startpoint_endpoint(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, Profile], name: str, material: None, comments=None):
+    def by_startpoint_endpoint(
+        cls,
+        start: Union[Point, Node],
+        end: Union[Point, Node],
+        profile: Profile,
+        name: str,
+        material: None,
+    ):
+        beam = Beam(start, end, profile, material, Vector())
+        beam.name = name
+        return name
+
+    @classmethod
+    def by_startpoint_endpoint_profile_shapevector(
+        cls,
+        start: Union[Point, Node],
+        end: Union[Point, Node],
+        profile_name: str,
+        name: str,
+        vector2d: Vector,
+        rotation: float,
+        material: None,
+        comments: None,
+    ):
         f1 = Beam()
         f1.comments = comments
 
@@ -5764,45 +5840,11 @@ class Beam(Serializable, Meshable):
         elif isinstance(end, Node):
             f1.end = end.point
 
-        if isinstance(profile,Profile):
-            f1.curve = profile.curve
-            f1.profile = profile
-        elif isinstance(profile, str):
-            res = get_profile_by_name(profile)
-            f1.curve = res.curve  # polycurve2d
-            f1.profile = res
-        else:
-            print("[by_startpoint_endpoint_profile], input is not correct.")
-            sys.exit()
-
-        f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            f1.curve, f1.start, f1.end - f1.start)
-        f1.extrusion.name = name
-        f1.profileName = profile
-        f1.material = material
-        f1.color = material.colorint
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector, rotation: float, material: None, comments: None):
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-        if isinstance(end, Point):
-            f1.end = end
-        elif isinstance(end, Node):
-            f1.end = end.point
-            
-        #try:
-        curv = get_profile_by_name(profile_name).curve
-        #except Exception as e:
-            # Profile does not exist
-        #print(f"Profile does not exist: {profile_name}\nError: {e}")
+        # try:
+        curv = profile_by_name(profile_name).curve
+        # except Exception as e:
+        # Profile does not exist
+        # print(f"Profile does not exist: {profile_name}\nError: {e}")
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
@@ -5810,16 +5852,28 @@ class Beam(Serializable, Meshable):
         f1.XOffset = vector2d.x
         f1.YOffset = vector2d.y
         f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            f1.curve, f1.start, f1.end - f1.start)
+        f1.extrusion = Extrusion.by_2d_polycurve_vector(
+            f1.curve, f1.start, f1.end - f1.start
+        )
         f1.extrusion.name = name
-        f1.profileName = profile_name
         f1.material = material
-        f1.color = material.colorint
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_justification(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_justification(
+        cls,
+        start: Union[Point, Node],
+        end: Union[Point, Node],
+        profile: Union[str, PolyCurve],
+        name: str,
+        XJustifiction: str,
+        YJustifiction: str,
+        rotation: float,
+        material=None,
+        ey: None = float,
+        ez: None = float,
+        comments=None,
+    ):
         f1 = Beam()
         f1.comments = comments
 
@@ -5832,7 +5886,6 @@ class Beam(Serializable, Meshable):
         elif isinstance(end, Node):
             f1.end = end.point
 
-        f1.structuralType = structuralType
         f1.rotation = rotation
 
         if isinstance(profile, PolyCurve):
@@ -5845,7 +5898,7 @@ class Beam(Serializable, Meshable):
             curve = f1.profile_data
         elif isinstance(profile, str):
             profile_name = profile
-            f1.profile_data = get_profile_by_name(profile).curve  # polycurve2d
+            f1.profile_data = profile_by_name(profile).curve  # polycurve2d
             curve = f1.profile_data
         else:
             print("[by_startpoint_endpoint_profile], input is not correct.")
@@ -5853,7 +5906,7 @@ class Beam(Serializable, Meshable):
 
         # curve = f1.profile_data.polycurve2d
 
-        v1 = justificationToVector(curve, XJustifiction, YJustifiction)  # 1
+        v1 = justification_to_vector(curve, XJustifiction, YJustifiction)  # 1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
@@ -5862,8 +5915,9 @@ class Beam(Serializable, Meshable):
         f1.curve = curve
 
         f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            f1.curve, f1.start, f1.end - f1.start)
+        f1.extrusion = Extrusion.by_2d_polycurve_vector(
+            f1.curve, f1.start, f1.end - f1.start
+        )
         f1.extrusion.name = name
 
         try:
@@ -5872,43 +5926,20 @@ class Beam(Serializable, Meshable):
         except:
             pass
 
-        f1.profileName = profile_name
         f1.material = material
-        f1.color = material.colorint
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_rect(cls, start: Union[Point, Node], end: Union[Point, Node], width: float, height: float, name: str, rotation: float, material=None, comments=None):
-        # 2D polycurve
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-        if isinstance(end, Point):
-            f1.end = end
-        elif isinstance(end, Node):
-            f1.end = end.point
-
-        f1.name = name
-
-        prof = Rectangle(str(width)+"x"+str(height),width,height)
-        polycurve = prof.curve
-        f1.profile = prof
-        curvrot = polycurve.rotate(rotation)
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            curvrot, f1.start, f1.end - f1.start)
-        f1.extrusion.name = name
-        f1.profileName = name
-        f1.material = material
-        f1.color = material.colorint
-        return f1
-
-
-    @classmethod
-    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve, frame_name: str, rotation: float, material=None, comments=None):
+    def by_point_height_rotation(
+        cls,
+        start: Union[Point, Node],
+        height: float,
+        polycurve: PolyCurve,
+        frame_name: str,
+        rotation: float,
+        material=None,
+        comments=None,
+    ):
         # 2D polycurve
         f1 = Beam()
         f1.comments = comments
@@ -5922,17 +5953,25 @@ class Beam(Serializable, Meshable):
 
         # self.curve = Line(start, end)
         f1.name = frame_name
-        f1.profileName = frame_name
         curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            curvrot, f1.start, f1.end - f1.start)
+        f1.extrusion = Extrusion.by_2d_polycurve_vector(
+            curvrot, f1.start, f1.end - f1.start
+        )
         f1.extrusion.name = frame_name
         f1.material = material
-        f1.color = material.colorint
+
         return f1
 
     @classmethod
-    def by_point_profile_height_rotation(cls, start: Union[Point, Node], height: float, profile_name: str, rotation: float, material=None, comments=None):
+    def by_point_profile_height_rotation(
+        cls,
+        start: Union[Point, Node],
+        height: float,
+        profile_name: str,
+        rotation: float,
+        material=None,
+        comments=None,
+    ):
         f1 = Beam()
         f1.comments = comments
 
@@ -5945,19 +5984,29 @@ class Beam(Serializable, Meshable):
 
         # self.curve = Line(start, end)
         f1.name = profile_name
-        f1.profileName = profile_name
-        curv = get_profile_by_name(profile_name).curve
+        curv = profile_by_name(profile_name).curve
         curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            curvrot.curves, f1.start, f1.end - f1.start)
+        f1.extrusion = Extrusion.by_2d_polycurve_vector(
+            curvrot.curves, f1.start, f1.end - f1.start
+        )
         f1.extrusion.name = profile_name
-        f1.profileName = profile_name
         f1.material = material
-        f1.color = material.colorint
+
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_curve_justification(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
+    def by_startpoint_endpoint_curve_justification(
+        cls,
+        start: Union[Point, Node],
+        end: Union[Point, Node],
+        polycurve: PolyCurve,
+        name: str,
+        XJustifiction: str,
+        YJustifiction: str,
+        rotation: float,
+        material=None,
+        comments=None,
+    ):
         f1 = Beam()
         f1.comments = comments
 
@@ -5974,17 +6023,18 @@ class Beam(Serializable, Meshable):
         curv = polycurve
         curvrot = curv.rotate(rotation)  # rotation in degrees
         # center, left, right, origin / center, top bottom, origin
-        v1 = justificationToVector(curvrot, XJustifiction, YJustifiction)
+        v1 = justification_to_vector(curvrot, XJustifiction, YJustifiction)
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         f1.curve = curv.translate(v1)
         f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_height_vector(
-            f1.curve.curves, f1.start, f1.end - f1.start)
+        f1.extrusion = Extrusion.by_2d_polycurve_vector(
+            f1.curve.curves, f1.start, f1.end - f1.start
+        )
         f1.extrusion.name = name
         f1.profileName = "none"
         f1.material = material
-        f1.color = material.colorint
+
 
         return f1
 
@@ -5992,8 +6042,9 @@ class Beam(Serializable, Meshable):
         project.objects.append(self)
         return self
 
+
 Column = Beam
-#columns and beams are the same, the profiles are the same, but they function as beams or columns.
+# columns and beams are the same, the profiles are the same, but they function as beams or columns.
 
 
 # Rule: line, whitespace, line whitespace etc., scale
@@ -6076,227 +6127,253 @@ seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
 
 class GridheadType(Serializable):
-	def __init__(self):
-		
-		self.name = None
-		self.curves = []
-		self.diameter = 150
-		self.text_height = 200
-		self.radius = self.diameter/2
-		self.font_family = "calibri"
+    def __init__(self, name, diameter: float = 150, font_family = "calibri", text_height = 200):
 
-	def by_diam(self, name, diameter: float, font_family, text_height):
-		self.name = name
-		self.diameter = diameter
-		self.radius = self.diameter / 2
-		self.font_family = font_family
-		self.text_height = text_height
-		self.geom()
-		return self
+        self.name = name
+        self.diameter = diameter
+        self.curves = []
+        self.diameter = 150
+        self.text_height = 200
+        self.font_family = font_family
+        self.geom()
 
-	def geom(self):
-		radius = self.radius
-		self.curves.append(Arc.by_start_mid_end(Point(-radius, radius, 0),
-						   Point(0, radius*2, 0), Point(radius, radius, 0)))
-		self.curves.append(Arc.by_start_mid_end(Point(-radius, radius, 0),
-						   Point(0, 0, 0), Point(radius, radius, 0)))
-		# origin is at center of circle
+    @property
+    def radius(self):
+        return self.diameter / 2
 
-GHT30 = GridheadType().by_diam("2.5 mm", 400, "calibri", 200)
+    def geom(self):
+        radius = self.radius
+        self.curves.append(
+            Arc.by_start_mid_end(
+                Point(-radius, radius, 0),
+                Point(0, radius * 2, 0),
+                Point(radius, radius, 0),
+            )
+        )
+        self.curves.append(
+            Arc.by_start_mid_end(
+                Point(-radius, radius, 0), Point(0, 0, 0), Point(radius, radius, 0)
+            )
+        )
+        # origin is at center of circle
 
-GHT50 = GridheadType().by_diam("GHT50", 600, "calibri", 350)
+
+GHT30 = GridheadType("2.5 mm", 400, "calibri", 200)
+
+GHT50 = GridheadType("GHT50", 600, "calibri", 350)
 
 
 class GridHead:
-	def __init__(self):
-		
-		self.grid_name: str = "A"
-		self.grid_head_type = GHT50
-		self.radius = GHT50.radius
-		self.CS: CoordinateSystem = Matrix()
-		self.x: float = 0.5
-		self.y: float = 0
-		self.text_curves = []
-		self.curves = []
-		self.__textobject()
-		self.__geom()
+    def __init__(self):
 
-	def __geom(self):
-		# CStot = CoordinateSystem.translate(self.CS,Vector(0,self.grid_head_type.radius,0))
-		for i in self.grid_head_type.curves:
-			self.curves.append(transform_arc(i, (self.CS)))
+        self.grid_name: str = "A"
+        self.grid_head_type = GHT50
+        self.radius = GHT50.radius
+        self.CS: CoordinateSystem = Matrix()
+        self.x: float = 0.5
+        self.y: float = 0
+        self.text_curves = []
+        self.curves = []
+        self.__textobject()
+        self.__geom()
 
-	def __textobject(self):
-		cs_text = self.CS
-		# to change after center text function is implemented
-		cs_text_new = CoordinateSystem.move_local(cs_text, -100, 40, 0)
-		self.text_curves = Text(text=self.grid_name, font_family=self.grid_head_type.font_family,
-								height=self.grid_head_type.text_height, cs=cs_text_new).write()
+    def __geom(self):
+        # CStot = CoordinateSystem.translate(self.CS,Vector(0,self.grid_head_type.radius,0))
+        for i in self.grid_head_type.curves:
+            self.curves.append(self.CS * i)
 
-	@staticmethod
-	def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
-		GH = GridHead()
-		GH.grid_name = name
-		GH.grid_head_type = gridhead_type
-		GH.CS = cs
-		GH.x = 0.5
-		GH.y = y
-		GH.__textobject()
-		GH.__geom()
-		return GH
+    def __textobject(self):
+        cs_text = self.CS
+        # to change after center text function is implemented
+        cs_text_new = CoordinateSystem.move_local(cs_text, -100, 40, 0)
+        self.text_curves = Text(
+            text=self.grid_name,
+            font_family=self.grid_head_type.font_family,
+            height=self.grid_head_type.text_height,
+            cs=cs_text_new,
+        ).write()
 
-	def write(self, project):
-		for x in self.text_curves:
-			project.objects.append(x)
-		for y in self.curves:
-			project.objects.append(y)
+    @staticmethod
+    def by_name_gridheadtype_y(name, cs: CoordinateSystem, gridhead_type, y: float):
+        GH = GridHead()
+        GH.grid_name = name
+        GH.grid_head_type = gridhead_type
+        GH.CS = cs
+        GH.x = 0.5
+        GH.y = y
+        GH.__textobject()
+        GH.__geom()
+        return GH
+
+    def write(self, project):
+        for x in self.text_curves:
+            project.objects.append(x)
+        for y in self.curves:
+            project.objects.append(y)
+
+
+class GridLine:
+    def __init__(self):
+        self.line = None
+        self.start = None
+        self.end = None
+        self.direction: Vector = Vector(0, 1, 0)
+        self.grid_head_type = GHT50
+        self.name = None
+        self.bulbStart = False
+        self.bulbEnd = True
+        self.cs_end: CoordinateSystem = CoordinateSystem()  # Maarten
+        self.grid_heads = []
+
+    def __cs(self, line):
+        self.direction = line.direction
+        vect3 = Vector.rotate(self.direction, math.radians(-90))
+        self.cs_end = CoordinateSystem.by_origin_unit_axes(
+            line.end, [vect3, self.direction, Vector.z_axis]
+        )
+
+    @classmethod
+    def by_startpoint_endpoint(cls, line, name):
+        # Create panel by polycurve
+        g1 = GridLine()
+        g1.start = line.start
+        g1.end = line.start
+        g1.name = name
+        g1.__cs(line)
+        g1.line = line_to_pattern(line, Centerline)
+        # g1.__grid_heads()
+        return g1
+
+    def __grid_heads(self):
+        if self.bulbEnd == True:
+            self.grid_heads.append(
+                GridHead.by_name_gridheadtype_y(
+                    self.name, self.cs_end, self.grid_head_type, 0
+                )
+            )
+
+    def write(self, project):
+        for x in self.line:
+            project.objects.append(x)
+        for y in self.grid_heads:
+            y.write(project)
+        return self
+
+
+def parse_grid_distances(grid_axis_description: str) -> list[float]:
+    # Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
+    distances = []
+    distances.append(0)
+    distance = 0.0
+    # GridsNew.append(distance)
+    for sub_grid_description in grid_axis_description.split():
+        # del Grids[0]
+        if "x" in sub_grid_description:
+            spl = sub_grid_description.split("x")
+            count = int(spl[0])
+            width = float(spl[1])
+            distance += width
+            for index in range(count):
+                distance += width
+                distances.append(distance)
+        else:
+            distance = distance + float(sub_grid_description)
+            distances.append(distance)
+    return distances
 
 
 class Grid:
-	def __init__(self):
-		self.line = None
-		self.start = None
-		self.end = None
-		self.direction: Vector = Vector(0, 1, 0)
-		self.grid_head_type = GHT50
-		self.name = None
-		self.bulbStart = False
-		self.bulbEnd = True
-		self.cs_end: CoordinateSystem = CoordinateSystem() #Maarten
-		self.grid_heads = []
+    # rectangle Gridsystem
+    def __init__(self):
+        self.gridsX = None
+        self.gridsY = None
+        self.dimensions = []
+        self.name = None
 
-	def __cs(self, line):
-		self.direction = line.direction
-		vect3 = Vector.rotate_XY(self.direction, math.radians(-90))
-		self.cs_end = CoordinateSystem.by_origin_unit_axes(line.end, [vect3, self.direction, z_axis])
+    @classmethod
+    def by_spacing_labels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
+        gs = Grid()
+        # Create gridsystem
+        # spacingXformat = "0 3000 3000 3000"
+        GridEx = gridExtension
 
-	@classmethod
-	def by_startpoint_endpoint(cls, line, name):
-		# Create panel by polycurve
-		g1 = Grid()
-		g1.start = line.start
-		g1.end = line.start
-		g1.name = name
-		g1.__cs(line)
-		g1.line = line_to_pattern(line, Centerline)
-		# g1.__grid_heads()
-		return g1
+        GridsX = parse_grid_distances(spacingX)
+        Xmax = max(GridsX)
+        GridsXLable = labelsX.split()
+        GridsY = parse_grid_distances(spacingY)
+        Ymax = max(GridsY)
+        GridsYLable = labelsY.split()
 
-	def __grid_heads(self):
-		if self.bulbEnd == True:
-			self.grid_heads.append(
-				GridHead.by_name_gridheadtype_y(self.name, self.cs_end, self.grid_head_type, 0))
+        gridsX = []
+        dimensions = []
+        count = 0
+        ymaxdim1 = Ymax + GridEx - 300
+        ymaxdim2 = Ymax + GridEx - 0
+        xmaxdim1 = Xmax + GridEx - 300
+        xmaxdim2 = Xmax + GridEx - 0
+        for i in GridsX:
+            gridsX.append(
+                GridLine.by_startpoint_endpoint(
+                    Line(Point(i, -GridEx, 0), Point(i, Ymax + GridEx, 0)),
+                    GridsXLable[count],
+                )
+            )
+            try:
+                dim = Dimension(
+                    Point(i, ymaxdim1, 0),
+                    Point(GridsX[count + 1], ymaxdim1, 0),
+                    DT2_5_mm,
+                )
+                gs.dimensions.append(dim)
+            except:
+                pass
+            count = count + 1
 
-	def write(self, project):
-		for x in self.line:
-			project.objects.append(x)
-		for y in self.grid_heads:
-			y.write(project)
-		return self
+        # Totaal maatvoering 1
+        dim = Dimension(
+            Point(GridsX[0], ymaxdim2, 0), Point(Xmax, ymaxdim2, 0), DT2_5_mm
+        )
+        gs.dimensions.append(dim)
 
+        # Totaal maatvoering 2
+        dim = Dimension(
+            Point(xmaxdim2, GridsY[0], 0), Point(xmaxdim2, Ymax, 0), DT2_5_mm
+        )
+        gs.dimensions.append(dim)
 
-def get_grid_distances(Grids):
-	# Function to create grids from the format 0, 4x5400, 4000, 4000 to absolute XYZ-values
-	GridsNew = []
-	GridsNew.append(0)
-	distance = 0.0
-	# GridsNew.append(distance)
-	for i in Grids:
-		# del Grids[0]
-		if "x" in i:
-			spl = i.split("x")
-			count = int(spl[0])
-			width = float(spl[1])
-			for i in range(count):
-				distance = distance + width
-				GridsNew.append(distance)
-		else:
-			distance = distance + float(i)
-			GridsNew.append(distance)
-	return GridsNew
+        gridsY = []
+        count = 0
+        for i in GridsY:
+            gridsY.append(
+                GridLine.by_startpoint_endpoint(
+                    Line(Point(-GridEx, i, 0), Point(Xmax + GridEx, i, 0)),
+                    GridsYLable[count],
+                )
+            )
+            try:
+                dim = Dimension(
+                    Point(xmaxdim1, i, 0), Point(xmaxdim1, GridsY[count + 1], 0)
+                )  # ,DT3_5_mm)
+                gs.dimensions.append(dim)
+            except:
+                pass
+            count = count + 1
+        gs.gridsX = gridsX
+        gs.gridsY = gridsY
+        return gs
 
-
-class GridSystem:
-	# rectangle Gridsystem
-	def __init__(self):
-		
-		self.gridsX = None
-		self.gridsY = None
-		self.dimensions = []
-		self.name = None
-
-	@classmethod
-	def by_spacing_labels(cls, spacingX, labelsX, spacingY, labelsY, gridExtension):
-		gs = GridSystem()
-		# Create gridsystem
-		# spacingXformat = "0 3000 3000 3000"
-		GridEx = gridExtension
-
-		GridsX = spacingX.split()
-		GridsX = get_grid_distances(GridsX)
-		Xmax = max(GridsX)
-		GridsXLable = labelsX.split()
-		GridsY = spacingY.split()
-		GridsY = get_grid_distances(GridsY)
-		Ymax = max(GridsY)
-		GridsYLable = labelsY.split()
-
-		gridsX = []
-		dimensions = []
-		count = 0
-		ymaxdim1 = Ymax+GridEx-300
-		ymaxdim2 = Ymax+GridEx-0
-		xmaxdim1 = Xmax+GridEx-300
-		xmaxdim2 = Xmax+GridEx-0
-		for i in GridsX:
-			gridsX.append(Grid.by_startpoint_endpoint(
-				Line(Point(i, -GridEx, 0), Point(i, Ymax+GridEx, 0)), GridsXLable[count]))
-			try:
-				dim = Dimension(Point(i, ymaxdim1, 0), Point(
-					GridsX[count+1], ymaxdim1, 0), DT2_5_mm)
-				gs.dimensions.append(dim)
-			except:
-				pass
-			count = count + 1
-
-		# Totaal maatvoering 1
-		dim = Dimension(Point(GridsX[0], ymaxdim2, 0), Point(
-			Xmax, ymaxdim2, 0), DT2_5_mm)
-		gs.dimensions.append(dim)
-
-		# Totaal maatvoering 2
-		dim = Dimension(Point(xmaxdim2, GridsY[0], 0), Point(
-			xmaxdim2, Ymax, 0), DT2_5_mm)
-		gs.dimensions.append(dim)
-
-		gridsY = []
-		count = 0
-		for i in GridsY:
-			gridsY.append(Grid.by_startpoint_endpoint(
-				Line(Point(-GridEx, i, 0), Point(Xmax+GridEx, i, 0)), GridsYLable[count]))
-			try:
-				dim = Dimension(Point(xmaxdim1, i, 0), Point(
-					xmaxdim1, GridsY[count+1], 0))  # ,DT3_5_mm)
-				gs.dimensions.append(dim)
-			except:
-				pass
-			count = count + 1
-		gs.gridsX = gridsX
-		gs.gridsY = gridsY
-		return gs
-
-	def write(self, project):
-		for x in self.gridsX:
-			project.objects.append(x)
-			for i in x.grid_heads:
-				i.write(project)
-		for y in self.gridsY:
-			project.objects.append(y)
-			for j in y.grid_heads:
-				j.write(project)
-		for z in self.dimensions:
-			z.write(project)
-		return self
+    def write(self, project):
+        for x in self.gridsX:
+            project.objects.append(x)
+            for i in x.grid_heads:
+                i.write(project)
+        for y in self.gridsY:
+            project.objects.append(y)
+            for j in y.grid_heads:
+                j.write(project)
+        for z in self.dimensions:
+            z.write(project)
+        return self
 
 
 class Door:
@@ -6320,6 +6397,96 @@ class Door:
 	def __str__(self) -> str:
 		return f"{self.type}(Name={self.name})"
 
+class BuildingPy(Serializable):
+	def __init__(self, name=None, number=None):
+		self.name: str = name
+		self.number: str = number
+		#settings
+		self.debug: bool = True
+		self.objects = []
+		self.units = "mm"
+		self.decimals = 3 #not fully implemented yet
+
+		self.origin = Point(0,0,0)
+		self.default_font = "calibri"
+		self.scale = 1000
+		self.font_height = 500
+		self.repr_round = 3
+		#prefix objects (name)
+		#Geometry settings
+
+		#export selection info
+		self.domain = None
+		self.applicationId = "OPEN-AEC BuildingPy"
+
+		#different settings for company's?
+
+		#rename this to autoclose?
+		self.closed: bool = True #auto close polygons? By default true, else overwrite
+		self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+
+		#functie polycurve of iets van een class/def
+		self.autoclose: bool = True #new self.closed
+
+		#nodes
+		self.node_merge = True #False not yet created
+		self.node_diameter = 250
+		self.node_threshold = 50
+		
+		#text
+		self.createdTxt = "has been created"
+
+		#Speckle settings
+		self.speckleserver = "app.speckle.systems"
+		self.specklestream = None
+
+		#FreeCAD settings
+		
+	def save(self, file_name = 'project/data.json'):
+		Serializable.save(file_name)
+		
+		type_count = defaultdict(int)
+		for serialized_item in self.objects:
+			#item = json.loads(serialized_item)
+			type_count[serialized_item.__class__.__name__] += 1
+
+		total_items = len(self.objects)
+
+		print(f"\nTotal saved items to '{file_name}': {total_items}")
+		print("Type counts:")
+		for item_type, count in type_count.items():
+			print(f"{item_type}: {count}")
+	def open(self, file_name = 'project/data.json'):
+		Serializable.open(file_name)
+
+	def to_speckle(self, streamid, commitstring=None):
+		from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
+		self.specklestream = streamid
+		speckleobj = translateObjectsToSpeckleObjects(self.objects)
+		TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+
+	def to_FreeCAD(self):
+		from exchange.Freecad_Bupy import translateObjectsToFreeCAD
+		translateObjectsToFreeCAD(self.objects)
+
+	def to_IFC(self, name):
+		from exchange.IFC import translateObjectsToIFC, CreateIFC
+		ifc_project = CreateIFC()
+		ifc_project.add_project(name)
+		ifc_project.add_site("My Site")
+		ifc_project.add_building("Building A")
+		ifc_project.add_storey("Ground Floor")
+		ifc_project.add_storey("G2Floor")	 
+		translateObjectsToIFC(self.objects, ifc_project)
+		ifc_project.export(f"{name}.ifc")
+	def __iadd__(self, new_object):
+		self.objects.append(new_object)
+		return self
+# [!not included in BP singlefile - end]
+
+#god object! multiple instances of buildingpy should be able to live next to eachother
+#project = BuildingPy("Project", "0")
+
 
 
 class Floor:
@@ -6338,59 +6505,60 @@ class Floor:
 
 
 class Interval:
-	"""The `Interval` class is designed to represent a mathematical interval, providing a start and end value along with functionalities to handle intervals more comprehensively in various applications."""
-	def __init__(self, start: float, end: float):
-		"""Initializes a new Interval instance.
-		
-		- `start` (float): The starting value of the interval.
-		- `end` (float): The ending value of the interval.
-		- `interval` (list, optional): A list that may represent subdivided intervals or specific points within the start and end bounds, depending on the context or method of subdivision.
+    """The `Interval` class is designed to represent a mathematical interval, providing a start and end value along with functionalities to handle intervals more comprehensively in various applications."""
 
-		"""
-		self.start = start
-		self.end = end
-		self.interval = None
+    def __init__(self, start: float, end: float):
+        """Initializes a new Interval instance.
 
-	@classmethod
-	def by_start_end_count(self, start: float, end: float, count: int) -> 'Interval':
-		"""Generates a list of equidistant points within the interval.
+        - `start` (float): The starting value of the interval.
+        - `end` (float): The ending value of the interval.
+        - `interval` (list, optional): A list that may represent subdivided intervals or specific points within the start and end bounds, depending on the context or method of subdivision.
 
-		This method divides the interval between the start and end values into (count - 1) segments, returning an Interval object containing these points.
+        """
+        self.start = start
+        self.end = end
+        self.interval = None
 
-		#### Parameters:
-			start (float): The starting value of the interval.
-			end (float): The ending value of the interval.
-			count (int): The total number of points to generate, including the start and end values.
+    @classmethod
+    def by_start_end_count(self, start: float, end: float, count: int) -> "Interval":
+        """Generates a list of equidistant points within the interval.
 
-		#### Returns:
-			Interval: An Interval instance with its `interval` attribute populated with the generated points.
-		
-		#### Example usage:
-		```python
+        This method divides the interval between the start and end values into (count - 1) segments, returning an Interval object containing these points.
 
-		```
-		"""
-		intval = []
-		numb = start
-		delta = end-start
-		for i in range(count):
-			intval.append(numb)
-			numb = numb + (delta / (count - 1))
-		self.interval = intval
-		return self
+        #### Parameters:
+                start (float): The starting value of the interval.
+                end (float): The ending value of the interval.
+                count (int): The total number of points to generate, including the start and end values.
 
-	def __str__(self) -> str:
-		"""Generates a string representation of the Interval.
+        #### Returns:
+                Interval: An Interval instance with its `interval` attribute populated with the generated points.
 
-		#### Returns:
-			str: A string representation of the Interval, primarily indicating its class name.
-		
-		#### Example usage:
-		```python
+        #### Example usage:
+        ```python
 
-		```
-		"""
-		return f"{__class__.__name__}"
+        ```
+        """
+        intval = []
+        numb = start
+        delta = end - start
+        for i in range(count):
+            intval.append(numb)
+            numb = numb + (delta / (count - 1))
+        self.interval = intval
+        return self
+
+    def __str__(self) -> str:
+        """Generates a string representation of the Interval.
+
+        #### Returns:
+                str: A string representation of the Interval, primarily indicating its class name.
+
+        #### Example usage:
+        ```python
+
+        ```
+        """
+        return f"{__class__.__name__}"
 
 
 class Level:
@@ -6451,7 +6619,7 @@ class Surface:
 		self.inner_Surface = []
 		# self.byPatch = self.fill(self)
 		# if color is None:
-		#     self.color = Color.rgb_to_int(Color().Components("gray"))
+		#     self.color = Color.rgb_to_int(Color.Components("gray"))
 		# else:
 		#     self.color = color
 
@@ -7988,11 +8156,11 @@ class RectangleSystem:
 		
 		self.height = 3000
 		self.width = 2000
-		self.bottom_frame_type = Rectangle("bottom_frame_type", 38, 184)
-		self.top_frame_type = Rectangle("top_frame_type", 38, 184)
-		self.left_frame_type = Rectangle("left_frame_type", 38, 184)
-		self.right_frame_type = Rectangle("left_frame_type", 38, 184)
-		self.inner_frame_type = Rectangle("inner_frame_type", 38, 184)
+		self.bottom_frame_type = RectangleProfile("bottom_frame_type", 38, 184)
+		self.top_frame_type = RectangleProfile("top_frame_type", 38, 184)
+		self.left_frame_type = RectangleProfile("left_frame_type", 38, 184)
+		self.right_frame_type = RectangleProfile("left_frame_type", 38, 184)
+		self.inner_frame_type = RectangleProfile("inner_frame_type", 38, 184)
 
 		self.material = BaseTimber
 		self.inner_width: float = 0
@@ -8166,15 +8334,15 @@ class RectangleSystem:
 		"""
 		self.width = width
 		self.height = height
-		self.bottom_frame_type = Rectangle(
+		self.bottom_frame_type = RectangleProfile(
 			"bottom_frame_type", frame_width, frame_height)
-		self.top_frame_type = Rectangle(
+		self.top_frame_type = RectangleProfile(
 			"top_frame_type", frame_width, frame_height)
-		self.left_frame_type = Rectangle(
+		self.left_frame_type = RectangleProfile(
 			"left_frame_type", frame_width, frame_height)
-		self.right_frame_type = Rectangle(
+		self.right_frame_type = RectangleProfile(
 			"left_frame_type", frame_width, frame_height)
-		self.inner_frame_type = Rectangle(
+		self.inner_frame_type = RectangleProfile(
 			"inner_frame_type", frame_width, frame_height)
 		self.division_system = division_system
 		self.__inner_mother_surface()
@@ -8411,32 +8579,6 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
 			xvector = Vector.sum(
 				xvectdisplacement, Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
 	return panels
-
-
-def fillin(perimeter: PolyCurve, pattern: pattern_geom) -> pattern_system:
-	"""Fills in a given perimeter with a specified pattern.
-	Uses a bounding box to define the perimeter within which a pattern is applied, based on a geometric pattern generation function.
-
-	#### Parameters:
-	- `perimeter` (PolyCurve2D): The 2D perimeter to fill in.
-	- `pattern` (function): The pattern generation function to apply within the perimeter.
-
-	#### Returns:
-	`pattern_system`: A pattern_system object that represents the filled-in area.
-	
-	#### Example usage:
-	```python
-
-	```
-	"""
-
-	bb = Rect().by_points(perimeter.points)
-
-	for pt in bb.corners:
-		project.objects.append(pt)
-	bb_perimeter = PolyCurve.by_points(bb.corners)
-
-	return [bb_perimeter]
 
 
 
