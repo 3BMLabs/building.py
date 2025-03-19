@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for the modelling of panel components. a panel can be a floor, wall, panel, ceiling
-"""
+"""This module provides tools for the modelling of panel components. a panel can be a floor, wall, panel, ceiling"""
 
 __title__ = "panel"
 __author__ = "Maarten & Jonathan"
@@ -39,14 +38,14 @@ from geometry.solid import Extrusion
 
 # [!not included in BP singlefile - end]
 
-class Room:
-	def __init__(self):
-		
-		self.name = None
-		self.extrusion = None
-		self.verts = None
-		self.faces = None
-		self.topsurface = None
-		self.bottomsurface = None
-		self.parms = None
 
+class Room:
+    def __init__(self):
+
+        self.name = None
+        self.extrusion = None
+        self.verts = None
+        self.faces = None
+        self.topsurface = None
+        self.bottomsurface = None
+        self.parms = None

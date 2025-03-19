@@ -97,7 +97,7 @@ class Matrix(Serializable, list[list]):
         col = self.cols - 1
         return Vector([self[row][col] for row in range(self.rows - 1)])
 
-    def get_axis(self, axis) -> Vector:
+    def get_axis(self, axis_index: int) -> Vector:
         """
 
         Args:
@@ -107,7 +107,7 @@ class Matrix(Serializable, list[list]):
             Vector: the vector you'd get if you multiplied a vector containing all 0's except 1 on this axis without translation with the matrix.
             for example: m.multiply_without_translation(Vector(0, 0, 1)) == m.get_axis(2)
         """
-        return Vector([self[row][axis] for row in range(self.rows - 1)])
+        return Vector([self[row][axis_index] for row in range(self.rows - 1)])
 
     position = origin
 
@@ -184,6 +184,7 @@ class Matrix(Serializable, list[list]):
                 for row in range(matrix_size)
             ]
         )
+
     by_origin = translate
 
     @staticmethod
@@ -233,9 +234,7 @@ class Matrix(Serializable, list[list]):
         )
 
     @staticmethod
-    def rotate(
-        angle: float, axis: Vector = None, pivot: Vector = None
-    ) -> "Matrix":
+    def rotate(angle: float, axis: Vector = None, pivot: Vector = None) -> "Matrix":
         """creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
         Returns:
@@ -244,16 +243,20 @@ class Matrix(Serializable, list[list]):
         cos_angle = math.cos(angle)
         sin_angle = math.sin(angle)
         if axis == None:
-            #when no pivot and no axis is specified, we assume a 2d rotation matrix is desired, since it doesn't make sense to rotate a 3d vector without specifying an axis.
+            # when no pivot and no axis is specified, we assume a 2d rotation matrix is desired, since it doesn't make sense to rotate a 3d vector without specifying an axis.
             if pivot == None or len(pivot) == 2:
-                origin_matrix = Matrix([[cos_angle, -sin_angle, 0],
-                               [sin_angle, cos_angle,  0],
-                               [0,         0,          1]])
+                origin_matrix = Matrix(
+                    [[cos_angle, -sin_angle, 0], [sin_angle, cos_angle, 0], [0, 0, 1]]
+                )
             else:
-                origin_matrix = Matrix([[cos_angle, -sin_angle, 0, 0],
-                                        [sin_angle, cos_angle,  0, 0],
-                                        [0,         0,          1, 0],
-                                        [0,         0,          0, 1]])
+                origin_matrix = Matrix(
+                    [
+                        [cos_angle, -sin_angle, 0, 0],
+                        [sin_angle, cos_angle, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1],
+                    ]
+                )
         else:
             # https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
             normalized_axis = axis.normalized
@@ -291,12 +294,7 @@ class Matrix(Serializable, list[list]):
             # - rotate objects around the origin
             # - translate objects back so the pivot is at its old location
 
-            return (
-                Matrix.translate(pivot)
-                * origin_matrix
-                * Matrix.translate(-pivot)
-            )
-        
+            return Matrix.translate(pivot) * origin_matrix * Matrix.translate(-pivot)
 
     def __mul__(self, other: "Matrix | Vector | Rect | PointList"):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!

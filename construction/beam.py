@@ -55,18 +55,21 @@ class Beam(Serializable, Meshable):
         self,
         start: Point,
         end: Point,
-        profile: Profile,
+        profile: Profile | str,
+        name: str = "Beam",
         material: Material = BaseSteel,
         angle: float = 0,
-        justification: Vector = Vector(),
+        justification: list[str] | Vector = Vector(),
     ):
         if isinstance(profile, str):
             profile = profile_by_name(profile)
 
         if not isinstance(justification, Vector):
-            justification = justification_to_vector(profile.curve, justification[0], justification[1])
+            justification = justification_to_vector(
+                profile.curve, justification[0], justification[1]
+            )
 
-        self.name = "None"
+        self.name = name
         self.comments = None
         self.start = start
         self.end = end

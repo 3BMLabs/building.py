@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools to create solids
-"""
+"""This module provides tools to create solids"""
 
 __title__ = "solid"
 __author__ = "Maarten & Jonathan"
@@ -36,22 +35,22 @@ import sys
 from pathlib import Path
 
 
-
 from geometry.solid import Extrusion
 
-class Void(Extrusion):
-	def __init__(self) -> None:
-		super().__init__()
-		self.name = "Void"
-		self.type = "Void"
-		
-	@staticmethod
-	def by_polycurve_height(polycurve, height, dz_loc):
-		obj = Extrusion.by_polycurve_height(polycurve, height, dz_loc)
-		void = Void()
-		void.__dict__.update(obj.__dict__)
-		void.polycurve_3d_translated = polycurve
-		void.name = "Void"
-		void.type = "Void"
 
-		return void
+class Void(Extrusion):
+    def __init__(self) -> None:
+        super().__init__()
+        self.name = "Void"
+        self.type = "Void"
+
+    @staticmethod
+    def by_polycurve_height(polycurve, height, dz_loc):
+        obj = Extrusion.by_polycurve_height(polycurve, height, dz_loc)
+        void = Void()
+        void.__dict__.update(obj.__dict__)
+        void.polycurve_3d_translated = polycurve
+        void.name = "Void"
+        void.type = "Void"
+
+        return void
