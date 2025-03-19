@@ -65,7 +65,7 @@ class WurksRaster3d(Serializable):
             project.objects.append(Surface(PolyCurve.by_points(pts)))
             surfList.append(Surface(PolyCurve.by_points(pts)))
 
-        print(f"{len(surfList)}* {self.__class__.__name__} {project.createdTxt}")
+        print(f"{len(surfList)}* {self.__class__.__name__} has been created")
 
 
 class WurksPedestal:
@@ -132,7 +132,7 @@ class WurksPedestal:
                 Extrusion.by_polycurve_height(translated_base, self.baseheight, -height)
             )
 
-        print(f"{len(points)}* {self.__class__.__name__} {project.createdTxt}")
+        print(f"{len(points)}* {self.__class__.__name__} has been created")
 
     pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,
 
@@ -158,7 +158,7 @@ class WorkPlane:
         for pt in rect.points:
             self.points.append(pt)
         project.objects.append(rect)
-        print(f"1* {self.__class__.__name__} {project.createdTxt}")
+        print(f"1* {self.__class__.__name__} has been created")
         return Rect(Vector(0, 0, 0), self.length, self.width)
 
     pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,

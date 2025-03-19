@@ -13,7 +13,6 @@ from project.fileformat import BuildingPy
 
 project = BuildingPy("Stalen kolommen","0")
 project.round = True
-project.closed = False
 
 #INPUT
 

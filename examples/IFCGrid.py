@@ -16,7 +16,7 @@ project = BuildingPy()
 project.objects.append(gr)
 
 # project.toSpeckle("7603a8603c")
-project.toIFC()
+project.to_ifc()
 # ifc_project = CreateIFC()
 
 # ifc_project.add_project("My Project")

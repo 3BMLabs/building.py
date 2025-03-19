@@ -13,8 +13,8 @@ ifc_project = CreateIFC()
 ifc_project.add_project("My Project")
 ifc_project.add_site("My Site")
 ifc_project.add_building("Building A")
-ifc_project.add_storey("Ground Floor")
-ifc_project.add_storey("G2Floor")
+ifc_project.add_story("Ground Floor")
+ifc_project.add_story("G2Floor")
 project += GridA
 
 translateObjectsToIFC(project.objects, ifc_project)

@@ -6,13 +6,7 @@ import os
 
 
 from abstract.vector import Point
-
-
-
-
-
-
-
+from construction.floor import Floor
 
 point1 = Point(0, 0, 0)
 point2 = Point(10, 0, 0)

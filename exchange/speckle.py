@@ -75,6 +75,7 @@ from specklepy.objects.geometry import Arc as SpeckleArc
 from specklepy.objects.other import DisplayStyle as SpeckleDisplayStyle
 from specklepy.objects.primitive import Interval as SpeckleInterval
 from specklepy.objects.other import Text as SpeckleText
+from specklepy.objects.geometry import Extrusion as SpeckleExtrusion
 
 
 def to_speckle(self: BuildingPy, streamid, commitstring=None):
@@ -89,7 +90,6 @@ def to_speckle(self: BuildingPy, streamid, commitstring=None):
         import specklepy
     from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
 
-    self.specklestream = streamid
     speckleobj = translateObjectsToSpeckleObjects(self, self.objects)
     TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
 
@@ -331,6 +331,11 @@ def convert_to_speckle_object(
         )
     elif isinstance(building_py_object, Arc):
         converted_object = ArcToSpeckleArc(building_py_object)
+    #when converting to speckle extrusion, we'd still need to provide the mesh.
+    #elif isinstance(building_py_object, Extrusion):
+    #    converted_object = SpeckleExtrusion()
+    #elif isinstance(building_py_object, Beam):
+    #    return convert_to_speckle_object(building_py_object.extrusion)
     elif isinstance(building_py_object, Meshable):
         settings = TesselationSettings()
         mesh = building_py_object.to_mesh(settings)

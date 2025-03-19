@@ -30,7 +30,8 @@ __title__ = "panel"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/panel.py"
 
-import sys
+from abstract.vector import Point, Vector
+from geometry.plane import Plane
 
 
 

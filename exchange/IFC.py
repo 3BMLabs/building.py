@@ -1,5 +1,6 @@
 
 
+from abstract.vector import Point
 from construction.level import Level
 
 from project.fileformat import BuildingPy
@@ -15,10 +16,9 @@ class LoadIFC:
     def __init__(self, filename:str, project: BuildingPy, filter=None):
         self.filename = filename
         self.project = project
-        self.root = self.load()
+        self.ifc_file = self.load()
         self.IFCObjects = self.getobject(filter)
         self.convertedObjects = self.convertobject()
-        self.sendToSpeckle()
 
     def load(self):
         model = ifcopenshell.open(self.filename)
@@ -33,7 +33,7 @@ class LoadIFC:
         
         fetched_objects = []
         for each in data:
-            objs = self.root.by_type(each)
+            objs = self.ifc_file.by_type(each)
             fetched_objects.append(objs)
         return fetched_objects
 
@@ -236,7 +236,7 @@ class CreateIFC:
             RelatedObjects=[self.building]
         )
 
-    def add_storey(self, name):
+    def add_story(self, name):
         self.storey = self.model.createIfcBuildingStorey(
             GlobalId=ifcopenshell.guid.new(), 
             OwnerHistory=None, 

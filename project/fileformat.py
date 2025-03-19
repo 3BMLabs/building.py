@@ -24,14 +24,14 @@
 # ***************************************************************************
 
 
-"""This module provides the fileformat class
-"""
+"""This module provides the fileformat class"""
 
-__title__= "fileformat"
+__title__ = "fileformat"
 __author__ = "Maarten & Jonathan"
 __url__ = "./fileformat/fileformat.py"
 
 
+import os
 import sys
 from collections import defaultdict
 
@@ -41,91 +41,101 @@ from abstract.vector import Point
 
 # [!not included in BP singlefile - end]
 class BuildingPy(Serializable):
-	def __init__(self, name=None, number=None):
-		self.name: str = name
-		self.number: str = number
-		#settings
-		self.debug: bool = True
-		self.objects = []
-		self.units = "mm"
-		self.decimals = 3 #not fully implemented yet
+    def __init__(self, name=None, number=None):
+        self.name: str = name
+        self.number: str = number
+        # settings
+        self.debug: bool = True
+        self.objects = []
+        self.units = "mm"
+        self.decimals = 3  # not fully implemented yet
 
-		self.origin = Point(0,0,0)
-		self.default_font = "calibri"
-		self.scale = 1000
-		self.font_height = 500
-		self.repr_round = 3
-		#prefix objects (name)
-		#Geometry settings
+        self.origin = Point(0, 0, 0)
+        self.default_font = "calibri"
+        self.scale = 1000
+        self.font_height = 500
+        self.repr_round = 3
+        # prefix objects (name)
+        # Geometry settings
 
-		#export selection info
-		self.domain = None
-		self.applicationId = "OPEN-AEC BuildingPy"
+        # export selection info
+        self.domain = None
+        self.applicationId = "OPEN-AEC BuildingPy"
 
-		#different settings for company's?
+        # different settings for company's?
 
-		#rename this to autoclose?
-		self.closed: bool = True #auto close polygons? By default true, else overwrite
-		self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+        self.round: bool = (
+            False  # If True then arcs will be segmented. Can be used in Speckle.
+        )
 
-		#functie polycurve of iets van een class/def
-		self.autoclose: bool = True #new self.closed
+        # functie polycurve of iets van een class/def
+        self.autoclose: bool = True  # new self.closed
 
-		#nodes
-		self.node_merge = True #False not yet created
-		self.node_diameter = 250
-		self.node_threshold = 50
-		
-		#text
-		self.createdTxt = "has been created"
+        # nodes
+        self.node_merge = True  # False not yet created
+        self.node_diameter = 250
+        self.node_threshold = 50
 
-		#Speckle settings
-		self.speckleserver = "app.speckle.systems"
-		self.specklestream = None
+        # Speckle settings
+        self.speckleserver = "app.speckle.systems"
 
-		#FreeCAD settings
-		
-	def save(self, file_name = 'project/data.json'):
-		Serializable.save(file_name)
-		
-		type_count = defaultdict(int)
-		for serialized_item in self.objects:
-			#item = json.loads(serialized_item)
-			type_count[serialized_item.__class__.__name__] += 1
+        # FreeCAD settings
 
-		total_items = len(self.objects)
+    def save(self, file_name="project/data.json"):
+        Serializable.save(file_name)
 
-		print(f"\nTotal saved items to '{file_name}': {total_items}")
-		print("Type counts:")
-		for item_type, count in type_count.items():
-			print(f"{item_type}: {count}")
-	def open(self, file_name = 'project/data.json'):
-		Serializable.open(file_name)
+        type_count = defaultdict(int)
+        for serialized_item in self.objects:
+            # item = json.loads(serialized_item)
+            type_count[serialized_item.__class__.__name__] += 1
 
-	def to_speckle(self, streamid, commitstring=None):
-		from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
-		self.specklestream = streamid
-		speckleobj = translateObjectsToSpeckleObjects(self, self.objects)
-		TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+        total_items = len(self.objects)
 
-	def to_FreeCAD(self):
-		from exchange.Freecad_Bupy import translateObjectsToFreeCAD
-		translateObjectsToFreeCAD(self.objects)
+        print(f"\nTotal saved items to '{file_name}': {total_items}")
+        print("Type counts:")
+        for item_type, count in type_count.items():
+            print(f"{item_type}: {count}")
+            
+    @staticmethod
+    def open(path="project/data.json") -> 'BuildingPy':
+        filename, file_extension = os.path.splitext(path)
+        project = BuildingPy()
+        match file_extension:
+            case ".json":
+                project.open(path)
+            case ".ifc":
+                from exchange.IFC import LoadIFC
+                LoadIFC(path, project)
 
-	def to_IFC(self, name):
-		from exchange.IFC import translateObjectsToIFC, CreateIFC
-		ifc_project = CreateIFC()
-		ifc_project.add_project(name)
-		ifc_project.add_site("My Site")
-		ifc_project.add_building("Building A")
-		ifc_project.add_storey("Ground Floor")
-		ifc_project.add_storey("G2Floor")	 
-		translateObjectsToIFC(self.objects, ifc_project)
-		ifc_project.export(f"{name}.ifc")
-	def __iadd__(self, new_object):
-		self.objects.append(new_object)
-		return self
+    def to_speckle(self, streamid, commitstring=None):
+        from exchange.speckle import (
+            translateObjectsToSpeckleObjects,
+            TransportToSpeckle,
+        )
+
+        speckleobj = translateObjectsToSpeckleObjects(self, self.objects)
+        TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+
+    def to_freecad(self):
+        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
+
+        translateObjectsToFreeCAD(self.objects)
+
+    def to_ifc(self, name="My IFC Project"):
+        from exchange.IFC import translateObjectsToIFC, CreateIFC
+
+        ifc_project = CreateIFC()
+        ifc_project.add_project(name)
+        ifc_project.add_site("My Site")
+        ifc_project.add_building("Building A")
+        ifc_project.add_story("Ground Floor")
+        ifc_project.add_story("G2Floor")
+        translateObjectsToIFC(self.objects, ifc_project)
+        ifc_project.export(f"{name}.ifc")
+
+    def __iadd__(self, new_object):
+        self.objects.append(new_object)
+        return self
+
+
 # [!not included in BP singlefile - end]
-
-#god object! multiple instances of buildingpy should be able to live next to eachother
-#project = BuildingPy("Project", "0")

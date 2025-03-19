@@ -83,10 +83,15 @@ class Beam(Serializable, Meshable):
         )
         self.centerbottom = None
 
-    def to_mesh(self, settings: TesselationSettings) -> Mesh:
+    @property
+    def extrusion(self) -> Extrusion:
+        """heavy!"""
         return Extrusion.by_2d_polycurve_vector(
             self.profile.curve, self.start, self.end - self.start
-        ).to_mesh(settings)
+        )
+
+    def to_mesh(self, settings: TesselationSettings) -> Mesh:
+        self.extrusion.to_mesh(settings)
 
 
 Column = Beam
