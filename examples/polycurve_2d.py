@@ -1,13 +1,6 @@
-
-
-
-
-
-
-
-
-
-
+from abstract.vector import Point
+from geometry.curve import PolyCurve
+from project.fileformat import BuildingPy
 
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"
@@ -20,11 +13,10 @@ p5 = Point(4000,0)
 
 PC1 = PolyCurve.by_points([p1,p2,p3,p4,p5])
 
-i = PolyCurve.length(PC1)
-print(i)
+print(PC1.length)
 
-for j in PC1.curves:
+for j in PC1:
     print(j)
 
 project.objects.append(PC1)
-project.to_speckle("29a6c39880")
+project.to_speckle("ed88c2cdb3")

@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for the modelling of panel components. a panel can be a floor, wall, panel, ceiling
-"""
+"""This module provides tools for the modelling of panel components. a panel can be a floor, wall, panel, ceiling"""
 
 __title__ = "panel"
 __author__ = "Maarten & Jonathan"
@@ -34,53 +33,68 @@ __url__ = "./objects/panel.py"
 import sys
 
 
+from abstract.segmentation import Meshable, TesselationSettings
 from abstract.serializable import Serializable
+from abstract.transformer import dimension_changer
 from abstract.vector import Point, Vector
 from geometry.curve import Line, PolyCurve
+from geometry.mesh import Mesh
 from geometry.solid import Extrusion
+from library.material import BaseTimber, Material
 
 
 # [!not included in BP singlefile - end]
 
 
-class Panel(Serializable):
-	# Panel
-	def __init__(self):
-		
-		self.extrusion = None
-		self.name = None
-		self.perimeter: float = 0
-		self.colorint = None
+class Panel(Serializable, Meshable):
+    # Panel
+    def __init__(self, extrusion: Extrusion, material: Material, name: str = None):
+        self.extrusion = extrusion
+        self.material = material
+        self.name = name
 
-		self.origincurve = None
+    def to_mesh(self, settings: TesselationSettings) -> Mesh:
+        colorSettings = TesselationSettings(settings.max_angle, self.material.color.int)
+        return self.extrusion.to_mesh(colorSettings)
 
-	@classmethod
-	def by_polycurve_thickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
-		# Create panel by polycurve
-		p1 = Panel()
-		p1.name = name
-		p1.thickness = thickness
-		p1.extrusion = Extrusion.by_polycurve_height(
-			polycurve, thickness, offset)
-		p1.origincurve = polycurve
-		p1.colorint = colorrgbint
-		for j in range(int(len(p1.extrusion.verts) / 3)):
-			p1.colorlst.append(colorrgbint)
-		return p1
+    @classmethod
+    def by_polycurve_thickness(
+        self,
+        polycurve: PolyCurve,
+        thickness: float,
+        offset: float = 0,
+        name: str = None,
+        material=BaseTimber,
+    ):
+        # Create panel by polycurve
+        p1 = Panel(
+            Extrusion.by_polycurve_height(polycurve, thickness, offset), material, name
+        )
+        return p1
 
-	@classmethod
-	def by_baseline_height(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
-		# place panel vertical from baseline
-		p1 = Panel()
-		p1.name = name
-		p1.thickness = thickness
-		polycurve = PolyCurve.by_points(
-			[baseline.start,
-			 baseline.end,
-			 Point.translate(baseline.end, Vector(0, 0, height)),
-			 Point.translate(baseline.start, Vector(0, 0, height))])
-		p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
-		p1.origincurve = polycurve
-		for j in range(int(len(p1.extrusion.verts) / 3)):
-			p1.colorlst.append(colorrgbint)
-		return p1
+    @classmethod
+    def by_baseline_height(
+        self,
+        baseline: Line,
+        height: float,
+        thickness: float,
+        name: str = None,
+        material=BaseTimber,
+    ):
+        # place panel vertical from baseline
+        return Panel(
+            Extrusion.by_polycurve_height(
+                PolyCurve.by_points(
+                    [
+                        baseline.start,
+                        baseline.end,
+                        baseline.end + Vector(0, 0, height),
+                        baseline.start + Vector(0, 0, height),
+                    ]
+                ),
+                thickness,
+                0,
+            ),
+            material,
+            name,
+        )

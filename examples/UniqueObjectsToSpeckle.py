@@ -12,7 +12,7 @@ from library.material import BaseSteel
 from project import fileformat
 
 
-from abstract.text import Text
+from packages.text import Text
 
 project = fileformat.BuildingPy("Aanbouw", "0")
 

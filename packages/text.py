@@ -24,8 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools for text
-"""
+"""This module provides tools for text"""
 
 __title__ = "text"
 __author__ = "Maarten & Jonathan"
@@ -55,7 +54,7 @@ class Text:
     """The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
 
     def __init__(
-        self, text: str = None, font_family: "str" = None, cs=None, height=None
+        self, text: str = None, font_family = "Arial", cs=Matrix.identity(3), height=20
     ) -> "Text":
         """Initializes a new Text instance
 
@@ -78,7 +77,7 @@ class Text:
         """
 
         self.text = text
-        self.font_family = font_family or "arial"
+        self.font_family = font_family
         self.xyz = cs.origin
         self.transform = cs
         self.x, self.y, self.z = 0, 0, 0
@@ -115,7 +114,7 @@ class Text:
                 output.append(glyph_data[letter]["glyph-path"])
             elif letter == " ":
                 output.append("space")
-        
+
         letter = "o"
         if letter in glyph_data:
             self.load_o_example = [glyph_data[letter]["glyph-path"]]
@@ -213,8 +212,7 @@ class Text:
                             points.extend(segment.sample(10))
                             allPoints.extend(segment.sample(10))
                 if points:
-                    output_list.append(
-                        self.convert_points_to_polyline(allPoints))
+                    output_list.append(self.convert_points_to_polyline(allPoints))
                     width = self.calculate_bounding_box(allPoints)[1]
                     self.x += width + self.character_offset
 
@@ -314,8 +312,7 @@ class Text:
         ]
 
         polyline_list = [
-            PolyCurve.by_points(
-                [Point(coord.x, coord.y, self.xyz.z) for coord in pts])
+            PolyCurve.by_points([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
             for pts in output_list
         ]
         return polyline_list

@@ -48,18 +48,18 @@ class Material:
         self.color = color
 
 #Building Materials
-BaseConcrete = Material("Concrete", Color.RGB([192, 192, 192]))
-BaseTimber = Material("Timber", Color.RGB([191, 159, 116]))
-BaseSteel = Material("Steel", Color.RGB([237, 28, 36]))
-BaseOther = Material("Other", Color.RGB([150, 150, 150]))
-BaseBrick = Material("Brick", Color.RGB([170, 77, 47]))
-BaseBrickYellow = Material("BrickYellow", Color.RGB([208, 187, 147]))
+BaseConcrete = Material("Concrete", Color.by_rgb([192, 192, 192]))
+BaseTimber = Material("Timber", Color.by_rgb([191, 159, 116]))
+BaseSteel = Material("Steel", Color.by_rgb([237, 28, 36]))
+BaseOther = Material("Other", Color.by_rgb([150, 150, 150]))
+BaseBrick = Material("Brick", Color.by_rgb([170, 77, 47]))
+BaseBrickYellow = Material("BrickYellow", Color.by_rgb([208, 187, 147]))
 
 #GIS Materials
-BaseBuilding = Material("Building", Color.RGB([150, 28, 36]))
-BaseWater = Material("Water", Color.RGB([139, 197, 214]))
-BaseGreen = Material("Green", Color.RGB([175, 193, 138]))
-BaseInfra = Material("Infra", Color.RGB([234, 234, 234]))
-BaseRoads = Material("Infra", Color.RGB([140, 140, 140]))
+BaseBuilding = Material("Building", Color.by_rgb([150, 28, 36]))
+BaseWater = Material("Water", Color.by_rgb([139, 197, 214]))
+BaseGreen = Material("Green", Color.by_rgb([175, 193, 138]))
+BaseInfra = Material("Infra", Color.by_rgb([234, 234, 234]))
+BaseRoads = Material("Infra", Color.by_rgb([140, 140, 140]))
 
 #class Materialfinish

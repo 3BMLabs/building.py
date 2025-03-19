@@ -35,7 +35,7 @@ import math
 
 from abstract.vector import Point, Vector
 
-from abstract.text import Text
+from packages.text import Text
 
 from geometry.curve import Line, PolyCurve
 

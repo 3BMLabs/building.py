@@ -5,7 +5,7 @@ import math
 from abstract.color import Color
 from abstract.matrix import Matrix
 from abstract.segmentation import SegmentationSettings
-from abstract.text import Text
+from packages.text import Text
 from abstract.transformer import dimension_changer
 from abstract.vector import Point, Vector
 from construction.beam import Beam
@@ -17,10 +17,8 @@ from geometry.solid import Extrusion
 from geometry.rect import Rect
 from geometry.sphere import Circle, Ellipse
 from geometry.surface import Surface
-from construction.profile import Profile
 from construction.datum import GridLine, Grid, parse_grid_distances, seqChar, seqNumber
-from library.material import BaseSteel, rgb_to_int
-from library.profile import justification_to_vector, profile_by_name
+from library.material import BaseSteel
 
 # INITIALIZE
 pnt1 = Point(0, 0, 0)
@@ -284,13 +282,12 @@ frame6 = Beam(p1, p2, PC1, BaseSteel, math.radians(90))
 # ------------------------
 
 # CLASS: Panel
-pan = Panel.by_polycurve_thickness(PC4, 100, 0, "test1", rgb_to_int([192, 192, 192]))
+pan = Panel.by_polycurve_thickness(PC4, 100, 0, "test1")
 pan2 = Panel.by_baseline_height(
-    Line(start=Point(0, -1000, 0), end=Point(3000, -1000, 0)),
-    2500,
-    150,
-    "wand",
-    rgb_to_int([192, 192, 192]),
+    baseline=Line(start=Point(0, -1000, 0), end=Point(3000, -1000, 0)),
+    height=2500,
+    thickness=150,
+    name="wand",
 )
 
 # ------------------------
@@ -300,28 +297,23 @@ c = Color()
 print(c.red)
 print(c.green)
 print(c.blue)
-print(Color.Components("red"))
-print(Color.Hex("#ff2ba4"))
-print(Color.rgba_to_hex([0.5, 0.225, 0, 1]))
-print(Color.hex_to_rgba("#7F3900FF"))
-print(Color.CMYK([0.5, 0.25, 0, 0.2]))
-print(Color.Alpha([255, 0, 0, 128]))
-print(Color.Brightness(0.03))
-print(Color.RGB([255, 0, 0]))
-print(Color.HSV([120, 0.5, 0.8]))
-print(Color.HSL([120, 0.5, 0.8]))
-print(Color.RAL(1002))
-print(Color.Pantone("19-5232"))
-print(Color.LRV(237))
-
+print(Color.red)
+print(Color.by_hex("#ff2ba4"))
+print(Color(0.5 * 0xff, 0.225 * 0xff, 0, 0xff).hex)
+print(Color.by_hex("#7F3900FF"))
+print(Color.by_cmyk(0.5, 0.25, 0, 0.2))
+print(Color([255, 0, 0, 128]).alpha)
+print(Color.by_gray_scale(0x10))
+print(Color.by_rgb([255, 0, 0]))
+print(Color.by_hsv(120, 0.5, 0.8))
+print(Color.by_hsl(120, 0.5, 0.8))
 
 # Text
 Text1 = Text(
     text="PyBuildingSystem1",
     font_family="arial",
-    bounding_box=False,
-    xyz=[0, 0, 0],
-    rotation=90,
+    cs=Matrix.identity(3),
+    height=100,
 ).write()
 # all parms (with optional)
 Text2 = Text(text="PyBuildingSystem2", font_family="arial").write()

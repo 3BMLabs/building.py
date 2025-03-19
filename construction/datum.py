@@ -34,7 +34,7 @@ import math
 from abstract.matrix import Matrix, CoordinateSystem
 from abstract.serializable import Serializable
 
-from abstract.text import Text
+from packages.text import Text
 from abstract.vector import Point, Vector
 from abstract.vector import Vector
 from construction.annotation import DT2_5_mm, Dimension

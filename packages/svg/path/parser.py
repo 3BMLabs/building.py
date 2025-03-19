@@ -3,6 +3,7 @@
 # SVG Path specification parser
 
 import re
+
 # from svg.path import path
 from packages.svg.path import path
 

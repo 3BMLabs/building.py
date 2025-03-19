@@ -105,7 +105,7 @@ class BuildingPy(Serializable):
 	def to_speckle(self, streamid, commitstring=None):
 		from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
 		self.specklestream = streamid
-		speckleobj = translateObjectsToSpeckleObjects(self.objects)
+		speckleobj = translateObjectsToSpeckleObjects(self, self.objects)
 		TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
 
 	def to_FreeCAD(self):

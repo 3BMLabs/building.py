@@ -20,7 +20,7 @@ project.closed = False
 #GRIDS
 grids = Grid.by_spacing_labels("6x5400",seqChar,"4x5400",seqNumber,2000).write(project)
 GridLine.by_startpoint_endpoint(Line(Point(100,100,0),Point(-5000,10000,0)),"Q").write(project)
-BaseConcrete = Material.byNameColor("Concrete", Color.RGB([192, 192, 192]))
+BaseConcrete = Material.byNameColor("Concrete", Color.by_rgb([192, 192, 192]))
 
 #PANEL
 project.objects.append(Panel.by_baseline_height(Line(start= Point(1000,10800+5400,0),end=Point(5000,10800+5400,0)),2500,150,"Concrete Wall",BaseConcrete.colorint))

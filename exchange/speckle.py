@@ -42,7 +42,7 @@ from construction.wall import Wall
 #from exchange.Trimesh_dep import Trimesh
 from abstract.vector import Vector
 from geometry.mesh import Mesh
-from abstract.text import Text
+from packages.text import Text
 from geometry.solid import Extrusion
 from geometry.surface import Surface
 from project.fileformat import BuildingPy
@@ -101,9 +101,7 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 	if isinstance(building_py_object, Interval):
 		converted_object = SpeckleInterval(start = building_py_object.start, end=building_py_object.end)
 	elif isinstance(building_py_object, Vector):
-		converted_object = SpeckleVector.from_coords(building_py_object.x, building_py_object.y, building_py_object.z)
-	elif isinstance(building_py_object, Vector):
-		converted_object = SpecklePoint.from_coords(building_py_object.x, building_py_object.y, building_py_object.z)
+		converted_object = SpeckleVector.from_coords(building_py_object.x, building_py_object.y, building_py_object.z if len(building_py_object) > 2 else 0)
 	elif isinstance(building_py_object, Plane):
 		converted_object = SpecklePlane(origin = convert_to_speckle_object(building_py_object.Origin), normal = convert_to_speckle_object(building_py_object.Normal), xdir = convert_to_speckle_object(building_py_object.v1), ydir = convert_to_speckle_object(building_py_object.v2))
 
@@ -122,7 +120,7 @@ def convert_to_speckle_object(self: BuildingPy, building_py_object: Serializable
 									textureCoordinates = [])
 
 	elif isinstance(building_py_object, PolyCurve):
-		speckle_points = [convert_to_speckle_object(point) for point in building_py_object.points]
+		speckle_points = [convert_to_speckle_object(self, point) for point in building_py_object.points]
 		converted_object = SpecklePolyLine.from_points(speckle_points)
 		try:
 			converted_object.area = building_py_object.area()

@@ -20,7 +20,7 @@ from specklepy.objects.geometry import (
     Plane,
     Interval,
 )
-from abstract.text import Text
+from packages.text import Text
 
 
 def flatten(nested_list):

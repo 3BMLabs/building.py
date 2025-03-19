@@ -32,7 +32,7 @@ from abc import abstractmethod
 import math
 import sys
 from pathlib import Path
-from typing import Self, Union
+from typing import Union
 
 from abstract.matrix import Matrix
 from abstract.segmentation import SegmentationSettings
@@ -559,7 +559,7 @@ class Polygon(PointList):
         return [Point(p) for p in self]
 
     @closed.setter
-    def closed(self, value) -> Self:
+    def closed(self, value) -> 'Polygon':
         """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
         #### Example usage:
         ```python
@@ -1051,7 +1051,7 @@ class PolyCurve(list[Line], Shape, Curve):
         return PolyCurve(polygon.curves)
 
     @staticmethod
-    def by_points(points: "list[Point]") -> Self:
+    def by_points(points: "list[Point]") -> 'PolyCurve':
         """Creates a PolyCurve from a list of points.
 
         #### Parameters:
