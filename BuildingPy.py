@@ -15,13 +15,13 @@ from packages.svg.path import parse_path
 from pathlib import Path
 from typing import List
 from typing import Self
-from typing import Self, Union
 from typing import Union
 import copy
 import importlib
 import json
 import math
 import operator
+import os
 import pickle
 import re
 import string, random, json
@@ -1396,7 +1396,7 @@ class Matrix(Serializable, list[list]):
         col = self.cols - 1
         return Vector([self[row][col] for row in range(self.rows - 1)])
 
-    def get_axis(self, axis) -> Vector:
+    def get_axis(self, axis_index: int) -> Vector:
         """
 
         Args:
@@ -1406,7 +1406,7 @@ class Matrix(Serializable, list[list]):
             Vector: the vector you'd get if you multiplied a vector containing all 0's except 1 on this axis without translation with the matrix.
             for example: m.multiply_without_translation(Vector(0, 0, 1)) == m.get_axis(2)
         """
-        return Vector([self[row][axis] for row in range(self.rows - 1)])
+        return Vector([self[row][axis_index] for row in range(self.rows - 1)])
 
     position = origin
 
@@ -1483,6 +1483,7 @@ class Matrix(Serializable, list[list]):
                 for row in range(matrix_size)
             ]
         )
+
     by_origin = translate
 
     @staticmethod
@@ -1532,9 +1533,7 @@ class Matrix(Serializable, list[list]):
         )
 
     @staticmethod
-    def rotate(
-        angle: float, axis: Vector = None, pivot: Vector = None
-    ) -> "Matrix":
+    def rotate(angle: float, axis: Vector = None, pivot: Vector = None) -> "Matrix":
         """creates a rotation matrix to rotate something over the origin around an axis by a specified angle
 
         Returns:
@@ -1543,16 +1542,20 @@ class Matrix(Serializable, list[list]):
         cos_angle = math.cos(angle)
         sin_angle = math.sin(angle)
         if axis == None:
-            #when no pivot and no axis is specified, we assume a 2d rotation matrix is desired, since it doesn't make sense to rotate a 3d vector without specifying an axis.
+            # when no pivot and no axis is specified, we assume a 2d rotation matrix is desired, since it doesn't make sense to rotate a 3d vector without specifying an axis.
             if pivot == None or len(pivot) == 2:
-                origin_matrix = Matrix([[cos_angle, -sin_angle, 0],
-                               [sin_angle, cos_angle,  0],
-                               [0,         0,          1]])
+                origin_matrix = Matrix(
+                    [[cos_angle, -sin_angle, 0], [sin_angle, cos_angle, 0], [0, 0, 1]]
+                )
             else:
-                origin_matrix = Matrix([[cos_angle, -sin_angle, 0, 0],
-                                        [sin_angle, cos_angle,  0, 0],
-                                        [0,         0,          1, 0],
-                                        [0,         0,          0, 1]])
+                origin_matrix = Matrix(
+                    [
+                        [cos_angle, -sin_angle, 0, 0],
+                        [sin_angle, cos_angle, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1],
+                    ]
+                )
         else:
             # https://stackoverflow.com/questions/6721544/circular-rotation-around-an-arbitrary-axis
             normalized_axis = axis.normalized
@@ -1590,12 +1593,7 @@ class Matrix(Serializable, list[list]):
             # - rotate objects around the origin
             # - translate objects back so the pivot is at its old location
 
-            return (
-                Matrix.translate(pivot)
-                * origin_matrix
-                * Matrix.translate(-pivot)
-            )
-        
+            return Matrix.translate(pivot) * origin_matrix * Matrix.translate(-pivot)
 
     def __mul__(self, other: "Matrix | Vector | Rect | PointList"):
         """CAUTION! MATRICES NEED TO MULTIPLY FROM RIGHT TO LEFT!
@@ -2919,7 +2917,7 @@ class Polygon(PointList):
         return [Point(p) for p in self]
 
     @closed.setter
-    def closed(self, value) -> Self:
+    def closed(self, value) -> 'Polygon':
         """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
         #### Example usage:
         ```python
@@ -3411,7 +3409,7 @@ class PolyCurve(list[Line], Shape, Curve):
         return PolyCurve(polygon.curves)
 
     @staticmethod
-    def by_points(points: "list[Point]") -> Self:
+    def by_points(points: "list[Point]") -> 'PolyCurve':
         """Creates a PolyCurve from a list of points.
 
         #### Parameters:
@@ -3463,7 +3461,7 @@ class Text:
     """The `Text` class is designed to represent and manipulate text within a coordinate system, allowing for the creation of text objects with specific fonts, sizes, and positions. It is capable of generating and translating text into a series of geometric representations."""
 
     def __init__(
-        self, text: str = None, font_family: "str" = None, cs=None, height=None
+        self, text: str = None, font_family = "Arial", cs=Matrix.identity(3), height=20
     ) -> "Text":
         """Initializes a new Text instance
 
@@ -3486,7 +3484,7 @@ class Text:
         """
 
         self.text = text
-        self.font_family = font_family or "arial"
+        self.font_family = font_family
         self.xyz = cs.origin
         self.transform = cs
         self.x, self.y, self.z = 0, 0, 0
@@ -3523,7 +3521,7 @@ class Text:
                 output.append(glyph_data[letter]["glyph-path"])
             elif letter == " ":
                 output.append("space")
-        
+
         letter = "o"
         if letter in glyph_data:
             self.load_o_example = [glyph_data[letter]["glyph-path"]]
@@ -3621,8 +3619,7 @@ class Text:
                             points.extend(segment.sample(10))
                             allPoints.extend(segment.sample(10))
                 if points:
-                    output_list.append(
-                        self.convert_points_to_polyline(allPoints))
+                    output_list.append(self.convert_points_to_polyline(allPoints))
                     width = self.calculate_bounding_box(allPoints)[1]
                     self.x += width + self.character_offset
 
@@ -3722,226 +3719,260 @@ class Text:
         ]
 
         polyline_list = [
-            PolyCurve.by_points(
-                [Point(coord.x, coord.y, self.xyz.z) for coord in pts])
+            PolyCurve.by_points([Point(coord.x, coord.y, self.xyz.z) for coord in pts])
             for pts in output_list
         ]
         return polyline_list
 
 
-#Maarten
+# Maarten
+
 
 class TickMark:
-	# Dimension Tick Mark
-	def __init__(self):
-		self.name = None
-		
-		self.curves = []
+    # Dimension Tick Mark
+    def __init__(self):
+        self.name = None
 
-	@staticmethod
-	def by_curves(name, curves):
-		TM = TickMark()
-		TM.name = name
-		TM.curves = curves
-		return TM
+        self.curves = []
+
+    @staticmethod
+    def by_curves(name, curves):
+        TM = TickMark()
+        TM.name = name
+        TM.curves = curves
+        return TM
 
 
 TMDiagonal = TickMark.by_curves(
-	"diagonal", [Line(start=Point(-100, -100, 0), end=Point(100, 100, 0))])
+    "diagonal", [Line(start=Point(-100, -100, 0), end=Point(100, 100, 0))]
+)
 
 
 class DimensionType:
-	def __init__(self):
-		self.name = None
-		
-		self.font = None
-		self.text_height = 2.5
-		self.tick_mark: TickMark = TMDiagonal
-		self.line_extension = 100
+    def __init__(self):
+        self.name = None
 
-	@staticmethod
-	def by_name_font_textheight_tick_mark_extension(name: str, font: str, text_height: float, tick_mark: TickMark, line_extension: float):
-		DT = DimensionType()
-		DT.name = name
-		DT.font = font
-		DT.text_height = text_height
-		DT.tick_mark = tick_mark
-		DT.line_extension = line_extension
-		return DT
+        self.font = None
+        self.text_height = 2.5
+        self.tick_mark: TickMark = TMDiagonal
+        self.line_extension = 100
+
+    @staticmethod
+    def by_name_font_textheight_tick_mark_extension(
+        name: str,
+        font: str,
+        text_height: float,
+        tick_mark: TickMark,
+        line_extension: float,
+    ):
+        DT = DimensionType()
+        DT.name = name
+        DT.font = font
+        DT.text_height = text_height
+        DT.tick_mark = tick_mark
+        DT.line_extension = line_extension
+        return DT
 
 
 DT2_5_mm = DimensionType.by_name_font_textheight_tick_mark_extension(
-	"2.5 mm", "calibri", 2.5, TMDiagonal, 100)
+    "2.5 mm", "calibri", 2.5, TMDiagonal, 100
+)
 
 DT1_8_mm = DimensionType.by_name_font_textheight_tick_mark_extension(
-	"1.8 mm", "calibri", 2.5, TMDiagonal, 100)
+    "1.8 mm", "calibri", 2.5, TMDiagonal, 100
+)
 
 
 class Dimension:
-	def __init__(self, start: Point, end: Point, dimension_type) -> None:
-		
-		self.start: Point = start
-		self.text_height = 100
-		self.end: Point = end
-		self.scale = 0.1  # text
-		self.dimension_type: DimensionType = dimension_type
-		self.curves = []
-		self.length: float = Line(start=self.start, end=self.end).length
-		self.text = None
-		self.geom()
+    def __init__(self, start: Point, end: Point, dimension_type) -> None:
 
-	@staticmethod
-	def by_startpoint_endpoint_offset(start: Point, end: Point, dimension_type: DimensionType, offset: float):
-		DS = Dimension()
-		DS.start = start
-		DS.end = end
-		DS.dimension_type = dimension_type
-		DS.geom()
-		return DS
+        self.start: Point = start
+        self.text_height = 100
+        self.end: Point = end
+        self.scale = 0.1  # text
+        self.dimension_type: DimensionType = dimension_type
+        self.curves = []
+        self.length: float = Line(start=self.start, end=self.end).length
+        self.text = None
+        self.geom()
 
-	def geom(self):
-		# baseline
-		baseline = Line(start=self.start, end=self.end)
-		midpoint_text = baseline.mid
-		direction = baseline.direction
-		tick_mark_extension_point_1 = self.start - direction * self.dimension_type.line_extension
-		tick_mark_extension_point_2 = self.end + direction * self.dimension_type.line_extension
-		x = direction
-		y = Vector.rotate(x, math.radians(90))
-		z = Vector.z_axis
-		cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
-		cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, [x, y, z])
-		cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, [x, y, z])
-		self.curves.append(Line(tick_mark_extension_point_1,
-						   self.start))  # extention_start
-		self.curves.append(
-			Line(tick_mark_extension_point_2, self.end))  # extention_end
-		self.curves.append(Line(self.start, self.end))  # baseline
-		# erg vieze oplossing. #Todo
-		crvs = Line(
-			start=self.dimension_type.tick_mark.curves[0].start, end=self.dimension_type.tick_mark.curves[0].end)
+    @staticmethod
+    def by_startpoint_endpoint_offset(
+        start: Point, end: Point, dimension_type: DimensionType, offset: float
+    ):
+        DS = Dimension()
+        DS.start = start
+        DS.end = end
+        DS.dimension_type = dimension_type
+        DS.geom()
+        return DS
 
-		self.curves.append(cs_new_start * self.dimension_type.tick_mark.curves[0])  # dimension tick start
-		self.curves.append(cs_new_end * crvs)  # dimension tick end
-		self.text = Text(text=str(round(self.length)), font_family=self.dimension_type.font,
-						 cs=cs_new_mid, height=self.text_height).write()
+    def geom(self):
+        # baseline
+        baseline = Line(start=self.start, end=self.end)
+        midpoint_text = baseline.mid
+        direction = baseline.direction
+        tick_mark_extension_point_1 = (
+            self.start - direction * self.dimension_type.line_extension
+        )
+        tick_mark_extension_point_2 = (
+            self.end + direction * self.dimension_type.line_extension
+        )
+        x = direction
+        y = Vector.rotate(x, math.radians(90))
+        z = Vector.z_axis
+        cs_new_start = CoordinateSystem.by_origin_unit_axes(self.start, [x, y, z])
+        cs_new_mid = CoordinateSystem.by_origin_unit_axes(midpoint_text, [x, y, z])
+        cs_new_end = CoordinateSystem.by_origin_unit_axes(self.end, [x, y, z])
+        self.curves.append(
+            Line(tick_mark_extension_point_1, self.start)
+        )  # extention_start
+        self.curves.append(Line(tick_mark_extension_point_2, self.end))  # extention_end
+        self.curves.append(Line(self.start, self.end))  # baseline
+        # erg vieze oplossing. #Todo
+        crvs = Line(
+            start=self.dimension_type.tick_mark.curves[0].start,
+            end=self.dimension_type.tick_mark.curves[0].end,
+        )
 
-	def write(self, project):
-		for i in self.curves:
-			project.objects.append(i)
-		for j in self.text:
-			project.objects.append(j)
+        self.curves.append(
+            cs_new_start * self.dimension_type.tick_mark.curves[0]
+        )  # dimension tick start
+        self.curves.append(cs_new_end * crvs)  # dimension tick end
+        self.text = Text(
+            text=str(round(self.length)),
+            font_family=self.dimension_type.font,
+            cs=cs_new_mid,
+            height=self.text_height,
+        ).write()
+
+    def write(self, project):
+        for i in self.curves:
+            project.objects.append(i)
+        for j in self.text:
+            project.objects.append(j)
 
 
 class BeamTag:
-	def __init__(self):
-		# Dimensions in 1/100 scale
-		
-		self.scale = 0.1
-		self.cs: CoordinateSystem = CoordinateSystem()
-		self.offset_x = 500
-		self.offset_y = 100
-		self.font_family = "calibri"
-		self.text: str = "text"
-		self.text_curves = None
-		self.text_height = 100
+    def __init__(self):
+        # Dimensions in 1/100 scale
 
-	def __textobject(self):
-		# cstextnew = cstext.translate(self.textoff_vector_local)
-		self.text_curves = Text(
-			text=self.text, font_family=self.font_family, height=self.text_height, cs=self.cs).write
+        self.scale = 0.1
+        self.cs: CoordinateSystem = CoordinateSystem()
+        self.offset_x = 500
+        self.offset_y = 100
+        self.font_family = "calibri"
+        self.text: str = "text"
+        self.text_curves = None
+        self.text_height = 100
 
-	def by_cs_text(self, coordinate_system: CoordinateSystem, text):
-		self.cs = coordinate_system
-		self.text = text
-		self.__textobject()
-		return self
+    def __textobject(self):
+        # cstextnew = cstext.translate(self.textoff_vector_local)
+        self.text_curves = Text(
+            text=self.text,
+            font_family=self.font_family,
+            height=self.text_height,
+            cs=self.cs,
+        ).write
 
-	def write(self, project):
-		for x in self.text_curves():
-			project.objects.append(x)
-		return self
+    def by_cs_text(self, coordinate_system: CoordinateSystem, text):
+        self.cs = coordinate_system
+        self.text = text
+        self.__textobject()
+        return self
 
-	@staticmethod
-	def by_frame(frame):
-		tag = BeamTag()
-		frame_vector = frame.vector_normalised
-		x = frame_vector
-		y = Vector.rotate(x, math.radians(90))
-		z = Vector.Z_Axis
-		vx = Vector.scale(frame_vector, tag.offset_x)
-		frame_width = PolyCurve.bounds(frame.curve)[4]
-		vy = Vector.scale(y, frame_width*0.5+tag.offset_y)
-		origintext = Point.translate(frame.start, vx)
-		origintext = Point.translate(origintext, vy)
-		csnew = CoordinateSystem(origintext, x, y, z)
-		tag.cs = csnew
-		tag.text = frame.name
-		tag.__textobject()
-		return tag
+    def write(self, project):
+        for x in self.text_curves():
+            project.objects.append(x)
+        return self
+
+    @staticmethod
+    def by_frame(frame):
+        tag = BeamTag()
+        frame_vector = frame.vector_normalised
+        x = frame_vector
+        y = Vector.rotate(x, math.radians(90))
+        z = Vector.Z_Axis
+        vx = Vector.scale(frame_vector, tag.offset_x)
+        frame_width = PolyCurve.bounds(frame.curve)[4]
+        vy = Vector.scale(y, frame_width * 0.5 + tag.offset_y)
+        origintext = Point.translate(frame.start, vx)
+        origintext = Point.translate(origintext, vy)
+        csnew = CoordinateSystem(origintext, x, y, z)
+        tag.cs = csnew
+        tag.text = frame.name
+        tag.__textobject()
+        return tag
 
 
 class ColumnTag:
-	def __init__(self):
-		# Dimensions in 1/100 scale
-		
-		self.width = 700
-		self.height = 500
-		self.factor = 3  # hellingsfacor leader
-		self.scale = 0.1  # voor tekeningverschaling
-		self.position = "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
-		self.cs: CoordinateSystem = CoordinateSystem()
+    def __init__(self):
+        # Dimensions in 1/100 scale
 
-		# self.textoff_vector_local: Vector = Vector(1,1,1)
-		self.font_family = "calibri"
-		self.curves = []
-		# self.leadercurves()
-		self.text: str = "text"
-		self.text_height = 100
-		self.text_offset_factor = 5
-		self.textoff_vector_local: Vector = Vector(
-			self.height/self.factor, self.height+self.height/self.text_offset_factor, 0)
-		self.text_curves = None
-		# self.textobject()
+        self.width = 700
+        self.height = 500
+        self.factor = 3  # hellingsfacor leader
+        self.scale = 0.1  # voor tekeningverschaling
+        self.position = (
+            "TL"  # TL, TR, BL, BR Top Left Top Right Bottom Left Bottom Right
+        )
+        self.transform: CoordinateSystem = CoordinateSystem()
 
-	def __leadercurves(self):
-		self.startpoint = Point(0, 0, 0)
-		self.midpoint = Point.translate(self.startpoint, Vector(
-			self.height/self.factor, self.height, 0))
-		self.endpoint = Point.translate(
-			self.midpoint, Vector(self.width, 0, 0))
-		for line in [Line(start=self.startpoint, end=self.midpoint),
-				 Line(start=self.midpoint, end=self.endpoint)]:
-			self.curves.append(self.cs * line)
+        # self.textoff_vector_local: Vector = Vector(1,1,1)
+        self.font_family = "calibri"
+        self.curves = []
+        # self.leadercurves()
+        self.text: str = "text"
+        self.text_height = 100
+        self.text_offset_factor = 5
+        self.textoff_vector_local: Vector = Vector(
+            self.height / self.factor,
+            self.height + self.height / self.text_offset_factor,
+            0,
+        )
+        self.text_curves = None
+        # self.textobject()
 
-	def __textobject(self):
+    def __leadercurves(self):
+        self.startpoint = Point(0, 0, 0)
+        self.midpoint = Point.translate(
+            self.startpoint, Vector(self.height / self.factor, self.height, 0)
+        )
+        self.endpoint = Point.translate(self.midpoint, Vector(self.width, 0, 0))
+        for line in [
+            Line(start=self.startpoint, end=self.midpoint),
+            Line(start=self.midpoint, end=self.endpoint),
+        ]:
+            self.curves.append(self.transform * line)
 
-		cstextnew = CoordinateSystem.translate(self.textoff_vector_local) * self.cs
-		self.text_curves = Text(text=self.text, font_family=self.font_family,
-								height=self.text_height, cs=cstextnew).write
+    def __textobject(self):
 
-	def by_cs_text(self, coordinate_system: CoordinateSystem, text):
-		self.cs = coordinate_system
-		self.text = text
-		self.__leadercurves()
-		self.__textobject()
-		return self
+        cstextnew = CoordinateSystem.translate(self.textoff_vector_local) * self.transform
+        self.text_curves = Text(
+            text=self.text,
+            font_family=self.font_family,
+            height=self.text_height,
+            cs=cstextnew,
+        ).write
 
-	def write(self, project):
-		for x in self.text_curves():
-			project.objects.append(x)
-		for y in self.curves:
-			project.objects.append(y)
+    def by_cs_text(self, coordinate_system: CoordinateSystem, text):
+        self.transform = coordinate_system
+        self.text = text
+        self.__leadercurves()
+        self.__textobject()
+        return self
 
-	@staticmethod
-	def by_beam(beam, position="TL"):
-		tag = ColumnTag()
-		tag.position = position
-		tag.cs = CoordinateSystem.translate(beam.start)
-		tag.text = beam.name
-		tag.__leadercurves()
-		tag.__textobject()
-		return tag
+
+    @staticmethod
+    def by_beam(beam, position="TL"):
+        tag = ColumnTag()
+        tag.position = position
+        tag.transform = CoordinateSystem.translate(beam.start)
+        tag.text = beam.name
+        tag.__leadercurves()
+        tag.__textobject()
+        return tag
+
 
 # class Label:
 # class LabelType:
@@ -3950,249 +3981,124 @@ class ColumnTag:
 
 
 class Color(Vector):
-	"""Documentation: output returns [r, g, b]"""
+    """Documentation: output returns [r, g, b]"""
 
-	def __init__(self, *args, **kwargs):
-		Vector.__init__(self, *args,**kwargs)
-	
-	red = r = Vector.x
-	green = g = Vector.y
-	blue = b = Vector.z
-	alpha = a = Vector.w
-	
-	@property
-	def int(self) -> int:
-		"""converts this color into an integer value
+    def __init__(self, *args, **kwargs):
+        Vector.__init__(self, *args, **kwargs)
 
-		Returns:
-			int: the merged integer.
-			this is assuming the color elements are whole integer values from 0 - 255
-		"""
-		int_val = elem
-		mult = 0x100
-		for elem in self[1:]:
-			int_val += elem * mult
-			mult *= 0x100
-		return int_val
-	
-	@property
-	def hex(self):
-		return '#%02x%02x%02x%02x' % (self.r,self.g,self.b,self.a)
-		
-	@staticmethod
-	def axis_index(axis:str) -> int:
-		"""returns index of axis name.<br>
-		raises a valueError when the name isn't valid.
+    red = r = Vector.x
+    green = g = Vector.y
+    blue = b = Vector.z
+    alpha = a = Vector.w
 
-		Args:
-			axis (str): the name of the axis
+    axis_names = ["r", "g", "b", "a"]
 
-		Returns:
-			int: the index
-		"""
-		return ['r', 'g', 'b', 'a'].index(axis)
+    @property
+    def int(self) -> int:
+        """converts this color into an integer value
 
-	def Components(self, colorInput=None):
-		"""1"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}('green')"
-		else:
-			try:
-				import json
-				JSONfile = "library/color/colorComponents.json"
-				with open(JSONfile, 'r') as file:
-					components_dict = json.load(file)
-					checkExist = components_dict.get(str(colorInput))
-					if checkExist is not None:
-						r, g, b, a = components_dict[colorInput]
-						return [r, g, b]
-					else:
-						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
-			
-	@staticmethod
-	def Hex(hex:str) -> 'Color':
-		"""converts a heximal string to a color object.
+        Returns:
+                int: the merged integer.
+                this is assuming the color elements are whole integer values from 0 - 255
+        """
+        int_val = elem
+        mult = 0x100
+        for elem in self[1:]:
+            int_val += elem * mult
+            mult *= 0x100
+        return int_val
 
-		Args:
-			hex (str): a heximal string, for example '#FF00FF88'
+    @property
+    def hex(self):
+        return "#%02x%02x%02x%02x" % (int(self.r), int(self.g), int(self.b), int(self.a))
 
-		Returns:
-			Color: the color object
-		"""
-		return Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16),int(hex[7:9], 16)) if len(hex) > 7 else Color(int(hex[1:3], 16),int(hex[3:5], 16), int(hex[5:7], 16))
+    @staticmethod
+    def axis_index(axis: str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
 
-	def CMYK(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.CMYK([0.5, 0.25, 0, 0.2])"
-		else:
-			try:
-				c, m, y, k = colorInput
-				r = int((1-c) * (1-k) * 255)
-				g = int((1-m) * (1-k) * 255)
-				b = int((1-y) * (1-k) * 255)
-				return [r, g, b]
-			except:
-				# add check help attribute
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+        Args:
+                axis (str): the name of the axis
 
-	def Alpha(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-		else:
-			try:
-				r, g, b, a = colorInput
-				return [r, g, b]
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+        Returns:
+                int: the index
+        """
+        return ["r", "g", "b", "a"].index(axis)
 
-	def Brightness(self, colorInput=None):
-		"""Expected value is int(0) - int(1)"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0, 128])"
-		else:
-			try:
-				if colorInput >= 0 and colorInput <= 1:
-					r = g = b = int(255 * colorInput)
-					return [r, g, b]
-				else:
-					return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
-			
-	@staticmethod
-	def RGB(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}([255, 0, 0])"
-		else:
-			try:
-				r, g, b = colorInput
-				return [r, g, b]
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+    @staticmethod
+    def by_hex(hex: str) -> 'Color':
+        """converts a heximal string to a color object.
 
-	def HSV(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
-		else:
-			try:
-				h, s, v = colorInput
-				h /= 60.0
-				c = v * s
-				x = c * (1 - abs(h % 2 - 1))
-				m = v - c
-				if 0 <= h < 1:
-					r, g, b = c, x, 0
-				elif 1 <= h < 2:
-					r, g, b = x, c, 0
-				elif 2 <= h < 3:
-					r, g, b = 0, c, x
-				elif 3 <= h < 4:
-					r, g, b = 0, x, c
-				elif 4 <= h < 5:
-					r, g, b = x, 0, c
-				else:
-					r, g, b = c, 0, x
-				return [int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)]
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+        Args:
+                hex (str): a heximal string, for example '#FF00FF88'
 
-	def HSL(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
-		else:
-			try:
-				h, s, l = colorInput
-				c = (1 - abs(2 * l - 1)) * s
-				x = c * (1 - abs(h / 60 % 2 - 1))
-				m = l - c / 2
-				if h < 60:
-					r, g, b = c, x, 0
-				elif h < 120:
-					r, g, b = x, c, 0
-				elif h < 180:
-					r, g, b = 0, c, x
-				elif h < 240:
-					r, g, b = 0, x, c
-				elif h < 300:
-					r, g, b = x, 0, c
-				else:
-					r, g, b = c, 0, x
-				r, g, b = int((r + m) * 255), int((g + m)
-												  * 255), int((b + m) * 255)
-				return [r, g, b]
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+        Returns:
+                Color: the color object
+        """
+        return (
+            Color(
+                int(hex[1:3], 16),
+                int(hex[3:5], 16),
+                int(hex[5:7], 16),
+                int(hex[7:9], 16),
+            )
+            if len(hex) > 7
+            else Color(int(hex[1:3], 16), int(hex[3:5], 16), int(hex[5:7], 16))
+        )
 
-	def RAL(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}(1000)"
-		else:
-			try:
-				# validate if value is correct/found
-				import json
-				JSONfile = "library/color/colorRAL.json"
-				with open(JSONfile, 'r') as file:
-					ral_dict = json.load(file)
-					checkExist = ral_dict.get(str(colorInput))
-					if checkExist is not None:
-						r, g, b = ral_dict[str(colorInput)]["rgb"].split("-")
-						return [int(r), int(g), int(b), 100]
-					else:
-						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+    @staticmethod
+    def by_cmyk(c, m, y, k) -> "Color":
+        r = int((1 - c) * (1 - k) * 255)
+        g = int((1 - m) * (1 - k) * 255)
+        b = int((1 - y) * (1 - k) * 255)
+        return Color(r, g, b)
 
-	def Pantone(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
-		else:
-			try:
-				import json
-				JSONfile = "library/color/colorPantone.json"
-				with open(JSONfile, 'r') as file:
-					pantone_dict = json.load(file)
-					checkExist = pantone_dict.get(str(colorInput))
-					if checkExist is not None:
-						PantoneHex = pantone_dict[str(colorInput)]['hex']
-						return Color.Hex(PantoneHex)
-					else:
-						return f"Invalid {sys._getframe(0).f_code.co_name}-color, check '{JSONfile}' for available {sys._getframe(0).f_code.co_name}-colors."
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+    @staticmethod
+    def by_gray_scale(brightness, channel_count=3) -> "Color":
+        return Color([brightness] * channel_count)
 
-	def LRV(self, colorInput=None):
-		"""NAN"""
-		if colorInput is None:
-			return f"Error: Example usage Color.{sys._getframe(0).f_code.co_name}()"
-		else:
-			try:
-				b = (colorInput - 0.2126 * 255 - 0.7152 * 255) / 0.0722
-				b = int(max(0, min(255, b)))
-				return [255, 255, b]
-			except:
-				return f"Error: Color {sys._getframe(0).f_code.co_name} attribute usage is incorrect. Documentation: Color.{sys._getframe(0).f_code.co_name}.__doc__"
+    @staticmethod
+    def by_rgb(*args, **kwargs):
+        return Color(*args, **kwargs)
 
+    @staticmethod
+    def by_hsv(h, s, v):
+        h /= 60.0
+        c = v * s
+        x = c * (1 - abs(h % 2 - 1))
+        m = v - c
+        if 0 <= h < 1:
+            r, g, b = c, x, 0
+        elif 1 <= h < 2:
+            r, g, b = x, c, 0
+        elif 2 <= h < 3:
+            r, g, b = 0, c, x
+        elif 3 <= h < 4:
+            r, g, b = 0, x, c
+        elif 4 <= h < 5:
+            r, g, b = x, 0, c
+        else:
+            r, g, b = c, 0, x
+        return Color(int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
 
-	def __str__(self, colorInput=None):
-		colorattributes = ["Components", "Hex", "rgba_to_hex", "hex_to_rgba", "CMYK",
-						   "Alpha", "Brightness", "RGB", "HSV", "HSL", "RAL", "Pantone", "LRV"]
-		if colorInput is None:
-			header = "Available attributes: \n"
-			footer = "\nColor.red | Color.green | Color.blue"
-			return header + '\n'.join([f"Color.{func}()" for func in colorattributes]) + footer
-		return f"Color.{colorInput}"
-
-	def Info(self, colorInput=None):
-		pass
+    @staticmethod
+    def by_hsl(h, s, l):
+        c = (1 - abs(2 * l - 1)) * s
+        x = c * (1 - abs(h / 60 % 2 - 1))
+        m = l - c / 2
+        if h < 60:
+            r, g, b = c, x, 0
+        elif h < 120:
+            r, g, b = x, c, 0
+        elif h < 180:
+            r, g, b = 0, c, x
+        elif h < 240:
+            r, g, b = 0, x, c
+        elif h < 300:
+            r, g, b = x, 0, c
+        else:
+            r, g, b = c, 0, x
+        return Color(int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
 
 Color.red = Color(255, 0, 0)
 Color.green = Color(0, 255, 0)
@@ -4210,73 +4116,22 @@ class Material:
         self.color = color
 
 #Building Materials
-BaseConcrete = Material("Concrete", Color.RGB([192, 192, 192]))
-BaseTimber = Material("Timber", Color.RGB([191, 159, 116]))
-BaseSteel = Material("Steel", Color.RGB([237, 28, 36]))
-BaseOther = Material("Other", Color.RGB([150, 150, 150]))
-BaseBrick = Material("Brick", Color.RGB([170, 77, 47]))
-BaseBrickYellow = Material("BrickYellow", Color.RGB([208, 187, 147]))
+BaseConcrete = Material("Concrete", Color.by_rgb([192, 192, 192]))
+BaseTimber = Material("Timber", Color.by_rgb([191, 159, 116]))
+BaseSteel = Material("Steel", Color.by_rgb([237, 28, 36]))
+BaseOther = Material("Other", Color.by_rgb([150, 150, 150]))
+BaseBrick = Material("Brick", Color.by_rgb([170, 77, 47]))
+BaseBrickYellow = Material("BrickYellow", Color.by_rgb([208, 187, 147]))
 
 #GIS Materials
-BaseBuilding = Material("Building", Color.RGB([150, 28, 36]))
-BaseWater = Material("Water", Color.RGB([139, 197, 214]))
-BaseGreen = Material("Green", Color.RGB([175, 193, 138]))
-BaseInfra = Material("Infra", Color.RGB([234, 234, 234]))
-BaseRoads = Material("Infra", Color.RGB([140, 140, 140]))
+BaseBuilding = Material("Building", Color.by_rgb([150, 28, 36]))
+BaseWater = Material("Water", Color.by_rgb([139, 197, 214]))
+BaseGreen = Material("Green", Color.by_rgb([175, 193, 138]))
+BaseInfra = Material("Infra", Color.by_rgb([234, 234, 234]))
+BaseRoads = Material("Infra", Color.by_rgb([140, 140, 140]))
 
 #class Materialfinish
 
-
-
-
-class Node:
-	"""The `Node` class represents a geometric or structural node within a system, defined by a point in space, along with optional attributes like a direction vector, identifying number, and other characteristics."""
-	def __init__(self, point=None, vector=None, number=None, distance=0.0, diameter=None, comments=None):
-		""""Initializes a new Node instance.
-		
-		- `id` (str): A unique identifier for the node.
-		- `point` (Point, optional): The location of the node in 3D space.
-		- `vector` (Vector, optional): A vector indicating the orientation or direction associated with the node.
-		- `number` (any, optional): An identifying number or label for the node.
-		- `distance` (float): A scalar attribute, potentially representing distance from a reference point or another node.
-		- `diameter` (any, optional): A diameter associated with the node, useful in structural applications.
-		- `comments` (str, optional): Additional comments or notes about the node.
-		"""
-		
-		self.point = point if isinstance(point, Point) else None
-		self.vector = vector if isinstance(vector, Vector) else None
-		self.number = number
-		self.distance = distance
-		self.diameter = diameter
-		self.comments = comments
-
-	# merge
-	#def merge(self):
-	#	"""Merges this node with others in a project according to defined rules.
-#
-	#	The actual implementation of this method should consider merging nodes based on proximity or other criteria within the project context.
-	#	"""
-	#	if project.node_merge == True:
-	#		pass
-	#	else:
-	#		pass
-
-	# snap
-	def snap(self):
-		"""Adjusts the node's position based on snapping criteria.
-
-		This could involve aligning the node to a grid, other nodes, or specific geometric entities.
-		"""
-		pass
-
-	def __str__(self) -> str:
-		"""Generates a string representation of the Node.
-
-		#### Returns:
-		`str`: A string that represents the Node, including its type and potentially other identifying information.
-		"""
-
-		return f"{self.type}"
 
 
 sqrt2 = math.sqrt(2)
@@ -5654,9 +5509,11 @@ class Extrusion(Meshable):
 
     @staticmethod
     def by_2d_polycurve_vector(
-        polycurve: PolyCurve, start_point: Point, extrusion_vector: Vector
+        polycurve: PolyCurve,
+        start_point: Point,
+        extrusion_vector: Vector,
+        angle: float = 0,
     ) -> "Extrusion":
-        
         """Creates an extrusion from a 2D polycurve along a specified vector.
         This method extrudes a 2D polycurve into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
@@ -5688,6 +5545,8 @@ class Extrusion(Meshable):
             transform = Matrix.by_origin_unit_axes(
                 start_point, [x_vector, y_vector, direction]
             )
+        if angle != 0:
+            transform = transform * Matrix.rotate(angle, Vector.up)
         # translate to 3d here
         return Extrusion(
             transform * (dimension_changer(3) * polycurve), extrusion_vector
@@ -5695,16 +5554,16 @@ class Extrusion(Meshable):
 
     @staticmethod
     def by_polycurve_height(
-        polycurve: PolyCurve, height: float, dz_loc: float
+        polycurve: PolyCurve, height: float, offset: float = 0
     ) -> "Extrusion":
         """Creates an extrusion from a PolyCurve with a specified height and base elevation.
         This method generates a vertical extrusion of a given PolyCurve. The PolyCurve is first translated vertically by `dz_loc`, then extruded to the specified `height`, creating a solid form.
-        assumes the polycurve is wound counterclockwise
+        assumes the polycurve is wound counterclockwise.
 
         #### Parameters:
         - `polycurve` (PolyCurve): The PolyCurve to be extruded. expected to be flat!
         - `height` (float): The height of the extrusion.
-        - `dz_loc` (float): The base elevation offset from the original plane of the PolyCurve.
+        - `offset` (float): The base elevation offset from the original plane of the PolyCurve.
 
         #### Returns:
         `Extrusion`: An Extrusion object that represents the 3D extruded form of the input PolyCurve.
@@ -5715,12 +5574,18 @@ class Extrusion(Meshable):
         ```
         """
 
+        extrusion_direction = Vector.cross_product(
+            (polycurve[1].end - polycurve[0].start).normalized,
+            (polycurve[-1].end - polycurve[0].start).normalized,
+        )
+
         return Extrusion(
-            polycurve,
-            Vector.cross_product(
-                (polycurve[1].end - polycurve[0].start).normalized,
-                (polycurve[-1].end - polycurve[0].start).normalized,
+            (
+                polycurve
+                if offset == 0
+                else Matrix.translate(extrusion_direction * offset) * polycurve
             ),
+            extrusion_direction * height,
         )
 
     @staticmethod
@@ -5784,263 +5649,47 @@ class Extrusion(Meshable):
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Beam(Serializable, Meshable):
-    def __init__(self, start: Point, end: Point, profile: Profile, material: Material = BaseSteel, justification: Vector = Vector()):
-        self.name = "None"
+    def __init__(
+        self,
+        start: Point,
+        end: Point,
+        profile: Profile | str,
+        name: str = "Beam",
+        material: Material = BaseSteel,
+        angle: float = 0,
+        justification: list[str] | Vector = Vector(),
+    ):
+        if isinstance(profile, str):
+            profile = profile_by_name(profile)
+
+        if not isinstance(justification, Vector):
+            justification = justification_to_vector(
+                profile.curve, justification[0], justification[1]
+            )
+
+        self.name = name
         self.comments = None
         self.start = start
         self.end = end
         self.profile = profile
-        self.justification = justification
         self.material = material
-
-        self.rotation = 0
+        self.angle = angle
+        self.justification = justification
 
         self.profile_data = (
             None  # 2D polycurve of the sectionprofile (DOUBLE TO BE REMOVED)
         )
         self.centerbottom = None
 
+    @property
+    def extrusion(self) -> Extrusion:
+        """heavy!"""
+        return Extrusion.by_2d_polycurve_vector(
+            self.profile.curve, self.start, self.end - self.start
+        )
+
     def to_mesh(self, settings: TesselationSettings) -> Mesh:
-        return self.extrusion.to_mesh(settings)
-
-    @classmethod
-    def by_startpoint_endpoint(
-        cls,
-        start: Union[Point, Node],
-        end: Union[Point, Node],
-        profile: Profile,
-        name: str,
-        material: None,
-    ):
-        beam = Beam(start, end, profile, material, Vector())
-        beam.name = name
-        return name
-
-    @classmethod
-    def by_startpoint_endpoint_profile_shapevector(
-        cls,
-        start: Union[Point, Node],
-        end: Union[Point, Node],
-        profile_name: str,
-        name: str,
-        vector2d: Vector,
-        rotation: float,
-        material: None,
-        comments: None,
-    ):
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-        if isinstance(end, Point):
-            f1.end = end
-        elif isinstance(end, Node):
-            f1.end = end.point
-
-        # try:
-        curv = profile_by_name(profile_name).curve
-        # except Exception as e:
-        # Profile does not exist
-        # print(f"Profile does not exist: {profile_name}\nError: {e}")
-
-        f1.rotation = rotation
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.curve = curvrot.translate(vector2d)
-        f1.XOffset = vector2d.x
-        f1.YOffset = vector2d.y
-        f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_vector(
-            f1.curve, f1.start, f1.end - f1.start
-        )
-        f1.extrusion.name = name
-        f1.material = material
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_profile_justification(
-        cls,
-        start: Union[Point, Node],
-        end: Union[Point, Node],
-        profile: Union[str, PolyCurve],
-        name: str,
-        XJustifiction: str,
-        YJustifiction: str,
-        rotation: float,
-        material=None,
-        ey: None = float,
-        ez: None = float,
-        comments=None,
-    ):
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-        if isinstance(end, Point):
-            f1.end = end
-        elif isinstance(end, Node):
-            f1.end = end.point
-
-        f1.rotation = rotation
-
-        if isinstance(profile, PolyCurve):
-            profile_name = "None"
-            f1.profile_data = profile
-            curve = f1.profile_data
-        elif isinstance(profile, Polygon):
-            profile_name = "None"
-            f1.profile_data = PolyCurve.by_points(profile.points)
-            curve = f1.profile_data
-        elif isinstance(profile, str):
-            profile_name = profile
-            f1.profile_data = profile_by_name(profile).curve  # polycurve2d
-            curve = f1.profile_data
-        else:
-            print("[by_startpoint_endpoint_profile], input is not correct.")
-            sys.exit()
-
-        # curve = f1.profile_data.polycurve2d
-
-        v1 = justification_to_vector(curve, XJustifiction, YJustifiction)  # 1
-        f1.XOffset = v1.x
-        f1.YOffset = v1.y
-        curve = curve.translate(v1)
-        curve = curve.translate(Vector(ey, ez))  # 2
-        curve = curve.rotate(f1.rotation)  # 3
-        f1.curve = curve
-
-        f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_vector(
-            f1.curve, f1.start, f1.end - f1.start
-        )
-        f1.extrusion.name = name
-
-        try:
-            pnew = PolyCurve.by_joined_curves(f1.curve3d.curves)
-            f1.centerbottom = PolyCurve.centroid(pnew)
-        except:
-            pass
-
-        f1.material = material
-        return f1
-
-    @classmethod
-    def by_point_height_rotation(
-        cls,
-        start: Union[Point, Node],
-        height: float,
-        polycurve: PolyCurve,
-        frame_name: str,
-        rotation: float,
-        material=None,
-        comments=None,
-    ):
-        # 2D polycurve
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-
-        f1.end = Point.translate(f1.start, Vector(0, 0.00001, height))
-
-        # self.curve = Line(start, end)
-        f1.name = frame_name
-        curvrot = polycurve.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_2d_polycurve_vector(
-            curvrot, f1.start, f1.end - f1.start
-        )
-        f1.extrusion.name = frame_name
-        f1.material = material
-
-        return f1
-
-    @classmethod
-    def by_point_profile_height_rotation(
-        cls,
-        start: Union[Point, Node],
-        height: float,
-        profile_name: str,
-        rotation: float,
-        material=None,
-        comments=None,
-    ):
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-        # TODO vertical column not possible
-        f1.end = Point.translate(f1.start, Vector(0, height))
-
-        # self.curve = Line(start, end)
-        f1.name = profile_name
-        curv = profile_by_name(profile_name).curve
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.extrusion = Extrusion.by_2d_polycurve_vector(
-            curvrot.curves, f1.start, f1.end - f1.start
-        )
-        f1.extrusion.name = profile_name
-        f1.material = material
-
-        return f1
-
-    @classmethod
-    def by_startpoint_endpoint_curve_justification(
-        cls,
-        start: Union[Point, Node],
-        end: Union[Point, Node],
-        polycurve: PolyCurve,
-        name: str,
-        XJustifiction: str,
-        YJustifiction: str,
-        rotation: float,
-        material=None,
-        comments=None,
-    ):
-        f1 = Beam()
-        f1.comments = comments
-
-        if isinstance(start, Point):
-            f1.start = start
-        elif isinstance(start, Node):
-            f1.start = start.point
-        if isinstance(end, Point):
-            f1.end = end
-        elif isinstance(end, Node):
-            f1.end = end.point
-
-        f1.rotation = rotation
-        curv = polycurve
-        curvrot = curv.rotate(rotation)  # rotation in degrees
-        # center, left, right, origin / center, top bottom, origin
-        v1 = justification_to_vector(curvrot, XJustifiction, YJustifiction)
-        f1.XOffset = v1.x
-        f1.YOffset = v1.y
-        f1.curve = curv.translate(v1)
-        f1.name = name
-        f1.extrusion = Extrusion.by_2d_polycurve_vector(
-            f1.curve.curves, f1.start, f1.end - f1.start
-        )
-        f1.extrusion.name = name
-        f1.profileName = "none"
-        f1.material = material
-
-
-        return f1
-
-    def write(self, project):
-        project.objects.append(self)
-        return self
+        self.extrusion.to_mesh(settings)
 
 
 Column = Beam
@@ -6127,7 +5776,9 @@ seqNumber = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24"
 
 
 class GridheadType(Serializable):
-    def __init__(self, name, diameter: float = 150, font_family = "calibri", text_height = 200):
+    def __init__(
+        self, name, diameter: float = 150, font_family="calibri", text_height=200
+    ):
 
         self.name = name
         self.diameter = diameter
@@ -6398,94 +6049,104 @@ class Door:
 		return f"{self.type}(Name={self.name})"
 
 class BuildingPy(Serializable):
-	def __init__(self, name=None, number=None):
-		self.name: str = name
-		self.number: str = number
-		#settings
-		self.debug: bool = True
-		self.objects = []
-		self.units = "mm"
-		self.decimals = 3 #not fully implemented yet
+    def __init__(self, name=None, number=None):
+        self.name: str = name
+        self.number: str = number
+        # settings
+        self.debug: bool = True
+        self.objects = []
+        self.units = "mm"
+        self.decimals = 3  # not fully implemented yet
 
-		self.origin = Point(0,0,0)
-		self.default_font = "calibri"
-		self.scale = 1000
-		self.font_height = 500
-		self.repr_round = 3
-		#prefix objects (name)
-		#Geometry settings
+        self.origin = Point(0, 0, 0)
+        self.default_font = "calibri"
+        self.scale = 1000
+        self.font_height = 500
+        self.repr_round = 3
+        # prefix objects (name)
+        # Geometry settings
 
-		#export selection info
-		self.domain = None
-		self.applicationId = "OPEN-AEC BuildingPy"
+        # export selection info
+        self.domain = None
+        self.applicationId = "OPEN-AEC BuildingPy"
 
-		#different settings for company's?
+        # different settings for company's?
 
-		#rename this to autoclose?
-		self.closed: bool = True #auto close polygons? By default true, else overwrite
-		self.round: bool = False #If True then arcs will be segmented. Can be used in Speckle.
+        self.round: bool = (
+            False  # If True then arcs will be segmented. Can be used in Speckle.
+        )
 
-		#functie polycurve of iets van een class/def
-		self.autoclose: bool = True #new self.closed
+        # functie polycurve of iets van een class/def
+        self.autoclose: bool = True  # new self.closed
 
-		#nodes
-		self.node_merge = True #False not yet created
-		self.node_diameter = 250
-		self.node_threshold = 50
-		
-		#text
-		self.createdTxt = "has been created"
+        # nodes
+        self.node_merge = True  # False not yet created
+        self.node_diameter = 250
+        self.node_threshold = 50
 
-		#Speckle settings
-		self.speckleserver = "app.speckle.systems"
-		self.specklestream = None
+        # Speckle settings
+        self.speckleserver = "app.speckle.systems"
 
-		#FreeCAD settings
-		
-	def save(self, file_name = 'project/data.json'):
-		Serializable.save(file_name)
-		
-		type_count = defaultdict(int)
-		for serialized_item in self.objects:
-			#item = json.loads(serialized_item)
-			type_count[serialized_item.__class__.__name__] += 1
+        # FreeCAD settings
 
-		total_items = len(self.objects)
+    def save(self, file_name="project/data.json"):
+        Serializable.save(file_name)
 
-		print(f"\nTotal saved items to '{file_name}': {total_items}")
-		print("Type counts:")
-		for item_type, count in type_count.items():
-			print(f"{item_type}: {count}")
-	def open(self, file_name = 'project/data.json'):
-		Serializable.open(file_name)
+        type_count = defaultdict(int)
+        for serialized_item in self.objects:
+            # item = json.loads(serialized_item)
+            type_count[serialized_item.__class__.__name__] += 1
 
-	def to_speckle(self, streamid, commitstring=None):
-		from exchange.speckle import translateObjectsToSpeckleObjects, TransportToSpeckle
-		self.specklestream = streamid
-		speckleobj = translateObjectsToSpeckleObjects(self.objects)
-		TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+        total_items = len(self.objects)
 
-	def to_FreeCAD(self):
-		from exchange.Freecad_Bupy import translateObjectsToFreeCAD
-		translateObjectsToFreeCAD(self.objects)
+        print(f"\nTotal saved items to '{file_name}': {total_items}")
+        print("Type counts:")
+        for item_type, count in type_count.items():
+            print(f"{item_type}: {count}")
+            
+    @staticmethod
+    def open(path="project/data.json") -> 'BuildingPy':
+        filename, file_extension = os.path.splitext(path)
+        project = BuildingPy()
+        match file_extension:
+            case ".json":
+                project.open(path)
+            case ".ifc":
+                from exchange.IFC import LoadIFC
+                LoadIFC(path, project)
 
-	def to_IFC(self, name):
-		from exchange.IFC import translateObjectsToIFC, CreateIFC
-		ifc_project = CreateIFC()
-		ifc_project.add_project(name)
-		ifc_project.add_site("My Site")
-		ifc_project.add_building("Building A")
-		ifc_project.add_storey("Ground Floor")
-		ifc_project.add_storey("G2Floor")	 
-		translateObjectsToIFC(self.objects, ifc_project)
-		ifc_project.export(f"{name}.ifc")
-	def __iadd__(self, new_object):
-		self.objects.append(new_object)
-		return self
+    def to_speckle(self, streamid, commitstring=None):
+        from exchange.speckle import (
+            translateObjectsToSpeckleObjects,
+            TransportToSpeckle,
+        )
+
+        speckleobj = translateObjectsToSpeckleObjects(self, self.objects)
+        TransportToSpeckle(self.speckleserver, streamid, speckleobj, commitstring)
+
+    def to_freecad(self):
+        from exchange.Freecad_Bupy import translateObjectsToFreeCAD
+
+        translateObjectsToFreeCAD(self.objects)
+
+    def to_ifc(self, name="My IFC Project"):
+        from exchange.IFC import translateObjectsToIFC, CreateIFC
+
+        ifc_project = CreateIFC()
+        ifc_project.add_project(name)
+        ifc_project.add_site("My Site")
+        ifc_project.add_building("Building A")
+        ifc_project.add_story("Ground Floor")
+        ifc_project.add_story("G2Floor")
+        translateObjectsToIFC(self.objects, ifc_project)
+        ifc_project.export(f"{name}.ifc")
+
+    def __iadd__(self, new_object):
+        self.objects.append(new_object)
+        return self
+
+
 # [!not included in BP singlefile - end]
-
-#god object! multiple instances of buildingpy should be able to live next to eachother
-#project = BuildingPy("Project", "0")
 
 
 
@@ -6777,118 +6438,127 @@ class PolySurface:
 # EVERYWHERE FOR EACH OBJECT A ROTATION/POSITION
 # Make sure that the objects can be merged!
 
+
 class WurksRaster3d(Serializable):
-	def __init__(self):
-		
-		self.bottom = None
-		self.top = None
-		self.name = "x"
-		self.lines = None
+    def __init__(self):
 
-	def by_line(self, lines: Line, bottom: float, top: float):
-		self.bottom = Vector(0, 0, bottom)
-		self.top = Vector(0, 0, top)
-		self.lines = lines
+        self.bottom = None
+        self.top = None
+        self.name = "x"
+        self.lines = None
 
-		surfList = []
-		for line in self.lines:
-			pts = []
-			pts.append(Point.translate(line.start, self.bottom))
-			pts.append(Point.translate(line.end, self.bottom))
-			pts.append(Point.translate(line.end, self.top))
-			pts.append(Point.translate(line.start, self.top))
-			project.objects.append(Surface(PolyCurve.by_points(pts)))
-			surfList.append(Surface(PolyCurve.by_points(pts)))
+    def by_line(self, lines: Line, bottom: float, top: float):
+        self.bottom = Vector(0, 0, bottom)
+        self.top = Vector(0, 0, top)
+        self.lines = lines
 
-		print(f"{len(surfList)}* {self.__class__.__name__} {project.createdTxt}")
+        surfList = []
+        for line in self.lines:
+            pts = []
+            pts.append(Point.translate(line.start, self.bottom))
+            pts.append(Point.translate(line.end, self.bottom))
+            pts.append(Point.translate(line.end, self.top))
+            pts.append(Point.translate(line.start, self.top))
+            project.objects.append(Surface(PolyCurve.by_points(pts)))
+            surfList.append(Surface(PolyCurve.by_points(pts)))
+
+        print(f"{len(surfList)}* {self.__class__.__name__} has been created")
 
 
 class WurksPedestal:
-	def __init__(self):
-		self.topfilename = "temp\\jonathan\\pedestal_top.dxf"
-		self.basefilename = "temp\\jonathan\\pedestal_foot.dxf"
-		self.diameter = 10
-		self.topheight = 3
-		self.baseheight = 3
-		self.cache = {}
-		self.top_dxf = None
-		self.base_dxf = None
+    def __init__(self):
+        self.topfilename = "temp\\jonathan\\pedestal_top.dxf"
+        self.basefilename = "temp\\jonathan\\pedestal_foot.dxf"
+        self.diameter = 10
+        self.topheight = 3
+        self.baseheight = 3
+        self.cache = {}
+        self.top_dxf = None
+        self.base_dxf = None
 
-	def load_dxf(self, filename):
-		if filename in self.cache:
-			return self.cache[filename]
-		else:
-			dxf = ReadDXF(filename).polycurve
-			self.cache[filename] = dxf
-			return dxf
+    def load_dxf(self, filename):
+        if filename in self.cache:
+            return self.cache[filename]
+        else:
+            dxf = ReadDXF(filename).polycurve
+            self.cache[filename] = dxf
+            return dxf
 
-	def load_top_dxf(self):
-		if self.top_dxf is None:
-			self.top_dxf = self.load_dxf(self.topfilename)
-		return self.top_dxf
+    def load_top_dxf(self):
+        if self.top_dxf is None:
+            self.top_dxf = self.load_dxf(self.topfilename)
+        return self.top_dxf
 
-	def load_base_dxf(self):
-		if self.base_dxf is None:
-			self.base_dxf = self.load_dxf(self.basefilename)
-		return self.base_dxf
+    def load_base_dxf(self):
+        if self.base_dxf is None:
+            self.base_dxf = self.load_dxf(self.basefilename)
+        return self.base_dxf
 
-	def by_point(self, points, height, rotation=None):
-		if isinstance(points, Point):
-			points = [points]
+    def by_point(self, points, height, rotation=None):
+        if isinstance(points, Point):
+            points = [points]
 
-		top = self.load_top_dxf()
-		base = self.load_base_dxf()
+        top = self.load_top_dxf()
+        base = self.load_base_dxf()
 
-		for point in points:
-			topcenter = Point.difference(top.centroid(), point)
-			translated_top = top.translate(Point.to_vector(topcenter))
-			project.objects.append(Extrusion.by_polycurve_height(
-				translated_top, self.topheight, 0))
+        for point in points:
+            topcenter = Point.difference(top.centroid(), point)
+            translated_top = top.translate(Point.to_vector(topcenter))
+            project.objects.append(
+                Extrusion.by_polycurve_height(translated_top, self.topheight, 0)
+            )
 
-			frame = Rect(
-				Vector(x=(translated_top.centroid().x) - (self.diameter / 2),
-						y=(translated_top.centroid().y) - (self.diameter / 2),
-						z=point.z - self.topheight),
-				self.diameter, self.diameter
-			)
-			project.objects.append(Extrusion.by_polycurve_height(
-				frame, height - self.baseheight - self.topheight, 0))
+            frame = Rect(
+                Vector(
+                    x=(translated_top.centroid().x) - (self.diameter / 2),
+                    y=(translated_top.centroid().y) - (self.diameter / 2),
+                    z=point.z - self.topheight,
+                ),
+                self.diameter,
+                self.diameter,
+            )
+            project.objects.append(
+                Extrusion.by_polycurve_height(
+                    frame, height - self.baseheight - self.topheight, 0
+                )
+            )
 
-			basecenter = Point.difference(base.centroid(), point)
-			translated_base = base.translate(Point.to_vector(basecenter))
-			project.objects.append(Extrusion.by_polycurve_height(
-				translated_base, self.baseheight, -height))
+            basecenter = Point.difference(base.centroid(), point)
+            translated_base = base.translate(Point.to_vector(basecenter))
+            project.objects.append(
+                Extrusion.by_polycurve_height(translated_base, self.baseheight, -height)
+            )
 
-		print(f"{len(points)}* {self.__class__.__name__} {project.createdTxt}")
+        print(f"{len(points)}* {self.__class__.__name__} has been created")
 
-	pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,
-
-
-class WurksComputerFloor():  # centerpoint / rotation / panel pattern / ply
-	pass  # some type of floor object
+    pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,
 
 
-class WurksFloorFinish():
-	pass  # direction / pattern / ect
+class WurksComputerFloor:  # centerpoint / rotation / panel pattern / ply
+    pass  # some type of floor object
 
 
-class WorkPlane():
-	def __init__(self):
-		self.length = None
-		self.width = None
-		self.points = []
+class WurksFloorFinish:
+    pass  # direction / pattern / ect
 
-	def create(self, length: float = None, width: float = None) -> str:
-		self.length = length or 1000
-		self.width = width or 1000
-		rect = Rect(Vector(0, 0, 0), self.length, self.width)
-		for pt in rect.points:
-			self.points.append(pt)
-		project.objects.append(rect)
-		print(f"1* {self.__class__.__name__} {project.createdTxt}")
-		return Rect(Vector(0, 0, 0), self.length, self.width)
 
-	pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,
+class WorkPlane:
+    def __init__(self):
+        self.length = None
+        self.width = None
+        self.points = []
+
+    def create(self, length: float = None, width: float = None) -> str:
+        self.length = length or 1000
+        self.width = width or 1000
+        rect = Rect(Vector(0, 0, 0), self.length, self.width)
+        for pt in rect.points:
+            self.points.append(pt)
+        project.objects.append(rect)
+        print(f"1* {self.__class__.__name__} has been created")
+        return Rect(Vector(0, 0, 0), self.length, self.width)
+
+    pass  # pootje, voet diameter(vierkant), verstelbare hoogte inregelen,
 
 
 WorkPlane = WorkPlane()
@@ -6896,48 +6566,58 @@ WorkPlane = WorkPlane()
 
 
 
-class Panel(Serializable):
-	# Panel
-	def __init__(self):
-		
-		self.extrusion = None
-		self.thickness = 0
-		self.name = None
-		self.perimeter: float = 0
-		self.colorint = None
+class Panel(Serializable, Meshable):
+    # Panel
+    def __init__(self, extrusion: Extrusion, material: Material, name: str = None):
+        self.extrusion = extrusion
+        self.material = material
+        self.name = name
 
-		self.origincurve = None
+    def to_mesh(self, settings: TesselationSettings) -> Mesh:
+        colorSettings = TesselationSettings(settings.max_angle, self.material.color.int)
+        return self.extrusion.to_mesh(colorSettings)
 
-	@classmethod
-	def by_polycurve_thickness(self, polycurve: PolyCurve, thickness: float, offset: float, name: str, colorrgbint):
-		# Create panel by polycurve
-		p1 = Panel()
-		p1.name = name
-		p1.thickness = thickness
-		p1.extrusion = Extrusion.by_polycurve_height(
-			polycurve, thickness, offset)
-		p1.origincurve = polycurve
-		p1.colorint = colorrgbint
-		for j in range(int(len(p1.extrusion.verts) / 3)):
-			p1.colorlst.append(colorrgbint)
-		return p1
+    @classmethod
+    def by_polycurve_thickness(
+        self,
+        polycurve: PolyCurve,
+        thickness: float,
+        offset: float = 0,
+        name: str = None,
+        material=BaseTimber,
+    ):
+        # Create panel by polycurve
+        p1 = Panel(
+            Extrusion.by_polycurve_height(polycurve, thickness, offset), material, name
+        )
+        return p1
 
-	@classmethod
-	def by_baseline_height(self, baseline: Line, height: float, thickness: float, name: str, colorrgbint):
-		# place panel vertical from baseline
-		p1 = Panel()
-		p1.name = name
-		p1.thickness = thickness
-		polycurve = PolyCurve.by_points(
-			[baseline.start,
-			 baseline.end,
-			 Point.translate(baseline.end, Vector(0, 0, height)),
-			 Point.translate(baseline.start, Vector(0, 0, height))])
-		p1.extrusion = Extrusion.by_polycurve_height(polycurve, thickness, 0)
-		p1.origincurve = polycurve
-		for j in range(int(len(p1.extrusion.verts) / 3)):
-			p1.colorlst.append(colorrgbint)
-		return p1
+    @classmethod
+    def by_baseline_height(
+        self,
+        baseline: Line,
+        height: float,
+        thickness: float,
+        name: str = None,
+        material=BaseTimber,
+    ):
+        # place panel vertical from baseline
+        return Panel(
+            Extrusion.by_polycurve_height(
+                PolyCurve.by_points(
+                    [
+                        baseline.start,
+                        baseline.end,
+                        baseline.end + Vector(0, 0, height),
+                        baseline.start + Vector(0, 0, height),
+                    ]
+                ),
+                thickness,
+                0,
+            ),
+            material,
+            name,
+        )
 
 
 MIN_DEPTH = 5
@@ -7916,17 +7596,17 @@ def parse_path(pathdef):
     return segments
 
 
-class Room:
-	def __init__(self):
-		
-		self.name = None
-		self.extrusion = None
-		self.verts = None
-		self.faces = None
-		self.topsurface = None
-		self.bottomsurface = None
-		self.parms = None
 
+class Room:
+    def __init__(self):
+
+        self.name = None
+        self.extrusion = None
+        self.verts = None
+        self.faces = None
+        self.topsurface = None
+        self.bottomsurface = None
+        self.parms = None
 
 
 
