@@ -28,7 +28,7 @@ spacing_vert = 1500
 height = 2000
 count = 0
 last_type = None
-# Mat = Material.byNameColor("Steel", Color.RGB([237, 237, 237]))
+# Mat = Material("Steel", Color.RGB([237, 237, 237]))
 
 for profile_name in lst:
     type = profile_name[:3]

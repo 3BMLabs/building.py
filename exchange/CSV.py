@@ -22,8 +22,7 @@
 # ***************************************************************************
 
 
-"""This module provides import data from CSV file
-"""
+"""This module provides import data from CSV file"""
 
 __title__ = "CSV"
 __author__ = "Maarten & Jonathan"

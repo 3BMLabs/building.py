@@ -1,33 +1,32 @@
 # [included in BP singlefile]
 # [!not included in BP singlefile - start]
 # -*- coding: utf8 -*-
-#***************************************************************************
-#*   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
-#*   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
-#*                                                                         *
-#*   This program is free software; you can redistribute it and/or modify  *
-#*   it under the terms of the GNU Lesser General Public License (LGPL)    *
-#*   as published by the Free Software Foundation; either version 2 of     *
-#*   the License, or (at your option) any later version.                   *
-#*   for detail see the LICENCE text file.                                 *
-#*                                                                         *
-#*   This program is distributed in the hope that it will be useful,       *
-#*   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-#*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-#*   GNU Library General Public License for more details.                  *
-#*                                                                         *
-#*   You should have received a copy of the GNU Library General Public     *
-#*   License along with this program; if not, write to the Free Software   *
-#*   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
-#*   USA                                                                   *
-#*                                                                         *
-#***************************************************************************
+# ***************************************************************************
+# *   Copyright (c) 2024 Maarten Vroegindeweij & Jonathan van der Gouwe      *
+# *   maarten@3bm.co.nl & jonathan@3bm.co.nl                                *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
 
 
-"""This module provides tools to get profiledata from the database. These are json files
-"""
+"""This module provides tools to get profiledata from the database. These are json files"""
 
-__title__= "profile"
+__title__ = "profile"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/profile.py"
 
@@ -43,17 +42,30 @@ package_root_directory = file.parents[2]
 sys.path.append(str(package_root_directory))
 
 from abstract.vector import Vector
-from construction.profile import CChannelParallelFlangeProfile, CChannelSlopedFlangeProfile, IShapeParallelFlangeProfile, LAngleProfile, Profile, RectangleProfile, RectangleHollowSectionProfile, RoundProfile, RoundtubeProfile, TProfileRounded
+from construction.profile import (
+    CChannelParallelFlangeProfile,
+    CChannelSlopedFlangeProfile,
+    IShapeParallelFlangeProfile,
+    LAngleProfile,
+    Profile,
+    RectangleProfile,
+    RectangleHollowSectionProfile,
+    RoundProfile,
+    RoundtubeProfile,
+    TProfileRounded,
+)
 from geometry.curve import PolyCurve
 
 # [!not included in BP singlefile - end]
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
+jsonFile = (
+    "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
+)
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
 
 def is_rectangle_format(shape_name):
-    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
+    match = re.match(r"^(\d{1,4})x(\d{1,4})$", shape_name)
     if match:
         width, height = int(match.group(1)), int(match.group(2))
         if 0 <= width <= 10000 and 0 <= height <= 10000:
@@ -90,34 +102,79 @@ def profile_by_name(name1) -> Profile:
     if profile_name == None:
         structural_fallback_element = "HEA100"
         profile_data = _getProfileDataFromDatabase(structural_fallback_element)
-        print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'")
+        print(
+            f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'"
+        )
         profile_name = profile_data.shape_name
     name = profile_data.name
     coords = profile_data.shape_coords
     if profile_name == "C-channel parallel flange":
-        profile = CChannelParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
+        profile = CChannelParallelFlangeProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]
+        )
     elif profile_name == "C-channel sloped flange":
-        profile = CChannelSlopedFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
+        profile = CChannelSlopedFlangeProfile(
+            name,
+            coords[0],
+            coords[1],
+            coords[2],
+            coords[3],
+            coords[4],
+            coords[5],
+            coords[6],
+            coords[7],
+            coords[8],
+        )
     elif profile_name == "I-shape parallel flange":
-        profile = IShapeParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = IShapeParallelFlangeProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4]
+        )
     elif profile_name == "I-shape sloped flange":
-        profile = IShapeParallelFlangeProfile(name, coords[0], coords[1], coords[2], coords[3], coords[4])
-        #Todo: add sloped flange shape
+        profile = IShapeParallelFlangeProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4]
+        )
+        # Todo: add sloped flange shape
     elif profile_name == "Rectangle":
-        profile = RectangleProfile(name,coords[0], coords[1])
+        profile = RectangleProfile(name, coords[0], coords[1])
     elif profile_name == "Round":
         profile = RoundProfile(name, coords[1])
     elif profile_name == "Round tube profile":
         profile = RoundtubeProfile(name, coords[0], coords[1])
     elif profile_name == "LAngle":
-        profile = LAngleProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
+        profile = LAngleProfile(
+            name,
+            coords[0],
+            coords[1],
+            coords[2],
+            coords[3],
+            coords[4],
+            coords[5],
+            coords[6],
+            coords[7],
+        )
     elif profile_name == "TProfile":
-        profile = TProfileRounded(name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
+        profile = TProfileRounded(
+            name,
+            coords[0],
+            coords[1],
+            coords[2],
+            coords[3],
+            coords[4],
+            coords[5],
+            coords[6],
+            coords[7],
+            coords[8],
+        )
     elif profile_name == "Rectangle Hollow Section":
-        profile = RectangleHollowSectionProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = RectangleHollowSectionProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4]
+        )
     return profile
 
-def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
+
+def justification_to_vector(
+    plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None
+):
 
     # print(XJustifiction)
     xval = []
@@ -126,46 +183,46 @@ def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, 
         xval.append(i.start.x)
         yval.append(i.start.y)
 
-    #Rect
+    # Rect
     xmin = min(xval)
     xmax = max(xval)
     ymin = min(yval)
     ymax = max(yval)
 
-    b = xmax-xmin
-    h = ymax-ymin
+    b = xmax - xmin
+    h = ymax - ymin
 
     # print(b, h)
 
     dxleft = -xmax
     dxright = -xmin
-    dxcenter = dxleft - 0.5 * b #CHECK
+    dxcenter = dxleft - 0.5 * b  # CHECK
     dxorigin = 0
 
     dytop = -ymax
     dybottom = -ymin
-    dycenter = dytop - 0.5 * h #CHECK
+    dycenter = dytop - 0.5 * h  # CHECK
     dyorigin = 0
 
     if XJustifiction == "center":
-        dx = dxorigin #TODO
+        dx = dxorigin  # TODO
     elif XJustifiction == "left":
         dx = dxleft
-    elif XJustifiction == "right":  
+    elif XJustifiction == "right":
         dx = dxright
     elif XJustifiction == "origin":
-        dx = dxorigin #TODO
+        dx = dxorigin  # TODO
     else:
         dx = 0
 
     if Yjustification == "center":
-        dy = dyorigin   #TODO
+        dy = dyorigin  # TODO
     elif Yjustification == "top":
         dy = dytop
     elif Yjustification == "bottom":
         dy = dybottom
     elif Yjustification == "origin":
-        dy = dyorigin #TODO
+        dy = dyorigin  # TODO
     else:
         dy = 0
 

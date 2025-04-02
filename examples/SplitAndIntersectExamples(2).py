@@ -2,7 +2,6 @@ from geometry.curve import Line, PolyCurve
 from library.profile import data as jsondata
 
 from project.fileformat import BuildingPy
-from abstract.intersect2d import split_polycurve_by_line
 from abstract.vector import Point
 
 

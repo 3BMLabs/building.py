@@ -31,6 +31,7 @@
 
 
 from geometry.curve import Point, PolyCurve, Line
+from geometry.linestyle import line_to_pattern
 
 __title__ = "GIS2BIM"
 __author__ = "Maarten"

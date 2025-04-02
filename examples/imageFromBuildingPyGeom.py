@@ -6,8 +6,9 @@ from PIL import Image, ImageDraw
 
 from geometry.curve import Arc, Polygon
 from abstract.vector import Point
+from construction.profile import IShapeParallelFlangeProfile
 
-PC = IShapeParallelFlange("test",200,200,10,15,15).curve
+PC = IShapeParallelFlangeProfile("test",200,200,10,15,15).curve
 
 widthpix = 1000 #[pix]
 heightpix = 1000 #[pix]

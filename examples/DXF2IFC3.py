@@ -1,4 +1,3 @@
-import sys
 import os
 
 
@@ -11,6 +10,7 @@ from library.material import BaseSteel
 from project.fileformat import BuildingPy
 
 project = BuildingPy()
+
 
 def process_entities(dxf_path, index):
     dxf_reader = ReadDXF(dxf_path).polylines

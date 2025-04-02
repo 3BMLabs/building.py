@@ -1,12 +1,10 @@
-import sys
-import os
-
-
-
-
 
 from abstract.vector import Point
 from construction.floor import Floor
+from exchange.IFC import CreateIFC, translateObjectsToIFC
+from project.fileformat import BuildingPy
+
+project = BuildingPy()
 
 point1 = Point(0, 0, 0)
 point2 = Point(10, 0, 0)

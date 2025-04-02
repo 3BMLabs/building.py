@@ -39,6 +39,7 @@ import sys
 
 from abstract.serializable import Serializable
 from abstract.vector import Point
+from geometry.plane import Plane
 
 
 class Sphere(Serializable):
