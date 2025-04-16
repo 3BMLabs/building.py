@@ -91,7 +91,7 @@ class Beam(Serializable, Meshable):
         )
 
     def to_mesh(self, settings: TesselationSettings) -> Mesh:
-        self.extrusion.to_mesh(settings)
+        return self.extrusion.to_mesh(settings)
 
 
 Column = Beam
