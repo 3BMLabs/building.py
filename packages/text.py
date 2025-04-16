@@ -41,9 +41,9 @@ from abstract.vector import Point
 
 
 from geometry.curve import PolyCurve
-from packages.svg.path import parse_path
+from packages.svg.path.parser import parse_path
 from packages.helper import flatten
-from packages.svg.path import CubicBezier, QuadraticBezier, Line, Arc
+from packages.svg.path.path import CubicBezierSegment, QuadraticBezierSegment, LineSegment, ArcSegment
 
 # [!not included in BP singlefile - end]
 
@@ -140,7 +140,7 @@ class Text:
             pathx = parse_path(segment)
             for segment in pathx:
                 segment_type = segment.__class__.__name__
-                if isinstance(segment, Line):
+                if isinstance(segment, LineSegment):
                     ref_points.extend(
                         [
                             (segment.start.real, segment.start.imag),
@@ -153,16 +153,16 @@ class Text:
                             (segment.end.real, segment.end.imag),
                         ]
                     )
-                elif isinstance(segment, CubicBezier):
+                elif isinstance(segment, CubicBezierSegment):
                     ref_points.extend(segment.sample(10))
                     ref_allPoints.extend(segment.sample(10))
-                elif isinstance(segment, QuadraticBezier):
+                elif isinstance(segment, QuadraticBezierSegment):
                     for i in range(11):
                         t = i / 10.0
                         point = segment.point(t)
                         ref_points.append((point.real, point.imag))
                         ref_allPoints.append((point.real, point.imag))
-                elif isinstance(segment, Arc):
+                elif isinstance(segment, ArcSegment):
                     ref_points.extend(segment.sample(10))
                     ref_allPoints.extend(segment.sample(10))
         height = self.calculate_bounding_box(ref_allPoints)[2]

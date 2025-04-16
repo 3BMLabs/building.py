@@ -31,6 +31,9 @@ p2d2 = Point(10, 5)
 p2d3 = Point(20, 10)
 test12 = Vector(0, 10)
 
+rotated = Vector.rotate(test12, 2.0)
+rotated = test12.rotate(2.0)
+
 # CLASS: PLANE
 v1 = Vector(0, 100, 0)
 v2 = Vector(100, 100, 0)

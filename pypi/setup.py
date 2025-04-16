@@ -1,6 +1,7 @@
 import os
 from setuptools import setup, find_packages
 import shutil
+from info import version_string
 #copy buildingpy.py
 shutil.copyfile('../BuildingPy.py', 'buildingpy/buildingpy.py')
 shutil.copyfile('../LICENSE', 'LICENSE')
@@ -12,10 +13,11 @@ shutil.copyfile('../LICENSE', 'LICENSE')
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 #finally, convert to package
 setup(
     name='buildingpy',
-    version='0.0.4',
+    version=version_string,
     packages=find_packages(),
     description="BIM for python",
     author="3BM",

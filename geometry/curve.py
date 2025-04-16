@@ -693,35 +693,7 @@ class Polygon(PointList):
 
         ```
         """
-        if len(points) < 3:
-            print("Error: Polygon must have at least 3 unique points.")
-            return None
-
-        _points = []
-
-        for point in points:  # Convert all to Point
-            if isinstance(point, Point):
-                _points.append(Point(point.x, point.y, 0))
-            else:
-                _points.append(point)
-
-        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
-            _points.pop()
-
-        seen = set()
-        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
-
-        polygon = Polygon()
-        polygon.points = unique_points
-
-        num_points = len(unique_points)
-        for i in range(num_points):
-            next_index = (i + 1) % num_points
-            polygon.curves.append(
-                Line(start=unique_points[i], end=unique_points[next_index])
-            )
-
-        return polygon
+        return Polygon(points)
 
     @staticmethod
     def rectangular(rect: Rect) -> "Polygon":
