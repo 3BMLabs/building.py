@@ -45,6 +45,7 @@ from construction.wall import Wall
 # from exchange.Trimesh_dep import Trimesh
 from abstract.vector import Point, Vector
 from geometry.mesh import Mesh
+from geometry.rect import Rect
 from packages.text import Text
 from geometry.solid import Extrusion
 from geometry.surface import Surface
@@ -72,6 +73,7 @@ from specklepy.objects.geometry import Polyline as SpecklePolyLine
 from specklepy.objects.geometry import Vector as SpeckleVector
 from specklepy.objects.geometry import Plane as SpecklePlane
 from specklepy.objects.geometry import Arc as SpeckleArc
+from specklepy.objects.geometry import Box as SpeckleBox
 from specklepy.objects.other import DisplayStyle as SpeckleDisplayStyle
 from specklepy.objects.primitive import Interval as SpeckleInterval
 from specklepy.objects.other import Text as SpeckleText
@@ -196,7 +198,12 @@ def convert_to_speckle_object(
                 self, building_py_object.origin, SpecklePoint
             ),
             normal=convert_to_speckle_object(
-                self, building_py_object.get_axis(2).normalized
+                self,
+                (
+                    building_py_object.get_axis(2).normalized
+                    if building_py_object.dimensions >= 3
+                    else Vector.z_axis
+                ),
             ),
             xdir=convert_to_speckle_object(
                 self, building_py_object.get_axis(0).normalized
@@ -331,11 +338,30 @@ def convert_to_speckle_object(
         )
     elif isinstance(building_py_object, Arc):
         converted_object = ArcToSpeckleArc(building_py_object)
-    #when converting to speckle extrusion, we'd still need to provide the mesh.
-    #elif isinstance(building_py_object, Extrusion):
+    # when converting to speckle extrusion, we'd still need to provide the mesh.
+    # elif isinstance(building_py_object, Extrusion):
     #    converted_object = SpeckleExtrusion()
-    #elif isinstance(building_py_object, Beam):
+    # elif isinstance(building_py_object, Beam):
     #    return convert_to_speckle_object(building_py_object.extrusion)
+    elif isinstance(building_py_object, Rect):
+        converted_object = SpeckleBox(
+            basePlane=convert_to_speckle_object(
+                self, Matrix.translate(building_py_object.center)
+            ),
+            xSize=convert_to_speckle_object(
+                self,
+                Interval(start=building_py_object.p0.x, end=building_py_object.p1.x),
+            ),
+            ySize=convert_to_speckle_object(
+                self,
+                Interval(start=building_py_object.p0.y, end=building_py_object.p1.y),
+            ),
+        )
+        if len(building_py_object.p0) >= 3:
+            converted_object.zsize = convert_to_speckle_object(
+                self,
+                Interval(start=building_py_object.p0.z, end=building_py_object.p1.z),
+            )
     elif isinstance(building_py_object, Meshable):
         settings = TesselationSettings()
         mesh = building_py_object.to_mesh(settings)

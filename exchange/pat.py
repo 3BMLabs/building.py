@@ -48,15 +48,25 @@ revit_model_pattern = ";%TYPE=MODEL"
 class PATRow:
     def __init__(
         self,
+        angle: float,
+        x_orig: float,
+        y_orig: float,
+        shift_pattern: float,
+        offset_spacing: float,
+        dash: float = 0,
+        space: float = 0,
     ):
-        self.angle = 0
-        self.x_orig = 0
-        self.y_orig = 0
-        self.shift_pattern = 0
-        self.offset_spacing = 0
-        self.dash = 0
-        self.space = 0
-        self.patstr = ""
+        # if dash and space are 0 then no pattern
+        # rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
+        # x, y-origin is global,
+        self.angle = angle
+        self.x_orig = x_orig
+        self.y_orig = y_orig
+        self.shift_pattern = shift_pattern
+        self.offset_spacing = offset_spacing
+        self.dash = dash
+        self.space = space
+        self.patstr = self.create_pat_string()
 
     def create_pat_string(self):
         patstr = (
@@ -77,29 +87,6 @@ class PATRow:
         patstr = patstr + addstr
         return patstr
 
-    def create(
-        self,
-        angle: float,
-        x_orig: float,
-        y_orig: float,
-        shift_pattern: float,
-        offset_spacing: float,
-        dash: float = 0,
-        space: float = 0,
-    ):
-        # if dash and space are 0 then no pattern
-        # rules: ;;;angle, x-origin, y-origin, shift_pattern, offset(spacing), pen_down, pen_up (negatief waarde)
-        # x, y-origin is global,
-        self.angle = angle
-        self.x_orig = x_orig
-        self.y_orig = y_orig
-        self.shift_pattern = shift_pattern
-        self.offset_spacing = offset_spacing
-        self.dash = dash
-        self.space = space
-        self.patstr = self.create_pat_string()
-        return self
-
 
 class PAT:
     def __init__(
@@ -116,8 +103,8 @@ class PAT:
         # this is rectangle tile pattern
         self.name = name
         self.patterntype = patterntype
-        row1 = PATRow().create(0, 0, 0, 0, height, 0, 0)
-        row2 = PATRow().create(90, 0, 0, 0, width, 0, 0)
+        row1 = PATRow(0, 0, 0, 0, height, 0, 0)
+        row2 = PATRow(90, 0, 0, 0, width, 0, 0)
         self.patrows.append(row1)
         self.patrows.append(row2)
 
@@ -135,8 +122,8 @@ class PAT:
         subspacing = grosswidthheight / numbersublines
         self.name = name
         self.patterntype = patterntype
-        row1 = PATRow().create(0, 0, 0, 0, grosswidthheight, 0, 0)
-        row2 = PATRow().create(90, 0, 0, 0, grosswidthheight, 0, 0)
+        row1 = PATRow(0, 0, 0, 0, grosswidthheight, 0, 0)
+        row2 = PATRow(90, 0, 0, 0, grosswidthheight, 0, 0)
 
         self.patrows.append(row1)
         self.patrows.append(row2)
@@ -147,7 +134,7 @@ class PAT:
         self.patstrings.append(row2.patstr)
         n = 0
         for i in range(numbersublines):
-            row3 = PATRow().create(
+            row3 = PATRow(
                 0,
                 0,
                 subspacing * n + grosswidthheight,
@@ -156,7 +143,7 @@ class PAT:
                 grosswidthheight,
                 -grosswidthheight,
             )
-            row4 = PATRow().create(
+            row4 = PATRow(
                 0,
                 grosswidthheight,
                 subspacing * n,
@@ -165,7 +152,7 @@ class PAT:
                 grosswidthheight,
                 -grosswidthheight,
             )
-            row5 = PATRow().create(
+            row5 = PATRow(
                 90,
                 subspacing * n,
                 0,
@@ -174,7 +161,7 @@ class PAT:
                 grosswidthheight,
                 -grosswidthheight,
             )
-            row6 = PATRow().create(
+            row6 = PATRow(
                 90,
                 subspacing * n + grosswidthheight,
                 grosswidthheight,
@@ -202,22 +189,22 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
 
-        row1 = PATRow().create(0, 0, 0, 0, grosswidthheight, width, (-2 * t))
-        row2 = PATRow().create(0, 0, t, 0, grosswidthheight, width, (-2 * t))
-        row3 = PATRow().create(0, 0, 2 * t, 0, grosswidthheight, width, (-2 * t))
-        row4 = PATRow().create(0, 2 * t, width, 0, grosswidthheight, width, (-2 * t))
-        row5 = PATRow().create(
+        row1 = PATRow(0, 0, 0, 0, grosswidthheight, width, (-2 * t))
+        row2 = PATRow(0, 0, t, 0, grosswidthheight, width, (-2 * t))
+        row3 = PATRow(0, 0, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row4 = PATRow(0, 2 * t, width, 0, grosswidthheight, width, (-2 * t))
+        row5 = PATRow(
             0, 2 * t, width + t, 0, grosswidthheight, width, (-2 * t)
         )
-        row6 = PATRow().create(
+        row6 = PATRow(
             0, 2 * t, width + 2 * t, 0, grosswidthheight, width, (-2 * t)
         )
-        row7 = PATRow().create(90, 0, 2 * t, 0, grosswidthheight, width, (-2 * t))
-        row8 = PATRow().create(90, t, 2 * t, 0, grosswidthheight, width, (-2 * t))
-        row9 = PATRow().create(90, 2 * t, 2 * t, 0, grosswidthheight, width, (-2 * t))
-        row10 = PATRow().create(90, width, 0, 0, grosswidthheight, width, (-2 * t))
-        row11 = PATRow().create(90, width + t, 0, 0, grosswidthheight, width, (-2 * t))
-        row12 = PATRow().create(
+        row7 = PATRow(90, 0, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row8 = PATRow(90, t, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row9 = PATRow(90, 2 * t, 2 * t, 0, grosswidthheight, width, (-2 * t))
+        row10 = PATRow(90, width, 0, 0, grosswidthheight, width, (-2 * t))
+        row11 = PATRow(90, width + t, 0, 0, grosswidthheight, width, (-2 * t))
+        row12 = PATRow(
             90, width + 2 * t, 0, 0, grosswidthheight, width, (-2 * t)
         )
 
@@ -259,9 +246,9 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
 
-        row1 = PATRow().create(90, 0, 0, 0, grosswidth, 0, 0)
-        row2 = PATRow().create(45, 0, 0, widthtile, widthtile, lengthline, -lengthline)
-        row3 = PATRow().create(
+        row1 = PATRow(90, 0, 0, 0, grosswidth, 0, 0)
+        row2 = PATRow(45, 0, 0, widthtile, widthtile, lengthline, -lengthline)
+        row3 = PATRow(
             -45, -grosswidth, 0, -widthtile, widthtile, lengthline, -lengthline
         )
 
@@ -289,11 +276,11 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
 
-        row1 = PATRow().create(
+        row1 = PATRow(
             45, 0, 0, width, width, lengthtile + width, -(lengthtile - width)
         )
-        row2 = PATRow().create(135, 0, 0, -width, width, lengthtile, -lengthtile)
-        row3 = PATRow().create(
+        row2 = PATRow(135, 0, 0, -width, width, lengthtile, -lengthtile)
+        row3 = PATRow(
             -45, 0, 0, -width, width, width, -(2 * lengthtile - width)
         )
 
@@ -314,7 +301,7 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
 
-        row1 = PATRow().create(angle, 0, 0, 0, spacing, 0, 0)
+        row1 = PATRow(angle, 0, 0, 0, spacing, 0, 0)
 
         self.patrows.append(row1)
 
@@ -331,9 +318,9 @@ class PAT:
         self.name = name
         self.patterntype = patterntype
 
-        row1 = PATRow().create(0, 0, 0, 0, height, 0, 0)
-        row2 = PATRow().create(90, 0, 0, 0, width, height, -height)
-        row3 = PATRow().create(90, shift, height, 0, width, height, -height)
+        row1 = PATRow(0, 0, 0, 0, height, 0, 0)
+        row2 = PATRow(90, 0, 0, 0, width, height, -height)
+        row3 = PATRow(90, shift, height, 0, width, height, -height)
 
         self.patrows.append(row1)
         self.patrows.append(row2)
@@ -356,7 +343,7 @@ class PAT:
         width = sum(widths)
         x = 0
         for i in widths:
-            row = PATRow().create(90, x, 0, 0, width, 0, 0)
+            row = PATRow(90, x, 0, 0, width, 0, 0)
             self.patrows.append(row)
             self.patstrings.append(row.patstr)
             x = x + i
@@ -378,11 +365,11 @@ class PAT:
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
 
-        row1 = PATRow().create(0, 0, 0, 0, lagenmaat * 2, bricklength, -jointwidth)
-        row2 = PATRow().create(
+        row1 = PATRow(0, 0, 0, 0, lagenmaat * 2, bricklength, -jointwidth)
+        row2 = PATRow(
             0, 0, brickheight, 0, lagenmaat * 2, bricklength, -jointwidth
         )
-        row3 = PATRow().create(
+        row3 = PATRow(
             0,
             0.5 * (bricklength + jointwidth),
             lagenmaat,
@@ -391,7 +378,7 @@ class PAT:
             bricklength,
             -jointwidth,
         )
-        row4 = PATRow().create(
+        row4 = PATRow(
             0,
             0.5 * (bricklength + jointwidth),
             lagenmaat + brickheight,
@@ -401,7 +388,7 @@ class PAT:
             -jointwidth,
         )
 
-        row5 = PATRow().create(
+        row5 = PATRow(
             90,
             0,
             0,
@@ -410,7 +397,7 @@ class PAT:
             brickheight,
             -(brickheight + 2 * jointheight),
         )
-        row6 = PATRow().create(
+        row6 = PATRow(
             90,
             bricklength,
             0,
@@ -419,7 +406,7 @@ class PAT:
             brickheight,
             -(brickheight + 2 * jointheight),
         )
-        row7 = PATRow().create(
+        row7 = PATRow(
             90,
             (bricklength + jointwidth) / 2,
             lagenmaat,
@@ -428,7 +415,7 @@ class PAT:
             brickheight,
             -(brickheight + 2 * jointheight),
         )
-        row8 = PATRow().create(
+        row8 = PATRow(
             90,
             (bricklength + jointwidth) / 2 + bricklength,
             lagenmaat,
@@ -472,12 +459,12 @@ class PAT:
         # this is rectangle tile pattern with joints between tiles
         self.name = name
         self.patterntype = patterntype
-        row1 = PATRow().create(0, 0, 0, 0, height + jointheight, width, -jointwidth)
-        row2 = PATRow().create(
+        row1 = PATRow(0, 0, 0, 0, height + jointheight, width, -jointwidth)
+        row2 = PATRow(
             0, 0, height, 0, height + jointheight, width, -jointwidth
         )
-        row3 = PATRow().create(90, 0, 0, 0, width + jointwidth, height, -jointheight)
-        row4 = PATRow().create(
+        row3 = PATRow(90, 0, 0, 0, width + jointwidth, height, -jointheight)
+        row4 = PATRow(
             90, width, 0, 0, width + jointwidth, height, -jointheight
         )
 
@@ -510,12 +497,12 @@ class PAT:
         self.patterntype = patterntype
         lagenmaat = brickheight + jointheight
 
-        row1 = PATRow().create(0, 0, 0, 0, lagenmaat * 4, bricklength, -jointwidth)
-        row2 = PATRow().create(
+        row1 = PATRow(0, 0, 0, 0, lagenmaat * 4, bricklength, -jointwidth)
+        row2 = PATRow(
             0, 0, brickheight, 0, lagenmaat * 4, bricklength, -jointwidth
         )
 
-        row3 = PATRow().create(
+        row3 = PATRow(
             0,
             0.5 * (brickwidth + jointwidth),
             lagenmaat,
@@ -524,7 +511,7 @@ class PAT:
             brickwidth,
             -jointwidth,
         )
-        row4 = PATRow().create(
+        row4 = PATRow(
             0,
             0.5 * (brickwidth + jointwidth),
             lagenmaat + brickheight,
@@ -534,7 +521,7 @@ class PAT:
             -jointwidth,
         )
 
-        row5 = PATRow().create(
+        row5 = PATRow(
             0,
             0.5 * (bricklength + jointwidth),
             lagenmaat * 2,
@@ -543,7 +530,7 @@ class PAT:
             bricklength,
             -jointwidth,
         )
-        row6 = PATRow().create(
+        row6 = PATRow(
             0,
             0.5 * (bricklength + jointwidth),
             lagenmaat * 4 + brickheight,
@@ -553,7 +540,7 @@ class PAT:
             -jointwidth,
         )
 
-        row7 = PATRow().create(
+        row7 = PATRow(
             90,
             0,
             0,
@@ -562,7 +549,7 @@ class PAT:
             brickheight,
             -(3 * lagenmaat + jointheight),
         )
-        row8 = PATRow().create(
+        row8 = PATRow(
             90,
             bricklength,
             0,
@@ -571,7 +558,7 @@ class PAT:
             brickheight,
             -(3 * lagenmaat + jointheight),
         )
-        row9 = PATRow().create(
+        row9 = PATRow(
             90,
             0.5 * (brickwidth + jointwidth),
             lagenmaat,
@@ -580,7 +567,7 @@ class PAT:
             brickheight,
             -(brickheight + 2 * jointheight),
         )
-        row10 = PATRow().create(
+        row10 = PATRow(
             90,
             0.5 * (brickwidth + jointwidth) + brickwidth,
             lagenmaat,
@@ -590,7 +577,7 @@ class PAT:
             -(brickheight + 2 * jointheight),
         )
 
-        row11 = PATRow().create(
+        row11 = PATRow(
             90,
             (bricklength + jointwidth) / 2,
             lagenmaat * 2,
@@ -599,7 +586,7 @@ class PAT:
             brickheight,
             -(3 * lagenmaat + jointheight),
         )
-        row12 = PATRow().create(
+        row12 = PATRow(
             90,
             (bricklength + jointwidth) / 2 + bricklength,
             lagenmaat * 2,

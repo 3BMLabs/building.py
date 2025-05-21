@@ -524,9 +524,9 @@ class pattern_system:
 		dx = (brick_length+joint_width)/2
 		dy = brick_height+joint_height
 
-		PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
+		PC1 = PolyCurve.by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
 			brick_length, brick_height, 0), Point(brick_length, 0, 0), Point(0, 0, 0)])
-		PC2 = PolyCurve().by_points([Point(dx, dy, 0), Point(dx, brick_height+dy, 0), Point(
+		PC2 = PolyCurve.by_points([Point(dx, dy, 0), Point(dx, brick_height+dy, 0), Point(
 			brick_length+dx, brick_height+dy, 0), Point(brick_length+dx, dy, 0), Point(dx, dy, 0)])
 		BasePanel1 = Panel.by_polycurve_thickness(
 			PC1, brick_width, 0, "BasePanel1", BaseBrick.colorint)
@@ -565,7 +565,7 @@ class pattern_system:
 		V2 = Vector(tile_width+joint_width, 0, 0)  # dx
 		self.vectors.append([V1, V2])
 
-		PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, tile_height, 0), Point(
+		PC1 = PolyCurve.by_points([Point(0, 0, 0), Point(0, tile_height, 0), Point(
 			tile_width, tile_height, 0), Point(tile_width, 0, 0)])
 		BasePanel1 = Panel.by_polycurve_thickness(
 			PC1, tile_thickness, 0, "BasePanel1", BaseBrick.colorint)
@@ -627,13 +627,13 @@ class pattern_system:
 			(brick_width + joint_width)  # start x offset
 		dy4 = lagenmaat  # start y offset
 
-		PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
+		PC1 = PolyCurve.by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
 			brick_length, brick_height, 0), Point(brick_length, 0, 0), Point(0, 0, 0)])
-		PC2 = PolyCurve().by_points([Point(dx2, dy2, 0), Point(dx2, brick_height+dy2, 0), Point(
+		PC2 = PolyCurve.by_points([Point(dx2, dy2, 0), Point(dx2, brick_height+dy2, 0), Point(
 			brick_width+dx2, brick_height+dy2, 0), Point(brick_width+dx2, dy2, 0), Point(dx2, dy2, 0)])
-		PC3 = PolyCurve().by_points([Point(dx3, dy3, 0), Point(dx3, brick_height+dy3, 0), Point(
+		PC3 = PolyCurve.by_points([Point(dx3, dy3, 0), Point(dx3, brick_height+dy3, 0), Point(
 			brick_length+dx3, brick_height+dy3, 0), Point(brick_length+dx3, dy3, 0), Point(dx3, dy3, 0)])
-		PC4 = PolyCurve().by_points([Point(dx4, dy4, 0), Point(dx4, brick_height+dy4, 0), Point(
+		PC4 = PolyCurve.by_points([Point(dx4, dy4, 0), Point(dx4, brick_height+dy4, 0), Point(
 			brick_width+dx4, brick_height+dy4, 0), Point(brick_width+dx4, dy4, 0), Point(dx4, dy4, 0)])
 
 		BasePanel1 = Panel.by_polycurve_thickness(

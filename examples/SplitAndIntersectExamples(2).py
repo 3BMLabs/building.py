@@ -83,9 +83,9 @@ PC6 = PolyCurve.by_points([p5, p3, p2, p1])
 # for j in window1:
 #     project.objects.append(j)
 
-# test1 = PatternSystem().stretcher_bond_with_joint("halfsteensverband",100,210,50,10,12.5)
-# test2 = PatternSystem().tile_bond_with_joint("tegels",400,400,10,10,10)
-# test3 = PatternSystem().cross_bond_with_joint("kruisverband test",100,210,50,10,12.5)
+# test1 = PatternSystem.stretcher_bond_with_joint("halfsteensverband",100,210,50,10,12.5)
+# test2 = PatternSystem.tile_bond_with_joint("tegels",400,400,10,10,10)
+# test3 = PatternSystem.cross_bond_with_joint("kruisverband test",100,210,50,10,12.5)
 # test_res = pattern_geom(test3,2000,2000)
 
 # for i in test_res:

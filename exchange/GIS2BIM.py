@@ -44,7 +44,7 @@ def WFSCurvesToBPCurves(curves):
         pointlist = []
         for j in i:
             pointlist.append(Point(j[0], j[1], 0))
-        PC = PolyCurve().by_points(pointlist)
+        PC = PolyCurve.by_points(pointlist)
         BPyPolyCurves.append(PC)
     return BPyPolyCurves
 

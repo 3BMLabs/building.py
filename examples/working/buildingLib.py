@@ -40,7 +40,7 @@ for profile_name in lst:
             y = y + spacing_vert
     last_type = type
     Mat = BaseSteel
-    beam = Beam.by_startpoint_endpoint(
+    beam = Beam(
         Point(x, y, 0), Point(x, y, height), profile_name, profile_name, Mat
     )
     project += beam

@@ -10,6 +10,13 @@
 
 
 
+from abstract.vector import Point
+from exchange.pat import PAT
+from geometry.curve import PolyCurve
+from geometry.systemsimple import pattern_geom
+from project.fileformat import BuildingPy
+
+
 project = BuildingPy("Split and Intersect examples","0")
 project.speckleserver = "speckle.xyz"
 

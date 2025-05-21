@@ -85,6 +85,6 @@ t2 = Text(text="Textnote", font_family="calibri", cs=CS, height=200).write()
 for x in t2:
     project.objects.append(x)
 
-# Columntag1 = Columntag().by_cs_text(CS,"HEA200").write()
+# Columntag1 = Columntag.by_cs_text(CS,"HEA200").write()
 
 project.to_speckle("261190074a")

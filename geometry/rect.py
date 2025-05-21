@@ -179,8 +179,8 @@ class Rect(Serializable, Shape):
 		return Rect(self.p0 - border_size, self.size + border_size * 2)
 	
 	@staticmethod
-	def centered_at_origin(size: Vector) -> 'Rect':
-		"""Constructs a rect with specified dimensions, centered at the origin.
+	def centered(size: Vector, center: Vector = None) -> 'Rect':
+		"""Constructs a rect with specified dimensions, centered at center or if nothing is passed, the origin.
 
 		#### Parameters:
 		- `size` (Vector): The size of the bounding box.
@@ -194,8 +194,7 @@ class Rect(Serializable, Shape):
 		# Rect centered at origin with specified length and width
 		```
 		"""
-		
-		return Rect(size * -0.5, size)
+		return Rect(size * -0.5, size) if center == None else Rect(center - size * 0.5, size)
 	
 	@staticmethod
 	def by_size(size:Vector)->'Rect':
