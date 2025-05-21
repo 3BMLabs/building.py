@@ -27,7 +27,7 @@ project.objects.append(Panel.by_polycurve_thickness(
     200,
     0,
     "Plate"
-    ,BaseConcrete.colorint))
+    ,BaseConcrete))
 
 #project.toSpeckle("31d9948b31")
 

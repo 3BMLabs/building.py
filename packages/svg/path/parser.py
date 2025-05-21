@@ -145,7 +145,7 @@ def _tokenize_path(pathdef):
 
 
 def parse_path(pathdef):
-    segments = path.Path()
+    segments = path.PathSequence()
     start_pos = None
     last_command = None
     current_pos = 0
@@ -160,20 +160,20 @@ def parse_path(pathdef):
                 current_pos += pos
             else:
                 current_pos = pos
-            segments.append(path.Move(current_pos, relative=relative))
+            segments.append(path.MoveCommand(current_pos, relative=relative))
             start_pos = current_pos
 
         elif command == "Z":
             # For Close commands the "relative" argument just preserves case,
             # it has no different in behavior.
-            segments.append(path.Close(current_pos, start_pos, relative=relative))
+            segments.append(path.CloseSegment(current_pos, start_pos, relative=relative))
             current_pos = start_pos
 
         elif command == "L":
             pos = token[1]
             if relative:
                 pos += current_pos
-            segments.append(path.Line(current_pos, pos, relative=relative))
+            segments.append(path.LineSegment(current_pos, pos, relative=relative))
             current_pos = pos
 
         elif command == "H":
@@ -182,7 +182,7 @@ def parse_path(pathdef):
                 hpos += current_pos.real
             pos = complex(hpos, current_pos.imag)
             segments.append(
-                path.Line(current_pos, pos, relative=relative, horizontal=True)
+                path.LineSegment(current_pos, pos, relative=relative, horizontal=True)
             )
             current_pos = pos
 
@@ -192,7 +192,7 @@ def parse_path(pathdef):
                 vpos += current_pos.imag
             pos = complex(current_pos.real, vpos)
             segments.append(
-                path.Line(current_pos, pos, relative=relative, vertical=True)
+                path.LineSegment(current_pos, pos, relative=relative, vertical=True)
             )
             current_pos = pos
 
@@ -207,7 +207,7 @@ def parse_path(pathdef):
                 end += current_pos
 
             segments.append(
-                path.CubicBezier(
+                path.CubicBezierSegment(
                     current_pos, control1, control2, end, relative=relative
                 )
             )
@@ -235,7 +235,7 @@ def parse_path(pathdef):
                 control1 = current_pos
 
             segments.append(
-                path.CubicBezier(
+                path.CubicBezierSegment(
                     current_pos, control1, control2, end, relative=relative, smooth=True
                 )
             )
@@ -250,7 +250,7 @@ def parse_path(pathdef):
                 end += current_pos
 
             segments.append(
-                path.QuadraticBezier(current_pos, control, end, relative=relative)
+                path.QuadraticBezierSegment(current_pos, control, end, relative=relative)
             )
             current_pos = end
 
@@ -274,7 +274,7 @@ def parse_path(pathdef):
                 control = current_pos
 
             segments.append(
-                path.QuadraticBezier(
+                path.QuadraticBezierSegment(
                     current_pos, control, end, smooth=True, relative=relative
                 )
             )
@@ -293,7 +293,7 @@ def parse_path(pathdef):
                 end += current_pos
 
             segments.append(
-                path.Arc(
+                path.ArcSegment(
                     current_pos, radius, rotation, arc, sweep, end, relative=relative
                 )
             )

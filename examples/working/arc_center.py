@@ -1,6 +1,3 @@
-from pathlib import Path
-import sys
-
 # import geometry.geometry2d
 
 from geometry.curve import Arc

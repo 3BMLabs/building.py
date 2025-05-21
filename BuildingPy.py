@@ -10,8 +10,6 @@ from bisect import bisect
 from collections import defaultdict
 from functools import reduce
 from math import sqrt, cos, sin, acos, degrees, radians, log, pi
-from packages.svg.path import CubicBezier, QuadraticBezier, Line, Arc
-from packages.svg.path import parse_path
 from pathlib import Path
 from typing import List
 from typing import Self
@@ -168,84 +166,92 @@ def chess_board_surface_loads_rectangle(startx, starty, dx, dy, nx, ny, width, h
 
 
 class Serializable:
-	@property
-	def type(self):
-		return __class__.__name__
-	@staticmethod
-	def serialize_type(obj) -> dict:
-		"""Save the type of an object to a dictionary.
+    @property
+    def type(self):
+        return __class__.__name__
 
-		Args:
-			obj: the object to get the type of
+    @property
+    def name(self):
+        return self._name if hasattr(self, "_name") else self.__class__.__name__
+    @name.setter
+    def name(self, value):
+        self._name = value
 
-		Returns:
-			dict: a dictionary with keys 'module' and 'type'
-		"""
-		return {
-			'module': obj.__module__,
-			'type': obj.__class__.__name__
-			}
-		
-	def serialize(self) -> dict:
-		"""serialize members of this object into a dictionary
+    @staticmethod
+    def serialize_type(obj) -> dict:
+        """Save the type of an object to a dictionary.
 
-		Returns:
-			dict: a dictionary of all members. the members will serialize themselves, when necessary.
-		"""
-		return self.__dict__
-	
-	def toJson(self) -> str:
-		"""converts a serializable object to json
+        Args:
+                obj: the object to get the type of
 
-		Returns:
-			str: a json string
-		"""
-		return json.dumps(self, default=lambda x: 
-			#when a variable is not compatible with the standard json serialization functions, it's probably one of our classes.
-			x.serialize() | self.serialize_type(x)
-			)
-	
-	@staticmethod
-	def deserialize_type(data):
-		"""Creates an new object from the provided data."""
-		if isinstance(data, dict):
-			if 'type' in data:
-				#module_name =  # data.pop('__module__')
-				module = importlib.import_module(data.pop('module'))
-				type = getattr(module, data.pop('type'))
+        Returns:
+                dict: a dictionary with keys 'module' and 'type'
+        """
+        return {"module": obj.__module__, "type": obj.__class__.__name__}
 
-				if hasattr(type, 'deserialize'):
-					obj = type.deserialize(data)
-				else:
-					obj = type.__new__(type)
-					#we assume obj is an instance of Serializable
-					obj.deserialize_members(data)
-				#obj.deserialize(data)
-				return obj
-			#else:
-			#    return {key: Serializable.deserialize_type(value) for key, value in data.items()}
-		elif isinstance(data, list):
-			return [Serializable.deserialize_type(item) for item in data]
-		return data
-	
-	def deserialize_members(self, data : dict):
-		"""Deserializes the object from the provided data."""
-	#    #raise NotImplementedError()
-		for key, value in data.items():
-			setattr(self, key, self.deserialize_type(value))
-	
-	def save(self, file_name):
-		# we can possibly add an override function we can call on class objects. but for now, this will work fine
-		serialized_data = self.toJson()
-		with open(file_name, 'w') as file:
-			file.write(serialized_data)
-			
-	def open(self, file_name):
-		with open(file_name) as file:
-			self.deserialize_members(json.load(file))
-			# self.__dict__ = json.load(file)
-	def __repr__(self) -> str:
-		return str(self)
+    def serialize(self) -> dict:
+        """serialize members of this object into a dictionary
+
+        Returns:
+                dict: a dictionary of all members. the members will serialize themselves, when necessary.
+        """
+        return self.__dict__
+
+    def toJson(self) -> str:
+        """converts a serializable object to json
+
+        Returns:
+                str: a json string
+        """
+        return json.dumps(
+            self,
+            default=lambda x:
+            # when a variable is not compatible with the standard json serialization functions, it's probably one of our classes.
+            x.serialize() | self.serialize_type(x),
+        )
+
+    @staticmethod
+    def deserialize_type(data):
+        """Creates an new object from the provided data."""
+        if isinstance(data, dict):
+            if "type" in data:
+                # module_name =  # data.pop('__module__')
+                module = importlib.import_module(data.pop("module"))
+                type = getattr(module, data.pop("type"))
+
+                if hasattr(type, "deserialize"):
+                    obj = type.deserialize(data)
+                else:
+                    obj = type.__new__(type)
+                    # we assume obj is an instance of Serializable
+                    obj.deserialize_members(data)
+                # obj.deserialize(data)
+                return obj
+            # else:
+            #    return {key: Serializable.deserialize_type(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [Serializable.deserialize_type(item) for item in data]
+        return data
+
+    def deserialize_members(self, data: dict):
+        """Deserializes the object from the provided data."""
+        #    #raise NotImplementedError()
+        for key, value in data.items():
+            setattr(self, key, self.deserialize_type(value))
+
+    def save(self, file_name):
+        # we can possibly add an override function we can call on class objects. but for now, this will work fine
+        serialized_data = self.toJson()
+        with open(file_name, "w") as file:
+            file.write(serialized_data)
+
+    def open(self, file_name):
+        with open(file_name) as file:
+            self.deserialize_members(json.load(file))
+            # self.__dict__ = json.load(file)
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 class ID(Serializable):
@@ -794,7 +800,6 @@ class Vector(Serializable, list):
         """
         return point_2 - point_1
 
-    @staticmethod
     def rotate(point: "Vector", angle: float, axis: "Vector" = None, pivot: 'Vector' = None) -> "Vector":
         """use Matrix.by_rotation(axis, angle) * point instead!"""
 
@@ -1025,292 +1030,319 @@ Vector.forward_2d = Vector.y_axis_2d
 Point = Vector
 
 
+
 class Rect(Serializable, Shape):
-	"""Represents a two-dimensional bounding box."""
-	def __init__(self, *args, **kwargs):
-		"""@
-		#### Example usage:
-		```python
-		rect = Rect(3, 4) # x 3, width 4
-		rect2 = Rect(z=10) # x 0, y 0, z 10, width 0, length 0, height 0
-		rect3 = Rect(Vector(y=8), Vector(x = 4)) # x 0, y 8, width 4, length 0
-		```
-		"""
-		
-		
-		#first half = for position
-		half:int = len(args) // 2
-		self.p0 = Point(*args[0:half])
-		#second half for size
-		self.size = Vector(*args[half:])
-		
-		for kwarg in kwargs.items():
-			try:
-				offset = self.p0.set_axis(kwarg[0], kwarg[1])
-				if offset != None:
-					self.size.change_axis_count(offset)
-			except ValueError:
-				axis_index = Rect.size_axis_index(kwarg[0])
-				offset = self.size.set_axis(axis_index, kwarg[1])
-				if offset != None:
-					self.p0.change_axis_count(offset)
-			
-		Serializable.__init__(self)
-		
-	def change_axis_count(self,axis_count: int):
-		self.p0.change_axis_count(axis_count)
-		self.size.change_axis_count(axis_count)
-	
-	@staticmethod
-	def size_axis_index(axis)->int:
-		return ["width", "length", "height"].index(axis)
-	
-	@property
-	def width(self):
-		return self.size.x
-	@width.setter
-	def width(self, value):
-		self.size.x = value
-		
-	@property
-	def length(self):
-		return self.size.y
-	@length.setter
-	def length(self, value):
-		self.size.y = value
+    """Represents a two-dimensional bounding box."""
 
-	@property
-	def height(self):
-		return self.size.z
-	@height.setter
-	def height(self, value):
-		self.size.z = value
-	
-	@property
-	def center(self):
-		return self.p0 + self.size * 0.5
-	@center.setter
-	def center(self, value):
-		self.p0 = value - (self.size * 0.5)
-	centroid = center
+    def __init__(self, *args, **kwargs):
+        """@
+        #### Example usage:
+        ```python
+        rect = Rect(3, 4) # x 3, width 4
+        rect2 = Rect(z=10) # x 0, y 0, z 10, width 0, length 0, height 0
+        rect3 = Rect(Vector(y=8), Vector(x = 4)) # x 0, y 8, width 4, length 0
+        ```
+        """
 
-	@property
-	def x(self):
-		return self.p0.x
-	@x.setter
-	def x(self, value):
-		self.p0.x = value
-	@property
-	def y(self):
-		return self.p0.y
-	@y.setter
-	def y(self, value):
-		self.p0.y = value
-	@property
-	def z(self):
-		return self.p0.z
-	@z.setter
-	def z(self, value):
-		self.p0.z = value
-		
-	def area(self):
-		return self.size.volume()
-	@property
-	def p1(self):
-		return self.p0 + self.size
-	
-	def __str__(self):
-		return __class__.__name__ + '(p0=' + str(self.p0)+',size=' + str(self.size) + ')'
-	
+        # first half = for position
+        half: int = len(args) // 2
+        self.p0 = Point(*args[0:half])
+        # second half for size
+        self.size = Vector(*args[half:])
 
+        for kwarg in kwargs.items():
+            try:
+                offset = self.p0.set_axis(kwarg[0], kwarg[1])
+                if offset != None:
+                    self.size.change_axis_count(offset)
+            except ValueError:
+                axis_index = Rect.size_axis_index(kwarg[0])
+                offset = self.size.set_axis(axis_index, kwarg[1])
+                if offset != None:
+                    self.p0.change_axis_count(offset)
 
-	@staticmethod
-	def by_points(points: list[Point]) -> 'Rect':
-		"""Constructs a bounding box based on a list of points.
+        Serializable.__init__(self)
 
-		Calculates the minimum and maximum values from the points to define the corners of the bounding box.
+    def change_axis_count(self, axis_count: int):
+        self.p0.change_axis_count(axis_count)
+        self.size.change_axis_count(axis_count)
 
-		#### Parameters:
-		- `points` (list[Point]): A list of Point objects to calculate the bounding box from.
+    @staticmethod
+    def size_axis_index(axis) -> int:
+        return ["width", "length", "height"].index(axis)
 
-		#### Returns:
-		`Rect`: The bounding box instance with updated corners based on the provided points.
+    @property
+    def width(self):
+        return self.size.x
 
-		#### Example usage:
-		```python
-		points = [Point(0, 0, 0), Point(2, 2, 0), Point(2, 0, 0), Point(0, 2, 0)]
-		bbox = Rect().by_points(points)
-		# Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
-		```
-		"""
-		
-		axis_count = len(points[0])
-		if axis_count == 0: raise ValueError("please provide points")
-		
-		#copy
-		p0 = Point(points[0])
-		p1 = Point(points[0])
-		
-		#it's faster to not skip the first point than to check if it's the first point or revert to an index-based loop
-		for p in points:
-			for axis in range(axis_count):
-				p0[axis] = min(p0[axis], p[axis])
-				p1[axis] = max(p1[axis], p[axis])
-		return Rect(p0, p1 - p0)
-	
-	def expanded(self, border_size: float) -> 'Rect':
-		return Rect(self.p0 - border_size, self.size + border_size * 2)
-	
-	@staticmethod
-	def centered_at_origin(size: Vector) -> 'Rect':
-		"""Constructs a rect with specified dimensions, centered at the origin.
+    @width.setter
+    def width(self, value):
+        self.size.x = value
 
-		#### Parameters:
-		- `size` (Vector): The size of the bounding box.
+    @property
+    def length(self):
+        return self.size.y
 
-		#### Returns:
-		`Rect`: The bounding box instance with dimensions centered at the origin.
+    @length.setter
+    def length(self, value):
+        self.size.y = value
 
-		#### Example usage:
-		```python
-		bbox = Rect().centered_at_origin(length=100, width=50)
-		# Rect centered at origin with specified length and width
-		```
-		"""
-		
-		return Rect(size * -0.5, size)
-	
-	@staticmethod
-	def by_size(size:Vector)->'Rect':
-		"""Constructs a rect with specified dimensions, with its pos0 at the origin.
+    @property
+    def height(self):
+        return self.size.z
 
-		#### Parameters:
-		- `size` (Vector): The size of the rectangle
+    @height.setter
+    def height(self, value):
+        self.size.z = value
 
-		#### Returns:
-		`Rect`: The rect instance with dimensions centered at the origin.
+    w = width
+    l = length
+    h = height
 
-		#### Example usage:
-		```python
-		rect = Rect().by_size(length=100, width=50)
-		# Rect(x=0, y=0, width = 100, length = 100)
-		```
-		"""
-		return Rect(Vector([0] * len(size)), size)
-	
-	def collides(self, other:'Rect')->bool:
-		"""checks if two rectangles collide with eachother. <br>
-		when they touch eachother exactly (f.e. a Rect with position [0] and size [1] and a rect with position [1] and size [1]), the function will return false.
+    @property
+    def center(self):
+        return self.p0 + self.size * 0.5
 
-		Args:
-			other (Rect): the rectangle which may collide with this rectangle
+    @center.setter
+    def center(self, value):
+        self.p0 = value - (self.size * 0.5)
 
-		Returns:
-			bool: true if the two rectangles overlap
-		"""
-		for axis in range(len(self.p0)):
-			if self.p0[axis] + self.size[axis] <= other.p0[axis] or other.p0[axis] + other.size[axis] <= self.p0[axis]:
-				return False
-		return True
-	
-	def contains(self, other:'Rect')->bool:
-		for axis in range(len(self.p0)):
-			if other.p0[axis] < self.p0[axis] or other.p0[axis] + other.size[axis] > self.p0[axis] + self.size[axis]:
-				return False
-		return True
-	
-	def substractFrom(self, other:'Rect')->list['Rect']:
-		"""cut the 'other' rectangle in pieces by substracting this rectangle from it
+    centroid = center
 
-		Args:
-			other (Rect): the rectangle to substract this rectangle from
+    @property
+    def x(self):
+        return self.p0.x
 
-		Returns:
-			list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center). CAUTION: THEY OVERLAP!
-		"""
-		pieces:list[Rect] = []
-		to_clone = other
-		#check each axis
-		for axis in range(len(self.p0)):
-			self_p1 = self.p0[axis] + self.size[axis]
-			other_p1 = other.p0[axis] + other.size[axis]
-			if self_p1 < other_p1:
-				diff = other_p1 - self_p1
-				
-				piece:Rect = copy.deepcopy(to_clone)
-				
-				piece.p0[axis] = self_p1
-				
-				piece.size[axis] = diff
-				pieces.append(piece)
-				#also crop other.
-				#to_clone.size[axis] -= diff
-			self_p0 = self.p0[axis]
-			other_p0 = other.p0[axis]
-			if self_p0 > other_p0:
-				diff = self_p0 - other_p0
-				piece:Rect = copy.deepcopy(to_clone)
-				piece.size[axis] = diff
-				pieces.append(piece)
-				#to_clone.p0[axis] = self_p0
-				#to_clone.size[axis] -= diff
-		return pieces
-	
-	@staticmethod
-	def outer(children: list['Rect']) -> 'Rect':
-		"""creates a rectangle containing child rectangles.
+    @x.setter
+    def x(self, value):
+        self.p0.x = value
 
-		Args:
-			children (list[&#39;Rect&#39;]): the children to contain in the rectangle
+    @property
+    def y(self):
+        return self.p0.y
 
-		Returns:
-			Rect: the bounds
-		"""
-		p0 = children[0].p0
-		p1 = children[0].p1
-		for i in range(1,len(children)):
-			child = children[i]
-			for axis_index in range(len(p0)):
-				p0[axis_index] = min(child.p0[axis_index], p0[axis_index])
-				p1[axis_index] = max(child.p0[axis_index] + child.size[axis_index], p1[axis_index])
-		return Rect(p0, p1 - p0)
-				
-	
-	def get_corner(self, corner_index: int) -> Point:
-		"""
+    @y.setter
+    def y(self, value):
+        self.p0.y = value
 
-		Args:
-			corner_index (int): corners are ordered like 0 -> 000, 1 -> 001, 2 -> 010, 011, 100 etc.
-			where 0 = the minimum and 1 = the maximum
+    @property
+    def z(self):
+        return self.p0.z
 
-		Returns:
-			Point: a corner
-		"""
-		corner : Point = Point()
-		for axis in range(len(self)):
-			corner.append(self.p0[axis] + self.size[axis] if corner_index & 1 << axis else self.p0[axis])
-		return corner
-		
+    @z.setter
+    def z(self, value):
+        self.p0.z = value
 
-	def corners(self, axis_count = None) -> 'list[Point]':
-		"""Calculates the corners of the bounding.
+    def area(self):
+        return self.size.volume()
 
-		#### Returns:
-		`list[Point]`: A list of Point objects representing the corners of the bounding box.
+    @property
+    def p1(self):
+        return self.p0 + self.size
 
-		#### Example usage:
-		```python
-		bbox3d = Rect(Point(1, 1, 1), Vector(2, 2, 2))
-		corners = bbox3d.corners()
-		Returns a list of eight points representing the corners of the bounding box
-		```
-		"""
-		corners:list[Point] = []
-		if axis_count == None:
-			axis_count = len(self.p0)
-		for corner_index in range(2 << axis_count):
-			corners.append(self.get_corner(corner_index))
-		return corners
+    def __str__(self):
+        return (
+            __class__.__name__ + "(p0=" + str(self.p0) + ",size=" + str(self.size) + ")"
+        )
+
+    @staticmethod
+    def by_points(points: list[Point]) -> "Rect":
+        """Constructs a bounding box based on a list of points.
+
+        Calculates the minimum and maximum values from the points to define the corners of the bounding box.
+
+        #### Parameters:
+        - `points` (list[Point]): A list of Point objects to calculate the bounding box from.
+
+        #### Returns:
+        `Rect`: The bounding box instance with updated corners based on the provided points.
+
+        #### Example usage:
+        ```python
+        points = [Point(0, 0, 0), Point(2, 2, 0), Point(2, 0, 0), Point(0, 2, 0)]
+        bbox = Rect().by_points(points)
+        # Rect with corners at (0, 0, 0), (2, 2, 0), (2, 0, 0), and (0, 2, 0)
+        ```
+        """
+
+        axis_count = len(points[0])
+        if axis_count == 0:
+            raise ValueError("please provide points")
+
+        # copy
+        p0 = Point(points[0])
+        p1 = Point(points[0])
+
+        # it's faster to not skip the first point than to check if it's the first point or revert to an index-based loop
+        for p in points:
+            for axis in range(axis_count):
+                p0[axis] = min(p0[axis], p[axis])
+                p1[axis] = max(p1[axis], p[axis])
+        return Rect(p0, p1 - p0)
+
+    def expanded(self, border_size: float) -> "Rect":
+        return Rect(self.p0 - border_size, self.size + border_size * 2)
+
+    @staticmethod
+    def centered_at_origin(size: Vector) -> "Rect":
+        """Constructs a rect with specified dimensions, centered at the origin.
+
+        #### Parameters:
+        - `size` (Vector): The size of the bounding box.
+
+        #### Returns:
+        `Rect`: The bounding box instance with dimensions centered at the origin.
+
+        #### Example usage:
+        ```python
+        bbox = Rect().centered_at_origin(length=100, width=50)
+        # Rect centered at origin with specified length and width
+        ```
+        """
+
+        return Rect(size * -0.5, size)
+
+    @staticmethod
+    def by_size(size: Vector) -> "Rect":
+        """Constructs a rect with specified dimensions, with its pos0 at the origin.
+
+        #### Parameters:
+        - `size` (Vector): The size of the rectangle
+
+        #### Returns:
+        `Rect`: The rect instance with dimensions centered at the origin.
+
+        #### Example usage:
+        ```python
+        rect = Rect().by_size(length=100, width=50)
+        # Rect(x=0, y=0, width = 100, length = 100)
+        ```
+        """
+        return Rect(Vector([0] * len(size)), size)
+
+    def collides(self, other: "Rect") -> bool:
+        """checks if two rectangles collide with eachother. <br>
+        when they touch eachother exactly (f.e. a Rect with position [0] and size [1] and a rect with position [1] and size [1]), the function will return false.
+
+        Args:
+                other (Rect): the rectangle which may collide with this rectangle
+
+        Returns:
+                bool: true if the two rectangles overlap
+        """
+        for axis in range(len(self.p0)):
+            if (
+                self.p0[axis] + self.size[axis] <= other.p0[axis]
+                or other.p0[axis] + other.size[axis] <= self.p0[axis]
+            ):
+                return False
+        return True
+
+    def contains(self, other: "Rect") -> bool:
+        for axis in range(len(self.p0)):
+            if (
+                other.p0[axis] < self.p0[axis]
+                or other.p0[axis] + other.size[axis] > self.p0[axis] + self.size[axis]
+            ):
+                return False
+        return True
+
+    def substractFrom(self, other: "Rect") -> list["Rect"]:
+        """cut the 'other' rectangle in pieces by substracting this rectangle from it
+
+        Args:
+                other (Rect): the rectangle to substract this rectangle from
+
+        Returns:
+                list[Rect]: a list of up to 4 rectangles for 2d (if the rect is in the center). CAUTION: THEY OVERLAP!
+        """
+        pieces: list[Rect] = []
+        to_clone = other
+        # check each axis
+        for axis in range(len(self.p0)):
+            self_p1 = self.p0[axis] + self.size[axis]
+            other_p1 = other.p0[axis] + other.size[axis]
+            if self_p1 < other_p1:
+                diff = other_p1 - self_p1
+
+                piece: Rect = copy.deepcopy(to_clone)
+
+                piece.p0[axis] = self_p1
+
+                piece.size[axis] = diff
+                pieces.append(piece)
+                # also crop other.
+                # to_clone.size[axis] -= diff
+            self_p0 = self.p0[axis]
+            other_p0 = other.p0[axis]
+            if self_p0 > other_p0:
+                diff = self_p0 - other_p0
+                piece: Rect = copy.deepcopy(to_clone)
+                piece.size[axis] = diff
+                pieces.append(piece)
+                # to_clone.p0[axis] = self_p0
+                # to_clone.size[axis] -= diff
+        return pieces
+
+    @staticmethod
+    def outer(children: list["Rect"]) -> "Rect":
+        """creates a rectangle containing child rectangles.
+
+        Args:
+                children (list[&#39;Rect&#39;]): the children to contain in the rectangle
+
+        Returns:
+                Rect: the bounds
+        """
+        p0 = children[0].p0
+        p1 = children[0].p1
+        for i in range(1, len(children)):
+            child = children[i]
+            for axis_index in range(len(p0)):
+                p0[axis_index] = min(child.p0[axis_index], p0[axis_index])
+                p1[axis_index] = max(
+                    child.p0[axis_index] + child.size[axis_index], p1[axis_index]
+                )
+        return Rect(p0, p1 - p0)
+
+    def get_corner(self, corner_index: int) -> Point:
+        """
+
+        Args:
+                corner_index (int): corners are ordered like 0 -> 000, 1 -> 001, 2 -> 010, 011, 100 etc.
+                where 0 = the minimum and 1 = the maximum
+
+        Returns:
+                Point: a corner
+        """
+        corner: Point = Point()
+        for axis in range(len(self.p0)):
+            corner.append(
+                self.p0[axis] + self.size[axis]
+                if corner_index & 1 << axis
+                else self.p0[axis]
+            )
+        return corner
+
+    def corners(self, axis_count=None) -> "list[Point]":
+        """Calculates the corners of the bounding.
+
+        #### Returns:
+        `list[Point]`: A list of Point objects representing the corners of the bounding box.
+
+        #### Example usage:
+        ```python
+        bbox3d = Rect(Point(1, 1, 1), Vector(2, 2, 2))
+        corners = bbox3d.corners()
+        Returns a list of eight points representing the corners of the bounding box
+        ```
+        """
+        corners: list[Point] = []
+        if axis_count == None:
+            axis_count = len(self.p0)
+        for corner_index in range(2 << axis_count):
+            corners.append(self.get_corner(corner_index))
+        return corners
 
 class PointList(Vector[Vector]):
 	"""Represents a collection of points in space as a point cloud."""
@@ -2308,6 +2340,370 @@ CoordinateSystem = Matrix
 
 
 
+class Color(Vector):
+    """Documentation: output returns [r, g, b]"""
+
+    def __init__(self, *args, **kwargs):
+        Vector.__init__(self, *args, **kwargs)
+
+    red = r = Vector.x
+    green = g = Vector.y
+    blue = b = Vector.z
+    alpha = a = Vector.w
+
+    axis_names = ["r", "g", "b", "a"]
+
+    @property
+    def int(self) -> int:
+        """converts this color into an integer value
+
+        Returns:
+                int: the merged integer.
+                this is assuming the color elements are whole integer values from 0 - 255
+        """
+        int_val = elem
+        mult = 0x100
+        for elem in self[1:]:
+            int_val += elem * mult
+            mult *= 0x100
+        return int_val
+
+    @property
+    def hex(self):
+        return "#%02x%02x%02x%02x" % (int(self.r), int(self.g), int(self.b), int(self.a))
+
+    @staticmethod
+    def axis_index(axis: str) -> int:
+        """returns index of axis name.<br>
+        raises a valueError when the name isn't valid.
+
+        Args:
+                axis (str): the name of the axis
+
+        Returns:
+                int: the index
+        """
+        return ["r", "g", "b", "a"].index(axis)
+
+    @staticmethod
+    def by_hex(hex: str) -> 'Color':
+        """converts a heximal string to a color object.
+
+        Args:
+                hex (str): a heximal string, for example '#FF00FF88'
+
+        Returns:
+                Color: the color object
+        """
+        return (
+            Color(
+                int(hex[1:3], 16),
+                int(hex[3:5], 16),
+                int(hex[5:7], 16),
+                int(hex[7:9], 16),
+            )
+            if len(hex) > 7
+            else Color(int(hex[1:3], 16), int(hex[3:5], 16), int(hex[5:7], 16))
+        )
+
+    @staticmethod
+    def by_cmyk(c, m, y, k) -> "Color":
+        r = int((1 - c) * (1 - k) * 255)
+        g = int((1 - m) * (1 - k) * 255)
+        b = int((1 - y) * (1 - k) * 255)
+        return Color(r, g, b)
+
+    @staticmethod
+    def by_gray_scale(brightness, channel_count=3) -> "Color":
+        return Color([brightness] * channel_count)
+
+    @staticmethod
+    def by_rgb(*args, **kwargs):
+        return Color(*args, **kwargs)
+
+    @staticmethod
+    def by_hsv(h, s, v):
+        h /= 60.0
+        c = v * s
+        x = c * (1 - abs(h % 2 - 1))
+        m = v - c
+        if 0 <= h < 1:
+            r, g, b = c, x, 0
+        elif 1 <= h < 2:
+            r, g, b = x, c, 0
+        elif 2 <= h < 3:
+            r, g, b = 0, c, x
+        elif 3 <= h < 4:
+            r, g, b = 0, x, c
+        elif 4 <= h < 5:
+            r, g, b = x, 0, c
+        else:
+            r, g, b = c, 0, x
+        return Color(int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
+
+    @staticmethod
+    def by_hsl(h, s, l):
+        c = (1 - abs(2 * l - 1)) * s
+        x = c * (1 - abs(h / 60 % 2 - 1))
+        m = l - c / 2
+        if h < 60:
+            r, g, b = c, x, 0
+        elif h < 120:
+            r, g, b = x, c, 0
+        elif h < 180:
+            r, g, b = 0, c, x
+        elif h < 240:
+            r, g, b = 0, x, c
+        elif h < 300:
+            r, g, b = x, 0, c
+        else:
+            r, g, b = c, 0, x
+        return Color(int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
+
+Color.red = Color(255, 0, 0)
+Color.green = Color(0, 255, 0)
+Color.blue = Color(0, 0, 255)
+
+
+
+def rgb_to_int(rgb):
+    r, g, b = [max(0, min(255, c)) for c in rgb]
+
+    return (255 << 24) | (r << 16) | (g << 8) | b
+
+
+class Material:
+    def __init__(self, name: str, color: Color):
+        self.name = name
+        self.color = color
+
+
+# Building Materials
+BaseConcrete = Material("Concrete", Color.by_rgb([192, 192, 192]))
+BaseTimber = Material("Timber", Color.by_rgb([191, 159, 116]))
+BaseSteel = Material("Steel", Color.by_rgb([237, 28, 36]))
+BaseOther = Material("Other", Color.by_rgb([150, 150, 150]))
+BaseBrick = Material("Brick", Color.by_rgb([170, 77, 47]))
+BaseBrickYellow = Material("BrickYellow", Color.by_rgb([208, 187, 147]))
+
+# GIS Materials
+BaseBuilding = Material("Building", Color.by_rgb([150, 28, 36]))
+BaseWater = Material("Water", Color.by_rgb([139, 197, 214]))
+BaseGreen = Material("Green", Color.by_rgb([175, 193, 138]))
+BaseInfra = Material("Infra", Color.by_rgb([234, 234, 234]))
+BaseRoads = Material("Infra", Color.by_rgb([140, 140, 140]))
+
+# class Materialfinish
+
+
+class Mesh(Serializable):
+	"""Represents a mesh object with vertices, faces, and other attributes."""
+	def __init__(self):
+		"""The Mesh class is designed to construct mesh objects from vertices and faces. It supports creating meshes from a variety of inputs including vertex-face lists, polycurves, and coordinate lists with support for nested structures.
+		
+		- `verts` (list): A list of vertices that make up the mesh.
+		- `faces` (list): A list defining the faces of the mesh. Each face is represented by indices into the `verts` list.
+		- `face_count` (int): The number of faces in the mesh.
+		- `name` (str): The name of the mesh.
+		- `material` (Material): The material assigned to the mesh.
+		- `colorlst` (list): A list of colors for the mesh, derived from the material.
+		"""
+		self.vertices = []
+		
+		#this nested list contains indices for every face. for example:
+		#[[0, 1, 2], [3, 0, 4]] -> 2 faces. the first face connects the points 0, 1 and 2, while the second face connects the points 3, 0 and 4.
+		self.faces: list[list] = []
+		
+		self.face_count = 0
+		self.name = None
+		self.material = None
+		self.colors = []
+	
+	def set_solid_color(self, solid_color_int: int):
+		self.colors = [solid_color_int for j in range(len(self.vertices))]
+
+	def by_verts_faces(self, verts: 'list', faces: 'list') -> 'Mesh':
+		"""Initializes the mesh with vertices and faces.
+
+		#### Parameters:
+		- `verts` (list): A list of vertices.
+		- `faces` (list): A list of faces. Each face is a list of indices into the `verts` list.
+
+		This method directly sets the vertices and faces of the mesh based on the input lists.
+		
+		#### Example usage:
+		```python
+
+		```
+		"""
+		self.vertices = verts
+		self.faces = faces
+
+	#create material class; Material
+	def by_polycurve(self, PC:'PolyCurve', name: 'str', material:Material) -> 'Mesh':
+		"""Creates a mesh from a polycurve object.
+
+		#### Parameters:
+		- `PC` (Polycurve): A polycurve object from which to generate the mesh.
+		- `name` (str): The name of the mesh.
+		- `material` (Material): The material to apply to the mesh.
+
+		This method constructs the mesh such that it represents the shape defined by the polycurve.
+		
+		#### Example usage:
+		```python
+
+		```
+		"""
+		# Mesh of single face
+		verts = []
+		faces = []
+		# numberFaces = 0
+		n = 0  # number of vert. Every vert has a unique number in the list
+		pnts = PC.points  # points in every polycurve
+		
+		current_face = []
+
+		for j in pnts:
+			current_face.append(n)
+			verts.append(j.x)
+			verts.append(j.y)
+			verts.append(j.z)
+			n = n + 1
+		self.vertices = verts
+		self.faces = [current_face]
+		# ex.numberFaces = numberFaces
+		self.name = name
+		self.material = material
+		self.colorlst = [material.colorint]
+		return self
+
+	def by_coords(self, lsts: 'list', name: 'str', material, doublenest: 'bool') -> 'Mesh':
+		"""Creates a mesh from a list of coordinates.
+
+		#### Parameters:
+		- `lsts` (list): A nested list of coordinates defining the vertices of the mesh.
+		- `name` (str): The name of the mesh.
+		- `material` (Material): The material to apply to the mesh.
+		- `doublenest` (bool): A flag indicating if the list of coordinates is double-nested.
+
+		This method allows for flexible mesh creation from complex nested list structures of coordinates.
+		
+		#### Example usage:
+		```python
+
+		```
+		"""
+		# Example list structure, can be multiple as wel
+		# [[[[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]], [[[-6735, 1188, 1520], [-6234, -6796, 1520], [8753, -5855, 1520]]], [[[8252, 2129, 870], [8753, -5855, 1520], [8753, -5855, 870]]], [[[8252, 2129, 870], [8252, 2129, 1520], [8753, -5855, 1520]]], [[[8753, -5855, 870], [-6234, -6796, 1520], [-6234, -6796, 870]]], [[[8753, -5855, 870], [8753, -5855, 1520], [-6234, -6796, 1520]]], [[[-6234, -6796, 870], [-6735, 1188, 1520], [-6735, 1188, 870]]], [[[-6234, -6796, 870], [-6234, -6796, 1520], [-6735, 1188, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 1520], [8252, 2129, 870]]], [[[-6735, 1188, 870], [-6735, 1188, 1520], [8252, 2129, 1520]]], [[[-6735, 1188, 870], [8252, 2129, 870], [8753, -5855, 870]]], [[[-6234, -6796, 870], [-6735, 1188, 870], [8753, -5855, 870]]]]
+		verts = []
+		faces = []
+		count = 0
+		# lst is [[8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520]]
+		for lst in lsts:
+			if doublenest:
+				# lst is [8252, 2129, 1520], [-6735, 1188, 1520], [8753, -5855, 1520], [8753, -5855, 1520]
+				lst = lst[0]
+			else:
+				lst = lst
+			faces.append(len(lst))
+			for coord in lst:  # [8252, 2129, 1520]
+				faces.append(count)
+				verts.append(coord[0])  # x
+				verts.append(coord[1])  # y
+				verts.append(coord[2])  # z
+				count += 1
+			self.face_count = + 1
+		for j in range(int(len(verts) / 3)):
+			self.colorlst.append(material.colorint)
+		self.vertices = verts
+		self.faces = faces
+		self.name = name
+		self.material = material
+		return self
+
+
+class SegmentationSettings:
+	def __init__(self, max_angle: float =  math.pi / 4):
+		self.max_angle = max_angle
+		"""the maximum angle to keep a straight line"""
+
+class TesselationSettings(SegmentationSettings):
+	def __init__(self, max_angle = math.pi / 4, fallback_color = 0xffffffff):
+		super().__init__(max_angle)
+		self.fallback_color = fallback_color
+
+class Meshable:
+	"""A Meshable is a class convertable to mesh.
+	"""
+	@abstractmethod
+	def to_mesh(self, settings: TesselationSettings) -> Mesh:
+		pass
+
+
+
+class Plane:
+	# Plane is an infinite element in space defined by a point and a normal
+	"""The `Plane` class represents an infinite plane in 3D space, defined uniquely by an origin point and a normal vector, along with two other vectors lying on the plane, providing a complete basis for defining plane orientation and position."""
+	def __init__(self):
+		""""Initializes a new Plane instance.
+
+		- `Origin` (Point): The origin point of the plane, which also lies on the plane.
+		- `Normal` (Vector): A vector perpendicular to the plane, defining its orientation.
+		- `v1` (Vector): A vector lying on the plane, typically representing the "x" direction on the plane.
+		- `v2` (Vector): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
+		"""
+		self.Origin = Point(0, 0, 0)
+		self.Normal = Vector(x=0, y=0, z=1)
+		self.vector_1 = Vector(x=1, y=0, z=0)
+		self.vector_2 = Vector(x=0, y=1, z=0)
+
+	@classmethod
+	def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
+		"""Creates a Plane defined by two vectors and an origin point.
+		This method establishes a plane using two vectors that lie on the plane and an origin point. The normal is calculated as the cross product of the two vectors, ensuring it is perpendicular to the plane.
+
+		#### Parameters:
+			vector_1 (Vector): The first vector on the plane.
+			vector_2 (Vector): The second vector on the plane, should not be parallel to vector_1.
+			origin (Point): The origin point of the plane, lying on the plane.
+
+		#### Returns:
+			Plane: A Plane instance defined by the given vectors and origin.
+		
+		#### Example usage:
+		```python
+
+		```
+		"""
+		p1 = Plane()
+		p1.Normal = Vector.cross_product(vector_1, vector_2).normalized
+		p1.Origin = origin
+		p1.vector_1 = vector_1
+		p1.vector_2 = vector_2
+		return p1
+
+	def __str__(self) -> str:
+		"""Generates a string representation of the Plane.
+
+		#### Returns:
+			str: A string describing the Plane with its origin, normal, and basis vectors.
+		 
+		#### Example usage:
+		```python
+
+		```
+		"""
+
+		return f"{__class__.__name__}(" + f"{self.Origin}, {self.Normal}, {self.vector_1}, {self.vector_2})"
+
+	# TODO
+	# byLineAndPoint
+	# byOriginNormal
+	# byThreePoints
+
+
+
 
 class Sphere(Serializable):
 	def __init__(self, point:Point, diameter:int):
@@ -2446,7 +2842,9 @@ class Curve(Serializable):
         """
         pass
 
-    def segmentate(self, settings: SegmentationSettings = SegmentationSettings()) -> "Polygon":
+    def segmentate(
+        self, settings: SegmentationSettings = SegmentationSettings()
+    ) -> "Polygon":
         """
 
         Args:
@@ -2748,14 +3146,18 @@ class Arc(Curve):
 
         # triangle normal
         y_cross = Vector.cross_product(start_to_mid, start_to_end)
-        
-        y_length_squared = y_cross.length_squared if len(start) > 2 else y_cross * y_cross
+
+        y_length_squared = (
+            y_cross.length_squared if len(start) > 2 else y_cross * y_cross
+        )
         if y_length_squared < 10e-14:
-            return Line(start, end)  # area of the triangle is too small (you may additionally check the points for colinearity if you are paranoid)
+            return Line(
+                start, end
+            )  # area of the triangle is too small (you may additionally check the points for colinearity if you are paranoid)
 
         # helpers
         offset_multiplier = 0.5 / y_length_squared
-        #calculate dot products
+        # calculate dot products
         tt = Vector.dot_product(start_to_mid, start_to_mid)
         uu = Vector.dot_product(start_to_end, start_to_end)
 
@@ -2769,7 +3171,7 @@ class Arc(Curve):
             * offset_multiplier
         )
         # radius = math.sqrt(tt * uu * (mid_to_end*mid_to_end) * iwsl2*0.5)
-        
+
         x_axis = start - origin
         normalized_x_axis = x_axis.normalized
         radius = x_axis.length
@@ -2778,7 +3180,11 @@ class Arc(Curve):
             # 2d
             normalized_y_axis = Vector.cross_product(normalized_x_axis)
             arc_matrix = Matrix.by_origin_and_axes(
-                origin, [x_axis, (normalized_y_axis if y_cross > 0 else -normalized_y_axis) * radius]
+                origin,
+                [
+                    x_axis,
+                    (normalized_y_axis if y_cross > 0 else -normalized_y_axis) * radius,
+                ],
             )
         else:  # 3d
 
@@ -2828,7 +3234,9 @@ class Arc(Curve):
         Returns:
             Point: the radius of the circle this arc is a part of
         """
-        return self.matrix.multiply_without_translation(Vector.x_axis if self.matrix.dimensions > 2 else Vector.x_axis_2).magnitude
+        return self.matrix.multiply_without_translation(
+            Vector.x_axis if self.matrix.dimensions > 2 else Vector.x_axis_2
+        ).magnitude
 
     @property
     def origin(self) -> Point:
@@ -2917,7 +3325,7 @@ class Polygon(PointList):
         return [Point(p) for p in self]
 
     @closed.setter
-    def closed(self, value) -> 'Polygon':
+    def closed(self, value) -> "Polygon":
         """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
         #### Example usage:
         ```python
@@ -3040,35 +3448,7 @@ class Polygon(PointList):
 
         ```
         """
-        if len(points) < 3:
-            print("Error: Polygon must have at least 3 unique points.")
-            return None
-
-        _points = []
-
-        for point in points:  # Convert all to Point
-            if isinstance(point, Point):
-                _points.append(Point(point.x, point.y, 0))
-            else:
-                _points.append(point)
-
-        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
-            _points.pop()
-
-        seen = set()
-        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
-
-        polygon = Polygon()
-        polygon.points = unique_points
-
-        num_points = len(unique_points)
-        for i in range(num_points):
-            next_index = (i + 1) % num_points
-            polygon.curves.append(
-                Line(start=unique_points[i], end=unique_points[next_index])
-            )
-
-        return polygon
+        return Polygon(points)
 
     @staticmethod
     def rectangular(rect: Rect) -> "Polygon":
@@ -3228,6 +3608,7 @@ class PolyCurve(list[Line], Shape, Curve):
 
         super().__init__(to_array(*args))
 
+    # properties
     @property
     def start(self):
         return self[0].start
@@ -3321,6 +3702,11 @@ class PolyCurve(list[Line], Shape, Curve):
 
         return sum(curve.length for curve in self)
 
+    # operators
+    def __rmul__(self, transformer) -> "PolyCurve":
+        return PolyCurve([transformer * curve for curve in self])
+
+    # functions
     def segmentate_part(
         self, polygon_to_add_to: "Polygon", settings: SegmentationSettings
     ):
@@ -3354,6 +3740,7 @@ class PolyCurve(list[Line], Shape, Curve):
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
 
+    # static functions
     # TODO finish function
     @property
     def centroid(self) -> "Point":
@@ -3409,7 +3796,7 @@ class PolyCurve(list[Line], Shape, Curve):
         return PolyCurve(polygon.curves)
 
     @staticmethod
-    def by_points(points: "list[Point]") -> 'PolyCurve':
+    def by_points(points: "list[Point]") -> "PolyCurve":
         """Creates a PolyCurve from a list of points.
 
         #### Parameters:
@@ -3450,8 +3837,981 @@ class PolyCurve(list[Line], Shape, Curve):
                 pass
         return plycrv
 
-    def __rmul__(self, transformer) -> "PolyCurve":
-        return PolyCurve([transformer * curve for curve in self])
+
+MIN_DEPTH = 5
+ERROR = 1e-12
+
+
+def segment_length(curve, start, end, start_point, end_point, error, min_depth, depth):
+    """Recursively approximates the length by straight lines"""
+    mid = (start + end) / 2
+    mid_point = curve.point(mid)
+    length = abs(end_point - start_point)
+    first_half = abs(mid_point - start_point)
+    second_half = abs(end_point - mid_point)
+
+    length2 = first_half + second_half
+    if (length2 - length > error) or (depth < min_depth):
+        # Calculate the length of each segment:
+        depth += 1
+        return segment_length(
+            curve, start, mid, start_point, mid_point, error, min_depth, depth
+        ) + segment_length(
+            curve, mid, end, mid_point, end_point, error, min_depth, depth
+        )
+    # This is accurate enough.
+    return length2
+
+
+class PathSegment(ABC):
+    @abstractmethod
+    def point(self, pos):
+        """Returns the coordinate point (as a complex number) of a point on the path,
+        as expressed as a floating point number between 0 (start) and 1 (end).
+        """
+
+    @abstractmethod
+    def tangent(self, pos):
+        """Returns a vector (as a complex number) representing the tangent of a point
+        on the path as expressed as a floating point number between 0 (start) and 1 (end).
+        """
+
+    @abstractmethod
+    def length(self, error=ERROR, min_depth=MIN_DEPTH):
+        """Returns the length of a path.
+
+        The CubicBezier and Arc lengths are non-exact and iterative and you can select to
+        either do the calculations until a maximum error has been achieved, or a minimum
+        number of iterations.
+        """
+
+
+class NonLinearSegment(PathSegment):
+    """A line that is not straight
+
+    The base of Arc, QuadraticBezier and CubicBezier
+    """
+
+
+class LinearSegment(PathSegment):
+    """A straight line
+
+    The base for Line() and Close().
+    """
+
+    def __init__(self, start, end, relative=False):
+        self.start = start
+        self.end = end
+        self.relative = relative
+
+    def __ne__(self, other):
+        if not isinstance(other, LineSegment):
+            return NotImplemented
+        return not self == other
+
+    def point(self, pos):
+        distance = self.end - self.start
+        return self.start + distance * pos
+
+    def tangent(self, pos):
+        return self.end - self.start
+
+    def length(self, error=None, min_depth=None):
+        distance = self.end - self.start
+        return sqrt(distance.real**2 + distance.imag**2)
+
+
+class LineSegment(LinearSegment):
+    def __init__(self, start, end, relative=False, vertical=False, horizontal=False):
+        self.start = start
+        self.end = end
+        self.relative = relative
+        self.vertical = vertical
+        self.horizontal = horizontal
+
+    def __repr__(self):
+        return f"Line(start={self.start}, end={self.end})"
+
+    def __eq__(self, other):
+        if not isinstance(other, LineSegment):
+            return NotImplemented
+        return self.start == other.start and self.end == other.end
+
+    def _d(self, previous):
+        x = self.end.real
+        y = self.end.imag
+        if self.relative:
+            x -= previous.end.real
+            y -= previous.end.imag
+
+        if self.horizontal and self.is_horizontal_from(previous):
+            cmd = "h" if self.relative else "H"
+            return f"{cmd} {x:G},{y:G}"
+
+        if self.vertical and self.is_vertical_from(previous):
+            cmd = "v" if self.relative else "V"
+            return f"{cmd} {y:G}"
+
+        cmd = "l" if self.relative else "L"
+        return f"{cmd} {x:G},{y:G}"
+
+    def is_vertical_from(self, previous):
+        return self.start == previous.end and self.start.real == self.end.real
+
+    def is_horizontal_from(self, previous):
+        return self.start == previous.end and self.start.imag == self.end.imag
+
+
+class CubicBezierSegment(NonLinearSegment):
+    def __init__(self, start, control1, control2, end, relative=False, smooth=False):
+        self.start = start
+        self.control1 = control1
+        self.control2 = control2
+        self.end = end
+        self.relative = relative
+        self.smooth = smooth
+
+    def __repr__(self):
+        return (
+            f"CubicBezier(start={self.start}, control1={self.control1}, "
+            f"control2={self.control2}, end={self.end}, smooth={self.smooth})"
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, CubicBezierSegment):
+            return NotImplemented
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.control1 == other.control1
+            and self.control2 == other.control2
+        )
+
+    def __ne__(self, other):
+        if not isinstance(other, CubicBezierSegment):
+            return NotImplemented
+        return not self == other
+
+    def _d(self, previous):
+        c1 = self.control1
+        c2 = self.control2
+        end = self.end
+
+        if self.relative and previous:
+            c1 -= previous.end
+            c2 -= previous.end
+            end -= previous.end
+
+        if self.smooth and self.is_smooth_from(previous):
+            cmd = "s" if self.relative else "S"
+            return f"{cmd} {c2.real:G},{c2.imag:G} {end.real:G},{end.imag:G}"
+
+        cmd = "c" if self.relative else "C"
+        return f"{cmd} {c1.real:G},{c1.imag:G} {c2.real:G},{c2.imag:G} {end.real:G},{end.imag:G}"
+
+    def is_smooth_from(self, previous):
+        """Checks if this segment would be a smooth segment following the previous"""
+        if isinstance(previous, CubicBezierSegment):
+            return self.start == previous.end and (self.control1 - self.start) == (
+                previous.end - previous.control2
+            )
+        else:
+            return self.control1 == self.start
+
+    def set_smooth_from(self, previous):
+        assert isinstance(previous, CubicBezierSegment)
+        self.start = previous.end
+        self.control1 = previous.end - previous.control2 + self.start
+        self.smooth = True
+
+    def point(self, pos):
+        """Calculate the x,y position at a certain position of the path"""
+        return (
+            ((1 - pos) ** 3 * self.start)
+            + (3 * (1 - pos) ** 2 * pos * self.control1)
+            + (3 * (1 - pos) * pos**2 * self.control2)
+            + (pos**3 * self.end)
+        )
+
+    def tangent(self, pos):
+        return (
+            -3 * (1 - pos) ** 2 * self.start
+            + 3 * (1 - pos) ** 2 * self.control1
+            - 6 * pos * (1 - pos) * self.control1
+            - 3 * pos**2 * self.control2
+            + 6 * pos * (1 - pos) * self.control2
+            + 3 * pos**2 * self.end
+        )
+
+    def length(self, error=ERROR, min_depth=MIN_DEPTH):
+        """Calculate the length of the path up to a certain position"""
+        start_point = self.point(0)
+        end_point = self.point(1)
+        return segment_length(self, 0, 1, start_point, end_point, error, min_depth, 0)
+
+
+class QuadraticBezierSegment(NonLinearSegment):
+    def __init__(self, start, control, end, relative=False, smooth=False):
+        self.start = start
+        self.end = end
+        self.control = control
+        self.relative = relative
+        self.smooth = smooth
+
+    def __repr__(self):
+        return (
+            f"QuadraticBezier(start={self.start}, control={self.control}, "
+            f"end={self.end}, smooth={self.smooth})"
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, QuadraticBezierSegment):
+            return NotImplemented
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.control == other.control
+        )
+
+    def __ne__(self, other):
+        if not isinstance(other, QuadraticBezierSegment):
+            return NotImplemented
+        return not self == other
+
+    def _d(self, previous):
+        control = self.control
+        end = self.end
+        if self.relative and previous:
+            control -= previous.end
+            end -= previous.end
+
+        if self.smooth and self.is_smooth_from(previous):
+            cmd = "t" if self.relative else "T"
+            return f"{cmd} {end.real:G},{end.imag:G}"
+
+        cmd = "q" if self.relative else "Q"
+        return f"{cmd} {control.real:G},{control.imag:G} {end.real:G},{end.imag:G}"
+
+    def is_smooth_from(self, previous):
+        """Checks if this segment would be a smooth segment following the previous"""
+        if isinstance(previous, QuadraticBezierSegment):
+            return self.start == previous.end and (self.control - self.start) == (
+                previous.end - previous.control
+            )
+        else:
+            return self.control == self.start
+
+    def set_smooth_from(self, previous):
+        assert isinstance(previous, QuadraticBezierSegment)
+        self.start = previous.end
+        self.control = previous.end - previous.control + self.start
+        self.smooth = True
+
+    def point(self, pos):
+        return (
+            (1 - pos) ** 2 * self.start
+            + 2 * (1 - pos) * pos * self.control
+            + pos**2 * self.end
+        )
+
+    def tangent(self, pos):
+        return (
+            self.start * (2 * pos - 2)
+            + (2 * self.end - 4 * self.control) * pos
+            + 2 * self.control
+        )
+
+    def length(self, error=None, min_depth=None):
+        a = self.start - 2 * self.control + self.end
+        b = 2 * (self.control - self.start)
+
+        try:
+            # For an explanation of this case, see
+            # http://www.malczak.info/blog/quadratic-bezier-curve-length/
+            A = 4 * (a.real**2 + a.imag**2)
+            B = 4 * (a.real * b.real + a.imag * b.imag)
+            C = b.real**2 + b.imag**2
+
+            Sabc = 2 * sqrt(A + B + C)
+            A2 = sqrt(A)
+            A32 = 2 * A * A2
+            C2 = 2 * sqrt(C)
+            BA = B / A2
+
+            s = (
+                A32 * Sabc
+                + A2 * B * (Sabc - C2)
+                + (4 * C * A - B**2) * log((2 * A2 + BA + Sabc) / (BA + C2))
+            ) / (4 * A32)
+        except (ZeroDivisionError, ValueError):
+            if abs(a) < 1e-10:
+                s = abs(b)
+            else:
+                k = abs(b) / abs(a)
+                if k >= 2:
+                    s = abs(b) - abs(a)
+                else:
+                    s = abs(a) * (k**2 / 2 - k + 1)
+        return s
+
+
+class ArcSegment(NonLinearSegment):
+    def __init__(self, start, radius, rotation, arc, sweep, end, relative=False):
+        """radius is complex, rotation is in degrees,
+        large and sweep are 1 or 0 (True/False also work)"""
+
+        self.start = start
+        self.radius = radius
+        self.rotation = rotation
+        self.arc = bool(arc)
+        self.sweep = bool(sweep)
+        self.end = end
+        self.relative = relative
+
+        self._parameterize()
+
+    def __repr__(self):
+        return (
+            f"Arc(start={self.start}, radius={self.radius}, rotation={self.rotation}, "
+            f"arc={self.arc}, sweep={self.sweep}, end={self.end})"
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, ArcSegment):
+            return NotImplemented
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.radius == other.radius
+            and self.rotation == other.rotation
+            and self.arc == other.arc
+            and self.sweep == other.sweep
+        )
+
+    def __ne__(self, other):
+        if not isinstance(other, ArcSegment):
+            return NotImplemented
+        return not self == other
+
+    def _d(self, previous):
+        end = self.end
+        cmd = "a" if self.relative else "A"
+        if self.relative:
+            end -= previous.end
+
+        return (
+            f"{cmd} {self.radius.real:G},{self.radius.imag:G} {self.rotation:G} "
+            f"{int(self.arc):d},{int(self.sweep):d} {end.real:G},{end.imag:G}"
+        )
+
+    def _parameterize(self):
+        # Conversion from endpoint to center parameterization
+        # http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
+        if self.start == self.end:
+            # This is equivalent of omitting the segment, so do nothing
+            return
+
+        if self.radius.real == 0 or self.radius.imag == 0:
+            # This should be treated as a straight line
+            return
+
+        cosr = cos(radians(self.rotation))
+        sinr = sin(radians(self.rotation))
+        dx = (self.start.real - self.end.real) / 2
+        dy = (self.start.imag - self.end.imag) / 2
+        x1prim = cosr * dx + sinr * dy
+        x1prim_sq = x1prim * x1prim
+        y1prim = -sinr * dx + cosr * dy
+        y1prim_sq = y1prim * y1prim
+
+        rx = self.radius.real
+        rx_sq = rx * rx
+        ry = self.radius.imag
+        ry_sq = ry * ry
+
+        # Correct out of range radii
+        radius_scale = (x1prim_sq / rx_sq) + (y1prim_sq / ry_sq)
+        if radius_scale > 1:
+            radius_scale = sqrt(radius_scale)
+            rx *= radius_scale
+            ry *= radius_scale
+            rx_sq = rx * rx
+            ry_sq = ry * ry
+            self.radius_scale = radius_scale
+        else:
+            # SVG spec only scales UP
+            self.radius_scale = 1
+
+        t1 = rx_sq * y1prim_sq
+        t2 = ry_sq * x1prim_sq
+        c = sqrt(abs((rx_sq * ry_sq - t1 - t2) / (t1 + t2)))
+
+        if self.arc == self.sweep:
+            c = -c
+        cxprim = c * rx * y1prim / ry
+        cyprim = -c * ry * x1prim / rx
+
+        self.center = complex(
+            (cosr * cxprim - sinr * cyprim) + ((self.start.real + self.end.real) / 2),
+            (sinr * cxprim + cosr * cyprim) + ((self.start.imag + self.end.imag) / 2),
+        )
+
+        ux = (x1prim - cxprim) / rx
+        uy = (y1prim - cyprim) / ry
+        vx = (-x1prim - cxprim) / rx
+        vy = (-y1prim - cyprim) / ry
+        n = sqrt(ux * ux + uy * uy)
+        p = ux
+        theta = degrees(acos(p / n))
+        if uy < 0:
+            theta = -theta
+        self.theta = theta % 360
+
+        n = sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy))
+        p = ux * vx + uy * vy
+        d = p / n
+        # In certain cases the above calculation can through inaccuracies
+        # become just slightly out of range, f ex -1.0000000000000002.
+        if d > 1.0:
+            d = 1.0
+        elif d < -1.0:
+            d = -1.0
+        delta = degrees(acos(d))
+        if (ux * vy - uy * vx) < 0:
+            delta = -delta
+        self.delta = delta % 360
+        if not self.sweep:
+            self.delta -= 360
+
+    def point(self, pos):
+        if self.start == self.end:
+            # This is equivalent of omitting the segment
+            return self.start
+
+        if self.radius.real == 0 or self.radius.imag == 0:
+            # This should be treated as a straight line
+            distance = self.end - self.start
+            return self.start + distance * pos
+
+        angle = radians(self.theta + (self.delta * pos))
+        cosr = cos(radians(self.rotation))
+        sinr = sin(radians(self.rotation))
+        radius = self.radius * self.radius_scale
+
+        x = (
+            cosr * cos(angle) * radius.real
+            - sinr * sin(angle) * radius.imag
+            + self.center.real
+        )
+        y = (
+            sinr * cos(angle) * radius.real
+            + cosr * sin(angle) * radius.imag
+            + self.center.imag
+        )
+        return complex(x, y)
+
+    def tangent(self, pos):
+        angle = radians(self.theta + (self.delta * pos))
+        cosr = cos(radians(self.rotation))
+        sinr = sin(radians(self.rotation))
+        radius = self.radius * self.radius_scale
+
+        x = cosr * cos(angle) * radius.real - sinr * sin(angle) * radius.imag
+        y = sinr * cos(angle) * radius.real + cosr * sin(angle) * radius.imag
+        return complex(x, y) * complex(0, 1)
+
+    def length(self, error=ERROR, min_depth=MIN_DEPTH):
+        """The length of an elliptical arc segment requires numerical
+        integration, and in that case it's simpler to just do a geometric
+        approximation, as for cubic bezier curves.
+        """
+        if self.start == self.end:
+            # This is equivalent of omitting the segment
+            return 0
+
+        if self.radius.real == 0 or self.radius.imag == 0:
+            # This should be treated as a straight line
+            distance = self.end - self.start
+            return sqrt(distance.real**2 + distance.imag**2)
+
+        if self.radius.real == self.radius.imag:
+            # It's a circle, which simplifies this a LOT.
+            radius = self.radius.real * self.radius_scale
+            return abs(radius * self.delta * pi / 180)
+
+        start_point = self.point(0)
+        end_point = self.point(1)
+        return segment_length(self, 0, 1, start_point, end_point, error, min_depth, 0)
+
+
+class MoveCommand:
+    """Represents move commands. Does nothing, but is there to handle
+    paths that consist of only move commands, which is valid, but pointless.
+    """
+
+    def __init__(self, to, relative=False):
+        self.start = self.end = to
+        self.relative = relative
+
+    def __repr__(self):
+        return "Move(to=%s)" % self.start
+
+    def __eq__(self, other):
+        if not isinstance(other, MoveCommand):
+            return NotImplemented
+        return self.start == other.start
+
+    def __ne__(self, other):
+        if not isinstance(other, MoveCommand):
+            return NotImplemented
+        return not self == other
+
+    def _d(self, previous):
+        cmd = "M"
+        x = self.end.real
+        y = self.end.imag
+        if self.relative:
+            cmd = "m"
+            if previous:
+                x -= previous.end.real
+                y -= previous.end.imag
+        return f"{cmd} {x:G},{y:G}"
+
+    def point(self, pos):
+        return self.start
+
+    def tangent(self, pos):
+        return 0
+
+    def length(self, error=ERROR, min_depth=MIN_DEPTH):
+        return 0
+
+
+class CloseSegment(LinearSegment):
+    """Represents the closepath command"""
+
+    def __eq__(self, other):
+        if not isinstance(other, CloseSegment):
+            return NotImplemented
+        return self.start == other.start and self.end == other.end
+
+    def __repr__(self):
+        return f"Close(start={self.start}, end={self.end})"
+
+    def _d(self, previous):
+        return "z" if self.relative else "Z"
+
+
+class PathSequence(MutableSequence):
+    """A Path is a sequence of path segments"""
+
+    def __init__(self, *segments):
+        self._segments = list(segments)
+        self._length = None
+        self._lengths = None
+        # Fractional distance from starting point through the end of each segment.
+        self._fractions = []
+
+    def __getitem__(self, index):
+        return self._segments[index]
+
+    def __setitem__(self, index, value):
+        self._segments[index] = value
+        self._length = None
+
+    def __delitem__(self, index):
+        del self._segments[index]
+        self._length = None
+
+    def insert(self, index, value):
+        self._segments.insert(index, value)
+        self._length = None
+
+    def reverse(self):
+        # Reversing the order of a path would require reversing each element
+        # as well. That's not implemented.
+        raise NotImplementedError
+
+    def __len__(self):
+        return len(self._segments)
+
+    def __repr__(self):
+        return "Path(%s)" % (", ".join(repr(x) for x in self._segments))
+
+    def __eq__(self, other):
+
+        if not isinstance(other, PathSequence):
+            return NotImplemented
+        if len(self) != len(other):
+            return False
+        for s, o in zip(self._segments, other._segments):
+            if not s == o:
+                return False
+        return True
+
+    def __ne__(self, other):
+        if not isinstance(other, PathSequence):
+            return NotImplemented
+        return not self == other
+
+    def _calc_lengths(self, error=ERROR, min_depth=MIN_DEPTH):
+        if self._length is not None:
+            return
+
+        lengths = [
+            each.length(error=error, min_depth=min_depth) for each in self._segments
+        ]
+        self._length = sum(lengths)
+        if self._length == 0:
+            self._lengths = lengths
+        else:
+            self._lengths = [each / self._length for each in lengths]
+        # Calculate the fractional distance for each segment to use in point()
+        fraction = 0
+        for each in self._lengths:
+            fraction += each
+            self._fractions.append(fraction)
+
+    def _find_segment(self, pos, error=ERROR):
+        # Shortcuts
+        if pos == 0.0:
+            return self._segments[0], pos
+        if pos == 1.0:
+            return self._segments[-1], pos
+
+        self._calc_lengths(error=error)
+
+        # Fix for paths of length 0 (i.e. points)
+        if self._length == 0:
+            return self._segments[0], 0.0
+
+        # Find which segment the point we search for is located on:
+        i = bisect(self._fractions, pos)
+        if i == 0:
+            segment_pos = pos / self._fractions[0]
+        else:
+            segment_pos = (pos - self._fractions[i - 1]) / (
+                self._fractions[i] - self._fractions[i - 1]
+            )
+        return self._segments[i], segment_pos
+
+    def point(self, pos, error=ERROR):
+        segment, pos = self._find_segment(pos, error)
+        return segment.point(pos)
+
+    def tangent(self, pos, error=ERROR):
+        segment, pos = self._find_segment(pos, error)
+        return segment.tangent(pos)
+
+    def length(self, error=ERROR, min_depth=MIN_DEPTH):
+        self._calc_lengths(error, min_depth)
+        return self._length
+
+    def d(self):
+        parts = []
+        previous_segment = None
+
+        for segment in self:
+            parts.append(segment._d(previous_segment))
+            previous_segment = segment
+
+        return " ".join(parts)
+
+
+COMMANDS = set("MmZzLlHhVvCcSsQqTtAa")
+UPPERCASE = set("MZLHVCSQTA")
+
+COMMAND_RE = re.compile(r"([MmZzLlHhVvCcSsQqTtAa])")
+FLOAT_RE = re.compile(rb"^[-+]?\d*\.?\d*(?:[eE][-+]?\d+)?")
+
+
+class InvalidPathError(ValueError):
+    pass
+
+
+# The argument sequences from the grammar, made sane.
+# u: Non-negative number
+# s: Signed number or coordinate
+# c: coordinate-pair, which is two coordinates/numbers, separated by whitespace
+# f: A one character flag, doesn't need whitespace, 1 or 0
+ARGUMENT_SEQUENCE = {
+    "M": "c",
+    "Z": "",
+    "L": "c",
+    "H": "s",
+    "V": "s",
+    "C": "ccc",
+    "S": "cc",
+    "Q": "cc",
+    "T": "c",
+    "A": "uusffc",
+}
+
+
+def strip_array(arg_array):
+    """Strips whitespace and commas"""
+    # EBNF wsp:(#x20 | #x9 | #xD | #xA) + comma: 0x2C
+    while arg_array and arg_array[0] in (0x20, 0x9, 0xD, 0xA, 0x2C):
+        arg_array[0:1] = b""
+
+
+def pop_number(arg_array):
+    res = FLOAT_RE.search(arg_array)
+    if not res or not res.group():
+        raise InvalidPathError(f"Expected a number, got '{arg_array}'.")
+    number = float(res.group())
+    start = res.start()
+    end = res.end()
+    arg_array[start:end] = b""
+    strip_array(arg_array)
+
+    return number
+
+
+def pop_unsigned_number(arg_array):
+    number = pop_number(arg_array)
+    if number < 0:
+        raise InvalidPathError(f"Expected a non-negative number, got '{number}'.")
+    return number
+
+
+def pop_coordinate_pair(arg_array):
+    x = pop_number(arg_array)
+    y = pop_number(arg_array)
+    return complex(x, y)
+
+
+def pop_flag(arg_array):
+    flag = arg_array[0]
+    arg_array[0:1] = b""
+    strip_array(arg_array)
+    if flag == 48:  # ASCII 0
+        return False
+    if flag == 49:  # ASCII 1
+        return True
+
+
+FIELD_POPPERS = {
+    "u": pop_unsigned_number,
+    "s": pop_number,
+    "c": pop_coordinate_pair,
+    "f": pop_flag,
+}
+
+
+def _commandify_path(pathdef):
+    """Splits path into commands and arguments"""
+    token = None
+    for x in COMMAND_RE.split(pathdef):
+        x = x.strip()
+        if x in COMMANDS:
+            if token is not None:
+                yield token
+            if x in ("z", "Z"):
+                # The end command takes no arguments, so add a blank one
+                token = (x, "")
+            else:
+                token = (x,)
+        elif x:
+            if token is None:
+                raise InvalidPathError(f"Path does not start with a command: {pathdef}")
+            token += (x,)
+    yield token
+
+
+def _tokenize_path(pathdef):
+    for command, args in _commandify_path(pathdef):
+        # Shortcut this for the close command, that doesn't have arguments:
+        if command in ("z", "Z"):
+            yield (command,)
+            continue
+
+        # For the rest of the commands, we parse the arguments and
+        # yield one command per full set of arguments
+        arg_sequence = ARGUMENT_SEQUENCE[command.upper()]
+        arguments = bytearray(args, "ascii")
+        implicit = False
+        while arguments:
+            command_arguments = []
+            for i, arg in enumerate(arg_sequence):
+                try:
+                    command_arguments.append(FIELD_POPPERS[arg](arguments))
+                except InvalidPathError as e:
+                    if i == 0 and implicit:
+                        return  # Invalid character in path, treat like a comment
+                    raise InvalidPathError(
+                        f"Invalid path element {command} {args}"
+                    ) from e
+
+            yield (command,) + tuple(command_arguments)
+            implicit = True
+
+            # Implicit Moveto commands should be treated as Lineto commands.
+            if command == "m":
+                command = "l"
+            elif command == "M":
+                command = "L"
+
+
+def parse_path(pathdef):
+    segments = path.PathSequence()
+    start_pos = None
+    last_command = None
+    current_pos = 0
+
+    for token in _tokenize_path(pathdef):
+        command = token[0]
+        relative = command.islower()
+        command = command.upper()
+        if command == "M":
+            pos = token[1]
+            if relative:
+                current_pos += pos
+            else:
+                current_pos = pos
+            segments.append(path.MoveCommand(current_pos, relative=relative))
+            start_pos = current_pos
+
+        elif command == "Z":
+            # For Close commands the "relative" argument just preserves case,
+            # it has no different in behavior.
+            segments.append(path.CloseSegment(current_pos, start_pos, relative=relative))
+            current_pos = start_pos
+
+        elif command == "L":
+            pos = token[1]
+            if relative:
+                pos += current_pos
+            segments.append(path.LineSegment(current_pos, pos, relative=relative))
+            current_pos = pos
+
+        elif command == "H":
+            hpos = token[1]
+            if relative:
+                hpos += current_pos.real
+            pos = complex(hpos, current_pos.imag)
+            segments.append(
+                path.LineSegment(current_pos, pos, relative=relative, horizontal=True)
+            )
+            current_pos = pos
+
+        elif command == "V":
+            vpos = token[1]
+            if relative:
+                vpos += current_pos.imag
+            pos = complex(current_pos.real, vpos)
+            segments.append(
+                path.LineSegment(current_pos, pos, relative=relative, vertical=True)
+            )
+            current_pos = pos
+
+        elif command == "C":
+            control1 = token[1]
+            control2 = token[2]
+            end = token[3]
+
+            if relative:
+                control1 += current_pos
+                control2 += current_pos
+                end += current_pos
+
+            segments.append(
+                path.CubicBezierSegment(
+                    current_pos, control1, control2, end, relative=relative
+                )
+            )
+            current_pos = end
+
+        elif command == "S":
+            # Smooth curve. First control point is the "reflection" of
+            # the second control point in the previous path.
+            control2 = token[1]
+            end = token[2]
+
+            if relative:
+                control2 += current_pos
+                end += current_pos
+
+            if last_command in "CS":
+                # The first control point is assumed to be the reflection of
+                # the second control point on the previous command relative
+                # to the current point.
+                control1 = current_pos + current_pos - segments[-1].control2
+            else:
+                # If there is no previous command or if the previous command
+                # was not an C, c, S or s, assume the first control point is
+                # coincident with the current point.
+                control1 = current_pos
+
+            segments.append(
+                path.CubicBezierSegment(
+                    current_pos, control1, control2, end, relative=relative, smooth=True
+                )
+            )
+            current_pos = end
+
+        elif command == "Q":
+            control = token[1]
+            end = token[2]
+
+            if relative:
+                control += current_pos
+                end += current_pos
+
+            segments.append(
+                path.QuadraticBezierSegment(current_pos, control, end, relative=relative)
+            )
+            current_pos = end
+
+        elif command == "T":
+            # Smooth curve. Control point is the "reflection" of
+            # the second control point in the previous path.
+            end = token[1]
+
+            if relative:
+                end += current_pos
+
+            if last_command in "QT":
+                # The control point is assumed to be the reflection of
+                # the control point on the previous command relative
+                # to the current point.
+                control = current_pos + current_pos - segments[-1].control
+            else:
+                # If there is no previous command or if the previous command
+                # was not an Q, q, T or t, assume the first control point is
+                # coincident with the current point.
+                control = current_pos
+
+            segments.append(
+                path.QuadraticBezierSegment(
+                    current_pos, control, end, smooth=True, relative=relative
+                )
+            )
+            current_pos = end
+
+        elif command == "A":
+            # For some reason I implemented the Arc with a complex radius.
+            # That doesn't really make much sense, but... *shrugs*
+            radius = complex(token[1], token[2])
+            rotation = token[3]
+            arc = token[4]
+            sweep = token[5]
+            end = token[6]
+
+            if relative:
+                end += current_pos
+
+            segments.append(
+                path.ArcSegment(
+                    current_pos, radius, rotation, arc, sweep, end, relative=relative
+                )
+            )
+            current_pos = end
+
+        # Finish up the loop in preparation for next command
+        last_command = command
+
+    return segments
 
 
 loaded_fonts = dict()
@@ -3547,7 +4907,7 @@ class Text:
             pathx = parse_path(segment)
             for segment in pathx:
                 segment_type = segment.__class__.__name__
-                if isinstance(segment, Line):
+                if isinstance(segment, LineSegment):
                     ref_points.extend(
                         [
                             (segment.start.real, segment.start.imag),
@@ -3560,16 +4920,16 @@ class Text:
                             (segment.end.real, segment.end.imag),
                         ]
                     )
-                elif isinstance(segment, CubicBezier):
+                elif isinstance(segment, CubicBezierSegment):
                     ref_points.extend(segment.sample(10))
                     ref_allPoints.extend(segment.sample(10))
-                elif isinstance(segment, QuadraticBezier):
+                elif isinstance(segment, QuadraticBezierSegment):
                     for i in range(11):
                         t = i / 10.0
                         point = segment.point(t)
                         ref_points.append((point.real, point.imag))
                         ref_allPoints.append((point.real, point.imag))
-                elif isinstance(segment, Arc):
+                elif isinstance(segment, ArcSegment):
                     ref_points.extend(segment.sample(10))
                     ref_allPoints.extend(segment.sample(10))
         height = self.calculate_bounding_box(ref_allPoints)[2]
@@ -3977,161 +5337,6 @@ class ColumnTag:
 # class Label:
 # class LabelType:
 # class TextType:
-
-
-
-class Color(Vector):
-    """Documentation: output returns [r, g, b]"""
-
-    def __init__(self, *args, **kwargs):
-        Vector.__init__(self, *args, **kwargs)
-
-    red = r = Vector.x
-    green = g = Vector.y
-    blue = b = Vector.z
-    alpha = a = Vector.w
-
-    axis_names = ["r", "g", "b", "a"]
-
-    @property
-    def int(self) -> int:
-        """converts this color into an integer value
-
-        Returns:
-                int: the merged integer.
-                this is assuming the color elements are whole integer values from 0 - 255
-        """
-        int_val = elem
-        mult = 0x100
-        for elem in self[1:]:
-            int_val += elem * mult
-            mult *= 0x100
-        return int_val
-
-    @property
-    def hex(self):
-        return "#%02x%02x%02x%02x" % (int(self.r), int(self.g), int(self.b), int(self.a))
-
-    @staticmethod
-    def axis_index(axis: str) -> int:
-        """returns index of axis name.<br>
-        raises a valueError when the name isn't valid.
-
-        Args:
-                axis (str): the name of the axis
-
-        Returns:
-                int: the index
-        """
-        return ["r", "g", "b", "a"].index(axis)
-
-    @staticmethod
-    def by_hex(hex: str) -> 'Color':
-        """converts a heximal string to a color object.
-
-        Args:
-                hex (str): a heximal string, for example '#FF00FF88'
-
-        Returns:
-                Color: the color object
-        """
-        return (
-            Color(
-                int(hex[1:3], 16),
-                int(hex[3:5], 16),
-                int(hex[5:7], 16),
-                int(hex[7:9], 16),
-            )
-            if len(hex) > 7
-            else Color(int(hex[1:3], 16), int(hex[3:5], 16), int(hex[5:7], 16))
-        )
-
-    @staticmethod
-    def by_cmyk(c, m, y, k) -> "Color":
-        r = int((1 - c) * (1 - k) * 255)
-        g = int((1 - m) * (1 - k) * 255)
-        b = int((1 - y) * (1 - k) * 255)
-        return Color(r, g, b)
-
-    @staticmethod
-    def by_gray_scale(brightness, channel_count=3) -> "Color":
-        return Color([brightness] * channel_count)
-
-    @staticmethod
-    def by_rgb(*args, **kwargs):
-        return Color(*args, **kwargs)
-
-    @staticmethod
-    def by_hsv(h, s, v):
-        h /= 60.0
-        c = v * s
-        x = c * (1 - abs(h % 2 - 1))
-        m = v - c
-        if 0 <= h < 1:
-            r, g, b = c, x, 0
-        elif 1 <= h < 2:
-            r, g, b = x, c, 0
-        elif 2 <= h < 3:
-            r, g, b = 0, c, x
-        elif 3 <= h < 4:
-            r, g, b = 0, x, c
-        elif 4 <= h < 5:
-            r, g, b = x, 0, c
-        else:
-            r, g, b = c, 0, x
-        return Color(int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
-
-    @staticmethod
-    def by_hsl(h, s, l):
-        c = (1 - abs(2 * l - 1)) * s
-        x = c * (1 - abs(h / 60 % 2 - 1))
-        m = l - c / 2
-        if h < 60:
-            r, g, b = c, x, 0
-        elif h < 120:
-            r, g, b = x, c, 0
-        elif h < 180:
-            r, g, b = 0, c, x
-        elif h < 240:
-            r, g, b = 0, x, c
-        elif h < 300:
-            r, g, b = x, 0, c
-        else:
-            r, g, b = c, 0, x
-        return Color(int((r + m) * 255), int((g + m) * 255), int((b + m) * 255))
-
-Color.red = Color(255, 0, 0)
-Color.green = Color(0, 255, 0)
-Color.blue = Color(0, 0, 255)
-
-
-def rgb_to_int(rgb):
-    r, g, b = [max(0, min(255, c)) for c in rgb]
-
-    return (255 << 24) | (r << 16) | (g << 8) | b
-
-class Material:
-    def __init__(self, name: str, color : Color):
-        self.name = name
-        self.color = color
-
-#Building Materials
-BaseConcrete = Material("Concrete", Color.by_rgb([192, 192, 192]))
-BaseTimber = Material("Timber", Color.by_rgb([191, 159, 116]))
-BaseSteel = Material("Steel", Color.by_rgb([237, 28, 36]))
-BaseOther = Material("Other", Color.by_rgb([150, 150, 150]))
-BaseBrick = Material("Brick", Color.by_rgb([170, 77, 47]))
-BaseBrickYellow = Material("BrickYellow", Color.by_rgb([208, 187, 147]))
-
-#GIS Materials
-BaseBuilding = Material("Building", Color.by_rgb([150, 28, 36]))
-BaseWater = Material("Water", Color.by_rgb([139, 197, 214]))
-BaseGreen = Material("Green", Color.by_rgb([175, 193, 138]))
-BaseInfra = Material("Infra", Color.by_rgb([234, 234, 234]))
-BaseRoads = Material("Infra", Color.by_rgb([140, 140, 140]))
-
-#class Materialfinish
-
 
 
 sqrt2 = math.sqrt(2)
@@ -5296,13 +6501,15 @@ class ArrowProfile(Profile):
 
         self.curve = PolyCurve([l1, l2, l3, l4, l5, l6, l7])
 
-jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
+jsonFile = (
+    "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
+)
 url = urllib.request.urlopen(jsonFile)
 data = json.loads(url.read())
 
 
 def is_rectangle_format(shape_name):
-    match = re.match(r'^(\d{1,4})x(\d{1,4})$', shape_name)
+    match = re.match(r"^(\d{1,4})x(\d{1,4})$", shape_name)
     if match:
         width, height = int(match.group(1)), int(match.group(2))
         if 0 <= width <= 10000 and 0 <= height <= 10000:
@@ -5339,34 +6546,79 @@ def profile_by_name(name1) -> Profile:
     if profile_name == None:
         structural_fallback_element = "HEA100"
         profile_data = _getProfileDataFromDatabase(structural_fallback_element)
-        print(f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'")
+        print(
+            f"Error, profile '{name1}' not recognised, define in {jsonFile} | fallback: '{structural_fallback_element}'"
+        )
         profile_name = profile_data.shape_name
     name = profile_data.name
     coords = profile_data.shape_coords
     if profile_name == "C-channel parallel flange":
-        profile = CChannelParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5])
+        profile = CChannelParallelFlangeProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]
+        )
     elif profile_name == "C-channel sloped flange":
-        profile = CChannelSlopedFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7],coords[8])
+        profile = CChannelSlopedFlangeProfile(
+            name,
+            coords[0],
+            coords[1],
+            coords[2],
+            coords[3],
+            coords[4],
+            coords[5],
+            coords[6],
+            coords[7],
+            coords[8],
+        )
     elif profile_name == "I-shape parallel flange":
-        profile = IShapeParallelFlangeProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = IShapeParallelFlangeProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4]
+        )
     elif profile_name == "I-shape sloped flange":
-        profile = IShapeParallelFlangeProfile(name, coords[0], coords[1], coords[2], coords[3], coords[4])
-        #Todo: add sloped flange shape
+        profile = IShapeParallelFlangeProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4]
+        )
+        # Todo: add sloped flange shape
     elif profile_name == "Rectangle":
-        profile = RectangleProfile(name,coords[0], coords[1])
+        profile = RectangleProfile(name, coords[0], coords[1])
     elif profile_name == "Round":
         profile = RoundProfile(name, coords[1])
     elif profile_name == "Round tube profile":
         profile = RoundtubeProfile(name, coords[0], coords[1])
     elif profile_name == "LAngle":
-        profile = LAngleProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4],coords[5],coords[6],coords[7])
+        profile = LAngleProfile(
+            name,
+            coords[0],
+            coords[1],
+            coords[2],
+            coords[3],
+            coords[4],
+            coords[5],
+            coords[6],
+            coords[7],
+        )
     elif profile_name == "TProfile":
-        profile = TProfileRounded(name, coords[0], coords[1], coords[2], coords[3], coords[4], coords[5], coords[6], coords[7], coords[8])
+        profile = TProfileRounded(
+            name,
+            coords[0],
+            coords[1],
+            coords[2],
+            coords[3],
+            coords[4],
+            coords[5],
+            coords[6],
+            coords[7],
+            coords[8],
+        )
     elif profile_name == "Rectangle Hollow Section":
-        profile = RectangleHollowSectionProfile(name,coords[0],coords[1],coords[2],coords[3],coords[4])
+        profile = RectangleHollowSectionProfile(
+            name, coords[0], coords[1], coords[2], coords[3], coords[4]
+        )
     return profile
 
-def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
+
+def justification_to_vector(
+    plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None
+):
 
     # print(XJustifiction)
     xval = []
@@ -5375,46 +6627,46 @@ def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, 
         xval.append(i.start.x)
         yval.append(i.start.y)
 
-    #Rect
+    # Rect
     xmin = min(xval)
     xmax = max(xval)
     ymin = min(yval)
     ymax = max(yval)
 
-    b = xmax-xmin
-    h = ymax-ymin
+    b = xmax - xmin
+    h = ymax - ymin
 
     # print(b, h)
 
     dxleft = -xmax
     dxright = -xmin
-    dxcenter = dxleft - 0.5 * b #CHECK
+    dxcenter = dxleft - 0.5 * b  # CHECK
     dxorigin = 0
 
     dytop = -ymax
     dybottom = -ymin
-    dycenter = dytop - 0.5 * h #CHECK
+    dycenter = dytop - 0.5 * h  # CHECK
     dyorigin = 0
 
     if XJustifiction == "center":
-        dx = dxorigin #TODO
+        dx = dxorigin  # TODO
     elif XJustifiction == "left":
         dx = dxleft
-    elif XJustifiction == "right":  
+    elif XJustifiction == "right":
         dx = dxright
     elif XJustifiction == "origin":
-        dx = dxorigin #TODO
+        dx = dxorigin  # TODO
     else:
         dx = 0
 
     if Yjustification == "center":
-        dy = dyorigin   #TODO
+        dy = dyorigin  # TODO
     elif Yjustification == "top":
         dy = dytop
     elif Yjustification == "bottom":
         dy = dybottom
     elif Yjustification == "origin":
-        dy = dyorigin #TODO
+        dy = dyorigin  # TODO
     else:
         dy = 0
 
@@ -5423,68 +6675,6 @@ def justification_to_vector(plycrv2D: PolyCurve, XJustifiction, Yjustification, 
     # v1 = Vector2(0, 0)
 
     return v1
-
-
-
-class Plane:
-	# Plane is an infinite element in space defined by a point and a normal
-	"""The `Plane` class represents an infinite plane in 3D space, defined uniquely by an origin point and a normal vector, along with two other vectors lying on the plane, providing a complete basis for defining plane orientation and position."""
-	def __init__(self):
-		""""Initializes a new Plane instance.
-
-		- `Origin` (Point): The origin point of the plane, which also lies on the plane.
-		- `Normal` (Vector): A vector perpendicular to the plane, defining its orientation.
-		- `v1` (Vector): A vector lying on the plane, typically representing the "x" direction on the plane.
-		- `v2` (Vector): Another vector on the plane, perpendicular to `v1` and typically representing the "y" direction on the plane.
-		"""
-		self.Origin = Point(0, 0, 0)
-		self.Normal = Vector(x=0, y=0, z=1)
-		self.vector_1 = Vector(x=1, y=0, z=0)
-		self.vector_2 = Vector(x=0, y=1, z=0)
-
-	@classmethod
-	def by_two_vectors_origin(cls, vector_1: Vector, vector_2: Vector, origin: Point) -> 'Plane':
-		"""Creates a Plane defined by two vectors and an origin point.
-		This method establishes a plane using two vectors that lie on the plane and an origin point. The normal is calculated as the cross product of the two vectors, ensuring it is perpendicular to the plane.
-
-		#### Parameters:
-			vector_1 (Vector): The first vector on the plane.
-			vector_2 (Vector): The second vector on the plane, should not be parallel to vector_1.
-			origin (Point): The origin point of the plane, lying on the plane.
-
-		#### Returns:
-			Plane: A Plane instance defined by the given vectors and origin.
-		
-		#### Example usage:
-		```python
-
-		```
-		"""
-		p1 = Plane()
-		p1.Normal = Vector.cross_product(vector_1, vector_2).normalized
-		p1.Origin = origin
-		p1.vector_1 = vector_1
-		p1.vector_2 = vector_2
-		return p1
-
-	def __str__(self) -> str:
-		"""Generates a string representation of the Plane.
-
-		#### Returns:
-			str: A string describing the Plane with its origin, normal, and basis vectors.
-		 
-		#### Example usage:
-		```python
-
-		```
-		"""
-
-		return f"{__class__.__name__}(" + f"{self.Origin}, {self.Normal}, {self.vector_1}, {self.vector_2})"
-
-	# TODO
-	# byLineAndPoint
-	# byOriginNormal
-	# byThreePoints
 
 
 
@@ -5689,7 +6879,7 @@ class Beam(Serializable, Meshable):
         )
 
     def to_mesh(self, settings: TesselationSettings) -> Mesh:
-        self.extrusion.to_mesh(settings)
+        return self.extrusion.to_mesh(settings)
 
 
 Column = Beam
@@ -6158,7 +7348,7 @@ class Floor:
 		self.name = None
 		self.description = None
 		self.perimeter: float = 0
-		self.colorint = None
+		self.mai = None
 		self.origincurve = None
 		self.points = None
 		self.thickness = None
@@ -6620,982 +7810,6 @@ class Panel(Serializable, Meshable):
         )
 
 
-MIN_DEPTH = 5
-ERROR = 1e-12
-
-
-def segment_length(curve, start, end, start_point, end_point, error, min_depth, depth):
-    """Recursively approximates the length by straight lines"""
-    mid = (start + end) / 2
-    mid_point = curve.point(mid)
-    length = abs(end_point - start_point)
-    first_half = abs(mid_point - start_point)
-    second_half = abs(end_point - mid_point)
-
-    length2 = first_half + second_half
-    if (length2 - length > error) or (depth < min_depth):
-        # Calculate the length of each segment:
-        depth += 1
-        return segment_length(
-            curve, start, mid, start_point, mid_point, error, min_depth, depth
-        ) + segment_length(
-            curve, mid, end, mid_point, end_point, error, min_depth, depth
-        )
-    # This is accurate enough.
-    return length2
-
-
-class PathSegment(ABC):
-    @abstractmethod
-    def point(self, pos):
-        """Returns the coordinate point (as a complex number) of a point on the path,
-        as expressed as a floating point number between 0 (start) and 1 (end).
-        """
-
-    @abstractmethod
-    def tangent(self, pos):
-        """Returns a vector (as a complex number) representing the tangent of a point
-        on the path as expressed as a floating point number between 0 (start) and 1 (end).
-        """
-
-    @abstractmethod
-    def length(self, error=ERROR, min_depth=MIN_DEPTH):
-        """Returns the length of a path.
-
-        The CubicBezier and Arc lengths are non-exact and iterative and you can select to
-        either do the calculations until a maximum error has been achieved, or a minimum
-        number of iterations.
-        """
-
-
-class NonLinear(PathSegment):
-    """A line that is not straight
-
-    The base of Arc, QuadraticBezier and CubicBezier
-    """
-
-
-class Linear(PathSegment):
-    """A straight line
-
-    The base for Line() and Close().
-    """
-
-    def __init__(self, start, end, relative=False):
-        self.start = start
-        self.end = end
-        self.relative = relative
-
-    def __ne__(self, other):
-        if not isinstance(other, Line):
-            return NotImplemented
-        return not self == other
-
-    def point(self, pos):
-        distance = self.end - self.start
-        return self.start + distance * pos
-
-    def tangent(self, pos):
-        return self.end - self.start
-
-    def length(self, error=None, min_depth=None):
-        distance = self.end - self.start
-        return sqrt(distance.real**2 + distance.imag**2)
-
-
-class Line(Linear):
-    def __init__(self, start, end, relative=False, vertical=False, horizontal=False):
-        self.start = start
-        self.end = end
-        self.relative = relative
-        self.vertical = vertical
-        self.horizontal = horizontal
-
-    def __repr__(self):
-        return f"Line(start={self.start}, end={self.end})"
-
-    def __eq__(self, other):
-        if not isinstance(other, Line):
-            return NotImplemented
-        return self.start == other.start and self.end == other.end
-
-    def _d(self, previous):
-        x = self.end.real
-        y = self.end.imag
-        if self.relative:
-            x -= previous.end.real
-            y -= previous.end.imag
-
-        if self.horizontal and self.is_horizontal_from(previous):
-            cmd = "h" if self.relative else "H"
-            return f"{cmd} {x:G},{y:G}"
-
-        if self.vertical and self.is_vertical_from(previous):
-            cmd = "v" if self.relative else "V"
-            return f"{cmd} {y:G}"
-
-        cmd = "l" if self.relative else "L"
-        return f"{cmd} {x:G},{y:G}"
-
-    def is_vertical_from(self, previous):
-        return self.start == previous.end and self.start.real == self.end.real
-
-    def is_horizontal_from(self, previous):
-        return self.start == previous.end and self.start.imag == self.end.imag
-
-
-class CubicBezier(NonLinear):
-    def __init__(self, start, control1, control2, end, relative=False, smooth=False):
-        self.start = start
-        self.control1 = control1
-        self.control2 = control2
-        self.end = end
-        self.relative = relative
-        self.smooth = smooth
-
-    def __repr__(self):
-        return (
-            f"CubicBezier(start={self.start}, control1={self.control1}, "
-            f"control2={self.control2}, end={self.end}, smooth={self.smooth})"
-        )
-
-    def __eq__(self, other):
-        if not isinstance(other, CubicBezier):
-            return NotImplemented
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.control1 == other.control1
-            and self.control2 == other.control2
-        )
-
-    def __ne__(self, other):
-        if not isinstance(other, CubicBezier):
-            return NotImplemented
-        return not self == other
-
-    def _d(self, previous):
-        c1 = self.control1
-        c2 = self.control2
-        end = self.end
-
-        if self.relative and previous:
-            c1 -= previous.end
-            c2 -= previous.end
-            end -= previous.end
-
-        if self.smooth and self.is_smooth_from(previous):
-            cmd = "s" if self.relative else "S"
-            return f"{cmd} {c2.real:G},{c2.imag:G} {end.real:G},{end.imag:G}"
-
-        cmd = "c" if self.relative else "C"
-        return f"{cmd} {c1.real:G},{c1.imag:G} {c2.real:G},{c2.imag:G} {end.real:G},{end.imag:G}"
-
-    def is_smooth_from(self, previous):
-        """Checks if this segment would be a smooth segment following the previous"""
-        if isinstance(previous, CubicBezier):
-            return self.start == previous.end and (self.control1 - self.start) == (
-                previous.end - previous.control2
-            )
-        else:
-            return self.control1 == self.start
-
-    def set_smooth_from(self, previous):
-        assert isinstance(previous, CubicBezier)
-        self.start = previous.end
-        self.control1 = previous.end - previous.control2 + self.start
-        self.smooth = True
-
-    def point(self, pos):
-        """Calculate the x,y position at a certain position of the path"""
-        return (
-            ((1 - pos) ** 3 * self.start)
-            + (3 * (1 - pos) ** 2 * pos * self.control1)
-            + (3 * (1 - pos) * pos**2 * self.control2)
-            + (pos**3 * self.end)
-        )
-
-    def tangent(self, pos):
-        return (
-            -3 * (1 - pos) ** 2 * self.start
-            + 3 * (1 - pos) ** 2 * self.control1
-            - 6 * pos * (1 - pos) * self.control1
-            - 3 * pos**2 * self.control2
-            + 6 * pos * (1 - pos) * self.control2
-            + 3 * pos**2 * self.end
-        )
-
-    def length(self, error=ERROR, min_depth=MIN_DEPTH):
-        """Calculate the length of the path up to a certain position"""
-        start_point = self.point(0)
-        end_point = self.point(1)
-        return segment_length(self, 0, 1, start_point, end_point, error, min_depth, 0)
-
-
-class QuadraticBezier(NonLinear):
-    def __init__(self, start, control, end, relative=False, smooth=False):
-        self.start = start
-        self.end = end
-        self.control = control
-        self.relative = relative
-        self.smooth = smooth
-
-    def __repr__(self):
-        return (
-            f"QuadraticBezier(start={self.start}, control={self.control}, "
-            f"end={self.end}, smooth={self.smooth})"
-        )
-
-    def __eq__(self, other):
-        if not isinstance(other, QuadraticBezier):
-            return NotImplemented
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.control == other.control
-        )
-
-    def __ne__(self, other):
-        if not isinstance(other, QuadraticBezier):
-            return NotImplemented
-        return not self == other
-
-    def _d(self, previous):
-        control = self.control
-        end = self.end
-        if self.relative and previous:
-            control -= previous.end
-            end -= previous.end
-
-        if self.smooth and self.is_smooth_from(previous):
-            cmd = "t" if self.relative else "T"
-            return f"{cmd} {end.real:G},{end.imag:G}"
-
-        cmd = "q" if self.relative else "Q"
-        return f"{cmd} {control.real:G},{control.imag:G} {end.real:G},{end.imag:G}"
-
-    def is_smooth_from(self, previous):
-        """Checks if this segment would be a smooth segment following the previous"""
-        if isinstance(previous, QuadraticBezier):
-            return self.start == previous.end and (self.control - self.start) == (
-                previous.end - previous.control
-            )
-        else:
-            return self.control == self.start
-
-    def set_smooth_from(self, previous):
-        assert isinstance(previous, QuadraticBezier)
-        self.start = previous.end
-        self.control = previous.end - previous.control + self.start
-        self.smooth = True
-
-    def point(self, pos):
-        return (
-            (1 - pos) ** 2 * self.start
-            + 2 * (1 - pos) * pos * self.control
-            + pos**2 * self.end
-        )
-
-    def tangent(self, pos):
-        return (
-            self.start * (2 * pos - 2)
-            + (2 * self.end - 4 * self.control) * pos
-            + 2 * self.control
-        )
-
-    def length(self, error=None, min_depth=None):
-        a = self.start - 2 * self.control + self.end
-        b = 2 * (self.control - self.start)
-
-        try:
-            # For an explanation of this case, see
-            # http://www.malczak.info/blog/quadratic-bezier-curve-length/
-            A = 4 * (a.real**2 + a.imag**2)
-            B = 4 * (a.real * b.real + a.imag * b.imag)
-            C = b.real**2 + b.imag**2
-
-            Sabc = 2 * sqrt(A + B + C)
-            A2 = sqrt(A)
-            A32 = 2 * A * A2
-            C2 = 2 * sqrt(C)
-            BA = B / A2
-
-            s = (
-                A32 * Sabc
-                + A2 * B * (Sabc - C2)
-                + (4 * C * A - B**2) * log((2 * A2 + BA + Sabc) / (BA + C2))
-            ) / (4 * A32)
-        except (ZeroDivisionError, ValueError):
-            if abs(a) < 1e-10:
-                s = abs(b)
-            else:
-                k = abs(b) / abs(a)
-                if k >= 2:
-                    s = abs(b) - abs(a)
-                else:
-                    s = abs(a) * (k**2 / 2 - k + 1)
-        return s
-
-
-class Arc(NonLinear):
-    def __init__(self, start, radius, rotation, arc, sweep, end, relative=False):
-        """radius is complex, rotation is in degrees,
-        large and sweep are 1 or 0 (True/False also work)"""
-
-        self.start = start
-        self.radius = radius
-        self.rotation = rotation
-        self.arc = bool(arc)
-        self.sweep = bool(sweep)
-        self.end = end
-        self.relative = relative
-
-        self._parameterize()
-
-    def __repr__(self):
-        return (
-            f"Arc(start={self.start}, radius={self.radius}, rotation={self.rotation}, "
-            f"arc={self.arc}, sweep={self.sweep}, end={self.end})"
-        )
-
-    def __eq__(self, other):
-        if not isinstance(other, Arc):
-            return NotImplemented
-        return (
-            self.start == other.start
-            and self.end == other.end
-            and self.radius == other.radius
-            and self.rotation == other.rotation
-            and self.arc == other.arc
-            and self.sweep == other.sweep
-        )
-
-    def __ne__(self, other):
-        if not isinstance(other, Arc):
-            return NotImplemented
-        return not self == other
-
-    def _d(self, previous):
-        end = self.end
-        cmd = "a" if self.relative else "A"
-        if self.relative:
-            end -= previous.end
-
-        return (
-            f"{cmd} {self.radius.real:G},{self.radius.imag:G} {self.rotation:G} "
-            f"{int(self.arc):d},{int(self.sweep):d} {end.real:G},{end.imag:G}"
-        )
-
-    def _parameterize(self):
-        # Conversion from endpoint to center parameterization
-        # http://www.w3.org/TR/SVG/implnote.html#ArcImplementationNotes
-        if self.start == self.end:
-            # This is equivalent of omitting the segment, so do nothing
-            return
-
-        if self.radius.real == 0 or self.radius.imag == 0:
-            # This should be treated as a straight line
-            return
-
-        cosr = cos(radians(self.rotation))
-        sinr = sin(radians(self.rotation))
-        dx = (self.start.real - self.end.real) / 2
-        dy = (self.start.imag - self.end.imag) / 2
-        x1prim = cosr * dx + sinr * dy
-        x1prim_sq = x1prim * x1prim
-        y1prim = -sinr * dx + cosr * dy
-        y1prim_sq = y1prim * y1prim
-
-        rx = self.radius.real
-        rx_sq = rx * rx
-        ry = self.radius.imag
-        ry_sq = ry * ry
-
-        # Correct out of range radii
-        radius_scale = (x1prim_sq / rx_sq) + (y1prim_sq / ry_sq)
-        if radius_scale > 1:
-            radius_scale = sqrt(radius_scale)
-            rx *= radius_scale
-            ry *= radius_scale
-            rx_sq = rx * rx
-            ry_sq = ry * ry
-            self.radius_scale = radius_scale
-        else:
-            # SVG spec only scales UP
-            self.radius_scale = 1
-
-        t1 = rx_sq * y1prim_sq
-        t2 = ry_sq * x1prim_sq
-        c = sqrt(abs((rx_sq * ry_sq - t1 - t2) / (t1 + t2)))
-
-        if self.arc == self.sweep:
-            c = -c
-        cxprim = c * rx * y1prim / ry
-        cyprim = -c * ry * x1prim / rx
-
-        self.center = complex(
-            (cosr * cxprim - sinr * cyprim) + ((self.start.real + self.end.real) / 2),
-            (sinr * cxprim + cosr * cyprim) + ((self.start.imag + self.end.imag) / 2),
-        )
-
-        ux = (x1prim - cxprim) / rx
-        uy = (y1prim - cyprim) / ry
-        vx = (-x1prim - cxprim) / rx
-        vy = (-y1prim - cyprim) / ry
-        n = sqrt(ux * ux + uy * uy)
-        p = ux
-        theta = degrees(acos(p / n))
-        if uy < 0:
-            theta = -theta
-        self.theta = theta % 360
-
-        n = sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy))
-        p = ux * vx + uy * vy
-        d = p / n
-        # In certain cases the above calculation can through inaccuracies
-        # become just slightly out of range, f ex -1.0000000000000002.
-        if d > 1.0:
-            d = 1.0
-        elif d < -1.0:
-            d = -1.0
-        delta = degrees(acos(d))
-        if (ux * vy - uy * vx) < 0:
-            delta = -delta
-        self.delta = delta % 360
-        if not self.sweep:
-            self.delta -= 360
-
-    def point(self, pos):
-        if self.start == self.end:
-            # This is equivalent of omitting the segment
-            return self.start
-
-        if self.radius.real == 0 or self.radius.imag == 0:
-            # This should be treated as a straight line
-            distance = self.end - self.start
-            return self.start + distance * pos
-
-        angle = radians(self.theta + (self.delta * pos))
-        cosr = cos(radians(self.rotation))
-        sinr = sin(radians(self.rotation))
-        radius = self.radius * self.radius_scale
-
-        x = (
-            cosr * cos(angle) * radius.real
-            - sinr * sin(angle) * radius.imag
-            + self.center.real
-        )
-        y = (
-            sinr * cos(angle) * radius.real
-            + cosr * sin(angle) * radius.imag
-            + self.center.imag
-        )
-        return complex(x, y)
-
-    def tangent(self, pos):
-        angle = radians(self.theta + (self.delta * pos))
-        cosr = cos(radians(self.rotation))
-        sinr = sin(radians(self.rotation))
-        radius = self.radius * self.radius_scale
-
-        x = cosr * cos(angle) * radius.real - sinr * sin(angle) * radius.imag
-        y = sinr * cos(angle) * radius.real + cosr * sin(angle) * radius.imag
-        return complex(x, y) * complex(0, 1)
-
-    def length(self, error=ERROR, min_depth=MIN_DEPTH):
-        """The length of an elliptical arc segment requires numerical
-        integration, and in that case it's simpler to just do a geometric
-        approximation, as for cubic bezier curves.
-        """
-        if self.start == self.end:
-            # This is equivalent of omitting the segment
-            return 0
-
-        if self.radius.real == 0 or self.radius.imag == 0:
-            # This should be treated as a straight line
-            distance = self.end - self.start
-            return sqrt(distance.real**2 + distance.imag**2)
-
-        if self.radius.real == self.radius.imag:
-            # It's a circle, which simplifies this a LOT.
-            radius = self.radius.real * self.radius_scale
-            return abs(radius * self.delta * pi / 180)
-
-        start_point = self.point(0)
-        end_point = self.point(1)
-        return segment_length(self, 0, 1, start_point, end_point, error, min_depth, 0)
-
-
-class Move:
-    """Represents move commands. Does nothing, but is there to handle
-    paths that consist of only move commands, which is valid, but pointless.
-    """
-
-    def __init__(self, to, relative=False):
-        self.start = self.end = to
-        self.relative = relative
-
-    def __repr__(self):
-        return "Move(to=%s)" % self.start
-
-    def __eq__(self, other):
-        if not isinstance(other, Move):
-            return NotImplemented
-        return self.start == other.start
-
-    def __ne__(self, other):
-        if not isinstance(other, Move):
-            return NotImplemented
-        return not self == other
-
-    def _d(self, previous):
-        cmd = "M"
-        x = self.end.real
-        y = self.end.imag
-        if self.relative:
-            cmd = "m"
-            if previous:
-                x -= previous.end.real
-                y -= previous.end.imag
-        return f"{cmd} {x:G},{y:G}"
-
-    def point(self, pos):
-        return self.start
-
-    def tangent(self, pos):
-        return 0
-
-    def length(self, error=ERROR, min_depth=MIN_DEPTH):
-        return 0
-
-
-class Close(Linear):
-    """Represents the closepath command"""
-
-    def __eq__(self, other):
-        if not isinstance(other, Close):
-            return NotImplemented
-        return self.start == other.start and self.end == other.end
-
-    def __repr__(self):
-        return f"Close(start={self.start}, end={self.end})"
-
-    def _d(self, previous):
-        return "z" if self.relative else "Z"
-
-
-class Path(MutableSequence):
-    """A Path is a sequence of path segments"""
-
-    def __init__(self, *segments):
-        self._segments = list(segments)
-        self._length = None
-        self._lengths = None
-        # Fractional distance from starting point through the end of each segment.
-        self._fractions = []
-
-    def __getitem__(self, index):
-        return self._segments[index]
-
-    def __setitem__(self, index, value):
-        self._segments[index] = value
-        self._length = None
-
-    def __delitem__(self, index):
-        del self._segments[index]
-        self._length = None
-
-    def insert(self, index, value):
-        self._segments.insert(index, value)
-        self._length = None
-
-    def reverse(self):
-        # Reversing the order of a path would require reversing each element
-        # as well. That's not implemented.
-        raise NotImplementedError
-
-    def __len__(self):
-        return len(self._segments)
-
-    def __repr__(self):
-        return "Path(%s)" % (", ".join(repr(x) for x in self._segments))
-
-    def __eq__(self, other):
-
-        if not isinstance(other, Path):
-            return NotImplemented
-        if len(self) != len(other):
-            return False
-        for s, o in zip(self._segments, other._segments):
-            if not s == o:
-                return False
-        return True
-
-    def __ne__(self, other):
-        if not isinstance(other, Path):
-            return NotImplemented
-        return not self == other
-
-    def _calc_lengths(self, error=ERROR, min_depth=MIN_DEPTH):
-        if self._length is not None:
-            return
-
-        lengths = [
-            each.length(error=error, min_depth=min_depth) for each in self._segments
-        ]
-        self._length = sum(lengths)
-        if self._length == 0:
-            self._lengths = lengths
-        else:
-            self._lengths = [each / self._length for each in lengths]
-        # Calculate the fractional distance for each segment to use in point()
-        fraction = 0
-        for each in self._lengths:
-            fraction += each
-            self._fractions.append(fraction)
-
-    def _find_segment(self, pos, error=ERROR):
-        # Shortcuts
-        if pos == 0.0:
-            return self._segments[0], pos
-        if pos == 1.0:
-            return self._segments[-1], pos
-
-        self._calc_lengths(error=error)
-
-        # Fix for paths of length 0 (i.e. points)
-        if self._length == 0:
-            return self._segments[0], 0.0
-
-        # Find which segment the point we search for is located on:
-        i = bisect(self._fractions, pos)
-        if i == 0:
-            segment_pos = pos / self._fractions[0]
-        else:
-            segment_pos = (pos - self._fractions[i - 1]) / (
-                self._fractions[i] - self._fractions[i - 1]
-            )
-        return self._segments[i], segment_pos
-
-    def point(self, pos, error=ERROR):
-        segment, pos = self._find_segment(pos, error)
-        return segment.point(pos)
-
-    def tangent(self, pos, error=ERROR):
-        segment, pos = self._find_segment(pos, error)
-        return segment.tangent(pos)
-
-    def length(self, error=ERROR, min_depth=MIN_DEPTH):
-        self._calc_lengths(error, min_depth)
-        return self._length
-
-    def d(self):
-        parts = []
-        previous_segment = None
-
-        for segment in self:
-            parts.append(segment._d(previous_segment))
-            previous_segment = segment
-
-        return " ".join(parts)
-
-
-COMMANDS = set("MmZzLlHhVvCcSsQqTtAa")
-UPPERCASE = set("MZLHVCSQTA")
-
-COMMAND_RE = re.compile(r"([MmZzLlHhVvCcSsQqTtAa])")
-FLOAT_RE = re.compile(rb"^[-+]?\d*\.?\d*(?:[eE][-+]?\d+)?")
-
-
-class InvalidPathError(ValueError):
-    pass
-
-
-# The argument sequences from the grammar, made sane.
-# u: Non-negative number
-# s: Signed number or coordinate
-# c: coordinate-pair, which is two coordinates/numbers, separated by whitespace
-# f: A one character flag, doesn't need whitespace, 1 or 0
-ARGUMENT_SEQUENCE = {
-    "M": "c",
-    "Z": "",
-    "L": "c",
-    "H": "s",
-    "V": "s",
-    "C": "ccc",
-    "S": "cc",
-    "Q": "cc",
-    "T": "c",
-    "A": "uusffc",
-}
-
-
-def strip_array(arg_array):
-    """Strips whitespace and commas"""
-    # EBNF wsp:(#x20 | #x9 | #xD | #xA) + comma: 0x2C
-    while arg_array and arg_array[0] in (0x20, 0x9, 0xD, 0xA, 0x2C):
-        arg_array[0:1] = b""
-
-
-def pop_number(arg_array):
-    res = FLOAT_RE.search(arg_array)
-    if not res or not res.group():
-        raise InvalidPathError(f"Expected a number, got '{arg_array}'.")
-    number = float(res.group())
-    start = res.start()
-    end = res.end()
-    arg_array[start:end] = b""
-    strip_array(arg_array)
-
-    return number
-
-
-def pop_unsigned_number(arg_array):
-    number = pop_number(arg_array)
-    if number < 0:
-        raise InvalidPathError(f"Expected a non-negative number, got '{number}'.")
-    return number
-
-
-def pop_coordinate_pair(arg_array):
-    x = pop_number(arg_array)
-    y = pop_number(arg_array)
-    return complex(x, y)
-
-
-def pop_flag(arg_array):
-    flag = arg_array[0]
-    arg_array[0:1] = b""
-    strip_array(arg_array)
-    if flag == 48:  # ASCII 0
-        return False
-    if flag == 49:  # ASCII 1
-        return True
-
-
-FIELD_POPPERS = {
-    "u": pop_unsigned_number,
-    "s": pop_number,
-    "c": pop_coordinate_pair,
-    "f": pop_flag,
-}
-
-
-def _commandify_path(pathdef):
-    """Splits path into commands and arguments"""
-    token = None
-    for x in COMMAND_RE.split(pathdef):
-        x = x.strip()
-        if x in COMMANDS:
-            if token is not None:
-                yield token
-            if x in ("z", "Z"):
-                # The end command takes no arguments, so add a blank one
-                token = (x, "")
-            else:
-                token = (x,)
-        elif x:
-            if token is None:
-                raise InvalidPathError(f"Path does not start with a command: {pathdef}")
-            token += (x,)
-    yield token
-
-
-def _tokenize_path(pathdef):
-    for command, args in _commandify_path(pathdef):
-        # Shortcut this for the close command, that doesn't have arguments:
-        if command in ("z", "Z"):
-            yield (command,)
-            continue
-
-        # For the rest of the commands, we parse the arguments and
-        # yield one command per full set of arguments
-        arg_sequence = ARGUMENT_SEQUENCE[command.upper()]
-        arguments = bytearray(args, "ascii")
-        implicit = False
-        while arguments:
-            command_arguments = []
-            for i, arg in enumerate(arg_sequence):
-                try:
-                    command_arguments.append(FIELD_POPPERS[arg](arguments))
-                except InvalidPathError as e:
-                    if i == 0 and implicit:
-                        return  # Invalid character in path, treat like a comment
-                    raise InvalidPathError(
-                        f"Invalid path element {command} {args}"
-                    ) from e
-
-            yield (command,) + tuple(command_arguments)
-            implicit = True
-
-            # Implicit Moveto commands should be treated as Lineto commands.
-            if command == "m":
-                command = "l"
-            elif command == "M":
-                command = "L"
-
-
-def parse_path(pathdef):
-    segments = path.Path()
-    start_pos = None
-    last_command = None
-    current_pos = 0
-
-    for token in _tokenize_path(pathdef):
-        command = token[0]
-        relative = command.islower()
-        command = command.upper()
-        if command == "M":
-            pos = token[1]
-            if relative:
-                current_pos += pos
-            else:
-                current_pos = pos
-            segments.append(path.Move(current_pos, relative=relative))
-            start_pos = current_pos
-
-        elif command == "Z":
-            # For Close commands the "relative" argument just preserves case,
-            # it has no different in behavior.
-            segments.append(path.Close(current_pos, start_pos, relative=relative))
-            current_pos = start_pos
-
-        elif command == "L":
-            pos = token[1]
-            if relative:
-                pos += current_pos
-            segments.append(path.Line(current_pos, pos, relative=relative))
-            current_pos = pos
-
-        elif command == "H":
-            hpos = token[1]
-            if relative:
-                hpos += current_pos.real
-            pos = complex(hpos, current_pos.imag)
-            segments.append(
-                path.Line(current_pos, pos, relative=relative, horizontal=True)
-            )
-            current_pos = pos
-
-        elif command == "V":
-            vpos = token[1]
-            if relative:
-                vpos += current_pos.imag
-            pos = complex(current_pos.real, vpos)
-            segments.append(
-                path.Line(current_pos, pos, relative=relative, vertical=True)
-            )
-            current_pos = pos
-
-        elif command == "C":
-            control1 = token[1]
-            control2 = token[2]
-            end = token[3]
-
-            if relative:
-                control1 += current_pos
-                control2 += current_pos
-                end += current_pos
-
-            segments.append(
-                path.CubicBezier(
-                    current_pos, control1, control2, end, relative=relative
-                )
-            )
-            current_pos = end
-
-        elif command == "S":
-            # Smooth curve. First control point is the "reflection" of
-            # the second control point in the previous path.
-            control2 = token[1]
-            end = token[2]
-
-            if relative:
-                control2 += current_pos
-                end += current_pos
-
-            if last_command in "CS":
-                # The first control point is assumed to be the reflection of
-                # the second control point on the previous command relative
-                # to the current point.
-                control1 = current_pos + current_pos - segments[-1].control2
-            else:
-                # If there is no previous command or if the previous command
-                # was not an C, c, S or s, assume the first control point is
-                # coincident with the current point.
-                control1 = current_pos
-
-            segments.append(
-                path.CubicBezier(
-                    current_pos, control1, control2, end, relative=relative, smooth=True
-                )
-            )
-            current_pos = end
-
-        elif command == "Q":
-            control = token[1]
-            end = token[2]
-
-            if relative:
-                control += current_pos
-                end += current_pos
-
-            segments.append(
-                path.QuadraticBezier(current_pos, control, end, relative=relative)
-            )
-            current_pos = end
-
-        elif command == "T":
-            # Smooth curve. Control point is the "reflection" of
-            # the second control point in the previous path.
-            end = token[1]
-
-            if relative:
-                end += current_pos
-
-            if last_command in "QT":
-                # The control point is assumed to be the reflection of
-                # the control point on the previous command relative
-                # to the current point.
-                control = current_pos + current_pos - segments[-1].control
-            else:
-                # If there is no previous command or if the previous command
-                # was not an Q, q, T or t, assume the first control point is
-                # coincident with the current point.
-                control = current_pos
-
-            segments.append(
-                path.QuadraticBezier(
-                    current_pos, control, end, smooth=True, relative=relative
-                )
-            )
-            current_pos = end
-
-        elif command == "A":
-            # For some reason I implemented the Arc with a complex radius.
-            # That doesn't really make much sense, but... *shrugs*
-            radius = complex(token[1], token[2])
-            rotation = token[3]
-            arc = token[4]
-            sweep = token[5]
-            end = token[6]
-
-            if relative:
-                end += current_pos
-
-            segments.append(
-                path.Arc(
-                    current_pos, radius, rotation, arc, sweep, end, relative=relative
-                )
-            )
-            current_pos = end
-
-        # Finish up the loop in preparation for next command
-        last_command = command
-
-    return segments
-
-
 
 class Room:
     def __init__(self):
@@ -7611,654 +7825,886 @@ class Room:
 
 
 class System:
-	"""Represents a generic system with a defined direction."""
-	def __init__(self):
-		"""Initializes a new System instance.
-		
-		- `type` (str): The class name, indicating the object type as "System".
-		- `name` (str, optional): The name of the system.
-		- `id` (str): A unique identifier for the system instance.
-		- `polycurve` (PolyCurve, optional): An optional PolyCurve associated with the system.
-		- `direction` (Vector): A Vector indicating the primary direction of the system.
-		"""
-		self.name = None
-		
-		self.polycurve = None
-		self.direction: Vector = Vector(1, 0, 0)
+    """Represents a generic system with a defined direction."""
+
+    def __init__(self):
+        """Initializes a new System instance.
+
+        - `type` (str): The class name, indicating the object type as "System".
+        - `name` (str, optional): The name of the system.
+        - `id` (str): A unique identifier for the system instance.
+        - `polycurve` (PolyCurve, optional): An optional PolyCurve associated with the system.
+        - `direction` (Vector): A Vector indicating the primary direction of the system.
+        """
+        self.name = None
+
+        self.polycurve = None
+        self.direction: Vector = Vector(1, 0, 0)
 
 
 class DivisionSystem:
-	# This class provides divisionsystems. It returns lists with floats based on a length.
-	"""The `DivisionSystem` class manages division systems, providing functionalities to calculate divisions and spacings based on various criteria."""
-	def __init__(self):
-		"""Initializes a new DivisionSystem instance.
+    # This class provides divisionsystems. It returns lists with floats based on a length.
+    """The `DivisionSystem` class manages division systems, providing functionalities to calculate divisions and spacings based on various criteria."""
 
-		- `type` (str): The class name, "DivisionSystem".
-		- `name` (str): The name of the division system.
-		- `id` (str): A unique identifier for the division system instance.
-		- `system_length` (float): The total length of the system to be divided.
-		- `spacing` (float): The spacing between divisions.
-		- `distance_first` (float): The distance of the first division from the start of the system.
-		- `width_stud` (float): The width of a stud, applicable in certain division strategies.
-		- `fixed_number` (int): A fixed number of divisions.
-		- `modifier` (int): A modifier value that adjusts the number of divisions or their placement.
-		- `distances` (list): A list containing the cumulative distances of each division from the start.
-		- `spaces` (list): A list containing the spaces between each division.
-		- `system` (str): A string indicating the current system strategy (e.g., "fixed_distance_unequal_division").
-		"""
-		self.name = None
-		
-		self.system_length: float = 100
-		self.spacing: float = 10
-		self.distance_first: float = 5
-		self.width_stud: float = 10
-		self.fixed_number: int = 2
-		self.modifier: int = 0
-		self.distances = []  # List with sum of distances
-		self.spaces = []  # List with spaces between every divison
-		self.system: str = "fixed_distance_unequal_division"
+    def __init__(self):
+        """Initializes a new DivisionSystem instance.
 
-	def __fixed_number_equal_spacing(self):
-		"""Calculates divisions based on a fixed number with equal spacing.
-		This internal method sets up divisions across the system length, ensuring each division is equally spaced. It is triggered by configurations that require a fixed number of divisions, automatically adjusting the spacing to fit the total length.
+        - `type` (str): The class name, "DivisionSystem".
+        - `name` (str): The name of the division system.
+        - `id` (str): A unique identifier for the division system instance.
+        - `system_length` (float): The total length of the system to be divided.
+        - `spacing` (float): The spacing between divisions.
+        - `distance_first` (float): The distance of the first division from the start of the system.
+        - `width_stud` (float): The width of a stud, applicable in certain division strategies.
+        - `fixed_number` (int): A fixed number of divisions.
+        - `modifier` (int): A modifier value that adjusts the number of divisions or their placement.
+        - `distances` (list): A list containing the cumulative distances of each division from the start.
+        - `spaces` (list): A list containing the spaces between each division.
+        - `system` (str): A string indicating the current system strategy (e.g., "fixed_distance_unequal_division").
+        """
+        self.name = None
 
-		#### Effects:
-		- Sets the division system name to "fixed_number_equal_spacing".
-		- Calculates equal spacing between divisions based on the total system length and the fixed number of divisions.
-		- Resets the modifier to 0, as it is not applicable in this configuration.
-		- Assigns the calculated spacing to `distance_first` to maintain consistency at the start of the system.
-		"""
-		self.name = "fixed_number_equal_spacing"
-		self.distances = Interval.by_start_end_count(
-			0, self.system_length, self.fixed_number)
-		self.spacing = self.system_length / self.fixed_number
-		self.modifier = 0
-		self.distance_first = self.spacing
+        self.system_length: float = 100
+        self.spacing: float = 10
+        self.distance_first: float = 5
+        self.width_stud: float = 10
+        self.fixed_number: int = 2
+        self.modifier: int = 0
+        self.distances = []  # List with sum of distances
+        self.spaces = []  # List with spaces between every divison
+        self.system: str = "fixed_distance_unequal_division"
 
-	def __fixed_distance_unequal_division(self):
-		"""Configures divisions with a fixed starting distance followed by unequal divisions.
-		This internal method configures the division system to start with a specified distance for the first division, then continues with divisions spaced according to `spacing`. If the total length cannot be evenly divided, the last division's spacing may differ.
+    def __fixed_number_equal_spacing(self):
+        """Calculates divisions based on a fixed number with equal spacing.
+        This internal method sets up divisions across the system length, ensuring each division is equally spaced. It is triggered by configurations that require a fixed number of divisions, automatically adjusting the spacing to fit the total length.
 
-		#### Effects:
-		- Sets the division system name to "fixed_distance_unequal_division".
-		- Calculates the number of divisions based on the spacing and the total system length minus the first division's distance.
-		- Generates a list of distances where each division should occur, considering the initial distance and spacing.
-		"""
-		self.name = "fixed_distance_unequal_division"
-		rest_length = self.system_length - self.distance_first
-		number_of_studs = int(rest_length / self.spacing)
-		number_of_studs = number_of_studs + self.modifier
-		distance = self.distance_first
-		for i in range(number_of_studs+1):
-			if distance < self.system_length:
-				self.distances.append(distance)
-			else:
-				break
-			distance = distance + self.spacing
+        #### Effects:
+        - Sets the division system name to "fixed_number_equal_spacing".
+        - Calculates equal spacing between divisions based on the total system length and the fixed number of divisions.
+        - Resets the modifier to 0, as it is not applicable in this configuration.
+        - Assigns the calculated spacing to `distance_first` to maintain consistency at the start of the system.
+        """
+        self.name = "fixed_number_equal_spacing"
+        self.distances = Interval.by_start_end_count(
+            0, self.system_length, self.fixed_number
+        )
+        self.spacing = self.system_length / self.fixed_number
+        self.modifier = 0
+        self.distance_first = self.spacing
 
-	def __fixed_distance_equal_division(self):
-		"""Creates divisions with equal spacing across the total system length.
-		An internal method that evenly distributes divisions across the system's length. It takes into account the total length and the desired spacing to calculate the number of divisions, ensuring they are equally spaced.
+    def __fixed_distance_unequal_division(self):
+        """Configures divisions with a fixed starting distance followed by unequal divisions.
+        This internal method configures the division system to start with a specified distance for the first division, then continues with divisions spaced according to `spacing`. If the total length cannot be evenly divided, the last division's spacing may differ.
 
-		#### Effects:
-		- Sets the division system name to "fixed_distance_equal_division".
-		- Calculates the number of divisions based on the desired spacing and total length.
-		- Determines the starting distance for the first division to ensure all divisions, including the first and last, are equally spaced within the system length.
-		"""
-		self.name = "fixed_distance_equal_division"
-		number_of_studs = int(self.system_length / self.spacing)
-		number_of_studs = number_of_studs + self.modifier
-		sum_length_studs_x_spacing = (number_of_studs - 1) * self.spacing
-		rest_length = self.system_length - sum_length_studs_x_spacing
-		distance = rest_length / 2
-		for i in range(number_of_studs):
-			self.distances.append(distance)
-			distance = distance + self.spacing
+        #### Effects:
+        - Sets the division system name to "fixed_distance_unequal_division".
+        - Calculates the number of divisions based on the spacing and the total system length minus the first division's distance.
+        - Generates a list of distances where each division should occur, considering the initial distance and spacing.
+        """
+        self.name = "fixed_distance_unequal_division"
+        rest_length = self.system_length - self.distance_first
+        number_of_studs = int(rest_length / self.spacing)
+        number_of_studs = number_of_studs + self.modifier
+        distance = self.distance_first
+        for i in range(number_of_studs + 1):
+            if distance < self.system_length:
+                self.distances.append(distance)
+            else:
+                break
+            distance = distance + self.spacing
 
-	def by_fixed_distance_unequal_division(self, length: float, spacing: float, distance_first: float, modifier: int) -> 'DivisionSystem':
-		"""Configures the division system for unequal divisions with a specified distance first.
-		This method sets up the division system to calculate divisions based on a fixed initial distance, followed by unevenly spaced divisions according to the specified parameters.
+    def __fixed_distance_equal_division(self):
+        """Creates divisions with equal spacing across the total system length.
+        An internal method that evenly distributes divisions across the system's length. It takes into account the total length and the desired spacing to calculate the number of divisions, ensuring they are equally spaced.
 
-		#### Parameters:
-		- `length` (float): The total length of the system to be divided.
-		- `spacing` (float): The target spacing between divisions.
-		- `distance_first` (float): The distance of the first division from the system's start.
-		- `modifier` (int): An integer modifier to adjust the calculation of divisions.
+        #### Effects:
+        - Sets the division system name to "fixed_distance_equal_division".
+        - Calculates the number of divisions based on the desired spacing and total length.
+        - Determines the starting distance for the first division to ensure all divisions, including the first and last, are equally spaced within the system length.
+        """
+        self.name = "fixed_distance_equal_division"
+        number_of_studs = int(self.system_length / self.spacing)
+        number_of_studs = number_of_studs + self.modifier
+        sum_length_studs_x_spacing = (number_of_studs - 1) * self.spacing
+        rest_length = self.system_length - sum_length_studs_x_spacing
+        distance = rest_length / 2
+        for i in range(number_of_studs):
+            self.distances.append(distance)
+            distance = distance + self.spacing
 
-		#### Returns:
-		`DivisionSystem`: The instance itself, updated with the new division configuration.
+    def by_fixed_distance_unequal_division(
+        self, length: float, spacing: float, distance_first: float, modifier: int
+    ) -> "DivisionSystem":
+        """Configures the division system for unequal divisions with a specified distance first.
+        This method sets up the division system to calculate divisions based on a fixed initial distance, followed by unevenly spaced divisions according to the specified parameters.
 
-		#### Example usage:
-		```python
-		division_system = DivisionSystem()
-		division_system.by_fixed_distance_unequal_division(100, 10, 5, 0)
-		```
-		"""
-		self.system_length = length
-		self.modifier = modifier
-		self.spacing = spacing
-		self.distance_first = distance_first
-		self.system = "fixed_distance_unequal_division"
-		self.__fixed_distance_unequal_division()
-		return self
+        #### Parameters:
+        - `length` (float): The total length of the system to be divided.
+        - `spacing` (float): The target spacing between divisions.
+        - `distance_first` (float): The distance of the first division from the system's start.
+        - `modifier` (int): An integer modifier to adjust the calculation of divisions.
 
-	def by_fixed_distance_equal_division(self, length: float, spacing: float, modifier: int) -> 'DivisionSystem':
-		"""Configures the division system for equal divisions with fixed spacing.
-		This method sets up the division system to calculate divisions based on a fixed spacing between each division across the total system length. The modifier can adjust the calculation slightly but maintains equal spacing.
+        #### Returns:
+        `DivisionSystem`: The instance itself, updated with the new division configuration.
 
-		#### Parameters:
-		- `length` (float): The total length of the system to be divided.
-		- `spacing` (float): The spacing between each division.
-		- `modifier` (int): An integer modifier to fine-tune the division process.
+        #### Example usage:
+        ```python
+        division_system = DivisionSystem()
+        division_system.by_fixed_distance_unequal_division(100, 10, 5, 0)
+        ```
+        """
+        self.system_length = length
+        self.modifier = modifier
+        self.spacing = spacing
+        self.distance_first = distance_first
+        self.system = "fixed_distance_unequal_division"
+        self.__fixed_distance_unequal_division()
+        return self
 
-		#### Returns:
-		`DivisionSystem`: The instance itself, updated with the new division configuration.
+    def by_fixed_distance_equal_division(
+        self, length: float, spacing: float, modifier: int
+    ) -> "DivisionSystem":
+        """Configures the division system for equal divisions with fixed spacing.
+        This method sets up the division system to calculate divisions based on a fixed spacing between each division across the total system length. The modifier can adjust the calculation slightly but maintains equal spacing.
 
-		#### Example usage:
-		```python
-		division_system = DivisionSystem()
-		division_system.by_fixed_distance_equal_division(100, 10, 0)
-		```
-		"""
-		self.system_length = length
-		self.modifier = modifier
-		self.spacing = spacing
-		self.system = "fixed_distance_equal_division"
-		self.__fixed_distance_equal_division()
-		return self
+        #### Parameters:
+        - `length` (float): The total length of the system to be divided.
+        - `spacing` (float): The spacing between each division.
+        - `modifier` (int): An integer modifier to fine-tune the division process.
 
-	def by_fixed_number_equal_spacing(self, length: float, number: int) -> 'DivisionSystem':
-		"""Establishes the division system for a fixed number of divisions with equal spacing.
-		This method arranges for a certain number of divisions to be spaced equally across the system length. It calculates the required spacing based on the total length and desired number of divisions.
+        #### Returns:
+        `DivisionSystem`: The instance itself, updated with the new division configuration.
 
-		#### Parameters:
-		- `length` (float): The total length of the system to be divided.
-		- `number` (int): The fixed number of divisions to be created.
+        #### Example usage:
+        ```python
+        division_system = DivisionSystem()
+        division_system.by_fixed_distance_equal_division(100, 10, 0)
+        ```
+        """
+        self.system_length = length
+        self.modifier = modifier
+        self.spacing = spacing
+        self.system = "fixed_distance_equal_division"
+        self.__fixed_distance_equal_division()
+        return self
 
-		#### Returns:
-		`DivisionSystem`: The instance itself, updated with the new division configuration.
+    def by_fixed_number_equal_spacing(
+        self, length: float, number: int
+    ) -> "DivisionSystem":
+        """Establishes the division system for a fixed number of divisions with equal spacing.
+        This method arranges for a certain number of divisions to be spaced equally across the system length. It calculates the required spacing based on the total length and desired number of divisions.
 
-		#### Example usage:
-		```python
-		division_system = DivisionSystem()
-		division_system.by_fixed_number_equal_spacing(100, 5)
-		```
-		"""
-		self.system_length = length
-		self.system = "fixed_number_equal_spacing"
-		self.spacing = length/number
-		self.modifier = 0
-		distance = self.spacing
-		for i in range(number-1):
-			self.distances.append(distance)
-			distance = distance + self.spacing
-		self.distance_first = self.spacing
-		return self
+        #### Parameters:
+        - `length` (float): The total length of the system to be divided.
+        - `number` (int): The fixed number of divisions to be created.
 
-		#  fixed_number_equal_interior_fill
-		#  maximum_spacing_equal_division
-		#  maximum_spacing_unequal_division
-		#  minimum_spacing_equal_division
-		#  minimum_spacing_unequal_division
+        #### Returns:
+        `DivisionSystem`: The instance itself, updated with the new division configuration.
+
+        #### Example usage:
+        ```python
+        division_system = DivisionSystem()
+        division_system.by_fixed_number_equal_spacing(100, 5)
+        ```
+        """
+        self.system_length = length
+        self.system = "fixed_number_equal_spacing"
+        self.spacing = length / number
+        self.modifier = 0
+        distance = self.spacing
+        for i in range(number - 1):
+            self.distances.append(distance)
+            distance = distance + self.spacing
+        self.distance_first = self.spacing
+        return self
+
+        #  fixed_number_equal_interior_fill
+        #  maximum_spacing_equal_division
+        #  maximum_spacing_unequal_division
+        #  minimum_spacing_equal_division
+        #  minimum_spacing_unequal_division
 
 
 class RectangleSystem:
-	# Reclangle Left Bottom is in Local XYZ. Main direction parallel to height direction vector. Top is z=0
-	"""The `RectangleSystem` class is designed to represent and manipulate rectangular systems, focusing on dimensions, frame types, and panel arrangements within a specified coordinate system."""
-	def __init__(self):
-		"""Initializes a new RectangleSystem instance.
-		
-		- `type` (str): Class name, indicating the object type as "RectangleSystem".
-		- `name` (str, optional): The name of the rectangle system.
-		- `id` (str): A unique identifier for the rectangle system instance.
-		- `height` (float): The height of the rectangle system.
-		- `width` (float): The width of the rectangle system.
-		- `bottom_frame_type` (Rectangle): A `Rectangle` instance for the bottom frame type.
-		- `top_frame_type` (Rectangle): A `Rectangle` instance for the top frame type.
-		- `left_frame_type` (Rectangle): A `Rectangle` instance for the left frame type.
-		- `right_frame_type` (Rectangle): A `Rectangle` instance for the right frame type.
-		- `inner_frame_type` (Rectangle): A `Rectangle` instance for the inner frame type.
-		- `material` (BaseTimber): The material used for the system, pre-defined as `BaseTimber`.
-		- `inner_width` (float): The computed inner width of the rectangle system, excluding the width of the left and right frames.
-		- `inner_height` (float): The computed inner height of the rectangle system, excluding the height of the top and bottom frames.
-		- `coordinatesystem` (CSGlobal): A global coordinate system applied to the rectangle system.
-		- `local_coordinate_system` (CSGlobal): A local coordinate system specific to the rectangle system.
-		- `division_system` (DivisionSystem, optional): A `DivisionSystem` instance to manage divisions within the rectangle system.
-		- `inner_frame_objects` (list): A list of inner frame objects within the rectangle system.
-		- `outer_frame_objects` (list): A list of outer frame objects.
-		- `panel_objects` (list): A list of panel objects used within the system.
-		- `symbolic_inner_mother_surface` (PolyCurve, optional): A symbolic representation of the inner mother surface.
-		- `symbolic_inner_panels` (list, optional): Symbolic representations of inner panels.
-		- `symbolic_outer_grids` (list): Symbolic representations of outer grids.
-		- `symbolic_inner_grids` (list): Symbolic representations of inner grids.
-		"""
-		self.name = None
-		
-		self.height = 3000
-		self.width = 2000
-		self.bottom_frame_type = RectangleProfile("bottom_frame_type", 38, 184)
-		self.top_frame_type = RectangleProfile("top_frame_type", 38, 184)
-		self.left_frame_type = RectangleProfile("left_frame_type", 38, 184)
-		self.right_frame_type = RectangleProfile("left_frame_type", 38, 184)
-		self.inner_frame_type = RectangleProfile("inner_frame_type", 38, 184)
+    # Reclangle Left Bottom is in Local XYZ. Main direction parallel to height direction vector. Top is z=0
+    """The `RectangleSystem` class is designed to represent and manipulate rectangular systems, focusing on dimensions, frame types, and panel arrangements within a specified coordinate system."""
 
-		self.material = BaseTimber
-		self.inner_width: float = 0
-		self.inner_height: float = 0
-		# self.openings = []
-		# self.subsystems = []
-		self.division_system = None
-		self.inner_frame_objects = []
-		self.outer_frame_objects = []
-		self.panel_objects = []
-		self.symbolic_inner_mother_surface = None
-		self.symbolic_inner_panels = None
-		self.symbolic_outer_grids = []
-		self.symbolic_inner_grids = []
+    def __init__(self):
+        """Initializes a new RectangleSystem instance.
 
-	def __inner_panels(self):
-		"""Calculates and creates inner panel objects for the RectangleSystem.
-		This method iteratively calculates the positions and dimensions of inner panels based on the division system's distances and the inner frame type's width. It populates the `panel_objects` list with created panels.
+        - `type` (str): Class name, indicating the object type as "RectangleSystem".
+        - `name` (str, optional): The name of the rectangle system.
+        - `id` (str): A unique identifier for the rectangle system instance.
+        - `height` (float): The height of the rectangle system.
+        - `width` (float): The width of the rectangle system.
+        - `bottom_frame_type` (Rectangle): A `Rectangle` instance for the bottom frame type.
+        - `top_frame_type` (Rectangle): A `Rectangle` instance for the top frame type.
+        - `left_frame_type` (Rectangle): A `Rectangle` instance for the left frame type.
+        - `right_frame_type` (Rectangle): A `Rectangle` instance for the right frame type.
+        - `inner_frame_type` (Rectangle): A `Rectangle` instance for the inner frame type.
+        - `material` (BaseTimber): The material used for the system, pre-defined as `BaseTimber`.
+        - `inner_width` (float): The computed inner width of the rectangle system, excluding the width of the left and right frames.
+        - `inner_height` (float): The computed inner height of the rectangle system, excluding the height of the top and bottom frames.
+        - `coordinatesystem` (CSGlobal): A global coordinate system applied to the rectangle system.
+        - `local_coordinate_system` (CSGlobal): A local coordinate system specific to the rectangle system.
+        - `division_system` (DivisionSystem, optional): A `DivisionSystem` instance to manage divisions within the rectangle system.
+        - `inner_frame_objects` (list): A list of inner frame objects within the rectangle system.
+        - `outer_frame_objects` (list): A list of outer frame objects.
+        - `panel_objects` (list): A list of panel objects used within the system.
+        - `symbolic_inner_mother_surface` (PolyCurve, optional): A symbolic representation of the inner mother surface.
+        - `symbolic_inner_panels` (list, optional): Symbolic representations of inner panels.
+        - `symbolic_outer_grids` (list): Symbolic representations of outer grids.
+        - `symbolic_inner_grids` (list): Symbolic representations of inner grids.
+        """
+        self.name = None
 
-		#### Effects:
-		- Populates `panel_objects` with Panel instances representing the inner panels of the rectangle system.
-		"""
-		# First Inner panel
-		i = self.division_system.distances[0]
-		point1 = self.mother_surface_origin_point_x_zero
-		point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-			i - self.inner_frame_type.b * 0.5, 0, 0))
-		point3 = Point.translate(self.mother_surface_origin_point_x_zero,
-								 Vector(i - self.inner_frame_type.b * 0.5, self.inner_height, 0))
-		point4 = Point.translate(
-			self.mother_surface_origin_point_x_zero, Vector(0, self.inner_height, 0))
-		self.panel_objects.append(
-			Panel.by_polycurve_thickness(
-				PolyCurve.by_points(
-					[point1, point2, point3, point4, point1]), 184, 0, "innerpanel",
-				rgb_to_int([255, 240, 160]))
-		)
-		count = 0
-		# In between
-		for i in self.division_system.distances:
-			try:
-				point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.division_system.distances[count]+self.inner_frame_type.b*0.5, 0, 0))
-				point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.division_system.distances[count+1]-self.inner_frame_type.b*0.5, 0, 0))
-				point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.division_system.distances[count+1]-self.inner_frame_type.b*0.5, self.inner_height, 0))
-				point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
-				self.panel_objects.append(
-					Panel.by_polycurve_thickness(
-						PolyCurve.by_points([point1, point2, point3, point4, point1]), 184, 0, "innerpanel", rgb_to_int([255, 240, 160]))
-				)
-				count = count + 1
-			except:
-				# Last panel
-				point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.division_system.distances[count]+self.inner_frame_type.b*0.5, 0, 0))
-				point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.inner_width+self.left_frame_type.b, 0, 0))
-				point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.inner_width+self.left_frame_type.b, self.inner_height, 0))
-				point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-					self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
-				self.panel_objects.append(
-					Panel.by_polycurve_thickness(
-						PolyCurve.by_points([point1, point2, point3, point4, point1]), 184, 0, "innerpanel", rgb_to_int([255, 240, 160]))
-				)
-				count = count + 1
+        self.height = 3000
+        self.width = 2000
+        self.bottom_frame_type = RectangleProfile("bottom_frame_type", 38, 184)
+        self.top_frame_type = RectangleProfile("top_frame_type", 38, 184)
+        self.left_frame_type = RectangleProfile("left_frame_type", 38, 184)
+        self.right_frame_type = RectangleProfile("left_frame_type", 38, 184)
+        self.inner_frame_type = RectangleProfile("inner_frame_type", 38, 184)
 
-	def __inner_mother_surface(self):
-		"""Determines the inner mother surface dimensions and creates its symbolic representation.
-		Calculates the inner width and height by subtracting the frame widths from the total width and height. It then constructs a symbolic PolyCurve representing the mother surface within the rectangle system's frames.
+        self.material = BaseTimber
+        self.inner_width: float = 0
+        self.inner_height: float = 0
+        # self.openings = []
+        # self.subsystems = []
+        self.division_system = None
+        self.inner_frame_objects = []
+        self.outer_frame_objects = []
+        self.panel_objects = []
+        self.symbolic_inner_mother_surface = None
+        self.symbolic_inner_panels = None
+        self.symbolic_outer_grids = []
+        self.symbolic_inner_grids = []
 
-		#### Effects:
-		- Updates `inner_width` and `inner_height` attributes based on frame dimensions.
-		- Creates a symbolic PolyCurve `symbolic_inner_mother_surface` representing the inner mother surface.
-		"""
-		# Inner mother surface is the surface within the outer frames dependent on the width of the outer frametypes.
-		self.inner_width = self.width-self.left_frame_type.b-self.right_frame_type.b
-		self.inner_height = self.height-self.top_frame_type.b-self.bottom_frame_type.b
-		self.mother_surface_origin_point = Point(
-			self.left_frame_type.b, self.bottom_frame_type.b, 0)
-		self.mother_surface_origin_point_x_zero = Point(
-			0, self.bottom_frame_type.b, 0)
-		self.symbolic_inner_mother_surface = PolyCurve.by_points(
-			[self.mother_surface_origin_point,
-			 Point.translate(self.mother_surface_origin_point,
-							 Vector(self.inner_width, 0, 0)),
-			 Point.translate(self.mother_surface_origin_point, Vector(
-				 self.inner_width, self.inner_height, 0)),
-			 Point.translate(self.mother_surface_origin_point,
-							 Vector(0, self.inner_height, 0)),
-			 self.mother_surface_origin_point]
-		)
+    def __inner_panels(self):
+        """Calculates and creates inner panel objects for the RectangleSystem.
+        This method iteratively calculates the positions and dimensions of inner panels based on the division system's distances and the inner frame type's width. It populates the `panel_objects` list with created panels.
 
-	def __inner_frames(self):
-		"""Creates inner frame objects based on division distances within the rectangle system.
-		Utilizes the division distances to place vertical frames across the inner width of the rectangle system. These frames are represented both as Frame objects within the system and as symbolic lines for visualization.
+        #### Effects:
+        - Populates `panel_objects` with Panel instances representing the inner panels of the rectangle system.
+        """
+        # First Inner panel
+        i = self.division_system.distances[0]
+        point1 = self.mother_surface_origin_point_x_zero
+        point2 = Point.translate(
+            self.mother_surface_origin_point_x_zero,
+            Vector(i - self.inner_frame_type.b * 0.5, 0, 0),
+        )
+        point3 = Point.translate(
+            self.mother_surface_origin_point_x_zero,
+            Vector(i - self.inner_frame_type.b * 0.5, self.inner_height, 0),
+        )
+        point4 = Point.translate(
+            self.mother_surface_origin_point_x_zero, Vector(0, self.inner_height, 0)
+        )
+        self.panel_objects.append(
+            Panel.by_polycurve_thickness(
+                PolyCurve.by_points([point1, point2, point3, point4, point1]),
+                184,
+                0,
+                "innerpanel",
+                rgb_to_int([255, 240, 160]),
+            )
+        )
+        count = 0
+        # In between
+        for i in self.division_system.distances:
+            try:
+                point1 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        0,
+                        0,
+                    ),
+                )
+                point2 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count + 1]
+                        - self.inner_frame_type.b * 0.5,
+                        0,
+                        0,
+                    ),
+                )
+                point3 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count + 1]
+                        - self.inner_frame_type.b * 0.5,
+                        self.inner_height,
+                        0,
+                    ),
+                )
+                point4 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        self.inner_height,
+                        0,
+                    ),
+                )
+                self.panel_objects.append(
+                    Panel.by_polycurve_thickness(
+                        PolyCurve.by_points([point1, point2, point3, point4, point1]),
+                        184,
+                        0,
+                        "innerpanel",
+                        rgb_to_int([255, 240, 160]),
+                    )
+                )
+                count = count + 1
+            except:
+                # Last panel
+                point1 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        0,
+                        0,
+                    ),
+                )
+                point2 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(self.inner_width + self.left_frame_type.b, 0, 0),
+                )
+                point3 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.inner_width + self.left_frame_type.b, self.inner_height, 0
+                    ),
+                )
+                point4 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        self.inner_height,
+                        0,
+                    ),
+                )
+                self.panel_objects.append(
+                    Panel.by_polycurve_thickness(
+                        PolyCurve.by_points([point1, point2, point3, point4, point1]),
+                        184,
+                        0,
+                        "innerpanel",
+                        rgb_to_int([255, 240, 160]),
+                    )
+                )
+                count = count + 1
 
-		#### Effects:
-		- Generates Frame objects for each division, placing them vertically within the rectangle system.
-		- Populates `inner_frame_objects` with these Frame instances.
-		- Adds symbolic representations of these frames to `symbolic_inner_grids`.
-		"""
-		for i in self.division_system.distances:
-			start_point = Point.translate(
-				self.mother_surface_origin_point_x_zero, Vector(i, 0, 0))
-			end_point = Point.translate(
-				self.mother_surface_origin_point_x_zero, Vector(i, self.inner_height, 0))
-			self.inner_frame_objects.append(
-				Beam.by_start_point_endpoint_curve_justification(
-					start_point, end_point, self.inner_frame_type.curve, "innerframe", "center", "top", 0, self.material)
-			)
-			self.symbolic_inner_grids.append(
-				Line(start=start_point, end=end_point))
+    def __inner_mother_surface(self):
+        """Determines the inner mother surface dimensions and creates its symbolic representation.
+        Calculates the inner width and height by subtracting the frame widths from the total width and height. It then constructs a symbolic PolyCurve representing the mother surface within the rectangle system's frames.
 
-	def __outer_frames(self):
-		"""Generates the outer frame objects for the rectangle system.
-		Creates Frame objects for the bottom, top, left, and right boundaries of the rectangle system. Each frame is defined by its start and end points, along with its type and material. Symbolic lines representing these frames are also generated for visualization.
+        #### Effects:
+        - Updates `inner_width` and `inner_height` attributes based on frame dimensions.
+        - Creates a symbolic PolyCurve `symbolic_inner_mother_surface` representing the inner mother surface.
+        """
+        # Inner mother surface is the surface within the outer frames dependent on the width of the outer frametypes.
+        self.inner_width = self.width - self.left_frame_type.b - self.right_frame_type.b
+        self.inner_height = (
+            self.height - self.top_frame_type.b - self.bottom_frame_type.b
+        )
+        self.mother_surface_origin_point = Point(
+            self.left_frame_type.b, self.bottom_frame_type.b, 0
+        )
+        self.mother_surface_origin_point_x_zero = Point(0, self.bottom_frame_type.b, 0)
+        self.symbolic_inner_mother_surface = PolyCurve.by_points(
+            [
+                self.mother_surface_origin_point,
+                Point.translate(
+                    self.mother_surface_origin_point, Vector(self.inner_width, 0, 0)
+                ),
+                Point.translate(
+                    self.mother_surface_origin_point,
+                    Vector(self.inner_width, self.inner_height, 0),
+                ),
+                Point.translate(
+                    self.mother_surface_origin_point, Vector(0, self.inner_height, 0)
+                ),
+                self.mother_surface_origin_point,
+            ]
+        )
 
-		#### Effects:
-		- Creates Frame instances for the outer boundaries of the rectangle system and adds them to `outer_frame_objects`.
-		- Generates symbolic Line instances for each outer frame and adds them to `symbolic_outer_grids`.
-		"""
-		bottomframe = Beam.by_start_point_endpoint_curve_justification(Point(0, 0, 0), Point(
-			self.width, 0, 0), self.bottom_frame_type.curve, "bottomframe", "left", "top", 0, self.material)
-		self.symbolic_outer_grids.append(
-			Line(start=Point(0, 0, 0), end=Point(self.width, 0, 0)))
+    def __inner_frames(self):
+        """Creates inner frame objects based on division distances within the rectangle system.
+        Utilizes the division distances to place vertical frames across the inner width of the rectangle system. These frames are represented both as Frame objects within the system and as symbolic lines for visualization.
 
-		topframe = Beam.by_start_point_endpoint_curve_justification(Point(0, self.height, 0), Point(
-			self.width, self.height, 0), self.top_frame_type.curve, "bottomframe", "right", "top", 0, self.material)
-		self.symbolic_outer_grids.append(
-			Line(start=Point(0, self.height, 0), end=Point(self.width, self.height, 0)))
+        #### Effects:
+        - Generates Frame objects for each division, placing them vertically within the rectangle system.
+        - Populates `inner_frame_objects` with these Frame instances.
+        - Adds symbolic representations of these frames to `symbolic_inner_grids`.
+        """
+        for i in self.division_system.distances:
+            start_point = Point.translate(
+                self.mother_surface_origin_point_x_zero, Vector(i, 0, 0)
+            )
+            end_point = Point.translate(
+                self.mother_surface_origin_point_x_zero, Vector(i, self.inner_height, 0)
+            )
+            self.inner_frame_objects.append(
+                Beam.by_start_point_endpoint_curve_justification(
+                    start_point,
+                    end_point,
+                    self.inner_frame_type.curve,
+                    "innerframe",
+                    "center",
+                    "top",
+                    0,
+                    self.material,
+                )
+            )
+            self.symbolic_inner_grids.append(Line(start=start_point, end=end_point))
 
-		leftframe = Beam.by_start_point_endpoint_curve_justification(Point(0, self.bottom_frame_type.b, 0), Point(
-			0, self.height-self.top_frame_type.b, 0), self.left_frame_type.curve, "leftframe", "right", "top", 0, self.material)
-		self.symbolic_outer_grids.append(Line(start=Point(
-			0, self.bottom_frame_type.b, 0), end=Point(0, self.height-self.top_frame_type.b, 0)))
+    def __outer_frames(self):
+        """Generates the outer frame objects for the rectangle system.
+        Creates Frame objects for the bottom, top, left, and right boundaries of the rectangle system. Each frame is defined by its start and end points, along with its type and material. Symbolic lines representing these frames are also generated for visualization.
 
-		rightframe = Beam.by_start_point_endpoint_curve_justification(Point(self.width, self.bottom_frame_type.b, 0), Point(
-			self.width, self.height-self.top_frame_type.b, 0), self.right_frame_type.curve, "leftframe", "left", "top", 0, self.material)
-		self.symbolic_outer_grids.append(Line(start=Point(self.width, self.bottom_frame_type.b, 0), end=Point(
-			self.width, self.height-self.top_frame_type.b, 0)))
+        #### Effects:
+        - Creates Frame instances for the outer boundaries of the rectangle system and adds them to `outer_frame_objects`.
+        - Generates symbolic Line instances for each outer frame and adds them to `symbolic_outer_grids`.
+        """
+        bottomframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(0, 0, 0),
+            Point(self.width, 0, 0),
+            self.bottom_frame_type.curve,
+            "bottomframe",
+            "left",
+            "top",
+            0,
+            self.material,
+        )
+        self.symbolic_outer_grids.append(
+            Line(start=Point(0, 0, 0), end=Point(self.width, 0, 0))
+        )
 
-		self.outer_frame_objects.append(bottomframe)
-		self.outer_frame_objects.append(topframe)
-		self.outer_frame_objects.append(leftframe)
-		self.outer_frame_objects.append(rightframe)
+        topframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(0, self.height, 0),
+            Point(self.width, self.height, 0),
+            self.top_frame_type.curve,
+            "bottomframe",
+            "right",
+            "top",
+            0,
+            self.material,
+        )
+        self.symbolic_outer_grids.append(
+            Line(start=Point(0, self.height, 0), end=Point(self.width, self.height, 0))
+        )
 
-	def by_width_height_divisionsystem_studtype(self, width: float, height: float, frame_width: float, frame_height: float, division_system: DivisionSystem, filling: bool) -> 'RectangleSystem':
-		"""Configures the rectangle system with specified dimensions, division system, and frame types.
-		This method sets the dimensions of the rectangle system, configures the frame types based on the provided dimensions, and applies a division system to generate inner frames. Optionally, it can also fill the system with panels based on the inner divisions.
+        leftframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(0, self.bottom_frame_type.b, 0),
+            Point(0, self.height - self.top_frame_type.b, 0),
+            self.left_frame_type.curve,
+            "leftframe",
+            "right",
+            "top",
+            0,
+            self.material,
+        )
+        self.symbolic_outer_grids.append(
+            Line(
+                start=Point(0, self.bottom_frame_type.b, 0),
+                end=Point(0, self.height - self.top_frame_type.b, 0),
+            )
+        )
 
-		#### Parameters:
-		- `width` (float): The width of the rectangle system.
-		- `height` (float): The height of the rectangle system.
-		- `frame_width` (float): The width of the frame elements.
-		- `frame_height` (float): The height (thickness) of the frame elements.
-		- `division_system` (DivisionSystem): The division system to apply for inner divisions.
-		- `filling` (bool): A flag indicating whether to fill the divided areas with panels.
+        rightframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(self.width, self.bottom_frame_type.b, 0),
+            Point(self.width, self.height - self.top_frame_type.b, 0),
+            self.right_frame_type.curve,
+            "leftframe",
+            "left",
+            "top",
+            0,
+            self.material,
+        )
+        self.symbolic_outer_grids.append(
+            Line(
+                start=Point(self.width, self.bottom_frame_type.b, 0),
+                end=Point(self.width, self.height - self.top_frame_type.b, 0),
+            )
+        )
 
-		#### Returns:
-		`RectangleSystem`: The instance itself, updated with the new configuration.
+        self.outer_frame_objects.append(bottomframe)
+        self.outer_frame_objects.append(topframe)
+        self.outer_frame_objects.append(leftframe)
+        self.outer_frame_objects.append(rightframe)
 
-		#### Example usage:
-		```python
-		rectangle_system = RectangleSystem()
-		rectangle_system.by_width_height_divisionsystem_studtype(2000, 3000, 38, 184, divisionSystem, True)
-		```
-		"""
-		self.width = width
-		self.height = height
-		self.bottom_frame_type = RectangleProfile(
-			"bottom_frame_type", frame_width, frame_height)
-		self.top_frame_type = RectangleProfile(
-			"top_frame_type", frame_width, frame_height)
-		self.left_frame_type = RectangleProfile(
-			"left_frame_type", frame_width, frame_height)
-		self.right_frame_type = RectangleProfile(
-			"left_frame_type", frame_width, frame_height)
-		self.inner_frame_type = RectangleProfile(
-			"inner_frame_type", frame_width, frame_height)
-		self.division_system = division_system
-		self.__inner_mother_surface()
-		self.__inner_frames()
-		self.__outer_frames()
-		if filling:
-			self.__inner_panels()
-		else:
-			pass
-		return self
+    def by_width_height_divisionsystem_studtype(
+        self,
+        width: float,
+        height: float,
+        frame_width: float,
+        frame_height: float,
+        division_system: DivisionSystem,
+        filling: bool,
+    ) -> "RectangleSystem":
+        """Configures the rectangle system with specified dimensions, division system, and frame types.
+        This method sets the dimensions of the rectangle system, configures the frame types based on the provided dimensions, and applies a division system to generate inner frames. Optionally, it can also fill the system with panels based on the inner divisions.
+
+        #### Parameters:
+        - `width` (float): The width of the rectangle system.
+        - `height` (float): The height of the rectangle system.
+        - `frame_width` (float): The width of the frame elements.
+        - `frame_height` (float): The height (thickness) of the frame elements.
+        - `division_system` (DivisionSystem): The division system to apply for inner divisions.
+        - `filling` (bool): A flag indicating whether to fill the divided areas with panels.
+
+        #### Returns:
+        `RectangleSystem`: The instance itself, updated with the new configuration.
+
+        #### Example usage:
+        ```python
+        rectangle_system = RectangleSystem()
+        rectangle_system.by_width_height_divisionsystem_studtype(2000, 3000, 38, 184, divisionSystem, True)
+        ```
+        """
+        self.width = width
+        self.height = height
+        self.bottom_frame_type = RectangleProfile(
+            "bottom_frame_type", frame_width, frame_height
+        )
+        self.top_frame_type = RectangleProfile(
+            "top_frame_type", frame_width, frame_height
+        )
+        self.left_frame_type = RectangleProfile(
+            "left_frame_type", frame_width, frame_height
+        )
+        self.right_frame_type = RectangleProfile(
+            "left_frame_type", frame_width, frame_height
+        )
+        self.inner_frame_type = RectangleProfile(
+            "inner_frame_type", frame_width, frame_height
+        )
+        self.division_system = division_system
+        self.__inner_mother_surface()
+        self.__inner_frames()
+        self.__outer_frames()
+        if filling:
+            self.__inner_panels()
+        else:
+            pass
+        return self
 
 
 class pattern_system:
-	"""The `pattern_system` class is designed to define and manipulate patterns for architectural or design applications. It is capable of generating various patterns based on predefined or dynamically generated parameters."""
-	def __init__(self):
-		"""Initializes a new pattern_system instance."""
-		self.name = None
-		
-		self.pattern = None
-		self.basepanels = []  # contains a list with basepanels of the system
-		# contains a list sublists with Vector which represent the repetition of the system
-		self.vectors = []
+    """The `pattern_system` class is designed to define and manipulate patterns for architectural or design applications. It is capable of generating various patterns based on predefined or dynamically generated parameters."""
 
-	def stretcher_bond_with_joint(self, name: str, brick_width: float, brick_length: float, brick_height: float, joint_width: float, joint_height: float):
-		"""Configures a stretcher bond pattern with joints for the pattern_system.
-		Establishes the fundamental vectors and base panels for a stretcher bond, taking into account brick dimensions and joint sizes. This pattern alternates bricks in each row, offsetting them by half a brick length.
+    def __init__(self):
+        """Initializes a new pattern_system instance."""
+        self.name = None
 
-		#### Parameters:
-		- `name` (str): Name of the pattern configuration.
-		- `brick_width` (float): Width of the brick.
-		- `brick_length` (float): Length of the brick.
-		- `brick_height` (float): Height of the brick.
-		- `joint_width` (float): Width of the joint between bricks.
-		- `joint_height` (float): Height of the joint between brick layers.
+        self.pattern = None
+        self.basepanels = []  # contains a list with basepanels of the system
+        # contains a list sublists with Vector which represent the repetition of the system
+        self.vectors = []
 
-		#### Returns:
-		The instance itself, updated with the stretcher bond pattern configuration.
-	
-		#### Example usage:
-		```python
+    def stretcher_bond_with_joint(
+        self,
+        name: str,
+        brick_width: float,
+        brick_length: float,
+        brick_height: float,
+        joint_width: float,
+        joint_height: float,
+    ):
+        """Configures a stretcher bond pattern with joints for the pattern_system.
+        Establishes the fundamental vectors and base panels for a stretcher bond, taking into account brick dimensions and joint sizes. This pattern alternates bricks in each row, offsetting them by half a brick length.
 
-		```
-		"""
-		self.name = name
-		# Vectors of panel 1
-		V1 = Vector(0, (brick_height + joint_height)*2, 0)  # dy
-		V2 = Vector(brick_length+joint_width, 0, 0)  # dx
-		self.vectors.append([V1, V2])
+        #### Parameters:
+        - `name` (str): Name of the pattern configuration.
+        - `brick_width` (float): Width of the brick.
+        - `brick_length` (float): Length of the brick.
+        - `brick_height` (float): Height of the brick.
+        - `joint_width` (float): Width of the joint between bricks.
+        - `joint_height` (float): Height of the joint between brick layers.
 
-		# Vectors of panel 2
-		V3 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy
-		V4 = Vector(brick_length + joint_width, 0, 0)  # dx
-		self.vectors.append([V3, V4])
+        #### Returns:
+        The instance itself, updated with the stretcher bond pattern configuration.
 
-		dx = (brick_length+joint_width)/2
-		dy = brick_height+joint_height
+        #### Example usage:
+        ```python
 
-		PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
-			brick_length, brick_height, 0), Point(brick_length, 0, 0), Point(0, 0, 0)])
-		PC2 = PolyCurve().by_points([Point(dx, dy, 0), Point(dx, brick_height+dy, 0), Point(
-			brick_length+dx, brick_height+dy, 0), Point(brick_length+dx, dy, 0), Point(dx, dy, 0)])
-		BasePanel1 = Panel.by_polycurve_thickness(
-			PC1, brick_width, 0, "BasePanel1", BaseBrick.colorint)
-		BasePanel2 = Panel.by_polycurve_thickness(
-			PC2, brick_width, 0, "BasePanel2", BaseBrick.colorint)
+        ```
+        """
+        self.name = name
+        # Vectors of panel 1
+        V1 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy
+        V2 = Vector(brick_length + joint_width, 0, 0)  # dx
+        self.vectors.append([V1, V2])
 
-		self.basepanels.append(BasePanel1)
-		self.basepanels.append(BasePanel2)
-		return self
+        # Vectors of panel 2
+        V3 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy
+        V4 = Vector(brick_length + joint_width, 0, 0)  # dx
+        self.vectors.append([V3, V4])
 
-	def tile_bond_with_joint(self, name: str, tile_width: float, tile_height: float, tile_thickness: float, joint_width: float, joint_height: float):
-		"""Configures a tile bond pattern with specified dimensions and joint sizes for the pattern_system.
-		Defines a simple tiling pattern where tiles are laid out in rows and columns, separated by specified joint widths and heights. This method sets up base panels to represent individual tiles and their arrangement vectors.
+        dx = (brick_length + joint_width) / 2
+        dy = brick_height + joint_height
 
-		#### Parameters:
-		- `name` (str): The name of the tile bond pattern configuration.
-		- `tile_width` (float): The width of a single tile.
-		- `tile_height` (float): The height of a single tile.
-		- `tile_thickness` (float): The thickness of the tile.
-		- `joint_width` (float): The width of the joint between adjacent tiles.
-		- `joint_height` (float): The height of the joint between tile rows.
+        PC1 = PolyCurve().by_points(
+            [
+                Point(0, 0, 0),
+                Point(0, brick_height, 0),
+                Point(brick_length, brick_height, 0),
+                Point(brick_length, 0, 0),
+                Point(0, 0, 0),
+            ]
+        )
+        PC2 = PolyCurve().by_points(
+            [
+                Point(dx, dy, 0),
+                Point(dx, brick_height + dy, 0),
+                Point(brick_length + dx, brick_height + dy, 0),
+                Point(brick_length + dx, dy, 0),
+                Point(dx, dy, 0),
+            ]
+        )
+        BasePanel1 = Panel.by_polycurve_thickness(
+            PC1, brick_width, 0, "BasePanel1", BaseBrick
+        )
+        BasePanel2 = Panel.by_polycurve_thickness(
+            PC2, brick_width, 0, "BasePanel2", BaseBrick
+        )
 
-		#### Returns:
-		The instance itself, updated with the tile bond pattern configuration.
+        self.basepanels.append(BasePanel1)
+        self.basepanels.append(BasePanel2)
+        return self
 
-		#### Example Usage:
-		```python
-		pattern_system = pattern_system()
-		pattern_system.tile_bond_with_joint('TilePattern', 200, 300, 10, 5, 5)
-		```
-		This configures the `pattern_system` with a tile bond pattern named 'TilePattern', where each tile measures 200x300x10 units, with 5 units of spacing between tiles.
-		"""
-		self.name = name
-		# Vectors of panel 1
-		V1 = Vector(0, (tile_height + joint_height), 0)  # dy
-		V2 = Vector(tile_width+joint_width, 0, 0)  # dx
-		self.vectors.append([V1, V2])
+    def tile_bond_with_joint(
+        self,
+        name: str,
+        tile_width: float,
+        tile_height: float,
+        tile_thickness: float,
+        joint_width: float,
+        joint_height: float,
+    ):
+        """Configures a tile bond pattern with specified dimensions and joint sizes for the pattern_system.
+        Defines a simple tiling pattern where tiles are laid out in rows and columns, separated by specified joint widths and heights. This method sets up base panels to represent individual tiles and their arrangement vectors.
 
-		PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, tile_height, 0), Point(
-			tile_width, tile_height, 0), Point(tile_width, 0, 0)])
-		BasePanel1 = Panel.by_polycurve_thickness(
-			PC1, tile_thickness, 0, "BasePanel1", BaseBrick.colorint)
+        #### Parameters:
+        - `name` (str): The name of the tile bond pattern configuration.
+        - `tile_width` (float): The width of a single tile.
+        - `tile_height` (float): The height of a single tile.
+        - `tile_thickness` (float): The thickness of the tile.
+        - `joint_width` (float): The width of the joint between adjacent tiles.
+        - `joint_height` (float): The height of the joint between tile rows.
 
-		self.basepanels.append(BasePanel1)
-		return self
+        #### Returns:
+        The instance itself, updated with the tile bond pattern configuration.
 
-	def cross_bond_with_joint(self, name: str, brick_width: float, brick_length: float, brick_height: float, joint_width: float, joint_height: float):
-		"""Configures a cross bond pattern with joints for the pattern_system.
-		Sets up a complex brick laying pattern combining stretcher (lengthwise) and header (widthwise) bricks in alternating rows, creating a cross bond appearance. This method defines the base panels and their positioning vectors to achieve the cross bond pattern.
+        #### Example Usage:
+        ```python
+        pattern_system = pattern_system()
+        pattern_system.tile_bond_with_joint('TilePattern', 200, 300, 10, 5, 5)
+        ```
+        This configures the `pattern_system` with a tile bond pattern named 'TilePattern', where each tile measures 200x300x10 units, with 5 units of spacing between tiles.
+        """
+        self.name = name
+        # Vectors of panel 1
+        V1 = Vector(0, (tile_height + joint_height), 0)  # dy
+        V2 = Vector(tile_width + joint_width, 0, 0)  # dx
+        self.vectors.append([V1, V2])
 
-		#### Parameters:
-		- `name` (str): The name of the cross bond pattern configuration.
-		- `brick_width` (float): The width of a single brick.
-		- `brick_length` (float): The length of the brick.
-		- `brick_height` (float): The height of the brick layer.
-		- `joint_width` (float): The width of the joint between bricks.
-		- `joint_height` (float): The height of the joint between brick layers.
+        PC1 = PolyCurve().by_points(
+            [
+                Point(0, 0, 0),
+                Point(0, tile_height, 0),
+                Point(tile_width, tile_height, 0),
+                Point(tile_width, 0, 0),
+            ]
+        )
+        BasePanel1 = Panel.by_polycurve_thickness(
+            PC1, tile_thickness, 0, "BasePanel1", BaseBrick
+        )
 
-		#### Returns:
-		The instance itself, updated with the cross bond pattern configuration.
+        self.basepanels.append(BasePanel1)
+        return self
 
-		#### Example Usage:
-		```python
-		pattern_system = pattern_system()
-		pattern_system.cross_bond_with_joint('CrossBondPattern', 90, 190, 80, 10, 10)
-		```
-		In this configuration, `pattern_system` is set to a cross bond pattern named 'CrossBondPattern', with bricks measuring 90x190x80 units and 10 units of joint spacing in both directions.
-		"""
-		self.name = name
-		lagenmaat = brick_height + joint_height
-		# Vectors of panel 1 (strek)
-		V1 = Vector(0, (brick_height + joint_height) * 4, 0)  # dy spacing
-		V2 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
-		self.vectors.append([V1, V2])
+    def cross_bond_with_joint(
+        self,
+        name: str,
+        brick_width: float,
+        brick_length: float,
+        brick_height: float,
+        joint_width: float,
+        joint_height: float,
+    ):
+        """Configures a cross bond pattern with joints for the pattern_system.
+        Sets up a complex brick laying pattern combining stretcher (lengthwise) and header (widthwise) bricks in alternating rows, creating a cross bond appearance. This method defines the base panels and their positioning vectors to achieve the cross bond pattern.
 
-		# Vectors of panel 2 (koppen 1)
-		V3 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy spacing
-		V4 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
-		self.vectors.append([V3, V4])
+        #### Parameters:
+        - `name` (str): The name of the cross bond pattern configuration.
+        - `brick_width` (float): The width of a single brick.
+        - `brick_length` (float): The length of the brick.
+        - `brick_height` (float): The height of the brick layer.
+        - `joint_width` (float): The width of the joint between bricks.
+        - `joint_height` (float): The height of the joint between brick layers.
 
-		dx2 = (brick_width + joint_width)/2  # start x offset
-		dy2 = lagenmaat  # start y offset
+        #### Returns:
+        The instance itself, updated with the cross bond pattern configuration.
 
-		# Vectors of panel 3 (strekken)
-		V5 = Vector(0, (brick_height + joint_height) * 4, 0)  # dy spacing
-		V6 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
-		self.vectors.append([V5, V6])
+        #### Example Usage:
+        ```python
+        pattern_system = pattern_system()
+        pattern_system.cross_bond_with_joint('CrossBondPattern', 90, 190, 80, 10, 10)
+        ```
+        In this configuration, `pattern_system` is set to a cross bond pattern named 'CrossBondPattern', with bricks measuring 90x190x80 units and 10 units of joint spacing in both directions.
+        """
+        self.name = name
+        lagenmaat = brick_height + joint_height
+        # Vectors of panel 1 (strek)
+        V1 = Vector(0, (brick_height + joint_height) * 4, 0)  # dy spacing
+        V2 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
+        self.vectors.append([V1, V2])
 
-		dx3 = (brick_length + joint_width)/2  # start x offset
-		dy3 = lagenmaat * 2  # start y offset
+        # Vectors of panel 2 (koppen 1)
+        V3 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy spacing
+        V4 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
+        self.vectors.append([V3, V4])
 
-		# Vectors of panel 4 (koppen 2)
-		V7 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy spacing
-		V8 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
-		self.vectors.append([V7, V8])
+        dx2 = (brick_width + joint_width) / 2  # start x offset
+        dy2 = lagenmaat  # start y offset
 
-		dx4 = (brick_width + joint_width)/2 + \
-			(brick_width + joint_width)  # start x offset
-		dy4 = lagenmaat  # start y offset
+        # Vectors of panel 3 (strekken)
+        V5 = Vector(0, (brick_height + joint_height) * 4, 0)  # dy spacing
+        V6 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
+        self.vectors.append([V5, V6])
 
-		PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
-			brick_length, brick_height, 0), Point(brick_length, 0, 0), Point(0, 0, 0)])
-		PC2 = PolyCurve().by_points([Point(dx2, dy2, 0), Point(dx2, brick_height+dy2, 0), Point(
-			brick_width+dx2, brick_height+dy2, 0), Point(brick_width+dx2, dy2, 0), Point(dx2, dy2, 0)])
-		PC3 = PolyCurve().by_points([Point(dx3, dy3, 0), Point(dx3, brick_height+dy3, 0), Point(
-			brick_length+dx3, brick_height+dy3, 0), Point(brick_length+dx3, dy3, 0), Point(dx3, dy3, 0)])
-		PC4 = PolyCurve().by_points([Point(dx4, dy4, 0), Point(dx4, brick_height+dy4, 0), Point(
-			brick_width+dx4, brick_height+dy4, 0), Point(brick_width+dx4, dy4, 0), Point(dx4, dy4, 0)])
+        dx3 = (brick_length + joint_width) / 2  # start x offset
+        dy3 = lagenmaat * 2  # start y offset
 
-		BasePanel1 = Panel.by_polycurve_thickness(
-			PC1, brick_width, 0, "BasePanel1", BaseBrick.colorint)
-		BasePanel2 = Panel.by_polycurve_thickness(
-			PC2, brick_width, 0, "BasePanel2", BaseBrick.colorint)
-		BasePanel3 = Panel.by_polycurve_thickness(
-			PC3, brick_width, 0, "BasePanel3", BaseBrick.colorint)
-		BasePanel4 = Panel.by_polycurve_thickness(
-			PC4, brick_width, 0, "BasePanel4", BaseBrickYellow.colorint)
+        # Vectors of panel 4 (koppen 2)
+        V7 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy spacing
+        V8 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
+        self.vectors.append([V7, V8])
 
-		self.basepanels.append(BasePanel1)
-		self.basepanels.append(BasePanel2)
-		self.basepanels.append(BasePanel3)
-		self.basepanels.append(BasePanel4)
+        dx4 = (brick_width + joint_width) / 2 + (
+            brick_width + joint_width
+        )  # start x offset
+        dy4 = lagenmaat  # start y offset
 
-		return self
+        PC1 = PolyCurve().by_points(
+            [
+                Point(0, 0, 0),
+                Point(0, brick_height, 0),
+                Point(brick_length, brick_height, 0),
+                Point(brick_length, 0, 0),
+                Point(0, 0, 0),
+            ]
+        )
+        PC2 = PolyCurve().by_points(
+            [
+                Point(dx2, dy2, 0),
+                Point(dx2, brick_height + dy2, 0),
+                Point(brick_width + dx2, brick_height + dy2, 0),
+                Point(brick_width + dx2, dy2, 0),
+                Point(dx2, dy2, 0),
+            ]
+        )
+        PC3 = PolyCurve().by_points(
+            [
+                Point(dx3, dy3, 0),
+                Point(dx3, brick_height + dy3, 0),
+                Point(brick_length + dx3, brick_height + dy3, 0),
+                Point(brick_length + dx3, dy3, 0),
+                Point(dx3, dy3, 0),
+            ]
+        )
+        PC4 = PolyCurve().by_points(
+            [
+                Point(dx4, dy4, 0),
+                Point(dx4, brick_height + dy4, 0),
+                Point(brick_width + dx4, brick_height + dy4, 0),
+                Point(brick_width + dx4, dy4, 0),
+                Point(dx4, dy4, 0),
+            ]
+        )
+
+        BasePanel1 = Panel.by_polycurve_thickness(
+            PC1, brick_width, 0, "BasePanel1", BaseBrick
+        )
+        BasePanel2 = Panel.by_polycurve_thickness(
+            PC2, brick_width, 0, "BasePanel2", BaseBrick
+        )
+        BasePanel3 = Panel.by_polycurve_thickness(
+            PC3, brick_width, 0, "BasePanel3", BaseBrick
+        )
+        BasePanel4 = Panel.by_polycurve_thickness(
+            PC4, brick_width, 0, "BasePanel4", BaseBrickYellow
+        )
+
+        self.basepanels.append(BasePanel1)
+        self.basepanels.append(BasePanel2)
+        self.basepanels.append(BasePanel3)
+        self.basepanels.append(BasePanel4)
+
+        return self
 
 
-def pattern_geom(pattern_system, width: float, height: float, start_point: Point = None) -> list[Panel]:
-	"""Generates a geometric pattern based on a pattern_system within a specified area.
-	Takes a pattern_system and fills a defined width and height area starting from an optional start point with the pattern described by the system.
+def pattern_geom(
+    pattern_system, width: float, height: float, start_point: Point = None
+) -> list[Panel]:
+    """Generates a geometric pattern based on a pattern_system within a specified area.
+    Takes a pattern_system and fills a defined width and height area starting from an optional start point with the pattern described by the system.
 
-	#### Parameters:
-	- `pattern_system`: The pattern_system instance defining the pattern.
-	- `width` (float): Width of the area to fill with the pattern.
-	- `height` (float): Height of the area to fill with the pattern.
-	- `start_point` (Point, optional): Starting point for the pattern generation.
+    #### Parameters:
+    - `pattern_system`: The pattern_system instance defining the pattern.
+    - `width` (float): Width of the area to fill with the pattern.
+    - `height` (float): Height of the area to fill with the pattern.
+    - `start_point` (Point, optional): Starting point for the pattern generation.
 
-	#### Returns:
-	`list[Panel]`: A list of Panel instances constituting the generated pattern.
-	
-	#### Example usage:
-	```python
+    #### Returns:
+    `list[Panel]`: A list of Panel instances constituting the generated pattern.
 
-	```
-	"""
-	start_point = start_point or Point(0, 0, 0)
-	test = pattern_system
-	panels = []
+    #### Example usage:
+    ```python
 
-	for i, j in zip(test.basepanels, test.vectors):
-		ny = int(height / (j[0].y))  # number of panels in y-direction
-		nx = int(width / (j[1].x))  # number of panels in x-direction
-		PC = i.origincurve
-		thickness = i.thickness
-		color = i.colorint
+    ```
+    """
+    start_point = start_point or Point(0, 0, 0)
+    test = pattern_system
+    panels = []
 
-		# YX ARRAY
-		yvectdisplacement = j[0]
-		yvector = Point.to_vector(start_point)
-		xvectdisplacement = j[1]
-		xvector = Vector(0, 0, 0)
+    for i, j in zip(test.basepanels, test.vectors):
+        ny = int(height / (j[0].y))  # number of panels in y-direction
+        nx = int(width / (j[1].x))  # number of panels in x-direction
+        PC = i.origincurve
+        thickness = i.thickness
+        color = i.colorint
 
-		ylst = []
-		for k in range(ny):
-			yvector = yvectdisplacement + yvector
-			for l in range(nx):
-				# Copy in x-direction
-				xvector = xvectdisplacement + xvector
-				xyvector = yvector + xvector
-				# translate curve in x and y-direction
-				PCNew = PolyCurve.copy_translate(PC, xyvector)
-				pan = Panel.by_polycurve_thickness(
-					PCNew, thickness, 0, "name", color)
-				panels.append(pan)
-			xvector = Vector.sum(
-				xvectdisplacement, Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
-	return panels
+        # YX ARRAY
+        yvectdisplacement = j[0]
+        yvector = Point.to_vector(start_point)
+        xvectdisplacement = j[1]
+        xvector = Vector(0, 0, 0)
+
+        ylst = []
+        for k in range(ny):
+            yvector = yvectdisplacement + yvector
+            for l in range(nx):
+                # Copy in x-direction
+                xvector = xvectdisplacement + xvector
+                xyvector = yvector + xvector
+                # translate curve in x and y-direction
+                PCNew = PolyCurve.copy_translate(PC, xyvector)
+                pan = Panel.by_polycurve_thickness(PCNew, thickness, 0, "name", color)
+                panels.append(pan)
+            xvector = Vector.sum(
+                xvectdisplacement,
+                Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0),
+            )
+    return panels
 
 
 

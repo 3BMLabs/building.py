@@ -25,8 +25,7 @@
 # ***************************************************************************
 
 
-"""This module provides tools to create curves
-"""
+"""This module provides tools to create curves"""
 
 from abc import abstractmethod
 import math
@@ -88,7 +87,9 @@ class Curve(Serializable):
         """
         pass
 
-    def segmentate(self, settings: SegmentationSettings = SegmentationSettings()) -> "Polygon":
+    def segmentate(
+        self, settings: SegmentationSettings = SegmentationSettings()
+    ) -> "Polygon":
         """
 
         Args:
@@ -390,14 +391,18 @@ class Arc(Curve):
 
         # triangle normal
         y_cross = Vector.cross_product(start_to_mid, start_to_end)
-        
-        y_length_squared = y_cross.length_squared if len(start) > 2 else y_cross * y_cross
+
+        y_length_squared = (
+            y_cross.length_squared if len(start) > 2 else y_cross * y_cross
+        )
         if y_length_squared < 10e-14:
-            return Line(start, end)  # area of the triangle is too small (you may additionally check the points for colinearity if you are paranoid)
+            return Line(
+                start, end
+            )  # area of the triangle is too small (you may additionally check the points for colinearity if you are paranoid)
 
         # helpers
         offset_multiplier = 0.5 / y_length_squared
-        #calculate dot products
+        # calculate dot products
         tt = Vector.dot_product(start_to_mid, start_to_mid)
         uu = Vector.dot_product(start_to_end, start_to_end)
 
@@ -411,7 +416,7 @@ class Arc(Curve):
             * offset_multiplier
         )
         # radius = math.sqrt(tt * uu * (mid_to_end*mid_to_end) * iwsl2*0.5)
-        
+
         x_axis = start - origin
         normalized_x_axis = x_axis.normalized
         radius = x_axis.length
@@ -420,7 +425,11 @@ class Arc(Curve):
             # 2d
             normalized_y_axis = Vector.cross_product(normalized_x_axis)
             arc_matrix = Matrix.by_origin_and_axes(
-                origin, [x_axis, (normalized_y_axis if y_cross > 0 else -normalized_y_axis) * radius]
+                origin,
+                [
+                    x_axis,
+                    (normalized_y_axis if y_cross > 0 else -normalized_y_axis) * radius,
+                ],
             )
         else:  # 3d
 
@@ -470,7 +479,9 @@ class Arc(Curve):
         Returns:
             Point: the radius of the circle this arc is a part of
         """
-        return self.matrix.multiply_without_translation(Vector.x_axis if self.matrix.dimensions > 2 else Vector.x_axis_2).magnitude
+        return self.matrix.multiply_without_translation(
+            Vector.x_axis if self.matrix.dimensions > 2 else Vector.x_axis_2
+        ).magnitude
 
     @property
     def origin(self) -> Point:
@@ -559,7 +570,7 @@ class Polygon(PointList):
         return [Point(p) for p in self]
 
     @closed.setter
-    def closed(self, value) -> 'Polygon':
+    def closed(self, value) -> "Polygon":
         """Closes the PolyCurve by connecting the last point to the first point, or opens it by removing the last point if it's a duplicate of the first point
         #### Example usage:
         ```python
@@ -682,35 +693,7 @@ class Polygon(PointList):
 
         ```
         """
-        if len(points) < 3:
-            print("Error: Polygon must have at least 3 unique points.")
-            return None
-
-        _points = []
-
-        for point in points:  # Convert all to Point
-            if isinstance(point, Point):
-                _points.append(Point(point.x, point.y, 0))
-            else:
-                _points.append(point)
-
-        if Point.to_matrix(_points[0]) == Point.to_matrix(_points[-1]):
-            _points.pop()
-
-        seen = set()
-        unique_points = [p for p in _points if not (p in seen or seen.add(p))]
-
-        polygon = Polygon()
-        polygon.points = unique_points
-
-        num_points = len(unique_points)
-        for i in range(num_points):
-            next_index = (i + 1) % num_points
-            polygon.curves.append(
-                Line(start=unique_points[i], end=unique_points[next_index])
-            )
-
-        return polygon
+        return Polygon(points)
 
     @staticmethod
     def rectangular(rect: Rect) -> "Polygon":
@@ -870,6 +853,7 @@ class PolyCurve(list[Line], Shape, Curve):
 
         super().__init__(to_array(*args))
 
+    # properties
     @property
     def start(self):
         return self[0].start
@@ -963,6 +947,11 @@ class PolyCurve(list[Line], Shape, Curve):
 
         return sum(curve.length for curve in self)
 
+    # operators
+    def __rmul__(self, transformer) -> "PolyCurve":
+        return PolyCurve([transformer * curve for curve in self])
+
+    # functions
     def segmentate_part(
         self, polygon_to_add_to: "Polygon", settings: SegmentationSettings
     ):
@@ -996,6 +985,7 @@ class PolyCurve(list[Line], Shape, Curve):
         crv = PolyCurve.by_joined_curves(crvs)
         return crv
 
+    # static functions
     # TODO finish function
     @property
     def centroid(self) -> "Point":
@@ -1051,7 +1041,7 @@ class PolyCurve(list[Line], Shape, Curve):
         return PolyCurve(polygon.curves)
 
     @staticmethod
-    def by_points(points: "list[Point]") -> 'PolyCurve':
+    def by_points(points: "list[Point]") -> "PolyCurve":
         """Creates a PolyCurve from a list of points.
 
         #### Parameters:
@@ -1091,6 +1081,3 @@ class PolyCurve(list[Line], Shape, Curve):
             except:
                 pass
         return plycrv
-
-    def __rmul__(self, transformer) -> "PolyCurve":
-        return PolyCurve([transformer * curve for curve in self])

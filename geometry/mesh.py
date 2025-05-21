@@ -35,6 +35,7 @@ __url__ = "./geometry/solid.py"
 from abstract.serializable import Serializable
 from library.material import Material
 
+# [!not included in BP singlefile - end]
 
 class Mesh(Serializable):
 	"""Represents a mesh object with vertices, faces, and other attributes."""

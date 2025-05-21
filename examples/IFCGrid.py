@@ -4,11 +4,13 @@ from geometry.curve import Line, PolyCurve
 from project.fileformat import BuildingPy
 
 
-polycurve = PolyCurve.by_points([Point(0,0,0), Point(100,0,0), Point(100,100,0), Point(0,100,0)])
+polycurve = PolyCurve.by_points(
+    [Point(0, 0, 0), Point(100, 0, 0), Point(100, 100, 0), Point(0, 100, 0)]
+)
 height = 10.0
 dz_loc = 0.0
 
-l1 = Line(Point(0,0,0), Point(0,1000,0))
+l1 = Line(Point(0, 0, 0), Point(0, 1000, 0))
 
 gr = GridLine.by_startpoint_endpoint(l1, "Grid")
 

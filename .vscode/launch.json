@@ -17,11 +17,14 @@
             "console": "integratedTerminal",
 			"justMyCode": false,
         },
-    ],
-    "compounds": [
-        {
-            "name": "Update and test",
-            "configurations": ["Generate Single File", "Python: Current File"]
-        }
+		{
+			"name": "Update and test",
+			"preLaunchTask": "package pip version",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "examples/working/pip/pip.py",
+			"console": "integratedTerminal",
+			"justMyCode": false
+		}
     ]
 }

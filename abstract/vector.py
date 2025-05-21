@@ -442,7 +442,6 @@ class Vector(Serializable, list):
         """
         return point_2 - point_1
 
-    @staticmethod
     def rotate(point: "Vector", angle: float, axis: "Vector" = None, pivot: 'Vector' = None) -> "Vector":
         """use Matrix.by_rotation(axis, angle) * point instead!"""
 

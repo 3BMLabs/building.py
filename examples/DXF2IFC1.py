@@ -7,6 +7,8 @@ from geometry.surface import Surface
 from project.fileformat import BuildingPy
 
 project = BuildingPy()
+
+
 def process_entities(dxf_path, index, name):
     dxf_reader = ReadDXF(dxf_path).polylines
     only_polycurves = []

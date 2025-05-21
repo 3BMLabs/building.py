@@ -2,7 +2,7 @@ from abstract.vector import Vector
 from project.fileformat import BuildingPy
 from geometry.rect import Rect
 
-project = BuildingPy("BoundingBoxes from Revit","1")
+project = BuildingPy("BoundingBoxes from Revit", "1")
 bb = Rect()
 
 height = 3675

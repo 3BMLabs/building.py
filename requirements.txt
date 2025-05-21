@@ -5,3 +5,4 @@ pythonnet
 pillow
 #might require a lower python version!
 ifcopenshell
+setuptools

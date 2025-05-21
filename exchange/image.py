@@ -50,7 +50,7 @@ def img(width, height, scalefactor):
 
 def PolyCurve2DToIMG(PC: PolyCurve, widthimgpix: float, img1, scalefactor):
     SF = scalefactor
-    bounds = PolyCurve2D.bounds(PC)
+    bounds = PC.bounds
     dx = 50
     xmin = bounds[0] - dx
     ymin = bounds[2] - dx

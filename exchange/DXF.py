@@ -24,9 +24,7 @@
 # ***************************************************************************
 
 
-"""This module provides import data from DXF file
-"""
-
+"""This module provides import data from DXF file"""
 
 
 __title__ = "DXF"
@@ -39,14 +37,15 @@ from abstract.vector import Point, Vector
 
 # [!not included in BP singlefile - end]
 
-#todo, check if polygon is not closed, then draw polycurve
+
+# todo, check if polygon is not closed, then draw polycurve
 class ReadDXF:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.points = []     
-        self.lines = []      
-        self.arcs = []       
-        self.polylines = []  
+        self.points = []
+        self.lines = []
+        self.arcs = []
+        self.polylines = []
         self.read_dxf()
 
     def read_dxf(self):
@@ -55,28 +54,32 @@ class ReadDXF:
 
         for entity in msp:
             dxftype = entity.dxftype()
-            if dxftype == 'POINT':
+            if dxftype == "POINT":
                 # Handle point entities
                 point = Point(entity.dxf.location)
                 self.points.append(point)
-            elif dxftype == 'LINE':
+            elif dxftype == "LINE":
                 pass
                 # Handle line entities
                 # start = Point(entity.dxf.start)
                 # end = Point(entity.dxf.end)
                 # self.lines.append(Line2D(start, end))
-            elif dxftype == 'ARC':
+            elif dxftype == "ARC":
                 center = Vector(entity.dxf.center)
                 radius = entity.dxf.radius
                 start_angle = entity.dxf.start_angle
                 end_angle = entity.dxf.end_angle
                 self.arcs.append((center, radius, start_angle, end_angle))
-            elif dxftype in {'LWPOLYLINE', 'POLYLINE'}:
+            elif dxftype in {"LWPOLYLINE", "POLYLINE"}:
                 try:
                     points = [Point(x, y) for x, y in entity.vertices()]
                     polygon = Polygon.by_points(points)
                     self.polylines.append((polygon, entity.dxf.layer))
                 except ValueError as error:
-                    print(f"Data format error with {entity.dxftype()} on layer {entity.dxf.layer}: {str(error)}")
+                    print(
+                        f"Data format error with {entity.dxftype()} on layer {entity.dxf.layer}: {str(error)}"
+                    )
                 except Exception as error:
-                    print(f"An unexpected error occurred while processing an entity: {str(error)}")
+                    print(
+                        f"An unexpected error occurred while processing an entity: {str(error)}"
+                    )
