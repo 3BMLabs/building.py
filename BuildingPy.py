@@ -435,12 +435,16 @@ class Vector(Serializable, list):
     forward : 'Vector' = None
     down : 'Vector' = None
     up : 'Vector' = None
+    zero: 'Vector' = None
+    one: 'Vector' = None
     x_axis_2d : 'Vector' = None
     y_axis_2d : 'Vector' = None
     left_2d : 'Vector' = None
     right_2d : 'Vector' = None
     backward_2d : 'Vector' = None
     forward_2d : 'Vector' = None
+    zero_2d : 'Vector' = None
+    one_2d : 'Vector' = None
 
     def __str__(self):
         return (
@@ -1007,8 +1011,9 @@ class Vector(Serializable, list):
     def __itruediv__(self, other) -> Self:
         return self.ioperate_2(operator.__itruediv__, other)
 
+Vector.zero = Vector(0,0,0)
+Vector.one = Vector(1,1,1)
 
-Vector.x_axis = Vector(1, 0, 0)
 Vector.x_axis = Vector(1, 0, 0)
 Vector.y_axis = Vector(0, 1, 0)
 Vector.z_axis = Vector(0, 0, 1)
@@ -1020,8 +1025,12 @@ Vector.forward = Vector.y_axis
 Vector.down = Vector(0, 0, -1)
 Vector.up = Vector.z_axis
 
+Vector.zero_2d = Vector(0,0)
+Vector.one_2d = Vector(1,1)
+
 Vector.x_axis_2d = Vector(1, 0)
 Vector.y_axis_2d = Vector(0, 1)
+
 Vector.left_2d = Vector(-1, 0)
 Vector.right_2d = Vector.x_axis_2d
 Vector.backward_2d = Vector(0, -1)
