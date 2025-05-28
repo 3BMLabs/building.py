@@ -36,7 +36,6 @@ import sys
 from pathlib import Path
 from typing import Self
 
-from abstract.coordinatesystem import CoordinateSystem
 from abstract.plane import Plane
 from abstract.rect import Rect
 from abstract.vector import Vector
@@ -47,8 +46,6 @@ from packages.helper import flatten, generateID
 file = Path(__file__).resolve()
 package_root_directory = file.parents[1]
 sys.path.append(str(package_root_directory))
-
-from geometry.geometry2d import PolyCurve2D
 
 
 # [!not included in BP singlefile - end]
@@ -145,12 +142,12 @@ class Extrusion:
             return extrusions
 
     @staticmethod
-    def by_polycurve_height_vector(polycurve_2d: PolyCurve2D, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector) -> 'Extrusion':
+    def by_polycurve_height_vector(polycurve_2d: PolyCurve, height: float, cs_old: CoordinateSystem, start_point: Point, direction_vector: Vector) -> 'Extrusion':
         """Creates an extrusion from a 2D polycurve profile along a specified vector.
         This method extrudes a 2D polycurve profile into a 3D form by translating it to a specified start point and direction. The extrusion is created perpendicular to the polycurve's plane, extending it to the specified height.
 
         #### Parameters:
-        - `polycurve_2d` (PolyCurve2D): The 2D polycurve to be extruded.
+        - `polycurve_2d` (PolyCurve): The 2D polycurve to be extruded.
         - `height` (float): The height of the extrusion.
         - `cs_old` (CoordinateSystem): The original coordinate system of the polycurve.
         - `start_point` (Point): The start point for the extrusion in the new coordinate system.
@@ -408,7 +405,7 @@ class Extrusion:
         ```
         """
         pts = rect.corners()
-        pc = PolyCurve2D.by_points(pts)
+        pc = PolyCurve.by_points(pts)
         height = rect.height
         cs = rect.coordinatesystem
         dirXvector = Vector.angle_between(CSGlobal.Y_axis, cs.Y_axis)

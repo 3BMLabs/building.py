@@ -35,20 +35,21 @@ import sys, os, math
 from pathlib import Path
 from typing import Union
 
+from geometry.curve import PolyCurve
+from geometry.solid import Extrusion
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from library.profile import *
-from library.profile import nameToProfile, justifictionToVector
-from geometry.geometry2d import *
-from library.material import *
-from abstract.vector import *
-from abstract.coordinatesystem import *
-from objects import profile
+from abstract.vector import Vector
+from geometry.point import Point
+from packages.helper import generateID
 
-from abstract.node import *
-from geometry.solid import *
+from abstract.node import Node
+
+from library.profile import nameToProfile, justifictionToVector
 from abstract.serializable import Serializable
+
+from objects.profile import Profile, Rectangle
 
 # [!not included in BP singlefile - end]
 
@@ -57,7 +58,6 @@ def colorlist(extrus, color):
     for j in range(int(len(extrus.verts) / 3)):
         colorlst.append(color)
     return (colorlst)
-
 
 # ToDo Na update van color moet ook de colorlist geupdate worden
 class Frame(Serializable):
@@ -117,8 +117,8 @@ class Frame(Serializable):
             f1.profile = profile
         elif type(profile).__name__ == "str":
             res = nameToProfile(profile)
-            f1.curve = res.polycurve2d  # polycurve2d
-            f1.points = res.polycurve2d.points
+            f1.curve = res.PolyCurve  # PolyCurve
+            f1.points = res.PolyCurve.points
             f1.profile = res.profile
         else:
             print("[by_startpoint_endpoint_profile], input is not correct.")
@@ -139,7 +139,7 @@ class Frame(Serializable):
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector2d: Vector2, rotation: float, material: None, comments: None):
+    def by_startpoint_endpoint_profile_shapevector(cls, start: Union[Point, Node], end: Union[Point, Node], profile_name: str, name: str, vector: Vector, rotation: float, material: None, comments: None):
         f1 = Frame()
         f1.comments = comments
 
@@ -153,16 +153,16 @@ class Frame(Serializable):
             f1.end = end.point
             
         #try:
-        curv = nameToProfile(profile_name).polycurve2d
+        curv = nameToProfile(profile_name).PolyCurve
         #except Exception as e:
             # Profile does not exist
         #print(f"Profile does not exist: {profile_name}\nError: {e}")
 
         f1.rotation = rotation
         curvrot = curv.rotate(rotation)  # rotation in degrees
-        f1.curve = curvrot.translate(vector2d)
-        f1.XOffset = vector2d.x
-        f1.YOffset = vector2d.y
+        f1.curve = curvrot.translate(vector)
+        f1.XOffset = vector.x
+        f1.YOffset = vector.y
         f1.directionVector = Vector.by_two_points(f1.start, f1.end)
         f1.length = Vector.length(f1.directionVector)
         f1.name = name
@@ -178,7 +178,7 @@ class Frame(Serializable):
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve2D], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
+    def by_startpoint_endpoint_profile_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], profile: Union[str, PolyCurve], name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, ey: None = float, ez: None = float, structuralType: None = str, comments=None):
         f1 = Frame()
         f1.comments = comments
 
@@ -194,29 +194,29 @@ class Frame(Serializable):
         f1.structuralType = structuralType
         f1.rotation = rotation
 
-        if type(profile).__name__ == "PolyCurve2D":
+        if type(profile).__name__ == "PolyCurve":
             profile_name = "None"
             f1.profile_data = profile
             curve = f1.profile_data
         elif type(profile).__name__ == "Polygon":
             profile_name = "None"
-            f1.profile_data = PolyCurve2D.by_points(profile.points)
+            f1.profile_data = PolyCurve.by_points(profile.points)
             curve = f1.profile_data
         elif type(profile).__name__ == "str":
             profile_name = profile
-            f1.profile_data = nameToProfile(profile).polycurve2d  # polycurve2d
+            f1.profile_data = nameToProfile(profile).PolyCurve  # PolyCurve
             curve = f1.profile_data
         else:
             print("[by_startpoint_endpoint_profile], input is not correct.")
             sys.exit()
 
-        # curve = f1.profile_data.polycurve2d
+        # curve = f1.profile_data.PolyCurve
 
         v1 = justifictionToVector(curve, XJustifiction, YJustifiction)  # 1
         f1.XOffset = v1.x
         f1.YOffset = v1.y
         curve = curve.translate(v1)
-        curve = curve.translate(Vector2(ey, ez))  # 2
+        curve = curve.translate(Vector(ey, ez))  # 2
         curve = curve.rotate(f1.rotation)  # 3
         f1.curve = curve
 
@@ -277,7 +277,7 @@ class Frame(Serializable):
 
 
     @classmethod
-    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve2D, frame_name: str, rotation: float, material=None, comments=None):
+    def by_point_height_rotation(cls, start: Union[Point, Node], height: float, polycurve: PolyCurve, frame_name: str, rotation: float, material=None, comments=None):
         # 2D polycurve
         f1 = Frame()
         f1.comments = comments
@@ -322,7 +322,7 @@ class Frame(Serializable):
         f1.length = Vector.length(f1.directionVector)
         f1.name = profile_name
         f1.profileName = profile_name
-        curv = nameToProfile(profile_name).polycurve2d
+        curv = nameToProfile(profile_name).PolyCurve
         curvrot = curv.rotate(rotation)  # rotation in degrees
         f1.extrusion = Extrusion.by_polycurve_height_vector(
             curvrot.curves, f1.length, CSGlobal, f1.start, f1.directionVector)
@@ -336,7 +336,7 @@ class Frame(Serializable):
         return f1
 
     @classmethod
-    def by_startpoint_endpoint_curve_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve2D, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
+    def by_startpoint_endpoint_curve_justifiction(cls, start: Union[Point, Node], end: Union[Point, Node], polycurve: PolyCurve, name: str, XJustifiction: str, YJustifiction: str, rotation: float, material=None, comments=None):
         f1 = Frame()
         f1.comments = comments
 

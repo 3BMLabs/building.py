@@ -364,11 +364,7 @@ class PolyCurve(Serializable, list[Line]):
 
         ```        
         """
-        lst = []
-        for line in self.curves:
-            lst.append(line.length)
-
-        return sum(i.length for i in self.curves)
+        return sum(line.length for line in self)
     
     @closed.setter
     def closed(self, value) -> Self:
@@ -389,14 +385,6 @@ class PolyCurve(Serializable, list[Line]):
     @property
     def bounds(self) -> 'Rect':
         return Rect.by_points(self.points)
-    @property
-    def curves(self) -> list[Line]:
-        """this function won't close the polycurve!
-
-        Returns:
-            list[Line]: the curves connecting this polycurve
-        """
-        return [Line(self.points[point_index], self.points[point_index + 1]) for point_index in range(len(self.points) - 1)]
 
     @property
     def is_rectangle(self) -> bool:
@@ -1137,14 +1125,21 @@ class PolyCurve(Serializable, list[Line]):
         curve_p3[axis1] = rect_p1[axis1]
         return PolyCurve(curve_p0, curve_p1, curve_p2, curve_p3, curve_p0)
 
-class Polygon:
+class Polygon(Serializable, list[Point]):
     """Represents a polygon composed of points."""
-    def __init__(self) -> 'Polygon':
+    def __init__(self, *args) -> 'Polygon':
         self.id = generateID()
-        self.curves = []
-        self.points = []
-        self.lines = []
         self.isClosed = True
+        super().__init__(to_array(*args))
+        
+    @property
+    def lines(self) -> list[Line]:
+        """this function won't close the polycurve!
+
+        Returns:
+            list[Line]: the curves connecting this polycurve
+        """
+        return [Line(self.points[point_index], self.points[point_index + 1]) for point_index in range(len(self.points) - 1)]
 
     @classmethod
     def by_points(self, points: 'list[Point]') -> 'PolyCurve':
@@ -1185,7 +1180,7 @@ class Polygon:
         num_points = len(unique_points)
         for i in range(num_points):
             next_index = (i + 1) % num_points
-            polygon.curves.append(Line(start=unique_points[i], end=unique_points[next_index]))
+            polygon.lines.append(Line(start=unique_points[i], end=unique_points[next_index]))
 
         return polygon
 
@@ -1205,9 +1200,9 @@ class Polygon:
             curves.append(Line(curves[-1].end, curves[0].start))
 
         polygon = cls()
-        polygon.curves = curves
+        polygon.lines = curves
 
-        for crv in polygon.curves:
+        for crv in polygon.lines:
             if Point.to_matrix(crv.start) not in polygon.points:
                 polygon.points.append(crv.start)
             elif Point.to_matrix(crv.end) not in polygon.points:
@@ -1258,10 +1253,10 @@ class Polygon:
         ```
         """
         lst = []
-        for line in self.curves:
+        for line in self.lines:
             lst.append(line.length)
 
-        return sum(i.length for i in self.curves)
+        return sum(i.length for i in self.lines)
 
 
     def translate(self, vector_3d: 'Vector') -> 'Polygon':
@@ -1284,7 +1279,7 @@ class Polygon:
         translated_points = []
 
         # Translate all curves
-        for curve in self.curves:
+        for curve in self.lines:
             if curve.__class__.__name__ == "Arc":
                 # Translate the start, middle, and end points of the arc
                 new_start = Point.translate(curve.start, vector_3d)
@@ -1300,7 +1295,7 @@ class Polygon:
                 print("Curve type not found")
 
         # Ensure that translated_curves are assigned back to the translated_polygon
-        translated_polygon.curves = translated_curves
+        translated_polygon.lines = translated_curves
 
         # Translate all points
         for point in self.points:
@@ -1351,29 +1346,9 @@ class Arc:
         #self.length = self.length()
         #self.units = project.units
         #self.coordinatesystem = self.coordinatesystem_arc()
-
-    def coordinatesystem_arc(self) -> 'CoordinateSystem':
-        """Calculates and returns the coordinate system of the arc.
-        The coordinate system is defined by the origin of the arc and the normalized vectors along the local X, Y, and Z axes.
-
-        #### Returns:
-        `CoordinateSystem`: The coordinate system of the arc.
-
-        #### Example usage:
-        ```python
-        coordinatesystem = arc.coordinatesystem_arc()
-        # coordinatesystem will be an instance of CoordinateSystem representing the arc's local coordinate system
-        ```
-        """
-        vx = Vector.by_two_points(self.origin, self.start)  # Local X-axe
-        vector_2 = Vector.by_two_points(self.end, self.origin)
-        vz = Vector.cross_product(vx, vector_2)  # Local Z-axe
-        vy = Vector.cross_product(vx, vz)  # Local Y-axe
-        self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
-                                                 Vector.normalize(vz))
-        return self.coordinatesystem
-
-    def radius_arc(self) -> 'float':
+        
+    @property
+    def radius(self) -> 'float':
         """Calculates and returns the radius of the arc.
         The radius is computed based on the distances between the start, mid, and end points of the arc.
 
@@ -1397,8 +1372,9 @@ class Arc:
         else:
             R = (a * b * c) / (4 * A)
             return R
-
-    def origin_arc(self) -> 'Point':
+        
+    @property
+    def origin(self) -> 'Point':
         """Calculates and returns the origin of the arc.
         The origin is calculated based on the geometric properties of the arc defined by its start, mid, and end points.
 
@@ -1414,13 +1390,65 @@ class Arc:
         start_to_end = self.end - self.start
         half_start_end = start_to_end * 0.5
         b = half_start_end.magnitude
-        radius = Arc.radius_arc(self)
+        radius = self.radius
         x = math.sqrt(radius * radius - b * b)
         mid = self.start + half_start_end
         vector_2 = mid - self.mid
         tocenter = vector_2.normalized * x
         center = mid + tocenter
         return center
+    
+    @property
+    def length(self) -> 'float':
+        """Calculates and returns the length of the arc.
+        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
+
+        #### Returns:
+        `float`: The length of the arc.
+
+        #### Example usage:
+        ```python
+        length = arc.length()
+        # length will be the calculated length of the arc
+        ```
+        """
+        
+        #to calculate the length, first calculate the origin.
+        origin = self.origin
+        if math.isnan(origin.x):
+            #size of imaginary circle is infinite, so the line is straight
+            return Point.distance(self.start, self.end)
+        start_to_origin = self.start - origin
+        #then calculate the angles of the start and end point on the imaginary circle.
+        start_angle = start_to_origin.angle
+        end_angle = (self.end - origin).angle
+        length_in_radians = end_angle - start_angle
+        if length_in_radians < 0:
+            length_in_radians += math.pi * 2
+        
+        #finally, just multiply the radians with the radius of the circle
+        return length_in_radians * start_to_origin.magnitude
+
+    def coordinatesystem_arc(self) -> 'CoordinateSystem':
+        """Calculates and returns the coordinate system of the arc.
+        The coordinate system is defined by the origin of the arc and the normalized vectors along the local X, Y, and Z axes.
+
+        #### Returns:
+        `CoordinateSystem`: The coordinate system of the arc.
+
+        #### Example usage:
+        ```python
+        coordinatesystem = arc.coordinatesystem_arc()
+        # coordinatesystem will be an instance of CoordinateSystem representing the arc's local coordinate system
+        ```
+        """
+        vx = Vector.by_two_points(self.origin, self.start)  # Local X-axe
+        vector_2 = Vector.by_two_points(self.end, self.origin)
+        vz = Vector.cross_product(vx, vector_2)  # Local Z-axe
+        vy = Vector.cross_product(vx, vz)  # Local Y-axe
+        self.coordinatesystem = CoordinateSystem(self.origin, Vector.normalize(vx), Vector.normalize(vy),
+                                                 Vector.normalize(vz))
+        return self.coordinatesystem
 
     def angle_radian(self) -> 'float':
         """Calculates and returns the total angle of the arc in radians.
@@ -1449,36 +1477,6 @@ class Arc:
         except:
             angle = 2*math.pi-Vector.angle_radian_between(vector_1, vector_2)
             return angle
-
-    def length(self) -> 'float':
-        """Calculates and returns the length of the arc.
-        The length is calculated using the geometric properties of the arc defined by its start, mid, and end points.
-
-        #### Returns:
-        `float`: The length of the arc.
-
-        #### Example usage:
-        ```python
-        length = arc.length()
-        # length will be the calculated length of the arc
-        ```
-        """
-        try:
-            x1, y1, z1 = self.start.x, self.start.y, self.start.z
-            x2, y2, z2 = self.mid.x, self.mid.y, self.mid.z
-            x3, y3, z3 = self.end.x, self.end.y, self.end.z
-
-            r1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2) ** 0.5 / 2
-            a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
-            b = math.sqrt((x3 - x2) ** 2 + (y3 - y2) ** 2 + (z3 - z2) ** 2)
-            c = math.sqrt((x3 - x1) ** 2 + (y3 - y1) ** 2 + (z3 - z1) ** 2)
-            cos_angle = (a ** 2 + b ** 2 - c ** 2) / (2 * a * b)
-            m1 = math.acos(cos_angle)
-            arc_length = r1 * m1
-
-            return arc_length
-        except:
-            return 0
     
     @staticmethod
     def points_at_parameter(arc: 'Arc', count: 'int') -> 'list':

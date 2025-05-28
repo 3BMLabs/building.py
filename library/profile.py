@@ -31,23 +31,30 @@ __title__= "profile"
 __author__ = "Maarten & Jonathan"
 __url__ = "./objects/profile.py"
 
+import ssl
 import sys
 from pathlib import Path
+
+import certifi
+
+file = Path(__file__).resolve()
+package_root_directory = file.parents[1]
+sys.path.append(str(package_root_directory))
+
 import urllib.request
 import json
 import re
 
-file = Path(__file__).resolve()
-package_root_directory = file.parents[2]
-sys.path.append(str(package_root_directory))
+from objects.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
 
-from objects.profile import *
-from geometry.geometry2d import *
+
 from geometry.curve import PolyCurve
 
 # [!not included in BP singlefile - end]
 jsonFile = "https://raw.githubusercontent.com/3BMLabs/Project-Ocondat/master/steelprofile.json"
-url = urllib.request.urlopen(jsonFile)
+
+context = ssl.create_default_context(cafile=certifi.where())
+url = urllib.request.urlopen(jsonFile, context=context)
 data = json.loads(url.read())
 
 
@@ -128,7 +135,7 @@ class nameToProfile:
             pc2d2 = pc2d
         self.polycurve2d = pc2d2
 
-def justifictionToVector(plycrv2D: PolyCurve2D, XJustifiction, Yjustification, ey=None, ez=None):
+def justifictionToVector(plycrv2D: PolyCurve, XJustifiction, Yjustification, ey=None, ez=None):
     
     # print(XJustifiction)
     xval = []
