@@ -24,9 +24,9 @@ def IntervalToSpeckleInterval(interval: Interval):
 
 
 def PointToSpecklePoint(point):
-    if point.type == "Point":
+    if isinstance(point, Point):
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, point.z)
-    elif point.type == "Point2D":
+    elif isinstance(point, Point):
         SpecklePnt = SpecklePoint.from_coords(point.x, point.y, 0)
     SpecklePnt.id = point.id
     SpecklePnt.units = project.units
@@ -150,22 +150,22 @@ def GridSystemToLines(GridSystem):
     return SpeckleLines
 
 
-def Point2DToSpecklePoint(Point2D: Point2D):
-    SpecklePnt = SpecklePoint.from_coords(Point2D.x, Point2D.y, 0)
+def Point2DToSpecklePoint(Point: Point):
+    SpecklePnt = SpecklePoint.from_coords(Point.x, Point.y, 0)
     SpecklePnt.units = project.units
     return SpecklePnt
 
 
-def SpeckleMeshByMesh(MeshPB):
+def SpeckleMeshByMesh(Mesh):
     color = -1762845660
     colrs = []
-    for i in range(MeshPB.countVertsFaces):
+    for i in range(Mesh.countVertsFaces):
         colrs.append(color)
 
     SpeckleMsh = SpeckleMesh(applicationId = project.applicationId, 
-                             vertices = MeshPB.verts, 
-                             faces = MeshPB.faces, 
-                             name = MeshPB.name, 
+                             vertices = Mesh.verts, 
+                             faces = Mesh.faces, 
+                             name = Mesh.name, 
                              colors = colrs, 
                              units = project.units,
                              textureCoordinates = []
@@ -560,7 +560,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'Text':
             SpeckleObj.append(TextToSpeckleCurveSurface(i))
 
-        elif nm == 'Point2D':
+        elif nm == 'Point':
             SpeckleObj.append(Point2DToSpecklePoint(i))
 
         elif nm == 'Grid':
@@ -574,7 +574,7 @@ def translateObjectsToSpeckleObjects(Obj):
         elif nm == 'imagePyB':
             SpeckleObj.append(SpeckleMeshByImage(i))
 
-        elif nm == 'MeshPB':
+        elif nm == 'Mesh':
             clrs = i.colorlst
             SpeckleObj.append(SpeckleMesh(applicationId = project.applicationId,
                                           vertices=i.verts, 

@@ -481,7 +481,7 @@ The length of a vector is the Euclidean norm or magnitude of the vector, which i
 #### Example usage:
 ```python
 vector1 = Vector(1, 2, 3)
-length = Vector.length(vector1)
+length = vector1.length
 # 3.7416573867739413
 ```
 

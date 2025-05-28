@@ -31,9 +31,9 @@ __url__ = "./exchange/freecad.py"
 
 import Part
 import FreeCAD
-from geometry.geometry2d import *
-from geometry.curve import *
-
+from abstract.vector import Vector
+from construction.beam import Beam
+from geometry.curve import PolyCurve
 
 def CreateLayer(layerName):
     layerName = layerName.replace(" ", "_")
@@ -64,9 +64,9 @@ def ArchSiteCreateCheck(SiteName):
 def PlaceText(textData, fontSize, upper):
     Texts = []
     for i, j, k in zip(textData[0], textData[1], textData[2]):
-        Z_Axis = FreeCAD.Vector(0, 0, 1)
+        z_axis = FreeCAD.Vector(0, 0, 1)
         p1 = FreeCAD.Vector(i[0][0], i[0][1], 0)
-        Place1 = FreeCAD.Placement(p1, FreeCAD.Rotation(Z_Axis, -float(j)))
+        Place1 = FreeCAD.Placement(p1, FreeCAD.Rotation(z_axis, -float(j)))
         if upper:
             k = k.upper()
         else:
@@ -123,59 +123,12 @@ def FrameToFreeCAD(frame):
     wire_to_solid(polycurve3d_to_part_wire(test2), vect)
 
 
-def translateObjectsToFreeCAD(Obj):
+def translateObjectsToFreeCAD(building_py_objects: list):
     FreeCADObj = []
-    for i in Obj:
-        nm = i.__class__.__name__
-        if nm == 'Panel':
-            test = "test"
-
-        elif nm == 'Surface' or nm == 'Face':
-            test = "test"
-
-        elif nm == 'Frame':
-            FreeCADObj.append(FrameToFreeCAD(i))
-
-        elif nm == "Extrusion":
-            test = "test"
-
-        elif nm == 'PolyCurve':
-            test = "test"
-
-        elif nm == 'Rect':
-            test = "test"
-
-        elif nm == 'ImagePyB':
-            test = "test"
-
-        elif nm == 'Interval':
-            test = "test"
-
-        elif nm == 'Line':
-            test = "test"
-
-        elif nm == 'Plane':
-            test = "test"
-
-        elif nm == 'Arc':
-            test = "test"
-
-        elif nm == 'Line2D':
-            test = "test"
-
-        elif nm == 'Point':
-            test = "test"
-
-        elif nm == 'Point2D':
-            test = "test"
-
-        elif nm == 'Grid':
-            test = "test"
-
-        elif nm == 'GridSystem':
-            test = "test"
-
+    for building_py_object in building_py_objects:
+        if(isinstance(building_py_object, Beam)):
+            FreeCADObj.append(FrameToFreeCAD(building_py_object))
         else:
-            print(f"{nm} Object not yet added to translateFreeCADObj")
+            print(f"{building_py_object.__class__.__name__} Object not yet added to translateFreeCADObj")
 
     return FreeCADObj

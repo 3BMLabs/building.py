@@ -4,3 +4,9 @@
 *.xml
 .idea
 \prive
+sandbox
+*.egg-info
+pypi/dist
+build
+pypi/buildingpy/buildingpy.py
+pypi/LICENSE

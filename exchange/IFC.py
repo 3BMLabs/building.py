@@ -1,33 +1,24 @@
-import sys, os
-from pathlib import Path
+
+
+from abstract.vector import Point
+from construction.level import Level
+
+from project.fileformat import BuildingPy
+
 import numpy as np
+
 import ifcopenshell.geom
 import ifcopenshell.api
 import ifcopenshell.util.element as util
-import ifcopenshell.util.shape as shape
 from ifcopenshell.api import run
 
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-
-from geometry.curve import *
-from geometry.solid import *
-from project.fileformat import BuildingPy
-from objects.level import Level
-from objects.wall import Wall
-from objects.door import Door
-from objects.room import Room
-from geometry.surface import Surface
-from abstract.matrix import *
-
-
 class LoadIFC:
-    def __init__(self, filename=str, project=project, filter=None):
+    def __init__(self, filename:str, project: BuildingPy, filter=None):
         self.filename = filename
         self.project = project
-        self.root = self.load()
+        self.ifc_file = self.load()
         self.IFCObjects = self.getobject(filter)
         self.convertedObjects = self.convertobject()
-        self.sendToSpeckle()
 
     def load(self):
         model = ifcopenshell.open(self.filename)
@@ -42,7 +33,7 @@ class LoadIFC:
         
         fetched_objects = []
         for each in data:
-            objs = self.root.by_type(each)
+            objs = self.ifc_file.by_type(each)
             fetched_objects.append(objs)
         return fetched_objects
 
@@ -245,7 +236,7 @@ class CreateIFC:
             RelatedObjects=[self.building]
         )
 
-    def add_storey(self, name):
+    def add_story(self, name):
         self.storey = self.model.createIfcBuildingStorey(
             GlobalId=ifcopenshell.guid.new(), 
             OwnerHistory=None, 

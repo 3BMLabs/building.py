@@ -29,8 +29,9 @@
 """
 
 
-from geometry.linestyle import *
+
 from geometry.curve import Point, PolyCurve, Line
+from geometry.linestyle import line_to_pattern
 
 __title__ = "GIS2BIM"
 __author__ = "Maarten"
@@ -44,7 +45,7 @@ def WFSCurvesToBPCurves(curves):
         pointlist = []
         for j in i:
             pointlist.append(Point(j[0], j[1], 0))
-        PC = PolyCurve().by_points(pointlist)
+        PC = PolyCurve.by_points(pointlist)
         BPyPolyCurves.append(PC)
     return BPyPolyCurves
 

@@ -1,0 +1,8 @@
+black == 25.1.0
+specklepy
+ezdxf
+pythonnet
+pillow
+#might require a lower python version!
+ifcopenshell
+setuptools

@@ -62,14 +62,14 @@ class PathSegment(ABC):
         """
 
 
-class NonLinear(PathSegment):
+class NonLinearSegment(PathSegment):
     """A line that is not straight
 
     The base of Arc, QuadraticBezier and CubicBezier
     """
 
 
-class Linear(PathSegment):
+class LinearSegment(PathSegment):
     """A straight line
 
     The base for Line() and Close().
@@ -81,7 +81,7 @@ class Linear(PathSegment):
         self.relative = relative
 
     def __ne__(self, other):
-        if not isinstance(other, Line):
+        if not isinstance(other, LineSegment):
             return NotImplemented
         return not self == other
 
@@ -97,7 +97,7 @@ class Linear(PathSegment):
         return sqrt(distance.real**2 + distance.imag**2)
 
 
-class Line(Linear):
+class LineSegment(LinearSegment):
     def __init__(self, start, end, relative=False, vertical=False, horizontal=False):
         self.start = start
         self.end = end
@@ -109,7 +109,7 @@ class Line(Linear):
         return f"Line(start={self.start}, end={self.end})"
 
     def __eq__(self, other):
-        if not isinstance(other, Line):
+        if not isinstance(other, LineSegment):
             return NotImplemented
         return self.start == other.start and self.end == other.end
 
@@ -138,7 +138,7 @@ class Line(Linear):
         return self.start == previous.end and self.start.imag == self.end.imag
 
 
-class CubicBezier(NonLinear):
+class CubicBezierSegment(NonLinearSegment):
     def __init__(self, start, control1, control2, end, relative=False, smooth=False):
         self.start = start
         self.control1 = control1
@@ -154,7 +154,7 @@ class CubicBezier(NonLinear):
         )
 
     def __eq__(self, other):
-        if not isinstance(other, CubicBezier):
+        if not isinstance(other, CubicBezierSegment):
             return NotImplemented
         return (
             self.start == other.start
@@ -164,7 +164,7 @@ class CubicBezier(NonLinear):
         )
 
     def __ne__(self, other):
-        if not isinstance(other, CubicBezier):
+        if not isinstance(other, CubicBezierSegment):
             return NotImplemented
         return not self == other
 
@@ -187,7 +187,7 @@ class CubicBezier(NonLinear):
 
     def is_smooth_from(self, previous):
         """Checks if this segment would be a smooth segment following the previous"""
-        if isinstance(previous, CubicBezier):
+        if isinstance(previous, CubicBezierSegment):
             return self.start == previous.end and (self.control1 - self.start) == (
                 previous.end - previous.control2
             )
@@ -195,7 +195,7 @@ class CubicBezier(NonLinear):
             return self.control1 == self.start
 
     def set_smooth_from(self, previous):
-        assert isinstance(previous, CubicBezier)
+        assert isinstance(previous, CubicBezierSegment)
         self.start = previous.end
         self.control1 = previous.end - previous.control2 + self.start
         self.smooth = True
@@ -226,7 +226,7 @@ class CubicBezier(NonLinear):
         return segment_length(self, 0, 1, start_point, end_point, error, min_depth, 0)
 
 
-class QuadraticBezier(NonLinear):
+class QuadraticBezierSegment(NonLinearSegment):
     def __init__(self, start, control, end, relative=False, smooth=False):
         self.start = start
         self.end = end
@@ -241,7 +241,7 @@ class QuadraticBezier(NonLinear):
         )
 
     def __eq__(self, other):
-        if not isinstance(other, QuadraticBezier):
+        if not isinstance(other, QuadraticBezierSegment):
             return NotImplemented
         return (
             self.start == other.start
@@ -250,7 +250,7 @@ class QuadraticBezier(NonLinear):
         )
 
     def __ne__(self, other):
-        if not isinstance(other, QuadraticBezier):
+        if not isinstance(other, QuadraticBezierSegment):
             return NotImplemented
         return not self == other
 
@@ -270,7 +270,7 @@ class QuadraticBezier(NonLinear):
 
     def is_smooth_from(self, previous):
         """Checks if this segment would be a smooth segment following the previous"""
-        if isinstance(previous, QuadraticBezier):
+        if isinstance(previous, QuadraticBezierSegment):
             return self.start == previous.end and (self.control - self.start) == (
                 previous.end - previous.control
             )
@@ -278,7 +278,7 @@ class QuadraticBezier(NonLinear):
             return self.control == self.start
 
     def set_smooth_from(self, previous):
-        assert isinstance(previous, QuadraticBezier)
+        assert isinstance(previous, QuadraticBezierSegment)
         self.start = previous.end
         self.control = previous.end - previous.control + self.start
         self.smooth = True
@@ -331,7 +331,7 @@ class QuadraticBezier(NonLinear):
         return s
 
 
-class Arc(NonLinear):
+class ArcSegment(NonLinearSegment):
     def __init__(self, start, radius, rotation, arc, sweep, end, relative=False):
         """radius is complex, rotation is in degrees,
         large and sweep are 1 or 0 (True/False also work)"""
@@ -353,7 +353,7 @@ class Arc(NonLinear):
         )
 
     def __eq__(self, other):
-        if not isinstance(other, Arc):
+        if not isinstance(other, ArcSegment):
             return NotImplemented
         return (
             self.start == other.start
@@ -365,7 +365,7 @@ class Arc(NonLinear):
         )
 
     def __ne__(self, other):
-        if not isinstance(other, Arc):
+        if not isinstance(other, ArcSegment):
             return NotImplemented
         return not self == other
 
@@ -520,7 +520,7 @@ class Arc(NonLinear):
         return segment_length(self, 0, 1, start_point, end_point, error, min_depth, 0)
 
 
-class Move:
+class MoveCommand:
     """Represents move commands. Does nothing, but is there to handle
     paths that consist of only move commands, which is valid, but pointless.
     """
@@ -533,12 +533,12 @@ class Move:
         return "Move(to=%s)" % self.start
 
     def __eq__(self, other):
-        if not isinstance(other, Move):
+        if not isinstance(other, MoveCommand):
             return NotImplemented
         return self.start == other.start
 
     def __ne__(self, other):
-        if not isinstance(other, Move):
+        if not isinstance(other, MoveCommand):
             return NotImplemented
         return not self == other
 
@@ -563,11 +563,11 @@ class Move:
         return 0
 
 
-class Close(Linear):
+class CloseSegment(LinearSegment):
     """Represents the closepath command"""
 
     def __eq__(self, other):
-        if not isinstance(other, Close):
+        if not isinstance(other, CloseSegment):
             return NotImplemented
         return self.start == other.start and self.end == other.end
 
@@ -578,7 +578,7 @@ class Close(Linear):
         return "z" if self.relative else "Z"
 
 
-class Path(MutableSequence):
+class PathSequence(MutableSequence):
     """A Path is a sequence of path segments"""
 
     def __init__(self, *segments):
@@ -616,7 +616,7 @@ class Path(MutableSequence):
 
     def __eq__(self, other):
 
-        if not isinstance(other, Path):
+        if not isinstance(other, PathSequence):
             return NotImplemented
         if len(self) != len(other):
             return False
@@ -626,7 +626,7 @@ class Path(MutableSequence):
         return True
 
     def __ne__(self, other):
-        if not isinstance(other, Path):
+        if not isinstance(other, PathSequence):
             return NotImplemented
         return not self == other
 

@@ -32,17 +32,19 @@ __title__ = "revit"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/revit.py"
 
-
 import sys
 from pathlib import Path
 # import specklepy
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from geometry.point import Point
+
+from abstract.vector import Point
+from construction.beam import Beam
+from exchange.scia import LoadXML
 from geometry.curve import Line
-from objects.frame import *
-from exchange.scia import *
+from project.fileformat import BuildingPy
+
+
 
 # [!not included in BP singlefile - end]
 
@@ -73,31 +75,31 @@ def mm_to_feet(mm_value):
     feet_value = mm_value * 0.00328084
     return feet_value
 
-objs = []
-def run():
-    project = BuildingPy("TempCommit", "0")
-    try:
-        LoadXML(IN[0], project)
-    except:
-        pass
-
-    for obj in project.objects:
-        
-        if obj.type == "Frame":
-            if obj.profile_data.shape_name == "LAngle":
-                obj.rotation = obj.rotation+180
-            
-            #Revit problem solved (Please enter a value between -360 and 360)
-            if obj.rotation < -360:
-                obj.rotation = obj.rotation + 360
-            elif obj.rotation > 360:
-                obj.rotation = obj.rotation - 360
-            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
-            objs.append(element)
-        elif obj.type == "Node":
-            objs.append(obj)
-    return project.objects
-
-run()
-
-OUT = objs
+#objs = []
+#def run():
+#    project = BuildingPy("TempCommit", "0")
+#    try:
+#        LoadXML(IN[0], project)
+#    except:
+#        pass
+#
+#    for obj in project.objects:
+#        
+#        if isinstance(obj, Beam):
+#            if obj.profile.name == "LAngle":
+#                obj.rotation = obj.rotation+180
+#            
+#            #Revit problem solved (Please enter a value between -360 and 360)
+#            if obj.rotation < -360:
+#                obj.rotation = obj.rotation + 360
+#            elif obj.rotation > 360:
+#                obj.rotation = obj.rotation - 360
+#            element = StructuralElement("Beam", obj.start, obj.end, obj.name, obj.rotation, obj.YJustification, obj.YOffset, obj.ZJustification, obj.ZOffset, obj.comments)
+#            objs.append(element)
+#        elif isinstance(obj, Node):
+#            objs.append(obj)
+#    return project.objects
+#
+#run()
+#
+#OUT = objs

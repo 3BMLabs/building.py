@@ -1,15 +1,13 @@
 import importlib
 import inspect
-from pathlib import Path
-import sys
 import os
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 
 files = \
     [
     "abstract.vector",
-    "abstract.coordinatesystem",
+    "abstract.matrix",
     "abstract.text",
     "abstract.plane",
     "abstract.node",

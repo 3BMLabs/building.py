@@ -34,24 +34,26 @@ __author__ = "Maarten"
 __url__ = "./geometry/systemsimple.py"
 
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parents[1]))
+from abstract.interval import Interval
+from abstract.vector import Point, Vector
+from construction.beam import Beam
+from construction.panel import Panel
+from construction.profile import RectangleProfile
+from geometry.curve import Line, PolyCurve
+from geometry.rect import Rect
+from library.material import BaseBrick, BaseBrickYellow, BaseTimber, rgb_to_int
 
-from abstract.rect import *
-from objects.panel import *
-from objects.frame import *
-from objects.profile import *
-from abstract.interval import *
 
 # [!not included in BP singlefile - end]
 
 
 class System:
     """Represents a generic system with a defined direction."""
+
     def __init__(self):
         """Initializes a new System instance.
-        
+
         - `type` (str): The class name, indicating the object type as "System".
         - `name` (str, optional): The name of the system.
         - `id` (str): A unique identifier for the system instance.
@@ -59,7 +61,7 @@ class System:
         - `direction` (Vector): A Vector indicating the primary direction of the system.
         """
         self.name = None
-        self.id = generateID()
+
         self.polycurve = None
         self.direction: Vector = Vector(1, 0, 0)
 
@@ -67,6 +69,7 @@ class System:
 class DivisionSystem:
     # This class provides divisionsystems. It returns lists with floats based on a length.
     """The `DivisionSystem` class manages division systems, providing functionalities to calculate divisions and spacings based on various criteria."""
+
     def __init__(self):
         """Initializes a new DivisionSystem instance.
 
@@ -84,7 +87,7 @@ class DivisionSystem:
         - `system` (str): A string indicating the current system strategy (e.g., "fixed_distance_unequal_division").
         """
         self.name = None
-        self.id = generateID()
+
         self.system_length: float = 100
         self.spacing: float = 10
         self.distance_first: float = 5
@@ -107,7 +110,8 @@ class DivisionSystem:
         """
         self.name = "fixed_number_equal_spacing"
         self.distances = Interval.by_start_end_count(
-            0, self.system_length, self.fixed_number)
+            0, self.system_length, self.fixed_number
+        )
         self.spacing = self.system_length / self.fixed_number
         self.modifier = 0
         self.distance_first = self.spacing
@@ -126,7 +130,7 @@ class DivisionSystem:
         number_of_studs = int(rest_length / self.spacing)
         number_of_studs = number_of_studs + self.modifier
         distance = self.distance_first
-        for i in range(number_of_studs+1):
+        for i in range(number_of_studs + 1):
             if distance < self.system_length:
                 self.distances.append(distance)
             else:
@@ -152,7 +156,9 @@ class DivisionSystem:
             self.distances.append(distance)
             distance = distance + self.spacing
 
-    def by_fixed_distance_unequal_division(self, length: float, spacing: float, distance_first: float, modifier: int) -> 'DivisionSystem':
+    def by_fixed_distance_unequal_division(
+        self, length: float, spacing: float, distance_first: float, modifier: int
+    ) -> "DivisionSystem":
         """Configures the division system for unequal divisions with a specified distance first.
         This method sets up the division system to calculate divisions based on a fixed initial distance, followed by unevenly spaced divisions according to the specified parameters.
 
@@ -179,7 +185,9 @@ class DivisionSystem:
         self.__fixed_distance_unequal_division()
         return self
 
-    def by_fixed_distance_equal_division(self, length: float, spacing: float, modifier: int) -> 'DivisionSystem':
+    def by_fixed_distance_equal_division(
+        self, length: float, spacing: float, modifier: int
+    ) -> "DivisionSystem":
         """Configures the division system for equal divisions with fixed spacing.
         This method sets up the division system to calculate divisions based on a fixed spacing between each division across the total system length. The modifier can adjust the calculation slightly but maintains equal spacing.
 
@@ -204,7 +212,9 @@ class DivisionSystem:
         self.__fixed_distance_equal_division()
         return self
 
-    def by_fixed_number_equal_spacing(self, length: float, number: int) -> 'DivisionSystem':
+    def by_fixed_number_equal_spacing(
+        self, length: float, number: int
+    ) -> "DivisionSystem":
         """Establishes the division system for a fixed number of divisions with equal spacing.
         This method arranges for a certain number of divisions to be spaced equally across the system length. It calculates the required spacing based on the total length and desired number of divisions.
 
@@ -223,10 +233,10 @@ class DivisionSystem:
         """
         self.system_length = length
         self.system = "fixed_number_equal_spacing"
-        self.spacing = length/number
+        self.spacing = length / number
         self.modifier = 0
         distance = self.spacing
-        for i in range(number-1):
+        for i in range(number - 1):
             self.distances.append(distance)
             distance = distance + self.spacing
         self.distance_first = self.spacing
@@ -242,9 +252,10 @@ class DivisionSystem:
 class RectangleSystem:
     # Reclangle Left Bottom is in Local XYZ. Main direction parallel to height direction vector. Top is z=0
     """The `RectangleSystem` class is designed to represent and manipulate rectangular systems, focusing on dimensions, frame types, and panel arrangements within a specified coordinate system."""
+
     def __init__(self):
         """Initializes a new RectangleSystem instance.
-        
+
         - `type` (str): Class name, indicating the object type as "RectangleSystem".
         - `name` (str, optional): The name of the rectangle system.
         - `id` (str): A unique identifier for the rectangle system instance.
@@ -270,20 +281,18 @@ class RectangleSystem:
         - `symbolic_inner_grids` (list): Symbolic representations of inner grids.
         """
         self.name = None
-        self.id = generateID()
+
         self.height = 3000
         self.width = 2000
-        self.bottom_frame_type = Rectangle("bottom_frame_type", 38, 184)
-        self.top_frame_type = Rectangle("top_frame_type", 38, 184)
-        self.left_frame_type = Rectangle("left_frame_type", 38, 184)
-        self.right_frame_type = Rectangle("left_frame_type", 38, 184)
-        self.inner_frame_type = Rectangle("inner_frame_type", 38, 184)
+        self.bottom_frame_type = RectangleProfile("bottom_frame_type", 38, 184)
+        self.top_frame_type = RectangleProfile("top_frame_type", 38, 184)
+        self.left_frame_type = RectangleProfile("left_frame_type", 38, 184)
+        self.right_frame_type = RectangleProfile("left_frame_type", 38, 184)
+        self.inner_frame_type = RectangleProfile("inner_frame_type", 38, 184)
 
         self.material = BaseTimber
         self.inner_width: float = 0
         self.inner_height: float = 0
-        self.coordinatesystem = CSGlobal
-        self.local_coordinate_system = CSGlobal
         # self.openings = []
         # self.subsystems = []
         self.division_system = None
@@ -305,48 +314,114 @@ class RectangleSystem:
         # First Inner panel
         i = self.division_system.distances[0]
         point1 = self.mother_surface_origin_point_x_zero
-        point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-            i - self.inner_frame_type.b * 0.5, 0, 0))
-        point3 = Point.translate(self.mother_surface_origin_point_x_zero,
-                                 Vector(i - self.inner_frame_type.b * 0.5, self.inner_height, 0))
+        point2 = Point.translate(
+            self.mother_surface_origin_point_x_zero,
+            Vector(i - self.inner_frame_type.b * 0.5, 0, 0),
+        )
+        point3 = Point.translate(
+            self.mother_surface_origin_point_x_zero,
+            Vector(i - self.inner_frame_type.b * 0.5, self.inner_height, 0),
+        )
         point4 = Point.translate(
-            self.mother_surface_origin_point_x_zero, Vector(0, self.inner_height, 0))
+            self.mother_surface_origin_point_x_zero, Vector(0, self.inner_height, 0)
+        )
         self.panel_objects.append(
             Panel.by_polycurve_thickness(
-                PolyCurve.by_points(
-                    [point1, point2, point3, point4, point1]), 184, 0, "innerpanel",
-                rgb_to_int([255, 240, 160]))
+                PolyCurve.by_points([point1, point2, point3, point4, point1]),
+                184,
+                0,
+                "innerpanel",
+                rgb_to_int([255, 240, 160]),
+            )
         )
         count = 0
         # In between
         for i in self.division_system.distances:
             try:
-                point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.division_system.distances[count]+self.inner_frame_type.b*0.5, 0, 0))
-                point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.division_system.distances[count+1]-self.inner_frame_type.b*0.5, 0, 0))
-                point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.division_system.distances[count+1]-self.inner_frame_type.b*0.5, self.inner_height, 0))
-                point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
+                point1 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        0,
+                        0,
+                    ),
+                )
+                point2 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count + 1]
+                        - self.inner_frame_type.b * 0.5,
+                        0,
+                        0,
+                    ),
+                )
+                point3 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count + 1]
+                        - self.inner_frame_type.b * 0.5,
+                        self.inner_height,
+                        0,
+                    ),
+                )
+                point4 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        self.inner_height,
+                        0,
+                    ),
+                )
                 self.panel_objects.append(
                     Panel.by_polycurve_thickness(
-                        PolyCurve.by_points([point1, point2, point3, point4, point1]), 184, 0, "innerpanel", rgb_to_int([255, 240, 160]))
+                        PolyCurve.by_points([point1, point2, point3, point4, point1]),
+                        184,
+                        0,
+                        "innerpanel",
+                        rgb_to_int([255, 240, 160]),
+                    )
                 )
                 count = count + 1
             except:
                 # Last panel
-                point1 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.division_system.distances[count]+self.inner_frame_type.b*0.5, 0, 0))
-                point2 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.inner_width+self.left_frame_type.b, 0, 0))
-                point3 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.inner_width+self.left_frame_type.b, self.inner_height, 0))
-                point4 = Point.translate(self.mother_surface_origin_point_x_zero, Vector(
-                    self.division_system.distances[count]+self.inner_frame_type.b*0.5, self.inner_height, 0))
+                point1 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        0,
+                        0,
+                    ),
+                )
+                point2 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(self.inner_width + self.left_frame_type.b, 0, 0),
+                )
+                point3 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.inner_width + self.left_frame_type.b, self.inner_height, 0
+                    ),
+                )
+                point4 = Point.translate(
+                    self.mother_surface_origin_point_x_zero,
+                    Vector(
+                        self.division_system.distances[count]
+                        + self.inner_frame_type.b * 0.5,
+                        self.inner_height,
+                        0,
+                    ),
+                )
                 self.panel_objects.append(
                     Panel.by_polycurve_thickness(
-                        PolyCurve.by_points([point1, point2, point3, point4, point1]), 184, 0, "innerpanel", rgb_to_int([255, 240, 160]))
+                        PolyCurve.by_points([point1, point2, point3, point4, point1]),
+                        184,
+                        0,
+                        "innerpanel",
+                        rgb_to_int([255, 240, 160]),
+                    )
                 )
                 count = count + 1
 
@@ -359,21 +434,29 @@ class RectangleSystem:
         - Creates a symbolic PolyCurve `symbolic_inner_mother_surface` representing the inner mother surface.
         """
         # Inner mother surface is the surface within the outer frames dependent on the width of the outer frametypes.
-        self.inner_width = self.width-self.left_frame_type.b-self.right_frame_type.b
-        self.inner_height = self.height-self.top_frame_type.b-self.bottom_frame_type.b
+        self.inner_width = self.width - self.left_frame_type.b - self.right_frame_type.b
+        self.inner_height = (
+            self.height - self.top_frame_type.b - self.bottom_frame_type.b
+        )
         self.mother_surface_origin_point = Point(
-            self.left_frame_type.b, self.bottom_frame_type.b, 0)
-        self.mother_surface_origin_point_x_zero = Point(
-            0, self.bottom_frame_type.b, 0)
+            self.left_frame_type.b, self.bottom_frame_type.b, 0
+        )
+        self.mother_surface_origin_point_x_zero = Point(0, self.bottom_frame_type.b, 0)
         self.symbolic_inner_mother_surface = PolyCurve.by_points(
-            [self.mother_surface_origin_point,
-             Point.translate(self.mother_surface_origin_point,
-                             Vector(self.inner_width, 0, 0)),
-             Point.translate(self.mother_surface_origin_point, Vector(
-                 self.inner_width, self.inner_height, 0)),
-             Point.translate(self.mother_surface_origin_point,
-                             Vector(0, self.inner_height, 0)),
-             self.mother_surface_origin_point]
+            [
+                self.mother_surface_origin_point,
+                Point.translate(
+                    self.mother_surface_origin_point, Vector(self.inner_width, 0, 0)
+                ),
+                Point.translate(
+                    self.mother_surface_origin_point,
+                    Vector(self.inner_width, self.inner_height, 0),
+                ),
+                Point.translate(
+                    self.mother_surface_origin_point, Vector(0, self.inner_height, 0)
+                ),
+                self.mother_surface_origin_point,
+            ]
         )
 
     def __inner_frames(self):
@@ -387,15 +470,24 @@ class RectangleSystem:
         """
         for i in self.division_system.distances:
             start_point = Point.translate(
-                self.mother_surface_origin_point_x_zero, Vector(i, 0, 0))
-            end_point = Point.translate(
-                self.mother_surface_origin_point_x_zero, Vector(i, self.inner_height, 0))
-            self.inner_frame_objects.append(
-                Frame.by_start_point_endpoint_curve_justifiction(
-                    start_point, end_point, self.inner_frame_type.curve, "innerframe", "center", "top", 0, self.material)
+                self.mother_surface_origin_point_x_zero, Vector(i, 0, 0)
             )
-            self.symbolic_inner_grids.append(
-                Line(start=start_point, end=end_point))
+            end_point = Point.translate(
+                self.mother_surface_origin_point_x_zero, Vector(i, self.inner_height, 0)
+            )
+            self.inner_frame_objects.append(
+                Beam.by_start_point_endpoint_curve_justification(
+                    start_point,
+                    end_point,
+                    self.inner_frame_type.curve,
+                    "innerframe",
+                    "center",
+                    "top",
+                    0,
+                    self.material,
+                )
+            )
+            self.symbolic_inner_grids.append(Line(start=start_point, end=end_point))
 
     def __outer_frames(self):
         """Generates the outer frame objects for the rectangle system.
@@ -405,32 +497,82 @@ class RectangleSystem:
         - Creates Frame instances for the outer boundaries of the rectangle system and adds them to `outer_frame_objects`.
         - Generates symbolic Line instances for each outer frame and adds them to `symbolic_outer_grids`.
         """
-        bottomframe = Frame.by_start_point_endpoint_curve_justifiction(Point(0, 0, 0), Point(
-            self.width, 0, 0), self.bottom_frame_type.curve, "bottomframe", "left", "top", 0, self.material)
+        bottomframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(0, 0, 0),
+            Point(self.width, 0, 0),
+            self.bottom_frame_type.curve,
+            "bottomframe",
+            "left",
+            "top",
+            0,
+            self.material,
+        )
         self.symbolic_outer_grids.append(
-            Line(start=Point(0, 0, 0), end=Point(self.width, 0, 0)))
+            Line(start=Point(0, 0, 0), end=Point(self.width, 0, 0))
+        )
 
-        topframe = Frame.by_start_point_endpoint_curve_justifiction(Point(0, self.height, 0), Point(
-            self.width, self.height, 0), self.top_frame_type.curve, "bottomframe", "right", "top", 0, self.material)
+        topframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(0, self.height, 0),
+            Point(self.width, self.height, 0),
+            self.top_frame_type.curve,
+            "bottomframe",
+            "right",
+            "top",
+            0,
+            self.material,
+        )
         self.symbolic_outer_grids.append(
-            Line(start=Point(0, self.height, 0), end=Point(self.width, self.height, 0)))
+            Line(start=Point(0, self.height, 0), end=Point(self.width, self.height, 0))
+        )
 
-        leftframe = Frame.by_start_point_endpoint_curve_justifiction(Point(0, self.bottom_frame_type.b, 0), Point(
-            0, self.height-self.top_frame_type.b, 0), self.left_frame_type.curve, "leftframe", "right", "top", 0, self.material)
-        self.symbolic_outer_grids.append(Line(start=Point(
-            0, self.bottom_frame_type.b, 0), end=Point(0, self.height-self.top_frame_type.b, 0)))
+        leftframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(0, self.bottom_frame_type.b, 0),
+            Point(0, self.height - self.top_frame_type.b, 0),
+            self.left_frame_type.curve,
+            "leftframe",
+            "right",
+            "top",
+            0,
+            self.material,
+        )
+        self.symbolic_outer_grids.append(
+            Line(
+                start=Point(0, self.bottom_frame_type.b, 0),
+                end=Point(0, self.height - self.top_frame_type.b, 0),
+            )
+        )
 
-        rightframe = Frame.by_start_point_endpoint_curve_justifiction(Point(self.width, self.bottom_frame_type.b, 0), Point(
-            self.width, self.height-self.top_frame_type.b, 0), self.right_frame_type.curve, "leftframe", "left", "top", 0, self.material)
-        self.symbolic_outer_grids.append(Line(start=Point(self.width, self.bottom_frame_type.b, 0), end=Point(
-            self.width, self.height-self.top_frame_type.b, 0)))
+        rightframe = Beam.by_start_point_endpoint_curve_justification(
+            Point(self.width, self.bottom_frame_type.b, 0),
+            Point(self.width, self.height - self.top_frame_type.b, 0),
+            self.right_frame_type.curve,
+            "leftframe",
+            "left",
+            "top",
+            0,
+            self.material,
+        )
+        self.symbolic_outer_grids.append(
+            Line(
+                start=Point(self.width, self.bottom_frame_type.b, 0),
+                end=Point(self.width, self.height - self.top_frame_type.b, 0),
+            )
+        )
 
         self.outer_frame_objects.append(bottomframe)
         self.outer_frame_objects.append(topframe)
         self.outer_frame_objects.append(leftframe)
         self.outer_frame_objects.append(rightframe)
 
-    def by_width_height_divisionsystem_studtype(self, width: float, height: float, frame_width: float, frame_height: float, division_system: DivisionSystem, filling: bool) -> 'RectangleSystem':
+    def by_width_height_divisionsystem_studtype(
+        self,
+        width: float,
+        height: float,
+        frame_width: float,
+        frame_height: float,
+        division_system: DivisionSystem,
+        filling: bool,
+    ) -> "RectangleSystem":
         """Configures the rectangle system with specified dimensions, division system, and frame types.
         This method sets the dimensions of the rectangle system, configures the frame types based on the provided dimensions, and applies a division system to generate inner frames. Optionally, it can also fill the system with panels based on the inner divisions.
 
@@ -453,16 +595,21 @@ class RectangleSystem:
         """
         self.width = width
         self.height = height
-        self.bottom_frame_type = Rectangle(
-            "bottom_frame_type", frame_width, frame_height)
-        self.top_frame_type = Rectangle(
-            "top_frame_type", frame_width, frame_height)
-        self.left_frame_type = Rectangle(
-            "left_frame_type", frame_width, frame_height)
-        self.right_frame_type = Rectangle(
-            "left_frame_type", frame_width, frame_height)
-        self.inner_frame_type = Rectangle(
-            "inner_frame_type", frame_width, frame_height)
+        self.bottom_frame_type = RectangleProfile(
+            "bottom_frame_type", frame_width, frame_height
+        )
+        self.top_frame_type = RectangleProfile(
+            "top_frame_type", frame_width, frame_height
+        )
+        self.left_frame_type = RectangleProfile(
+            "left_frame_type", frame_width, frame_height
+        )
+        self.right_frame_type = RectangleProfile(
+            "left_frame_type", frame_width, frame_height
+        )
+        self.inner_frame_type = RectangleProfile(
+            "inner_frame_type", frame_width, frame_height
+        )
         self.division_system = division_system
         self.__inner_mother_surface()
         self.__inner_frames()
@@ -476,16 +623,25 @@ class RectangleSystem:
 
 class pattern_system:
     """The `pattern_system` class is designed to define and manipulate patterns for architectural or design applications. It is capable of generating various patterns based on predefined or dynamically generated parameters."""
+
     def __init__(self):
         """Initializes a new pattern_system instance."""
         self.name = None
-        self.id = generateID()
+
         self.pattern = None
         self.basepanels = []  # contains a list with basepanels of the system
         # contains a list sublists with Vector which represent the repetition of the system
         self.vectors = []
 
-    def stretcher_bond_with_joint(self, name: str, brick_width: float, brick_length: float, brick_height: float, joint_width: float, joint_height: float):
+    def stretcher_bond_with_joint(
+        self,
+        name: str,
+        brick_width: float,
+        brick_length: float,
+        brick_height: float,
+        joint_width: float,
+        joint_height: float,
+    ):
         """Configures a stretcher bond pattern with joints for the pattern_system.
         Establishes the fundamental vectors and base panels for a stretcher bond, taking into account brick dimensions and joint sizes. This pattern alternates bricks in each row, offsetting them by half a brick length.
 
@@ -499,7 +655,7 @@ class pattern_system:
 
         #### Returns:
         The instance itself, updated with the stretcher bond pattern configuration.
-    
+
         #### Example usage:
         ```python
 
@@ -507,8 +663,8 @@ class pattern_system:
         """
         self.name = name
         # Vectors of panel 1
-        V1 = Vector(0, (brick_height + joint_height)*2, 0)  # dy
-        V2 = Vector(brick_length+joint_width, 0, 0)  # dx
+        V1 = Vector(0, (brick_height + joint_height) * 2, 0)  # dy
+        V2 = Vector(brick_length + joint_width, 0, 0)  # dx
         self.vectors.append([V1, V2])
 
         # Vectors of panel 2
@@ -516,23 +672,47 @@ class pattern_system:
         V4 = Vector(brick_length + joint_width, 0, 0)  # dx
         self.vectors.append([V3, V4])
 
-        dx = (brick_length+joint_width)/2
-        dy = brick_height+joint_height
+        dx = (brick_length + joint_width) / 2
+        dy = brick_height + joint_height
 
-        PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
-            brick_length, brick_height, 0), Point(brick_length, 0, 0), Point(0, 0, 0)])
-        PC2 = PolyCurve().by_points([Point(dx, dy, 0), Point(dx, brick_height+dy, 0), Point(
-            brick_length+dx, brick_height+dy, 0), Point(brick_length+dx, dy, 0), Point(dx, dy, 0)])
+        PC1 = PolyCurve().by_points(
+            [
+                Point(0, 0, 0),
+                Point(0, brick_height, 0),
+                Point(brick_length, brick_height, 0),
+                Point(brick_length, 0, 0),
+                Point(0, 0, 0),
+            ]
+        )
+        PC2 = PolyCurve().by_points(
+            [
+                Point(dx, dy, 0),
+                Point(dx, brick_height + dy, 0),
+                Point(brick_length + dx, brick_height + dy, 0),
+                Point(brick_length + dx, dy, 0),
+                Point(dx, dy, 0),
+            ]
+        )
         BasePanel1 = Panel.by_polycurve_thickness(
-            PC1, brick_width, 0, "BasePanel1", BaseBrick.colorint)
+            PC1, brick_width, 0, "BasePanel1", BaseBrick
+        )
         BasePanel2 = Panel.by_polycurve_thickness(
-            PC2, brick_width, 0, "BasePanel2", BaseBrick.colorint)
+            PC2, brick_width, 0, "BasePanel2", BaseBrick
+        )
 
         self.basepanels.append(BasePanel1)
         self.basepanels.append(BasePanel2)
         return self
 
-    def tile_bond_with_joint(self, name: str, tile_width: float, tile_height: float, tile_thickness: float, joint_width: float, joint_height: float):
+    def tile_bond_with_joint(
+        self,
+        name: str,
+        tile_width: float,
+        tile_height: float,
+        tile_thickness: float,
+        joint_width: float,
+        joint_height: float,
+    ):
         """Configures a tile bond pattern with specified dimensions and joint sizes for the pattern_system.
         Defines a simple tiling pattern where tiles are laid out in rows and columns, separated by specified joint widths and heights. This method sets up base panels to represent individual tiles and their arrangement vectors.
 
@@ -557,18 +737,33 @@ class pattern_system:
         self.name = name
         # Vectors of panel 1
         V1 = Vector(0, (tile_height + joint_height), 0)  # dy
-        V2 = Vector(tile_width+joint_width, 0, 0)  # dx
+        V2 = Vector(tile_width + joint_width, 0, 0)  # dx
         self.vectors.append([V1, V2])
 
-        PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, tile_height, 0), Point(
-            tile_width, tile_height, 0), Point(tile_width, 0, 0)])
+        PC1 = PolyCurve().by_points(
+            [
+                Point(0, 0, 0),
+                Point(0, tile_height, 0),
+                Point(tile_width, tile_height, 0),
+                Point(tile_width, 0, 0),
+            ]
+        )
         BasePanel1 = Panel.by_polycurve_thickness(
-            PC1, tile_thickness, 0, "BasePanel1", BaseBrick.colorint)
+            PC1, tile_thickness, 0, "BasePanel1", BaseBrick
+        )
 
         self.basepanels.append(BasePanel1)
         return self
 
-    def cross_bond_with_joint(self, name: str, brick_width: float, brick_length: float, brick_height: float, joint_width: float, joint_height: float):
+    def cross_bond_with_joint(
+        self,
+        name: str,
+        brick_width: float,
+        brick_length: float,
+        brick_height: float,
+        joint_width: float,
+        joint_height: float,
+    ):
         """Configures a cross bond pattern with joints for the pattern_system.
         Sets up a complex brick laying pattern combining stretcher (lengthwise) and header (widthwise) bricks in alternating rows, creating a cross bond appearance. This method defines the base panels and their positioning vectors to achieve the cross bond pattern.
 
@@ -602,7 +797,7 @@ class pattern_system:
         V4 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V3, V4])
 
-        dx2 = (brick_width + joint_width)/2  # start x offset
+        dx2 = (brick_width + joint_width) / 2  # start x offset
         dy2 = lagenmaat  # start y offset
 
         # Vectors of panel 3 (strekken)
@@ -610,7 +805,7 @@ class pattern_system:
         V6 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V5, V6])
 
-        dx3 = (brick_length + joint_width)/2  # start x offset
+        dx3 = (brick_length + joint_width) / 2  # start x offset
         dy3 = lagenmaat * 2  # start y offset
 
         # Vectors of panel 4 (koppen 2)
@@ -618,27 +813,60 @@ class pattern_system:
         V8 = Vector(brick_length + joint_width, 0, 0)  # dx spacing
         self.vectors.append([V7, V8])
 
-        dx4 = (brick_width + joint_width)/2 + \
-            (brick_width + joint_width)  # start x offset
+        dx4 = (brick_width + joint_width) / 2 + (
+            brick_width + joint_width
+        )  # start x offset
         dy4 = lagenmaat  # start y offset
 
-        PC1 = PolyCurve().by_points([Point(0, 0, 0), Point(0, brick_height, 0), Point(
-            brick_length, brick_height, 0), Point(brick_length, 0, 0), Point(0, 0, 0)])
-        PC2 = PolyCurve().by_points([Point(dx2, dy2, 0), Point(dx2, brick_height+dy2, 0), Point(
-            brick_width+dx2, brick_height+dy2, 0), Point(brick_width+dx2, dy2, 0), Point(dx2, dy2, 0)])
-        PC3 = PolyCurve().by_points([Point(dx3, dy3, 0), Point(dx3, brick_height+dy3, 0), Point(
-            brick_length+dx3, brick_height+dy3, 0), Point(brick_length+dx3, dy3, 0), Point(dx3, dy3, 0)])
-        PC4 = PolyCurve().by_points([Point(dx4, dy4, 0), Point(dx4, brick_height+dy4, 0), Point(
-            brick_width+dx4, brick_height+dy4, 0), Point(brick_width+dx4, dy4, 0), Point(dx4, dy4, 0)])
+        PC1 = PolyCurve().by_points(
+            [
+                Point(0, 0, 0),
+                Point(0, brick_height, 0),
+                Point(brick_length, brick_height, 0),
+                Point(brick_length, 0, 0),
+                Point(0, 0, 0),
+            ]
+        )
+        PC2 = PolyCurve().by_points(
+            [
+                Point(dx2, dy2, 0),
+                Point(dx2, brick_height + dy2, 0),
+                Point(brick_width + dx2, brick_height + dy2, 0),
+                Point(brick_width + dx2, dy2, 0),
+                Point(dx2, dy2, 0),
+            ]
+        )
+        PC3 = PolyCurve().by_points(
+            [
+                Point(dx3, dy3, 0),
+                Point(dx3, brick_height + dy3, 0),
+                Point(brick_length + dx3, brick_height + dy3, 0),
+                Point(brick_length + dx3, dy3, 0),
+                Point(dx3, dy3, 0),
+            ]
+        )
+        PC4 = PolyCurve().by_points(
+            [
+                Point(dx4, dy4, 0),
+                Point(dx4, brick_height + dy4, 0),
+                Point(brick_width + dx4, brick_height + dy4, 0),
+                Point(brick_width + dx4, dy4, 0),
+                Point(dx4, dy4, 0),
+            ]
+        )
 
         BasePanel1 = Panel.by_polycurve_thickness(
-            PC1, brick_width, 0, "BasePanel1", BaseBrick.colorint)
+            PC1, brick_width, 0, "BasePanel1", BaseBrick
+        )
         BasePanel2 = Panel.by_polycurve_thickness(
-            PC2, brick_width, 0, "BasePanel2", BaseBrick.colorint)
+            PC2, brick_width, 0, "BasePanel2", BaseBrick
+        )
         BasePanel3 = Panel.by_polycurve_thickness(
-            PC3, brick_width, 0, "BasePanel3", BaseBrick.colorint)
+            PC3, brick_width, 0, "BasePanel3", BaseBrick
+        )
         BasePanel4 = Panel.by_polycurve_thickness(
-            PC4, brick_width, 0, "BasePanel4", BaseBrickYellow.colorint)
+            PC4, brick_width, 0, "BasePanel4", BaseBrickYellow
+        )
 
         self.basepanels.append(BasePanel1)
         self.basepanels.append(BasePanel2)
@@ -648,7 +876,9 @@ class pattern_system:
         return self
 
 
-def pattern_geom(pattern_system, width: float, height: float, start_point: Point = None) -> list[Panel]:
+def pattern_geom(
+    pattern_system, width: float, height: float, start_point: Point = None
+) -> list[Panel]:
     """Generates a geometric pattern based on a pattern_system within a specified area.
     Takes a pattern_system and fills a defined width and height area starting from an optional start point with the pattern described by the system.
 
@@ -660,7 +890,7 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
 
     #### Returns:
     `list[Panel]`: A list of Panel instances constituting the generated pattern.
-    
+
     #### Example usage:
     ```python
 
@@ -692,35 +922,10 @@ def pattern_geom(pattern_system, width: float, height: float, start_point: Point
                 xyvector = yvector + xvector
                 # translate curve in x and y-direction
                 PCNew = PolyCurve.copy_translate(PC, xyvector)
-                pan = Panel.by_polycurve_thickness(
-                    PCNew, thickness, 0, "name", color)
+                pan = Panel.by_polycurve_thickness(PCNew, thickness, 0, "name", color)
                 panels.append(pan)
             xvector = Vector.sum(
-                xvectdisplacement, Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0))
+                xvectdisplacement,
+                Vector(-test.basepanels[0].origincurve.curves[1].length, 0, 0),
+            )
     return panels
-
-
-def fillin(perimeter: PolyCurve2D, pattern: pattern_geom) -> pattern_system:
-    """Fills in a given perimeter with a specified pattern.
-    Uses a bounding box to define the perimeter within which a pattern is applied, based on a geometric pattern generation function.
-
-    #### Parameters:
-    - `perimeter` (PolyCurve2D): The 2D perimeter to fill in.
-    - `pattern` (function): The pattern generation function to apply within the perimeter.
-
-    #### Returns:
-    `pattern_system`: A pattern_system object that represents the filled-in area.
-    
-    #### Example usage:
-    ```python
-
-    ```
-    """
-
-    bb = Rect().by_points(perimeter.points)
-
-    for pt in bb.corners:
-        project.objects.append(pt)
-    bb_perimeter = PolyCurve.by_points(bb.corners)
-
-    return [bb_perimeter]

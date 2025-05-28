@@ -126,7 +126,7 @@ Vector.product(5, v1) # Same as scale
 <br>
 
 ``` python
-Vector.length(v1) # returns the length of a vector
+v1.length # returns the length of a vector
 ```
 <br>
 

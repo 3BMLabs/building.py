@@ -24,38 +24,28 @@
 # ***************************************************************************
 
 
-"""This module provides import data from DXF file
-"""
-
-import sys
-import ezdxf
-from ezdxf import readfile, DXFStructureError, DXFValueError
-import math
-from pathlib import Path
+"""This module provides import data from DXF file"""
 
 
 __title__ = "DXF"
 __author__ = "Maarten & Jonathan"
 __url__ = "./exchange/dxf.py"
 
-
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-
-from project.fileformat import *
-from geometry.curve import *
-from geometry.point import Point
-from geometry.geometry2d import Point2D, Line2D, Arc2D, PolyCurve2D
+import ezdxf
+from geometry.curve import Polygon
+from abstract.vector import Point, Vector
 
 # [!not included in BP singlefile - end]
 
-#todo, check if polygon is not closed, then draw polycurve
+
+# todo, check if polygon is not closed, then draw polycurve
 class ReadDXF:
     def __init__(self, filepath):
         self.filepath = filepath
-        self.points = []     
-        self.lines = []      
-        self.arcs = []       
-        self.polylines = []  
+        self.points = []
+        self.lines = []
+        self.arcs = []
+        self.polylines = []
         self.read_dxf()
 
     def read_dxf(self):
@@ -64,30 +54,32 @@ class ReadDXF:
 
         for entity in msp:
             dxftype = entity.dxftype()
-            if dxftype == 'POINT':
+            if dxftype == "POINT":
                 # Handle point entities
-                point = Point2D(entity.dxf.location)
+                point = Point(entity.dxf.location)
                 self.points.append(point)
-            elif dxftype == 'LINE':
+            elif dxftype == "LINE":
                 pass
                 # Handle line entities
-                # start = Point2D(entity.dxf.start)
-                # end = Point2D(entity.dxf.end)
+                # start = Point(entity.dxf.start)
+                # end = Point(entity.dxf.end)
                 # self.lines.append(Line2D(start, end))
-            elif dxftype == 'ARC':
+            elif dxftype == "ARC":
                 center = Vector(entity.dxf.center)
                 radius = entity.dxf.radius
                 start_angle = entity.dxf.start_angle
                 end_angle = entity.dxf.end_angle
                 self.arcs.append((center, radius, start_angle, end_angle))
-            elif dxftype in {'LWPOLYLINE', 'POLYLINE'}:
+            elif dxftype in {"LWPOLYLINE", "POLYLINE"}:
                 try:
-                    points = [Point2D(x, y) for x, y in entity.vertices()]
+                    points = [Point(x, y) for x, y in entity.vertices()]
                     polygon = Polygon.by_points(points)
                     self.polylines.append((polygon, entity.dxf.layer))
-                except DXFValueError as error:
-                    print(f"Failed to process {entity.dxftype()} on layer {entity.dxf.layer} due to a DXF error: {str(error)}")
                 except ValueError as error:
-                    print(f"Data format error with {entity.dxftype()} on layer {entity.dxf.layer}: {str(error)}")
+                    print(
+                        f"Data format error with {entity.dxftype()} on layer {entity.dxf.layer}: {str(error)}"
+                    )
                 except Exception as error:
-                    print(f"An unexpected error occurred while processing an entity: {str(error)}")
+                    print(
+                        f"An unexpected error occurred while processing an entity: {str(error)}"
+                    )
