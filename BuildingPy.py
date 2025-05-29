@@ -10,10 +10,12 @@ from bisect import bisect
 from collections import defaultdict
 from functools import reduce
 from math import sqrt, cos, sin, acos, degrees, radians, log, pi
+from objects.profile import CChannelParallelFlange, CChannelSlopedFlange, IShapeParallelFlange, LAngle, Rectangle, RectangleHollowSection, Round, Roundtube, TProfileRounded
 from pathlib import Path
 from typing import List
 from typing import Self
 from typing import Union
+import certifi
 import copy
 import importlib
 import json
@@ -3590,10 +3592,10 @@ class Polygon(PointList):
         ```
         """
         lst = []
-        for line in self.curves:
+        for line in self.lines:
             lst.append(line.length)
 
-        return sum(i.length for i in self.curves)
+        return sum(i.length for i in self.lines)
 
     def __str__(self) -> "str":
         """Returns a string representation of the PolyCurve.
